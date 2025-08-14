@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Upload, FileText, Download, Trash2, X, Eye, History, AlertTriangle, CheckCircle, Clock, AlertCircle, DollarSign, Calendar, Users, FileSignature, Shield, Gavel, ExternalLink } from "lucide-react";
+import { Upload, FileText, Download, Trash2, X, Eye, History, AlertTriangle, CheckCircle, Clock, AlertCircle, DollarSign, Calendar, Users, FileSignature, Shield, Gavel, ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Project } from "@/hooks/useProjects";
@@ -23,6 +23,7 @@ interface ContractFile {
   id: string;
   name: string;
   file_url: string;
+  file_path: string;
   uploaded_at: string;
   file_size: number;
   ai_summary_json: any;
@@ -85,7 +86,19 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   const [dragActive, setDragActive] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isVersionsDrawerOpen, setIsVersionsDrawerOpen] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [extractionData, setExtractionData] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // TypeScript utility functions
+  const percentFrom = (text?: string) => {
+    if (!text) return '—';
+    const m = String(text).match(/(\d+(?:\.\d+)?)\s*%/);
+    if (m) return `${Math.round(Number(m[1]))}%`;
+    const n = Number(String(text).replace(/[^\d.]/g, ''));
+    if (Number.isFinite(n) && n > 0) return n <= 1 ? `${Math.round(n*100)}%` : `${Math.round(n)}%`;
+    return '—';
+  };
 
   // Load existing contracts
   useEffect(() => {
@@ -116,6 +129,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         id: contract.id,
         name: contract.name,
         file_url: contract.file_url,
+        file_path: contract.file_path || contract.file_url,
         uploaded_at: contract.created_at,
         file_size: contract.file_size,
         ai_summary_json: contract.ai_summary_json || {},
@@ -271,22 +285,27 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     }
 
     setIsUploading(true);
+    setIsExtracting(false);
+    
     try {
-      // Upload file to Supabase Storage
-      const fileName = `${project.id}/${Date.now()}-${selectedFile.name}`;
+      // Upload file to Supabase Storage (documents bucket)
+      const fileExtension = selectedFile.name.split('.').pop();
+      const uniqueId = crypto.randomUUID();
+      const fileName = `contracts/${project.id}/${uniqueId}-${selectedFile.name}`;
+      
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('project-contracts')
+        .from('documents')
         .upload(fileName, selectedFile);
 
       if (uploadError) throw uploadError;
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('project-contracts')
+        .from('documents')
         .getPublicUrl(fileName);
 
-      // Save contract metadata to database
-      const { data, error } = await supabase
+      // Insert into project_contracts table
+      const { data: contractRow, error: insertError } = await supabase
         .from('project_contracts')
         .insert({
           project_id: project.id,
@@ -294,15 +313,52 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
           file_url: publicUrl,
           file_path: fileName,
           file_size: selectedFile.size,
+          status: 'active',
+          is_canonical: true,
           uploaded_by: (await supabase.auth.getUser()).data.user?.id
         })
         .select()
         .single();
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      // Reload contracts
-      await loadContracts();
+      // Start extraction process
+      setIsExtracting(true);
+      setIsUploading(false);
+
+      // Generate signed URL (10 minutes TTL)
+      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+        .from('documents')
+        .createSignedUrl(fileName, 600); // 10 minutes
+
+      if (signedUrlError) throw signedUrlError;
+
+      // Call extract_unified Edge Function
+      const { data: extractionResult, error: extractionError } = await supabase.functions.invoke('extract_unified', {
+        body: {
+          signed_url: signedUrlData.signedUrl,
+          project_contract_id: contractRow.id
+        }
+      });
+
+      if (extractionError) throw extractionError;
+
+      // Handle extraction response
+      const extractedData = extractionResult?.data;
+      if (extractedData) {
+        if (extractedData.document_type !== 'contract') {
+          toast.error(`Uploaded document classified as ${extractedData.document_type}. This page only displays contracts.`);
+        } else {
+          // Update local state with extraction data
+          setExtractionData(extractedData);
+          
+          // Refresh the contract row to get updated data from database
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for DB update
+          await loadContracts();
+          
+          toast.success(`Contract uploaded and processed with ${Math.round((extractedData.ai_confidence ?? 0) * 100)}% confidence`);
+        }
+      }
 
       // Reset form and close dialog
       setSelectedFile(null);
@@ -312,12 +368,57 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       }
       setIsUploadDialogOpen(false);
 
-      toast.success('Contract uploaded successfully');
     } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Failed to upload contract');
+      console.error('Upload or extraction error:', error);
+      toast.error('Failed to upload or process contract');
     } finally {
       setIsUploading(false);
+      setIsExtracting(false);
+    }
+  };
+
+  const handleRerunExtraction = async (contractId: string, filePath: string) => {
+    setIsExtracting(true);
+    
+    try {
+      // Generate fresh signed URL
+      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+        .from('documents')
+        .createSignedUrl(filePath, 600); // 10 minutes
+
+      if (signedUrlError) throw signedUrlError;
+
+      // Call extract_unified Edge Function
+      const { data: extractionResult, error: extractionError } = await supabase.functions.invoke('extract_unified', {
+        body: {
+          signed_url: signedUrlData.signedUrl,
+          project_contract_id: contractId
+        }
+      });
+
+      if (extractionError) throw extractionError;
+
+      // Handle extraction response
+      const extractedData = extractionResult?.data;
+      if (extractedData) {
+        if (extractedData.document_type !== 'contract') {
+          toast.error(`Document classified as ${extractedData.document_type}. This page only displays contracts.`);
+        } else {
+          // Update local state with extraction data
+          setExtractionData(extractedData);
+          
+          // Refresh the contract row to get updated data from database
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for DB update
+          await loadContracts();
+          
+          toast.success(`Re-extraction completed with ${Math.round((extractedData.ai_confidence ?? 0) * 100)}% confidence`);
+        }
+      }
+    } catch (error) {
+      console.error('Re-extraction error:', error);
+      toast.error('Failed to re-run extraction');
+    } finally {
+      setIsExtracting(false);
     }
   };
 
@@ -551,9 +652,14 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     );
   }
 
-  const contractData = selectedContract.contract_data || {};
+  // Use extractionData if available, otherwise fall back to database data
+  const currentData = extractionData || selectedContract.contract_data || {};
+  const extractedContract = currentData.contract || {};
   const aiSummary = selectedContract.ai_summary_json || {};
-  const title = aiSummary.title || selectedContract.name;
+  const title = extractedContract.title || aiSummary.title || selectedContract.name;
+  
+  // Current confidence - use extractionData first, then database
+  const currentConfidence = extractionData?.ai_confidence ?? selectedContract.confidence ?? 0;
 
   return (
     <div className="flex bg-background">
@@ -578,7 +684,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                 <h1 className="text-2xl font-bold text-foreground mb-2">{title}</h1>
                 <div className="flex items-center gap-2 mb-2">
                   {getStatusBadge(selectedContract.status)}
-                  {getConfidenceBadge(selectedContract.confidence)}
+                  {getConfidenceBadge(Math.round(currentConfidence * 100))}
                 </div>
                 <p className="text-muted-foreground">Contract management for {project.name}</p>
               </div>
@@ -686,10 +792,22 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                         </Button>
                         <Button
                           onClick={handleUpload}
-                          disabled={!selectedFile || !contractName.trim() || isUploading}
+                          disabled={!selectedFile || !contractName.trim() || isUploading || isExtracting}
                           className="flex-1"
                         >
-                          {isUploading ? 'Uploading...' : 'Upload'}
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : isExtracting ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Processing...
+                            </>
+                          ) : (
+                            'Upload'
+                          )}
                         </Button>
                       </div>
                     </div>
@@ -701,6 +819,19 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                     <Eye className="w-4 h-4 mr-2" />
                     View PDF
                   </a>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => handleRerunExtraction(selectedContract.id, selectedContract.file_path || selectedContract.file_url)}
+                  disabled={isExtracting}
+                >
+                  {isExtracting ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                  )}
+                  Re-run extraction
                 </Button>
 
                 <Sheet open={isVersionsDrawerOpen} onOpenChange={setIsVersionsDrawerOpen}>
@@ -793,31 +924,31 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                 <div>
                   <h3 className="font-semibold text-lg mb-4 border-b pb-2">Financial Overview</h3>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="text-center">
-                      <div className="text-sm text-muted-foreground">Contract Sum</div>
-                      <div className="text-2xl font-bold">
-                        {formatCurrency(contractData.contract_sum || 50000)}
-                      </div>
-                      <div className="text-xs text-muted-foreground">Ex GST</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-muted-foreground">Payment Type</div>
-                      <div className="text-lg font-semibold">
-                        {contractData.payment_type || 'Progress'}
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-muted-foreground">Deposit</div>
-                      <div className="text-lg font-semibold">
-                        {contractData.deposit_percentage || 5}%
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-sm text-muted-foreground">Retention</div>
-                      <div className="text-lg font-semibold">
-                        {contractData.retention_percentage || 10}%
-                      </div>
-                    </div>
+                     <div className="text-center">
+                       <div className="text-sm text-muted-foreground">Contract Sum</div>
+                       <div className="text-2xl font-bold">
+                         {extractedContract.contract_value || '—'}
+                       </div>
+                       <div className="text-xs text-muted-foreground">Ex GST</div>
+                     </div>
+                     <div className="text-center">
+                       <div className="text-sm text-muted-foreground">Payment Type</div>
+                       <div className="text-lg font-semibold">
+                         {extractedContract.payment_terms || '—'}
+                       </div>
+                     </div>
+                     <div className="text-center">
+                       <div className="text-sm text-muted-foreground">Deposit</div>
+                       <div className="text-lg font-semibold">
+                         {percentFrom(extractedContract.payment_terms)}
+                       </div>
+                     </div>
+                     <div className="text-center">
+                       <div className="text-sm text-muted-foreground">Retention</div>
+                       <div className="text-lg font-semibold">
+                         {percentFrom(extractedContract.payment_terms)}
+                       </div>
+                     </div>
                   </div>
                 </div>
 
@@ -827,24 +958,24 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                 <div>
                   <h3 className="font-semibold text-lg mb-4 border-b pb-2">Contract Parties</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <div className="font-medium text-primary mb-2">Principal</div>
-                      <div className="space-y-1">
-                        <div className="font-semibold">{contractData.principal_name || 'John & Jane Example'}</div>
-                        <div className="text-sm text-muted-foreground">
-                          ABN: {contractData.principal_abn || '—'}
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-medium text-primary mb-2">Contractor</div>
-                      <div className="space-y-1">
-                        <div className="font-semibold">{contractData.contractor_name || 'Skrobaki Pty Ltd'}</div>
-                        <div className="text-sm text-muted-foreground">
-                          ABN: {contractData.contractor_abn || '12 345 678 901'}
-                        </div>
-                      </div>
-                    </div>
+                     <div>
+                       <div className="font-medium text-primary mb-2">Principal</div>
+                       <div className="space-y-1">
+                         <div className="font-semibold">{extractedContract.parties?.[0] || '—'}</div>
+                         <div className="text-sm text-muted-foreground">
+                           ABN: —
+                         </div>
+                       </div>
+                     </div>
+                     <div>
+                       <div className="font-medium text-primary mb-2">Contractor</div>
+                       <div className="space-y-1">
+                         <div className="font-semibold">{extractedContract.parties?.[1] || '—'}</div>
+                         <div className="text-sm text-muted-foreground">
+                           ABN: —
+                         </div>
+                       </div>
+                     </div>
                   </div>
                 </div>
 
@@ -854,24 +985,24 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                 <div>
                   <h3 className="font-semibold text-lg mb-4 border-b pb-2">Project Timeline</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                      <div className="font-medium text-muted-foreground mb-1">Start Date</div>
-                      <div className="text-lg font-semibold">
-                        {contractData.start_date || '—'}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-medium text-muted-foreground mb-1">Practical Completion</div>
-                      <div className="text-lg font-semibold">
-                        {contractData.practical_completion || '—'}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-medium text-muted-foreground mb-1">DLP Days</div>
-                      <div className="text-lg font-semibold">
-                        {contractData.dlp_days || 180} days
-                      </div>
-                    </div>
+                     <div>
+                       <div className="font-medium text-muted-foreground mb-1">Start Date</div>
+                       <div className="text-lg font-semibold">
+                         {extractedContract.effective_date || '—'}
+                       </div>
+                     </div>
+                     <div>
+                       <div className="font-medium text-muted-foreground mb-1">Practical Completion</div>
+                       <div className="text-lg font-semibold">
+                         {extractedContract.expiry_date || '—'}
+                       </div>
+                     </div>
+                     <div>
+                       <div className="font-medium text-muted-foreground mb-1">DLP Days</div>
+                       <div className="text-lg font-semibold">
+                         180 days
+                       </div>
+                     </div>
                   </div>
                 </div>
 
