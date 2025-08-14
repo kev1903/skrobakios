@@ -78,9 +78,9 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				glass: {
-					DEFAULT: 'var(--glass-bg)',
-					border: 'var(--glass-border)',
-					shadow: 'var(--glass-shadow)'
+					DEFAULT: 'hsl(var(--glass-bg))',
+					border: 'hsl(var(--glass-border))', 
+					shadow: 'hsl(var(--glass-shadow))'
 				},
 				// Modern Blue Brand Colors
 				'brand-blue': {
