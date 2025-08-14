@@ -57,6 +57,7 @@ export const BusinessSwitcher = ({ currentBusiness, onBusinessChange }: Business
         status: item.status
       })) || [];
 
+      console.log('Loaded businesses:', businessList);
       setBusinesses(businessList);
 
       // Set current active business (first active one or first overall)
@@ -124,11 +125,12 @@ export const BusinessSwitcher = ({ currentBusiness, onBusinessChange }: Business
     );
   }
 
-  if (businesses.length <= 1) {
+  // Always show dropdown if there are businesses, even if only one is active
+  if (businesses.length === 0) {
     return (
       <div className="flex items-center gap-2 text-sm">
         <Building2 className="h-4 w-4" />
-        {activeBusiness?.name || 'No Business'}
+        No Business
       </div>
     );
   }
@@ -142,7 +144,7 @@ export const BusinessSwitcher = ({ currentBusiness, onBusinessChange }: Business
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-[200px]">
+      <DropdownMenuContent align="start" className="w-[200px] bg-white/95 backdrop-blur-sm border border-white/20 shadow-xl z-50">
         {businesses.map((business) => (
           <DropdownMenuItem
             key={business.id}
