@@ -218,269 +218,268 @@ export const PersonalAnalyticsDashboard = ({ onNavigate }: PersonalAnalyticsDash
   }
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Personal Analytics Dashboard</h1>
-          <p className="text-gray-600 mt-2">
-            Comprehensive view of your Time, Finance, Wellness, Family, Business & Platform Health
-          </p>
+    <div className="h-screen flex bg-background">
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto bg-background">
+        <div className="p-6">
+          {/* Header */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                  Personal Analytics Dashboard
+                </h1>
+                <p className="text-muted-foreground mt-2">
+                  Comprehensive view of your Time, Finance, Wellness, Family, Business & Platform Health
+                </p>
+              </div>
+              <Button onClick={() => onNavigate('personal')} variant="outline">
+                <Users className="w-4 h-4 mr-2" />
+                Edit Profile
+              </Button>
+            </div>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="mb-6 bg-card border rounded-lg p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-muted/30 rounded-lg border p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Weekly Hours</div>
+                  <Clock className="h-4 w-4 text-blue-600" />
+                </div>
+                <div className="text-2xl font-bold text-foreground">{timeAnalytics.totalHours.toFixed(1)}h</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {timeAnalytics.productiveHours.toFixed(1)}h productive
+                </div>
+                <Progress value={timeAnalytics.efficiency} className="mt-2" />
+              </div>
+
+              <div className="bg-muted/30 rounded-lg border p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Efficiency</div>
+                  <Target className="h-4 w-4 text-green-600" />
+                </div>
+                <div className="text-2xl font-bold text-foreground">{timeAnalytics.efficiency.toFixed(1)}%</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {timeAnalytics.efficiency > 70 ? 'Excellent' : timeAnalytics.efficiency > 50 ? 'Good' : 'Needs Improvement'}
+                </div>
+                <Button 
+                  variant="link" 
+                  size="sm" 
+                  onClick={() => onNavigate('time')} 
+                  className="text-blue-600 p-0 h-auto mt-2 text-xs"
+                >
+                  View Details →
+                </Button>
+              </div>
+
+              <div className="bg-muted/30 rounded-lg border p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Monthly Earnings</div>
+                  <DollarSign className="h-4 w-4 text-purple-600" />
+                </div>
+                <div className="text-2xl font-bold text-foreground">${financeAnalytics.totalEarnings.toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Savings Rate: {financeAnalytics.savingsRate}%
+                </div>
+              </div>
+
+              <div className="bg-muted/30 rounded-lg border p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Health Score</div>
+                  <Heart className="h-4 w-4 text-rose-600" />
+                </div>
+                <div className="text-2xl font-bold text-foreground">{wellnessAnalytics.healthScore}/100</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {wellnessAnalytics.exerciseHours}h exercise this week
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="bg-card border rounded-lg">
+            {/* Header Section */}
+            <div className="bg-muted/30 border-b px-6 py-4">
+              <h2 className="text-lg font-semibold text-foreground">Analytics Overview</h2>
+              <p className="text-sm text-muted-foreground">Detailed insights across all life categories</p>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Business & Family Analytics Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="border-border">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Active Projects</CardTitle>
+                    <Building2 className="h-4 w-4 text-orange-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-foreground">{businessAnalytics.activeProjects}</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {businessAnalytics.completedTasks} tasks completed
+                    </p>
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      onClick={() => onNavigate('business')} 
+                      className="text-blue-600 p-0 h-auto mt-2 text-xs"
+                    >
+                      View Details →
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-border">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Client Satisfaction</CardTitle>
+                    <TrendingUp className="h-4 w-4 text-teal-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-foreground">{businessAnalytics.clientSatisfaction}%</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Revenue: ${businessAnalytics.revenue.toLocaleString()}
+                    </p>
+                    <Progress value={businessAnalytics.clientSatisfaction} className="mt-2" />
+                  </CardContent>
+                </Card>
+
+                <Card className="border-border">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Family Time</CardTitle>
+                    <Users className="h-4 w-4 text-indigo-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-foreground">12.5h</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Weekly quality time
+                    </p>
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      onClick={() => onNavigate('family')} 
+                      className="text-blue-600 p-0 h-auto mt-2 text-xs"
+                    >
+                      View Details →
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-border">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Security Score</CardTitle>
+                    <Shield className="h-4 w-4 text-gray-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-foreground">95/100</div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      All systems secure
+                    </p>
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      onClick={() => onNavigate('security')} 
+                      className="text-blue-600 p-0 h-auto mt-2 text-xs"
+                    >
+                      View Details →
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Platform Health Section */}
+              <Card className="border-border">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-foreground">
+                    <Activity className="h-5 w-5" />
+                    SkrobakiOS Platform Health
+                  </CardTitle>
+                  <CardDescription>Real-time system metrics and performance indicators</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground">Uptime</span>
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          {platformHealth.uptime}%
+                        </Badge>
+                      </div>
+                      <Progress value={platformHealth.uptime} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground">Response Time</span>
+                        <span className="text-sm text-foreground">{platformHealth.responseTime}ms</span>
+                      </div>
+                      <Progress value={100 - (platformHealth.responseTime / 10)} className="h-2" />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground">Active Users</span>
+                        <span className="text-sm text-foreground">{platformHealth.activeUsers.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-green-600">
+                        <TrendingUp className="w-3 h-3" />
+                        +5.2% this week
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-muted-foreground">System Load</span>
+                        <Badge variant={platformHealth.systemLoad < 50 ? "secondary" : "destructive"}>
+                          {platformHealth.systemLoad}%
+                        </Badge>
+                      </div>
+                      <Progress value={platformHealth.systemLoad} className="h-2" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions Section */}
+              <Card className="border-border">
+                <CardHeader>
+                  <CardTitle className="text-foreground">Quick Actions</CardTitle>
+                  <CardDescription>Access key areas of your personal management system</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <Button variant="outline" onClick={() => onNavigate('time')} className="flex flex-col gap-2 h-20">
+                      <Clock className="w-5 h-5" />
+                      <span className="text-xs">Time</span>
+                    </Button>
+                    <Button variant="outline" onClick={() => onNavigate('finance')} className="flex flex-col gap-2 h-20">
+                      <DollarSign className="w-5 h-5" />
+                      <span className="text-xs">Finance</span>
+                    </Button>
+                    <Button variant="outline" onClick={() => onNavigate('wellness')} className="flex flex-col gap-2 h-20">
+                      <Heart className="w-5 h-5" />
+                      <span className="text-xs">Wellness</span>
+                    </Button>
+                    <Button variant="outline" onClick={() => onNavigate('family')} className="flex flex-col gap-2 h-20">
+                      <Users className="w-5 h-5" />
+                      <span className="text-xs">Family</span>
+                    </Button>
+                    <Button variant="outline" onClick={() => onNavigate('business')} className="flex flex-col gap-2 h-20">
+                      <Building2 className="w-5 h-5" />
+                      <span className="text-xs">Business</span>
+                    </Button>
+                    <Button variant="outline" onClick={() => onNavigate('security')} className="flex flex-col gap-2 h-20">
+                      <Shield className="w-5 h-5" />
+                      <span className="text-xs">Security</span>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
-        <Button onClick={() => onNavigate('personal')} variant="outline">
-          <Users className="w-4 h-4 mr-2" />
-          Edit Profile
-        </Button>
       </div>
-
-      {/* Time Analytics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-700">Weekly Hours</CardTitle>
-            <Clock className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-900">{timeAnalytics.totalHours.toFixed(1)}h</div>
-            <p className="text-xs text-blue-600 mt-2">
-              {timeAnalytics.productiveHours.toFixed(1)}h productive
-            </p>
-            <Progress value={timeAnalytics.efficiency} className="mt-2" />
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-700">Efficiency</CardTitle>
-            <Target className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-900">{timeAnalytics.efficiency.toFixed(1)}%</div>
-            <p className="text-xs text-green-600 mt-2">
-              {timeAnalytics.efficiency > 70 ? 'Excellent' : timeAnalytics.efficiency > 50 ? 'Good' : 'Needs Improvement'}
-            </p>
-            <Button 
-              variant="link" 
-              size="sm" 
-              onClick={() => onNavigate('time')} 
-              className="text-green-700 p-0 h-auto mt-1"
-            >
-              View Details →
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-700">Monthly Earnings</CardTitle>
-            <DollarSign className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-900">${financeAnalytics.totalEarnings.toLocaleString()}</div>
-            <p className="text-xs text-purple-600 mt-2">
-              Savings Rate: {financeAnalytics.savingsRate}%
-            </p>
-            <Button 
-              variant="link" 
-              size="sm" 
-              onClick={() => onNavigate('finance')} 
-              className="text-purple-700 p-0 h-auto mt-1"
-            >
-              View Details →
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-rose-50 to-rose-100 border-rose-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-rose-700">Health Score</CardTitle>
-            <Heart className="h-4 w-4 text-rose-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-rose-900">{wellnessAnalytics.healthScore}/100</div>
-            <p className="text-xs text-rose-600 mt-2">
-              {wellnessAnalytics.exerciseHours}h exercise this week
-            </p>
-            <Button 
-              variant="link" 
-              size="sm" 
-              onClick={() => onNavigate('wellness')} 
-              className="text-rose-700 p-0 h-auto mt-1"
-            >
-              View Details →
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Business & Family Analytics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-orange-700">Active Projects</CardTitle>
-            <Building2 className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-900">{businessAnalytics.activeProjects}</div>
-            <p className="text-xs text-orange-600 mt-2">
-              {businessAnalytics.completedTasks} tasks completed
-            </p>
-            <Button 
-              variant="link" 
-              size="sm" 
-              onClick={() => onNavigate('business')} 
-              className="text-orange-700 p-0 h-auto mt-1"
-            >
-              View Details →
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-teal-700">Client Satisfaction</CardTitle>
-            <TrendingUp className="h-4 w-4 text-teal-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-teal-900">{businessAnalytics.clientSatisfaction}%</div>
-            <p className="text-xs text-teal-600 mt-2">
-              Revenue: ${businessAnalytics.revenue.toLocaleString()}
-            </p>
-            <Progress value={businessAnalytics.clientSatisfaction} className="mt-2" />
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-indigo-700">Family Time</CardTitle>
-            <Users className="h-4 w-4 text-indigo-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-indigo-900">12.5h</div>
-            <p className="text-xs text-indigo-600 mt-2">
-              Weekly quality time
-            </p>
-            <Button 
-              variant="link" 
-              size="sm" 
-              onClick={() => onNavigate('family')} 
-              className="text-indigo-700 p-0 h-auto mt-1"
-            >
-              View Details →
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-700">Security Score</CardTitle>
-            <Shield className="h-4 w-4 text-gray-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">95/100</div>
-            <p className="text-xs text-gray-600 mt-2">
-              All systems secure
-            </p>
-            <Button 
-              variant="link" 
-              size="sm" 
-              onClick={() => onNavigate('security')} 
-              className="text-gray-700 p-0 h-auto mt-1"
-            >
-              View Details →
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Platform Health - SkrobakiOS */}
-      <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-slate-800">
-            <Activity className="h-5 w-5" />
-            SkrobakiOS Platform Health
-          </CardTitle>
-          <CardDescription>Real-time system metrics and performance indicators</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-600">Uptime</span>
-                <Badge variant="secondary" className="bg-green-100 text-green-800">
-                  {platformHealth.uptime}%
-                </Badge>
-              </div>
-              <Progress value={platformHealth.uptime} className="h-2" />
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-600">Response Time</span>
-                <span className="text-sm text-slate-800">{platformHealth.responseTime}ms</span>
-              </div>
-              <Progress value={100 - (platformHealth.responseTime / 10)} className="h-2" />
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-600">Active Users</span>
-                <span className="text-sm text-slate-800">{platformHealth.activeUsers.toLocaleString()}</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-green-600">
-                <TrendingUp className="w-3 h-3" />
-                +5.2% this week
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-600">System Load</span>
-                <Badge variant={platformHealth.systemLoad < 50 ? "secondary" : "destructive"}>
-                  {platformHealth.systemLoad}%
-                </Badge>
-              </div>
-              <Progress value={platformHealth.systemLoad} className="h-2" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Access key areas of your personal management system</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <Button variant="outline" onClick={() => onNavigate('time')} className="flex flex-col gap-2 h-20">
-              <Clock className="w-5 h-5" />
-              <span className="text-xs">Time</span>
-            </Button>
-            <Button variant="outline" onClick={() => onNavigate('finance')} className="flex flex-col gap-2 h-20">
-              <DollarSign className="w-5 h-5" />
-              <span className="text-xs">Finance</span>
-            </Button>
-            <Button variant="outline" onClick={() => onNavigate('wellness')} className="flex flex-col gap-2 h-20">
-              <Heart className="w-5 h-5" />
-              <span className="text-xs">Wellness</span>
-            </Button>
-            <Button variant="outline" onClick={() => onNavigate('family')} className="flex flex-col gap-2 h-20">
-              <Users className="w-5 h-5" />
-              <span className="text-xs">Family</span>
-            </Button>
-            <Button variant="outline" onClick={() => onNavigate('business')} className="flex flex-col gap-2 h-20">
-              <Building2 className="w-5 h-5" />
-              <span className="text-xs">Business</span>
-            </Button>
-            <Button variant="outline" onClick={() => onNavigate('security')} className="flex flex-col gap-2 h-20">
-              <Shield className="w-5 h-5" />
-              <span className="text-xs">Security</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };
