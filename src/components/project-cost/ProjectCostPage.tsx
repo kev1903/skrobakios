@@ -19,6 +19,7 @@ import { IncomeModule } from '../project-finance/income/IncomeModule';
 import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
 import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
 import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
+import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader';
 
 interface ProjectCostPageProps {
   project: Project;
@@ -35,6 +36,7 @@ export const ProjectCostPage = ({
   const [incomeData, setIncomeData] = useState({ totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });
   const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0 });
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
+  const [isPDFUploaderOpen, setIsPDFUploaderOpen] = useState(false);
 
   // Refresh function to reload all data
   const refreshData = () => {
@@ -258,10 +260,10 @@ export const ProjectCostPage = ({
                         </select>
                         <Button 
                           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                          onClick={() => setIsInvoiceDrawerOpen(true)}
+                          onClick={() => setIsPDFUploaderOpen(true)}
                         >
                           <DollarSign className="h-4 w-4" />
-                          New Invoice
+                          Upload Invoice PDF
                         </Button>
                       </>
                     )}
@@ -299,7 +301,7 @@ export const ProjectCostPage = ({
                   <IncomeModule 
                     projectId={project.id} 
                     statusFilter={incomeStatusFilter}
-                    onCreateInvoice={() => setIsInvoiceDrawerOpen(true)}
+                    onCreateInvoice={() => setIsPDFUploaderOpen(true)}
                   />
                 </TabsContent>
                 
@@ -323,7 +325,15 @@ export const ProjectCostPage = ({
         </div>
       </div>
 
-      {/* Invoice Drawer Modal */}
+      {/* PDF Invoice Uploader */}
+      <InvoicePDFUploader
+        isOpen={isPDFUploaderOpen}
+        onClose={() => setIsPDFUploaderOpen(false)}
+        projectId={project.id}
+        onSaved={refreshData}
+      />
+
+      {/* Invoice Drawer Modal - For editing existing invoices */}
       <InvoiceDrawer
         isOpen={isInvoiceDrawerOpen}
         onClose={() => setIsInvoiceDrawerOpen(false)}
