@@ -21,6 +21,7 @@ import { NavigationItem } from './types';
 
 // Personal Profile Navigation - Based on user's reference image
 export const personalProfileNavigation: NavigationItem[] = [
+  { id: "personal-dashboard", label: "Dashboard", icon: BarChart3 },
   { id: "personal", label: "Personal", icon: User },
   { id: "time", label: "Time", icon: Clock },
   { id: "finance", label: "Finance", icon: DollarSign },

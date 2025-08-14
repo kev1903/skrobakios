@@ -59,6 +59,7 @@ import { PersonalPage } from "@/components/PersonalPage";
 import MapComponent from "@/components/map/MapComponent";
 import { useAppContext } from "@/contexts/AppContextProvider";
 import { PersonalDashboard } from "@/components/personal/PersonalDashboard";
+import { PersonalAnalyticsDashboard } from "@/components/personal/PersonalAnalyticsDashboard";
 import { TimePage } from "@/components/TimePage";
 import { WellnessPage } from "@/components/WellnessPage";
 import { FamilyPage } from "@/components/FamilyPage";
@@ -328,7 +329,7 @@ export const ContentRenderer = ({
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "platform-dashboard":
     case "personal-dashboard":
-      return <PersonalDashboard onNavigate={onNavigate} />;
+      return <PersonalAnalyticsDashboard onNavigate={onNavigate} />;
     case "project-dashboard":
       // Redirect to projects list instead
       onNavigate("projects");
