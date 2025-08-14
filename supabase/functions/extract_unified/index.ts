@@ -118,30 +118,98 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Simple PDF text extraction using PDF.js
+// Enhanced PDF text extraction with fallback methods
 async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
   try {
-    // Use PDF.js worker to extract text
-    const pdfWorkerUrl = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    // Method 1: Try PDF.js via CDN import
+    try {
+      const pdfjsLib = await import("https://esm.sh/pdfjs-dist@3.11.174");
+      
+      // Initialize worker
+      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      
+      const loadingTask = pdfjsLib.getDocument(new Uint8Array(pdfBytes));
+      const pdf = await loadingTask.promise;
+      
+      let fullText = '';
+      
+      // Extract text from all pages
+      for (let pageNum = 1; pageNum <= Math.min(pdf.numPages, 10); pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .filter((item: any) => item.str && item.str.trim())
+          .map((item: any) => item.str)
+          .join(' ');
+        fullText += pageText + '\n';
+      }
+      
+      if (fullText.trim()) {
+        console.log("PDF.js extraction successful");
+        return cleanExtractedText(fullText);
+      }
+    } catch (pdfJsError) {
+      console.warn("PDF.js extraction failed:", pdfJsError);
+    }
     
-    // For Deno, we'll use a simpler approach with pdf-parse
-    const pdfParse = await import("https://deno.land/x/pdf_parse@1.1.0/mod.ts");
-    const data = await pdfParse.default(new Uint8Array(pdfBytes));
-    return data.text || "";
-  } catch (error) {
-    console.error("PDF text extraction failed:", error);
-    // Fallback: try to extract basic text patterns if possible
+    // Method 2: Fallback to manual text pattern extraction
+    console.log("Using fallback text extraction method");
     const decoder = new TextDecoder('utf-8', { fatal: false });
     const text = decoder.decode(pdfBytes);
     
-    // Extract readable text between common PDF text markers
-    const textMatches = text.match(/BT\s+.*?ET/gs);
-    if (textMatches) {
-      return textMatches.join(' ').replace(/[^\x20-\x7E]/g, ' ').replace(/\s+/g, ' ').trim();
+    // Enhanced pattern matching for PDF text extraction
+    const patterns = [
+      // Standard PDF text objects
+      /BT\s+(.*?)\s+ET/gs,
+      // Stream content
+      /stream\s+(.*?)\s+endstream/gs,
+      // Direct text patterns
+      /\((.*?)\)/g,
+      // Hex encoded text
+      /<([0-9A-Fa-f\s]+)>/g
+    ];
+    
+    let extractedText = '';
+    
+    for (const pattern of patterns) {
+      const matches = text.match(pattern);
+      if (matches) {
+        for (const match of matches) {
+          // Clean and decode the text
+          let cleanMatch = match
+            .replace(/BT\s+|ET|stream|endstream/g, '')
+            .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          if (cleanMatch.length > 10) {
+            extractedText += cleanMatch + ' ';
+          }
+        }
+      }
     }
     
-    return "Unable to extract text from PDF";
+    return extractedText.trim() || "Unable to extract readable text from PDF";
+    
+  } catch (error) {
+    console.error("All PDF text extraction methods failed:", error);
+    return "PDF text extraction failed - document may be image-based or corrupted";
   }
+}
+
+// Clean and normalize extracted text
+function cleanExtractedText(text: string): string {
+  return text
+    // Remove excessive whitespace
+    .replace(/\s+/g, ' ')
+    // Remove non-printable characters except newlines
+    .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
+    // Clean up multiple spaces
+    .replace(/[ \t]+/g, ' ')
+    // Clean up multiple newlines
+    .replace(/\n+/g, '\n')
+    // Trim whitespace
+    .trim();
 }
 
 async function fetchAsArrayBuffer(url: string): Promise<ArrayBuffer> {
@@ -193,13 +261,14 @@ serve(async (req) => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages: [
           {
             role: "system",
-            content: "You are an expert document extraction engine for construction documents. " +
-              "Analyze the provided text extracted from a PDF and extract structured data. " +
-              "Focus on accuracy and only extract information that is clearly present in the text. " +
+            content: "You are an expert AI specialized in extracting structured data from construction industry documents including contracts, architectural drawings, specifications, and invoices. " +
+              "You have deep knowledge of construction terminology, standard contract formats (AIA, FIDIC, NEC), architectural drawing conventions, and billing practices. " +
+              "Analyze the provided text with high precision and extract only information that is explicitly present. " +
+              "For confidence scoring: 0.9-1.0 = clear, complete information; 0.7-0.8 = good but some unclear areas; 0.5-0.6 = partial information; 0.3-0.4 = poor quality text; 0.0-0.2 = severely corrupted/unclear. " +
               "Return ONLY valid JSON matching the schema."
           },
           {
@@ -208,11 +277,20 @@ serve(async (req) => {
 
 ${extractedText}
 
-Please analyze this text and extract:
-1. Document type (contract, drawing, invoice, spec, or other)
-2. A summary of the document
-3. Confidence level (0.0-1.0) based on text clarity and completeness
-4. Relevant structured data based on document type
+IMPORTANT INSTRUCTIONS:
+1. Document Classification: Identify if this is a contract, architectural drawing, specification, invoice, or other document type
+2. Data Extraction: Extract specific fields relevant to the document type:
+   - CONTRACTS: Focus on parties, dates, values, payment terms, scope of work, special conditions
+   - DRAWINGS: Look for drawing numbers, revisions, project info, discipline, scale, architect details
+   - INVOICES: Extract numbers, dates, vendor/client info, line items, totals
+   - SPECIFICATIONS: Identify section numbers, materials, standards, requirements
+3. Quality Assessment: Set confidence based on text clarity and completeness
+4. Summary: Provide a concise 2-3 sentence summary of the document's purpose and key details
+
+Text quality indicators:
+- High confidence: Clear formatting, complete sentences, standard terminology
+- Medium confidence: Some formatting issues but readable content
+- Low confidence: Fragmented text, missing sections, unclear content
 
 Return only the JSON matching the schema.`
           }
@@ -221,7 +299,8 @@ Return only the JSON matching the schema.`
           type: "json_schema", 
           json_schema: UnifiedSchema 
         },
-        max_tokens: 2000
+        max_tokens: 3000,
+        temperature: 0.1
       })
     });
 
@@ -245,10 +324,68 @@ Return only the JSON matching the schema.`
 
     const data = JSON.parse(messageContent) as UnifiedResult;
 
+    // Validate extraction quality and retry if confidence is too low
+    if (data.ai_confidence < 0.3) {
+      console.warn('Low confidence extraction, attempting retry with enhanced prompt');
+      
+      // Retry with more specific prompt for low-quality extractions
+      const retryCompletion = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content: "You are analyzing a construction document with poor text extraction quality. " +
+                "Focus on finding any readable fragments that indicate document type and key information. " +
+                "Even with corrupted text, try to identify: document headers, company names, dates, numbers, and common construction terms. " +
+                "Be conservative with confidence scoring for poor quality text."
+            },
+            {
+              role: "user",
+              content: `This text was extracted from a construction document but may be corrupted or incomplete:
+
+${extractedText}
+
+Please extract whatever information is readable, focusing on:
+- Any document identifiers (contract numbers, drawing numbers, invoice numbers)
+- Company or party names
+- Dates in any format
+- Monetary amounts
+- Construction-related keywords
+
+Set confidence appropriately for the text quality.`
+            }
+          ],
+          response_format: { 
+            type: "json_schema", 
+            json_schema: UnifiedSchema 
+          },
+          max_tokens: 3000,
+          temperature: 0.1
+        })
+      });
+
+      if (retryCompletion.ok) {
+        const retryData = await retryCompletion.json();
+        const retryContent = retryData?.choices?.[0]?.message?.content;
+        if (retryContent) {
+          const retryResult = JSON.parse(retryContent) as UnifiedResult;
+          console.log('Retry extraction completed');
+          Object.assign(data, retryResult);
+        }
+      }
+    }
+
     console.log('AI extraction complete:', { 
       document_type: data.document_type, 
       confidence: data.ai_confidence, 
-      summary_length: data.ai_summary?.length || 0 
+      summary_length: data.ai_summary?.length || 0,
+      extracted_text_length: extractedText.length
     });
 
     // 4) Update the project_contracts table with the extracted data
