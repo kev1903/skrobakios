@@ -123,34 +123,51 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
       setUploading(false);
       setExtracting(true);
 
-      // Call AI extraction function
-      const { data: extractionData, error: extractionError } = await supabase.functions
-        .invoke('extract_unified', {
-          body: { pdfUrl: urlData.signedUrl }
+      // Call new AI invoice processing function
+      const { data: processingData, error: processingError } = await supabase.functions
+        .invoke('process-invoice', {
+          body: { 
+            fileUrl: urlData.signedUrl, 
+            fileName: fileName,
+            projectId: projectId 
+          }
         });
 
-      if (extractionError) throw extractionError;
+      if (processingError) throw processingError;
 
-      const result = extractionData.result;
-      if (result.document_type === 'invoice' && result.invoice) {
-        setExtractedData(result.invoice);
-        setConfidence(Math.round(result.ai_confidence * 100));
+      if (processingData.success) {
+        const extractedData = processingData.extractedData;
+        setExtractedData(extractedData);
+        setConfidence(85); // Default confidence for OpenAI extraction
         setEditableData({
-          client_name: result.invoice.client || result.invoice.vendor || '',
-          client_email: '',
-          due_date: result.invoice.due_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          notes: '',
-          subtotal: result.invoice.subtotal || 0,
-          tax: result.invoice.tax || 0,
-          total: result.invoice.total || 0,
-          line_items: result.invoice.line_items || []
+          supplier_name: extractedData.supplier_name || '',
+          supplier_email: extractedData.supplier_email || '',
+          bill_no: extractedData.bill_no || '',
+          due_date: extractedData.due_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          bill_date: extractedData.bill_date || new Date().toISOString().split('T')[0],
+          reference_number: extractedData.reference_number || '',
+          notes: extractedData.notes || '',
+          subtotal: extractedData.subtotal || 0,
+          tax: extractedData.tax || 0,
+          total: extractedData.total || 0,
+          description: extractedData.description || '',
+          wbs_code: extractedData.wbs_code || ''
         });
+        
+        toast({
+          title: "Success",
+          description: "Invoice processed and bill created successfully!",
+        });
+        
+        onSaved(); // Refresh the data
+        onClose(); // Close the dialog
+        resetState();
       } else {
-        throw new Error('Document is not recognized as an invoice or extraction failed');
+        throw new Error(processingData.error || 'Failed to process invoice');
       }
 
     } catch (error) {
-      console.error('Upload/extraction error:', error);
+      console.error('Upload/processing error:', error);
       setError(error instanceof Error ? error.message : 'Failed to process invoice');
     } finally {
       setUploading(false);
@@ -159,70 +176,8 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
     }
   };
 
-  const handleSave = async () => {
-    if (!editableData) return;
-
-    setSaving(true);
-    try {
-      // Create invoice
-      const invoiceData = {
-        project_id: projectId,
-        client_name: editableData.client_name,
-        client_email: editableData.client_email || null,
-        due_date: editableData.due_date,
-        notes: editableData.notes || null,
-        subtotal: editableData.subtotal,
-        tax: editableData.tax,
-        total: editableData.total,
-        status: 'draft' as const,
-        number: extractedData?.invoice_number || `INV-${Date.now()}`,
-      };
-
-      const { data: invoice, error: invoiceError } = await supabase
-        .from('invoices')
-        .insert(invoiceData)
-        .select()
-        .single();
-
-      if (invoiceError) throw invoiceError;
-
-      // Insert line items
-      if (editableData.line_items && editableData.line_items.length > 0) {
-        const itemsToInsert = editableData.line_items.map((item: any) => ({
-          invoice_id: invoice.id,
-          description: item.description,
-          qty: item.qty,
-          rate: item.rate,
-          amount: item.amount,
-          wbs_code: null,
-        }));
-
-        const { error: itemsError } = await supabase
-          .from('invoice_items')
-          .insert(itemsToInsert);
-
-        if (itemsError) throw itemsError;
-      }
-
-      toast({
-        title: "Success",
-        description: "Invoice created successfully from PDF",
-      });
-
-      onSaved();
-      onClose();
-      resetState();
-    } catch (error) {
-      console.error('Save error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save invoice",
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
+  // Since the AI function automatically creates the bill, we don't need a separate save function
+  // The processing happens automatically when the file is uploaded
 
   const resetState = () => {
     setUploadedFile(null);
@@ -336,29 +291,38 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Basic Invoice Info */}
+                {/* Basic Bill Info */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="client_name">Client Name</Label>
+                    <Label htmlFor="supplier_name">Supplier Name</Label>
                     <Input
-                      id="client_name"
-                      value={editableData.client_name}
-                      onChange={(e) => setEditableData({...editableData, client_name: e.target.value})}
+                      id="supplier_name"
+                      value={editableData.supplier_name}
+                      onChange={(e) => setEditableData({...editableData, supplier_name: e.target.value})}
                     />
                   </div>
                   <div>
-                    <Label htmlFor="client_email">Client Email</Label>
+                    <Label htmlFor="supplier_email">Supplier Email</Label>
                     <Input
-                      id="client_email"
+                      id="supplier_email"
                       type="email"
-                      value={editableData.client_email}
-                      onChange={(e) => setEditableData({...editableData, client_email: e.target.value})}
-                      placeholder="Enter client email"
+                      value={editableData.supplier_email}
+                      onChange={(e) => setEditableData({...editableData, supplier_email: e.target.value})}
+                      placeholder="Enter supplier email"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="bill_date">Bill Date</Label>
+                    <Input
+                      id="bill_date"
+                      type="date"
+                      value={editableData.bill_date}
+                      onChange={(e) => setEditableData({...editableData, bill_date: e.target.value})}
+                    />
+                  </div>
                   <div>
                     <Label htmlFor="due_date">Due Date</Label>
                     <Input
@@ -369,13 +333,54 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                     />
                   </div>
                   <div>
-                    <Label>Invoice Number</Label>
+                    <Label htmlFor="bill_no">Bill Number</Label>
                     <Input
-                      value={extractedData.invoice_number || 'Auto-generated'}
-                      readOnly
-                      className="bg-muted"
+                      id="bill_no"
+                      value={editableData.bill_no}
+                      onChange={(e) => setEditableData({...editableData, bill_no: e.target.value})}
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="reference_number">Reference Number</Label>
+                    <Input
+                      id="reference_number"
+                      value={editableData.reference_number}
+                      onChange={(e) => setEditableData({...editableData, reference_number: e.target.value})}
+                      placeholder="PO or reference number"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="wbs_code">WBS Code</Label>
+                    <Input
+                      id="wbs_code"
+                      value={editableData.wbs_code}
+                      onChange={(e) => setEditableData({...editableData, wbs_code: e.target.value})}
+                      placeholder="Work breakdown structure code"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Input
+                    id="description"
+                    value={editableData.description}
+                    onChange={(e) => setEditableData({...editableData, description: e.target.value})}
+                    placeholder="Brief description of services/goods"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="notes">Notes</Label>
+                  <Input
+                    id="notes"
+                    value={editableData.notes}
+                    onChange={(e) => setEditableData({...editableData, notes: e.target.value})}
+                    placeholder="Additional notes or terms"
+                  />
                 </div>
 
                 {/* Line Items */}
@@ -449,25 +454,10 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
           )}
 
           {/* Actions */}
-          <div className="flex justify-between">
+          <div className="flex justify-center">
             <Button variant="outline" onClick={handleClose}>
-              Cancel
+              Close
             </Button>
-            {extractedData && (
-              <Button onClick={handleSave} disabled={saving || !editableData?.client_name}>
-                {saving ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save Invoice
-                  </>
-                )}
-              </Button>
-            )}
           </div>
         </div>
       </DialogContent>

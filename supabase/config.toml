@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.get-contract-file]
 verify_jwt = true
+
+[functions.process-invoice]
+verify_jwt = true
