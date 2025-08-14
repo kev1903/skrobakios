@@ -11,20 +11,53 @@ export const useCompanies = () => {
     setError(null);
     
     try {
-      console.log('🔍 Calling get_user_companies RPC...');
+      console.log('🔍 Getting current user...');
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.error('❌ User Error:', userError);
+        throw new Error('User not authenticated');
+      }
+      
+      console.log('👤 Current user ID:', user.id, user.email);
+      
+      console.log('🔍 Fetching user companies directly...');
       
       const { data, error: fetchError } = await supabase
-        .rpc('get_user_companies');
+        .from('company_members')
+        .select(`
+          company_id,
+          role,
+          status,
+          companies:company_id (
+            id,
+            name,
+            slug,
+            logo_url,
+            business_type
+          )
+        `)
+        .eq('user_id', user.id);
 
-      console.log('📞 RPC Response:', { data, error: fetchError });
+      console.log('📞 Direct Query Response:', { data, error: fetchError });
 
       if (fetchError) {
-        console.error('❌ RPC Error:', fetchError);
+        console.error('❌ Query Error:', fetchError);
         throw fetchError;
       }
       
-      console.log('✅ Companies fetched successfully:', data);
-      return (data || []) as UserCompany[];
+      const companies = data?.map(item => ({
+        id: item.company_id,
+        name: (item.companies as any)?.name || 'Unknown',
+        slug: (item.companies as any)?.slug || '',
+        logo_url: (item.companies as any)?.logo_url,
+        role: item.role,
+        status: item.status,
+        business_type: (item.companies as any)?.business_type
+      })) || [];
+      
+      console.log('✅ Companies processed successfully:', companies);
+      return companies as UserCompany[];
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch companies';
       console.error('💥 getUserCompanies error:', err);
