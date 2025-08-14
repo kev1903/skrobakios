@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { IncomeModule } from './income/IncomeModule';
+
 import { ExpensesModule } from './expenses/ExpensesModule';
 import { AnalyticsModule } from './analytics/AnalyticsModule';
 import { Project } from '@/hooks/useProjects';
@@ -71,7 +71,9 @@ export const ProjectFinancePage = ({ project, onNavigate }: ProjectFinancePagePr
             {/* Finance Content */}
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsContent value="income" className="p-0 m-0">
-                <IncomeModule projectId={project.id} />
+                <div className="p-6 text-center text-muted-foreground">
+                  Income module has been removed.
+                </div>
               </TabsContent>
 
               <TabsContent value="expenses" className="p-0 m-0">

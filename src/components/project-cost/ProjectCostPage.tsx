@@ -16,7 +16,7 @@ import { CostByStageChart } from './CostByStageChart';
 import { TaskCostTable } from './TaskCostTable';
 import { CostAnalytics } from './CostAnalytics';
 import { StageManagement } from './StageManagement';
-import { IncomeModule } from '../project-finance/income/IncomeModule';
+
 import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
 import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
 import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
@@ -304,15 +304,9 @@ export const ProjectCostPage = ({
 
               {/* Tab Content */}
               <div className="p-6">
-                <TabsContent value="income" className="mt-0">
-                  <IncomeModule 
-                    projectId={project.id} 
-                    statusFilter={incomeStatusFilter}
-                    onCreateInvoice={() => setIsPDFUploaderOpen(true)}
-                    formatCurrency={formatCurrency}
-                    formatDate={formatDate}
-                  />
-                </TabsContent>
+                  <div className="text-center py-8 text-muted-foreground">
+                    Income module has been removed.
+                  </div>
                 
                 <TabsContent value="expense" className="mt-0">
                   <ExpensesModule 
