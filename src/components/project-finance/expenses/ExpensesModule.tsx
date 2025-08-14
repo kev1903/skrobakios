@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard } from 'lucide-react';
+import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 
@@ -14,6 +14,7 @@ interface Bill {
   supplier_name: string;
   supplier_email: string | null;
   bill_no: string;
+  reference_number: string | null;
   bill_date: string;
   due_date: string;
   status: 'draft' | 'submitted' | 'approved' | 'scheduled' | 'paid' | 'void';
@@ -21,6 +22,8 @@ interface Bill {
   tax: number;
   total: number;
   paid_to_date: number;
+  file_attachments: any;
+  forwarded_bill: boolean;
 }
 
 interface ExpensesModuleProps {
@@ -166,58 +169,95 @@ export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
                 </div>
               ) : (
                 <div className="w-full">
-                  <table className="w-full border-collapse table-fixed">
+                  {/* Action Bar */}
+                  <div className="flex items-center gap-2 mb-4 p-2 bg-muted/30 rounded-lg">
+                    <Button variant="outline" size="sm" className="bg-blue-600 text-white hover:bg-blue-700 border-blue-600">
+                      Approve
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Submit for approval
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Delete
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Print
+                    </Button>
+                    <div className="ml-auto text-sm text-muted-foreground">
+                      {filteredBills.length} items | {formatCurrency(filteredBills.reduce((sum, bill) => sum + bill.total, 0))}
+                    </div>
+                  </div>
+
+                  {/* Bills Table */}
+                  <table className="w-full border-collapse">
                     <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-2 font-medium w-20 text-foreground">Bill #</th>
-                        <th className="text-left p-2 font-medium text-foreground">Supplier</th>
-                        <th className="text-left p-2 font-medium w-24 text-foreground">Date</th>
-                        <th className="text-left p-2 font-medium w-24 text-foreground">Due Date</th>
-                        <th className="text-left p-2 font-medium w-20 text-foreground">Total</th>
-                        <th className="text-left p-2 font-medium w-20 text-foreground">Paid</th>
-                        <th className="text-left p-2 font-medium w-20 text-foreground">Balance</th>
-                        <th className="text-left p-2 font-medium w-20 text-foreground">Status</th>
-                        <th className="text-left p-2 font-medium w-24 text-foreground">Actions</th>
+                      <tr className="border-b bg-muted/50">
+                        <th className="text-left p-3 font-medium w-12">
+                          <input type="checkbox" className="rounded" />
+                        </th>
+                        <th className="text-left p-3 font-medium w-16 text-foreground">View</th>
+                        <th className="text-left p-3 font-medium text-foreground">From</th>
+                        <th className="text-left p-3 font-medium w-32 text-foreground">Reference</th>
+                        <th className="text-left p-3 font-medium w-28 text-foreground">Date ↓</th>
+                        <th className="text-left p-3 font-medium w-28 text-foreground">Due date</th>
+                        <th className="text-left p-3 font-medium w-24 text-foreground">Due</th>
+                        <th className="text-left p-3 font-medium w-16 text-foreground">Files</th>
+                        <th className="text-left p-3 font-medium w-12"></th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredBills.map((bill) => (
-                        <tr key={bill.id} className="border-b hover:bg-muted/50">
-                          <td className="p-2 font-mono text-sm truncate text-foreground">{bill.bill_no}</td>
-                          <td className="p-2 truncate text-foreground">{bill.supplier_name}</td>
-                          <td className="p-2 text-sm text-foreground">{format(new Date(bill.bill_date), 'MMM dd, yyyy')}</td>
-                          <td className="p-2 text-sm text-foreground">{format(new Date(bill.due_date), 'MMM dd, yyyy')}</td>
-                          <td className="p-2 font-medium text-sm text-foreground">{formatCurrency(bill.total)}</td>
-                          <td className="p-2 font-medium text-sm text-foreground">{formatCurrency(bill.paid_to_date)}</td>
-                          <td className="p-2 font-medium text-sm text-foreground">{formatCurrency(bill.total - bill.paid_to_date)}</td>
-                          <td className="p-2">{getStatusBadge(bill.status)}</td>
-                          <td className="p-2">
-                            <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="sm" title="View">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              {bill.status === 'submitted' && (
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  onClick={() => handleApproveBill(bill.id)}
-                                  title="Approve"
-                                  className="text-green-600 hover:text-green-700"
-                                >
-                                  <CheckCircle className="h-4 w-4" />
-                                </Button>
-                              )}
-                              {['approved', 'scheduled'].includes(bill.status) && (
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => handleRecordPayment(bill.id)}
-                                  title="Record Payment"
-                                >
-                                  <CreditCard className="h-4 w-4" />
-                                </Button>
+                        <tr key={bill.id} className="border-b hover:bg-muted/30 group">
+                          <td className="p-3">
+                            <input type="checkbox" className="rounded" />
+                          </td>
+                          <td className="p-3">
+                            <Button variant="ghost" size="sm" className="p-1 h-8 w-8">
+                              <Eye className="h-4 w-4 text-blue-600" />
+                            </Button>
+                          </td>
+                          <td className="p-3 text-foreground font-medium">
+                            {bill.supplier_name}
+                          </td>
+                          <td className="p-3 text-foreground">
+                            <div>
+                              <div className="font-mono text-sm">{bill.reference_number || bill.bill_no}</div>
+                              {bill.forwarded_bill && (
+                                <div className="text-xs text-blue-600 italic">Forwarded Bill</div>
                               )}
                             </div>
+                          </td>
+                          <td className="p-3 text-foreground text-sm">
+                            {format(new Date(bill.bill_date), 'dd MMM yyyy')}
+                          </td>
+                          <td className="p-3 text-foreground text-sm">
+                            {bill.due_date && (
+                              <span className={
+                                new Date(bill.due_date) < new Date() ? 'text-red-600' : 'text-foreground'
+                              }>
+                                {format(new Date(bill.due_date), 'dd MMM yyyy')}
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-3 text-foreground font-medium">
+                            {formatCurrency(bill.total - bill.paid_to_date)}
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-1">
+                              {bill.file_attachments && Array.isArray(bill.file_attachments) && bill.file_attachments.length > 0 ? (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-sm font-medium">{bill.file_attachments.length}</span>
+                                  <FileText className="h-4 w-4 text-blue-600" />
+                                </div>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">0</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6">
+                              <span className="text-xs">⋯</span>
+                            </Button>
                           </td>
                         </tr>
                       ))}

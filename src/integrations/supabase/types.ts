@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -348,9 +348,13 @@ export type Database = {
           created_at: string
           created_by: string | null
           due_date: string
+          file_attachments: Json | null
+          forwarded_bill: boolean | null
           id: string
           paid_to_date: number
           project_id: string
+          reference_number: string | null
+          source_system: string | null
           status: Database["public"]["Enums"]["bill_status"]
           subtotal: number
           supplier_email: string | null
@@ -365,9 +369,13 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           due_date: string
+          file_attachments?: Json | null
+          forwarded_bill?: boolean | null
           id?: string
           paid_to_date?: number
           project_id: string
+          reference_number?: string | null
+          source_system?: string | null
           status?: Database["public"]["Enums"]["bill_status"]
           subtotal?: number
           supplier_email?: string | null
@@ -382,9 +390,13 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           due_date?: string
+          file_attachments?: Json | null
+          forwarded_bill?: boolean | null
           id?: string
           paid_to_date?: number
           project_id?: string
+          reference_number?: string | null
+          source_system?: string | null
           status?: Database["public"]["Enums"]["bill_status"]
           subtotal?: number
           supplier_email?: string | null
@@ -4285,11 +4297,11 @@ export type Database = {
       }
       create_invoice: {
         Args: {
-          p_project_id: string
-          p_client_name: string
           p_client_email?: string
+          p_client_name: string
           p_due_date?: string
           p_items?: Json
+          p_project_id: string
         }
         Returns: string
       }
@@ -4328,36 +4340,36 @@ export type Database = {
       get_current_context: {
         Args: Record<PropertyKey, never>
         Returns: {
-          context_type: string
           context_id: string
           context_name: string
+          context_type: string
         }[]
       }
       get_manageable_users_for_user: {
         Args: { requesting_user_id: string }
         Returns: {
-          user_id: string
+          app_role: Database["public"]["Enums"]["app_role"]
+          app_roles: Database["public"]["Enums"]["app_role"][]
+          avatar_url: string
+          can_assign_to_companies: boolean
+          can_manage_roles: boolean
+          company: string
+          company_role: string
+          created_at: string
           email: string
           first_name: string
           last_name: string
-          avatar_url: string
           phone: string
-          company: string
-          app_role: Database["public"]["Enums"]["app_role"]
-          app_roles: Database["public"]["Enums"]["app_role"][]
-          company_role: string
           status: string
-          created_at: string
-          can_manage_roles: boolean
-          can_assign_to_companies: boolean
+          user_id: string
         }[]
       }
       get_masked_lead_contact: {
         Args: {
+          lead_company_id: string
           lead_contact_email: string
           lead_contact_phone: string
           requesting_user_id: string
-          lead_company_id: string
         }
         Returns: {
           masked_email: string
@@ -4367,72 +4379,72 @@ export type Database = {
       get_public_profile_safe: {
         Args: { profile_user_id: string }
         Returns: {
-          user_id: string
-          first_name: string
-          last_name: string
           avatar_url: string
           company: string
-          slug: string
+          email: string
+          first_name: string
+          last_name: string
+          phone: string
           rating: number
           review_count: number
-          email: string
-          phone: string
+          slug: string
           status: string
+          user_id: string
         }[]
       }
       get_safe_profile_data: {
         Args: { profile_user_id: string }
         Returns: {
-          id: string
-          user_id: string
-          first_name: string
-          last_name: string
           avatar_url: string
           company: string
-          slug: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          phone: string
+          public_profile: boolean
           rating: number
           review_count: number
-          email: string
-          phone: string
+          slug: string
           status: string
-          public_profile: boolean
+          user_id: string
         }[]
       }
       get_safe_public_profile_data: {
         Args: { profile_user_id: string }
         Returns: {
-          id: string
-          user_id: string
-          first_name: string
-          last_name: string
           avatar_url: string
-          company: string
-          professional_title: string
           bio: string
-          slug: string
+          company: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          location: string
+          meta_description: string
+          meta_title: string
+          phone: string
+          professional_title: string
           rating: number
           review_count: number
-          years_experience: number
-          skills: string[]
           services: string[]
-          verified: boolean
+          skills: string[]
+          slug: string
           social_links: Json
-          meta_title: string
-          meta_description: string
+          user_id: string
+          verified: boolean
           website: string
-          email: string
-          phone: string
-          location: string
+          years_experience: number
         }[]
       }
       get_user_companies: {
         Args: { target_user_id?: string }
         Returns: {
           id: string
-          name: string
-          slug: string
           logo_url: string
+          name: string
           role: string
+          slug: string
           status: string
         }[]
       }
@@ -4447,11 +4459,11 @@ export type Database = {
       get_user_profile: {
         Args: { _user_id: string }
         Returns: {
-          id: string
+          avatar_url: string
           email: string
           first_name: string
+          id: string
           last_name: string
-          avatar_url: string
         }[]
       }
       get_user_role: {
@@ -4465,31 +4477,31 @@ export type Database = {
       get_user_subscription: {
         Args: Record<PropertyKey, never> | { target_user_id?: string }
         Returns: {
-          subscription_id: string
-          plan_name: string
-          plan_description: string
-          status: string
           billing_cycle: string
-          trial_ends_at: string
           current_period_end: string
-          price_monthly: number
-          price_yearly: number
           features: string[]
           max_projects: number
-          max_team_members: number
           max_storage_gb: number
+          max_team_members: number
+          plan_description: string
+          plan_name: string
+          price_monthly: number
+          price_yearly: number
+          status: string
+          subscription_id: string
+          trial_ends_at: string
         }[]
       }
       has_role: {
         Args:
-          | { _user_id: string; _role: Database["public"]["Enums"]["app_role"] }
-          | { _user_id: string; _role: string }
+          | { _role: Database["public"]["Enums"]["app_role"]; _user_id: string }
+          | { _role: string; _user_id: string }
         Returns: boolean
       }
       has_role_secure: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
@@ -4540,9 +4552,9 @@ export type Database = {
       log_user_action: {
         Args: {
           _action: string
-          _resource_type: string
-          _resource_id?: string
           _metadata?: Json
+          _resource_id?: string
+          _resource_type: string
         }
         Returns: undefined
       }
@@ -4555,7 +4567,7 @@ export type Database = {
         Returns: string
       }
       set_active_context: {
-        Args: { p_context_type: string; p_context_id?: string }
+        Args: { p_context_id?: string; p_context_type: string }
         Returns: boolean
       }
       track_first_login: {
