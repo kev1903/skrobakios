@@ -149,10 +149,9 @@ export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
       <Card>
         <CardContent className="pt-0">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="inbox">Inbox</TabsTrigger>
-              <TabsTrigger value="pending">Pending Approval</TabsTrigger>
-              <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="inbox">For Approval</TabsTrigger>
+              <TabsTrigger value="pending">Awaiting Payments</TabsTrigger>
               <TabsTrigger value="paid">Paid</TabsTrigger>
             </TabsList>
 
