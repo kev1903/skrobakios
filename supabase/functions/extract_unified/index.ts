@@ -267,8 +267,36 @@ serve(async (req) => {
             role: "system",
             content: "You are an expert AI specialized in extracting structured data from construction industry documents including contracts, architectural drawings, specifications, and invoices. " +
               "You have deep knowledge of construction terminology, standard contract formats (AIA, FIDIC, NEC), architectural drawing conventions, and billing practices. " +
-              "Analyze the provided text with high precision and extract only information that is explicitly present. " +
-              "For confidence scoring: 0.9-1.0 = clear, complete information; 0.7-0.8 = good but some unclear areas; 0.5-0.6 = partial information; 0.3-0.4 = poor quality text; 0.0-0.2 = severely corrupted/unclear. " +
+              
+              "\n\nEXAMPLE EXTRACTIONS:\n" +
+              
+              "CONTRACT EXAMPLE:\n" +
+              "Input: 'CONSTRUCTION AGREEMENT between ABC Construction LLC and XYZ Development Corp. Contract Value: $2,450,000. Start Date: March 15, 2024. Completion: December 31, 2024. Payment Terms: Net 30 days.'\n" +
+              "Output: {\"document_type\": \"contract\", \"ai_confidence\": 0.95, \"ai_summary\": \"Construction agreement between ABC Construction and XYZ Development for $2.45M project from March to December 2024\", \"contract\": {\"title\": \"Construction Agreement\", \"parties\": [\"ABC Construction LLC\", \"XYZ Development Corp\"], \"effective_date\": \"2024-03-15\", \"expiry_date\": \"2024-12-31\", \"contract_value\": \"$2,450,000\", \"payment_terms\": \"Net 30 days\"}}\n" +
+              
+              "DRAWING EXAMPLE:\n" +
+              "Input: 'Drawing No: A-101 Rev: C Project: Downtown Office Tower Client: Metro Properties Architect: Smith & Associates Scale: 1/8\"=1'-0\" Discipline: Architectural Drawing Type: Floor Plan'\n" +
+              "Output: {\"document_type\": \"drawing\", \"ai_confidence\": 0.92, \"ai_summary\": \"Architectural floor plan A-101 Rev C for Downtown Office Tower project by Smith & Associates\", \"drawing\": {\"drawing_number\": \"A-101\", \"revision\": \"C\", \"project_name\": \"Downtown Office Tower\", \"client_name\": \"Metro Properties\", \"architect\": \"Smith & Associates\", \"scale\": \"1/8\\\"=1'-0\\\"\", \"discipline\": \"Architectural\", \"drawing_type\": \"Floor Plan\"}}\n" +
+              
+              "INVOICE EXAMPLE:\n" +
+              "Input: 'INVOICE #INV-2024-001 Date: 2024-02-15 Due: 2024-03-15 From: BuildCorp Inc To: Property Developers Ltd Subtotal: $15,000 Tax: $1,950 Total: $16,950'\n" +
+              "Output: {\"document_type\": \"invoice\", \"ai_confidence\": 0.94, \"ai_summary\": \"Invoice INV-2024-001 from BuildCorp to Property Developers for $16,950 due March 15, 2024\", \"invoice\": {\"invoice_number\": \"INV-2024-001\", \"invoice_date\": \"2024-02-15\", \"due_date\": \"2024-03-15\", \"vendor\": \"BuildCorp Inc\", \"client\": \"Property Developers Ltd\", \"subtotal\": 15000, \"tax\": 1950, \"total\": 16950}}\n" +
+              
+              "\nCONFIDENCE SCORING GUIDELINES:\n" +
+              "0.9-1.0: All key information clearly present, professional formatting, industry-standard terminology\n" +
+              "0.7-0.8: Most information available, minor formatting issues, some unclear sections\n" +
+              "0.5-0.6: Partial information extractable, significant formatting problems, missing key details\n" +
+              "0.3-0.4: Poor text quality, fragmented content, but document type identifiable\n" +
+              "0.0-0.2: Severely corrupted text, minimal extractable information\n" +
+              
+              "\nEXTRACTION RULES:\n" +
+              "- Extract only explicitly stated information, never infer or assume\n" +
+              "- For dates: Use ISO format (YYYY-MM-DD) when possible\n" +
+              "- For monetary values: Include currency symbols and commas as shown\n" +
+              "- For company names: Extract full legal names including LLC, Inc, Corp suffixes\n" +
+              "- For technical specifications: Preserve exact formatting and units\n" +
+              "- If information is unclear or missing, omit the field rather than guess\n" +
+              
               "Return ONLY valid JSON matching the schema."
           },
           {
