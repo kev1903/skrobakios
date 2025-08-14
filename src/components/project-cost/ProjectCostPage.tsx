@@ -266,13 +266,6 @@ export const ProjectCostPage = ({
                           <option value="paid">Paid</option>
                           <option value="overdue">Overdue</option>
                         </select>
-                        <Button 
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                          onClick={() => setIsPDFUploaderOpen(true)}
-                        >
-                          <DollarSign className="h-4 w-4" />
-                          Upload Invoice PDF
-                        </Button>
                       </>
                     )}
                     {activeTab === 'expense' && (
@@ -286,6 +279,13 @@ export const ProjectCostPage = ({
                           <option value="pending">Awaiting Payments</option>
                           <option value="paid">Paid</option>
                         </select>
+                        <Button 
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                          onClick={() => setIsPDFUploaderOpen(true)}
+                        >
+                          <DollarSign className="h-4 w-4" />
+                          Upload Invoice PDF
+                        </Button>
                         <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
                           <DollarSign className="h-4 w-4" />
                           New Bill
@@ -306,19 +306,26 @@ export const ProjectCostPage = ({
               {/* Tab Content */}
               <div className="p-6">
                 <TabsContent value="income" className="mt-0">
-                  <InvoiceDetailsTable 
-                    projectId={project.id}
-                    formatCurrency={formatCurrency}
-                    formatDate={formatDate}
-                  />
+                  <div className="text-center py-12">
+                    <DollarSign className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Income Tracking</h3>
+                    <p className="text-muted-foreground">Monitor project income and revenue</p>
+                  </div>
                 </TabsContent>
                 <TabsContent value="expense" className="mt-0">
-                  <ExpensesModule 
-                    projectId={project.id}
-                    statusFilter={expenseStatusFilter}
-                    formatCurrency={formatCurrency}
-                    formatDate={formatDate}
-                  />
+                  <div className="space-y-6">
+                    <InvoiceDetailsTable 
+                      projectId={project.id}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                    />
+                    <ExpensesModule 
+                      projectId={project.id}
+                      statusFilter={expenseStatusFilter}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                    />
+                  </div>
                 </TabsContent>
                 
                 <TabsContent value="analytics" className="mt-0">
