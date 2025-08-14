@@ -2052,6 +2052,57 @@ export type Database = {
         }
         Relationships: []
       }
+      processed_invoices: {
+        Row: {
+          bill_id: string | null
+          created_at: string
+          extracted_data: Json | null
+          file_name: string
+          file_url: string
+          id: string
+          processing_status: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          bill_id?: string | null
+          created_at?: string
+          extracted_data?: Json | null
+          file_name: string
+          file_url: string
+          id?: string
+          processing_status?: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          bill_id?: string | null
+          created_at?: string
+          extracted_data?: Json | null
+          file_name?: string
+          file_url?: string
+          id?: string
+          processing_status?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "processed_invoices_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "processed_invoices_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_activated: boolean | null
