@@ -33,6 +33,7 @@ import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
 import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
 import { MenuBar } from "./components/MenuBar";
+import PDFExtractionDocs from "./pages/PDFExtractionDocs";
 
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SK25008Dashboard } from "./components/SK25008Dashboard";
@@ -300,6 +301,9 @@ const AppContent = () => {
         
         {/* Dynamic Project Dashboard */}
         <Route path="/project-dashboard/:projectId" element={<ProjectDashboardWrapper />} />
+        
+        {/* Documentation Pages */}
+        <Route path="/docs/pdf-extraction" element={<PDFExtractionDocs />} />
       </Routes>
       {location.pathname !== "/" && (
         <GlobalSidebar currentPage={currentPageForSidebar} onNavigate={handleSidebarNavigate} />
