@@ -27,15 +27,16 @@ interface Invoice {
 
 interface IncomeModuleProps {
   projectId: string;
+  statusFilter?: string;
+  onCreateInvoice?: () => void;
 }
 
-export const IncomeModule = ({ projectId }: IncomeModuleProps) => {
+export const IncomeModule = ({ projectId, statusFilter = 'all', onCreateInvoice }: IncomeModuleProps) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
   const { toast } = useToast();
 
   const loadInvoices = async () => {
@@ -88,8 +89,12 @@ export const IncomeModule = ({ projectId }: IncomeModuleProps) => {
   };
 
   const handleCreateInvoice = () => {
-    setSelectedInvoice(null);
-    setIsDrawerOpen(true);
+    if (onCreateInvoice) {
+      onCreateInvoice();
+    } else {
+      setSelectedInvoice(null);
+      setIsDrawerOpen(true);
+    }
   };
 
   const handleEditInvoice = (invoice: Invoice) => {
@@ -162,27 +167,7 @@ export const IncomeModule = ({ projectId }: IncomeModuleProps) => {
       {/* Invoices Table */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Invoices</CardTitle>
-            <div className="flex items-center gap-4">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-border rounded-md text-sm bg-background"
-              >
-                <option value="all">All Status</option>
-                <option value="draft">Draft</option>
-                <option value="sent">Sent</option>
-                <option value="part_paid">Part Paid</option>
-                <option value="paid">Paid</option>
-                <option value="overdue">Overdue</option>
-              </select>
-              <Button onClick={handleCreateInvoice} className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                New Invoice
-              </Button>
-            </div>
-          </div>
+          <CardTitle>Invoices</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (

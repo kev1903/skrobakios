@@ -28,12 +28,12 @@ interface Bill {
 
 interface ExpensesModuleProps {
   projectId: string;
+  statusFilter?: string;
 }
 
-export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
+export const ExpensesModule = ({ projectId, statusFilter = 'inbox' }: ExpensesModuleProps) => {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('inbox');
   const { toast } = useToast();
 
   const loadBills = async () => {
@@ -143,144 +143,100 @@ export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
     pending: bills.filter(bill => bill.status === 'submitted').length,
   };
 
-  const filteredBills = filterBillsByStatus(activeTab);
+  const filteredBills = filterBillsByStatus(statusFilter);
 
   return (
     <div className="space-y-4">
-
-      {/* Bills Management */}
       <Card>
-        <CardContent className="pt-0">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="inbox">For Approval</TabsTrigger>
-              <TabsTrigger value="pending">Awaiting Payments</TabsTrigger>
-              <TabsTrigger value="paid">Paid</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value={activeTab} className="mt-4">
-              {loading ? (
-                <div className="text-center py-8 text-foreground">Loading bills...</div>
-              ) : filteredBills.length === 0 ? (
-                <div className="text-center py-8 text-foreground">
-                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <p className="text-foreground">No bills found in this category.</p>
-                  <p className="text-sm mt-2 text-muted-foreground">Upload bills or create new entries to get started.</p>
+        <CardContent className="pt-6">
+          {loading ? (
+            <div className="text-center py-8 text-foreground">Loading bills...</div>
+          ) : filteredBills.length === 0 ? (
+            <div className="text-center py-8 text-foreground">
+              <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-foreground">No bills found in this category.</p>
+              <p className="text-sm mt-2 text-muted-foreground">Upload bills or create new entries to get started.</p>
+            </div>
+          ) : (
+            <div className="w-full">
+              {/* Action Bar */}
+              <div className="flex items-center gap-2 mb-4 p-2 bg-muted/30 rounded-lg">
+                <Button variant="outline" size="sm" className="bg-blue-600 text-white hover:bg-blue-700 border-blue-600">
+                  Approve
+                </Button>
+                <Button variant="outline" size="sm">Submit for approval</Button>
+                <Button variant="outline" size="sm">Delete</Button>
+                <Button variant="outline" size="sm">Print</Button>
+                <div className="ml-auto text-sm text-muted-foreground">
+                  {filteredBills.length} items | {formatCurrency(filteredBills.reduce((sum, bill) => sum + bill.total, 0))}
                 </div>
-              ) : (
-                <div className="w-full">
-                  {/* Action Bar */}
-                  <div className="flex items-center gap-2 mb-4 p-2 bg-muted/30 rounded-lg">
-                    <Button variant="outline" size="sm" className="bg-blue-600 text-white hover:bg-blue-700 border-blue-600">
-                      Approve
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Submit for approval
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Delete
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Print
-                    </Button>
-                    <div className="ml-auto text-sm text-muted-foreground">
-                      {filteredBills.length} items | {formatCurrency(filteredBills.reduce((sum, bill) => sum + bill.total, 0))}
-                    </div>
-                  </div>
+              </div>
 
-                  {/* Bills Table */}
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="border-b bg-muted/50">
-                        <th className="text-left p-3 font-medium w-12">
-                          <input type="checkbox" className="rounded" />
-                        </th>
-                        <th className="text-left p-3 font-medium w-16 text-foreground">View</th>
-                        <th className="text-left p-3 font-medium text-foreground">From</th>
-                        <th className="text-left p-3 font-medium w-32 text-foreground">Reference</th>
-                        <th className="text-left p-3 font-medium w-28 text-foreground">Date ↓</th>
-                        <th className="text-left p-3 font-medium w-28 text-foreground">Due date</th>
-                        <th className="text-left p-3 font-medium w-24 text-foreground">Due</th>
-                        <th className="text-left p-3 font-medium w-16 text-foreground">Files</th>
-                        <th className="text-left p-3 font-medium w-12"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredBills.map((bill) => (
-                        <tr key={bill.id} className="border-b hover:bg-muted/30 group">
-                          <td className="p-3">
-                            <input type="checkbox" className="rounded" />
-                          </td>
-                          <td className="p-3">
-                            <Button variant="ghost" size="sm" className="p-1 h-8 w-8">
-                              <Eye className="h-4 w-4 text-blue-600" />
-                            </Button>
-                          </td>
-                          <td className="p-3 text-foreground font-medium">
-                            {bill.supplier_name}
-                          </td>
-                          <td className="p-3 text-foreground">
-                            <div>
-                              <div className="font-mono text-sm">{bill.reference_number || bill.bill_no}</div>
-                              {bill.forwarded_bill && (
-                                <div className="text-xs text-blue-600 italic">Forwarded Bill</div>
-                              )}
-                            </div>
-                          </td>
-                          <td className="p-3 text-foreground text-sm">
-                            {format(new Date(bill.bill_date), 'dd MMM yyyy')}
-                          </td>
-                          <td className="p-3 text-foreground text-sm">
-                            {bill.due_date && (
-                              <span className={
-                                new Date(bill.due_date) < new Date() ? 'text-red-600' : 'text-foreground'
-                              }>
-                                {format(new Date(bill.due_date), 'dd MMM yyyy')}
-                              </span>
-                            )}
-                          </td>
-                          <td className="p-3 text-foreground font-medium">
-                            {formatCurrency(bill.total - bill.paid_to_date)}
-                          </td>
-                          <td className="p-3">
+              {/* Bills Table */}
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="text-left p-3 font-medium w-12">
+                      <input type="checkbox" className="rounded" />
+                    </th>
+                    <th className="text-left p-3 font-medium w-16 text-foreground">View</th>
+                    <th className="text-left p-3 font-medium text-foreground">From</th>
+                    <th className="text-left p-3 font-medium w-32 text-foreground">Reference</th>
+                    <th className="text-left p-3 font-medium w-28 text-foreground">Date ↓</th>
+                    <th className="text-left p-3 font-medium w-28 text-foreground">Due date</th>
+                    <th className="text-left p-3 font-medium w-24 text-foreground">Due</th>
+                    <th className="text-left p-3 font-medium w-16 text-foreground">Files</th>
+                    <th className="text-left p-3 font-medium w-12"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredBills.map((bill) => (
+                    <tr key={bill.id} className="border-b hover:bg-muted/30 group">
+                      <td className="p-3"><input type="checkbox" className="rounded" /></td>
+                      <td className="p-3">
+                        <Button variant="ghost" size="sm" className="p-1 h-8 w-8">
+                          <Eye className="h-4 w-4 text-blue-600" />
+                        </Button>
+                      </td>
+                      <td className="p-3 text-foreground font-medium">{bill.supplier_name}</td>
+                      <td className="p-3 text-foreground">
+                        <div>
+                          <div className="font-mono text-sm">{bill.reference_number || bill.bill_no}</div>
+                          {bill.forwarded_bill && <div className="text-xs text-blue-600 italic">Forwarded Bill</div>}
+                        </div>
+                      </td>
+                      <td className="p-3 text-foreground text-sm">{format(new Date(bill.bill_date), 'dd MMM yyyy')}</td>
+                      <td className="p-3 text-foreground text-sm">
+                        {bill.due_date && (
+                          <span className={new Date(bill.due_date) < new Date() ? 'text-red-600' : 'text-foreground'}>
+                            {format(new Date(bill.due_date), 'dd MMM yyyy')}
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3 text-foreground font-medium">{formatCurrency(bill.total - bill.paid_to_date)}</td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-1">
+                          {bill.file_attachments && Array.isArray(bill.file_attachments) && bill.file_attachments.length > 0 ? (
                             <div className="flex items-center gap-1">
-                              {bill.file_attachments && Array.isArray(bill.file_attachments) && bill.file_attachments.length > 0 ? (
-                                <div className="flex items-center gap-1">
-                                  <span className="text-sm font-medium">{bill.file_attachments.length}</span>
-                                  <FileText className="h-4 w-4 text-blue-600" />
-                                </div>
-                              ) : (
-                                <span className="text-sm text-muted-foreground">0</span>
-                              )}
+                              <span className="text-sm font-medium">{bill.file_attachments.length}</span>
+                              <FileText className="h-4 w-4 text-blue-600" />
                             </div>
-                          </td>
-                          <td className="p-3">
-                            <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6">
-                              <span className="text-xs">⋯</span>
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {activeTab === 'inbox' && (
-                <div className="mt-6 p-6 border-2 border-dashed border-muted-foreground/25 rounded-lg text-center">
-                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <p className="text-lg font-medium mb-2">Upload Bills</p>
-                  <p className="text-muted-foreground mb-4">
-                    Drag and drop PDF files here or click to browse
-                  </p>
-                  <Button>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Choose Files
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">0</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6">
+                          <span className="text-xs">⋯</span>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

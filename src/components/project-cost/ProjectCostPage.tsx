@@ -18,6 +18,7 @@ import { StageManagement } from './StageManagement';
 import { IncomeModule } from '../project-finance/income/IncomeModule';
 import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
 import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
+import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
 
 interface ProjectCostPageProps {
   project: Project;
@@ -29,8 +30,11 @@ export const ProjectCostPage = ({
 }: ProjectCostPageProps) => {
   const { userProfile } = useUser();
   const [activeTab, setActiveTab] = useState('cost-control');
+  const [incomeStatusFilter, setIncomeStatusFilter] = useState('all');
+  const [expenseStatusFilter, setExpenseStatusFilter] = useState('inbox');
   const [incomeData, setIncomeData] = useState({ totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });
   const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0 });
+  const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
 
   // Use the central tasks hook to get real data from the database
   const { 
@@ -229,26 +233,75 @@ export const ProjectCostPage = ({
                       Cost Control
                     </TabsTrigger>
                   </TabsList>
-                  {activeTab === 'cost-control' && (
-                    <div>
+                  
+                  {/* Tab-specific controls */}
+                  <div className="flex items-center gap-4">
+                    {activeTab === 'income' && (
+                      <>
+                        <select
+                          value={incomeStatusFilter}
+                          onChange={(e) => setIncomeStatusFilter(e.target.value)}
+                          className="px-3 py-2 border border-border rounded-md text-sm bg-background"
+                        >
+                          <option value="all">All Status</option>
+                          <option value="draft">Draft</option>
+                          <option value="sent">Sent</option>
+                          <option value="part_paid">Part Paid</option>
+                          <option value="paid">Paid</option>
+                          <option value="overdue">Overdue</option>
+                        </select>
+                        <Button 
+                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                          onClick={() => setIsInvoiceDrawerOpen(true)}
+                        >
+                          <DollarSign className="h-4 w-4" />
+                          New Invoice
+                        </Button>
+                      </>
+                    )}
+                    {activeTab === 'expense' && (
+                      <>
+                        <select
+                          value={expenseStatusFilter}
+                          onChange={(e) => setExpenseStatusFilter(e.target.value)}
+                          className="px-3 py-2 border border-border rounded-md text-sm bg-background"
+                        >
+                          <option value="inbox">For Approval</option>
+                          <option value="pending">Awaiting Payments</option>
+                          <option value="paid">Paid</option>
+                        </select>
+                        <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+                          <DollarSign className="h-4 w-4" />
+                          New Bill
+                        </Button>
+                      </>
+                    )}
+                    {activeTab === 'cost-control' && (
                       <StageManagement 
                         projectId={project.id}
                         companyId={project.company_id || 'demo-company'}
                         onStageUpdated={loadTasks}
                       />
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Tab Content */}
               <div className="p-6">
                 <TabsContent value="income" className="mt-0">
-                  <IncomeModule projectId={project.id} />
+                  <IncomeModule 
+                    projectId={project.id} 
+                    statusFilter={incomeStatusFilter}
+                    onCreateInvoice={() => setIsInvoiceDrawerOpen(true)}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="expense" className="mt-0">
-                  <ExpensesModule projectId={project.id} />
+                  <ExpensesModule 
+                    projectId={project.id}
+                    statusFilter={expenseStatusFilter}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="analytics" className="mt-0">
