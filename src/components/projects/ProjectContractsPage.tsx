@@ -1398,12 +1398,8 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                         </div>
                       )}
                     </>
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      No party information available in contract
-                    </div>
-                  )}
-                </div>
+                  ) : null}
+                 </div>
               </CardContent>
             </Card>
 
@@ -1432,32 +1428,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="font-medium">Weather-related delays</div>
-                        <Badge variant="outline" className="text-yellow-600 bg-yellow-50 border-yellow-200">
-                          MEDIUM
-                        </Badge>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        <strong>Mitigation:</strong> Monitor weather forecasts and plan activities accordingly. Maintain contingency schedules.
-                      </div>
-                    </div>
-                    <div className="p-4 border rounded-lg">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="font-medium">Material supply chain issues</div>
-                        <Badge variant="outline" className="text-green-600 bg-green-50 border-green-200">
-                          LOW
-                        </Badge>
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        <strong>Mitigation:</strong> Early procurement strategies and established supplier agreements in place.
-                      </div>
-                    </div>
-                  </div>
-                )}
+                ) : null}
               </CardContent>
             </Card>
 
@@ -1492,30 +1463,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-4 p-3 border rounded-lg">
-                      <div className="w-5 h-5 rounded border border-muted-foreground" />
-                      <div className="flex-1">
-                        <div className="font-medium">Submit updated insurance certificates</div>
-                        <div className="text-sm text-muted-foreground">
-                          Due: August 20, 2024 • Assigned to: Project Manager
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4 p-3 border rounded-lg">
-                      <div className="w-5 h-5 rounded border bg-green-500 border-green-500 flex items-center justify-center">
-                        <CheckCircle className="w-3 h-3 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium">Complete contract execution</div>
-                        <div className="text-sm text-muted-foreground">
-                          Due: August 15, 2024 • Assigned to: Legal Team
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                ) : null}
               </CardContent>
             </Card>
           </div>
