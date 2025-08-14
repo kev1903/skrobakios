@@ -11,7 +11,7 @@ interface BillsPageProps {
 
 export const BillsPage = ({ onNavigate }: BillsPageProps) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+    <div className="min-h-screen bg-background p-6">
       <BillsHeader onNavigate={onNavigate} />
       <BillsSummaryCards />
       <BillsChart />

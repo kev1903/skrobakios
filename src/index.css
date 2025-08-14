@@ -109,6 +109,12 @@ div[data-rbd-drag-handle-draggable-id] {
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
+    --warning: 48 96% 53%;
+    --warning-foreground: 20 14.3% 4.1%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 355 100% 97%;
+
     --border: 220 13% 91%;
     --input: 220 13% 97%;
     --ring: 217 91% 60%;

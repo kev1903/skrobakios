@@ -21,8 +21,8 @@ export const BillsHeader = ({ onNavigate }: BillsHeaderProps) => {
             <span>Back to Finance</span>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Bills</h1>
-            <p className="text-gray-600">Manage and track all your bills and payables</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Bills</h1>
+            <p className="text-muted-foreground">Manage and track all your bills and payables</p>
           </div>
         </div>
         <div className="flex items-center space-x-3">

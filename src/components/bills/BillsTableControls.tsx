@@ -38,7 +38,7 @@ export const BillsTableControls = ({ searchQuery, onSearchChange }: BillsTableCo
 
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-600">Sort by:</span>
+          <span className="text-sm text-muted-foreground">Sort by:</span>
           <Select defaultValue="oldest-due">
             <SelectTrigger className="w-48">
               <SelectValue />
