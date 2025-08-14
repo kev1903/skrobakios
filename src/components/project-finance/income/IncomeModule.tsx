@@ -188,7 +188,7 @@ export const IncomeModule = ({ projectId }: IncomeModuleProps) => {
           {loading ? (
             <div className="text-center py-8">Loading invoices...</div>
           ) : filteredInvoices.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-foreground">
               No invoices found. Create your first invoice to get started.
             </div>
           ) : (
