@@ -167,9 +167,6 @@ export const IncomeModule = ({ projectId, statusFilter = 'all', onCreateInvoice,
     <div className="space-y-6">
       {/* Invoices Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Invoices</CardTitle>
-        </CardHeader>
         <CardContent>
           {loading ? (
             <div className="text-center py-8">Loading invoices...</div>
