@@ -91,12 +91,15 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // TypeScript utility functions
-  const percentFrom = (text?: string) => {
+  const percentFrom = (text?: string | number) => {
     if (!text) return '—';
-    const m = String(text).match(/(\d+(?:\.\d+)?)\s*%/);
-    if (m) return `${Math.round(Number(m[1]))}%`;
-    const n = Number(String(text).replace(/[^\d.]/g, ''));
-    if (Number.isFinite(n) && n > 0) return n <= 1 ? `${Math.round(n*100)}%` : `${Math.round(n)}%`;
+    const n = Number(text);
+    if (Number.isFinite(n) && n > 0) {
+      // If it's a decimal (0.75), convert to percentage
+      if (n <= 1) return `${Math.round(n * 100)}%`;
+      // If it's already a percentage (75), just round it
+      return `${Math.round(n)}%`;
+    }
     return '—';
   };
 
