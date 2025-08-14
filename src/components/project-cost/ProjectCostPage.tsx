@@ -304,8 +304,35 @@ export const ProjectCostPage = ({
 
               {/* Tab Content */}
               <div className="p-6">
-                  <div className="text-center py-8 text-muted-foreground">
-                    Income module has been removed.
+                  <div className="space-y-4">
+                    <div className="bg-card border rounded-lg">
+                      <div className="p-4 border-b">
+                        <h3 className="text-lg font-semibold">Invoice Details</h3>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b bg-muted/30">
+                              <th className="text-left p-3 font-medium">WBS</th>
+                              <th className="text-left p-3 font-medium">Subcontractor</th>
+                              <th className="text-left p-3 font-medium">Invoice Number</th>
+                              <th className="text-left p-3 font-medium">Attachment</th>
+                              <th className="text-left p-3 font-medium">Invoice Date</th>
+                              <th className="text-left p-3 font-medium">Due Date</th>
+                              <th className="text-left p-3 font-medium">Notes</th>
+                              <th className="text-left p-3 font-medium">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr className="border-b">
+                              <td className="p-3 text-muted-foreground" colSpan={8}>
+                                No invoices found
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 
                 <TabsContent value="expense" className="mt-0">
