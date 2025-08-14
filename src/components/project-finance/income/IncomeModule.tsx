@@ -7,7 +7,7 @@ import { PaymentModal } from './PaymentModal';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Plus, FileText, Download, Send, DollarSign, Clock, AlertCircle, Mail, Edit, CreditCard } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 
 interface Invoice {
@@ -29,9 +29,11 @@ interface IncomeModuleProps {
   projectId: string;
   statusFilter?: string;
   onCreateInvoice?: () => void;
+  formatCurrency?: (amount: number) => string;
+  formatDate?: (date: Date | string) => string;
 }
 
-export const IncomeModule = ({ projectId, statusFilter = 'all', onCreateInvoice }: IncomeModuleProps) => {
+export const IncomeModule = ({ projectId, statusFilter = 'all', onCreateInvoice, formatCurrency, formatDate }: IncomeModuleProps) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -197,11 +199,11 @@ export const IncomeModule = ({ projectId, statusFilter = 'all', onCreateInvoice 
                     <tr key={invoice.id} className="border-b hover:bg-muted/50">
                       <td className="p-2 font-mono text-sm truncate">{invoice.number}</td>
                       <td className="p-2 truncate">{invoice.client_name}</td>
-                      <td className="p-2 text-sm">{format(new Date(invoice.issue_date), 'MMM dd, yyyy')}</td>
-                      <td className="p-2 text-sm">{format(new Date(invoice.due_date), 'MMM dd, yyyy')}</td>
-                      <td className="p-2 font-medium text-sm">{formatCurrency(invoice.total)}</td>
-                      <td className="p-2 font-medium text-sm">{formatCurrency(invoice.paid_to_date)}</td>
-                      <td className="p-2 font-medium text-sm">{formatCurrency(invoice.total - invoice.paid_to_date)}</td>
+                       <td className="p-2 text-sm">{formatDate ? formatDate(new Date(invoice.issue_date)) : format(new Date(invoice.issue_date), 'MMM dd, yyyy')}</td>
+                       <td className="p-2 text-sm">{formatDate ? formatDate(new Date(invoice.due_date)) : format(new Date(invoice.due_date), 'MMM dd, yyyy')}</td>
+                       <td className="p-2 font-medium text-sm">{formatCurrency ? formatCurrency(invoice.total) : defaultFormatCurrency(invoice.total)}</td>
+                       <td className="p-2 font-medium text-sm">{formatCurrency ? formatCurrency(invoice.paid_to_date) : defaultFormatCurrency(invoice.paid_to_date)}</td>
+                       <td className="p-2 font-medium text-sm">{formatCurrency ? formatCurrency(invoice.total - invoice.paid_to_date) : defaultFormatCurrency(invoice.total - invoice.paid_to_date)}</td>
                       <td className="p-2">{getStatusBadge(invoice.status, invoice.paid_to_date, invoice.total)}</td>
                       <td className="p-2">
                         <div className="flex items-center gap-1">

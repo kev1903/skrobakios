@@ -6,7 +6,7 @@ import { TrendingUp, TrendingDown, DollarSign, Clock, Target, AlertTriangle } fr
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format, addWeeks, startOfWeek, isWithinInterval } from 'date-fns';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 
 // Analytics data interface
 interface AnalyticsData {
@@ -54,9 +54,11 @@ interface AnalyticsData {
 
 interface AnalyticsModuleProps {
   projectId: string;
+  formatCurrency?: (amount: number) => string;
+  formatDate?: (date: Date | string) => string;
 }
 
-export const AnalyticsModule = ({ projectId }: AnalyticsModuleProps) => {
+export const AnalyticsModule = ({ projectId, formatCurrency, formatDate }: AnalyticsModuleProps) => {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedTimeframe, setSelectedTimeframe] = useState('weekly');
@@ -291,7 +293,7 @@ export const AnalyticsModule = ({ projectId }: AnalyticsModuleProps) => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-muted-foreground">{kpi.title}</p>
-                  <p className="text-lg font-bold">{formatCurrency(kpi.value)}</p>
+                  <p className="text-lg font-bold">{formatCurrency ? formatCurrency(kpi.value) : defaultFormatCurrency(kpi.value)}</p>
                   <p className={`text-xs ${kpi.positive ? 'text-green-600' : 'text-red-600'}`}>
                     {kpi.trend}
                   </p>
@@ -333,7 +335,7 @@ export const AnalyticsModule = ({ projectId }: AnalyticsModuleProps) => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="week" />
                 <YAxis />
-                <Tooltip formatter={(value) => [formatCurrency(Number(value)), '']} />
+                <Tooltip formatter={(value) => [formatCurrency ? formatCurrency(Number(value)) : defaultFormatCurrency(Number(value)), '']} />
                 <Legend />
                 <Line type="monotone" dataKey="inflow" stroke="hsl(var(--primary))" name="Expected Inflow" />
                 <Line type="monotone" dataKey="outflow" stroke="hsl(var(--destructive))" name="Expected Outflow" />
@@ -361,21 +363,21 @@ export const AnalyticsModule = ({ projectId }: AnalyticsModuleProps) => {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-muted-foreground">Budget</p>
-                        <p className="font-medium">{formatCurrency(stage.budget)}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Actual</p>
-                        <p className="font-medium">{formatCurrency(stage.actual)}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Forecast</p>
-                        <p className="font-medium">{formatCurrency(stage.forecast)}</p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Variance</p>
-                        <p className={`font-medium ${stage.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {formatCurrency(Math.abs(stage.variance))}
-                        </p>
+                         <p className="font-medium">{formatCurrency ? formatCurrency(stage.budget) : defaultFormatCurrency(stage.budget)}</p>
+                       </div>
+                       <div>
+                         <p className="text-muted-foreground">Actual</p>
+                         <p className="font-medium">{formatCurrency ? formatCurrency(stage.actual) : defaultFormatCurrency(stage.actual)}</p>
+                       </div>
+                       <div>
+                         <p className="text-muted-foreground">Forecast</p>
+                         <p className="font-medium">{formatCurrency ? formatCurrency(stage.forecast) : defaultFormatCurrency(stage.forecast)}</p>
+                       </div>
+                       <div>
+                         <p className="text-muted-foreground">Variance</p>
+                         <p className={`font-medium ${stage.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                           {formatCurrency ? formatCurrency(Math.abs(stage.variance)) : defaultFormatCurrency(Math.abs(stage.variance))}
+                         </p>
                       </div>
                     </div>
                   </div>
@@ -398,10 +400,10 @@ export const AnalyticsModule = ({ projectId }: AnalyticsModuleProps) => {
                   className={`p-3 rounded-lg border ${week.isNegative ? 'bg-red-50 border-red-200 dark:bg-red-900/20' : 'bg-green-50 border-green-200 dark:bg-green-900/20'}`}
                 >
                   <p className="font-medium text-sm">{week.week}</p>
-                  <p className="text-xs text-muted-foreground">In: {formatCurrency(week.expectedInflow)}</p>
-                  <p className="text-xs text-muted-foreground">Out: {formatCurrency(week.expectedOutflow)}</p>
-                  <p className={`text-sm font-medium ${week.isNegative ? 'text-red-600' : 'text-green-600'}`}>
-                    Net: {formatCurrency(week.netFlow)}
+                   <p className="text-xs text-muted-foreground">In: {formatCurrency ? formatCurrency(week.expectedInflow) : defaultFormatCurrency(week.expectedInflow)}</p>
+                   <p className="text-xs text-muted-foreground">Out: {formatCurrency ? formatCurrency(week.expectedOutflow) : defaultFormatCurrency(week.expectedOutflow)}</p>
+                   <p className={`text-sm font-medium ${week.isNegative ? 'text-red-600' : 'text-green-600'}`}>
+                     Net: {formatCurrency ? formatCurrency(week.netFlow) : defaultFormatCurrency(week.netFlow)}
                   </p>
                 </div>
               ))}

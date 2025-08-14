@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 
 interface Bill {
@@ -29,9 +29,11 @@ interface Bill {
 interface ExpensesModuleProps {
   projectId: string;
   statusFilter?: string;
+  formatCurrency?: (amount: number) => string;
+  formatDate?: (date: Date | string) => string;
 }
 
-export const ExpensesModule = ({ projectId, statusFilter = 'inbox' }: ExpensesModuleProps) => {
+export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurrency, formatDate }: ExpensesModuleProps) => {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -168,7 +170,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox' }: ExpensesMo
                 <Button variant="outline" size="sm">Delete</Button>
                 <Button variant="outline" size="sm">Print</Button>
                 <div className="ml-auto text-sm text-muted-foreground">
-                  {filteredBills.length} items | {formatCurrency(filteredBills.reduce((sum, bill) => sum + bill.total, 0))}
+                  {filteredBills.length} items | {formatCurrency ? formatCurrency(filteredBills.reduce((sum, bill) => sum + bill.total, 0)) : defaultFormatCurrency(filteredBills.reduce((sum, bill) => sum + bill.total, 0))}
                 </div>
               </div>
 
@@ -205,15 +207,15 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox' }: ExpensesMo
                           {bill.forwarded_bill && <div className="text-xs text-blue-600 italic">Forwarded Bill</div>}
                         </div>
                       </td>
-                      <td className="p-3 text-foreground text-sm">{format(new Date(bill.bill_date), 'dd MMM yyyy')}</td>
-                      <td className="p-3 text-foreground text-sm">
-                        {bill.due_date && (
-                          <span className={new Date(bill.due_date) < new Date() ? 'text-red-600' : 'text-foreground'}>
-                            {format(new Date(bill.due_date), 'dd MMM yyyy')}
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-3 text-foreground font-medium">{formatCurrency(bill.total - bill.paid_to_date)}</td>
+                       <td className="p-3 text-foreground text-sm">{formatDate ? formatDate(new Date(bill.bill_date)) : format(new Date(bill.bill_date), 'dd MMM yyyy')}</td>
+                       <td className="p-3 text-foreground text-sm">
+                         {bill.due_date && (
+                           <span className={new Date(bill.due_date) < new Date() ? 'text-red-600' : 'text-foreground'}>
+                             {formatDate ? formatDate(new Date(bill.due_date)) : format(new Date(bill.due_date), 'dd MMM yyyy')}
+                           </span>
+                         )}
+                       </td>
+                       <td className="p-3 text-foreground font-medium">{formatCurrency ? formatCurrency(bill.total - bill.paid_to_date) : defaultFormatCurrency(bill.total - bill.paid_to_date)}</td>
                       <td className="p-3">
                         <div className="flex items-center gap-1">
                           {bill.file_attachments && Array.isArray(bill.file_attachments) && bill.file_attachments.length > 0 ? (

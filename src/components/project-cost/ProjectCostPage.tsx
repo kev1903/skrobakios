@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle } from 'lucide-react';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
+import { useProjectSettings } from '@/hooks/useProjectSettings';
 import { Project } from '@/hooks/useProjects';
 import { useUser } from '@/contexts/UserContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -37,6 +38,12 @@ export const ProjectCostPage = ({
   const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0 });
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
   const [isPDFUploaderOpen, setIsPDFUploaderOpen] = useState(false);
+
+  // Get project-specific settings for consistent formatting
+  const { settings, formatCurrency, formatDate, loading: settingsLoading } = useProjectSettings(
+    project.id, 
+    project.company_id
+  );
 
   // Refresh function to reload all data
   const refreshData = () => {
@@ -136,19 +143,19 @@ export const ProjectCostPage = ({
                 <>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Billed</div>
-                    <div className="text-lg font-semibold text-foreground">${incomeData.totalBilled.toLocaleString()}</div>
+                    <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.totalBilled)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Paid</div>
-                    <div className="text-lg font-semibold text-foreground">${incomeData.totalPaid.toLocaleString()}</div>
+                    <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.totalPaid)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Outstanding</div>
-                    <div className="text-lg font-semibold text-foreground">${incomeData.outstanding.toLocaleString()}</div>
+                    <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.outstanding)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Overdue</div>
-                    <div className="text-lg font-semibold text-red-600">${incomeData.overdue.toLocaleString()}</div>
+                    <div className="text-lg font-semibold text-red-600">{formatCurrency(incomeData.overdue)}</div>
                   </div>
                 </>
               )}
@@ -156,15 +163,15 @@ export const ProjectCostPage = ({
                 <>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Bills</div>
-                    <div className="text-lg font-semibold text-foreground">${expenseData.totalBills.toLocaleString()}</div>
+                    <div className="text-lg font-semibold text-foreground">{formatCurrency(expenseData.totalBills)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Paid</div>
-                    <div className="text-lg font-semibold text-foreground">${expenseData.totalPaid.toLocaleString()}</div>
+                    <div className="text-lg font-semibold text-foreground">{formatCurrency(expenseData.totalPaid)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Outstanding</div>
-                    <div className="text-lg font-semibold text-foreground">${expenseData.outstanding.toLocaleString()}</div>
+                    <div className="text-lg font-semibold text-foreground">{formatCurrency(expenseData.outstanding)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Pending Approval</div>
@@ -176,7 +183,7 @@ export const ProjectCostPage = ({
                 <>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Net Income</div>
-                    <div className="text-lg font-semibold text-foreground">${(incomeData.totalPaid - expenseData.totalPaid).toLocaleString()}</div>
+                    <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.totalPaid - expenseData.totalPaid)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Income vs Budget</div>
@@ -196,20 +203,20 @@ export const ProjectCostPage = ({
                 <>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Project Budget</div>
-                    <div className="text-lg font-semibold text-foreground">${costSummary.totalBudgeted.toLocaleString()}</div>
+                    <div className="text-lg font-semibold text-foreground">{formatCurrency(costSummary.totalBudgeted)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Cost Committed</div>
-                    <div className="text-lg font-semibold text-foreground">${costSummary.totalActual.toLocaleString()}</div>
+                    <div className="text-lg font-semibold text-foreground">{formatCurrency(costSummary.totalActual)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Paid to Date</div>
-                    <div className="text-lg font-semibold text-foreground">$0.00</div>
+                    <div className="text-lg font-semibold text-foreground">{formatCurrency(0)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Variance</div>
                     <div className={`text-lg font-semibold ${costSummary.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      ${Math.abs(costSummary.variance).toLocaleString()}
+                      {formatCurrency(Math.abs(costSummary.variance))}
                     </div>
                   </div>
                 </>
@@ -302,6 +309,8 @@ export const ProjectCostPage = ({
                     projectId={project.id} 
                     statusFilter={incomeStatusFilter}
                     onCreateInvoice={() => setIsPDFUploaderOpen(true)}
+                    formatCurrency={formatCurrency}
+                    formatDate={formatDate}
                   />
                 </TabsContent>
                 
@@ -309,11 +318,17 @@ export const ProjectCostPage = ({
                   <ExpensesModule 
                     projectId={project.id}
                     statusFilter={expenseStatusFilter}
+                    formatCurrency={formatCurrency}
+                    formatDate={formatDate}
                   />
                 </TabsContent>
                 
                 <TabsContent value="analytics" className="mt-0">
-                  <AnalyticsModule projectId={project.id} />
+                  <AnalyticsModule 
+                    projectId={project.id} 
+                    formatCurrency={formatCurrency}
+                    formatDate={formatDate}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="cost-control" className="mt-0">
