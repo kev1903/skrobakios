@@ -148,7 +148,7 @@ export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
       {/* Bills Management */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle>Bills Management</CardTitle>
+          <CardTitle className="text-foreground">Bills Management</CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -161,39 +161,39 @@ export const ExpensesModule = ({ projectId }: ExpensesModuleProps) => {
 
             <TabsContent value={activeTab} className="mt-4">
               {loading ? (
-                <div className="text-center py-8">Loading bills...</div>
+                <div className="text-center py-8 text-foreground">Loading bills...</div>
               ) : filteredBills.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <p>No bills found in this category.</p>
-                  <p className="text-sm mt-2">Upload bills or create new entries to get started.</p>
+                <div className="text-center py-8 text-foreground">
+                  <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-foreground">No bills found in this category.</p>
+                  <p className="text-sm mt-2 text-muted-foreground">Upload bills or create new entries to get started.</p>
                 </div>
               ) : (
                 <div className="w-full">
                   <table className="w-full border-collapse table-fixed">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left p-2 font-medium w-20">Bill #</th>
-                        <th className="text-left p-2 font-medium">Supplier</th>
-                        <th className="text-left p-2 font-medium w-24">Date</th>
-                        <th className="text-left p-2 font-medium w-24">Due Date</th>
-                        <th className="text-left p-2 font-medium w-20">Total</th>
-                        <th className="text-left p-2 font-medium w-20">Paid</th>
-                        <th className="text-left p-2 font-medium w-20">Balance</th>
-                        <th className="text-left p-2 font-medium w-20">Status</th>
-                        <th className="text-left p-2 font-medium w-24">Actions</th>
+                        <th className="text-left p-2 font-medium w-20 text-foreground">Bill #</th>
+                        <th className="text-left p-2 font-medium text-foreground">Supplier</th>
+                        <th className="text-left p-2 font-medium w-24 text-foreground">Date</th>
+                        <th className="text-left p-2 font-medium w-24 text-foreground">Due Date</th>
+                        <th className="text-left p-2 font-medium w-20 text-foreground">Total</th>
+                        <th className="text-left p-2 font-medium w-20 text-foreground">Paid</th>
+                        <th className="text-left p-2 font-medium w-20 text-foreground">Balance</th>
+                        <th className="text-left p-2 font-medium w-20 text-foreground">Status</th>
+                        <th className="text-left p-2 font-medium w-24 text-foreground">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredBills.map((bill) => (
                         <tr key={bill.id} className="border-b hover:bg-muted/50">
-                          <td className="p-2 font-mono text-sm truncate">{bill.bill_no}</td>
-                          <td className="p-2 truncate">{bill.supplier_name}</td>
-                          <td className="p-2 text-sm">{format(new Date(bill.bill_date), 'MMM dd, yyyy')}</td>
-                          <td className="p-2 text-sm">{format(new Date(bill.due_date), 'MMM dd, yyyy')}</td>
-                          <td className="p-2 font-medium text-sm">{formatCurrency(bill.total)}</td>
-                          <td className="p-2 font-medium text-sm">{formatCurrency(bill.paid_to_date)}</td>
-                          <td className="p-2 font-medium text-sm">{formatCurrency(bill.total - bill.paid_to_date)}</td>
+                          <td className="p-2 font-mono text-sm truncate text-foreground">{bill.bill_no}</td>
+                          <td className="p-2 truncate text-foreground">{bill.supplier_name}</td>
+                          <td className="p-2 text-sm text-foreground">{format(new Date(bill.bill_date), 'MMM dd, yyyy')}</td>
+                          <td className="p-2 text-sm text-foreground">{format(new Date(bill.due_date), 'MMM dd, yyyy')}</td>
+                          <td className="p-2 font-medium text-sm text-foreground">{formatCurrency(bill.total)}</td>
+                          <td className="p-2 font-medium text-sm text-foreground">{formatCurrency(bill.paid_to_date)}</td>
+                          <td className="p-2 font-medium text-sm text-foreground">{formatCurrency(bill.total - bill.paid_to_date)}</td>
                           <td className="p-2">{getStatusBadge(bill.status)}</td>
                           <td className="p-2">
                             <div className="flex items-center gap-1">
