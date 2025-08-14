@@ -306,11 +306,11 @@ export const ContentRenderer = ({
     case "user-edit":
     case "existing-user-profile":
     case "user-profile":
-      // Show profile page only for personal context, redirect to home for company context
+      // Show Personal Analytics Dashboard for personal context, redirect to home for company context
       console.log('🗺️ ContentRenderer: Profile page requested, activeContext:', activeContext);
       if (activeContext === 'personal') {
-        console.log('📄 ContentRenderer: Showing PersonalPage for personal context');
-        return <PersonalPage onNavigate={onNavigate} />;
+        console.log('📄 ContentRenderer: Showing PersonalAnalyticsDashboard for personal context');
+        return <PersonalAnalyticsDashboard onNavigate={onNavigate} />;
       } else {
         console.log('🗺️ ContentRenderer: Redirecting to home for company context');
         onNavigate("home");
