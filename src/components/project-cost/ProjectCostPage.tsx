@@ -36,6 +36,12 @@ export const ProjectCostPage = ({
   const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0 });
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
 
+  // Refresh function to reload all data
+  const refreshData = () => {
+    loadIncomeData();
+    loadExpenseData();
+  };
+
   // Use the central tasks hook to get real data from the database
   const { 
     tasks, 
@@ -316,5 +322,14 @@ export const ProjectCostPage = ({
           </div>
         </div>
       </div>
+
+      {/* Invoice Drawer Modal */}
+      <InvoiceDrawer
+        isOpen={isInvoiceDrawerOpen}
+        onClose={() => setIsInvoiceDrawerOpen(false)}
+        invoice={null}
+        projectId={project.id}
+        onSaved={refreshData}
+      />
     </div>;
 };
