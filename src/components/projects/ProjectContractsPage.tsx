@@ -435,7 +435,13 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
   const handleDelete = async (contractId: string, fileName: string) => {
     try {
-      // Delete from database first
+      // Delete all related contract data first
+      await supabase.from('contract_actions').delete().eq('contract_id', contractId);
+      await supabase.from('contract_risks').delete().eq('contract_id', contractId);
+      await supabase.from('contract_milestones').delete().eq('contract_id', contractId);
+      await supabase.from('contract_versions').delete().eq('contract_id', contractId);
+
+      // Delete from database
       const { error: dbError } = await supabase
         .from('project_contracts')
         .delete()
@@ -443,15 +449,27 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
       if (dbError) throw dbError;
 
-      // Delete from storage
-      const filePath = fileName.split('/').slice(-2).join('/'); // Get project_id/filename
-      await supabase.storage
-        .from('project-contracts')
-        .remove([filePath]);
+      // Delete from storage (using correct bucket name 'documents')
+      const contract = contracts.find(c => c.id === contractId);
+      if (contract?.file_path) {
+        const { error: storageError } = await supabase.storage
+          .from('documents')
+          .remove([contract.file_path]);
+        
+        if (storageError) {
+          console.warn('Storage deletion warning:', storageError);
+        }
+      }
+
+      // If selected contract was deleted, clear selection
+      if (selectedContract?.id === contractId) {
+        const remainingContracts = contracts.filter(c => c.id !== contractId);
+        setSelectedContract(remainingContracts.length > 0 ? remainingContracts[0] : null);
+      }
 
       // Reload contracts
       await loadContracts();
-      toast.success('Contract deleted successfully');
+      toast.success('Contract and all related data deleted successfully');
     } catch (error) {
       console.error('Delete error:', error);
       toast.error('Failed to delete contract');
