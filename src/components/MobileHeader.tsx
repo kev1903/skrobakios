@@ -6,6 +6,7 @@ import { User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSidebar } from '@/components/ui/sidebar';
+import { BusinessSwitcher } from './BusinessSwitcher';
 
 interface MobileHeaderProps {
   onNavigate: (page: string) => void;
@@ -64,6 +65,11 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
           </div>
           <h1 className="text-sm font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern">KAKSIK</h1>
         </div>
+      </div>
+      
+      {/* Business Switcher */}
+      <div className="flex-1 flex justify-center">
+        <BusinessSwitcher />
       </div>
       
       <div className="flex items-center space-x-2 px-2 py-1 rounded-lg bg-white/10">

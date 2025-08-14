@@ -2,11 +2,12 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { useCompanies } from '@/hooks/useCompanies';
 import { UserCompany } from '@/types/company';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CompanyContextType {
   currentCompany: UserCompany | null;
   companies: UserCompany[];
-  switchCompany: (companyId: string) => void;
+  switchCompany: (companyId: string) => Promise<void>;
   loading: boolean;
   error: string | null;
   refreshCompanies: () => Promise<void>;
@@ -85,11 +86,41 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [getUserCompanies]);
 
-  const switchCompany = (companyId: string) => {
+  const switchCompany = async (companyId: string) => {
     const company = companies.find(c => c.id === companyId);
-    if (company) {
-      setCurrentCompany(company);
-      localStorage.setItem('currentCompanyId', companyId);
+    if (company && user) {
+      try {
+        // First, deactivate all companies for this user
+        await supabase
+          .from('company_members')
+          .update({ status: 'inactive' })
+          .eq('user_id', user.id);
+
+        // Then activate the selected company
+        const { error } = await supabase
+          .from('company_members')
+          .update({ status: 'active' })
+          .eq('user_id', user.id)
+          .eq('company_id', companyId);
+
+        if (error) {
+          console.error('Error switching company:', error);
+          throw error;
+        }
+
+        setCurrentCompany(company);
+        localStorage.setItem('currentCompanyId', companyId);
+        
+        console.log('✅ Successfully switched to company:', company.name);
+        
+        // Reload the page to refresh all data with new security context
+        window.location.reload();
+      } catch (error) {
+        console.error('Failed to switch company:', error);
+        // Fallback to local state update only
+        setCurrentCompany(company);
+        localStorage.setItem('currentCompanyId', companyId);
+      }
     }
   };
 

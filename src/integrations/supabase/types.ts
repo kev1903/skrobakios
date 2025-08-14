@@ -4337,6 +4337,10 @@ export type Database = {
         Args: { project_id_param: string }
         Returns: string
       }
+      get_current_business_context: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_current_context: {
         Args: Record<PropertyKey, never>
         Returns: {
