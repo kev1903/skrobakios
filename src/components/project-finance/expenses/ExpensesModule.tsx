@@ -265,106 +265,102 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardContent className="pt-6">
-          {loading ? (
-            <div className="text-center py-8 text-foreground">Loading bills...</div>
-          ) : filteredBills.length === 0 ? (
-            <div className="text-center py-8 text-foreground">
-              <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-foreground">No bills found in this category.</p>
-              <p className="text-sm mt-2 text-muted-foreground">Upload bills or create new entries to get started.</p>
-            </div>
-          ) : (
-            <div className="w-full">
-              {/* Bills Table */}
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b bg-muted/50">
-                    <th className="text-left p-3 font-medium w-12">
-                      <input type="checkbox" className="rounded" />
-                    </th>
-                    <th className="text-left p-3 font-medium w-16 text-foreground">View</th>
-                    <th className="text-left p-3 font-medium text-foreground">From</th>
-                    <th className="text-left p-3 font-medium w-32 text-foreground">Reference</th>
-                    <th className="text-left p-3 font-medium w-28 text-foreground">Date ↓</th>
-                    <th className="text-left p-3 font-medium w-28 text-foreground">Due date</th>
-                    <th className="text-left p-3 font-medium w-24 text-foreground">Amount</th>
-                    <th className="text-left p-3 font-medium w-16 text-foreground">Files</th>
-                    <th className="text-left p-3 font-medium w-12"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredBills.map((bill) => (
-                    <tr key={bill.id} className="border-b hover:bg-muted/30 group">
-                      <td className="p-3"><input type="checkbox" className="rounded" /></td>
-                      <td className="p-3">
-                        <Button variant="ghost" size="sm" className="p-1 h-8 w-8">
-                          <Eye className="h-4 w-4 text-blue-600" />
-                        </Button>
-                      </td>
-                      <td className="p-3 text-foreground font-medium">{bill.supplier_name}</td>
-                      <td className="p-3 text-foreground">
-                        <div>
-                          <div className="font-mono text-sm">{bill.reference_number || bill.bill_no}</div>
-                          {bill.forwarded_bill && <div className="text-xs text-blue-600 italic">Forwarded Bill</div>}
-                        </div>
-                      </td>
-                       <td className="p-3 text-foreground text-sm">{formatDate ? formatDate(new Date(bill.bill_date)) : format(new Date(bill.bill_date), 'dd MMM yyyy')}</td>
-                       <td className="p-3 text-foreground text-sm">
-                         {bill.due_date && (
-                           <span className={new Date(bill.due_date) < new Date() ? 'text-red-600' : 'text-foreground'}>
-                             {formatDate ? formatDate(new Date(bill.due_date)) : format(new Date(bill.due_date), 'dd MMM yyyy')}
-                           </span>
-                         )}
-                       </td>
-                       <td className="p-3 text-foreground font-medium">{formatCurrency ? formatCurrency(bill.total) : defaultFormatCurrency(bill.total)}</td>
-                      <td className="p-3">
+      {loading ? (
+        <div className="text-center py-8 text-foreground">Loading bills...</div>
+      ) : filteredBills.length === 0 ? (
+        <div className="text-center py-8 text-foreground">
+          <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+          <p className="text-foreground">No bills found in this category.</p>
+          <p className="text-sm mt-2 text-muted-foreground">Upload bills or create new entries to get started.</p>
+        </div>
+      ) : (
+        <div className="w-full">
+          {/* Bills Table */}
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b bg-muted/50">
+                <th className="text-left p-3 font-medium w-12">
+                  <input type="checkbox" className="rounded" />
+                </th>
+                <th className="text-left p-3 font-medium w-16 text-foreground">View</th>
+                <th className="text-left p-3 font-medium text-foreground">From</th>
+                <th className="text-left p-3 font-medium w-32 text-foreground">Reference</th>
+                <th className="text-left p-3 font-medium w-28 text-foreground">Date ↓</th>
+                <th className="text-left p-3 font-medium w-28 text-foreground">Due date</th>
+                <th className="text-left p-3 font-medium w-24 text-foreground">Amount</th>
+                <th className="text-left p-3 font-medium w-16 text-foreground">Files</th>
+                <th className="text-left p-3 font-medium w-12"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredBills.map((bill) => (
+                <tr key={bill.id} className="border-b hover:bg-muted/30 group">
+                  <td className="p-3"><input type="checkbox" className="rounded" /></td>
+                  <td className="p-3">
+                    <Button variant="ghost" size="sm" className="p-1 h-8 w-8">
+                      <Eye className="h-4 w-4 text-blue-600" />
+                    </Button>
+                  </td>
+                  <td className="p-3 text-foreground font-medium">{bill.supplier_name}</td>
+                  <td className="p-3 text-foreground">
+                    <div>
+                      <div className="font-mono text-sm">{bill.reference_number || bill.bill_no}</div>
+                      {bill.forwarded_bill && <div className="text-xs text-blue-600 italic">Forwarded Bill</div>}
+                    </div>
+                  </td>
+                   <td className="p-3 text-foreground text-sm">{formatDate ? formatDate(new Date(bill.bill_date)) : format(new Date(bill.bill_date), 'dd MMM yyyy')}</td>
+                   <td className="p-3 text-foreground text-sm">
+                     {bill.due_date && (
+                       <span className={new Date(bill.due_date) < new Date() ? 'text-red-600' : 'text-foreground'}>
+                         {formatDate ? formatDate(new Date(bill.due_date)) : format(new Date(bill.due_date), 'dd MMM yyyy')}
+                       </span>
+                     )}
+                   </td>
+                   <td className="p-3 text-foreground font-medium">{formatCurrency ? formatCurrency(bill.total) : defaultFormatCurrency(bill.total)}</td>
+                  <td className="p-3">
+                    <div className="flex items-center gap-1">
+                      {bill.file_attachments && Array.isArray(bill.file_attachments) && bill.file_attachments.length > 0 ? (
                         <div className="flex items-center gap-1">
-                          {bill.file_attachments && Array.isArray(bill.file_attachments) && bill.file_attachments.length > 0 ? (
-                            <div className="flex items-center gap-1">
-                              <span className="text-sm font-medium">{bill.file_attachments.length}</span>
-                              <FileText className="h-4 w-4 text-blue-600" />
-                            </div>
-                          ) : (
-                            <span className="text-sm text-muted-foreground">0</span>
-                          )}
+                          <span className="text-sm font-medium">{bill.file_attachments.length}</span>
+                          <FileText className="h-4 w-4 text-blue-600" />
                         </div>
-                      </td>
-                       <td className="p-3">
-                         <DropdownMenu>
-                           <DropdownMenuTrigger asChild>
-                             <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6">
-                               <MoreVertical className="h-4 w-4" />
-                             </Button>
-                           </DropdownMenuTrigger>
-                           <DropdownMenuContent align="end">
-                             <DropdownMenuItem onClick={() => handleRerunExtraction(bill)}>
-                               <RefreshCw className="h-4 w-4 mr-2" />
-                               Re-run Extraction
-                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => handleEditBill(bill.id)}>
-                               <Edit className="h-4 w-4 mr-2" />
-                               Edit Invoice
-                             </DropdownMenuItem>
-                             <DropdownMenuItem 
-                               onClick={() => handleDeleteBill(bill.id)}
-                               className="text-red-600 focus:text-red-600"
-                             >
-                               <Trash2 className="h-4 w-4 mr-2" />
-                               Delete Invoice
-                             </DropdownMenuItem>
-                           </DropdownMenuContent>
-                         </DropdownMenu>
-                       </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">0</span>
+                      )}
+                    </div>
+                  </td>
+                   <td className="p-3">
+                     <DropdownMenu>
+                       <DropdownMenuTrigger asChild>
+                         <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6">
+                           <MoreVertical className="h-4 w-4" />
+                         </Button>
+                       </DropdownMenuTrigger>
+                       <DropdownMenuContent align="end">
+                         <DropdownMenuItem onClick={() => handleRerunExtraction(bill)}>
+                           <RefreshCw className="h-4 w-4 mr-2" />
+                           Re-run Extraction
+                         </DropdownMenuItem>
+                         <DropdownMenuItem onClick={() => handleEditBill(bill.id)}>
+                           <Edit className="h-4 w-4 mr-2" />
+                           Edit Invoice
+                         </DropdownMenuItem>
+                         <DropdownMenuItem 
+                           onClick={() => handleDeleteBill(bill.id)}
+                           className="text-red-600 focus:text-red-600"
+                         >
+                           <Trash2 className="h-4 w-4 mr-2" />
+                           Delete Invoice
+                         </DropdownMenuItem>
+                       </DropdownMenuContent>
+                     </DropdownMenu>
+                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       
       {/* Bill Edit Dialog */}
       <BillEditDialog
