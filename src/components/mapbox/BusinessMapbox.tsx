@@ -105,7 +105,17 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken) return;
+    console.log('🗺️ Map initialization:', { 
+      hasContainer: !!mapContainer.current, 
+      hasToken: !!mapboxToken, 
+      projectsLength: projects.length,
+      projects: projects.map(p => p.name) 
+    });
+    
+    if (!mapContainer.current || !mapboxToken) {
+      console.log('❌ Missing requirements for map initialization');
+      return;
+    }
 
     // Clear existing markers
     markersRef.current.forEach(marker => marker.remove());
@@ -189,6 +199,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
     });
 
     // Add project markers with PRECISE coordinates
+    console.log(`🎯 Creating markers for ${projects.length} projects`);
     let displayedCount = 0;
     projects.forEach((project, index) => {
       // Use REAL coordinates if available, otherwise use ORGANIZED fallback positions
