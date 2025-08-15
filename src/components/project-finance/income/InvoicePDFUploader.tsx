@@ -158,14 +158,7 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
           description: `Invoice extracted with ${Math.round((extraction.ai_confidence || 0) * 100)}% confidence!`,
         });
         
-        // Call onSaved to refresh the parent data first
-        onSaved();
-        
-        // Keep the dialog open briefly to show the success state
-        setTimeout(() => {
-          onClose();
-          resetState();
-        }, 2000); // Show success for 2 seconds before closing
+        // Don't auto-close - let user review and save manually
       } else {
         throw new Error(processingData.error || 'Failed to process invoice');
       }
