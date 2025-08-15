@@ -35,43 +35,19 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       
       setCompanies(userCompanies);
       
-      // Check if there's a saved company ID in localStorage
-      const savedCompanyId = localStorage.getItem('currentCompanyId');
-      console.log('Saved company ID from localStorage:', savedCompanyId);
+      // Find the first active company or default to first company
+      const activeCompany = userCompanies.find(c => c.status === 'active') || userCompanies[0];
       
-      if (savedCompanyId) {
-        // Try to restore the saved company
-        const savedCompany = userCompanies.find(c => c.id === savedCompanyId);
-        if (savedCompany) {
-          console.log('Restoring saved company:', savedCompany.name);
-          setCurrentCompany(savedCompany);
-          return;
-        } else {
-          console.log('Saved company not found, clearing localStorage');
-          localStorage.removeItem('currentCompanyId');
-        }
+      if (activeCompany) {
+        console.log('🎯 Setting active company:', activeCompany.name, activeCompany.status);
+        setCurrentCompany(activeCompany);
+        localStorage.setItem('currentCompanyId', activeCompany.id);
+      } else {
+        console.log('⚠️ No companies found');
+        setCurrentCompany(null);
+        localStorage.removeItem('currentCompanyId');
       }
       
-      // If no saved company or saved company not found, auto-select first company if none is selected
-      if (userCompanies.length > 0 && !currentCompany) {
-        console.log('Auto-selecting first company:', userCompanies[0].name);
-        setCurrentCompany(userCompanies[0]);
-        localStorage.setItem('currentCompanyId', userCompanies[0].id);
-      } else if (currentCompany) {
-        // Update the current company with fresh data but keep the same company selected
-        const updatedCurrentCompany = userCompanies.find(c => c.id === currentCompany.id);
-        if (updatedCurrentCompany) {
-          console.log('Updating current company with fresh data:', updatedCurrentCompany.name);
-          setCurrentCompany(updatedCurrentCompany);
-          localStorage.setItem('currentCompanyId', updatedCurrentCompany.id);
-        } else {
-          console.log('Current company no longer exists, auto-selecting first available');
-          if (userCompanies.length > 0) {
-            setCurrentCompany(userCompanies[0]);
-            localStorage.setItem('currentCompanyId', userCompanies[0].id);
-          }
-        }
-      }
     } catch (err) {
       console.error('Error fetching companies:', err);
       // On error, try to fallback to any saved company ID
