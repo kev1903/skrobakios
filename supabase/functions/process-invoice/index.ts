@@ -97,36 +97,36 @@ async function extractWithOpenAI(fileId: string) {
         name: "InvoiceExtraction",
         schema: {
           type: "object",
-          required: ["supplier","invoice_number","ai_summary","ai_confidence"],
+          required: ["supplier", "invoice_number", "ai_summary", "ai_confidence"],
           additionalProperties: false,
           properties: {
-            supplier: {type: "string"},
-            invoice_number: {type: "string"},
-            invoice_date: {type: "string"},
-            due_date: {type: "string"},
-            subtotal: {type: "string"},
-            tax: {type: "string"},
-            total: {type: "string"},
+            supplier: { type: "string" },
+            invoice_number: { type: "string" },
+            invoice_date: { type: "string" },
+            due_date: { type: "string" },
+            subtotal: { type: "string" },
+            tax: { type: "string" },
+            total: { type: "string" },
             line_items: {
               type: "array",
               items: {
                 type: "object",
-                required: ["description", "qty", "rate", "amount", "tax_code"],
-                additionalProperties: false,
+                required: ["description"],
+                additionalProperties: true,
                 properties: {
-                  description: {type: "string"},
-                  qty: {type: "string"},
-                  rate: {type: "string"},
-                  amount: {type: "string"},
-                  tax_code: {type: "string"}
+                  description: { type: "string" },
+                  qty: { type: "string" },
+                  rate: { type: "string" },
+                  amount: { type: "string" },
+                  tax_code: { type: "string" }
                 }
               }
             },
-            ai_summary: {type: "string"},
-            ai_confidence: {type: "number"}
+            ai_summary: { type: "string" },
+            ai_confidence: { type: "number" }
           }
         },
-        strict: true
+        strict: false
       }
     },
     temperature: 0.1
