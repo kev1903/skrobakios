@@ -1,7 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
-import * as pdfParse from "https://esm.sh/pdf-parse@1.1.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,24 +33,13 @@ serve(async (req) => {
     const fileBuffer = await fileResponse.arrayBuffer();
     console.log('File downloaded, size:', fileBuffer.byteLength);
 
-    // Extract text from PDF
-    let extractedText = '';
-    try {
-      const pdfData = await pdfParse.default(fileBuffer);
-      extractedText = pdfData.text;
-      console.log('Extracted text from PDF:', extractedText.substring(0, 500) + '...');
-    } catch (pdfError) {
-      console.error('Error extracting text from PDF:', pdfError);
-      throw new Error('Failed to extract text from PDF');
-    }
+    // Convert PDF to base64 for OpenAI vision processing
+    const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
+    console.log('PDF converted to base64, ready for OpenAI processing');
 
-    if (!extractedText || extractedText.trim().length === 0) {
-      throw new Error('No text could be extracted from the PDF');
-    }
-
-    // Use OpenAI to extract invoice data from the text
+    // Use OpenAI vision to extract invoice data from the PDF
     const prompt = `
-      You are an expert invoice data extraction AI. Extract key information from this invoice text and return it as a JSON object.
+      You are an expert invoice data extraction AI. Extract key information from this PDF invoice and return it as a JSON object.
       
       Extract the following fields:
       - supplier_name: Company/vendor name
@@ -69,9 +57,6 @@ serve(async (req) => {
       
       Return ONLY a valid JSON object with these fields. Use null for missing values.
       For amounts, extract only the numeric value without currency symbols.
-      
-      Invoice text:
-      ${extractedText}
     `;
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -85,7 +70,15 @@ serve(async (req) => {
         messages: [
           {
             role: 'user',
-            content: prompt
+            content: [
+              { type: 'text', text: prompt },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:application/pdf;base64,${fileBase64}`
+                }
+              }
+            ]
           }
         ],
         max_tokens: 1000,
