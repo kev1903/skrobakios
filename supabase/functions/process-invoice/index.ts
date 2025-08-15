@@ -73,71 +73,83 @@ async function uploadToOpenAI(fileBytes: Uint8Array, filename: string, contentTy
 }
 
 async function extractWithOpenAI(fileId: string) {
+  console.log("Starting extractWithOpenAI with fileId:", fileId);
+  
+  // Let's try the standard Chat Completions API with structured outputs instead of Responses API
   const body = {
     model: "gpt-4o-mini",
-    input: [
-      { role: "system", content: "You extract invoice fields from PDFs. Prefer totals and line items. Return ONLY JSON." },
+    messages: [
+      { 
+        role: "system", 
+        content: "You are an expert at extracting invoice data from PDFs. Extract only the specified fields and return valid JSON." 
+      },
       {
         role: "user",
         content: [
-          { type: "input_text", text: "Extract supplier, invoice_number, dates, subtotal, tax, total, and line_items." },
+          { type: "text", text: "Extract supplier, invoice_number, dates, subtotal, tax, total, and line_items from this invoice PDF." },
           { type: "input_file", file_id: fileId }
         ]
       }
     ],
-    // Updated parameter structure for Responses API:
-    text: {
-      format: {
-        type: "json_schema",
-        json_schema: {
-          name: "InvoiceExtraction",
-          schema: {
-            type: "object",
-            required: ["supplier","invoice_number","ai_summary","ai_confidence"],
-            additionalProperties: false,
-            properties: {
-              supplier:{type:"string"},
-              invoice_number:{type:"string"},
-              invoice_date:{type:"string"},
-              due_date:{type:"string"},
-              subtotal:{type:"string"},
-              tax:{type:"string"},
-              total:{type:"string"},
-              line_items:{
-                type:"array",
-                items:{
-                  type:"object",
-                  additionalProperties:false,
-                  properties:{
-                    description:{type:"string"},
-                    qty:{type:"string"},
-                    rate:{type:"string"},
-                    amount:{type:"string"},
-                    tax_code:{type:"string"}
-                  }
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "InvoiceExtraction",
+        schema: {
+          type: "object",
+          required: ["supplier","invoice_number","ai_summary","ai_confidence"],
+          additionalProperties: false,
+          properties: {
+            supplier: {type: "string"},
+            invoice_number: {type: "string"},
+            invoice_date: {type: "string"},
+            due_date: {type: "string"},
+            subtotal: {type: "string"},
+            tax: {type: "string"},
+            total: {type: "string"},
+            line_items: {
+              type: "array",
+              items: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                  description: {type: "string"},
+                  qty: {type: "string"},
+                  rate: {type: "string"},
+                  amount: {type: "string"},
+                  tax_code: {type: "string"}
                 }
-              },
-              ai_summary:{type:"string"},
-              ai_confidence:{type:"number"}
-            }
-          },
-          strict: true
-        }
+              }
+            },
+            ai_summary: {type: "string"},
+            ai_confidence: {type: "number"}
+          }
+        },
+        strict: true
       }
     },
     temperature: 0.1
   };
 
-  const res = await fetch("https://api.openai.com/v1/responses", {
+  console.log("Request body:", JSON.stringify(body, null, 2));
+
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${OPENAI_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
-  if (!res.ok) throw new Error(`responses.create failed ${res.status}: ${await res.text()}`);
+  
+  console.log("Response status:", res.status);
+  const responseText = await res.text();
+  console.log("Response body:", responseText);
+  
+  if (!res.ok) throw new Error(`chat/completions failed ${res.status}: ${responseText}`);
 
-  const data = await res.json();
-  const text = data?.output?.[0]?.content?.[0]?.text;
-  if (!text) throw new Error(`no structured output: ${JSON.stringify(data).slice(0, 500)}`);
+  const data = JSON.parse(responseText);
+  const text = data?.choices?.[0]?.message?.content;
+  if (!text) throw new Error(`no content in response: ${JSON.stringify(data).slice(0, 500)}`);
+  
+  console.log("Extracted text:", text);
   return JSON.parse(text);
 }
 
