@@ -111,6 +111,7 @@ async function extractWithOpenAI(fileId: string) {
               type: "array",
               items: {
                 type: "object",
+                required: ["description", "qty", "rate", "amount", "tax_code"],
                 additionalProperties: false,
                 properties: {
                   description: {type: "string"},
