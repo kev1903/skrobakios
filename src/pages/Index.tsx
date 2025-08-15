@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { LandingPage } from "@/components/LandingPage";
@@ -30,11 +31,32 @@ const Index = () => {
   // Enhanced navigation function that tracks previous page
   const handleNavigate = (page: string) => {
     console.log(`🧭 Navigation requested: ${currentPage} -> ${page}`);
+    
+    // Handle URLs with query parameters (like project-cost?projectId=123)
+    let targetPage = page;
+    let projectId = null;
+    
+    if (page.includes('?')) {
+      const [pageName, queryString] = page.split('?');
+      targetPage = pageName;
+      const params = new URLSearchParams(queryString);
+      projectId = params.get('projectId');
+      
+      console.log(`🧭 Extracted page: ${targetPage}, projectId: ${projectId}`);
+    }
+    
     // Store current page as previous (unless it's the same page)
-    if (page !== currentPage) {
+    if (targetPage !== currentPage) {
       previousPageRef.current = currentPage;
     }
-    setCurrentPage(page);
+    
+    // Set the project if provided
+    if (projectId && projectId !== selectedProject) {
+      console.log(`🧭 Setting project: ${projectId}`);
+      handleSelectProject(projectId);
+    }
+    
+    setCurrentPage(targetPage);
   };
 
   // Function to go back to previous page
@@ -66,7 +88,7 @@ const Index = () => {
     if (projectIdParam && projectIdParam !== selectedProject) {
       handleSelectProject(projectIdParam);
     }
-  }, [searchParams, selectedProject, handleSelectProject]); // Add dependencies to handle project selection
+  }, [searchParams, selectedProject, handleSelectProject]);
 
   // Redirect authenticated users away from public pages
   useEffect(() => {

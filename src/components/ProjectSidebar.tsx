@@ -73,10 +73,13 @@ export const ProjectSidebar = ({
   const screenSize = useScreenSize();
   
   const handleNavigate = (page: string) => {
-    if (page === 'project-cost') {
-      onNavigate(`${page}?projectId=${project.id}&tab=income`);
-    } else if (page.startsWith('project-')) {
-      onNavigate(`${page}?projectId=${project.id}`);
+    console.log(`🧭 ProjectSidebar: Navigating to ${page} with project ${project.id}`);
+    
+    // Ensure we include the projectId in the URL for all project pages
+    if (page.startsWith('project-')) {
+      const url = `${page}?projectId=${project.id}`;
+      console.log(`🧭 ProjectSidebar: Full URL: ${url}`);
+      onNavigate(url);
     } else {
       onNavigate(page);
     }
@@ -103,7 +106,6 @@ export const ProjectSidebar = ({
     <div className={`${sidebarClasses[screenSize]} transition-all duration-300`}>
       <div className={contentClasses[screenSize]}>
         {/* Project Info */}
-        {/* Project Info */}
         <div className="flex-shrink-0 px-4 py-4 border-b border-gray-200">
           <div className="text-slate-600 text-sm mb-1 truncate">{project.name}</div>
           <div className="text-slate-400 text-xs mb-2">#{project.project_id}</div>
@@ -112,7 +114,6 @@ export const ProjectSidebar = ({
           </span>
         </div>
 
-        {/* Back Button */}
         {/* Back Button */}
         <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200">
           <Button
