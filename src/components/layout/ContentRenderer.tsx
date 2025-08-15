@@ -277,11 +277,17 @@ export const ContentRenderer = ({
       onNavigate("home");
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
     case "project-cost":
-      return currentProject ? (
+      return (
         <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
-          <ProjectCostPage project={currentProject} onNavigate={onNavigate} />
+          {currentProject ? (
+            <ProjectCostPage project={currentProject} onNavigate={onNavigate} />
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-slate-500">Loading project...</p>
+            </div>
+          )}
         </SubscriptionProtectedRoute>
-      ) : renderProjectNotFound();
+      );
     case "project-finance":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
