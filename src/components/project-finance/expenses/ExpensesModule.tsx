@@ -209,7 +209,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                            </span>
                          )}
                        </td>
-                       <td className="p-3 text-foreground font-medium">{formatCurrency ? formatCurrency(bill.total - bill.paid_to_date) : defaultFormatCurrency(bill.total - bill.paid_to_date)}</td>
+                       <td className="p-3 text-foreground font-medium">{formatCurrency ? formatCurrency(bill.total) : defaultFormatCurrency(bill.total)}</td>
                       <td className="p-3">
                         <div className="flex items-center gap-1">
                           {bill.file_attachments && Array.isArray(bill.file_attachments) && bill.file_attachments.length > 0 ? (
