@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { invokeEdge } from '@/lib/invokeEdge';
 import { 
   Upload, 
   FileText, 
@@ -123,16 +124,14 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
       setUploading(false);
       setExtracting(true);
 
-      // Call new AI invoice processing function with OpenAI Files + Responses API
-      const { data: processingData, error: processingError } = await supabase.functions
-        .invoke('process-invoice', {
-          body: { 
-            signed_url: urlData.signedUrl,
-            project_invoice_id: null // We can add DB integration later if needed
-          }
-        });
+      // Connectivity check first
+      await invokeEdge("ping", {});
 
-      if (processingError) throw processingError;
+      // Call new AI invoice processing function with OpenAI Files + Responses API
+      const processingData = await invokeEdge('process-invoice', {
+        signed_url: urlData.signedUrl,
+        project_invoice_id: null // We can add DB integration later if needed
+      });
 
       if (processingData.ok) {
         const extraction = processingData.data;

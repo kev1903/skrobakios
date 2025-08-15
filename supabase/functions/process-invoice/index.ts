@@ -1,12 +1,15 @@
-// supabase/functions/process-invoice/index.ts
 // Deno Edge Function – parses PDFs via OpenAI Files + Responses (input_file)
 // Request body: { signed_url?: string, file_url?: string, project_invoice_id?: string }
-
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
 const InvoiceSchema = {
   name: "InvoiceExtraction",
@@ -45,16 +48,14 @@ const InvoiceSchema = {
 async function downloadBytes(url: string) {
   const r = await fetch(url);
   if (!r.ok) throw new Error(`download failed ${r.status}: ${await r.text()}`);
-  const ct = r.headers.get("content-type") || "application/octet-stream";
+  const ct = r.headers.get("content-type") || "application/pdf";
   const arr = await r.arrayBuffer();
   return { bytes: new Uint8Array(arr), contentType: ct };
 }
 
 async function uploadToOpenAI(fileBytes: Uint8Array, filename: string, contentType: string) {
-  // Default to application/pdf to avoid Images API path
-  const type = contentType.includes("pdf") ? "application/pdf" : contentType || "application/pdf";
+  const type = contentType.includes("pdf") ? "application/pdf" : "application/pdf";
   const file = new File([fileBytes], filename, { type });
-
   const fd = new FormData();
   fd.append("file", file);
   fd.append("purpose", "vision");
@@ -74,8 +75,7 @@ async function extractWithOpenAI(fileId: string) {
     input: [
       {
         role: "system",
-        content:
-          "You extract invoice fields from PDFs. Prefer the totals section and line item tables. Return ONLY the specified JSON."
+        content: "You extract invoice fields from PDFs. Prefer totals and line item tables. Return ONLY the JSON."
       },
       {
         role: "user",
@@ -131,35 +131,29 @@ async function patchInvoiceRow(id: string, extraction: any) {
     body: JSON.stringify(payload)
   });
   if (!res.ok) throw new Error(`DB patch failed ${res.status}: ${await res.text()}`);
-  return await res.json();
 }
 
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
   try {
     const { signed_url, file_url, project_invoice_id } = await req.json();
     const src = signed_url || file_url;
-    if (!src) {
-      return new Response(JSON.stringify({ error: "Provide signed_url or file_url" }), { status: 400 });
-    }
+    if (!src) return new Response(JSON.stringify({ error: "Provide signed_url or file_url" }), { status: 400, headers: { "Content-Type": "application/json", ...cors } });
 
-    // 1) download
     const { bytes, contentType } = await downloadBytes(src);
-
-    // 2) upload to OpenAI Files (purpose: vision)
     const uploaded = await uploadToOpenAI(bytes, "invoice.pdf", contentType);
-
-    // 3) extract via Responses API (input_file)
     const extraction = await extractWithOpenAI(uploaded.id);
 
-    // 4) update DB (optional)
-    if (project_invoice_id) {
-      await patchInvoiceRow(project_invoice_id, extraction);
-    }
+    if (project_invoice_id) await patchInvoiceRow(project_invoice_id, extraction);
 
     return new Response(JSON.stringify({ ok: true, data: extraction }), {
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json", ...cors }
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: String(e) }), { status: 500 });
+    return new Response(JSON.stringify({ error: String(e) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", ...cors }
+    });
   }
 });
