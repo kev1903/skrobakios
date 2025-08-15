@@ -38,11 +38,7 @@ export const ProjectCostPage = ({
   onNavigate
 }: ProjectCostPageProps) => {
   const { userProfile } = useUser();
-  
-  // Get tab from URL params, default to 'income'
-  const urlParams = new URLSearchParams(window.location.search);
-  const tabFromUrl = urlParams.get('tab');
-  const [activeTab, setActiveTab] = useState(tabFromUrl || 'income');
+  const [activeTab, setActiveTab] = useState('cost-control');
   const [incomeStatusFilter, setIncomeStatusFilter] = useState('all');
   const [expenseStatusFilter, setExpenseStatusFilter] = useState('inbox');
   const [incomeData, setIncomeData] = useState({ totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });

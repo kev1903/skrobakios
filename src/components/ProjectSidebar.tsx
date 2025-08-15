@@ -73,11 +73,7 @@ export const ProjectSidebar = ({
   const screenSize = useScreenSize();
   
   const handleNavigate = (page: string) => {
-    if (page === 'project-cost') {
-      onNavigate(page + '?tab=income');
-    } else {
-      onNavigate(page);
-    }
+    onNavigate(page);
   };
 
   // Filter project navigation items based on subscription features
