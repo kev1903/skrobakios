@@ -161,15 +161,9 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
             </div>
           ) : (
             <div className="w-full">
-              {/* Action Bar */}
-              <div className="flex items-center gap-2 mb-4 p-2 bg-muted/30 rounded-lg">
-                <Button variant="outline" size="sm" className="bg-blue-600 text-white hover:bg-blue-700 border-blue-600">
-                  Approve
-                </Button>
-                <Button variant="outline" size="sm">Submit for approval</Button>
-                <Button variant="outline" size="sm">Delete</Button>
-                <Button variant="outline" size="sm">Print</Button>
-                <div className="ml-auto text-sm text-muted-foreground">
+              {/* Summary Bar */}
+              <div className="flex justify-end mb-4 p-2 bg-muted/30 rounded-lg">
+                <div className="text-sm text-muted-foreground">
                   {filteredBills.length} items | {formatCurrency ? formatCurrency(filteredBills.reduce((sum, bill) => sum + bill.total, 0)) : defaultFormatCurrency(filteredBills.reduce((sum, bill) => sum + bill.total, 0))}
                 </div>
               </div>
