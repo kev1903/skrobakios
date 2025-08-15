@@ -363,7 +363,7 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
 
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="bill_date">Bill Date</Label>
+                    <Label htmlFor="bill_date">Invoice Date</Label>
                     <Input
                       id="bill_date"
                       type="date"
