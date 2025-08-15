@@ -123,40 +123,40 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
       setUploading(false);
       setExtracting(true);
 
-      // Call new AI invoice processing function
+      // Call new AI invoice processing function with OpenAI Files + Responses API
       const { data: processingData, error: processingError } = await supabase.functions
         .invoke('process-invoice', {
           body: { 
-            fileUrl: urlData.signedUrl, 
-            fileName: fileName,
-            projectId: projectId 
+            signed_url: urlData.signedUrl,
+            project_invoice_id: null // We can add DB integration later if needed
           }
         });
 
       if (processingError) throw processingError;
 
-      if (processingData.success) {
-        const extractedData = processingData.extractedData;
-        setExtractedData(extractedData);
-        setConfidence(85); // Default confidence for OpenAI extraction
+      if (processingData.ok) {
+        const extraction = processingData.data;
+        setExtractedData(extraction);
+        setConfidence((extraction.ai_confidence || 0) * 100); // Convert to percentage
         setEditableData({
-          supplier_name: extractedData.supplier_name || '',
-          supplier_email: extractedData.supplier_email || '',
-          bill_no: extractedData.bill_no || '',
-          due_date: extractedData.due_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          bill_date: extractedData.bill_date || new Date().toISOString().split('T')[0],
-          reference_number: extractedData.reference_number || '',
-          notes: extractedData.notes || '',
-          subtotal: extractedData.subtotal || 0,
-          tax: extractedData.tax || 0,
-          total: extractedData.total || 0,
-          description: extractedData.description || '',
-          wbs_code: extractedData.wbs_code || ''
+          supplier_name: extraction.supplier || '',
+          supplier_email: '',
+          bill_no: extraction.invoice_number || '',
+          due_date: extraction.due_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          bill_date: extraction.invoice_date || new Date().toISOString().split('T')[0],
+          reference_number: '',
+          notes: extraction.ai_summary || '',
+          subtotal: parseFloat(extraction.subtotal || '0'),
+          tax: parseFloat(extraction.tax || '0'), 
+          total: parseFloat(extraction.total || '0'),
+          description: `Invoice from ${extraction.supplier || 'Unknown Supplier'}`,
+          wbs_code: '',
+          line_items: extraction.line_items || []
         });
         
         toast({
           title: "Success",
-          description: "Invoice processed and bill created successfully!",
+          description: `Invoice extracted with ${Math.round((extraction.ai_confidence || 0) * 100)}% confidence!`,
         });
         
         // Call onSaved to refresh the parent data first
