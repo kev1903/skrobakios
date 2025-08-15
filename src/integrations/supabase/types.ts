@@ -4327,7 +4327,7 @@ export type Database = {
         Returns: boolean
       }
       can_manage_company: {
-        Args: { company_id: string; user_id: string }
+        Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
       }
       can_manage_project_secure: {
