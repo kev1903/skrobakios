@@ -174,9 +174,9 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
           bill_date: parseExtractedDate(extraction.invoice_date),
           reference_number: '',
           notes: extraction.ai_summary || '',
-          subtotal: parseFloat(extraction.subtotal || '0'),
-          tax: parseFloat(extraction.tax || '0'), 
-          total: parseFloat(extraction.total || '0'),
+          subtotal: parseFloat((extraction.subtotal || '0').replace(/,/g, '')),
+          tax: parseFloat((extraction.tax || '0').replace(/,/g, '')), 
+          total: parseFloat((extraction.total || '0').replace(/,/g, '')),
           description: `Invoice from ${extraction.supplier || 'Unknown Supplier'}`,
           wbs_code: '',
           line_items: extraction.line_items || []
