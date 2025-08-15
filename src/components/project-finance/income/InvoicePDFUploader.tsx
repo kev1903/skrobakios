@@ -196,6 +196,57 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
     setDragActive(false);
   };
 
+  const handleSave = async () => {
+    if (!editableData || !uploadedFile) return;
+
+    setSaving(true);
+    try {
+      // Insert the bill into the database
+      const { error } = await supabase
+        .from('bills')
+        .insert({
+          project_id: projectId,
+          supplier_name: editableData.supplier_name || 'Unknown Supplier',
+          bill_no: editableData.bill_no || 'N/A',
+          bill_date: editableData.bill_date || new Date().toISOString().split('T')[0],
+          due_date: editableData.due_date || new Date().toISOString().split('T')[0],
+          subtotal: editableData.subtotal || 0,
+          tax: editableData.tax || 0,
+          total: editableData.total || 0,
+          paid_to_date: 0,
+          status: 'submitted',
+          reference_number: editableData.reference_number || null,
+          file_attachments: [{
+            name: uploadedFile.name,
+            url: uploadedFile.name,
+            size: uploadedFile.size,
+            type: uploadedFile.type
+          }],
+          source_system: 'ai_extraction',
+          forwarded_bill: false
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Invoice has been saved successfully!"
+      });
+
+      onSaved(); // Refresh the parent component
+      handleClose();
+    } catch (error) {
+      console.error('Error saving bill:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save invoice. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleClose = () => {
     resetState();
     onClose();
@@ -462,10 +513,25 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
           )}
 
           {/* Actions */}
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-3">
             <Button variant="outline" onClick={handleClose}>
               Close
             </Button>
+            {extractedData && (
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Save Invoice
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>
