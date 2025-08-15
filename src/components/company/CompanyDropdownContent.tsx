@@ -30,7 +30,7 @@ export const CompanyDropdownContent = ({
   onCreateCompany
 }: CompanyDropdownContentProps) => {
   return (
-    <DropdownMenuContent className="w-[300px] mt-2 bg-white/10 backdrop-blur-md border-white/20" align="center">
+    <DropdownMenuContent className="w-[300px] mt-2 bg-background border shadow-lg z-50" align="center">
       {loading ? (
         <DropdownMenuItem disabled>
           <div className="flex items-center space-x-2">
