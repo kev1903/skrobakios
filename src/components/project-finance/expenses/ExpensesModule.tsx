@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download, MoreVertical, RefreshCw, Edit, Trash2 } from 'lucide-react';
 import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
+import { BillEditDialog } from './BillEditDialog';
 
 interface Bill {
   id: string;
@@ -39,6 +40,8 @@ interface ExpensesModuleProps {
 export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurrency, formatDate, onDataUpdate, refreshTrigger }: ExpensesModuleProps) => {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editBill, setEditBill] = useState<Bill | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const loadBills = async () => {
@@ -191,10 +194,15 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
   };
 
   const handleEditBill = (billId: string) => {
-    toast({
-      title: "Coming Soon",
-      description: "Bill editing will be implemented soon"
-    });
+    const bill = bills.find(b => b.id === billId);
+    if (bill) {
+      setEditBill(bill);
+      setIsEditDialogOpen(true);
+    }
+  };
+
+  const handleEditSaved = () => {
+    loadBills();
   };
 
   const handleDeleteBill = async (billId: string) => {
@@ -357,6 +365,14 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
           )}
         </CardContent>
       </Card>
+      
+      {/* Bill Edit Dialog */}
+      <BillEditDialog
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        bill={editBill}
+        onSaved={handleEditSaved}
+      />
     </div>
   );
 };
