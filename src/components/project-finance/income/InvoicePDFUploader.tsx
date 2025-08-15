@@ -159,9 +159,14 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
           description: "Invoice processed and bill created successfully!",
         });
         
-        onSaved(); // Refresh the data
-        onClose(); // Close the dialog
-        resetState();
+        // Call onSaved to refresh the parent data first
+        onSaved();
+        
+        // Keep the dialog open briefly to show the success state
+        setTimeout(() => {
+          onClose();
+          resetState();
+        }, 2000); // Show success for 2 seconds before closing
       } else {
         throw new Error(processingData.error || 'Failed to process invoice');
       }
