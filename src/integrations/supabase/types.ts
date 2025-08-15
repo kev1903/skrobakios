@@ -4356,6 +4356,16 @@ export type Database = {
         }
         Returns: string
       }
+      debug_user_company_access: {
+        Args: { target_user_id?: string }
+        Returns: {
+          can_see_projects: boolean
+          company_id: string
+          company_name: string
+          membership_status: string
+          user_role: string
+        }[]
+      }
       delete_company_completely: {
         Args: { target_company_id: string }
         Returns: Json
