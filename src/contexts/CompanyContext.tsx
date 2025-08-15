@@ -113,10 +113,13 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
         
         console.log('✅ Successfully switched to company:', company.name);
         
-        // Trigger cache invalidation for projects
+        // Clear cache to force fresh data fetch
         localStorage.removeItem('projects_cache');
-        // Force a reload to refresh all modules with new company context
-        window.location.reload();
+        
+        // Emit a custom event to notify components of company change
+        window.dispatchEvent(new CustomEvent('companyChanged', { 
+          detail: { companyId, companyName: company.name } 
+        }));
       } catch (error) {
         console.error('Failed to switch company:', error);
         // Fallback to local state update only
