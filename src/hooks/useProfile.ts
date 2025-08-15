@@ -52,13 +52,27 @@ export const useProfile = () => {
       }
 
       if (data) {
+        // Get current active company to sync with profile
+        const { data: activeCompany } = await supabase
+          .from('company_members')
+          .select(`
+            companies (
+              name
+            )
+          `)
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .maybeSingle();
+
+        const currentCompanyName = activeCompany?.companies?.name || data.company || '';
+
         setProfile({
           first_name: data.first_name || '',
           last_name: data.last_name || '',
           email: data.email || '',
           phone: data.phone || '',
           job_title: data.job_title || '',
-          company: data.company || '',
+          company: currentCompanyName,
           location: data.location || '',
           bio: data.bio || '',
           avatar_url: data.avatar_url || '',
@@ -69,6 +83,14 @@ export const useProfile = () => {
           licenses: data.licenses || [],
           awards: data.awards || [],
         });
+
+        // Update the profile's company field if it differs from active company
+        if (currentCompanyName && currentCompanyName !== data.company) {
+          await supabase
+            .from('profiles')
+            .update({ company: currentCompanyName })
+            .eq('user_id', user.id);
+        }
       }
     } catch (error) {
       console.error('Error in fetchProfile:', error);
