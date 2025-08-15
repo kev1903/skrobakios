@@ -114,7 +114,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     try {
       const { error } = await supabase
         .from('bills')
-        .update({ status: 'approved' })
+        .update({ status: 'scheduled' })
         .eq('id', billId);
 
       if (error) throw error;
@@ -125,12 +125,12 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         name: 'bill_approved',
         ref_table: 'bills',
         ref_id: billId,
-        payload: { approved_by: 'current_user' }
+        payload: { approved_by: 'current_user', status: 'awaiting_payment' }
       });
 
       toast({
         title: "Success",
-        description: "Bill approved successfully"
+        description: "Invoice approved and moved to Awaiting Payment"
       });
       
       loadBills();
@@ -138,7 +138,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
       console.error('Error approving bill:', error);
       toast({
         title: "Error",
-        description: "Failed to approve bill",
+        description: "Failed to approve invoice",
         variant: "destructive"
       });
     }
