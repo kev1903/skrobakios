@@ -499,7 +499,8 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                     <Label>Subtotal</Label>
                     <Input
                       type="number"
-                      value={editableData.subtotal}
+                      step="0.01"
+                      value={editableData.subtotal.toFixed(2)}
                       onChange={(e) => setEditableData({...editableData, subtotal: parseFloat(e.target.value) || 0})}
                     />
                   </div>
@@ -507,7 +508,8 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                     <Label>Tax</Label>
                     <Input
                       type="number"
-                      value={editableData.tax}
+                      step="0.01"
+                      value={editableData.tax.toFixed(2)}
                       onChange={(e) => setEditableData({...editableData, tax: parseFloat(e.target.value) || 0})}
                     />
                   </div>
@@ -515,7 +517,8 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                     <Label>Total</Label>
                     <Input
                       type="number"
-                      value={editableData.total}
+                      step="0.01"
+                      value={editableData.total.toFixed(2)}
                       onChange={(e) => setEditableData({...editableData, total: parseFloat(e.target.value) || 0})}
                     />
                   </div>
