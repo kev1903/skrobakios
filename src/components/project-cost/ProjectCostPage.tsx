@@ -27,6 +27,7 @@ import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
 import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
 import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
 import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader';
+import { AIPromptSettings } from './AIPromptSettings';
 
 interface ProjectCostPageProps {
   project: Project;
@@ -44,6 +45,7 @@ export const ProjectCostPage = ({
   const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0, totalItems: 0 });
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
   const [isPDFUploaderOpen, setIsPDFUploaderOpen] = useState(false);
+  const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
 
   // Tab options configuration
   const tabOptions = [
@@ -345,6 +347,7 @@ export const ProjectCostPage = ({
                             variant="outline"
                             size="icon"
                             className="h-10 w-10"
+                            onClick={() => setIsAISettingsOpen(true)}
                           >
                             <Settings className="h-4 w-4" />
                           </Button>
@@ -412,6 +415,12 @@ export const ProjectCostPage = ({
         invoice={null}
         projectId={project.id}
         onSaved={refreshData}
+      />
+
+      {/* AI Prompt Settings Modal */}
+      <AIPromptSettings
+        isOpen={isAISettingsOpen}
+        onClose={() => setIsAISettingsOpen(false)}
       />
     </div>;
 };
