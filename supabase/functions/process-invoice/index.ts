@@ -81,12 +81,12 @@ async function extractWithOpenAI(fileId: string) {
     messages: [
       { 
         role: "system", 
-        content: "You are an expert at extracting invoice data from PDFs. Extract only the specified fields and return valid JSON." 
+        content: "You are an expert at extracting invoice data from PDFs. Extract ALL line items from the invoice - do not miss any products, materials, or services listed. Payment terms like 'deposit due' or 'balance due' are NOT line items. Focus on extracting the actual goods/services being invoiced. Return valid JSON only." 
       },
       {
         role: "user",
         content: [
-          { type: "text", text: "Extract supplier, invoice_number, dates, subtotal, tax, total, and line_items from this invoice PDF." },
+          { type: "text", text: "Extract ALL line items from this invoice PDF. Include every single product, material, or service listed with their descriptions, quantities, rates, and amounts. Do not extract payment terms as line items. Also extract supplier, invoice_number, dates, subtotal, tax, and total." },
           { type: "file", file: { file_id: fileId } }
         ]
       }
