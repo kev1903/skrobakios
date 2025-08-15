@@ -381,14 +381,89 @@ export const ProjectCostPage = ({
                   </div>
                 </TabsContent>
                 <TabsContent value="expense" className="mt-0">
-                  <ExpensesModule 
-                    projectId={project.id}
-                    statusFilter={expenseStatusFilter}
-                    formatCurrency={formatCurrency}
-                    formatDate={formatDate}
-                    onDataUpdate={setExpenseData}
-                    refreshTrigger={refreshTrigger}
-                  />
+                  {expenseStatusFilter === 'inbox' ? (
+                    <ExpensesModule 
+                      projectId={project.id}
+                      statusFilter={expenseStatusFilter}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                      onDataUpdate={setExpenseData}
+                      refreshTrigger={refreshTrigger}
+                    />
+                  ) : expenseStatusFilter === 'scheduled' ? (
+                    // Awaiting Payment Table
+                    <div className="space-y-4">
+                      <div className="text-center py-8 text-foreground">
+                        <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
+                          <DollarSign className="h-8 w-8" />
+                        </div>
+                        <p className="text-foreground">No invoices awaiting payment.</p>
+                        <p className="text-sm mt-2 text-muted-foreground">Approved invoices will appear here when ready for payment.</p>
+                      </div>
+                      <div className="w-full">
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className="border-b bg-muted/50">
+                              <th className="text-left p-2 font-medium w-12 text-xs">
+                                <input type="checkbox" className="rounded" />
+                              </th>
+                              <th className="text-left p-2 font-medium w-16 text-foreground text-xs">View</th>
+                              <th className="text-left p-2 font-medium text-foreground text-xs">From</th>
+                              <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Reference</th>
+                              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Date ↓</th>
+                              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Due date</th>
+                              <th className="text-left p-2 font-medium w-24 text-foreground text-xs">Amount</th>
+                              <th className="text-left p-2 font-medium w-12 text-xs"></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {/* Empty table body - will be populated when data exists */}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : expenseStatusFilter === 'paid' ? (
+                    // Paid Table
+                    <div className="space-y-4">
+                      <div className="text-center py-8 text-foreground">
+                        <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
+                          <DollarSign className="h-8 w-8" />
+                        </div>
+                        <p className="text-foreground">No paid invoices.</p>
+                        <p className="text-sm mt-2 text-muted-foreground">Completed payments will appear here.</p>
+                      </div>
+                      <div className="w-full">
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className="border-b bg-muted/50">
+                              <th className="text-left p-2 font-medium w-12 text-xs">
+                                <input type="checkbox" className="rounded" />
+                              </th>
+                              <th className="text-left p-2 font-medium w-16 text-foreground text-xs">View</th>
+                              <th className="text-left p-2 font-medium text-foreground text-xs">From</th>
+                              <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Reference</th>
+                              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Date ↓</th>
+                              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Due date</th>
+                              <th className="text-left p-2 font-medium w-24 text-foreground text-xs">Amount</th>
+                              <th className="text-left p-2 font-medium w-12 text-xs"></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {/* Empty table body - will be populated when data exists */}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : (
+                    <ExpensesModule 
+                      projectId={project.id}
+                      statusFilter={expenseStatusFilter}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                      onDataUpdate={setExpenseData}
+                      refreshTrigger={refreshTrigger}
+                    />
+                  )}
                 </TabsContent>
                 
                 <TabsContent value="analytics" className="mt-0">
