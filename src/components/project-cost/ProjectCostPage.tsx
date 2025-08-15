@@ -46,6 +46,7 @@ export const ProjectCostPage = ({
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
   const [isPDFUploaderOpen, setIsPDFUploaderOpen] = useState(false);
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Tab options configuration
   const tabOptions = [
@@ -70,6 +71,7 @@ export const ProjectCostPage = ({
   const refreshData = () => {
     loadIncomeData();
     loadExpenseData();
+    setRefreshTrigger(prev => prev + 1); // Trigger refresh in ExpensesModule
   };
 
   // Use the central tasks hook to get real data from the database
@@ -380,6 +382,8 @@ export const ProjectCostPage = ({
                     statusFilter={expenseStatusFilter}
                     formatCurrency={formatCurrency}
                     formatDate={formatDate}
+                    onDataUpdate={setExpenseData}
+                    refreshTrigger={refreshTrigger}
                   />
                 </TabsContent>
                 

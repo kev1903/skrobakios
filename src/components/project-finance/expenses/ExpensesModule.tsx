@@ -32,9 +32,11 @@ interface ExpensesModuleProps {
   statusFilter?: string;
   formatCurrency?: (amount: number) => string;
   formatDate?: (date: Date | string) => string;
+  onDataUpdate?: (data: any) => void;
+  refreshTrigger?: number;
 }
 
-export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurrency, formatDate }: ExpensesModuleProps) => {
+export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurrency, formatDate, onDataUpdate, refreshTrigger }: ExpensesModuleProps) => {
   const [bills, setBills] = useState<Bill[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -50,6 +52,18 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
 
       if (error) throw error;
       setBills(data || []);
+      
+      // Call onDataUpdate with the summary data
+      if (onDataUpdate && data) {
+        const summaryData = {
+          totalBills: data.reduce((sum, bill) => sum + bill.total, 0),
+          totalPaid: data.reduce((sum, bill) => sum + bill.paid_to_date, 0),
+          outstanding: data.reduce((sum, bill) => sum + (bill.total - bill.paid_to_date), 0),
+          pending: data.filter(bill => bill.status === 'submitted').length,
+          totalItems: data.length
+        };
+        onDataUpdate(summaryData);
+      }
     } catch (error) {
       console.error('Error loading bills:', error);
       toast({
@@ -65,6 +79,13 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
   useEffect(() => {
     loadBills();
   }, [projectId]);
+
+  // Listen for refresh triggers from parent
+  useEffect(() => {
+    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+      loadBills();
+    }
+  }, [refreshTrigger]);
 
   const getStatusBadge = (status: Bill['status']) => {
     switch (status) {
