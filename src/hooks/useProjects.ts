@@ -125,10 +125,14 @@ export const useProjects = () => {
   };
 
   const getProjects = useCallback(async (): Promise<Project[]> => {
+    console.log("🚀 getProjects called");
+    console.log("🏢 Current company:", currentCompany?.name, currentCompany?.id);
+    
     // Clear cache when company changes to ensure fresh data
     if (currentCompany) {
       globalCache.data = null;
       globalCache.timestamp = 0;
+      console.log("🗑️ Cache cleared for company change");
     }
     
     setLoading(true);
@@ -138,6 +142,7 @@ export const useProjects = () => {
       // Cancel previous request
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
+        console.log("⏹️ Previous request aborted");
       }
       
       abortControllerRef.current = new AbortController();
@@ -148,6 +153,15 @@ export const useProjects = () => {
       // Get current user
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('User not authenticated');
+      console.log("👤 User authenticated:", user.user.id);
+
+      // Check company membership status
+      const { data: membershipData } = await supabase
+        .from('company_members')
+        .select('*')
+        .eq('user_id', user.user.id);
+      
+      console.log("👥 User memberships:", membershipData);
 
       // Fetch projects - RLS will handle filtering by company membership
       // The RLS policy `can_view_company_projects` checks if user is active member of company
@@ -167,27 +181,38 @@ export const useProjects = () => {
         return acc;
       }, {} as Record<string, number>));
       
+      // Filter projects for current company if we have one
+      const filteredProjects = currentCompany 
+        ? freshData.filter(p => p.company_id === currentCompany.id)
+        : freshData;
+      
+      console.log("🎯 Projects for current company:", filteredProjects.length);
+      console.log("📝 Filtered projects:", filteredProjects.map(p => ({ id: p.id, name: p.name, company_id: p.company_id })));
+      
       // Update cache
-      globalCache.data = freshData;
+      globalCache.data = filteredProjects;
       globalCache.timestamp = Date.now();
       
       // Save to localStorage
-      saveToLocalStorage(freshData);
+      saveToLocalStorage(filteredProjects);
       
-      return freshData;
+      return filteredProjects;
     } catch (err) {
       if (err.name !== 'AbortError') {
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch projects';
         setError(errorMessage);
-        console.error('Error fetching projects:', err);
+        console.error('❌ Error fetching projects:', err);
         
         // Try to return cached data as fallback
         const cachedData = loadFromLocalStorage();
+        console.log("💾 Returning cached data:", cachedData.length);
         return cachedData;
       }
+      console.log("⏹️ Request was aborted");
       return [];
     } finally {
       setLoading(false);
+      console.log("✅ getProjects finished");
     }
   }, [currentCompany]); // Add currentCompany as dependency
 

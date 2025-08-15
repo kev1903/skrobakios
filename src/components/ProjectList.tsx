@@ -30,9 +30,10 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
 
   useEffect(() => {
     const fetchProjects = async () => {
-      console.log("Fetching projects from database...");
+      console.log("📋 ProjectList: Fetching projects from database...");
       const fetchedProjects = await getProjects();
-      console.log("Fetched projects:", fetchedProjects);
+      console.log("📋 ProjectList: Fetched projects:", fetchedProjects.length);
+      console.log("📋 ProjectList: Project details:", fetchedProjects.map(p => ({ id: p.id, name: p.name })));
       setProjects(fetchedProjects);
     };
 
