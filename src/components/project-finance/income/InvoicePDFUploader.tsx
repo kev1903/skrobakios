@@ -91,6 +91,35 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
     }
   };
 
+  // Function to parse AI-extracted dates to ISO format
+  const parseExtractedDate = (dateStr: string): string => {
+    if (!dateStr) return new Date().toISOString().split('T')[0];
+    
+    try {
+      // Handle common AI date formats like "31 Jul 2025", "2025-07-31", "31/07/2025"
+      const cleanDate = dateStr.trim();
+      
+      // If already in ISO format (YYYY-MM-DD), return as is
+      if (/^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) {
+        return cleanDate;
+      }
+      
+      // Parse various date formats
+      const parsedDate = new Date(cleanDate);
+      
+      // Check if date is valid
+      if (isNaN(parsedDate.getTime())) {
+        console.warn(`Could not parse date: ${dateStr}, using current date as fallback`);
+        return new Date().toISOString().split('T')[0];
+      }
+      
+      return parsedDate.toISOString().split('T')[0];
+    } catch (error) {
+      console.warn(`Error parsing date: ${dateStr}`, error);
+      return new Date().toISOString().split('T')[0];
+    }
+  };
+
   const handleFileUpload = async (file: File) => {
     if (file.type !== 'application/pdf') {
       setError('Please upload a PDF file');
@@ -139,10 +168,10 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
         setConfidence((extraction.ai_confidence || 0) * 100); // Convert to percentage
         setEditableData({
           supplier_name: extraction.supplier || '',
-          supplier_email: '',
+          supplier_email: extraction.supplier_email || '',
           bill_no: extraction.invoice_number || '',
-          due_date: extraction.due_date || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          bill_date: extraction.invoice_date || new Date().toISOString().split('T')[0],
+          due_date: parseExtractedDate(extraction.due_date),
+          bill_date: parseExtractedDate(extraction.invoice_date),
           reference_number: '',
           notes: extraction.ai_summary || '',
           subtotal: parseFloat(extraction.subtotal || '0'),
