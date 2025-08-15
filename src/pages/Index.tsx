@@ -54,12 +54,19 @@ const Index = () => {
   // Handle URL parameters for direct navigation
   useEffect(() => {
     const pageParam = searchParams.get('page');
+    const projectIdParam = searchParams.get('projectId');
+    
     if (pageParam && pageParam !== currentPage) {
       // Store current page as previous when URL changes
       previousPageRef.current = currentPage;
       setCurrentPage(pageParam);
     }
-  }, [searchParams]); // Remove currentPage dependency to prevent infinite loops
+    
+    // Set project if projectId is in URL
+    if (projectIdParam && projectIdParam !== selectedProject) {
+      handleSelectProject(projectIdParam);
+    }
+  }, [searchParams, selectedProject, handleSelectProject]); // Add dependencies to handle project selection
 
   // Redirect authenticated users away from public pages
   useEffect(() => {

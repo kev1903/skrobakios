@@ -38,7 +38,11 @@ export const ProjectCostPage = ({
   onNavigate
 }: ProjectCostPageProps) => {
   const { userProfile } = useUser();
-  const [activeTab, setActiveTab] = useState('cost-control');
+  
+  // Read tab from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const tabFromUrl = urlParams.get('tab');
+  const [activeTab, setActiveTab] = useState(tabFromUrl || 'income');
   const [incomeStatusFilter, setIncomeStatusFilter] = useState('all');
   const [expenseStatusFilter, setExpenseStatusFilter] = useState('inbox');
   const [incomeData, setIncomeData] = useState({ totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });

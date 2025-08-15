@@ -74,7 +74,9 @@ export const ProjectSidebar = ({
   
   const handleNavigate = (page: string) => {
     if (page === 'project-cost') {
-      onNavigate(`${page}?tab=income`);
+      onNavigate(`${page}?projectId=${project.id}&tab=income`);
+    } else if (page.startsWith('project-')) {
+      onNavigate(`${page}?projectId=${project.id}`);
     } else {
       onNavigate(page);
     }
