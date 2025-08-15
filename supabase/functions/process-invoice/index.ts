@@ -87,7 +87,7 @@ async function extractWithOpenAI(fileId: string) {
         role: "user",
         content: [
           { type: "text", text: "Extract supplier, invoice_number, dates, subtotal, tax, total, and line_items from this invoice PDF." },
-          { type: "file", file_id: fileId }
+          { type: "file", file: { file_id: fileId } }
         ]
       }
     ],
