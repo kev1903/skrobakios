@@ -402,14 +402,18 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                           </tr>
                         </thead>
                         <tbody>
-                          {editableData.line_items.map((item: any, index: number) => (
-                            <tr key={index} className="border-t">
-                              <td className="p-3">{item.description}</td>
-                              <td className="text-right p-3">{item.qty}</td>
-                              <td className="text-right p-3">${item.rate?.toFixed(2)}</td>
-                              <td className="text-right p-3">${item.amount?.toFixed(2)}</td>
-                            </tr>
-                          ))}
+                           {editableData.line_items.map((item: any, index: number) => (
+                             <tr key={index} className="border-t">
+                               <td className="p-3">{item.description}</td>
+                               <td className="text-right p-3">{item.qty}</td>
+                               <td className="text-right p-3">
+                                 ${typeof item.rate === 'number' ? item.rate.toFixed(2) : parseFloat(item.rate || '0').toFixed(2)}
+                               </td>
+                               <td className="text-right p-3">
+                                 ${typeof item.amount === 'number' ? item.amount.toFixed(2) : parseFloat(item.amount || '0').toFixed(2)}
+                               </td>
+                             </tr>
+                           ))}
                         </tbody>
                       </table>
                     </div>
