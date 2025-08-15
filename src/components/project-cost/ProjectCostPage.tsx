@@ -301,25 +301,38 @@ export const ProjectCostPage = ({
                     )}
                     {activeTab === 'expense' && (
                       <>
-                        <select
-                          value={expenseStatusFilter}
-                          onChange={(e) => setExpenseStatusFilter(e.target.value)}
-                          className="px-3 py-2 border border-border rounded-md text-sm bg-background"
-                        >
-                          <option value="inbox">For Approval</option>
-                          <option value="pending">Awaiting Payments</option>
-                          <option value="paid">Paid</option>
-                        </select>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant={expenseStatusFilter === 'inbox' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setExpenseStatusFilter('inbox')}
+                            className="text-sm"
+                          >
+                            For Approval
+                          </Button>
+                          <Button
+                            variant={expenseStatusFilter === 'pending' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setExpenseStatusFilter('pending')}
+                            className="text-sm"
+                          >
+                            Awaiting Payments
+                          </Button>
+                          <Button
+                            variant={expenseStatusFilter === 'paid' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setExpenseStatusFilter('paid')}
+                            className="text-sm"
+                          >
+                            Paid
+                          </Button>
+                        </div>
                         <Button 
                           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                           onClick={() => setIsPDFUploaderOpen(true)}
                         >
                           <DollarSign className="h-4 w-4" />
                           Upload Invoice PDF
-                        </Button>
-                        <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
-                          <DollarSign className="h-4 w-4" />
-                          New Bill
                         </Button>
                       </>
                     )}
