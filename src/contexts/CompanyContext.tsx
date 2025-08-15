@@ -36,7 +36,29 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       setCompanies(userCompanies);
       
       // Find the first active company or default to first company
-      const activeCompany = userCompanies.find(c => c.status === 'active') || userCompanies[0];
+      let activeCompany = userCompanies.find(c => c.status === 'active');
+      
+      // If no active company found but we have companies, activate the first one
+      if (!activeCompany && userCompanies.length > 0) {
+        console.log('⚠️ No active company found, activating first company');
+        const firstCompany = userCompanies[0];
+        
+        try {
+          // Update database to activate the first company
+          await supabase
+            .from('company_members')
+            .update({ status: 'active' })
+            .eq('user_id', user?.id)
+            .eq('company_id', firstCompany.id);
+          
+          // Update local state
+          activeCompany = { ...firstCompany, status: 'active' };
+          console.log('✅ Activated company:', activeCompany.name);
+        } catch (error) {
+          console.error('Failed to activate company:', error);
+          activeCompany = firstCompany; // Fallback to local state
+        }
+      }
       
       if (activeCompany) {
         console.log('🎯 Setting active company:', activeCompany.name, activeCompany.status);
