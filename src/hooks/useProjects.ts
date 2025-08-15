@@ -140,29 +140,20 @@ export const useProjects = () => {
       console.log("Fetching projects from database...");
       console.log("Current company:", currentCompany);
       
-      // Fetch projects with proper company filtering using RLS-compatible query
+      // Get current user
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('User not authenticated');
+
+      // Fetch projects - RLS will handle filtering by company membership
       const { data, error } = await supabase
         .from('projects')
-        .select(`
-          *,
-          company_members!inner(
-            user_id,
-            status,
-            company_id
-          )
-        `)
-        .eq('company_members.user_id', (await supabase.auth.getUser()).data.user?.id)
-        .eq('company_members.status', 'active')
+        .select('*')
         .order('created_at', { ascending: false })
         .abortSignal(abortControllerRef.current.signal);
 
       if (error) throw error;
       
-      // Clean up the nested company_members data from response
-      const freshData = (data || []).map(project => {
-        const { company_members, ...cleanProject } = project;
-        return cleanProject;
-      }) as Project[];
+      const freshData = (data || []) as Project[];
       
       console.log("Fetched projects:", freshData);
       console.log("Number of projects found:", freshData.length);
