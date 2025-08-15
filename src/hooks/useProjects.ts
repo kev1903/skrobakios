@@ -138,16 +138,34 @@ export const useProjects = () => {
       abortControllerRef.current = new AbortController();
       
       console.log("Fetching projects from database...");
+      console.log("Current company:", currentCompany);
+      
+      // Fetch projects with proper company filtering using RLS-compatible query
       const { data, error } = await supabase
         .from('projects')
-        .select('*')
+        .select(`
+          *,
+          company_members!inner(
+            user_id,
+            status,
+            company_id
+          )
+        `)
+        .eq('company_members.user_id', (await supabase.auth.getUser()).data.user?.id)
+        .eq('company_members.status', 'active')
         .order('created_at', { ascending: false })
         .abortSignal(abortControllerRef.current.signal);
 
       if (error) throw error;
       
-      const freshData = data || [];
+      // Clean up the nested company_members data from response
+      const freshData = (data || []).map(project => {
+        const { company_members, ...cleanProject } = project;
+        return cleanProject;
+      }) as Project[];
+      
       console.log("Fetched projects:", freshData);
+      console.log("Number of projects found:", freshData.length);
       
       // Update cache
       globalCache.data = freshData;
