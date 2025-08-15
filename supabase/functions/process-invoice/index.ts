@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
+import * as pdfParse from "https://esm.sh/pdf-parse@1.1.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,13 +32,26 @@ serve(async (req) => {
     }
     
     const fileBuffer = await fileResponse.arrayBuffer();
-    const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
-
     console.log('File downloaded, size:', fileBuffer.byteLength);
 
-    // Use OpenAI to extract invoice data
+    // Extract text from PDF
+    let extractedText = '';
+    try {
+      const pdfData = await pdfParse.default(fileBuffer);
+      extractedText = pdfData.text;
+      console.log('Extracted text from PDF:', extractedText.substring(0, 500) + '...');
+    } catch (pdfError) {
+      console.error('Error extracting text from PDF:', pdfError);
+      throw new Error('Failed to extract text from PDF');
+    }
+
+    if (!extractedText || extractedText.trim().length === 0) {
+      throw new Error('No text could be extracted from the PDF');
+    }
+
+    // Use OpenAI to extract invoice data from the text
     const prompt = `
-      You are an expert invoice data extraction AI. Extract key information from this invoice PDF and return it as a JSON object.
+      You are an expert invoice data extraction AI. Extract key information from this invoice text and return it as a JSON object.
       
       Extract the following fields:
       - supplier_name: Company/vendor name
@@ -55,6 +69,9 @@ serve(async (req) => {
       
       Return ONLY a valid JSON object with these fields. Use null for missing values.
       For amounts, extract only the numeric value without currency symbols.
+      
+      Invoice text:
+      ${extractedText}
     `;
 
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -68,15 +85,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'user',
-            content: [
-              { type: 'text', text: prompt },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:application/pdf;base64,${fileBase64}`
-                }
-              }
-            ]
+            content: prompt
           }
         ],
         max_tokens: 1000,
@@ -91,16 +100,16 @@ serve(async (req) => {
     }
 
     const openaiData = await openaiResponse.json();
-    const extractedText = openaiData.choices[0].message.content;
+    const extractedResponse = openaiData.choices[0].message.content;
     
-    console.log('OpenAI extracted text:', extractedText);
+    console.log('OpenAI extracted response:', extractedResponse);
 
     // Parse the extracted JSON
     let extractedData;
     try {
-      extractedData = JSON.parse(extractedText);
+      extractedData = JSON.parse(extractedResponse);
     } catch (parseError) {
-      console.error('Failed to parse extracted data as JSON:', extractedText);
+      console.error('Failed to parse extracted data as JSON:', extractedResponse);
       // Fallback: try to extract basic info with regex
       extractedData = {
         supplier_name: fileName.split('.')[0] || 'Unknown Supplier',
