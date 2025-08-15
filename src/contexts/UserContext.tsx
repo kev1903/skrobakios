@@ -44,7 +44,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [userProfile, setUserProfile] = useState<UserProfile>(defaultUserProfile);
-  const { profile, loading } = useProfile();
+  const { profile, loading, refetchProfile } = useProfile();
 
   // Sync profile data when it loads from the database
   useEffect(() => {
@@ -66,6 +66,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       });
     }
   }, [profile]);
+
+  // Listen for company changes and refresh profile
+  useEffect(() => {
+    const handleCompanyChanged = () => {
+      console.log('👤 Company changed - refreshing user profile');
+      refetchProfile();
+    };
+
+    window.addEventListener('companyChanged', handleCompanyChanged);
+    return () => window.removeEventListener('companyChanged', handleCompanyChanged);
+  }, [refetchProfile]);
 
   const updateUserProfile = (updates: Partial<UserProfile>) => {
     setUserProfile(prev => ({
