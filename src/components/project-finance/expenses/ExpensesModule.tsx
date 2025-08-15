@@ -3,9 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download } from 'lucide-react';
+import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download, MoreVertical, RefreshCw, Edit, Trash2 } from 'lucide-react';
 import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 
@@ -123,6 +124,83 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     });
   };
 
+  const handleRerunExtraction = async (bill: Bill) => {
+    try {
+      const fileAttachments = Array.isArray(bill.file_attachments) ? bill.file_attachments : [];
+      if (fileAttachments.length === 0) {
+        toast({
+          title: "No File Found",
+          description: "No attachments found to re-process",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const attachment = fileAttachments[0];
+      
+      toast({
+        title: "Processing",
+        description: "Re-running AI extraction on invoice..."
+      });
+
+      const { data, error } = await supabase.functions.invoke('process-invoice', {
+        body: {
+          fileUrl: attachment.url,
+          fileName: attachment.name,
+          projectId: projectId
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Invoice extraction completed successfully"
+      });
+      
+      loadBills();
+    } catch (error) {
+      console.error('Error re-running extraction:', error);
+      toast({
+        title: "Error",
+        description: "Failed to re-run extraction",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEditBill = (billId: string) => {
+    toast({
+      title: "Coming Soon",
+      description: "Bill editing will be implemented soon"
+    });
+  };
+
+  const handleDeleteBill = async (billId: string) => {
+    try {
+      const { error } = await supabase
+        .from('bills')
+        .delete()
+        .eq('id', billId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Bill deleted successfully"
+      });
+      
+      loadBills();
+    } catch (error) {
+      console.error('Error deleting bill:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete bill",
+        variant: "destructive"
+      });
+    }
+  };
+
   const filterBillsByStatus = (status: string) => {
     switch (status) {
       case 'inbox':
@@ -222,11 +300,32 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                           )}
                         </div>
                       </td>
-                      <td className="p-3">
-                        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6">
-                          <span className="text-xs">⋯</span>
-                        </Button>
-                      </td>
+                       <td className="p-3">
+                         <DropdownMenu>
+                           <DropdownMenuTrigger asChild>
+                             <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6">
+                               <MoreVertical className="h-4 w-4" />
+                             </Button>
+                           </DropdownMenuTrigger>
+                           <DropdownMenuContent align="end">
+                             <DropdownMenuItem onClick={() => handleRerunExtraction(bill)}>
+                               <RefreshCw className="h-4 w-4 mr-2" />
+                               Re-run Extraction
+                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => handleEditBill(bill.id)}>
+                               <Edit className="h-4 w-4 mr-2" />
+                               Edit Invoice
+                             </DropdownMenuItem>
+                             <DropdownMenuItem 
+                               onClick={() => handleDeleteBill(bill.id)}
+                               className="text-red-600 focus:text-red-600"
+                             >
+                               <Trash2 className="h-4 w-4 mr-2" />
+                               Delete Invoice
+                             </DropdownMenuItem>
+                           </DropdownMenuContent>
+                         </DropdownMenu>
+                       </td>
                     </tr>
                   ))}
                 </tbody>
