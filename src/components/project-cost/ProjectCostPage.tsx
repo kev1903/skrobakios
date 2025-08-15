@@ -321,9 +321,9 @@ export const ProjectCostPage = ({
                               For Approval
                             </Button>
                             <Button
-                              variant={expenseStatusFilter === 'pending' ? 'default' : 'outline'}
+                              variant={expenseStatusFilter === 'scheduled' ? 'default' : 'outline'}
                               size="sm"
-                              onClick={() => setExpenseStatusFilter('pending')}
+                              onClick={() => setExpenseStatusFilter('scheduled')}
                               className="text-sm"
                             >
                               Awaiting Payments
