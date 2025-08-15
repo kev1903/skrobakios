@@ -91,6 +91,13 @@ export const ProjectFinancePage = ({ project, onNavigate }: ProjectFinancePagePr
             </div>
           </div>
 
+          {/* Navigation Tabs - Now using dropdown above */}
+          <div className="mb-4 p-4 bg-muted/30 rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              Selected: <span className="font-medium text-foreground">{getCurrentTabLabel()}</span>
+            </p>
+          </div>
+
           {/* Main Finance Content */}
           <div className="bg-card border rounded-lg">
             {/* Finance Content */}
