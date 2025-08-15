@@ -4,9 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download, MoreVertical, RefreshCw, Edit, Trash2 } from 'lucide-react';
+import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download, MoreVertical, RefreshCw, Edit, Trash2, Check } from 'lucide-react';
 import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 import { BillEditDialog } from './BillEditDialog';
@@ -42,6 +43,8 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
   const [loading, setLoading] = useState(true);
   const [editBill, setEditBill] = useState<Bill | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [previewFile, setPreviewFile] = useState<string | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const { toast } = useToast();
 
   const loadBills = async () => {
@@ -239,6 +242,20 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     }
   };
 
+  const handleViewFile = (bill: Bill) => {
+    const fileAttachments = Array.isArray(bill.file_attachments) ? bill.file_attachments : [];
+    if (fileAttachments.length > 0) {
+      setPreviewFile(fileAttachments[0].url);
+      setIsPreviewOpen(true);
+    } else {
+      toast({
+        title: "No File Found",
+        description: "No attachments found to preview",
+        variant: "destructive"
+      });
+    }
+  };
+
   const filterBillsByStatus = (status: string) => {
     switch (status) {
       case 'inbox':
@@ -279,64 +296,57 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left p-3 font-medium w-12">
+                <th className="text-left p-2 font-medium w-12 text-xs">
                   <input type="checkbox" className="rounded" />
                 </th>
-                <th className="text-left p-3 font-medium w-16 text-foreground">View</th>
-                <th className="text-left p-3 font-medium text-foreground">From</th>
-                <th className="text-left p-3 font-medium w-32 text-foreground">Reference</th>
-                <th className="text-left p-3 font-medium w-28 text-foreground">Date ↓</th>
-                <th className="text-left p-3 font-medium w-28 text-foreground">Due date</th>
-                <th className="text-left p-3 font-medium w-24 text-foreground">Amount</th>
-                <th className="text-left p-3 font-medium w-16 text-foreground">Files</th>
-                <th className="text-left p-3 font-medium w-12"></th>
+                <th className="text-left p-2 font-medium w-16 text-foreground text-xs">View</th>
+                <th className="text-left p-2 font-medium text-foreground text-xs">From</th>
+                <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Reference</th>
+                <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Date ↓</th>
+                <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Due date</th>
+                <th className="text-left p-2 font-medium w-24 text-foreground text-xs">Amount</th>
+                <th className="text-left p-2 font-medium w-12 text-xs"></th>
               </tr>
             </thead>
             <tbody>
               {filteredBills.map((bill) => (
-                <tr key={bill.id} className="border-b hover:bg-muted/30 group">
-                  <td className="p-3"><input type="checkbox" className="rounded" /></td>
-                  <td className="p-3">
-                    <Button variant="ghost" size="sm" className="p-1 h-8 w-8">
-                      <Eye className="h-4 w-4 text-blue-600" />
+                <tr key={bill.id} className="border-b hover:bg-muted/30 group h-12">
+                  <td className="p-2"><input type="checkbox" className="rounded" /></td>
+                  <td className="p-2">
+                    <Button variant="ghost" size="sm" className="p-1 h-6 w-6" onClick={() => handleViewFile(bill)}>
+                      <Eye className="h-3 w-3 text-blue-600" />
                     </Button>
                   </td>
-                  <td className="p-3 text-foreground font-medium">{bill.supplier_name}</td>
-                  <td className="p-3 text-foreground">
+                  <td className="p-2 text-foreground font-medium text-xs">{bill.supplier_name}</td>
+                  <td className="p-2 text-foreground">
                     <div>
-                      <div className="font-mono text-sm">{bill.reference_number || bill.bill_no}</div>
+                      <div className="font-medium text-xs">{bill.reference_number || bill.bill_no}</div>
                       {bill.forwarded_bill && <div className="text-xs text-blue-600 italic">Forwarded Bill</div>}
                     </div>
                   </td>
-                   <td className="p-3 text-foreground text-sm">{formatDate ? formatDate(new Date(bill.bill_date)) : format(new Date(bill.bill_date), 'dd MMM yyyy')}</td>
-                   <td className="p-3 text-foreground text-sm">
+                   <td className="p-2 text-foreground text-xs">{formatDate ? formatDate(new Date(bill.bill_date)) : format(new Date(bill.bill_date), 'dd MMM yyyy')}</td>
+                   <td className="p-2 text-foreground text-xs">
                      {bill.due_date && (
                        <span className={new Date(bill.due_date) < new Date() ? 'text-red-600' : 'text-foreground'}>
                          {formatDate ? formatDate(new Date(bill.due_date)) : format(new Date(bill.due_date), 'dd MMM yyyy')}
                        </span>
                      )}
                    </td>
-                   <td className="p-3 text-foreground font-medium">{formatCurrency ? formatCurrency(bill.total) : defaultFormatCurrency(bill.total)}</td>
-                  <td className="p-3">
-                    <div className="flex items-center gap-1">
-                      {bill.file_attachments && Array.isArray(bill.file_attachments) && bill.file_attachments.length > 0 ? (
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm font-medium">{bill.file_attachments.length}</span>
-                          <FileText className="h-4 w-4 text-blue-600" />
-                        </div>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">0</span>
-                      )}
-                    </div>
-                  </td>
-                   <td className="p-3">
+                   <td className="p-2 text-foreground font-medium text-xs">{formatCurrency ? formatCurrency(bill.total) : defaultFormatCurrency(bill.total)}</td>
+                   <td className="p-2">
                      <DropdownMenu>
                        <DropdownMenuTrigger asChild>
                          <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6">
-                           <MoreVertical className="h-4 w-4" />
+                           <MoreVertical className="h-3 w-3" />
                          </Button>
                        </DropdownMenuTrigger>
-                       <DropdownMenuContent align="end">
+                       <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
+                         {bill.status === 'submitted' && (
+                           <DropdownMenuItem onClick={() => handleApproveBill(bill.id)}>
+                             <Check className="h-4 w-4 mr-2 text-green-600" />
+                             Approve
+                           </DropdownMenuItem>
+                         )}
                          <DropdownMenuItem onClick={() => handleRerunExtraction(bill)}>
                            <RefreshCw className="h-4 w-4 mr-2" />
                            Re-run Extraction
@@ -369,6 +379,24 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         bill={editBill}
         onSaved={handleEditSaved}
       />
+
+      {/* PDF Preview Dialog */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-4xl h-[80vh] p-0">
+          <DialogHeader className="p-4">
+            <DialogTitle>Document Preview</DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-hidden p-4">
+            {previewFile && (
+              <iframe
+                src={previewFile}
+                className="w-full h-full border-0 rounded"
+                title="Document Preview"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
