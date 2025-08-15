@@ -21,7 +21,6 @@ import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
 import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
 import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
 import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader';
-import { InvoiceDetailsTable } from './InvoiceDetailsTable';
 
 interface ProjectCostPageProps {
   project: Project;
@@ -313,19 +312,12 @@ export const ProjectCostPage = ({
                   </div>
                 </TabsContent>
                 <TabsContent value="expense" className="mt-0">
-                  <div className="space-y-6">
-                    <InvoiceDetailsTable 
-                      projectId={project.id}
-                      formatCurrency={formatCurrency}
-                      formatDate={formatDate}
-                    />
-                    <ExpensesModule 
-                      projectId={project.id}
-                      statusFilter={expenseStatusFilter}
-                      formatCurrency={formatCurrency}
-                      formatDate={formatDate}
-                    />
-                  </div>
+                  <ExpensesModule 
+                    projectId={project.id}
+                    statusFilter={expenseStatusFilter}
+                    formatCurrency={formatCurrency}
+                    formatDate={formatDate}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="analytics" className="mt-0">
