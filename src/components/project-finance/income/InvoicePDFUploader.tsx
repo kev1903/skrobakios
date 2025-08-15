@@ -381,7 +381,7 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                     />
                   </div>
                   <div>
-                    <Label htmlFor="bill_no">Bill Number</Label>
+                    <Label htmlFor="bill_no">Invoice Number</Label>
                     <Input
                       id="bill_no"
                       value={editableData.bill_no}
