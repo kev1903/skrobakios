@@ -263,7 +263,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
       case 'pending':
         return bills.filter(bill => bill.status === 'submitted');
       case 'scheduled':
-        return bills.filter(bill => bill.status === 'approved' || bill.status === 'scheduled');
+        return bills.filter(bill => bill.status === 'scheduled');
       case 'paid':
         return bills.filter(bill => bill.status === 'paid');
       default:
