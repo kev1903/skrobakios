@@ -9,7 +9,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle, ChevronDown } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle, ChevronDown, Settings } from 'lucide-react';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { useProjectSettings } from '@/hooks/useProjectSettings';
 import { Project } from '@/hooks/useProjects';
@@ -333,13 +333,22 @@ export const ProjectCostPage = ({
                             {expenseData.totalItems || 0} items | {formatCurrency(expenseData.totalBills || 0)}
                           </div>
                         </div>
-                        <Button 
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                          onClick={() => setIsPDFUploaderOpen(true)}
-                        >
-                          <DollarSign className="h-4 w-4" />
-                          Upload Invoice PDF
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                            onClick={() => setIsPDFUploaderOpen(true)}
+                          >
+                            <DollarSign className="h-4 w-4" />
+                            Upload Invoice PDF
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            size="icon"
+                            className="h-10 w-10"
+                          >
+                            <Settings className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </>
                     )}
                     {activeTab === 'cost-control' && (
