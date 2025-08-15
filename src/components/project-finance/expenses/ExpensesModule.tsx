@@ -177,7 +177,15 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
   };
 
   const handleDeleteBill = async (billId: string) => {
+    // Show confirmation dialog
+    const confirmed = window.confirm("Are you sure you want to delete this invoice? This action cannot be undone.");
+    
+    if (!confirmed) {
+      return;
+    }
+
     try {
+      // Delete the bill from the database
       const { error } = await supabase
         .from('bills')
         .delete()
@@ -187,15 +195,16 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
 
       toast({
         title: "Success",
-        description: "Bill deleted successfully"
+        description: "Invoice deleted successfully"
       });
       
+      // Reload the bills list to reflect the deletion
       loadBills();
     } catch (error) {
       console.error('Error deleting bill:', error);
       toast({
         title: "Error",
-        description: "Failed to delete bill",
+        description: "Failed to delete invoice",
         variant: "destructive"
       });
     }
