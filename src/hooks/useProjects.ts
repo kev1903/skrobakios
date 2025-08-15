@@ -125,7 +125,12 @@ export const useProjects = () => {
   };
 
   const getProjects = useCallback(async (): Promise<Project[]> => {
-    // Always fetch fresh data to ensure consistency
+    // Clear cache when company changes to ensure fresh data
+    if (currentCompany) {
+      globalCache.data = null;
+      globalCache.timestamp = 0;
+    }
+    
     setLoading(true);
     setError(null);
     
@@ -137,14 +142,15 @@ export const useProjects = () => {
       
       abortControllerRef.current = new AbortController();
       
-      console.log("Fetching projects from database...");
-      console.log("Current company:", currentCompany);
+      console.log("🏢 Fetching projects for current company:", currentCompany?.name);
+      console.log("🔐 Current company ID:", currentCompany?.id);
       
       // Get current user
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('User not authenticated');
 
       // Fetch projects - RLS will handle filtering by company membership
+      // The RLS policy `can_view_company_projects` checks if user is active member of company
       const { data, error } = await supabase
         .from('projects')
         .select('*')
@@ -155,8 +161,11 @@ export const useProjects = () => {
       
       const freshData = (data || []) as Project[];
       
-      console.log("Fetched projects:", freshData);
-      console.log("Number of projects found:", freshData.length);
+      console.log("📊 Raw projects fetched:", freshData.length);
+      console.log("🏢 Projects by company:", freshData.reduce((acc, p) => {
+        acc[p.company_id] = (acc[p.company_id] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>));
       
       // Update cache
       globalCache.data = freshData;
@@ -180,7 +189,7 @@ export const useProjects = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentCompany]); // Add currentCompany as dependency
 
   const getProject = useCallback(async (projectId: string): Promise<Project | null> => {
     // First try to get from cache

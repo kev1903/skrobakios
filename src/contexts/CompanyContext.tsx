@@ -113,7 +113,9 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
         
         console.log('✅ Successfully switched to company:', company.name);
         
-        // Reload the page to refresh all data with new security context
+        // Trigger cache invalidation for projects
+        localStorage.removeItem('projects_cache');
+        // Force a reload to refresh all modules with new company context
         window.location.reload();
       } catch (error) {
         console.error('Failed to switch company:', error);

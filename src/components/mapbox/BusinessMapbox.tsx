@@ -57,14 +57,13 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   }, []);
 
 
-  // Fetch ALL projects from ALL businesses for the map display
+  // Fetch projects for current business context (not all businesses)
   useEffect(() => {
-    const fetchAllBusinessProjects = async () => {
+    const fetchCurrentBusinessProjects = async () => {
       try {
-        console.log('🌍 Fetching projects from ALL businesses...');
+        console.log('🏢 Fetching projects for current business context...');
         
-        // Fetch ALL projects from ALL companies (no filtering by user membership)
-        // This shows the complete business ecosystem on the map
+        // Fetch projects for current company only - respecting RLS and business context
         const { data, error } = await supabase
           .from('projects')
           .select(`
@@ -87,8 +86,8 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
           company_name: project.companies?.name || 'Unknown Company'
         })) || [];
         
-        console.log(`📍 Loaded ${projectsWithCompanyInfo.length} total projects from all businesses`);
-        console.log('🏢 Projects by company:', projectsWithCompanyInfo.reduce((acc, p) => {
+        console.log(`📍 Loaded ${projectsWithCompanyInfo.length} projects for current business context`);
+        console.log('🏢 Projects distribution:', projectsWithCompanyInfo.reduce((acc, p) => {
           acc[p.company_name] = (acc[p.company_name] || 0) + 1;
           return acc;
         }, {} as Record<string, number>));
@@ -99,15 +98,15 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         setProjects(projectsWithCompanyInfo);
         
       } catch (error) {
-        console.error('Error fetching all business projects:', error);
+        console.error('Error fetching business projects:', error);
         setProjects([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAllBusinessProjects();
-  }, []);
+    fetchCurrentBusinessProjects();
+  }, []); // Remove dependencies to prevent unnecessary re-fetching
 
   // Set up global navigation function for popup clicks
   useEffect(() => {
