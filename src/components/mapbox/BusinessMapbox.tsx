@@ -15,6 +15,8 @@ interface Project {
   latitude?: number;
   longitude?: number;
   status?: string;
+  company_id?: string;
+  company_name?: string;
 }
 
 export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '' }) => {
@@ -55,34 +57,56 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   }, []);
 
 
-  // Fetch projects data and ensure they're geocoded
+  // Fetch ALL projects from ALL businesses for the map display
   useEffect(() => {
-    const fetchAndGeocodeProjects = async () => {
+    const fetchAllBusinessProjects = async () => {
       try {
-        console.log('🌍 Initial load - checking for projects that need geocoding...');
+        console.log('🌍 Fetching projects from ALL businesses...');
         
-        // First load all projects
+        // Fetch ALL projects from ALL companies (no filtering by user membership)
+        // This shows the complete business ecosystem on the map
         const { data, error } = await supabase
           .from('projects')
-          .select('id, name, location, latitude, longitude, status');
+          .select(`
+            id, 
+            name, 
+            location, 
+            latitude, 
+            longitude, 
+            status,
+            company_id,
+            companies!inner(name)
+          `)
+          .order('created_at', { ascending: false });
         
         if (error) throw error;
         
-        console.log(`📍 Loaded ${data?.length || 0} total projects`);
-        const geocodedCount = data?.filter(p => p.latitude && p.longitude).length || 0;
-        console.log(`✅ ${geocodedCount} projects have coordinates, ${(data?.length || 0) - geocodedCount} using fallback`);
-        setProjects(data || []);
+        // Transform the data to include company info
+        const projectsWithCompanyInfo = data?.map(project => ({
+          ...project,
+          company_name: project.companies?.name || 'Unknown Company'
+        })) || [];
         
-        // All projects loaded
+        console.log(`📍 Loaded ${projectsWithCompanyInfo.length} total projects from all businesses`);
+        console.log('🏢 Projects by company:', projectsWithCompanyInfo.reduce((acc, p) => {
+          acc[p.company_name] = (acc[p.company_name] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>));
+        
+        const geocodedCount = projectsWithCompanyInfo.filter(p => p.latitude && p.longitude).length;
+        console.log(`✅ ${geocodedCount} projects have coordinates, ${projectsWithCompanyInfo.length - geocodedCount} using fallback`);
+        
+        setProjects(projectsWithCompanyInfo);
         
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching all business projects:', error);
+        setProjects([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAndGeocodeProjects();
+    fetchAllBusinessProjects();
   }, []);
 
   // Set up global navigation function for popup clicks
@@ -269,6 +293,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         `<div class="bg-popover/95 backdrop-blur-md border border-border rounded-lg p-3 shadow-lg min-w-[200px]">
           <div class="font-semibold mb-2 text-foreground text-sm cursor-pointer hover:underline" style="color: ${hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--warning))'}; cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</div>
           <div class="text-muted-foreground text-xs mb-2">${project.location || 'Address not specified'}</div>
+          <div class="text-xs text-muted-foreground mb-2">🏢 ${project.company_name || 'Unknown Company'}</div>
           <div class="text-xs px-2 py-1 rounded-md inline-block" style="background: ${hasRealCoords ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--warning) / 0.1)'}; color: ${hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--warning))'}">
             ${hasRealCoords ? '📍 Precise Location' : '⚠️ Approximate Position'}
           </div>
@@ -279,6 +304,10 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
       const clickPopup = new mapboxgl.Popup({ offset: 25 }).setHTML(
         `<div class="bg-popover border border-border rounded-lg p-4 shadow-xl">
           <h3 class="font-semibold text-foreground text-sm mb-3 cursor-pointer hover:underline" style="cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</h3>
+          <div class="mb-3">
+            <span class="text-xs text-muted-foreground font-medium">COMPANY:</span>
+            <div class="text-xs text-foreground mt-1">🏢 ${project.company_name || 'Unknown Company'}</div>
+          </div>
           <div class="mb-3">
             <span class="text-xs text-muted-foreground font-medium">ADDRESS:</span>
             <div class="text-xs text-foreground mt-1">${project.location || 'Location not specified'}</div>
