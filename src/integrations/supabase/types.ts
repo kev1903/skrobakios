@@ -4330,12 +4330,20 @@ export type Database = {
         Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
       }
+      can_manage_company_projects: {
+        Args: { target_company_id: string; target_user_id: string }
+        Returns: boolean
+      }
       can_manage_project_secure: {
         Args: { target_project_id: string; target_user_id: string }
         Returns: boolean
       }
       can_manage_user: {
         Args: { target_user_id: string }
+        Returns: boolean
+      }
+      can_view_company_projects: {
+        Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
       }
       copy_monday_blocks_to_weekdays: {
