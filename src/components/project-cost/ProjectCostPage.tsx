@@ -41,7 +41,7 @@ export const ProjectCostPage = ({
   const [incomeStatusFilter, setIncomeStatusFilter] = useState('all');
   const [expenseStatusFilter, setExpenseStatusFilter] = useState('inbox');
   const [incomeData, setIncomeData] = useState({ totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });
-  const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0 });
+  const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0, totalItems: 0 });
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
   const [isPDFUploaderOpen, setIsPDFUploaderOpen] = useState(false);
 
@@ -114,8 +114,9 @@ export const ProjectCostPage = ({
         const totalPaid = bills.reduce((sum, bill) => sum + bill.paid_to_date, 0);
         const outstanding = bills.reduce((sum, bill) => sum + (bill.total - bill.paid_to_date), 0);
         const pending = bills.filter(bill => bill.status === 'submitted').length;
+        const totalItems = bills.length;
         
-        setExpenseData({ totalBills, totalPaid, outstanding, pending });
+        setExpenseData({ totalBills, totalPaid, outstanding, pending, totalItems });
       }
     } catch (error) {
       console.error('Error loading expense data:', error);
@@ -301,31 +302,36 @@ export const ProjectCostPage = ({
                     )}
                     {activeTab === 'expense' && (
                       <>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant={expenseStatusFilter === 'inbox' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setExpenseStatusFilter('inbox')}
-                            className="text-sm"
-                          >
-                            For Approval
-                          </Button>
-                          <Button
-                            variant={expenseStatusFilter === 'pending' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setExpenseStatusFilter('pending')}
-                            className="text-sm"
-                          >
-                            Awaiting Payments
-                          </Button>
-                          <Button
-                            variant={expenseStatusFilter === 'paid' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setExpenseStatusFilter('paid')}
-                            className="text-sm"
-                          >
-                            Paid
-                          </Button>
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant={expenseStatusFilter === 'inbox' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setExpenseStatusFilter('inbox')}
+                              className="text-sm"
+                            >
+                              For Approval
+                            </Button>
+                            <Button
+                              variant={expenseStatusFilter === 'pending' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setExpenseStatusFilter('pending')}
+                              className="text-sm"
+                            >
+                              Awaiting Payments
+                            </Button>
+                            <Button
+                              variant={expenseStatusFilter === 'paid' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setExpenseStatusFilter('paid')}
+                              className="text-sm"
+                            >
+                              Paid
+                            </Button>
+                          </div>
+                          <div className="text-sm text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg">
+                            {expenseData.totalItems || 0} items | {formatCurrency(expenseData.totalBills || 0)}
+                          </div>
                         </div>
                         <Button 
                           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"

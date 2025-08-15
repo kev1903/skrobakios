@@ -248,13 +248,6 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
             </div>
           ) : (
             <div className="w-full">
-              {/* Summary Bar */}
-              <div className="flex justify-end mb-4 p-2 bg-muted/30 rounded-lg">
-                <div className="text-sm text-muted-foreground">
-                  {filteredBills.length} items | {formatCurrency ? formatCurrency(filteredBills.reduce((sum, bill) => sum + bill.total, 0)) : defaultFormatCurrency(filteredBills.reduce((sum, bill) => sum + bill.total, 0))}
-                </div>
-              </div>
-
               {/* Bills Table */}
               <table className="w-full border-collapse">
                 <thead>
