@@ -54,11 +54,15 @@ async function downloadBytes(url: string) {
 }
 
 async function uploadToOpenAI(fileBytes: Uint8Array, filename: string, contentType: string) {
-  const type = contentType.includes("pdf") ? "application/pdf" : "application/pdf";
-  const file = new File([fileBytes], filename, { type });
+  // Always treat as PDF for this flow
+  const file = new File([fileBytes], filename || "invoice.pdf", { type: "application/pdf" });
+
   const fd = new FormData();
   fd.append("file", file);
-  fd.append("purpose", "vision");
+
+  // ❌ was: fd.append("purpose", "vision");
+  // ✅ PDFs should use user_data (or assistants)
+  fd.append("purpose", "user_data");
 
   const res = await fetch("https://api.openai.com/v1/files", {
     method: "POST",
@@ -73,28 +77,59 @@ async function extractWithOpenAI(fileId: string) {
   const body = {
     model: "gpt-4o-mini",
     input: [
-      {
-        role: "system",
-        content: "You extract invoice fields from PDFs. Prefer totals and line item tables. Return ONLY the JSON."
-      },
+      { role: "system", content: "You extract invoice fields from PDFs. Prefer totals and line items. Return ONLY JSON." },
       {
         role: "user",
         content: [
           { type: "input_text", text: "Extract supplier, invoice_number, dates, subtotal, tax, total, and line_items." },
-          { type: "input_file", file_id: fileId }
+          { type: "input_file", file_id: fileId } // <- correct for PDFs
         ]
       }
     ],
-    response_format: { type: "json_schema", json_schema: InvoiceSchema },
+    // Strict JSON back:
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "InvoiceExtraction",
+        schema: {
+          type: "object",
+          required: ["supplier","invoice_number","ai_summary","ai_confidence"],
+          additionalProperties: false,
+          properties: {
+            supplier:{type:"string"},
+            invoice_number:{type:"string"},
+            invoice_date:{type:"string"},
+            due_date:{type:"string"},
+            subtotal:{type:"string"},
+            tax:{type:"string"},
+            total:{type:"string"},
+            line_items:{
+              type:"array",
+              items:{
+                type:"object",
+                additionalProperties:false,
+                properties:{
+                  description:{type:"string"},
+                  qty:{type:"string"},
+                  rate:{type:"string"},
+                  amount:{type:"string"},
+                  tax_code:{type:"string"}
+                }
+              }
+            },
+            ai_summary:{type:"string"},
+            ai_confidence:{type:"number"}
+          }
+        },
+        strict: true
+      }
+    },
     temperature: 0.1
   };
 
   const res = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      "Content-Type": "application/json"
-    },
+    headers: { Authorization: `Bearer ${OPENAI_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
   if (!res.ok) throw new Error(`responses.create failed ${res.status}: ${await res.text()}`);
