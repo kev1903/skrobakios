@@ -86,9 +86,10 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
 
   const switchCompany = async (companyId: string) => {
     const company = companies.find(c => c.id === companyId);
-    if (company && user) {
+    if (company && user && user.id) {
       try {
         console.log('🔄 Switching to company:', company.name, companyId);
+        console.log('👤 User ID:', user.id);
         
         // Use a single transaction-like approach with RPC or multiple operations
         // First, deactivate all companies for this user
@@ -135,10 +136,18 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
         }));
       } catch (error) {
         console.error('Failed to switch company:', error);
-        // Fallback to local state update only
-        setCurrentCompany(company);
-        localStorage.setItem('currentCompanyId', companyId);
+        // Fallback to local state update only if we have valid user
+        if (user && user.id) {
+          setCurrentCompany(company);
+          localStorage.setItem('currentCompanyId', companyId);
+        }
       }
+    } else {
+      console.error('❌ Cannot switch company: missing company, user, or user.id', {
+        company: !!company,
+        user: !!user,
+        userId: user?.id
+      });
     }
   };
 
