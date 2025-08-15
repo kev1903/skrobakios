@@ -186,7 +186,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                     <th className="text-left p-3 font-medium w-32 text-foreground">Reference</th>
                     <th className="text-left p-3 font-medium w-28 text-foreground">Date ↓</th>
                     <th className="text-left p-3 font-medium w-28 text-foreground">Due date</th>
-                    <th className="text-left p-3 font-medium w-24 text-foreground">Due</th>
+                    <th className="text-left p-3 font-medium w-24 text-foreground">Amount</th>
                     <th className="text-left p-3 font-medium w-16 text-foreground">Files</th>
                     <th className="text-left p-3 font-medium w-12"></th>
                   </tr>
