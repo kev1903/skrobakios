@@ -91,46 +91,34 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
         console.log('🔄 Switching to company:', company.name, companyId);
         console.log('👤 User ID:', user.id);
         
-        // Use a single transaction-like approach with RPC or multiple operations
-        // First, deactivate all companies for this user
-        const { error: deactivateError } = await supabase
-          .from('company_members')
-          .update({ status: 'inactive', updated_at: new Date().toISOString() })
-          .eq('user_id', user.id);
+        // Use the new safe atomic switching function
+        const { data, error } = await supabase.rpc('switch_user_company', {
+          target_user_id: user.id,
+          target_company_id: companyId
+        });
 
-        if (deactivateError) {
-          console.error('Error deactivating companies:', deactivateError);
-          throw deactivateError;
+        if (error) {
+          console.error('Error switching company:', error);
+          throw error;
         }
 
-        // Then activate the selected company
-        const { error: activateError, data: activatedData } = await supabase
-          .from('company_members')
-          .update({ status: 'active', updated_at: new Date().toISOString() })
-          .eq('user_id', user.id)
-          .eq('company_id', companyId)
-          .select();
-
-        if (activateError) {
-          console.error('Error activating company:', activateError);
-          throw activateError;
+        const result = data as { success: boolean; error?: string; company_id?: string };
+        if (!result?.success) {
+          console.error('Company switch failed:', result?.error);
+          throw new Error(result?.error || 'Company switch failed');
         }
 
-        if (!activatedData || activatedData.length === 0) {
-          throw new Error('No company membership found to activate');
-        }
-
-        console.log('✅ Company activated:', activatedData[0]);
-
+        console.log('✅ Successfully switched to company:', company.name);
         setCurrentCompany(company);
         localStorage.setItem('currentCompanyId', companyId);
-        
-        console.log('✅ Successfully switched to company:', company.name);
         
         // Clear cache to force fresh data fetch
         localStorage.removeItem('projects_cache');
         
-        // Emit a custom event to notify components of company change
+        // Refresh companies to get updated status
+        await refreshCompanies();
+        
+        // Emit company changed event for other contexts
         window.dispatchEvent(new CustomEvent('companyChanged', { 
           detail: { companyId, companyName: company.name } 
         }));
