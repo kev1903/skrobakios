@@ -3,7 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle } from 'lucide-react';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
+import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle, ChevronDown } from 'lucide-react';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { useProjectSettings } from '@/hooks/useProjectSettings';
 import { Project } from '@/hooks/useProjects';
@@ -38,6 +44,19 @@ export const ProjectCostPage = ({
   const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0 });
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
   const [isPDFUploaderOpen, setIsPDFUploaderOpen] = useState(false);
+
+  // Tab options configuration
+  const tabOptions = [
+    { value: 'income', label: 'Income', icon: DollarSign },
+    { value: 'expense', label: 'Expense', icon: TrendingDown },
+    { value: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { value: 'cost-control', label: 'Cost Control', icon: AlertTriangle }
+  ];
+
+  // Get current tab label function
+  const getCurrentTabLabel = () => {
+    return tabOptions.find(tab => tab.value === activeTab)?.label || 'Cost Control';
+  };
 
   // Get project-specific settings for consistent formatting
   const { settings, formatCurrency, formatDate, loading: settingsLoading } = useProjectSettings(
@@ -230,24 +249,37 @@ export const ProjectCostPage = ({
               {/* Tab Header */}
               <div className="bg-muted/30 border-b px-6 py-3">
                 <div className="flex items-center justify-between">
-                  <TabsList className="grid w-auto grid-cols-4 bg-background">
-                    <TabsTrigger value="income" className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4" />
-                      Income
-                    </TabsTrigger>
-                    <TabsTrigger value="expense" className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4" />
-                      Expense
-                    </TabsTrigger>
-                    <TabsTrigger value="analytics" className="flex items-center gap-2">
-                      <BarChart3 className="w-4 h-4" />
-                      Analytics
-                    </TabsTrigger>
-                    <TabsTrigger value="cost-control" className="flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      Cost Control
-                    </TabsTrigger>
-                  </TabsList>
+                  {/* Dropdown Menu in Top Right */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        className="bg-background/80 backdrop-blur-sm border-border/50 hover:bg-accent/50 transition-all duration-200"
+                      >
+                        {getCurrentTabLabel()}
+                        <ChevronDown className="ml-2 h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-background border border-border shadow-lg">
+                      {tabOptions.map((option) => {
+                        const IconComponent = option.icon;
+                        return (
+                          <DropdownMenuItem
+                            key={option.value}
+                            onClick={() => setActiveTab(option.value)}
+                            className={`flex items-center gap-2 cursor-pointer ${
+                              activeTab === option.value 
+                                ? 'bg-accent text-accent-foreground' 
+                                : 'hover:bg-accent/50'
+                            }`}
+                          >
+                            <IconComponent className="h-4 w-4" />
+                            {option.label}
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   
                   {/* Tab-specific controls */}
                   <div className="flex items-center gap-4">
