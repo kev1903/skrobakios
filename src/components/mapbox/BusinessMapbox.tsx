@@ -38,20 +38,25 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   useEffect(() => {
     const fetchMapboxToken = async () => {
       try {
+        console.log('🗝️ Fetching Mapbox token from edge function...');
         const { data, error } = await supabase.functions.invoke('get-mapbox-token');
-        if (error) throw error;
+        if (error) {
+          console.error('Edge function error:', error);
+          throw error;
+        }
         
         if (data?.token) {
+          console.log('✅ Mapbox token received from edge function');
           setMapboxToken(data.token);
         } else {
-          console.error('No Mapbox token found');
+          console.error('❌ No Mapbox token found in response');
+          throw new Error('No token in response');
         }
       } catch (error) {
         console.error('Error fetching Mapbox token:', error);
+        console.log('🔄 Using fallback token for development');
         // Fallback: use the token directly (for development)
         setMapboxToken('pk.eyJ1Ijoia2V2aW4xOTAzMTk5NCIsImEiOiJjbWR2YndyNjgweDd1MmxvYWppd3ZueWlnIn0.dwNrOhknOccJL9BFNT6gmg');
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -68,7 +73,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         return;
       }
 
-      setLoading(true);
+      console.log('📊 Fetching projects for company:', currentCompany.name);
       
       try {
         console.log(`🔄 Company switched to: ${currentCompany.name} (${currentCompany.id}) - Refreshing map data`);
@@ -113,8 +118,6 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
       } catch (error) {
         console.error('Error fetching business projects:', error);
         setProjects([]);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -420,12 +423,12 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
     };
   }, [mapboxToken, projects]);
 
-  if (loading) {
+  if (!mapboxToken) {
     return (
       <div className={`w-full h-full bg-background flex items-center justify-center ${className}`}>
         <div className="text-center">
           <Globe className="w-12 h-12 text-primary mx-auto mb-4 animate-spin" />
-          <p className="text-muted-foreground">Loading Mapbox...</p>
+          <p className="text-muted-foreground">Loading Mapbox token...</p>
         </div>
       </div>
     );
