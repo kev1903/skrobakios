@@ -29,6 +29,7 @@ import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
 import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader';
 import { AIPromptSettings } from './AIPromptSettings';
 import { AwaitingPaymentsTable } from '../project-finance/awaiting-payments/AwaitingPaymentsTable';
+import { IncomeTable } from './IncomeTable';
 
 interface ProjectCostPageProps {
   project: Project;
@@ -402,12 +403,14 @@ export const ProjectCostPage = ({
                       </div>
                     </div>
                     
-                    {/* Placeholder for invoice list */}
-                    <div className="text-center py-12">
-                      <DollarSign className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-foreground mb-2">Income Tracking</h3>
-                      <p className="text-muted-foreground">Monitor project income and revenue</p>
-                    </div>
+                    {/* Income Table */}
+                    <IncomeTable
+                      projectId={project.id}
+                      statusFilter={incomeStatusFilter}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                      refreshTrigger={refreshTrigger}
+                    />
                   </div>
                 </TabsContent>
                 <TabsContent value="expense" className="mt-0">
