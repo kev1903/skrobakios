@@ -144,14 +144,16 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
         .insert({
           project_id: project.id,
           name: formData.file?.name || 'Contract',
-          description: extractedData.ai_summary,
           file_url: extractedData.fileUrl,
           file_path: extractedData.filePath,
           file_size: formData.file?.size || 0,
           contract_data: extractedData,
           confidence: extractedData.ai_confidence,
           status: 'active',
-          extracted_text: JSON.stringify(extractedData)
+          ai_summary_json: {
+            summary: extractedData.ai_summary,
+            confidence: extractedData.ai_confidence
+          }
         });
 
       if (error) {
