@@ -121,31 +121,55 @@ export function VoiceInterface({
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-4">
-      {/* Voice Sphere */}
+      {/* Enhanced AI Voice Sphere */}
       <div className="w-32 h-32 mb-6 relative" onClick={handleInterrupt} style={{ cursor: state.isSpeaking ? 'pointer' : 'default' }}>
         <VoiceSphere 
           isListening={state.isListening || state.isConnected} 
-          isSpeaking={state.isSpeaking} 
+          isSpeaking={state.isSpeaking}
+          audioLevel={state.audioLevel}
         />
         
-        {/* Audio level indicator */}
+        {/* Enhanced audio level indicator with modern styling */}
         {state.isConnected && settings.enableVAD && (
-          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
-            <div className="flex items-center gap-1">
-              <div className="w-16 h-1 bg-muted rounded-full overflow-hidden">
+          <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
+            <div className="flex items-center gap-2 bg-black/20 backdrop-blur-sm rounded-full px-3 py-1">
+              <div className="w-16 h-1 bg-white/20 rounded-full overflow-hidden">
                 <div 
                   className={cn(
                     "h-full transition-all duration-100 rounded-full",
-                    state.isVoiceActivated ? "bg-green-500" : "bg-blue-500"
+                    state.isVoiceActivated 
+                      ? "bg-gradient-to-r from-green-400 to-emerald-500 shadow-lg shadow-green-500/50" 
+                      : "bg-gradient-to-r from-blue-400 to-cyan-500 shadow-lg shadow-blue-500/50"
                   )}
-                  style={{ width: `${audioLevelPercentage}%` }}
+                  style={{ 
+                    width: `${audioLevelPercentage}%`,
+                    boxShadow: state.isVoiceActivated 
+                      ? `0 0 8px rgba(34, 197, 94, ${audioLevelPercentage / 100})`
+                      : `0 0 8px rgba(59, 130, 246, ${audioLevelPercentage / 100})`
+                  }}
                 />
               </div>
-              <span className="text-xs text-muted-foreground w-8">
+              <span className="text-xs text-white/80 font-medium w-8">
                 {audioLevelPercentage}%
               </span>
             </div>
           </div>
+        )}
+        
+        {/* Interactive glow effect */}
+        {(state.isVoiceActivated || state.isSpeaking) && (
+          <div 
+            className={cn(
+              "absolute inset-0 rounded-full transition-all duration-300",
+              state.isSpeaking 
+                ? "bg-green-500/20 shadow-2xl shadow-green-500/40 animate-pulse" 
+                : "bg-blue-500/20 shadow-2xl shadow-blue-500/40"
+            )}
+            style={{
+              filter: `blur(8px)`,
+              transform: `scale(${1.2 + state.audioLevel * 0.3})`
+            }}
+          />
         )}
       </div>
 
