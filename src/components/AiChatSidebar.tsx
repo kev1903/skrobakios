@@ -348,9 +348,55 @@ export function AiChatSidebar({
           } else if (data?.text) {
             const transcript = String(data.text).trim();
             if (transcript.length > 0) {
-              setInput(transcript);
-              await new Promise(r => setTimeout(r, 0));
-              sendMessage();
+              // Create the user message directly instead of using setInput
+              const userMessage = {
+                id: Date.now().toString(),
+                content: transcript,
+                role: 'user' as const,
+                timestamp: new Date()
+              };
+              setMessages(prev => [...prev, userMessage]);
+              
+              // Send to AI immediately
+              setIsLoading(true);
+              try {
+                const context = getScreenContext();
+                const conversation = [...messages, userMessage].map(msg => ({
+                  role: msg.role,
+                  content: msg.content
+                }));
+                
+                const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-chat', {
+                  body: {
+                    message: transcript,
+                    conversation,
+                    context
+                  }
+                });
+                
+                if (aiError) {
+                  throw new Error(aiError.message || 'Failed to get AI response');
+                }
+                
+                if (aiData?.response) {
+                  const aiMessage = {
+                    id: (Date.now() + 1).toString(),
+                    content: aiData.response,
+                    role: 'assistant' as const,
+                    timestamp: new Date()
+                  };
+                  setMessages(prev => [...prev, aiMessage]);
+                }
+              } catch (error) {
+                console.error('Error sending voice message:', error);
+                toast({
+                  title: "AI Chat Error",
+                  description: "Failed to send voice message",
+                  variant: "destructive"
+                });
+              } finally {
+                setIsLoading(false);
+              }
             }
           }
         } catch (err) {
