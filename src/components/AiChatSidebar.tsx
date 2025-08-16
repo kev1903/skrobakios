@@ -498,6 +498,9 @@ export function AiChatSidebar({
     setIsSpeaking(false);
     setAudioRecorder(null);
     setWebsocket(null);
+    
+    // Force scroll to bottom when returning to chat
+    setTimeout(scrollToBottom, 100);
   };
 
   const handleVoiceCommand = async () => {
