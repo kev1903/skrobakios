@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Eye, FileText, DollarSign } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Eye, FileText, DollarSign, MoreHorizontal, CheckCircle, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Invoice {
   id: string;
@@ -67,6 +74,7 @@ export const IncomeTable = ({
 }: IncomeTableProps) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   const loadInvoices = async () => {
     try {
@@ -93,6 +101,96 @@ export const IncomeTable = ({
       console.error('Error loading invoices:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMarkAsPaid = async (invoiceId: string, total: number) => {
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .update({ 
+          status: 'paid', 
+          paid_to_date: total 
+        })
+        .eq('id', invoiceId);
+
+      if (error) {
+        console.error('Error marking invoice as paid:', error);
+        toast({
+          title: "Error",
+          description: "Failed to mark invoice as paid. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Invoice marked as paid successfully.",
+      });
+      
+      loadInvoices();
+    } catch (error) {
+      console.error('Error marking invoice as paid:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark invoice as paid. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteInvoice = async (invoiceId: string) => {
+    if (!confirm('Are you sure you want to delete this invoice? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      // First delete invoice items
+      const { error: itemsError } = await supabase
+        .from('invoice_items')
+        .delete()
+        .eq('invoice_id', invoiceId);
+
+      if (itemsError) {
+        console.error('Error deleting invoice items:', itemsError);
+        toast({
+          title: "Error",
+          description: "Failed to delete invoice items. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Then delete the invoice
+      const { error: invoiceError } = await supabase
+        .from('invoices')
+        .delete()
+        .eq('id', invoiceId);
+
+      if (invoiceError) {
+        console.error('Error deleting invoice:', invoiceError);
+        toast({
+          title: "Error",
+          description: "Failed to delete invoice. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Invoice deleted successfully.",
+      });
+      
+      loadInvoices();
+    } catch (error) {
+      console.error('Error deleting invoice:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete invoice. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -161,22 +259,33 @@ export const IncomeTable = ({
                   </Badge>
                 </td>
                 <td className="p-3">
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                    >
-                      <FileText className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleMarkAsPaid(invoice.id, invoice.total)}
+                        disabled={invoice.status === 'paid'}
+                      >
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Mark as Paid
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteInvoice(invoice.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Invoice
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </td>
               </tr>
             ))}
