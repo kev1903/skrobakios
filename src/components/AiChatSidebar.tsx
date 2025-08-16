@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Bot, Upload, User, MessageCircle, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import { Send, Bot, Upload, User, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Mic, MicOff } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
@@ -54,6 +54,7 @@ export function AiChatSidebar({
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -288,6 +289,40 @@ export function AiChatSidebar({
     }
     event.target.value = '';
   };
+  const handleVoiceCommand = async () => {
+    if (isVoiceActive) {
+      // Stop voice command
+      setIsVoiceActive(false);
+      toast({
+        title: "Voice Command Stopped",
+        description: "Voice command has been deactivated"
+      });
+    } else {
+      // Start voice command
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setIsVoiceActive(true);
+        toast({
+          title: "Voice Command Active",
+          description: "Listening for your voice command..."
+        });
+        
+        // Stop the stream after a few seconds (placeholder implementation)
+        setTimeout(() => {
+          stream.getTracks().forEach(track => track.stop());
+          setIsVoiceActive(false);
+        }, 5000);
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+        toast({
+          title: "Microphone Access Denied",
+          description: "Please allow microphone access to use voice commands",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
   const formatTime = (timestamp: Date) => {
     return timestamp.toLocaleTimeString([], {
       hour: '2-digit',
@@ -406,6 +441,15 @@ export function AiChatSidebar({
                   <input ref={fileInputRef} type="file" onChange={handleFileUpload} className="hidden" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif" />
                   <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0" disabled={isLoading}>
                     <Upload className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    variant={isVoiceActive ? "default" : "outline"} 
+                    size="sm" 
+                    onClick={handleVoiceCommand} 
+                    className="flex-shrink-0" 
+                    disabled={isLoading}
+                  >
+                    {isVoiceActive ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                   </Button>
                   <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
                   <Button onClick={sendMessage} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
