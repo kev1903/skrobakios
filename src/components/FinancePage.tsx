@@ -23,7 +23,8 @@ import {
   ArrowDownRight,
   Activity,
   Briefcase,
-  ChevronDown
+  ChevronDown,
+  Upload
 } from "lucide-react";
 
 interface FinancePageProps {
@@ -417,6 +418,19 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
 
           {/* Right side - Buttons */}
           <div className="flex items-center space-x-3">
+            {selectedTab === 'income' && (
+              <Button 
+                variant="outline" 
+                className="bg-white/40 backdrop-blur-xl border-white/20 text-slate-700 hover:bg-white/60 hover:border-white/30 transition-all duration-300 shadow-lg hover:shadow-xl font-medium tracking-wide text-xs px-3 py-1.5"
+                onClick={() => {
+                  // Navigate to invoices page or open upload modal
+                  onNavigate?.('invoices');
+                }}
+              >
+                <Upload className="w-3 h-3 mr-1.5" />
+                UPLOAD INVOICES
+              </Button>
+            )}
             <Button variant="outline" className="bg-white/40 backdrop-blur-xl border-white/20 text-slate-700 hover:bg-white/60 hover:border-white/30 transition-all duration-300 shadow-lg hover:shadow-xl font-medium tracking-wide text-xs px-3 py-1.5">
               <BarChart3 className="w-3 h-3 mr-1.5" />
               Export
