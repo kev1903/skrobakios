@@ -104,10 +104,10 @@ export function AiChatSidebar({
       userLocation: location.pathname + location.search
     };
   };
-  const scrollToBottom = () => {
+  const scrollToBottom = (instant = false) => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({
-        behavior: 'smooth',
+        behavior: instant ? 'instant' : 'smooth',
         block: 'end'
       });
     }
@@ -500,7 +500,7 @@ export function AiChatSidebar({
     setWebsocket(null);
     
     // Force scroll to bottom when returning to chat
-    setTimeout(scrollToBottom, 100);
+    setTimeout(() => scrollToBottom(true), 50);
   };
 
   const handleVoiceCommand = async () => {
