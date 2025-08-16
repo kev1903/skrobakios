@@ -9,7 +9,7 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle, ChevronDown, Settings } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle, ChevronDown, Settings, Upload, Plus } from 'lucide-react';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { useProjectSettings } from '@/hooks/useProjectSettings';
 import { Project } from '@/hooks/useProjects';
@@ -50,6 +50,7 @@ export const ProjectCostPage = ({
   const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0, totalItems: 0 });
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
   const [isPDFUploaderOpen, setIsPDFUploaderOpen] = useState(false);
+  const [isInvoicePDFUploaderOpen, setIsInvoicePDFUploaderOpen] = useState(false);
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -375,10 +376,38 @@ export const ProjectCostPage = ({
               {/* Tab Content */}
               <div className="p-6">
                 <TabsContent value="income" className="mt-0">
-                  <div className="text-center py-12">
-                    <DollarSign className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Income Tracking</h3>
-                    <p className="text-muted-foreground">Monitor project income and revenue</p>
+                  <div className="space-y-6">
+                    {/* Income Actions */}
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="text-lg font-semibold text-foreground">Project Income</h3>
+                        <p className="text-muted-foreground">Manage invoices and track revenue</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline"
+                          onClick={() => setIsInvoicePDFUploaderOpen(true)}
+                          className="flex items-center gap-2"
+                        >
+                          <Upload className="h-4 w-4" />
+                          Upload Invoice
+                        </Button>
+                        <Button 
+                          onClick={() => setIsInvoiceDrawerOpen(true)}
+                          className="flex items-center gap-2"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Create Invoice
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {/* Placeholder for invoice list */}
+                    <div className="text-center py-12">
+                      <DollarSign className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">Income Tracking</h3>
+                      <p className="text-muted-foreground">Monitor project income and revenue</p>
+                    </div>
                   </div>
                 </TabsContent>
                 <TabsContent value="expense" className="mt-0">
@@ -462,6 +491,14 @@ export const ProjectCostPage = ({
       <InvoicePDFUploader
         isOpen={isPDFUploaderOpen}
         onClose={() => setIsPDFUploaderOpen(false)}
+        projectId={project.id}
+        onSaved={refreshData}
+      />
+
+      {/* Invoice PDF Uploader */}
+      <InvoicePDFUploader
+        isOpen={isInvoicePDFUploaderOpen}
+        onClose={() => setIsInvoicePDFUploaderOpen(false)}
         projectId={project.id}
         onSaved={refreshData}
       />
