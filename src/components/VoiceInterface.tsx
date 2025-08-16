@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Mic, MicOff, X, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import { VoiceSphere } from './VoiceSphere';
@@ -21,32 +21,25 @@ export function VoiceInterface({
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
 
-  // Track session start to avoid repeated initializations
-  const startedRef = useRef(false);
-
-  // Auto-start once per activation
+  // Auto-start when component becomes active
   useEffect(() => {
-    if (isActive && !startedRef.current && !state.isConnected) {
-      startedRef.current = true;
+    if (isActive && !state.isConnected) {
       initializeVoiceChat();
     }
-  }, [isActive, initializeVoiceChat, state.isConnected]);
+  }, [isActive, state.isConnected, initializeVoiceChat]);
 
   // Cleanup on unmount or when not active
   useEffect(() => {
     if (!isActive) {
-      startedRef.current = false;
       disconnect();
     }
     return () => {
-      startedRef.current = false;
       disconnect();
     };
   }, [isActive, disconnect]);
 
   const handleStartConversation = async () => {
     try {
-      if (state.isConnected) return;
       await initializeVoiceChat();
     } catch (error) {
       console.error('Failed to start conversation:', error);
@@ -58,7 +51,6 @@ export function VoiceInterface({
 
   const handleEndConversation = async () => {
     try {
-      startedRef.current = false;
       disconnect();
       onEnd();
     } catch (error) {
