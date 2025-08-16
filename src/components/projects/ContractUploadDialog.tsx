@@ -342,101 +342,76 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                 </div>
               )}
 
-              {/* Stage Payments */}
-              {extractedData?.stage_payments && extractedData.stage_payments.length > 0 && (
+              {/* Unified Payment Schedule Table */}
+              {(extractedData?.stage_payments?.length > 0 || 
+                extractedData?.progress_payments?.length > 0 || 
+                extractedData?.payment_tables?.length > 0) && (
                 <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-sm mb-3 text-muted-foreground">STAGE PAYMENTS</h3>
-                  <div className="space-y-3">
-                    {extractedData.stage_payments.map((payment: any, index: number) => (
-                      <div key={index} className="border-l-4 border-primary pl-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-medium text-sm">{payment.stage}</p>
-                            <p className="text-xs text-muted-foreground">{payment.description}</p>
-                            {payment.due_date && (
-                              <p className="text-xs text-muted-foreground">Due: {payment.due_date}</p>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-sm">{payment.amount}</p>
-                            {payment.percentage && (
-                              <p className="text-xs text-muted-foreground">{payment.percentage}</p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Progress Payments */}
-              {extractedData?.progress_payments && extractedData.progress_payments.length > 0 && (
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-sm mb-3 text-muted-foreground">PROGRESS PAYMENTS</h3>
-                  <div className="space-y-3">
-                    {extractedData.progress_payments.map((payment: any, index: number) => (
-                      <div key={index} className="border-l-4 border-green-500 pl-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-medium text-sm">{payment.milestone}</p>
-                            {payment.description && (
-                              <p className="text-xs text-muted-foreground">{payment.description}</p>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            <p className="font-semibold text-sm">{payment.amount}</p>
-                            <p className="text-xs text-muted-foreground">{payment.percentage}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Payment Tables */}
-              {extractedData?.payment_tables && extractedData.payment_tables.length > 0 && (
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-sm mb-3 text-muted-foreground">PAYMENT TABLES</h3>
-                  <div className="space-y-6">
-                    {extractedData.payment_tables.map((table: any, tableIndex: number) => (
-                      <div key={tableIndex} className="border rounded-lg overflow-hidden">
-                        {table.table_name && (
-                          <div className="bg-secondary/50 px-3 py-2 border-b">
-                            <h4 className="font-medium text-sm">{table.table_name}</h4>
-                          </div>
-                        )}
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-xs">
-                            <thead className="bg-muted/80">
-                              <tr>
-                                <th className="px-3 py-2 text-left font-medium">Stage/Name</th>
-                                <th className="px-3 py-2 text-left font-medium">Description/Work</th>
-                                <th className="px-3 py-2 text-right font-medium">%</th>
-                                <th className="px-3 py-2 text-right font-medium">Amount</th>
+                  <h3 className="font-semibold text-sm mb-3 text-muted-foreground">PAYMENT SCHEDULE</h3>
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs">
+                        <thead className="bg-muted/80">
+                          <tr>
+                            <th className="px-3 py-2 text-left font-medium">Stage/Milestone</th>
+                            <th className="px-3 py-2 text-left font-medium">Description</th>
+                            <th className="px-3 py-2 text-right font-medium">%</th>
+                            <th className="px-3 py-2 text-right font-medium">Amount</th>
+                            <th className="px-3 py-2 text-left font-medium">Due Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {/* Stage Payments */}
+                          {extractedData?.stage_payments?.map((payment: any, index: number) => (
+                            <tr key={`stage-${index}`} className="border-t">
+                              <td className="px-3 py-2 font-medium">{payment.stage}</td>
+                              <td className="px-3 py-2 text-muted-foreground">{payment.description || 'N/A'}</td>
+                              <td className="px-3 py-2 text-right font-medium text-blue-600">
+                                {payment.percentage || 'N/A'}
+                              </td>
+                              <td className="px-3 py-2 text-right font-medium text-green-600">
+                                {payment.amount || 'N/A'}
+                              </td>
+                              <td className="px-3 py-2 text-muted-foreground">{payment.due_date || 'N/A'}</td>
+                            </tr>
+                          ))}
+                          
+                          {/* Progress Payments */}
+                          {extractedData?.progress_payments?.map((payment: any, index: number) => (
+                            <tr key={`progress-${index}`} className="border-t">
+                              <td className="px-3 py-2 font-medium">{payment.milestone}</td>
+                              <td className="px-3 py-2 text-muted-foreground">{payment.description || 'N/A'}</td>
+                              <td className="px-3 py-2 text-right font-medium text-blue-600">
+                                {payment.percentage || 'N/A'}
+                              </td>
+                              <td className="px-3 py-2 text-right font-medium text-green-600">
+                                {payment.amount || 'N/A'}
+                              </td>
+                              <td className="px-3 py-2 text-muted-foreground">N/A</td>
+                            </tr>
+                          ))}
+                          
+                          {/* Payment Table Rows */}
+                          {extractedData?.payment_tables?.map((table: any, tableIndex: number) => 
+                            table.rows?.map((row: any, rowIndex: number) => (
+                              <tr key={`table-${tableIndex}-${rowIndex}`} className="border-t">
+                                <td className="px-3 py-2 font-medium">{row.stage_name || 'N/A'}</td>
+                                <td className="px-3 py-2 text-muted-foreground">
+                                  {row.description || row.work_involved || 'N/A'}
+                                </td>
+                                <td className="px-3 py-2 text-right font-medium text-blue-600">
+                                  {row.percentage || 'N/A'}
+                                </td>
+                                <td className="px-3 py-2 text-right font-medium text-green-600">
+                                  {row.amount || 'N/A'}
+                                </td>
+                                <td className="px-3 py-2 text-muted-foreground">N/A</td>
                               </tr>
-                            </thead>
-                            <tbody>
-                              {table.rows?.map((row: any, rowIndex: number) => (
-                                <tr key={rowIndex} className="border-t">
-                                  <td className="px-3 py-2 font-medium">{row.stage_name || 'N/A'}</td>
-                                  <td className="px-3 py-2 text-muted-foreground">
-                                    {row.description || row.work_involved || 'N/A'}
-                                  </td>
-                                  <td className="px-3 py-2 text-right font-medium text-blue-600">
-                                    {row.percentage || 'N/A'}
-                                  </td>
-                                  <td className="px-3 py-2 text-right font-medium text-green-600">
-                                    {row.amount || 'N/A'}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    ))}
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               )}
