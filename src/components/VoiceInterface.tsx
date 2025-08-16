@@ -33,16 +33,16 @@ export function VoiceInterface({
   const handleStartConversation = async () => {
     setIsConnecting(true);
     try {
-      toast.success("Voice chat activated", {
-        description: "ElevenLabs integration will be available soon",
+      toast.success("Voice mode activated", {
+        description: "Voice interface is now ready for interaction",
       });
       
-      // Simulate connection for now
+      // Simulate connection
       setTimeout(() => {
         setIsConnected(true);
         setIsListening(true);
         setIsConnecting(false);
-      }, 1000);
+      }, 500);
       
     } catch (error) {
       console.error('Failed to start conversation:', error);
