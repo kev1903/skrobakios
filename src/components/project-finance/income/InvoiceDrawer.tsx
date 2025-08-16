@@ -51,6 +51,7 @@ export const InvoiceDrawer = ({ isOpen, onClose, invoice, projectId, onSaved }: 
   const [formData, setFormData] = useState({
     client_name: '',
     client_email: '',
+    issue_date: new Date().toISOString().split('T')[0], // Today's date
     due_date: '',
     notes: '',
     tax: 10, // Default 10% tax
@@ -66,6 +67,7 @@ export const InvoiceDrawer = ({ isOpen, onClose, invoice, projectId, onSaved }: 
       setFormData({
         client_name: invoice.client_name,
         client_email: invoice.client_email || '',
+        issue_date: invoice.issue_date,
         due_date: invoice.due_date,
         notes: invoice.notes || '',
         tax: invoice.tax,
@@ -77,6 +79,7 @@ export const InvoiceDrawer = ({ isOpen, onClose, invoice, projectId, onSaved }: 
       setFormData({
         client_name: '',
         client_email: '',
+        issue_date: new Date().toISOString().split('T')[0], // Today's date
         due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
         notes: '',
         tax: 10,
@@ -154,6 +157,7 @@ export const InvoiceDrawer = ({ isOpen, onClose, invoice, projectId, onSaved }: 
         project_id: projectId,
         client_name: formData.client_name,
         client_email: formData.client_email || null,
+        issue_date: formData.issue_date,
         due_date: formData.due_date,
         notes: formData.notes || null,
         subtotal: calculateSubtotal(),
@@ -161,6 +165,7 @@ export const InvoiceDrawer = ({ isOpen, onClose, invoice, projectId, onSaved }: 
         total: calculateTotal(),
         status: 'draft' as const,
         number: invoice?.number || `INV-${Date.now()}`, // Generate number for new invoices
+        created_by: invoice ? undefined : (await supabase.auth.getUser()).data.user?.id,
       };
 
       let invoiceId: string;
@@ -270,7 +275,17 @@ export const InvoiceDrawer = ({ isOpen, onClose, invoice, projectId, onSaved }: 
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="issue_date">Issue Date *</Label>
+                  <Input
+                    id="issue_date"
+                    type="date"
+                    value={formData.issue_date}
+                    onChange={(e) => setFormData({ ...formData, issue_date: e.target.value })}
+                    required
+                  />
+                </div>
                 <div>
                   <Label htmlFor="due_date">Due Date *</Label>
                   <Input
@@ -405,7 +420,7 @@ export const InvoiceDrawer = ({ isOpen, onClose, invoice, projectId, onSaved }: 
             <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={loading || !formData.client_name || !formData.due_date}>
+            <Button onClick={handleSave} disabled={loading || !formData.client_name || !formData.issue_date || !formData.due_date}>
               {loading ? 'Saving...' : invoice ? 'Update Invoice' : 'Create Invoice'}
             </Button>
           </div>
