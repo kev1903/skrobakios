@@ -132,23 +132,26 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
   if (loading) {
     return (
-      <div className={`${spacingClasses} min-h-screen bg-background`}>
-        <div className="relative h-full">
+      <div className="h-screen flex bg-background">
+        {/* Fixed Project Sidebar */}
+        <div className="fixed left-0 top-0 h-full w-48 z-40">
           <ProjectSidebar 
             project={project} 
             onNavigate={onNavigate}
             getStatusColor={getStatusColor}
             getStatusText={utilsGetStatusText}
           />
-          <div className="w-full lg:ml-48 flex flex-col overflow-hidden">
-            <div className="space-y-4 p-6">
-              <div className="animate-pulse">
-                <div className="h-4 bg-muted rounded w-1/4 mb-4"></div>
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-12 bg-muted rounded"></div>
-                  ))}
-                </div>
+        </div>
+        
+        {/* Main Content */}
+        <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
+          <div className="p-6 min-h-full">
+            <div className="animate-pulse">
+              <div className="h-4 bg-muted rounded w-1/4 mb-4"></div>
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-12 bg-muted rounded"></div>
+                ))}
               </div>
             </div>
           </div>
@@ -158,16 +161,20 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   }
 
   return (
-    <div className={`${spacingClasses} min-h-screen bg-background`}>
-      <div className="relative h-full">
+    <div className="h-screen flex bg-background">
+      {/* Fixed Project Sidebar */}
+      <div className="fixed left-0 top-0 h-full w-48 z-40">
         <ProjectSidebar 
           project={project} 
           onNavigate={onNavigate}
           getStatusColor={getStatusColor}
           getStatusText={utilsGetStatusText}
         />
-        <div className="w-full lg:ml-48 flex flex-col overflow-hidden">
-        <div className="p-6">
+      </div>
+      
+      {/* Main Content */}
+      <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
+        <div className="p-6 min-h-full">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-foreground mb-2">Contracts</h2>
             <p className="text-muted-foreground">Manage project contracts and documentation.</p>
@@ -248,7 +255,6 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
               </div>
             </div>
           )}
-        </div>
         </div>
       </div>
     </div>
