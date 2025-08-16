@@ -320,10 +320,6 @@ export function AiChatSidebar({
           console.log('Connected to realtime chat');
           setIsVoiceActive(true);
           setWebsocket(ws);
-          toast({
-            title: "Voice Chat Started",
-            description: "You can now speak with SkAi in real-time"
-          });
         };
         
         ws.onerror = (error) => {
