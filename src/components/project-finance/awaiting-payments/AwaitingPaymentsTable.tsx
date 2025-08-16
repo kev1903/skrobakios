@@ -69,10 +69,34 @@ export const AwaitingPaymentsTable: React.FC<AwaitingPaymentsTableProps> = ({
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const handleMarkAsPaid = async (billId: string) => {
+    try {
+      const { error } = await supabase
+        .from('bills')
+        .update({ status: 'paid' })
+        .eq('id', billId);
+
+      if (error) throw error;
+      
+      // Refresh the bills list
+      fetchApprovedBills();
+    } catch (error) {
+      console.error('Error marking bill as paid:', error);
+    }
+  };
+
+  const getStatusBadge = (status: string, billId: string) => {
     switch (status) {
       case 'scheduled':
-        return <Badge variant="default" className="bg-blue-100 text-blue-800">Awaiting Payment</Badge>;
+        return (
+          <Badge 
+            variant="default" 
+            className="bg-blue-100 text-blue-800 cursor-pointer hover:bg-blue-200 transition-colors"
+            onClick={() => handleMarkAsPaid(billId)}
+          >
+            Paid
+          </Badge>
+        );
       case 'part_paid':
         return <Badge variant="secondary">Part Paid</Badge>;
       case 'approved':
@@ -161,7 +185,7 @@ export const AwaitingPaymentsTable: React.FC<AwaitingPaymentsTableProps> = ({
                 <td className="p-2 text-foreground font-medium text-xs">{formatCurrency(bill.total)}</td>
                 <td className="p-2">
                   <div className="opacity-0 group-hover:opacity-100">
-                    {getStatusBadge(bill.status)}
+                    {getStatusBadge(bill.status, bill.id)}
                   </div>
                 </td>
               </tr>
