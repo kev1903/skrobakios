@@ -417,7 +417,13 @@ export function AiChatSidebar({
     processingRef.current = true;
     try {
       while (chunkQueueRef.current.length > 0) {
-        const blob = chunkQueueRef.current.shift()!;
+        const first = chunkQueueRef.current.shift()!;
+        const batch: Blob[] = [first];
+        // Coalesce small chunks for better transcription accuracy
+        while (chunkQueueRef.current.length > 0 && batch.length < 2) {
+          batch.push(chunkQueueRef.current.shift()!);
+        }
+        const mergedBlob = new Blob(batch, { type: 'audio/webm' });
         // Convert to base64
         const base64 = await new Promise<string>((resolve, reject) => {
           const reader = new FileReader();
@@ -431,7 +437,7 @@ export function AiChatSidebar({
             }
           };
           reader.onerror = reject;
-          reader.readAsDataURL(blob);
+          reader.readAsDataURL(mergedBlob);
         });
 
         const { data, error } = await supabase.functions.invoke('voice-transcribe', {
