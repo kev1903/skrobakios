@@ -28,6 +28,7 @@ import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
 import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
 import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader';
 import { AIPromptSettings } from './AIPromptSettings';
+import { AwaitingPaymentsTable } from '../project-finance/awaiting-payments/AwaitingPaymentsTable';
 
 interface ProjectCostPageProps {
   project: Project;
@@ -391,37 +392,11 @@ export const ProjectCostPage = ({
                       refreshTrigger={refreshTrigger}
                     />
                   ) : expenseStatusFilter === 'scheduled' ? (
-                    // Awaiting Payment Table
-                    <div className="space-y-4">
-                      <div className="text-center py-8 text-foreground">
-                        <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
-                          <DollarSign className="h-8 w-8" />
-                        </div>
-                        <p className="text-foreground">No invoices awaiting payment.</p>
-                        <p className="text-sm mt-2 text-muted-foreground">Approved invoices will appear here when ready for payment.</p>
-                      </div>
-                      <div className="w-full">
-                        <table className="w-full border-collapse">
-                          <thead>
-                            <tr className="border-b bg-muted/50">
-                              <th className="text-left p-2 font-medium w-12 text-xs">
-                                <input type="checkbox" className="rounded" />
-                              </th>
-                              <th className="text-left p-2 font-medium w-16 text-foreground text-xs">View</th>
-                              <th className="text-left p-2 font-medium text-foreground text-xs">From</th>
-                              <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Reference</th>
-                              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Date ↓</th>
-                              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Due date</th>
-                              <th className="text-left p-2 font-medium w-24 text-foreground text-xs">Amount</th>
-                              <th className="text-left p-2 font-medium w-12 text-xs"></th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {/* Empty table body - will be populated when data exists */}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+                    <AwaitingPaymentsTable 
+                      projectId={project.id}
+                      formatCurrency={formatCurrency}
+                      formatDate={formatDate}
+                    />
                   ) : expenseStatusFilter === 'paid' ? (
                     // Paid Table
                     <div className="space-y-4">
