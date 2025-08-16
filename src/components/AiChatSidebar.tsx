@@ -296,9 +296,86 @@ export function AiChatSidebar({
     }
     event.target.value = '';
   };
-  const handleVoiceToggle = () => {
-    setIsListening(!isListening);
-    // Here you would implement actual microphone toggle logic
+  const handleVoiceToggle = async () => {
+    // If recording, stop to trigger transcription
+    if (audioRecorder && audioRecorder.state === 'recording') {
+      try {
+        audioRecorder.stop();
+      } catch (e) {
+        console.error('Failed to stop recorder', e);
+      }
+      setIsListening(false);
+      return;
+    }
+
+    // Not recording -> start a new short recording
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+
+      recordedChunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) recordedChunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        try {
+          const blob = new Blob(recordedChunksRef.current, { type: 'audio/webm' });
+          recordedChunksRef.current = [];
+
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              try {
+                const result = reader.result as string;
+                const b64 = result.split(',')[1] || '';
+                resolve(b64);
+              } catch (err) {
+                reject(err);
+              }
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+
+          const { data, error } = await supabase.functions.invoke('voice-transcribe', {
+            body: { audio: base64 }
+          });
+
+          if (error) {
+            console.error('Transcription error:', error);
+            toast({ title: 'Transcription failed', description: 'Unable to convert speech to text', variant: 'destructive' });
+          } else if (data?.text) {
+            const transcript = String(data.text).trim();
+            if (transcript.length > 0) {
+              setInput(transcript);
+              await new Promise(r => setTimeout(r, 0));
+              sendMessage();
+            }
+          }
+        } catch (err) {
+          console.error('Error processing audio:', err);
+          toast({ title: 'Audio error', description: 'Could not process recorded audio', variant: 'destructive' });
+        } finally {
+          setIsListening(false);
+          setIsSpeaking(false);
+          setAudioRecorder(null);
+          setIsVoiceActive(false);
+        }
+      };
+
+      recorder.start();
+      setAudioRecorder(recorder);
+      setIsVoiceActive(true);
+      setIsListening(true);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      toast({
+        title: 'Microphone Access Denied',
+        description: 'Please allow microphone access to use voice commands',
+        variant: 'destructive'
+      });
+    }
   };
 
   const handleVoiceEnd = () => {
