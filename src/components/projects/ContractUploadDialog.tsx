@@ -28,8 +28,6 @@ interface ContractUploadDialogProps {
 
 export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComplete }: ContractUploadDialogProps) => {
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
     file: null as File | null,
   });
   const [isUploading, setIsUploading] = useState(false);
@@ -41,10 +39,6 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setFormData(prev => ({ ...prev, file }));
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -78,8 +72,8 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
   };
 
   const handleUpload = async () => {
-    if (!formData.file || !formData.name.trim()) {
-      toast.error("Please provide a contract name and select a file.");
+    if (!formData.file) {
+      toast.error("Please select a file.");
       return;
     }
 
@@ -110,8 +104,8 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
           fileUrl: publicUrl,
           fileName: formData.file.name,
           projectId: project.id,
-          name: formData.name,
-          description: formData.description,
+          name: formData.file.name,
+          description: '',
           extractOnly: true // Just extract, don't save yet
         }
       });
@@ -149,8 +143,8 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
         .from('project_contracts')
         .insert({
           project_id: project.id,
-          name: formData.name,
-          description: formData.description || extractedData.ai_summary,
+          name: formData.file?.name || 'Contract',
+          description: extractedData.ai_summary,
           file_url: extractedData.fileUrl,
           file_path: extractedData.filePath,
           file_size: formData.file?.size || 0,
@@ -167,7 +161,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
       toast.success("Contract saved successfully!");
       
       // Reset form and close dialog
-      setFormData({ name: '', description: '', file: null });
+      setFormData({ file: null });
       setExtractedData(null);
       setShowPreview(false);
       onOpenChange(false);
@@ -185,7 +179,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
   };
 
   const handleCancel = () => {
-    setFormData({ name: '', description: '', file: null });
+    setFormData({ file: null });
     setExtractedData(null);
     setShowPreview(false);
     onOpenChange(false);
@@ -282,29 +276,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
               )}
             </div>
 
-            {/* Form Fields */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="contract-name">Contract Name *</Label>
-                <Input
-                  id="contract-name"
-                  placeholder="Enter contract name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contract-description">Description</Label>
-                <Textarea
-                  id="contract-description"
-                  placeholder="Enter contract description (optional)"
-                  value={formData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  rows={3}
-                />
-              </div>
-            </div>
+            {/* No additional form fields needed */}
           </div>
         ) : (
           <div className="space-y-6 py-4 max-h-96 overflow-y-auto">
@@ -398,7 +370,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
               </Button>
               <Button
                 onClick={handleUpload}
-                disabled={!formData.file || !formData.name.trim() || isUploading}
+                disabled={!formData.file || isUploading}
                 className="flex items-center gap-2"
               >
                 {isUploading ? (
