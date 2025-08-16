@@ -438,10 +438,6 @@ export function AiChatSidebar({
               {/* Input area */}
               <div className="p-4 border-t border-border flex-shrink-0">
                 <div className="flex gap-2">
-                  <input ref={fileInputRef} type="file" onChange={handleFileUpload} className="hidden" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif" />
-                  <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="flex-shrink-0" disabled={isLoading}>
-                    <Upload className="h-4 w-4" />
-                  </Button>
                   <Button 
                     variant={isVoiceActive ? "default" : "outline"} 
                     size="sm" 
