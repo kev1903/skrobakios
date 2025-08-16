@@ -12,13 +12,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Upload, FileText, X, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface ContractUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  project: {
+    id: string;
+    project_id: string;
+    name: string;
+  };
+  onUploadComplete?: () => void;
 }
 
-export const ContractUploadDialog = ({ open, onOpenChange }: ContractUploadDialogProps) => {
+export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComplete }: ContractUploadDialogProps) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -68,23 +76,63 @@ export const ContractUploadDialog = ({ open, onOpenChange }: ContractUploadDialo
 
   const handleUpload = async () => {
     if (!formData.file || !formData.name.trim()) {
+      toast.error("Please provide a contract name and select a file.");
       return;
     }
 
     setIsUploading(true);
     
     try {
-      // TODO: Implement contract upload logic here
-      console.log('Uploading contract:', formData);
-      
-      // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      // Upload file to Supabase Storage
+      const fileExt = formData.file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `contracts/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, formData.file);
+
+      if (uploadError) {
+        throw new Error(`Upload failed: ${uploadError.message}`);
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('documents')
+        .getPublicUrl(filePath);
+
+      // Process contract with AI
+      const { data, error } = await supabase.functions.invoke('process-contract', {
+        body: {
+          fileUrl: publicUrl,
+          fileName: formData.file.name,
+          projectId: project.id,
+          name: formData.name,
+          description: formData.description
+        }
+      });
+
+      if (error) {
+        throw new Error(`Processing failed: ${error.message}`);
+      }
+
+      if (data?.contractData) {
+        toast.success(`Contract processed successfully! Customer: ${data.contractData.customer_name}, Value: ${data.contractData.contract_value || 'N/A'}`);
+      } else {
+        toast.success("Contract uploaded successfully!");
+      }
+
       // Reset form and close dialog
       setFormData({ name: '', description: '', file: null });
       onOpenChange(false);
+      
+      // Call callback to refresh contracts list
+      if (onUploadComplete) {
+        onUploadComplete();
+      }
     } catch (error) {
       console.error('Error uploading contract:', error);
+      toast.error(`Failed to upload contract: ${error.message}`);
     } finally {
       setIsUploading(false);
     }

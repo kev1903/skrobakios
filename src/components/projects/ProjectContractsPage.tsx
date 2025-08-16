@@ -272,6 +272,8 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       <ContractUploadDialog
         open={showUploadDialog}
         onOpenChange={setShowUploadDialog}
+        project={project}
+        onUploadComplete={loadContracts}
       />
     </div>
   );
