@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "../ProjectSidebar";
 import { getStatusColor, getStatusText as utilsGetStatusText } from "./utils";
+import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 
 interface ProjectContractsPageProps {
   project: Project;
@@ -60,6 +61,7 @@ const getStatusText = (status: string) => {
 export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPageProps) => {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
+  const { spacingClasses } = useMenuBarSpacing();
 
   const loadContracts = async () => {
     try {
@@ -154,7 +156,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className={`flex h-screen bg-background ${spacingClasses}`}>
       <ProjectSidebar 
         project={project} 
         onNavigate={onNavigate}
