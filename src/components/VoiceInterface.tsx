@@ -116,8 +116,7 @@ export function VoiceInterface({
           disabled={isConnecting}
           className={cn(
             "w-12 h-12 rounded-full p-0 transition-all duration-200",
-            isConnected && "bg-green-500 hover:bg-green-600 border-green-500",
-            isListening && "animate-pulse"
+            isConnected && "bg-green-500 hover:bg-green-600 border-green-500"
           )}
         >
           <Mic className={cn("h-4 w-4", isConnected ? "text-white" : "text-muted-foreground")} />
