@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Bot, Upload, User, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Mic, MicOff } from 'lucide-react';
-import { useConversation } from '@11labs/react';
+import { Send, Bot, User, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Mic, MicOff } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
@@ -55,7 +54,9 @@ export function AiChatSidebar({
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const conversation = useConversation();
+  const [isVoiceActive, setIsVoiceActive] = useState(false);
+  const [audioRecorder, setAudioRecorder] = useState<MediaRecorder | null>(null);
+  const [websocket, setWebsocket] = useState<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const {
@@ -290,28 +291,56 @@ export function AiChatSidebar({
     }
     event.target.value = '';
   };
-  const handleVoiceConversation = async () => {
-    if (conversation.status === "connected") {
-      await conversation.endSession();
+  const handleVoiceCommand = async () => {
+    if (isVoiceActive) {
+      // Stop voice recording
+      if (audioRecorder && audioRecorder.state === 'recording') {
+        audioRecorder.stop();
+      }
+      if (websocket) {
+        websocket.close();
+      }
+      setIsVoiceActive(false);
+      setAudioRecorder(null);
+      setWebsocket(null);
       toast({
-        title: "Voice Conversation Ended",
-        description: "Voice conversation has been disconnected"
+        title: "Voice Chat Ended",
+        description: "Voice conversation has been stopped"
       });
     } else {
+      // Start voice recording and real-time chat
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true });
-        await conversation.startSession({ 
-          agentId: "ds9lm1cEPy0f80uZAvFu"
-        });
-        toast({
-          title: "Voice Conversation Started",
-          description: "You can now speak with SkAi directly"
-        });
+        
+        // Connect to OpenAI Realtime API via Supabase edge function
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.hostname}/functions/v1/realtime-chat`;
+        const ws = new WebSocket(wsUrl);
+        
+        ws.onopen = () => {
+          console.log('Connected to realtime chat');
+          setIsVoiceActive(true);
+          setWebsocket(ws);
+          toast({
+            title: "Voice Chat Started",
+            description: "You can now speak with SkAi in real-time"
+          });
+        };
+        
+        ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+          toast({
+            title: "Connection Failed",
+            description: "Failed to connect to voice chat service",
+            variant: "destructive"
+          });
+        };
+        
       } catch (error) {
-        console.error('Error starting voice conversation:', error);
+        console.error('Error accessing microphone:', error);
         toast({
-          title: "Voice Conversation Failed",
-          description: "Failed to start voice conversation. Please try again.",
+          title: "Microphone Access Denied",
+          description: "Please allow microphone access to use voice commands",
           variant: "destructive"
         });
       }
@@ -434,13 +463,13 @@ export function AiChatSidebar({
               <div className="p-4 border-t border-border flex-shrink-0">
                 <div className="flex gap-2">
                   <Button 
-                    variant={conversation.status === "connected" ? "default" : "outline"} 
+                    variant={isVoiceActive ? "default" : "outline"} 
                     size="sm" 
-                    onClick={handleVoiceConversation} 
+                    onClick={handleVoiceCommand} 
                     className="flex-shrink-0" 
                     disabled={isLoading}
                   >
-                    {conversation.status === "connected" ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    {isVoiceActive ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                   </Button>
                   <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
                   <Button onClick={sendMessage} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
