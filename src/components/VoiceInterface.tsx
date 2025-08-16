@@ -369,8 +369,7 @@ export function VoiceInterface({
         Status: {state.isConnected ? 'Connected' : 'Disconnected'} | 
         {state.isProcessing && ' Processing |'}
         {state.isSpeaking && ' Speaking |'}
-        {state.isVoiceActivated && ' Voice Active |'}
-        Audio: {audioLevelPercentage}%
+        {state.isVoiceActivated && ' Voice Active'}
       </div>
     </div>
   );
