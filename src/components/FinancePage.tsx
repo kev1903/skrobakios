@@ -153,9 +153,15 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       console.log('Fetching invoices from database...');
       
       const { data, error } = await supabase
-        .from('xero_invoices')
-        .select('*')
-        .order('date', { ascending: false });
+        .from('invoices')
+        .select(`
+          *,
+          projects (
+            name,
+            company_id
+          )
+        `)
+        .order('issue_date', { ascending: false });
 
       if (error) {
         console.error('Error fetching invoices:', error);
@@ -217,18 +223,15 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
 
   const getStatusBadge = (status: string) => {
     const statusStyles = {
-      'PAID': 'bg-green-100 text-green-800',
-      'AUTHORISED': 'bg-blue-100 text-blue-800',
-      'SENT': 'bg-blue-100 text-blue-800',
-      'DRAFT': 'bg-gray-100 text-gray-800',
-      'OVERDUE': 'bg-red-100 text-red-800',
-      'SUBMITTED': 'bg-yellow-100 text-yellow-800',
-      'DELETED': 'bg-red-100 text-red-800'
+      'paid': 'bg-green-100 text-green-800',
+      'sent': 'bg-blue-100 text-blue-800',
+      'draft': 'bg-gray-100 text-gray-800',
+      'overdue': 'bg-red-100 text-red-800'
     };
     
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyles[status as keyof typeof statusStyles] || 'bg-gray-100 text-gray-800'}`}>
-        {status}
+        {status.toUpperCase()}
       </span>
     );
   };
@@ -240,7 +243,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
     
     // Check if invoice status matches any selected status
     return statusFilter.some(selectedStatus => 
-      invoice.status?.toUpperCase() === selectedStatus.toUpperCase()
+      invoice.status?.toLowerCase() === selectedStatus.toLowerCase()
     );
   });
 
@@ -571,26 +574,26 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
                         </td>
                       </tr>
                     ) : (
-                      filteredInvoices.map((invoice) => (
-                        <tr key={invoice.id} className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
-                          <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">{formatDate(invoice.date)}</td>
-                          <td className="py-4 px-6 text-sm text-slate-700 tracking-wide font-medium">
-                            Invoice #{invoice.invoice_number}
-                          </td>
-                          <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">{invoice.contact_name}</td>
-                          <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">-</td>
-                          <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">Invoice Payment</td>
-                          <td className="py-4 px-6">{getStatusBadge(invoice.status)}</td>
-                          <td className="py-4 px-6 text-right">
-                            <Button variant="ghost" size="sm" className="text-xs tracking-wide">
-                              View
-                            </Button>
-                          </td>
-                          <td className="py-4 px-6 text-right text-sm font-medium text-green-600 tracking-wide">
-                            {formatCurrency(invoice.total, invoice.currency_code)}
-                          </td>
-                        </tr>
-                      ))
+                       filteredInvoices.map((invoice) => (
+                         <tr key={invoice.id} className="border-b border-white/10 hover:bg-white/20 transition-all duration-200">
+                           <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">{formatDate(invoice.issue_date)}</td>
+                           <td className="py-4 px-6 text-sm text-slate-700 tracking-wide font-medium">
+                             Invoice #{invoice.number}
+                           </td>
+                           <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">{invoice.client_name}</td>
+                           <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">{invoice.projects?.name || '-'}</td>
+                           <td className="py-4 px-6 text-sm text-slate-700 tracking-wide">Service Invoice</td>
+                           <td className="py-4 px-6">{getStatusBadge(invoice.status)}</td>
+                           <td className="py-4 px-6 text-right">
+                             <Button variant="ghost" size="sm" className="text-xs tracking-wide">
+                               View
+                             </Button>
+                           </td>
+                           <td className="py-4 px-6 text-right text-sm font-medium text-green-600 tracking-wide">
+                             {formatCurrency(invoice.total)}
+                           </td>
+                         </tr>
+                       ))
                     )}
                   </tbody>
                 </table>
