@@ -7,6 +7,7 @@ import { Building, Globe, Layers } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
+import { useCompany } from '@/contexts/CompanyContext';
 
 interface Project {
   id: string;
@@ -22,6 +23,7 @@ interface Project {
 export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '' }) => {
   console.log('BusinessMapbox component rendered - cache cleared');
   const { spacingClasses, fullHeightClasses } = useMenuBarSpacing();
+  const { currentCompany } = useCompany();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -57,11 +59,22 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   }, []);
 
 
-  // Fetch projects for current business context (not all businesses)
+  // Fetch projects for current business context (auto-refreshes when company changes)
   useEffect(() => {
     const fetchCurrentBusinessProjects = async () => {
+      if (!currentCompany) {
+        console.log('⏳ No current company yet, waiting...');
+        setProjects([]);
+        return;
+      }
+
+      setLoading(true);
+      
       try {
-        console.log('🏢 Fetching projects for current business context...');
+        console.log(`🔄 Company switched to: ${currentCompany.name} (${currentCompany.id}) - Refreshing map data`);
+        
+        // Clear existing projects to force map refresh
+        setProjects([]);
         
         // Fetch projects for current company only - respecting RLS and business context
         const { data, error } = await supabase
@@ -86,7 +99,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
           company_name: project.companies?.name || 'Unknown Company'
         })) || [];
         
-        console.log(`📍 Loaded ${projectsWithCompanyInfo.length} projects for current business context`);
+        console.log(`📍 Loaded ${projectsWithCompanyInfo.length} projects for ${currentCompany.name}`);
         console.log('🏢 Projects distribution:', projectsWithCompanyInfo.reduce((acc, p) => {
           acc[p.company_name] = (acc[p.company_name] || 0) + 1;
           return acc;
@@ -106,7 +119,21 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
     };
 
     fetchCurrentBusinessProjects();
-  }, []); // Remove dependencies to prevent unnecessary re-fetching
+  }, [currentCompany]); // Refresh projects whenever the current company changes
+
+  // Listen for company changes and emit events for debugging
+  useEffect(() => {
+    if (currentCompany) {
+      console.log(`🗺️ BusinessMapbox: Active company is now ${currentCompany.name}`);
+      // Emit a custom event that other components can listen to
+      window.dispatchEvent(new CustomEvent('companyChanged', { 
+        detail: { 
+          companyId: currentCompany.id, 
+          companyName: currentCompany.name 
+        } 
+      }));
+    }
+  }, [currentCompany]);
 
   // Set up global navigation function for popup clicks
   useEffect(() => {
