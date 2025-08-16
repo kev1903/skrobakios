@@ -203,17 +203,18 @@ export function AiChatSidebar({
       setMessages([welcomeMessage]);
     }
   }, [isAuthenticated, user, userProfile]);
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (messageText?: string) => {
+    const textToSend = messageText || input;
+    if (!textToSend.trim() || isLoading) return;
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      content: input,
+      content: textToSend,
       role: 'user',
       timestamp: new Date()
     };
     setMessages(prev => [...prev, userMessage]);
-    const currentInput = input;
-    setInput('');
+    const currentInput = textToSend;
+    if (!messageText) setInput(''); // Only clear input if not from voice
     setIsLoading(true);
     setAuthError(null);
     try {
@@ -613,9 +614,12 @@ export function AiChatSidebar({
                   <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
                     <VoiceInterfaceLazy
                       isActive={isVoiceActive}
-                      isListening={isListening}
-                      isSpeaking={isSpeaking}
-                      onToggle={handleVoiceToggle}
+                       onMessage={(message) => {
+                         // Handle voice messages from ElevenLabs
+                         if (message.trim()) {
+                           sendMessage(message);
+                         }
+                       }}
                       onEnd={handleVoiceEnd}
                     />
                   </Suspense>
@@ -686,7 +690,7 @@ export function AiChatSidebar({
                         <Mic className="h-4 w-4" />
                       </Button>
                       <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
-                      <Button onClick={sendMessage} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
+                      <Button onClick={() => sendMessage()} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
                         <Send className="h-4 w-4" />
                       </Button>
                     </div>
