@@ -68,6 +68,8 @@ export function AiChatSidebar({
   const chunkQueueRef = useRef<Blob[]>([]);
   const processingRef = useRef(false);
   const pendingTranscriptRef = useRef<string>('');
+  const finalizeTimerRef = useRef<number | null>(null);
+  const finalizingRef = useRef(false);
   const {
     toast
   } = useToast();
@@ -352,8 +354,23 @@ export function AiChatSidebar({
   };
 
   const finalizePending = async () => {
+    // Prevent overlapping finalizations
+    if (finalizingRef.current) return;
+
+    // Stop any pending finalize timer
+    if (finalizeTimerRef.current) {
+      clearTimeout(finalizeTimerRef.current);
+      finalizeTimerRef.current = null;
+    }
+
     const text = pendingTranscriptRef.current.trim();
     if (!text) return;
+
+    // Avoid sending tiny one-word artifacts like "you"
+    if (text.split(/\s+/).length <= 1 && text.length < 4) {
+      pendingTranscriptRef.current = '';
+      return;
+    }
 
     // Clear pending first to avoid duplicates on errors
     pendingTranscriptRef.current = '';
@@ -365,15 +382,16 @@ export function AiChatSidebar({
       timestamp: new Date()
     };
 
-    // Build conversation snapshot and send
-    const snapshot = [...messages, userMessage];
-    setMessages(snapshot);
+    // Append message using functional update to avoid stale state
+    setMessages(prev => [...prev, userMessage]);
 
     if (!isAuthenticated || !session) return;
+
+    finalizingRef.current = true;
     setIsLoading(true);
     try {
       const context = getScreenContext();
-      const conversation = snapshot.map(msg => ({ role: msg.role, content: msg.content }));
+      const conversation = [...messages, userMessage].map(msg => ({ role: msg.role, content: msg.content }));
       const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-chat', {
         body: { message: text, conversation, context }
       });
@@ -390,6 +408,7 @@ export function AiChatSidebar({
       console.error('AI send failed (finalizePending)', e);
     } finally {
       setIsLoading(false);
+      finalizingRef.current = false;
     }
   };
 
@@ -429,7 +448,17 @@ export function AiChatSidebar({
         // Accumulate and decide when to finalize
         pendingTranscriptRef.current += (pendingTranscriptRef.current ? ' ' : '') + partial;
         const endsSentence = /[.!?]$/.test(partial);
-        if (endsSentence || pendingTranscriptRef.current.length > 80) {
+
+        // Reset a short inactivity timer to finalize when user pauses speaking
+        if (finalizeTimerRef.current) clearTimeout(finalizeTimerRef.current);
+        finalizeTimerRef.current = window.setTimeout(() => {
+          if (pendingTranscriptRef.current.trim()) {
+            void finalizePending();
+          }
+        }, 1200);
+
+        // Also finalize immediately on clear sentence end or very long buffer
+        if (endsSentence || pendingTranscriptRef.current.length > 120) {
           await finalizePending();
         }
       }
@@ -456,6 +485,11 @@ export function AiChatSidebar({
     }
     if (websocket) {
       websocket.close();
+    }
+    // Clear any pending inactivity finalization
+    if (finalizeTimerRef.current) {
+      clearTimeout(finalizeTimerRef.current);
+      finalizeTimerRef.current = null;
     }
     // Flush any remaining partial transcript
     void finalizePending();
