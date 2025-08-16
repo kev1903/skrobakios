@@ -172,7 +172,13 @@ export function useVoiceChat() {
         audio: base64Audio
       });
 
-      const transcribedText = transcriptionResult?.text?.trim();
+      let transcribedText = transcriptionResult?.text?.trim();
+      
+      // Additional client-side filtering for safety
+      if (transcribedText && /[^\x00-\x7F]/.test(transcribedText)) {
+        console.warn('Client-side: Filtering non-English text from transcription');
+        transcribedText = transcribedText.replace(/[^\x00-\x7F]/g, ' ').replace(/\s+/g, ' ').trim();
+      }
       
       if (!transcribedText || transcribedText.length < 2) {
         console.log('No meaningful speech detected, continuing to listen...');

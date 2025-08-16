@@ -50,12 +50,13 @@ serve(async (req) => {
     const binaryAudio = base64ToUint8Array(audio)
     console.log('Binary audio length:', binaryAudio.length)
 
-    // Prepare form data with proper audio format
+    // Prepare form data with proper audio format and STRICT English-only settings
     const formData = new FormData()
     const blob = new Blob([binaryAudio], { type: 'audio/wav' })
     formData.append('file', blob, 'audio.wav')
     formData.append('model', 'whisper-1')
-    formData.append('language', 'en')
+    formData.append('language', 'en')  // Force English language detection
+    formData.append('prompt', 'This is English speech. Transcribe only in English language. Do not use Korean, Chinese, Japanese or any other language.')  // Add prompt to guide transcription
 
     console.log('Sending request to OpenAI...')
     // Send to OpenAI
@@ -81,10 +82,31 @@ serve(async (req) => {
     }
 
     const result = await response.json()
-    console.log('Transcription result:', result.text)
+    let transcribedText = result.text || ''
+    console.log('Raw transcription result:', transcribedText)
+    
+    // CRITICAL: Filter out any non-English text before returning
+    const hasNonEnglish = /[^\x00-\x7F]/.test(transcribedText)
+    if (hasNonEnglish) {
+      console.warn('WARNING: Transcription contains non-English characters!')
+      console.warn('Original text:', transcribedText)
+      
+      // Remove all non-ASCII characters and clean up
+      transcribedText = transcribedText.replace(/[^\x00-\x7F]/g, ' ').replace(/\s+/g, ' ').trim()
+      
+      // If nothing remains after filtering, return a safe fallback
+      if (!transcribedText || transcribedText.length < 2) {
+        console.warn('Filtered transcription too short, using fallback')
+        transcribedText = 'Sorry, could not understand the speech clearly.'
+      }
+      
+      console.log('Filtered text:', transcribedText)
+    }
+    
+    console.log('Final transcription result:', transcribedText)
 
     return new Response(
-      JSON.stringify({ text: result.text }),
+      JSON.stringify({ text: transcribedText }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
