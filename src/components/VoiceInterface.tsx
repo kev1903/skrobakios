@@ -194,58 +194,45 @@ export function VoiceInterface({
 
       {/* Control Buttons */}
       <div className="flex gap-3 flex-wrap justify-center">
-        {/* Mode Toggle */}
+        {/* Unified Voice Button - handles both modes */}
         <Button
-          variant="outline"
+          variant={state.isConnected ? "default" : "outline"}
           size="sm"
-          onClick={handleModeToggle}
           disabled={state.isProcessing}
-          className="w-12 h-12 rounded-full p-0"
-        >
-          {state.listeningMode === 'continuous' ? (
-            <Mic className="h-4 w-4" />
-          ) : (
-            <Hand className="h-4 w-4" />
+          onClick={state.listeningMode === 'continuous' ? handleStartConversation : handleModeToggle}
+          onMouseDown={state.listeningMode === 'push-to-talk' && state.isConnected ? handlePushToTalkStart : undefined}
+          onMouseUp={state.listeningMode === 'push-to-talk' && state.isConnected ? handlePushToTalkEnd : undefined}
+          onMouseLeave={state.listeningMode === 'push-to-talk' && state.isConnected ? handlePushToTalkEnd : undefined}
+          onTouchStart={state.listeningMode === 'push-to-talk' && state.isConnected ? handlePushToTalkStart : undefined}
+          onTouchEnd={state.listeningMode === 'push-to-talk' && state.isConnected ? handlePushToTalkEnd : undefined}
+          className={cn(
+            "w-16 h-16 rounded-full p-0 transition-all duration-200 relative",
+            // Continuous mode styling
+            state.listeningMode === 'continuous' && state.isConnected && state.isVoiceActivated && "bg-green-500 hover:bg-green-600 border-green-500 animate-pulse",
+            state.listeningMode === 'continuous' && state.isConnected && !state.isVoiceActivated && "bg-blue-500 hover:bg-blue-600 border-blue-500",
+            // Push-to-talk mode styling
+            state.listeningMode === 'push-to-talk' && isPushToTalkPressed && "bg-red-500 hover:bg-red-600 border-red-500",
+            state.listeningMode === 'push-to-talk' && !state.isConnected && "border-dashed"
           )}
-        </Button>
-
-        {/* Main Voice Button */}
-        {state.listeningMode === 'continuous' ? (
-          <Button
-            variant={state.isConnected ? "default" : "outline"}
-            size="sm"
-            disabled={state.isProcessing}
-            onClick={handleStartConversation}
-            className={cn(
-              "w-12 h-12 rounded-full p-0 transition-all duration-200",
-              state.isConnected && state.isVoiceActivated && "bg-green-500 hover:bg-green-600 border-green-500 animate-pulse",
-              state.isConnected && !state.isVoiceActivated && "bg-blue-500 hover:bg-blue-600 border-blue-500"
-            )}
-          >
-            {state.isProcessing ? (
-              <Loader2 className="h-4 w-4 animate-spin text-white" />
+        >
+          {state.isProcessing ? (
+            <Loader2 className="h-5 w-5 animate-spin text-white" />
+          ) : (
+            <Mic className={cn(
+              "h-5 w-5", 
+              state.isConnected ? "text-white" : "text-muted-foreground"
+            )} />
+          )}
+          
+          {/* Mode indicator */}
+          <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-background border-2 border-current flex items-center justify-center">
+            {state.listeningMode === 'continuous' ? (
+              <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
             ) : (
-              <Mic className={cn("h-4 w-4", state.isConnected ? "text-white" : "text-muted-foreground")} />
+              <Hand className="h-2 w-2 text-orange-500" />
             )}
-          </Button>
-        ) : (
-          <Button
-            variant={isPushToTalkPressed ? "default" : "outline"}
-            size="sm"
-            disabled={!state.isConnected}
-            onMouseDown={handlePushToTalkStart}
-            onMouseUp={handlePushToTalkEnd}
-            onMouseLeave={handlePushToTalkEnd}
-            onTouchStart={handlePushToTalkStart}
-            onTouchEnd={handlePushToTalkEnd}
-            className={cn(
-              "w-12 h-12 rounded-full p-0 transition-all duration-200",
-              isPushToTalkPressed && "bg-red-500 hover:bg-red-600 border-red-500"
-            )}
-          >
-            <Mic className={cn("h-4 w-4", isPushToTalkPressed ? "text-white" : "text-muted-foreground")} />
-          </Button>
-        )}
+          </div>
+        </Button>
 
         {/* Settings */}
         <Button
@@ -294,6 +281,15 @@ export function VoiceInterface({
           <X className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Mode Instructions */}
+      <div className="mt-2 text-xs text-muted-foreground text-center">
+        {state.listeningMode === 'continuous' 
+          ? 'Click mic to start/stop • Blue dot = Continuous mode'
+          : 'Click mic to switch modes • Hand icon = Push-to-talk • Hold mic to record'
+        }
+      </div>
+
 
       {/* Advanced Settings Panel */}
       {showSettings && (
