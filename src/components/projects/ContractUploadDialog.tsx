@@ -24,17 +24,31 @@ interface ContractUploadDialogProps {
     name: string;
   };
   onUploadComplete?: () => void;
+  editMode?: boolean;
+  existingContract?: any;
 }
 
-export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComplete }: ContractUploadDialogProps) => {
+export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComplete, editMode = false, existingContract }: ContractUploadDialogProps) => {
   const [formData, setFormData] = useState({
     file: null as File | null,
   });
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [extractedData, setExtractedData] = useState<any>(null);
-  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(editMode);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Initialize edit mode data
+  React.useEffect(() => {
+    if (editMode && existingContract) {
+      setExtractedData(existingContract.contract_data);
+      setShowPreview(true);
+    } else if (!editMode) {
+      setExtractedData(null);
+      setShowPreview(false);
+      setFormData({ file: null });
+    }
+  }, [editMode, existingContract]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -138,29 +152,50 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
     setIsSaving(true);
     
     try {
-      // Save to database
-      const { error } = await supabase
-        .from('project_contracts')
-        .insert({
-          project_id: project.id,
-          name: formData.file?.name || 'Contract',
-          file_url: extractedData.fileUrl,
-          file_path: extractedData.filePath,
-          file_size: formData.file?.size || 0,
-          contract_data: extractedData,
-          confidence: extractedData.ai_confidence,
-          status: 'active',
-          ai_summary_json: {
-            summary: extractedData.ai_summary,
-            confidence: extractedData.ai_confidence
-          }
-        });
+      if (editMode && existingContract) {
+        // Update existing contract
+        const { error } = await supabase
+          .from('project_contracts')
+          .update({
+            contract_data: extractedData,
+            confidence: extractedData.ai_confidence,
+            ai_summary_json: {
+              summary: extractedData.ai_summary,
+              confidence: extractedData.ai_confidence
+            }
+          })
+          .eq('id', existingContract.id);
 
-      if (error) {
-        throw new Error(`Failed to save contract: ${error.message}`);
+        if (error) {
+          throw new Error(`Failed to update contract: ${error.message}`);
+        }
+
+        toast.success("Contract updated successfully!");
+      } else {
+        // Save new contract
+        const { error } = await supabase
+          .from('project_contracts')
+          .insert({
+            project_id: project.id,
+            name: formData.file?.name || 'Contract',
+            file_url: extractedData.fileUrl,
+            file_path: extractedData.filePath,
+            file_size: formData.file?.size || 0,
+            contract_data: extractedData,
+            confidence: extractedData.ai_confidence,
+            status: 'active',
+            ai_summary_json: {
+              summary: extractedData.ai_summary,
+              confidence: extractedData.ai_confidence
+            }
+          });
+
+        if (error) {
+          throw new Error(`Failed to save contract: ${error.message}`);
+        }
+
+        toast.success("Contract saved successfully!");
       }
-
-      toast.success("Contract saved successfully!");
       
       // Reset form and close dialog
       setFormData({ file: null });
@@ -198,12 +233,15 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            {showPreview ? 'Review Contract Data' : 'Upload Contract'}
+            {editMode ? 'Edit Contract Data' : (showPreview ? 'Review Contract Data' : 'Upload Contract')}
           </DialogTitle>
           <DialogDescription>
-            {showPreview 
-              ? 'Review the AI-extracted contract data and click Save to confirm.'
-              : 'Upload a contract document for this project. Supported formats: PDF, DOC, DOCX.'
+            {editMode 
+              ? 'Review and edit the contract data below.'
+              : (showPreview 
+                ? 'Review the AI-extracted contract data and click Save to confirm.'
+                : 'Upload a contract document for this project. Supported formats: PDF, DOC, DOCX.'
+              )
             }
           </DialogDescription>
         </DialogHeader>
@@ -552,13 +590,15 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
             </>
           ) : (
             <>
-              <Button
-                variant="outline"
-                onClick={handleBack}
-                disabled={isSaving}
-              >
-                Back
-              </Button>
+              {!editMode && (
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                  disabled={isSaving}
+                >
+                  Back
+                </Button>
+              )}
               <Button
                 onClick={handleSave}
                 disabled={isSaving}
@@ -567,12 +607,12 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                 {isSaving ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent" />
-                    Saving...
+                    {editMode ? 'Updating...' : 'Saving...'}
                   </>
                 ) : (
                   <>
                     <CheckCircle className="h-4 w-4" />
-                    Save Contract
+                    {editMode ? 'Update Contract' : 'Save Contract'}
                   </>
                 )}
               </Button>

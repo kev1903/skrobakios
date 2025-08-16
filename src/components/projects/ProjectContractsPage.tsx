@@ -63,6 +63,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const { spacingClasses } = useMenuBarSpacing();
 
   const loadContracts = async () => {
@@ -110,6 +111,10 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       console.error('Error deleting contract:', error);
       toast.error("Failed to delete contract. Please try again.");
     }
+  };
+
+  const handleEditContract = (contract: Contract) => {
+    setEditingContract(contract);
   };
 
   const formatDate = (date: string) => {
@@ -220,7 +225,12 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                         <td className="px-6 py-4 whitespace-nowrap">
                           <input type="checkbox" className="rounded border-gray-300" />
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{contract.name}</td>
+                         <td 
+                           className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 cursor-pointer hover:text-blue-600 hover:underline" 
+                           onClick={() => handleEditContract(contract)}
+                         >
+                           {contract.name}
+                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(contract.created_at)}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatFileSize(contract.file_size)}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
@@ -274,6 +284,15 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         onOpenChange={setShowUploadDialog}
         project={project}
         onUploadComplete={loadContracts}
+      />
+      
+      <ContractUploadDialog
+        open={!!editingContract}
+        onOpenChange={(open) => !open && setEditingContract(null)}
+        project={project}
+        onUploadComplete={loadContracts}
+        editMode={true}
+        existingContract={editingContract}
       />
     </div>
   );
