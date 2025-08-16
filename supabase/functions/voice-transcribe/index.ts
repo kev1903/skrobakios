@@ -25,7 +25,19 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Voice transcribe request received')
+    
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY')
+    if (!openAIApiKey) {
+      console.error('OPENAI_API_KEY environment variable not set')
+      return new Response(JSON.stringify({ error: 'OpenAI API key not configured' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const { audio } = await req.json()
+    console.log('Audio data received, length:', audio?.length || 0)
 
     if (!audio) {
       return new Response(JSON.stringify({ error: 'No audio data provided' }), {
@@ -36,32 +48,40 @@ serve(async (req) => {
 
     // Decode audio
     const binaryAudio = base64ToUint8Array(audio)
+    console.log('Binary audio length:', binaryAudio.length)
 
-    // Prepare form data
+    // Prepare form data with proper audio format
     const formData = new FormData()
-    const blob = new Blob([binaryAudio], { type: 'audio/webm' })
-    formData.append('file', blob, 'audio.webm')
+    const blob = new Blob([binaryAudio], { type: 'audio/wav' })
+    formData.append('file', blob, 'audio.wav')
     formData.append('model', 'whisper-1')
+    formData.append('language', 'en')
 
+    console.log('Sending request to OpenAI...')
     // Send to OpenAI
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        'Authorization': `Bearer ${openAIApiKey}`,
       },
       body: formData,
     })
 
+    console.log('OpenAI response status:', response.status)
+
     if (!response.ok) {
       const text = await response.text()
-      console.error('OpenAI API error:', text)
-      return new Response(JSON.stringify({ error: `OpenAI API error: ${text}` }), {
-        status: 500,
+      console.error('OpenAI API error:', response.status, text)
+      return new Response(JSON.stringify({ 
+        error: `OpenAI API error: ${response.status} - ${text}` 
+      }), {
+        status: response.status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
     const result = await response.json()
+    console.log('Transcription result:', result.text)
 
     return new Response(
       JSON.stringify({ text: result.text }),
