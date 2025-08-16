@@ -113,9 +113,9 @@ serve(async (req) => {
     const projectData = await getProjectData(supabase, user.id, context.projectId);
 
     // Build enhanced system prompt with project context
-    const systemPrompt = `You are SkAi, an intelligent construction management assistant for Skrobaki. You have access to the user's project data and can help with:
+    const systemPrompt = `You are SkAi, an intelligent construction management assistant for Skrobaki. 
 
-IMPORTANT: Always respond in English only. Do not respond in Korean or any other language.
+CRITICAL LANGUAGE REQUIREMENT: You MUST respond ONLY in English language. Never use Korean, Chinese, Japanese, or any other language. All responses must be in clear, professional English.
 
 COMPANY: ${projectData.company?.name || 'Unknown'}
 
@@ -137,7 +137,9 @@ CAPABILITIES:
 
 CURRENT CONTEXT: ${JSON.stringify(context, null, 2)}
 
-Be helpful, professional, and provide actionable insights. If asked about specific projects, tasks, or data, use the provided information. If data is not available, explain what information you would need. RESPOND ONLY IN ENGLISH.`;
+Be helpful, professional, and provide actionable insights. If asked about specific projects, tasks, or data, use the provided information. If data is not available, explain what information you would need. 
+
+LANGUAGE ENFORCEMENT: Respond exclusively in English. If any input contains non-English text, acknowledge it but respond in English only.`;
 
     // Build conversation history
     const messages = [
@@ -160,6 +162,10 @@ Be helpful, professional, and provide actionable insights. If asked about specif
         messages: messages,
         temperature: 0.1,
         max_tokens: 2000,
+        top_p: 0.9,
+        frequency_penalty: 0.0,
+        presence_penalty: 0.0,
+        stop: null
       }),
     });
 
@@ -173,6 +179,14 @@ Be helpful, professional, and provide actionable insights. If asked about specif
     const generatedResponse = data.choices[0].message.content;
 
     console.log('AI response generated successfully');
+    console.log('Response preview:', generatedResponse?.substring(0, 100));
+    
+    // Check if response contains non-English characters and log warning
+    const hasNonEnglish = /[^\x00-\x7F]/.test(generatedResponse);
+    if (hasNonEnglish) {
+      console.warn('WARNING: AI response contains non-English characters!');
+      console.warn('Response language detected as potentially non-English');
+    }
 
     // Log interaction for analytics
     await supabase

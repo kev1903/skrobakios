@@ -9,9 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AiChatAuth } from './AiChatAuth';
+import { ChatDebugTools } from './ChatDebugTools';
 // Lazy load the heavy voice interface to keep initial load fast and robust
 const VoiceInterfaceLazy = React.lazy(() => import('./VoiceInterface').then(m => ({ default: m.VoiceInterface })));
 import { cn } from '@/lib/utils';
+
 interface ChatMessage {
   id: string;
   content: string;
@@ -45,10 +47,22 @@ export function AiChatSidebar({
       const raw = localStorage.getItem('aiChatMessages');
       if (raw) {
         const parsed = JSON.parse(raw) as Array<{ id: string; content: string; role: 'user' | 'assistant'; timestamp: string | Date }>;
-        return parsed.map(m => ({ ...m, timestamp: new Date(m.timestamp) }));
+        
+        // Filter out any non-English messages to prevent Korean text issues
+        const englishMessages = parsed.filter(m => {
+          const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
+          if (hasNonEnglish) {
+            console.warn('Filtered out non-English message:', m.content.substring(0, 50));
+          }
+          return !hasNonEnglish;
+        });
+        
+        return englishMessages.map(m => ({ ...m, timestamp: new Date(m.timestamp) }));
       }
     } catch (e) {
       console.error('Failed to load chat history', e);
+      // Clear corrupted localStorage
+      localStorage.removeItem('aiChatMessages');
     }
     return [];
   });
@@ -143,12 +157,21 @@ export function AiChatSidebar({
     }
   }, [isCollapsed, messages.length]);
 
-  // Persist chat messages to localStorage
+  // Save messages to localStorage with non-English filtering
   useEffect(() => {
     try {
-      localStorage.setItem('aiChatMessages', JSON.stringify(messages));
+      // Filter out any non-English messages before saving
+      const englishMessages = messages.filter(m => {
+        const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
+        if (hasNonEnglish) {
+          console.warn('Preventing storage of non-English message:', m.content.substring(0, 50));
+        }
+        return !hasNonEnglish;
+      });
+      
+      localStorage.setItem('aiChatMessages', JSON.stringify(englishMessages));
     } catch (e) {
-      console.error('Failed to persist chat history', e);
+      console.error('Failed to save messages', e);
     }
   }, [messages]);
 
@@ -696,6 +719,9 @@ export function AiChatSidebar({
                     </div>
                   </div>
                 )}
+
+        {/* Debug Tools - Only shown when there might be language issues */}
+        <ChatDebugTools />
               </>}
           </>}
       </div>
