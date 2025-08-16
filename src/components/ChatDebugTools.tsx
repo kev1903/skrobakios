@@ -66,31 +66,5 @@ export function ChatDebugTools() {
     }
   };
 
-  return (
-    <div className="p-4 border-t border-border bg-muted/50">
-      <div className="text-xs text-muted-foreground mb-2 flex items-center gap-2">
-        <AlertTriangle className="h-3 w-3" />
-        Debug Tools
-      </div>
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={inspectChatHistory}
-          className="text-xs"
-        >
-          Inspect History
-        </Button>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={clearChatHistory}
-          className="text-xs"
-        >
-          <Trash2 className="h-3 w-3 mr-1" />
-          Clear History
-        </Button>
-      </div>
-    </div>
-  );
+  return null;
 }
