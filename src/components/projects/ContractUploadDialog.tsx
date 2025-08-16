@@ -353,11 +353,12 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                       <table className="w-full text-xs">
                         <thead className="bg-muted/80">
                           <tr>
+                            <th className="px-3 py-2 text-left font-medium">Payment Type</th>
                             <th className="px-3 py-2 text-left font-medium">Stage/Milestone</th>
                             <th className="px-3 py-2 text-left font-medium">Description</th>
                             <th className="px-3 py-2 text-right font-medium">%</th>
                             <th className="px-3 py-2 text-right font-medium">Amount</th>
-                            <th className="px-3 py-2 text-left font-medium">Due Date</th>
+                            <th className="px-3 py-2 text-left font-medium">Due</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -365,41 +366,74 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                           {extractedData?.payment_tables?.length > 0 ? (
                             // Show payment tables (most structured)
                             extractedData.payment_tables.map((table: any, tableIndex: number) => 
-                              table.rows?.map((row: any, rowIndex: number) => (
-                                <tr key={`table-${tableIndex}-${rowIndex}`} className="border-t">
-                                  <td className="px-3 py-2 font-medium">{row.stage_name || 'N/A'}</td>
-                                  <td className="px-3 py-2 text-muted-foreground">
-                                    {row.description || row.work_involved || 'N/A'}
-                                  </td>
-                                  <td className="px-3 py-2 text-right font-medium text-blue-600">
-                                    {row.percentage || 'N/A'}
-                                  </td>
-                                  <td className="px-3 py-2 text-right font-medium text-green-600">
-                                    {row.amount || 'N/A'}
-                                  </td>
-                                  <td className="px-3 py-2 text-muted-foreground">N/A</td>
-                                </tr>
-                              ))
+                              table.rows?.map((row: any, rowIndex: number) => {
+                                const isDeposit = row.stage_name?.toLowerCase().includes('deposit');
+                                return (
+                                  <tr key={`table-${tableIndex}-${rowIndex}`} className="border-t">
+                                    <td className="px-3 py-2">
+                                      <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                                        isDeposit 
+                                          ? 'bg-orange-100 text-orange-800' 
+                                          : 'bg-blue-100 text-blue-800'
+                                      }`}>
+                                        {isDeposit ? 'Deposit' : 'Progress'}
+                                      </span>
+                                    </td>
+                                    <td className="px-3 py-2 font-medium">{row.stage_name || 'N/A'}</td>
+                                    <td className="px-3 py-2 text-muted-foreground">
+                                      {row.description || row.work_involved || 'N/A'}
+                                    </td>
+                                    <td className="px-3 py-2 text-right font-medium text-blue-600">
+                                      {row.percentage || 'N/A'}
+                                    </td>
+                                    <td className="px-3 py-2 text-right font-medium text-green-600">
+                                      {row.amount || 'N/A'}
+                                    </td>
+                                    <td className="px-3 py-2 text-muted-foreground text-xs">
+                                      {isDeposit ? 'Prior to work starting' : 'Upon stage completion'}
+                                    </td>
+                                  </tr>
+                                );
+                              })
                             )
                           ) : extractedData?.stage_payments?.length > 0 ? (
                             // Show stage payments if no payment tables
-                            extractedData.stage_payments.map((payment: any, index: number) => (
-                              <tr key={`stage-${index}`} className="border-t">
-                                <td className="px-3 py-2 font-medium">{payment.stage}</td>
-                                <td className="px-3 py-2 text-muted-foreground">{payment.description || 'N/A'}</td>
-                                <td className="px-3 py-2 text-right font-medium text-blue-600">
-                                  {payment.percentage || 'N/A'}
-                                </td>
-                                <td className="px-3 py-2 text-right font-medium text-green-600">
-                                  {payment.amount || 'N/A'}
-                                </td>
-                                <td className="px-3 py-2 text-muted-foreground">{payment.due_date || 'N/A'}</td>
-                              </tr>
-                            ))
+                            extractedData.stage_payments.map((payment: any, index: number) => {
+                              const isDeposit = payment.stage?.toLowerCase().includes('deposit');
+                              return (
+                                <tr key={`stage-${index}`} className="border-t">
+                                  <td className="px-3 py-2">
+                                    <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
+                                      isDeposit 
+                                        ? 'bg-orange-100 text-orange-800' 
+                                        : 'bg-blue-100 text-blue-800'
+                                    }`}>
+                                      {isDeposit ? 'Deposit' : 'Progress'}
+                                    </span>
+                                  </td>
+                                  <td className="px-3 py-2 font-medium">{payment.stage}</td>
+                                  <td className="px-3 py-2 text-muted-foreground">{payment.description || 'N/A'}</td>
+                                  <td className="px-3 py-2 text-right font-medium text-blue-600">
+                                    {payment.percentage || 'N/A'}
+                                  </td>
+                                  <td className="px-3 py-2 text-right font-medium text-green-600">
+                                    {payment.amount || 'N/A'}
+                                  </td>
+                                  <td className="px-3 py-2 text-muted-foreground text-xs">
+                                    {payment.due_date || (isDeposit ? 'Prior to work starting' : 'Upon stage completion')}
+                                  </td>
+                                </tr>
+                              );
+                            })
                           ) : (
                             // Show progress payments as fallback
                             extractedData?.progress_payments?.map((payment: any, index: number) => (
                               <tr key={`progress-${index}`} className="border-t">
+                                <td className="px-3 py-2">
+                                  <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Progress
+                                  </span>
+                                </td>
                                 <td className="px-3 py-2 font-medium">{payment.milestone}</td>
                                 <td className="px-3 py-2 text-muted-foreground">{payment.description || 'N/A'}</td>
                                 <td className="px-3 py-2 text-right font-medium text-blue-600">
@@ -408,7 +442,9 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                                 <td className="px-3 py-2 text-right font-medium text-green-600">
                                   {payment.amount || 'N/A'}
                                 </td>
-                                <td className="px-3 py-2 text-muted-foreground">N/A</td>
+                                <td className="px-3 py-2 text-muted-foreground text-xs">
+                                  Upon milestone completion
+                                </td>
                               </tr>
                             ))
                           )}
