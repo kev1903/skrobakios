@@ -115,6 +115,8 @@ serve(async (req) => {
     // Build enhanced system prompt with project context
     const systemPrompt = `You are SkAi, an intelligent construction management assistant for Skrobaki. You have access to the user's project data and can help with:
 
+IMPORTANT: Always respond in English only. Do not respond in Korean or any other language.
+
 COMPANY: ${projectData.company?.name || 'Unknown'}
 
 AVAILABLE DATA:
@@ -135,7 +137,7 @@ CAPABILITIES:
 
 CURRENT CONTEXT: ${JSON.stringify(context, null, 2)}
 
-Be helpful, professional, and provide actionable insights. If asked about specific projects, tasks, or data, use the provided information. If data is not available, explain what information you would need.`;
+Be helpful, professional, and provide actionable insights. If asked about specific projects, tasks, or data, use the provided information. If data is not available, explain what information you would need. RESPOND ONLY IN ENGLISH.`;
 
     // Build conversation history
     const messages = [
