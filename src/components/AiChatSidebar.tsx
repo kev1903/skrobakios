@@ -129,6 +129,14 @@ export function AiChatSidebar({
     }
   }, [isVoiceActive]);
 
+  // Auto-scroll when sidebar is expanded (not collapsed)
+  useEffect(() => {
+    if (!isCollapsed && messages.length > 0) {
+      const timeoutId = setTimeout(scrollToBottom, 200);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isCollapsed, messages.length]);
+
   // Persist chat messages to localStorage
   useEffect(() => {
     try {
