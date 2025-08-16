@@ -170,13 +170,21 @@ export function useVoiceChat() {
       // Convert AI response to speech
       await speakText(aiText);
 
+      // After speaking, automatically restart listening for continuous conversation
+      setTimeout(() => {
+        if (state.isConnected) {
+          console.log('Restarting listening for continuous conversation...');
+          startListening();
+        }
+      }, 1000);
+
     } catch (error) {
       console.error('Error processing audio:', error);
       toast.error('Voice processing failed', {
         description: 'Please try again.'
       });
     } finally {
-      updateState({ isProcessing: false, isSpeaking: false });
+      updateState({ isProcessing: false });
       audioChunksRef.current = [];
     }
   }, [updateState]);
@@ -209,6 +217,7 @@ export function useVoiceChat() {
       audio.onended = () => {
         URL.revokeObjectURL(audioUrl);
         updateState({ isSpeaking: false });
+        console.log('AI finished speaking, ready for next command');
       };
 
       audio.onerror = () => {
@@ -230,6 +239,7 @@ export function useVoiceChat() {
         
         utterance.onend = () => {
           updateState({ isSpeaking: false });
+          console.log('Browser speech finished, ready for next command');
         };
         
         speechSynthesis.speak(utterance);

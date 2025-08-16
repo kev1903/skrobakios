@@ -91,22 +91,22 @@ export function VoiceInterface({
             : state.isSpeaking 
               ? 'SkAi is speaking...' 
               : state.isListening 
-                ? 'Listening...' 
+                ? 'Listening... (speak now)' 
                 : state.isConnected
-                  ? 'Ready to listen'
+                  ? 'Ready for your next command'
                   : 'Voice Chat Ready'
           }
         </p>
         <p className="text-xs text-muted-foreground">
           {state.isProcessing
-            ? 'Converting speech to text and thinking...'
+            ? 'Converting speech and thinking...'
             : state.isSpeaking 
-              ? 'SkAi is responding to your question'
+              ? 'Listen to SkAi\'s response, then speak again'
               : state.isListening 
-                ? 'Speak naturally to SkAi' 
+                ? 'Speak naturally - I\'ll process when you pause' 
                 : state.isConnected
-                  ? 'Click microphone to start speaking'
-                  : 'Click microphone to begin voice chat'
+                  ? 'Click microphone or wait for auto-restart'
+                  : 'Click microphone to begin continuous voice chat'
           }
         </p>
       </div>
