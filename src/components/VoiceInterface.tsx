@@ -26,11 +26,11 @@ export function VoiceInterface({
 
   // Auto-start once per activation
   useEffect(() => {
-    if (isActive && !startedRef.current) {
+    if (isActive && !startedRef.current && !state.isConnected) {
       startedRef.current = true;
       initializeVoiceChat();
     }
-  }, [isActive, initializeVoiceChat]);
+  }, [isActive, initializeVoiceChat, state.isConnected]);
 
   // Cleanup on unmount or when not active
   useEffect(() => {
@@ -46,6 +46,7 @@ export function VoiceInterface({
 
   const handleStartConversation = async () => {
     try {
+      if (state.isConnected) return;
       await initializeVoiceChat();
     } catch (error) {
       console.error('Failed to start conversation:', error);

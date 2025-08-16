@@ -21,6 +21,8 @@ export function useVoiceChat() {
   });
 
   const connectedToastShownRef = useRef(false);
+  const startInProgressRef = useRef(false);
+  const hasStartedRef = useRef(false);
 
   const conversation = useConversation({
     onConnect: () => {
@@ -35,6 +37,8 @@ export function useVoiceChat() {
     },
     onDisconnect: () => {
       console.log('ElevenLabs conversation disconnected');
+      hasStartedRef.current = false;
+      startInProgressRef.current = false;
       setState(prev => ({ 
         ...prev, 
         isConnected: false, 
@@ -67,6 +71,15 @@ export function useVoiceChat() {
   }, []);
 
   const initializeVoiceChat = useCallback(async () => {
+    if (startInProgressRef.current) {
+      console.log('Voice chat start already in progress');
+      return;
+    }
+    if (state.isConnected || conversation.status === 'connected') {
+      console.log('Voice chat already connected');
+      return;
+    }
+    startInProgressRef.current = true;
     try {
       console.log('Initializing ElevenLabs voice chat...');
       
@@ -76,6 +89,7 @@ export function useVoiceChat() {
       
       // Start the conversation with the signed URL
       await (conversation as any).startSession({ url: signedUrl });
+      hasStartedRef.current = true;
       console.log('ElevenLabs conversation started');
       
     } catch (error) {
@@ -84,8 +98,10 @@ export function useVoiceChat() {
         description: 'Please check your ElevenLabs connection.'
       });
       setState(prev => ({ ...prev, isConnected: false }));
+    } finally {
+      startInProgressRef.current = false;
     }
-  }, [conversation]);
+  }, [conversation, state.isConnected]);
 
   const stopCurrentAudio = useCallback(() => {
     // ElevenLabs handles audio interruption internally
@@ -105,6 +121,9 @@ export function useVoiceChat() {
       }));
     } catch (error) {
       console.error('Error disconnecting:', error);
+    } finally {
+      hasStartedRef.current = false;
+      startInProgressRef.current = false;
     }
   }, [conversation]);
 
