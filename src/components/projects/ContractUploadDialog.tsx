@@ -281,7 +281,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
             {/* No additional form fields needed */}
           </div>
         ) : (
-          <div className="space-y-6 py-4 max-h-96 overflow-y-auto">
+          <div className="space-y-6 py-2 max-h-[600px] overflow-y-auto">
             {/* Extracted Contract Data Preview */}
             <div className="space-y-4">
               <div className="bg-muted/50 p-4 rounded-lg">
