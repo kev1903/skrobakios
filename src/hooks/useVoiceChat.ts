@@ -20,13 +20,18 @@ export function useVoiceChat() {
     canInterrupt: false
   });
 
+  const connectedToastShownRef = useRef(false);
+
   const conversation = useConversation({
     onConnect: () => {
       console.log('ElevenLabs conversation connected');
       setState(prev => ({ ...prev, isConnected: true }));
-      toast.success('Voice chat connected', {
-        description: 'ElevenLabs AI is ready to talk!'
-      });
+      if (!connectedToastShownRef.current) {
+        toast.success('Voice chat connected', {
+          description: 'ElevenLabs AI is ready to talk!'
+        });
+        connectedToastShownRef.current = true;
+      }
     },
     onDisconnect: () => {
       console.log('ElevenLabs conversation disconnected');
@@ -37,6 +42,7 @@ export function useVoiceChat() {
         isSpeaking: false,
         isProcessing: false 
       }));
+      connectedToastShownRef.current = false;
     },
     onMessage: (message) => {
       console.log('ElevenLabs message:', message);
@@ -69,7 +75,7 @@ export function useVoiceChat() {
       console.log('Got signed URL from ElevenLabs');
       
       // Start the conversation with the signed URL
-      await conversation.startSession({ signedUrl });
+      await (conversation as any).startSession({ url: signedUrl });
       console.log('ElevenLabs conversation started');
       
     } catch (error) {
