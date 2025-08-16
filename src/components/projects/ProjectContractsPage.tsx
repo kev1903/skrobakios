@@ -134,14 +134,29 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const formatCurrency = (amount: number) => {
-    if (!amount || amount === 0) return '-';
+  const formatCurrency = (amount: number, contractData?: any) => {
+    // If amount is 0 or null, try to extract from contract data
+    let displayAmount = amount;
+    
+    if (!displayAmount && contractData?.contract_value) {
+      // Parse contract value from contract_data as fallback
+      const contractValue = contractData.contract_value;
+      const numericValue = contractValue
+        .replace(/[$,£€¥₹\s]/g, '') // Remove common currency symbols and spaces
+        .replace(/[^\d.-]/g, ''); // Keep only digits, dots, and hyphens
+      
+      const parsed = parseFloat(numericValue);
+      displayAmount = isNaN(parsed) ? 0 : parsed;
+    }
+    
+    if (!displayAmount || displayAmount === 0) return '-';
+    
     return new Intl.NumberFormat('en-AU', {
       style: 'currency',
       currency: 'AUD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(amount);
+    }).format(displayAmount);
   };
 
   useEffect(() => {
@@ -218,72 +233,73 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
           ) : (
             <div className="space-y-4">
               <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                <table className="w-full">
+                <table className="w-full table-auto">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200">
-                      <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">View</th>
-                      <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Contract Name</th>
-                      <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Upload Date</th>
-                       <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">File Size</th>
-                       <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Contract Amount</th>
-                      <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Confidence</th>
-                      <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">Actions</th>
+                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-12">View</th>
+                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider min-w-0">Contract Name</th>
+                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Upload Date</th>
+                      <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-20">File Size</th>
+                      <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Contract Amount</th>
+                      <th className="text-right px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Confidence</th>
+                      <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Status</th>
+                      <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {contracts.map((contract) => (
                       <tr key={contract.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <input type="checkbox" className="rounded border-gray-300" />
-                        </td>
+                         <td className="px-4 py-4 whitespace-nowrap">
+                           <input type="checkbox" className="rounded border-gray-300" />
+                         </td>
                          <td 
-                           className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 cursor-pointer hover:text-blue-600 hover:underline" 
+                           className="px-4 py-4 text-sm text-gray-900 cursor-pointer hover:text-blue-600 hover:underline truncate max-w-0" 
                            onClick={() => handleEditContract(contract)}
+                           title={contract.name}
                          >
                            {contract.name}
                          </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(contract.created_at)}</td>
-                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatFileSize(contract.file_size)}</td>
-                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium text-green-600">
-                           {formatCurrency(contract.contract_amount)}
+                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(contract.created_at)}</td>
+                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatFileSize(contract.file_size)}</td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-right font-medium text-green-600">
+                            {formatCurrency(contract.contract_amount || 0, contract.contract_data)}
+                          </td>
+                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
+                           {Math.round((contract.confidence || 0) * 100)}%
                          </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
-                          {Math.round((contract.confidence || 0) * 100)}%
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <Badge variant={getStatusBadgeVariant(contract.status)} className="text-xs">
-                            {getStatusText(contract.status)}
-                          </Badge>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0 hover:bg-gray-100"
-                              >
-                                <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() => window.open(contract.file_url, '_blank')}
-                              >
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Contract
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleDeleteContract(contract.id)}
-                                className="text-destructive"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete Contract
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </td>
+                         <td className="px-4 py-4 whitespace-nowrap text-center">
+                           <Badge variant={getStatusBadgeVariant(contract.status)} className="text-xs">
+                             {getStatusText(contract.status)}
+                           </Badge>
+                         </td>
+                         <td className="px-4 py-4 whitespace-nowrap text-center">
+                           <DropdownMenu>
+                             <DropdownMenuTrigger asChild>
+                               <Button
+                                 variant="ghost"
+                                 size="sm"
+                                 className="h-8 w-8 p-0 hover:bg-gray-100"
+                               >
+                                 <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                               </Button>
+                             </DropdownMenuTrigger>
+                             <DropdownMenuContent align="end">
+                               <DropdownMenuItem
+                                 onClick={() => window.open(contract.file_url, '_blank')}
+                               >
+                                 <Eye className="mr-2 h-4 w-4" />
+                                 View Contract
+                               </DropdownMenuItem>
+                               <DropdownMenuItem
+                                 onClick={() => handleDeleteContract(contract.id)}
+                                 className="text-destructive"
+                               >
+                                 <Trash2 className="mr-2 h-4 w-4" />
+                                 Delete Contract
+                               </DropdownMenuItem>
+                             </DropdownMenuContent>
+                           </DropdownMenu>
+                         </td>
                       </tr>
                     ))}
                   </tbody>
