@@ -383,19 +383,6 @@ export function AiChatSidebar({
   };
   return (
     <>
-      {isVoiceActive && (
-        <Suspense fallback={null}>
-          <VoiceInterfaceLazy
-            isActive={isVoiceActive}
-            isListening={isListening}
-            isSpeaking={isSpeaking}
-            onToggle={handleVoiceToggle}
-            onEnd={handleVoiceEnd}
-          />
-        </Suspense>
-      )}
-
-      
       {/* Regular Chat Interface */}
       <div className={cn("fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col", isCollapsed ? "w-16" : "w-96")}>
         {/* Header */}
@@ -451,59 +438,71 @@ export function AiChatSidebar({
                     </div>
                   </div>}
 
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {messages.length === 0 && <div className="text-center text-muted-foreground py-8">
-                      <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
-                      <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
-                    </div>}
-                  
-                  {messages.map(message => <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      {message.role === 'assistant' && <Avatar className="h-8 w-8 flex-shrink-0">
+                {/* Messages or Voice Interface */}
+                {isVoiceActive ? (
+                  <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                    <VoiceInterfaceLazy
+                      isActive={isVoiceActive}
+                      isListening={isListening}
+                      isSpeaking={isSpeaking}
+                      onToggle={handleVoiceToggle}
+                      onEnd={handleVoiceEnd}
+                    />
+                  </Suspense>
+                ) : (
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    {messages.length === 0 && <div className="text-center text-muted-foreground py-8">
+                        <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
+                        <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
+                      </div>}
+                    
+                    {messages.map(message => <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        {message.role === 'assistant' && <Avatar className="h-8 w-8 flex-shrink-0">
+                            <AvatarFallback>
+                              <Bot className="h-4 w-4" />
+                            </AvatarFallback>
+                          </Avatar>}
+                        
+                        <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
+                          <div className={`rounded-lg p-3 text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
+                            {message.content}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 px-1">
+                            {formatTime(message.timestamp)}
+                          </p>
+                        </div>
+
+                        {message.role === 'user' && <Avatar className="h-8 w-8 flex-shrink-0">
+                            <AvatarFallback>
+                              <User className="h-4 w-4" />
+                            </AvatarFallback>
+                          </Avatar>}
+                      </div>)}
+                    
+                    {isLoading && <div className="flex gap-3">
+                        <Avatar className="h-8 w-8">
                           <AvatarFallback>
                             <Bot className="h-4 w-4" />
                           </AvatarFallback>
-                        </Avatar>}
-                      
-                      <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
-                        <div className={`rounded-lg p-3 text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
-                          {message.content}
+                        </Avatar>
+                        <div className="bg-muted rounded-lg p-3 text-sm">
+                          <div className="flex space-x-1">
+                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
+                      animationDelay: '0.1s'
+                    }} />
+                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
+                      animationDelay: '0.2s'
+                    }} />
+                          </div>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1 px-1">
-                          {formatTime(message.timestamp)}
-                        </p>
-                      </div>
+                      </div>}
+                    <div ref={messagesEndRef} />
+                  </div>
+                )}
 
-                      {message.role === 'user' && <Avatar className="h-8 w-8 flex-shrink-0">
-                          <AvatarFallback>
-                            <User className="h-4 w-4" />
-                          </AvatarFallback>
-                        </Avatar>}
-                    </div>)}
-                  
-                  {isLoading && <div className="flex gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback>
-                          <Bot className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="bg-muted rounded-lg p-3 text-sm">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
-                    animationDelay: '0.1s'
-                  }} />
-                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
-                    animationDelay: '0.2s'
-                  }} />
-                        </div>
-                      </div>
-                    </div>}
-                  <div ref={messagesEndRef} />
-                </div>
-
-                {/* Input area */}
+                {/* Input area - always show */}
                 <div className="p-4 border-t border-border flex-shrink-0">
                   <div className="flex gap-2">
                     <Button 
@@ -515,10 +514,14 @@ export function AiChatSidebar({
                     >
                       {isVoiceActive ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                     </Button>
-                    <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
-                    <Button onClick={sendMessage} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
-                      <Send className="h-4 w-4" />
-                    </Button>
+                    {!isVoiceActive && (
+                      <>
+                        <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
+                        <Button onClick={sendMessage} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </>}
