@@ -94,6 +94,7 @@ export const useMapbox3D = (
         
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
+          // Use custom style but we will fall back to a public style if it fails to load
           style: 'mapbox://styles/kevin19031994/cmcprh4kj009w01sqbfig9lx6',
           projection: 'mercator',
           zoom: currentProject?.location ? 16 : 12, // Closer zoom if we have a specific address
@@ -119,10 +120,34 @@ export const useMapbox3D = (
           console.log('Added project marker at:', mapCenter);
         }
 
-        // Wait for map style to load
+        // Wait for map style to load, with fallback if it fails or is private
+        const fallbackStyle = 'mapbox://styles/mapbox/light-v11';
+        const styleTimeout = window.setTimeout(() => {
+          if (map.current) {
+            console.warn('Map style load timeout, switching to public fallback style');
+            try {
+              map.current.setStyle(fallbackStyle);
+            } catch (e) {
+              console.error('Failed to apply fallback style', e);
+              setError('Failed to load map style');
+              setIsLoading(false);
+            }
+          }
+        }, 8000);
+
         map.current.on('style.load', () => {
           console.log('Project map style loaded');
+          window.clearTimeout(styleTimeout);
           setIsLoading(false);
+        });
+
+        map.current.on('error', (e) => {
+          console.error('Mapbox error (project map):', e);
+          if (map.current) {
+            try {
+              map.current.setStyle(fallbackStyle);
+            } catch {}
+          }
         });
 
       } catch (err) {
@@ -182,6 +207,7 @@ export const useMapbox3D = (
         
         map.current = new mapboxgl.Map({
           container: mapContainer.current,
+          // Use custom style; fall back to public if it fails
           style: 'mapbox://styles/kevin19031994/cmcprh4kj009w01sqbfig9lx6', // Your custom style
           projection: 'mercator',
           zoom: 18, // Close zoom to see the 3D model clearly
@@ -192,12 +218,36 @@ export const useMapbox3D = (
         });
 
 
-        // Wait for map style to load before adding 3D layer
+        // Wait for map style to load before adding 3D layer, with fallback
+        const fallbackStyle = 'mapbox://styles/mapbox/light-v11';
+        const styleTimeout = window.setTimeout(() => {
+          if (map.current) {
+            console.warn('3D map style load timeout, switching to public fallback style');
+            try {
+              map.current.setStyle(fallbackStyle);
+            } catch (e) {
+              console.error('Failed to apply fallback style for 3D map', e);
+              setError('Failed to load map style');
+              setIsLoading(false);
+            }
+          }
+        }, 8000);
+
         map.current.on('style.load', () => {
           console.log('=== Map style loaded, starting 3D layer setup ===');
+          window.clearTimeout(styleTimeout);
           console.log('Current model for 3D layer:', currentModel);
           add3DModelLayer();
           setIsLoading(false);
+        });
+
+        map.current.on('error', (e) => {
+          console.error('Mapbox error (3D map):', e);
+          if (map.current) {
+            try {
+              map.current.setStyle(fallbackStyle);
+            } catch {}
+          }
         });
 
       } catch (err) {
