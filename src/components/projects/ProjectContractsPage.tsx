@@ -31,6 +31,7 @@ interface Contract {
   status: string;
   confidence: number;
   contract_data: any;
+  contract_amount: number;
 }
 
 const getStatusBadgeVariant = (status: string) => {
@@ -133,6 +134,16 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const formatCurrency = (amount: number) => {
+    if (!amount || amount === 0) return '-';
+    return new Intl.NumberFormat('en-AU', {
+      style: 'currency',
+      currency: 'AUD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   useEffect(() => {
     loadContracts();
   }, [project.id]);
@@ -213,7 +224,8 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                       <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">View</th>
                       <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Contract Name</th>
                       <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Upload Date</th>
-                      <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">File Size</th>
+                       <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">File Size</th>
+                       <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Contract Amount</th>
                       <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Confidence</th>
                       <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                       <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">Actions</th>
@@ -232,7 +244,10 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                            {contract.name}
                          </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(contract.created_at)}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatFileSize(contract.file_size)}</td>
+                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatFileSize(contract.file_size)}</td>
+                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium text-green-600">
+                           {formatCurrency(contract.contract_amount)}
+                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
                           {Math.round((contract.confidence || 0) * 100)}%
                         </td>

@@ -2268,6 +2268,7 @@ export type Database = {
         Row: {
           ai_summary_json: Json | null
           confidence: number | null
+          contract_amount: number | null
           contract_data: Json | null
           created_at: string | null
           file_path: string
@@ -2284,6 +2285,7 @@ export type Database = {
         Insert: {
           ai_summary_json?: Json | null
           confidence?: number | null
+          contract_amount?: number | null
           contract_data?: Json | null
           created_at?: string | null
           file_path: string
@@ -2300,6 +2302,7 @@ export type Database = {
         Update: {
           ai_summary_json?: Json | null
           confidence?: number | null
+          contract_amount?: number | null
           contract_data?: Json | null
           created_at?: string | null
           file_path?: string

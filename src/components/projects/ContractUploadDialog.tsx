@@ -15,6 +15,19 @@ import { Upload, FileText, X, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// Helper function to parse contract amount from various formats
+const parseContractAmount = (contractValue: string | undefined): number => {
+  if (!contractValue) return 0;
+  
+  // Remove currency symbols, commas, and extract numeric value
+  const numericValue = contractValue
+    .replace(/[$,£€¥₹\s]/g, '') // Remove common currency symbols and spaces
+    .replace(/[^\d.-]/g, ''); // Keep only digits, dots, and hyphens
+  
+  const parsed = parseFloat(numericValue);
+  return isNaN(parsed) ? 0 : parsed;
+};
+
 interface ContractUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -159,6 +172,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
           .update({
             contract_data: extractedData,
             confidence: extractedData.ai_confidence,
+            contract_amount: parseContractAmount(extractedData.contract_value),
             ai_summary_json: {
               summary: extractedData.ai_summary,
               confidence: extractedData.ai_confidence
@@ -183,6 +197,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
             file_size: formData.file?.size || 0,
             contract_data: extractedData,
             confidence: extractedData.ai_confidence,
+            contract_amount: parseContractAmount(extractedData.contract_value),
             status: 'active',
             ai_summary_json: {
               summary: extractedData.ai_summary,
