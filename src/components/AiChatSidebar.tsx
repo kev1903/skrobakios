@@ -313,10 +313,6 @@ export function AiChatSidebar({
     setIsSpeaking(false);
     setAudioRecorder(null);
     setWebsocket(null);
-    toast({
-      title: "Voice Chat Ended",
-      description: "Voice conversation has been stopped"
-    });
   };
 
   const handleVoiceCommand = async () => {
