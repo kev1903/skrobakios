@@ -254,17 +254,23 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
       const invoiceId = created.id as string;
 
       // Insert invoice items mapped from extracted line items
-      const items = (editableData.line_items || []) as Array<{ description: string; qty: number; rate: number; amount: number; wbs_code?: string }>;
+      const items = (editableData.line_items || []) as Array<{ description: string; qty: any; rate: any; amount: any; wbs_code?: string }>;
       const itemsPayload = items
         .filter((it) => (it.description || '').trim() !== '')
-        .map((it) => ({
-          invoice_id: invoiceId,
-          description: it.description,
-          qty: it.qty || 0,
-          rate: it.rate || 0,
-          amount: it.amount || (it.qty || 0) * (it.rate || 0),
-          wbs_code: it.wbs_code || null,
-        }));
+        .map((it) => {
+          const qty = typeof it.qty === 'string' ? parseFloat(it.qty.replace(/,/g, '')) : (it.qty ?? 0);
+          const rate = typeof it.rate === 'string' ? parseFloat(it.rate.replace(/,/g, '')) : (it.rate ?? 0);
+          const amountRaw = it.amount ?? qty * rate;
+          const amount = typeof amountRaw === 'string' ? parseFloat(amountRaw.replace(/,/g, '')) : amountRaw;
+          return {
+            invoice_id: invoiceId,
+            description: it.description,
+            qty: isFinite(qty) ? qty : 0,
+            rate: isFinite(rate) ? rate : 0,
+            amount: isFinite(amount) ? amount : (isFinite(qty) && isFinite(rate) ? qty * rate : 0),
+            wbs_code: it.wbs_code || null,
+          };
+        });
 
       if (itemsPayload.length > 0) {
         const { error: itemsErr } = await supabase.from('invoice_items').insert(itemsPayload);
