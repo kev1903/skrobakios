@@ -151,7 +151,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const { fileUrl, fileName, projectId, name, description } = await req.json();
+    const { fileUrl, fileName, projectId, name, description, extractOnly } = await req.json();
 
     if (!fileUrl || !fileName || !projectId) {
       return new Response(
@@ -176,6 +176,18 @@ serve(async (req) => {
 
     // Extract contract data using OpenAI
     const contractData = await extractContractDataWithOpenAI(openAIFileId);
+
+    // If extractOnly is true, just return the data without saving
+    if (extractOnly) {
+      console.log('Extract only mode - returning contract data');
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          contractData 
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Store in database
     const { data: contract, error: dbError } = await supabaseClient
