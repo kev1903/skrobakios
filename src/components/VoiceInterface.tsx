@@ -17,16 +17,16 @@ export function VoiceInterface({
   onMessage,
   onEnd 
 }: VoiceInterfaceProps) {
-  const { state, startListening, stopListening, disconnect } = useVoiceChat();
+  const { state, initializeVoiceChat, stopCurrentAudio, disconnect } = useVoiceChat();
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
 
   // Auto-start when component becomes active
   useEffect(() => {
     if (isActive && !state.isConnected) {
-      handleStartConversation();
+      initializeVoiceChat();
     }
-  }, [isActive]);
+  }, [isActive, state.isConnected, initializeVoiceChat]);
 
   // Cleanup on unmount or when not active
   useEffect(() => {
@@ -40,10 +40,7 @@ export function VoiceInterface({
 
   const handleStartConversation = async () => {
     try {
-      await startListening();
-      toast.success("Voice mode activated", {
-        description: "Speak now to interact with SkAi",
-      });
+      await initializeVoiceChat();
     } catch (error) {
       console.error('Failed to start conversation:', error);
       toast.error("Connection failed", {
@@ -62,11 +59,13 @@ export function VoiceInterface({
     }
   };
 
-  const handleMicClick = () => {
-    if (state.isListening) {
-      stopListening();
-    } else {
-      startListening();
+  const handleInterrupt = () => {
+    if (state.isSpeaking) {
+      console.log('User interrupting SkAi...');
+      stopCurrentAudio();
+      toast.info('Interrupted SkAi', {
+        description: 'Speak now for your new command'
+      });
     }
   };
 
@@ -79,8 +78,8 @@ export function VoiceInterface({
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-4">
       {/* Voice Sphere */}
-      <div className="w-32 h-32 mb-6">
-        <VoiceSphere isListening={state.isListening} isSpeaking={state.isSpeaking} />
+      <div className="w-32 h-32 mb-6" onClick={handleInterrupt} style={{ cursor: state.isSpeaking ? 'pointer' : 'default' }}>
+        <VoiceSphere isListening={state.isListening || state.isConnected} isSpeaking={state.isSpeaking} />
       </div>
 
       {/* Status Text */}
@@ -89,46 +88,39 @@ export function VoiceInterface({
           {state.isProcessing
             ? 'Processing your voice...'
             : state.isSpeaking 
-              ? 'SkAi is speaking...' 
-              : state.isListening 
-                ? 'Listening... (speak now)' 
-                : state.isConnected
-                  ? 'Ready for your next command'
-                  : 'Voice Chat Ready'
+              ? 'SkAi is speaking... (click to interrupt)' 
+              : state.isConnected
+                ? 'Always listening - speak anytime!'
+                : 'Voice Chat Ready'
           }
         </p>
         <p className="text-xs text-muted-foreground">
           {state.isProcessing
             ? 'Converting speech and thinking...'
             : state.isSpeaking 
-              ? 'Listen to SkAi\'s response, then speak again'
-              : state.isListening 
-                ? 'Speak naturally - I\'ll process when you pause' 
-                : state.isConnected
-                  ? 'Click microphone or wait for auto-restart'
-                  : 'Click microphone to begin continuous voice chat'
+              ? 'Click the voice sphere or speak to interrupt SkAi'
+              : state.isConnected
+                ? 'Continuous listening active - just speak naturally'
+                : 'Click microphone to start always-on voice chat'
           }
         </p>
       </div>
 
       {/* Control Buttons */}
       <div className="flex gap-4">
-        {/* Microphone Button */}
+        {/* Always-On Listening Indicator */}
         <Button
-          variant={state.isListening ? "default" : "outline"}
+          variant={state.isConnected ? "default" : "outline"}
           size="sm"
-          disabled={state.isProcessing || state.isSpeaking}
-          onClick={handleMicClick}
+          disabled={state.isProcessing}
+          onClick={handleStartConversation}
           className={cn(
             "w-12 h-12 rounded-full p-0 transition-all duration-200",
-            state.isListening && "bg-red-500 hover:bg-red-600 border-red-500",
-            state.isConnected && !state.isListening && "bg-green-500 hover:bg-green-600 border-green-500"
+            state.isConnected && "bg-green-500 hover:bg-green-600 border-green-500 animate-pulse"
           )}
         >
           {state.isProcessing ? (
             <Loader2 className="h-4 w-4 animate-spin text-white" />
-          ) : state.isListening ? (
-            <MicOff className="h-4 w-4 text-white" />
           ) : (
             <Mic className={cn("h-4 w-4", state.isConnected ? "text-white" : "text-muted-foreground")} />
           )}
@@ -180,10 +172,10 @@ export function VoiceInterface({
 
       {/* Debug Status */}
       <div className="mt-4 text-xs text-muted-foreground text-center">
-        Status: {state.isConnected ? 'Connected' : 'Disconnected'} | 
-        {state.isListening && ' Listening |'}
+        Status: {state.isConnected ? 'Always Listening' : 'Disconnected'} | 
         {state.isProcessing && ' Processing |'}
-        {state.isSpeaking && ' Speaking |'}
+        {state.isSpeaking && ' Speaking (interruptible) |'}
+        {state.canInterrupt && ' Can Interrupt |'}
       </div>
     </div>
   );

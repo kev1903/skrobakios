@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { invokeEdge } from '@/lib/invokeEdge';
 import { toast } from 'sonner';
 
@@ -7,6 +7,7 @@ export interface VoiceChatState {
   isListening: boolean;
   isSpeaking: boolean;
   isProcessing: boolean;
+  canInterrupt: boolean;
 }
 
 export function useVoiceChat() {
@@ -14,7 +15,8 @@ export function useVoiceChat() {
     isConnected: false,
     isListening: false,
     isSpeaking: false,
-    isProcessing: false
+    isProcessing: false,
+    canInterrupt: false
   });
 
   const audioRecorderRef = useRef<MediaRecorder | null>(null);
@@ -22,97 +24,134 @@ export function useVoiceChat() {
   const audioChunksRef = useRef<Blob[]>([]);
   const audioContextRef = useRef<AudioContext | null>(null);
   const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const isActiveRef = useRef<boolean>(false);
+  const silenceDetectionRef = useRef<NodeJS.Timeout | null>(null);
 
   const updateState = useCallback((updates: Partial<VoiceChatState>) => {
     setState(prev => ({ ...prev, ...updates }));
   }, []);
 
-  const startListening = useCallback(async () => {
+  const startContinuousListening = useCallback(async () => {
+    if (!isActiveRef.current) return;
+    
     try {
-      console.log('Starting voice listening...');
+      console.log('Starting continuous voice listening...');
       
-      // Request microphone access
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          sampleRate: 24000,
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        }
-      });
+      // Request microphone access if not already available
+      if (!audioStreamRef.current) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            sampleRate: 24000,
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
+        audioStreamRef.current = stream;
+      }
 
-      audioStreamRef.current = stream;
       audioChunksRef.current = [];
 
       // Create MediaRecorder
-      const mediaRecorder = new MediaRecorder(stream, {
+      const mediaRecorder = new MediaRecorder(audioStreamRef.current, {
         mimeType: 'audio/webm;codecs=opus'
       });
 
       audioRecorderRef.current = mediaRecorder;
 
       mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
+        if (event.data.size > 0 && isActiveRef.current) {
           audioChunksRef.current.push(event.data);
         }
       };
 
       mediaRecorder.onstop = async () => {
         console.log('Recording stopped, processing audio...');
-        if (audioChunksRef.current.length > 0) {
+        if (audioChunksRef.current.length > 0 && isActiveRef.current) {
           await processAudioChunks();
         }
+        
+        // Restart listening immediately after processing (continuous mode)
+        setTimeout(() => {
+          if (isActiveRef.current && !state.isProcessing) {
+            startContinuousListening();
+          }
+        }, 500);
       };
 
-      // Start recording
-      mediaRecorder.start();
-      updateState({ isConnected: true, isListening: true });
+      // Start recording with short intervals for interrupt capability
+      mediaRecorder.start(1000); // Record in 1-second chunks
+      updateState({ isListening: true });
 
-      // Auto-stop after 10 seconds (or when user stops speaking)
+      // Stop recording after 3 seconds of audio to process (allows for interruption)
       speechTimeoutRef.current = setTimeout(() => {
-        stopListening();
-      }, 10000);
-
-      toast.success('Listening started', {
-        description: 'Speak now, I\'m listening...'
-      });
+        if (audioRecorderRef.current && audioRecorderRef.current.state === 'recording') {
+          audioRecorderRef.current.stop();
+        }
+      }, 3000);
 
     } catch (error) {
-      console.error('Failed to start listening:', error);
+      console.error('Failed to start continuous listening:', error);
       toast.error('Microphone access denied', {
         description: 'Please allow microphone access to use voice chat.'
       });
     }
-  }, [updateState]);
+  }, [state.isProcessing, updateState]);
 
-  const stopListening = useCallback(() => {
-    console.log('Stopping voice listening...');
+  const initializeVoiceChat = useCallback(async () => {
+    try {
+      isActiveRef.current = true;
+      updateState({ isConnected: true, canInterrupt: true });
+      await startContinuousListening();
+      
+      toast.success('Continuous voice mode activated', {
+        description: 'Always listening - speak anytime, even to interrupt!'
+      });
+
+    } catch (error) {
+      console.error('Failed to initialize voice chat:', error);
+      toast.error('Voice chat initialization failed');
+    }
+  }, [startContinuousListening, updateState]);
+
+  const stopCurrentAudio = useCallback(() => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
+    }
     
-    if (speechTimeoutRef.current) {
-      clearTimeout(speechTimeoutRef.current);
-      speechTimeoutRef.current = null;
+    // Stop browser speech synthesis
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
     }
-
-    if (audioRecorderRef.current && audioRecorderRef.current.state === 'recording') {
-      audioRecorderRef.current.stop();
-    }
-
-    if (audioStreamRef.current) {
-      audioStreamRef.current.getTracks().forEach(track => track.stop());
-      audioStreamRef.current = null;
-    }
-
-    updateState({ isListening: false });
+    
+    updateState({ isSpeaking: false });
+    console.log('Stopped current audio playback for interruption');
   }, [updateState]);
 
   const processAudioChunks = useCallback(async () => {
     try {
-      updateState({ isProcessing: true });
+      updateState({ isProcessing: true, isListening: false });
       console.log('Processing audio chunks...');
+
+      // If AI is speaking, interrupt it
+      if (state.isSpeaking) {
+        console.log('Interrupting AI speech...');
+        stopCurrentAudio();
+      }
 
       // Combine audio chunks
       const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      
+      // Skip processing if audio is too short (likely silence)
+      if (audioBlob.size < 1000) {
+        console.log('Audio too short, skipping...');
+        updateState({ isProcessing: false });
+        return;
+      }
       
       // Convert to base64
       const base64Audio = await new Promise<string>((resolve, reject) => {
@@ -135,17 +174,15 @@ export function useVoiceChat() {
 
       const transcribedText = transcriptionResult?.text?.trim();
       
-      if (!transcribedText) {
-        toast.error('No speech detected', {
-          description: 'Please speak clearly and try again.'
-        });
+      if (!transcribedText || transcribedText.length < 2) {
+        console.log('No meaningful speech detected, continuing to listen...');
         updateState({ isProcessing: false });
         return;
       }
 
       console.log('Transcribed text:', transcribedText);
       toast.success('Speech recognized', {
-        description: `You said: "${transcribedText}"`
+        description: `"${transcribedText}"`
       });
 
       // Send to SkAi for processing
@@ -170,14 +207,6 @@ export function useVoiceChat() {
       // Convert AI response to speech
       await speakText(aiText);
 
-      // After speaking, automatically restart listening for continuous conversation
-      setTimeout(() => {
-        if (state.isConnected) {
-          console.log('Restarting listening for continuous conversation...');
-          startListening();
-        }
-      }, 1000);
-
     } catch (error) {
       console.error('Error processing audio:', error);
       toast.error('Voice processing failed', {
@@ -187,7 +216,7 @@ export function useVoiceChat() {
       updateState({ isProcessing: false });
       audioChunksRef.current = [];
     }
-  }, [updateState]);
+  }, [updateState, state.isSpeaking, stopCurrentAudio]);
 
   const speakText = useCallback(async (text: string) => {
     try {
@@ -214,14 +243,19 @@ export function useVoiceChat() {
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       
+      // Store reference for potential interruption
+      currentAudioRef.current = audio;
+      
       audio.onended = () => {
         URL.revokeObjectURL(audioUrl);
         updateState({ isSpeaking: false });
-        console.log('AI finished speaking, ready for next command');
+        currentAudioRef.current = null;
+        console.log('AI finished speaking, continuing to listen...');
       };
 
       audio.onerror = () => {
         URL.revokeObjectURL(audioUrl);
+        currentAudioRef.current = null;
         throw new Error('Audio playback failed');
       };
 
@@ -239,7 +273,7 @@ export function useVoiceChat() {
         
         utterance.onend = () => {
           updateState({ isSpeaking: false });
-          console.log('Browser speech finished, ready for next command');
+          console.log('Browser speech finished, continuing to listen...');
         };
         
         speechSynthesis.speak(utterance);
@@ -253,30 +287,44 @@ export function useVoiceChat() {
   const disconnect = useCallback(() => {
     console.log('Disconnecting voice chat...');
     
-    stopListening();
+    isActiveRef.current = false;
+    
+    // Stop current recording
+    if (speechTimeoutRef.current) {
+      clearTimeout(speechTimeoutRef.current);
+      speechTimeoutRef.current = null;
+    }
+
+    if (audioRecorderRef.current && audioRecorderRef.current.state === 'recording') {
+      audioRecorderRef.current.stop();
+    }
+
+    if (audioStreamRef.current) {
+      audioStreamRef.current.getTracks().forEach(track => track.stop());
+      audioStreamRef.current = null;
+    }
+    
+    // Stop any current audio
+    stopCurrentAudio();
     
     if (audioContextRef.current) {
       audioContextRef.current.close();
       audioContextRef.current = null;
     }
 
-    // Stop any ongoing speech
-    if ('speechSynthesis' in window) {
-      speechSynthesis.cancel();
-    }
-
     updateState({
       isConnected: false,
       isListening: false,
       isSpeaking: false,
-      isProcessing: false
+      isProcessing: false,
+      canInterrupt: false
     });
-  }, [stopListening, updateState]);
+  }, [stopCurrentAudio, updateState]);
 
   return {
     state,
-    startListening,
-    stopListening,
+    initializeVoiceChat,
+    stopCurrentAudio,
     disconnect,
     speakText
   };
