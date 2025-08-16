@@ -223,43 +223,60 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
 
     setSaving(true);
     try {
-      // Insert the invoice into the database
-      const { error } = await supabase
+      const issueDate = editableData.bill_date || new Date().toISOString().split('T')[0];
+      const dueDate = editableData.due_date || new Date().toISOString().split('T')[0];
+
+      // Create invoice record first (only valid columns)
+      const numberFallback = editableData.bill_no && editableData.bill_no.trim().length > 0
+        ? editableData.bill_no.trim()
+        : `INV-${Date.now()}`;
+
+      const { data: created, error: createErr } = await supabase
         .from('invoices')
         .insert({
           project_id: projectId,
           client_name: editableData.supplier_name || 'Unknown Client',
-          number: editableData.bill_no || 'N/A',
-          issue_date: editableData.bill_date || new Date().toISOString().split('T')[0],
-          due_date: editableData.due_date || new Date().toISOString().split('T')[0],
+          client_email: editableData.supplier_email || null,
+          number: numberFallback,
+          issue_date: issueDate,
+          due_date: dueDate,
           subtotal: editableData.subtotal || 0,
           tax: editableData.tax || 0,
           total: editableData.total || 0,
-          paid_amount: 0,
+          paid_to_date: 0,
           status: 'sent',
-          reference_number: editableData.reference_number || null,
           notes: editableData.notes || null,
-          line_items: editableData.line_items || [],
-          pdf_url: uploadedFile.name, // Store the file reference
-          created_at: new Date().toISOString()
-        });
+        })
+        .select('id')
+        .single();
 
-      if (error) throw error;
+      if (createErr) throw createErr;
+      const invoiceId = created.id as string;
 
-      toast({
-        title: "Success",
-        description: "Invoice has been saved successfully!"
-      });
+      // Insert invoice items mapped from extracted line items
+      const items = (editableData.line_items || []) as Array<{ description: string; qty: number; rate: number; amount: number; wbs_code?: string }>;
+      const itemsPayload = items
+        .filter((it) => (it.description || '').trim() !== '')
+        .map((it) => ({
+          invoice_id: invoiceId,
+          description: it.description,
+          qty: it.qty || 0,
+          rate: it.rate || 0,
+          amount: it.amount || (it.qty || 0) * (it.rate || 0),
+          wbs_code: it.wbs_code || null,
+        }));
 
-      onSaved(); // Refresh the parent component
+      if (itemsPayload.length > 0) {
+        const { error: itemsErr } = await supabase.from('invoice_items').insert(itemsPayload);
+        if (itemsErr) throw itemsErr;
+      }
+
+      toast({ title: 'Success', description: 'Invoice has been saved successfully!' });
+      onSaved();
       handleClose();
     } catch (error) {
       console.error('Error saving invoice:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save invoice. Please try again.",
-        variant: "destructive"
-      });
+      toast({ title: 'Error', description: 'Failed to save invoice. Please try again.', variant: 'destructive' });
     } finally {
       setSaving(false);
     }
