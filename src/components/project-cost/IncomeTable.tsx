@@ -230,43 +230,45 @@ export const IncomeTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-border overflow-hidden">
-        <table className="w-full border-collapse">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        <table className="w-full">
           <thead>
-            <tr className="border-b bg-muted/50">
-              <th className="text-left p-3 font-medium text-foreground text-sm">Invoice #</th>
-              <th className="text-left p-3 font-medium text-foreground text-sm">Client</th>
-              <th className="text-left p-3 font-medium text-foreground text-sm">Issue Date</th>
-              <th className="text-left p-3 font-medium text-foreground text-sm">Due Date</th>
-              <th className="text-left p-3 font-medium text-foreground text-sm">Amount</th>
-              <th className="text-left p-3 font-medium text-foreground text-sm">Paid</th>
-              <th className="text-left p-3 font-medium text-foreground text-sm">Status</th>
-              <th className="text-left p-3 font-medium text-foreground text-sm">Actions</th>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">View</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Due date</th>
+              <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             {invoices.map((invoice) => (
-              <tr key={invoice.id} className="border-b border-border hover:bg-muted/30 transition-colors">
-                <td className="p-3 font-medium text-foreground">{invoice.number}</td>
-                <td className="p-3 text-foreground">{invoice.client_name}</td>
-                <td className="p-3 text-muted-foreground">{formatDate(invoice.issue_date)}</td>
-                <td className="p-3 text-muted-foreground">{formatDate(invoice.due_date)}</td>
-                <td className="p-3 font-medium text-foreground">{formatCurrency(invoice.total)}</td>
-                <td className="p-3 text-foreground">{formatCurrency(invoice.paid_to_date)}</td>
-                <td className="p-3">
-                  <Badge variant={getStatusBadgeVariant(invoice.status)}>
+              <tr key={invoice.id} className="hover:bg-gray-50 transition-colors">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <input type="checkbox" className="rounded border-gray-300" />
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{invoice.client_name}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{invoice.number}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(invoice.issue_date)}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(invoice.due_date)}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">{formatCurrency(invoice.total)}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-center">
+                  <Badge variant={getStatusBadgeVariant(invoice.status)} className="text-xs">
                     {getStatusText(invoice.status)}
                   </Badge>
                 </td>
-                <td className="p-3">
+                <td className="px-6 py-4 whitespace-nowrap text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0"
+                        className="h-8 w-8 p-0 hover:bg-gray-100"
                       >
-                        <MoreHorizontal className="h-4 w-4" />
+                        <MoreHorizontal className="h-4 w-4 text-gray-500" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
