@@ -14,6 +14,7 @@ import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "../ProjectSidebar";
 import { getStatusColor, getStatusText as utilsGetStatusText } from "./utils";
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
+import { ContractUploadDialog } from "./ContractUploadDialog";
 
 interface ProjectContractsPageProps {
   project: Project;
@@ -61,6 +62,7 @@ const getStatusText = (status: string) => {
 export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPageProps) => {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
   const { spacingClasses } = useMenuBarSpacing();
 
   const loadContracts = async () => {
@@ -180,7 +182,10 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
               <h2 className="text-2xl font-bold text-foreground mb-2">Contracts</h2>
               <p className="text-muted-foreground">Manage project contracts and documentation.</p>
             </div>
-            <Button className="flex items-center gap-2">
+            <Button 
+              className="flex items-center gap-2"
+              onClick={() => setShowUploadDialog(true)}
+            >
               <Upload className="h-4 w-4" />
               Upload Contract
             </Button>
@@ -263,6 +268,11 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
           )}
         </div>
       </div>
+
+      <ContractUploadDialog
+        open={showUploadDialog}
+        onOpenChange={setShowUploadDialog}
+      />
     </div>
   );
 };
