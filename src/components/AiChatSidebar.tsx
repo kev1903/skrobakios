@@ -64,6 +64,8 @@ export function AiChatSidebar({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
+  const audioStreamRef = useRef<MediaStream | null>(null);
+  const isTranscribingRef = useRef(false);
   const {
     toast
   } = useToast();
@@ -327,137 +329,105 @@ export function AiChatSidebar({
     event.target.value = '';
   };
   const handleVoiceToggle = async () => {
-    // If recording, stop to trigger transcription
-    if (audioRecorder && audioRecorder.state === 'recording') {
-      try {
-        audioRecorder.stop();
-      } catch (e) {
-        console.error('Failed to stop recorder', e);
-      }
-      setIsListening(false);
-      return;
-    }
-
-    // Not recording -> start a new short recording
+    if (!audioRecorder) return;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      if (audioRecorder.state === 'recording') {
+        audioRecorder.pause?.();
+        setIsListening(false);
+      } else if (audioRecorder.state === 'paused') {
+        audioRecorder.resume?.();
+        setIsListening(true);
+      }
+    } catch (e) {
+      console.error('Failed to toggle recorder', e);
+    }
+  };
 
-      recordedChunksRef.current = [];
-      recorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) recordedChunksRef.current.push(e.data);
-      };
-
-      recorder.onstop = async () => {
-        try {
-          const blob = new Blob(recordedChunksRef.current, { type: 'audio/webm' });
-          recordedChunksRef.current = [];
-
-          const base64 = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              try {
-                const result = reader.result as string;
-                const b64 = result.split(',')[1] || '';
-                resolve(b64);
-              } catch (err) {
-                reject(err);
-              }
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-
-          const { data, error } = await supabase.functions.invoke('voice-transcribe', {
-            body: { audio: base64 }
-          });
-
-          if (error) {
-            console.error('Transcription error:', error);
-            toast({ title: 'Transcription failed', description: 'Unable to convert speech to text', variant: 'destructive' });
-          } else if (data?.text) {
-            const transcript = String(data.text).trim();
-            if (transcript.length > 0) {
-              // Create the user message directly instead of using setInput
-              const userMessage = {
-                id: Date.now().toString(),
-                content: transcript,
-                role: 'user' as const,
-                timestamp: new Date()
-              };
-              setMessages(prev => [...prev, userMessage]);
-              
-              // Send to AI immediately
-              setIsLoading(true);
-              try {
-                const context = getScreenContext();
-                const conversation = [...messages, userMessage].map(msg => ({
-                  role: msg.role,
-                  content: msg.content
-                }));
-                
-                const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-chat', {
-                  body: {
-                    message: transcript,
-                    conversation,
-                    context
-                  }
-                });
-                
-                if (aiError) {
-                  throw new Error(aiError.message || 'Failed to get AI response');
-                }
-                
-                if (aiData?.response) {
-                  const aiMessage = {
-                    id: (Date.now() + 1).toString(),
-                    content: aiData.response,
-                    role: 'assistant' as const,
-                    timestamp: new Date()
-                  };
-                  setMessages(prev => [...prev, aiMessage]);
-                }
-              } catch (error) {
-                console.error('Error sending voice message:', error);
-                toast({
-                  title: "AI Chat Error",
-                  description: "Failed to send voice message",
-                  variant: "destructive"
-                });
-              } finally {
-                setIsLoading(false);
-              }
-            }
+  // Transcribe a recorded chunk and immediately send to SkAi
+  const transcribeAndSend = async (blob: Blob) => {
+    if (isTranscribingRef.current) return; // prevent overlapping calls
+    isTranscribingRef.current = true;
+    try {
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          try {
+            const result = reader.result as string;
+            const b64 = result.split(',')[1] || '';
+            resolve(b64);
+          } catch (err) {
+            reject(err);
           }
-        } catch (err) {
-          console.error('Error processing audio:', err);
-          toast({ title: 'Audio error', description: 'Could not process recorded audio', variant: 'destructive' });
-        } finally {
-          setIsListening(false);
-          setIsSpeaking(false);
-          setAudioRecorder(null);
-          setIsVoiceActive(false);
-        }
-      };
-
-      recorder.start();
-      setAudioRecorder(recorder);
-      setIsVoiceActive(true);
-      setIsListening(true);
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      toast({
-        title: 'Microphone Access Denied',
-        description: 'Please allow microphone access to use voice commands',
-        variant: 'destructive'
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
       });
+
+      const { data, error } = await supabase.functions.invoke('voice-transcribe', {
+        body: { audio: base64 }
+      });
+
+      if (error) {
+        console.error('Transcription error:', error);
+        return; // don't toast every chunk
+      }
+
+      const transcript = String(data?.text || '').trim();
+      if (!transcript) return;
+
+      // Push user message immediately
+      const userMessage: ChatMessage = {
+        id: Date.now().toString(),
+        content: transcript,
+        role: 'user',
+        timestamp: new Date(),
+      };
+      const updated = [...messages, userMessage];
+      setMessages(updated);
+
+      // Send to AI
+      if (!isAuthenticated || !session) return;
+      setIsLoading(true);
+      try {
+        const context = getScreenContext();
+        const conversation = updated.map(msg => ({ role: msg.role, content: msg.content }));
+        const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-chat', {
+          body: { message: transcript, conversation, context }
+        });
+        if (!aiError && aiData?.response) {
+          const aiMessage: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            content: aiData.response,
+            role: 'assistant',
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, aiMessage]);
+        }
+      } catch (e) {
+        console.error('AI send failed for voice chunk', e);
+      } finally {
+        setIsLoading(false);
+      }
+    } catch (err) {
+      console.error('Error processing chunk', err);
+    } finally {
+      isTranscribingRef.current = false;
     }
   };
 
   const handleVoiceEnd = () => {
-    // Stop voice recording
-    if (audioRecorder && audioRecorder.state === 'recording') {
-      audioRecorder.stop();
+    try {
+      if (audioRecorder) {
+        if (audioRecorder.state === 'recording' || audioRecorder.state === 'paused') {
+          audioRecorder.stop();
+        }
+      }
+      if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach(t => t.stop());
+        audioStreamRef.current = null;
+      }
+    } catch (e) {
+      console.error('Error stopping voice', e);
     }
     if (websocket) {
       websocket.close();
@@ -477,62 +447,22 @@ export function AiChatSidebar({
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioStreamRef.current = stream;
       const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
 
-      recordedChunksRef.current = [];
       recorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) recordedChunksRef.current.push(e.data);
-      };
-
-      recorder.onstop = async () => {
-        try {
-          const blob = new Blob(recordedChunksRef.current, { type: 'audio/webm' });
-          recordedChunksRef.current = [];
-
-          // Convert to base64
-          const base64 = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              try {
-                const result = reader.result as string;
-                const b64 = result.split(',')[1] || '';
-                resolve(b64);
-              } catch (err) {
-                reject(err);
-              }
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-
-          // Transcribe via Supabase Edge Function
-          const { data, error } = await supabase.functions.invoke('voice-transcribe', {
-            body: { audio: base64 }
-          });
-
-          if (error) {
-            console.error('Transcription error:', error);
-            toast({ title: 'Transcription failed', description: 'Unable to convert speech to text', variant: 'destructive' });
-          } else if (data?.text) {
-            const transcript = String(data.text).trim();
-            if (transcript.length > 0) {
-              setInput(transcript);
-              await new Promise(r => setTimeout(r, 0));
-              sendMessage();
-            }
-          }
-        } catch (err) {
-          console.error('Error processing audio:', err);
-          toast({ title: 'Audio error', description: 'Could not process recorded audio', variant: 'destructive' });
-        } finally {
-          setIsVoiceActive(false);
-          setIsListening(false);
-          setIsSpeaking(false);
-          setAudioRecorder(null);
+        if (e.data && e.data.size > 0) {
+          // Process chunk while still recording
+          transcribeAndSend(e.data);
         }
       };
 
-      recorder.start();
+      recorder.onstop = () => {
+        // Cleanup is handled in handleVoiceEnd
+      };
+
+      // Start with a timeslice to receive periodic chunks
+      recorder.start(1500); // every 1.5s
       setAudioRecorder(recorder);
       setIsVoiceActive(true);
       setIsListening(true);
@@ -545,7 +475,6 @@ export function AiChatSidebar({
       });
     }
   };
-
   const formatTime = (timestamp: Date) => {
     return timestamp.toLocaleTimeString([], {
       hour: '2-digit',
