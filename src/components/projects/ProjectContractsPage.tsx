@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { FileText, DollarSign, MoreHorizontal, Eye, Trash2 } from 'lucide-react';
+import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "../ProjectSidebar";
@@ -175,9 +175,15 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       {/* Main Content */}
       <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
         <div className="p-6 min-h-full">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-foreground mb-2">Contracts</h2>
-            <p className="text-muted-foreground">Manage project contracts and documentation.</p>
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">Contracts</h2>
+              <p className="text-muted-foreground">Manage project contracts and documentation.</p>
+            </div>
+            <Button className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Upload Contract
+            </Button>
           </div>
 
           {contracts.length === 0 ? (
