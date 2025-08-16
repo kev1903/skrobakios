@@ -122,17 +122,17 @@ export const AwaitingPaymentsTable: React.FC<AwaitingPaymentsTableProps> = ({
                 />
               </th>
               <th className="text-left p-2 font-medium w-16 text-foreground text-xs">View</th>
-              <th className="text-left p-2 font-medium text-foreground text-xs">Supplier</th>
-              <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Bill #</th>
-              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Bill Date</th>
-              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Due Date</th>
+              <th className="text-left p-2 font-medium text-foreground text-xs">From</th>
+              <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Reference</th>
+              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Date ↓</th>
+              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Due date</th>
               <th className="text-left p-2 font-medium w-24 text-foreground text-xs">Amount</th>
-              <th className="text-left p-2 font-medium w-20 text-foreground text-xs">Status</th>
+              <th className="text-left p-2 font-medium w-12 text-xs"></th>
             </tr>
           </thead>
           <tbody>
             {bills.map((bill) => (
-              <tr key={bill.id} className="border-b hover:bg-muted/25 transition-colors">
+              <tr key={bill.id} className="border-b hover:bg-muted/30 group h-12">
                 <td className="p-2">
                   <input 
                     type="checkbox" 
@@ -142,16 +142,28 @@ export const AwaitingPaymentsTable: React.FC<AwaitingPaymentsTableProps> = ({
                   />
                 </td>
                 <td className="p-2">
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                    <Eye className="h-3 w-3" />
+                  <Button variant="ghost" size="sm" className="p-1 h-6 w-6">
+                    <Eye className="h-3 w-3 text-blue-600" />
                   </Button>
                 </td>
-                <td className="p-2 text-sm text-foreground">{bill.supplier_name}</td>
-                <td className="p-2 text-sm font-mono text-foreground">{bill.bill_no}</td>
-                <td className="p-2 text-sm text-muted-foreground">{formatDate(bill.bill_date)}</td>
-                <td className="p-2 text-sm text-muted-foreground">{formatDate(bill.due_date)}</td>
-                <td className="p-2 text-sm font-semibold text-foreground">{formatCurrency(bill.total)}</td>
-                <td className="p-2">{getStatusBadge(bill.status)}</td>
+                <td className="p-2 text-foreground font-medium text-xs">{bill.supplier_name}</td>
+                <td className="p-2 text-foreground">
+                  <div>
+                    <div className="font-medium text-xs">{bill.bill_no}</div>
+                  </div>
+                </td>
+                <td className="p-2 text-foreground text-xs">{formatDate(bill.bill_date)}</td>
+                <td className="p-2 text-foreground text-xs">
+                  <span className={new Date(bill.due_date) < new Date() ? 'text-red-600' : 'text-foreground'}>
+                    {formatDate(bill.due_date)}
+                  </span>
+                </td>
+                <td className="p-2 text-foreground font-medium text-xs">{formatCurrency(bill.total)}</td>
+                <td className="p-2">
+                  <div className="opacity-0 group-hover:opacity-100">
+                    {getStatusBadge(bill.status)}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
