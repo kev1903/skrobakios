@@ -18,6 +18,27 @@ interface ContractData {
   end_date?: string;
   scope_of_work?: string;
   payment_terms?: string;
+  stage_payments?: Array<{
+    stage: string;
+    description: string;
+    amount: string;
+    percentage?: string;
+    due_date?: string;
+  }>;
+  progress_payments?: Array<{
+    milestone: string;
+    percentage: string;
+    amount: string;
+    description?: string;
+  }>;
+  payment_schedule?: string;
+  deposit_amount?: string;
+  deposit_percentage?: string;
+  retention_amount?: string;
+  retention_percentage?: string;
+  final_payment?: string;
+  payment_method?: string;
+  late_payment_terms?: string;
   ai_summary: string;
   ai_confidence: number;
 }
@@ -36,14 +57,14 @@ async function extractContractDataWithOpenAI(fileId: string): Promise<ContractDa
     messages: [
       {
         role: 'system',
-        content: 'You are an expert at extracting contract data from PDFs. Extract all relevant contract information including customer details, contract value, dates, and terms. Return valid JSON only.'
+        content: 'You are an expert at extracting contract data from PDFs with special focus on payment structures. Extract all relevant contract information including customer details, contract value, dates, terms, and DETAILED payment information including stage payments, progress payments, deposit terms, retention amounts, and payment schedules. Return valid JSON only.'
       },
       {
         role: 'user',
         content: [
           {
             type: 'text',
-            text: 'Extract all contract details from this document. Include customer information (name, email, phone, address), contract value/amount, important dates (contract date, start date, end date), scope of work, and payment terms.'
+            text: 'Extract all contract details from this document with special attention to payment structures. Include: 1) Customer information (name, email, phone, address), 2) Contract value/amount, 3) Important dates (contract date, start date, end date), 4) Scope of work, 5) DETAILED PAYMENT INFORMATION including: - Stage payments (each stage with amount, percentage, description, due date), - Progress payments (milestones with percentages and amounts), - Payment schedule and terms, - Deposit amount and percentage, - Retention amounts and percentages, - Final payment details, - Payment methods, - Late payment penalties or terms. Extract ALL payment-related information you can find.'
           },
           {
             type: 'file',
@@ -73,6 +94,39 @@ async function extractContractDataWithOpenAI(fileId: string): Promise<ContractDa
             end_date: { type: 'string' },
             scope_of_work: { type: 'string' },
             payment_terms: { type: 'string' },
+            stage_payments: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  stage: { type: 'string' },
+                  description: { type: 'string' },
+                  amount: { type: 'string' },
+                  percentage: { type: 'string' },
+                  due_date: { type: 'string' }
+                }
+              }
+            },
+            progress_payments: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  milestone: { type: 'string' },
+                  percentage: { type: 'string' },
+                  amount: { type: 'string' },
+                  description: { type: 'string' }
+                }
+              }
+            },
+            payment_schedule: { type: 'string' },
+            deposit_amount: { type: 'string' },
+            deposit_percentage: { type: 'string' },
+            retention_amount: { type: 'string' },
+            retention_percentage: { type: 'string' },
+            final_payment: { type: 'string' },
+            payment_method: { type: 'string' },
+            late_payment_terms: { type: 'string' },
             ai_summary: { type: 'string' },
             ai_confidence: { type: 'number' }
           }

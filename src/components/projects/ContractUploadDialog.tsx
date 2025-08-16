@@ -340,6 +340,108 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                 </div>
               )}
 
+              {/* Stage Payments */}
+              {extractedData?.stage_payments && extractedData.stage_payments.length > 0 && (
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-sm mb-3 text-muted-foreground">STAGE PAYMENTS</h3>
+                  <div className="space-y-3">
+                    {extractedData.stage_payments.map((payment: any, index: number) => (
+                      <div key={index} className="border-l-4 border-primary pl-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-medium text-sm">{payment.stage}</p>
+                            <p className="text-xs text-muted-foreground">{payment.description}</p>
+                            {payment.due_date && (
+                              <p className="text-xs text-muted-foreground">Due: {payment.due_date}</p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-sm">{payment.amount}</p>
+                            {payment.percentage && (
+                              <p className="text-xs text-muted-foreground">{payment.percentage}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Progress Payments */}
+              {extractedData?.progress_payments && extractedData.progress_payments.length > 0 && (
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-sm mb-3 text-muted-foreground">PROGRESS PAYMENTS</h3>
+                  <div className="space-y-3">
+                    {extractedData.progress_payments.map((payment: any, index: number) => (
+                      <div key={index} className="border-l-4 border-green-500 pl-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-medium text-sm">{payment.milestone}</p>
+                            {payment.description && (
+                              <p className="text-xs text-muted-foreground">{payment.description}</p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <p className="font-semibold text-sm">{payment.amount}</p>
+                            <p className="text-xs text-muted-foreground">{payment.percentage}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Additional Payment Details */}
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-semibold text-sm mb-3 text-muted-foreground">PAYMENT DETAILS</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {extractedData?.deposit_amount && (
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Deposit Amount</Label>
+                      <p className="font-medium text-sm">{extractedData.deposit_amount}</p>
+                      {extractedData.deposit_percentage && (
+                        <p className="text-xs text-muted-foreground">({extractedData.deposit_percentage})</p>
+                      )}
+                    </div>
+                  )}
+                  {extractedData?.retention_amount && (
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Retention</Label>
+                      <p className="font-medium text-sm">{extractedData.retention_amount}</p>
+                      {extractedData.retention_percentage && (
+                        <p className="text-xs text-muted-foreground">({extractedData.retention_percentage})</p>
+                      )}
+                    </div>
+                  )}
+                  {extractedData?.final_payment && (
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Final Payment</Label>
+                      <p className="font-medium text-sm">{extractedData.final_payment}</p>
+                    </div>
+                  )}
+                  {extractedData?.payment_method && (
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Payment Method</Label>
+                      <p className="font-medium text-sm">{extractedData.payment_method}</p>
+                    </div>
+                  )}
+                </div>
+                {extractedData?.payment_schedule && (
+                  <div className="mt-3">
+                    <Label className="text-xs text-muted-foreground">Payment Schedule</Label>
+                    <p className="text-sm">{extractedData.payment_schedule}</p>
+                  </div>
+                )}
+                {extractedData?.late_payment_terms && (
+                  <div className="mt-3">
+                    <Label className="text-xs text-muted-foreground">Late Payment Terms</Label>
+                    <p className="text-sm">{extractedData.late_payment_terms}</p>
+                  </div>
+                )}
+              </div>
+
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <h3 className="font-semibold text-sm mb-2 text-blue-800">AI ANALYSIS</h3>
                 <p className="text-sm text-blue-700 mb-2">{extractedData?.ai_summary}</p>
