@@ -63,6 +63,7 @@ export function AiChatSidebar({
   const [websocket, setWebsocket] = useState<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recordedChunksRef = useRef<Blob[]>([]);
   const {
     toast
   } = useToast();
@@ -318,56 +319,77 @@ export function AiChatSidebar({
   const handleVoiceCommand = async () => {
     if (isVoiceActive) {
       handleVoiceEnd();
-    } else {
-      // Start voice recording and real-time chat
-      try {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        
-        // Connect to OpenAI Realtime API via Supabase edge function (WebSocket)
-        const wsUrl = `wss://xtawnkhvxgxylhxwqnmm.functions.supabase.co/functions/v1/realtime-chat`;
-        const ws = new WebSocket(wsUrl);
-        
-        ws.onopen = () => {
-          console.log('Connected to realtime chat');
-          setIsVoiceActive(true);
-          setIsListening(true);
-          setWebsocket(ws);
-        };
-        
-        ws.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          console.log('Voice message:', data.type);
-          
-          // Handle AI speaking state
-          if (data.type === 'response.audio.delta') {
-            setIsSpeaking(true);
-            setIsListening(false);
-          } else if (data.type === 'response.audio.done') {
-            setIsSpeaking(false);
-            setIsListening(true);
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+
+      recordedChunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) recordedChunksRef.current.push(e.data);
+      };
+
+      recorder.onstop = async () => {
+        try {
+          const blob = new Blob(recordedChunksRef.current, { type: 'audio/webm' });
+          recordedChunksRef.current = [];
+
+          // Convert to base64
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              try {
+                const result = reader.result as string;
+                const b64 = result.split(',')[1] || '';
+                resolve(b64);
+              } catch (err) {
+                reject(err);
+              }
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+
+          // Transcribe via Supabase Edge Function
+          const { data, error } = await supabase.functions.invoke('voice-transcribe', {
+            body: { audio: base64 }
+          });
+
+          if (error) {
+            console.error('Transcription error:', error);
+            toast({ title: 'Transcription failed', description: 'Unable to convert speech to text', variant: 'destructive' });
+          } else if (data?.text) {
+            const transcript = String(data.text).trim();
+            if (transcript.length > 0) {
+              setInput(transcript);
+              await new Promise(r => setTimeout(r, 0));
+              sendMessage();
+            }
           }
-        };
-        
-        ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
+        } catch (err) {
+          console.error('Error processing audio:', err);
+          toast({ title: 'Audio error', description: 'Could not process recorded audio', variant: 'destructive' });
+        } finally {
           setIsVoiceActive(false);
           setIsListening(false);
           setIsSpeaking(false);
-          toast({
-            title: "Connection Failed",
-            description: "Failed to connect to voice chat service",
-            variant: "destructive"
-          });
-        };
-        
-      } catch (error) {
-        console.error('Error accessing microphone:', error);
-        toast({
-          title: "Microphone Access Denied",
-          description: "Please allow microphone access to use voice commands",
-          variant: "destructive"
-        });
-      }
+          setAudioRecorder(null);
+        }
+      };
+
+      recorder.start();
+      setAudioRecorder(recorder);
+      setIsVoiceActive(true);
+      setIsListening(true);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      toast({
+        title: 'Microphone Access Denied',
+        description: 'Please allow microphone access to use voice commands',
+        variant: 'destructive'
+      });
     }
   };
 
