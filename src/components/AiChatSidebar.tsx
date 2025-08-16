@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { Send, Bot, User, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Mic, MicOff } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -9,7 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AiChatAuth } from './AiChatAuth';
-import { VoiceInterface } from './VoiceInterface';
+// Lazy load the heavy voice interface to keep initial load fast and robust
+const VoiceInterfaceLazy = React.lazy(() => import('./VoiceInterface').then(m => ({ default: m.VoiceInterface })));
 import { cn } from '@/lib/utils';
 interface ChatMessage {
   id: string;
@@ -382,14 +383,18 @@ export function AiChatSidebar({
   };
   return (
     <>
-      {/* Voice Interface Overlay */}
-      <VoiceInterface
-        isActive={isVoiceActive}
-        isListening={isListening}
-        isSpeaking={isSpeaking}
-        onToggle={handleVoiceToggle}
-        onEnd={handleVoiceEnd}
-      />
+      {isVoiceActive && (
+        <Suspense fallback={null}>
+          <VoiceInterfaceLazy
+            isActive={isVoiceActive}
+            isListening={isListening}
+            isSpeaking={isSpeaking}
+            onToggle={handleVoiceToggle}
+            onEnd={handleVoiceEnd}
+          />
+        </Suspense>
+      )}
+
       
       {/* Regular Chat Interface */}
       <div className={cn("fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col", isCollapsed ? "w-16" : "w-96")}>
