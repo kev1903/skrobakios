@@ -19,9 +19,8 @@ serve(async (req) => {
       throw new Error('ELEVENLABS_API_KEY is not configured');
     }
 
-    // For this demo, we'll use a public agent ID
-    // In production, you would create your own agent via ElevenLabs dashboard
-    const AGENT_ID = "your-agent-id"; // Replace with your actual agent ID from ElevenLabs
+    // Your ElevenLabs agent ID
+    const AGENT_ID = "ds9lm1cEPy0f80uZAvFu";
 
     console.log('Requesting signed URL for ElevenLabs agent...');
 
