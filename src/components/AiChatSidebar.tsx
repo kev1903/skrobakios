@@ -99,13 +99,35 @@ export function AiChatSidebar({
     };
   };
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: 'smooth'
-    });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end'
+      });
+    }
   };
+
+  // Auto-scroll when messages change
   useEffect(() => {
-    scrollToBottom();
+    const timeoutId = setTimeout(scrollToBottom, 100);
+    return () => clearTimeout(timeoutId);
   }, [messages]);
+
+  // Auto-scroll when loading state changes (for real-time response visibility)
+  useEffect(() => {
+    if (isLoading) {
+      const timeoutId = setTimeout(scrollToBottom, 50);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isLoading]);
+
+  // Auto-scroll when voice chat is active
+  useEffect(() => {
+    if (isVoiceActive) {
+      const timeoutId = setTimeout(scrollToBottom, 50);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isVoiceActive]);
 
   // Persist chat messages to localStorage
   useEffect(() => {
