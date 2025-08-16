@@ -65,7 +65,9 @@ export function AiChatSidebar({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recordedChunksRef = useRef<Blob[]>([]);
   const audioStreamRef = useRef<MediaStream | null>(null);
-  const isTranscribingRef = useRef(false);
+  const chunkQueueRef = useRef<Blob[]>([]);
+  const processingRef = useRef(false);
+  const pendingTranscriptRef = useRef<string>('');
   const {
     toast
   } = useToast();
@@ -343,75 +345,98 @@ export function AiChatSidebar({
     }
   };
 
-  // Transcribe a recorded chunk and immediately send to SkAi
-  const transcribeAndSend = async (blob: Blob) => {
-    if (isTranscribingRef.current) return; // prevent overlapping calls
-    isTranscribingRef.current = true;
+  // Queue-based background transcription while recording
+  const enqueueChunk = (blob: Blob) => {
+    chunkQueueRef.current.push(blob);
+    if (!processingRef.current) void processQueue();
+  };
+
+  const finalizePending = async () => {
+    const text = pendingTranscriptRef.current.trim();
+    if (!text) return;
+
+    // Clear pending first to avoid duplicates on errors
+    pendingTranscriptRef.current = '';
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      content: text,
+      role: 'user',
+      timestamp: new Date()
+    };
+
+    // Build conversation snapshot and send
+    const snapshot = [...messages, userMessage];
+    setMessages(snapshot);
+
+    if (!isAuthenticated || !session) return;
+    setIsLoading(true);
     try {
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          try {
-            const result = reader.result as string;
-            const b64 = result.split(',')[1] || '';
-            resolve(b64);
-          } catch (err) {
-            reject(err);
-          }
+      const context = getScreenContext();
+      const conversation = snapshot.map(msg => ({ role: msg.role, content: msg.content }));
+      const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-chat', {
+        body: { message: text, conversation, context }
+      });
+      if (!aiError && aiData?.response) {
+        const aiMessage: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          content: aiData.response,
+          role: 'assistant',
+          timestamp: new Date()
         };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-
-      const { data, error } = await supabase.functions.invoke('voice-transcribe', {
-        body: { audio: base64 }
-      });
-
-      if (error) {
-        console.error('Transcription error:', error);
-        return; // don't toast every chunk
+        setMessages(prev => [...prev, aiMessage]);
       }
+    } catch (e) {
+      console.error('AI send failed (finalizePending)', e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      const transcript = String(data?.text || '').trim();
-      if (!transcript) return;
-
-      // Push user message immediately
-      const userMessage: ChatMessage = {
-        id: Date.now().toString(),
-        content: transcript,
-        role: 'user',
-        timestamp: new Date(),
-      };
-      const updated = [...messages, userMessage];
-      setMessages(updated);
-
-      // Send to AI
-      if (!isAuthenticated || !session) return;
-      setIsLoading(true);
-      try {
-        const context = getScreenContext();
-        const conversation = updated.map(msg => ({ role: msg.role, content: msg.content }));
-        const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-chat', {
-          body: { message: transcript, conversation, context }
-        });
-        if (!aiError && aiData?.response) {
-          const aiMessage: ChatMessage = {
-            id: (Date.now() + 1).toString(),
-            content: aiData.response,
-            role: 'assistant',
-            timestamp: new Date()
+  const processQueue = async () => {
+    if (processingRef.current) return;
+    processingRef.current = true;
+    try {
+      while (chunkQueueRef.current.length > 0) {
+        const blob = chunkQueueRef.current.shift()!;
+        // Convert to base64
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            try {
+              const result = reader.result as string;
+              const b64 = result.split(',')[1] || '';
+              resolve(b64);
+            } catch (err) {
+              reject(err);
+            }
           };
-          setMessages(prev => [...prev, aiMessage]);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+
+        const { data, error } = await supabase.functions.invoke('voice-transcribe', {
+          body: { audio: base64 }
+        });
+
+        if (error) {
+          console.error('Transcription error (queue):', error);
+          continue;
         }
-      } catch (e) {
-        console.error('AI send failed for voice chunk', e);
-      } finally {
-        setIsLoading(false);
+        const partial = String(data?.text || '').trim();
+        if (!partial) continue;
+
+        // Accumulate and decide when to finalize
+        pendingTranscriptRef.current += (pendingTranscriptRef.current ? ' ' : '') + partial;
+        const endsSentence = /[.!?]$/.test(partial);
+        if (endsSentence || pendingTranscriptRef.current.length > 80) {
+          await finalizePending();
+        }
       }
     } catch (err) {
-      console.error('Error processing chunk', err);
+      console.error('Error processing transcription queue', err);
     } finally {
-      isTranscribingRef.current = false;
+      processingRef.current = false;
     }
   };
 
@@ -432,6 +457,8 @@ export function AiChatSidebar({
     if (websocket) {
       websocket.close();
     }
+    // Flush any remaining partial transcript
+    void finalizePending();
     setIsVoiceActive(false);
     setIsListening(false);
     setIsSpeaking(false);
@@ -452,8 +479,8 @@ export function AiChatSidebar({
 
       recorder.ondataavailable = (e) => {
         if (e.data && e.data.size > 0) {
-          // Process chunk while still recording
-          transcribeAndSend(e.data);
+          // Enqueue chunk while still recording; processing happens in background
+          enqueueChunk(e.data);
         }
       };
 
