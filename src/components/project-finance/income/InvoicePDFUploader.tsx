@@ -167,8 +167,8 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
         setExtractedData(extraction);
         setConfidence((extraction.ai_confidence || 0) * 100); // Convert to percentage
         setEditableData({
-          supplier_name: extraction.supplier || '',
-          supplier_email: extraction.supplier_email || '',
+          supplier_name: extraction.client || extraction.supplier || '',
+          supplier_email: extraction.client_email || extraction.supplier_email || '',
           bill_no: extraction.invoice_number || '',
           due_date: parseExtractedDate(extraction.due_date),
           bill_date: parseExtractedDate(extraction.invoice_date),
@@ -177,7 +177,7 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
           subtotal: parseFloat((extraction.subtotal || '0').replace(/,/g, '')),
           tax: parseFloat((extraction.tax || '0').replace(/,/g, '')), 
           total: parseFloat((extraction.total || '0').replace(/,/g, '')),
-          description: `Invoice from ${extraction.supplier || 'Unknown Supplier'}`,
+          description: `Invoice to ${extraction.client || extraction.supplier || 'Unknown Client'}`,
           wbs_code: '',
           line_items: extraction.line_items || []
         });
@@ -223,29 +223,25 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
 
     setSaving(true);
     try {
-      // Insert the bill into the database
+      // Insert the invoice into the database
       const { error } = await supabase
-        .from('bills')
+        .from('invoices')
         .insert({
           project_id: projectId,
-          supplier_name: editableData.supplier_name || 'Unknown Supplier',
-          bill_no: editableData.bill_no || 'N/A',
-          bill_date: editableData.bill_date || new Date().toISOString().split('T')[0],
+          client_name: editableData.supplier_name || 'Unknown Client',
+          number: editableData.bill_no || 'N/A',
+          issue_date: editableData.bill_date || new Date().toISOString().split('T')[0],
           due_date: editableData.due_date || new Date().toISOString().split('T')[0],
           subtotal: editableData.subtotal || 0,
           tax: editableData.tax || 0,
           total: editableData.total || 0,
-          paid_to_date: 0,
-          status: 'submitted',
+          paid_amount: 0,
+          status: 'sent',
           reference_number: editableData.reference_number || null,
-          file_attachments: [{
-            name: uploadedFile.name,
-            url: uploadedFile.name,
-            size: uploadedFile.size,
-            type: uploadedFile.type
-          }],
-          source_system: 'ai_extraction',
-          forwarded_bill: false
+          notes: editableData.notes || null,
+          line_items: editableData.line_items || [],
+          pdf_url: uploadedFile.name, // Store the file reference
+          created_at: new Date().toISOString()
         });
 
       if (error) throw error;
@@ -258,7 +254,7 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
       onSaved(); // Refresh the parent component
       handleClose();
     } catch (error) {
-      console.error('Error saving bill:', error);
+      console.error('Error saving invoice:', error);
       toast({
         title: "Error",
         description: "Failed to save invoice. Please try again.",
@@ -371,7 +367,7 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                 {/* Basic Bill Info */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="supplier_name">Supplier Name</Label>
+                    <Label htmlFor="supplier_name">Client Name</Label>
                     <Input
                       id="supplier_name"
                       value={editableData.supplier_name}
@@ -379,13 +375,13 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                     />
                   </div>
                   <div>
-                    <Label htmlFor="supplier_email">Supplier Email</Label>
+                    <Label htmlFor="supplier_email">Client Email</Label>
                     <Input
                       id="supplier_email"
                       type="email"
                       value={editableData.supplier_email}
                       onChange={(e) => setEditableData({...editableData, supplier_email: e.target.value})}
-                      placeholder="Enter supplier email"
+                      placeholder="Enter client email"
                     />
                   </div>
                 </div>
