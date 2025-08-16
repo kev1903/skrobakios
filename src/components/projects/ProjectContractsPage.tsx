@@ -133,14 +133,14 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   if (loading) {
     return (
       <div className={`${spacingClasses} min-h-screen bg-background`}>
-        <div className="flex h-full">
+        <div className="relative h-full">
           <ProjectSidebar 
             project={project} 
             onNavigate={onNavigate}
             getStatusColor={getStatusColor}
             getStatusText={utilsGetStatusText}
           />
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="w-full lg:ml-48 flex flex-col overflow-hidden">
             <div className="space-y-4 p-6">
               <div className="animate-pulse">
                 <div className="h-4 bg-muted rounded w-1/4 mb-4"></div>
@@ -159,14 +159,14 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
   return (
     <div className={`${spacingClasses} min-h-screen bg-background`}>
-      <div className="flex h-full">
+      <div className="relative h-full">
         <ProjectSidebar 
           project={project} 
           onNavigate={onNavigate}
           getStatusColor={getStatusColor}
           getStatusText={utilsGetStatusText}
         />
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="w-full lg:ml-48 flex flex-col overflow-hidden">
         <div className="p-6">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-foreground mb-2">Contracts</h2>
