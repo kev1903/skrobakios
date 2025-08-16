@@ -85,7 +85,7 @@ serve(async (req) => {
     let transcribedText = result.text || ''
     console.log('Raw transcription result:', transcribedText)
     
-    // CRITICAL: Filter out any non-English text before returning
+    // CRITICAL: Enhanced filtering for media phrases and non-English content
     const hasNonEnglish = /[^\x00-\x7F]/.test(transcribedText)
     if (hasNonEnglish) {
       console.warn('WARNING: Transcription contains non-English characters!')
@@ -94,13 +94,45 @@ serve(async (req) => {
       // Remove all non-ASCII characters and clean up
       transcribedText = transcribedText.replace(/[^\x00-\x7F]/g, ' ').replace(/\s+/g, ' ').trim()
       
-      // If nothing remains after filtering, return a safe fallback
+      // If nothing remains after filtering, return empty
       if (!transcribedText || transcribedText.length < 2) {
-        console.warn('Filtered transcription too short, using fallback')
-        transcribedText = 'Sorry, could not understand the speech clearly.'
+        console.warn('Filtered transcription too short, returning empty')
+        transcribedText = ''
       }
       
       console.log('Filtered text:', transcribedText)
+    }
+
+    // Additional server-side media phrase filtering
+    if (transcribedText) {
+      const mediaPhrases = [
+        'thank you for watching',
+        'like and subscribe', 
+        'hit the bell',
+        'don\'t forget to',
+        'see you next time',
+        'thanks for tuning in',
+        'leave a comment',
+        'share this video',
+        'follow me on',
+        'check out the link',
+        'if you enjoyed',
+        'smash that like button'
+      ];
+
+      const lowerText = transcribedText.toLowerCase().trim();
+      
+      // Check if text contains common media phrases
+      if (mediaPhrases.some(phrase => lowerText.includes(phrase))) {
+        console.log('Server-side: Filtered media phrase:', transcribedText);
+        transcribedText = '';
+      }
+      
+      // Minimum meaningful length check
+      if (transcribedText.trim().split(/\s+/).length < 2) {
+        console.log('Server-side: Text too short, filtering:', transcribedText);
+        transcribedText = '';
+      }
     }
     
     console.log('Final transcription result:', transcribedText)

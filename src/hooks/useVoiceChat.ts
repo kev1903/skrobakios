@@ -8,6 +8,16 @@ export interface VoiceChatState {
   isSpeaking: boolean;
   isProcessing: boolean;
   canInterrupt: boolean;
+  listeningMode: 'continuous' | 'push-to-talk';
+  isVoiceActivated: boolean;
+  audioLevel: number;
+}
+
+export interface VoiceChatSettings {
+  sensitivity: number; // 0-1
+  minimumDuration: number; // milliseconds
+  silenceThreshold: number; // milliseconds
+  enableVAD: boolean;
 }
 
 export function useVoiceChat() {
@@ -16,24 +26,120 @@ export function useVoiceChat() {
     isListening: false,
     isSpeaking: false,
     isProcessing: false,
-    canInterrupt: false
+    canInterrupt: false,
+    listeningMode: 'continuous',
+    isVoiceActivated: false,
+    audioLevel: 0
+  });
+
+  const [settings, setSettings] = useState<VoiceChatSettings>({
+    sensitivity: 0.3,
+    minimumDuration: 1500,
+    silenceThreshold: 2000,
+    enableVAD: true
   });
 
   const audioRecorderRef = useRef<MediaRecorder | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
   const speechTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const isActiveRef = useRef<boolean>(false);
   const silenceDetectionRef = useRef<NodeJS.Timeout | null>(null);
+  const voiceActivityRef = useRef<NodeJS.Timeout | null>(null);
+  const recordingStartTimeRef = useRef<number>(0);
+  const lastVoiceDetectionRef = useRef<number>(0);
+  const isPushToTalkActiveRef = useRef<boolean>(false);
 
   const updateState = useCallback((updates: Partial<VoiceChatState>) => {
     setState(prev => ({ ...prev, ...updates }));
   }, []);
 
+  const updateSettings = useCallback((updates: Partial<VoiceChatSettings>) => {
+    setSettings(prev => ({ ...prev, ...updates }));
+  }, []);
+
+  // Voice Activity Detection
+  const detectVoiceActivity = useCallback(() => {
+    if (!analyserRef.current || !settings.enableVAD) return false;
+
+    const bufferLength = analyserRef.current.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    analyserRef.current.getByteFrequencyData(dataArray);
+
+    // Calculate average amplitude
+    const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+    const audioLevel = average / 255;
+
+    updateState({ audioLevel });
+
+    // Check if audio level exceeds sensitivity threshold
+    const hasVoice = audioLevel > settings.sensitivity;
+    
+    if (hasVoice) {
+      lastVoiceDetectionRef.current = Date.now();
+    }
+
+    return hasVoice;
+  }, [settings.enableVAD, settings.sensitivity, updateState]);
+
+  // Filter common media phrases that shouldn't trigger the AI
+  const filterMediaPhrases = useCallback((text: string): string | null => {
+    if (!text || text.length < 3) return null;
+
+    const mediaPhrases = [
+      'thank you for watching',
+      'like and subscribe', 
+      'hit the bell',
+      'don\'t forget to',
+      'see you next time',
+      'thanks for tuning in',
+      'leave a comment',
+      'share this video',
+      'follow me on',
+      'check out the link'
+    ];
+
+    const lowerText = text.toLowerCase().trim();
+    
+    // Check if text contains common media phrases
+    if (mediaPhrases.some(phrase => lowerText.includes(phrase))) {
+      console.log('Filtered media phrase:', text);
+      return null;
+    }
+
+    // Minimum word count check
+    const wordCount = text.trim().split(/\s+/).length;
+    if (wordCount < 2) {
+      console.log('Text too short, filtered:', text);
+      return null;
+    }
+
+    return text;
+  }, []);
+
+  const setupAudioAnalysis = useCallback(async () => {
+    if (!audioStreamRef.current) return;
+
+    try {
+      audioContextRef.current = new AudioContext();
+      const source = audioContextRef.current.createMediaStreamSource(audioStreamRef.current);
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      
+      analyserRef.current.fftSize = 256;
+      analyserRef.current.smoothingTimeConstant = 0.8;
+      source.connect(analyserRef.current);
+
+      console.log('Audio analysis setup complete');
+    } catch (error) {
+      console.error('Failed to setup audio analysis:', error);
+    }
+  }, []);
+
   const startContinuousListening = useCallback(async () => {
-    if (!isActiveRef.current) return;
+    if (!isActiveRef.current || state.listeningMode !== 'continuous') return;
     
     try {
       console.log('Starting continuous voice listening...');
@@ -50,9 +156,11 @@ export function useVoiceChat() {
           }
         });
         audioStreamRef.current = stream;
+        await setupAudioAnalysis();
       }
 
       audioChunksRef.current = [];
+      recordingStartTimeRef.current = Date.now();
 
       // Create MediaRecorder
       const mediaRecorder = new MediaRecorder(audioStreamRef.current, {
@@ -68,29 +176,70 @@ export function useVoiceChat() {
       };
 
       mediaRecorder.onstop = async () => {
-        console.log('Recording stopped, processing audio...');
+        console.log('Recording stopped, analyzing audio...');
+        
+        const recordingDuration = Date.now() - recordingStartTimeRef.current;
+        const timeSinceLastVoice = Date.now() - lastVoiceDetectionRef.current;
+        
+        // Only process if we have meaningful audio
         if (audioChunksRef.current.length > 0 && isActiveRef.current) {
+          // Enhanced filtering - check duration and voice activity
+          if (settings.enableVAD) {
+            if (recordingDuration < settings.minimumDuration) {
+              console.log('Recording too short, skipping...');
+              audioChunksRef.current = [];
+              if (isActiveRef.current && state.listeningMode === 'continuous') {
+                setTimeout(() => startContinuousListening(), 500);
+              }
+              return;
+            }
+            
+            if (timeSinceLastVoice > settings.silenceThreshold) {
+              console.log('No recent voice activity, skipping...');
+              audioChunksRef.current = [];
+              if (isActiveRef.current && state.listeningMode === 'continuous') {
+                setTimeout(() => startContinuousListening(), 500);
+              }
+              return;
+            }
+          }
+          
           await processAudioChunks();
         }
         
         // Restart listening immediately after processing (continuous mode)
         setTimeout(() => {
-          if (isActiveRef.current && !state.isProcessing) {
+          if (isActiveRef.current && !state.isProcessing && state.listeningMode === 'continuous') {
             startContinuousListening();
           }
         }, 500);
       };
 
-      // Start recording with short intervals for interrupt capability
+      // Start recording with voice activity detection
       mediaRecorder.start(1000); // Record in 1-second chunks
-      updateState({ isListening: true });
+      updateState({ isListening: true, isVoiceActivated: false });
 
-      // Stop recording after 3 seconds of audio to process (allows for interruption)
+      // Enhanced voice activity monitoring
+      if (settings.enableVAD) {
+        const monitorVoiceActivity = () => {
+          if (!isActiveRef.current || !audioRecorderRef.current) return;
+          
+          const hasVoice = detectVoiceActivity();
+          updateState({ isVoiceActivated: hasVoice });
+          
+          if (isActiveRef.current) {
+            requestAnimationFrame(monitorVoiceActivity);
+          }
+        };
+        requestAnimationFrame(monitorVoiceActivity);
+      }
+
+      // Dynamic recording duration based on voice activity
       speechTimeoutRef.current = setTimeout(() => {
         if (audioRecorderRef.current && audioRecorderRef.current.state === 'recording') {
           audioRecorderRef.current.stop();
         }
-      }, 3000);
+      }, settings.enableVAD ? 4000 : 3000);
 
     } catch (error) {
       console.error('Failed to start continuous listening:', error);
@@ -98,17 +247,90 @@ export function useVoiceChat() {
         description: 'Please allow microphone access to use voice chat.'
       });
     }
-  }, [state.isProcessing, updateState]);
+  }, [state.isProcessing, state.listeningMode, settings, updateState, setupAudioAnalysis, detectVoiceActivity]);
 
-  const initializeVoiceChat = useCallback(async () => {
+  const startPushToTalk = useCallback(async () => {
+    if (!isActiveRef.current || isPushToTalkActiveRef.current) return;
+    
+    try {
+      isPushToTalkActiveRef.current = true;
+      
+      if (!audioStreamRef.current) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            sampleRate: 24000,
+            channelCount: 1,
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          }
+        });
+        audioStreamRef.current = stream;
+        await setupAudioAnalysis();
+      }
+
+      audioChunksRef.current = [];
+      recordingStartTimeRef.current = Date.now();
+
+      const mediaRecorder = new MediaRecorder(audioStreamRef.current, {
+        mimeType: 'audio/webm;codecs=opus'
+      });
+
+      audioRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0 && isPushToTalkActiveRef.current) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        if (audioChunksRef.current.length > 0) {
+          await processAudioChunks();
+        }
+        isPushToTalkActiveRef.current = false;
+        updateState({ isListening: false });
+      };
+
+      mediaRecorder.start();
+      updateState({ isListening: true });
+      
+      toast.success('Recording...', {
+        description: 'Release to send your message'
+      });
+
+    } catch (error) {
+      console.error('Failed to start push-to-talk:', error);
+      isPushToTalkActiveRef.current = false;
+      updateState({ isListening: false });
+    }
+  }, [setupAudioAnalysis, updateState]);
+
+  const stopPushToTalk = useCallback(() => {
+    if (audioRecorderRef.current && isPushToTalkActiveRef.current) {
+      audioRecorderRef.current.stop();
+    }
+  }, []);
+
+  const initializeVoiceChat = useCallback(async (mode: 'continuous' | 'push-to-talk' = 'continuous') => {
     try {
       isActiveRef.current = true;
-      updateState({ isConnected: true, canInterrupt: true });
-      await startContinuousListening();
-      
-      toast.success('Continuous voice mode activated', {
-        description: 'Always listening - speak anytime, even to interrupt!'
+      updateState({ 
+        isConnected: true, 
+        canInterrupt: true, 
+        listeningMode: mode 
       });
+      
+      if (mode === 'continuous') {
+        await startContinuousListening();
+        toast.success('Continuous voice mode activated', {
+          description: 'Always listening with smart voice detection!'
+        });
+      } else {
+        toast.success('Push-to-talk mode activated', {
+          description: 'Hold the mic button to speak'
+        });
+      }
 
     } catch (error) {
       console.error('Failed to initialize voice chat:', error);
@@ -146,9 +368,10 @@ export function useVoiceChat() {
       // Combine audio chunks
       const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
       
-      // Skip processing if audio is too short (likely silence)
-      if (audioBlob.size < 1000) {
-        console.log('Audio too short, skipping...');
+      // Enhanced audio filtering
+      const minSize = settings.enableVAD ? 5000 : 1000;
+      if (audioBlob.size < minSize) {
+        console.log(`Audio too short (${audioBlob.size} bytes), skipping...`);
         updateState({ isProcessing: false });
         return;
       }
@@ -180,8 +403,11 @@ export function useVoiceChat() {
         transcribedText = transcribedText.replace(/[^\x00-\x7F]/g, ' ').replace(/\s+/g, ' ').trim();
       }
       
+      // Apply media phrase filtering
+      transcribedText = filterMediaPhrases(transcribedText);
+      
       if (!transcribedText || transcribedText.length < 2) {
-        console.log('No meaningful speech detected, continuing to listen...');
+        console.log('No meaningful speech detected after filtering, continuing to listen...');
         updateState({ isProcessing: false });
         return;
       }
@@ -222,7 +448,7 @@ export function useVoiceChat() {
       updateState({ isProcessing: false });
       audioChunksRef.current = [];
     }
-  }, [updateState, state.isSpeaking, stopCurrentAudio]);
+  }, [updateState, state.isSpeaking, stopCurrentAudio, filterMediaPhrases, settings.enableVAD]);
 
   const speakText = useCallback(async (text: string) => {
     try {
@@ -294,11 +520,20 @@ export function useVoiceChat() {
     console.log('Disconnecting voice chat...');
     
     isActiveRef.current = false;
+    isPushToTalkActiveRef.current = false;
     
-    // Stop current recording
+    // Clear all timeouts
     if (speechTimeoutRef.current) {
       clearTimeout(speechTimeoutRef.current);
       speechTimeoutRef.current = null;
+    }
+    if (voiceActivityRef.current) {
+      clearTimeout(voiceActivityRef.current);
+      voiceActivityRef.current = null;
+    }
+    if (silenceDetectionRef.current) {
+      clearTimeout(silenceDetectionRef.current);
+      silenceDetectionRef.current = null;
     }
 
     if (audioRecorderRef.current && audioRecorderRef.current.state === 'recording') {
@@ -323,15 +558,21 @@ export function useVoiceChat() {
       isListening: false,
       isSpeaking: false,
       isProcessing: false,
-      canInterrupt: false
+      canInterrupt: false,
+      isVoiceActivated: false,
+      audioLevel: 0
     });
   }, [stopCurrentAudio, updateState]);
 
   return {
     state,
+    settings,
     initializeVoiceChat,
     stopCurrentAudio,
     disconnect,
-    speakText
+    speakText,
+    updateSettings,
+    startPushToTalk,
+    stopPushToTalk
   };
 }
