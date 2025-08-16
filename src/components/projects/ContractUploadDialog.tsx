@@ -393,6 +393,52 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                 </div>
               )}
 
+              {/* Payment Tables */}
+              {extractedData?.payment_tables && extractedData.payment_tables.length > 0 && (
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-sm mb-3 text-muted-foreground">PAYMENT TABLES</h3>
+                  <div className="space-y-6">
+                    {extractedData.payment_tables.map((table: any, tableIndex: number) => (
+                      <div key={tableIndex} className="border rounded-lg overflow-hidden">
+                        {table.table_name && (
+                          <div className="bg-secondary/50 px-3 py-2 border-b">
+                            <h4 className="font-medium text-sm">{table.table_name}</h4>
+                          </div>
+                        )}
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs">
+                            <thead className="bg-muted/80">
+                              <tr>
+                                <th className="px-3 py-2 text-left font-medium">Stage/Name</th>
+                                <th className="px-3 py-2 text-left font-medium">Description/Work</th>
+                                <th className="px-3 py-2 text-right font-medium">%</th>
+                                <th className="px-3 py-2 text-right font-medium">Amount</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {table.rows?.map((row: any, rowIndex: number) => (
+                                <tr key={rowIndex} className="border-t">
+                                  <td className="px-3 py-2 font-medium">{row.stage_name || 'N/A'}</td>
+                                  <td className="px-3 py-2 text-muted-foreground">
+                                    {row.description || row.work_involved || 'N/A'}
+                                  </td>
+                                  <td className="px-3 py-2 text-right font-medium text-blue-600">
+                                    {row.percentage || 'N/A'}
+                                  </td>
+                                  <td className="px-3 py-2 text-right font-medium text-green-600">
+                                    {row.amount || 'N/A'}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Additional Payment Details */}
               <div className="bg-muted/50 p-4 rounded-lg">
                 <h3 className="font-semibold text-sm mb-3 text-muted-foreground">PAYMENT DETAILS</h3>

@@ -31,6 +31,17 @@ interface ContractData {
     amount: string;
     description?: string;
   }>;
+  payment_tables?: Array<{
+    table_name: string;
+    columns: string[];
+    rows: Array<{
+      stage_name: string;
+      description: string;
+      percentage: string;
+      amount: string;
+      work_involved?: string;
+    }>;
+  }>;
   payment_schedule?: string;
   deposit_amount?: string;
   deposit_percentage?: string;
@@ -64,7 +75,7 @@ async function extractContractDataWithOpenAI(fileId: string): Promise<ContractDa
         content: [
           {
             type: 'text',
-            text: 'Extract all contract details from this document with special attention to payment structures. Include: 1) Customer information (name, email, phone, address), 2) Contract value/amount, 3) Important dates (contract date, start date, end date), 4) Scope of work, 5) DETAILED PAYMENT INFORMATION including: - Stage payments (each stage with amount, percentage, description, due date), - Progress payments (milestones with percentages and amounts), - Payment schedule and terms, - Deposit amount and percentage, - Retention amounts and percentages, - Final payment details, - Payment methods, - Late payment penalties or terms. Extract ALL payment-related information you can find.'
+            text: 'Extract all contract details from this document with special attention to payment structures and tables. Include: 1) Customer information (name, email, phone, address), 2) Contract value/amount, 3) Important dates (contract date, start date, end date), 4) Scope of work, 5) DETAILED PAYMENT INFORMATION including: - Stage payments (each stage with name, description, amount, percentage, due date), - Progress payments (milestones with percentages and amounts), - Payment tables and schedules with structured data, - Deposit amount and percentage, - Retention amounts and percentages, - Final payment details, - Payment methods, - Late payment penalties or terms. 6) PAYMENT TABLES: Extract any payment tables showing stages, percentages, amounts, descriptions, and work involved. Format these as structured arrays with consistent column headers. Extract ALL payment-related information and tables you can find.'
           },
           {
             type: 'file',
@@ -116,6 +127,32 @@ async function extractContractDataWithOpenAI(fileId: string): Promise<ContractDa
                   percentage: { type: 'string' },
                   amount: { type: 'string' },
                   description: { type: 'string' }
+                }
+              }
+            },
+            payment_tables: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  table_name: { type: 'string' },
+                  columns: { 
+                    type: 'array', 
+                    items: { type: 'string' }
+                  },
+                  rows: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        stage_name: { type: 'string' },
+                        description: { type: 'string' },
+                        percentage: { type: 'string' },
+                        amount: { type: 'string' },
+                        work_involved: { type: 'string' }
+                      }
+                    }
+                  }
                 }
               }
             },
