@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AiChatAuth } from './AiChatAuth';
+import { VoiceInterface } from './VoiceInterface';
 import { cn } from '@/lib/utils';
 interface ChatMessage {
   id: string;
@@ -55,6 +56,8 @@ export function AiChatSidebar({
   const [authError, setAuthError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isVoiceActive, setIsVoiceActive] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const [audioRecorder, setAudioRecorder] = useState<MediaRecorder | null>(null);
   const [websocket, setWebsocket] = useState<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -291,22 +294,33 @@ export function AiChatSidebar({
     }
     event.target.value = '';
   };
+  const handleVoiceToggle = () => {
+    setIsListening(!isListening);
+    // Here you would implement actual microphone toggle logic
+  };
+
+  const handleVoiceEnd = () => {
+    // Stop voice recording
+    if (audioRecorder && audioRecorder.state === 'recording') {
+      audioRecorder.stop();
+    }
+    if (websocket) {
+      websocket.close();
+    }
+    setIsVoiceActive(false);
+    setIsListening(false);
+    setIsSpeaking(false);
+    setAudioRecorder(null);
+    setWebsocket(null);
+    toast({
+      title: "Voice Chat Ended",
+      description: "Voice conversation has been stopped"
+    });
+  };
+
   const handleVoiceCommand = async () => {
     if (isVoiceActive) {
-      // Stop voice recording
-      if (audioRecorder && audioRecorder.state === 'recording') {
-        audioRecorder.stop();
-      }
-      if (websocket) {
-        websocket.close();
-      }
-      setIsVoiceActive(false);
-      setAudioRecorder(null);
-      setWebsocket(null);
-      toast({
-        title: "Voice Chat Ended",
-        description: "Voice conversation has been stopped"
-      });
+      handleVoiceEnd();
     } else {
       // Start voice recording and real-time chat
       try {
@@ -319,11 +333,29 @@ export function AiChatSidebar({
         ws.onopen = () => {
           console.log('Connected to realtime chat');
           setIsVoiceActive(true);
+          setIsListening(true);
           setWebsocket(ws);
+        };
+        
+        ws.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          console.log('Voice message:', data.type);
+          
+          // Handle AI speaking state
+          if (data.type === 'response.audio.delta') {
+            setIsSpeaking(true);
+            setIsListening(false);
+          } else if (data.type === 'response.audio.done') {
+            setIsSpeaking(false);
+            setIsListening(true);
+          }
         };
         
         ws.onerror = (error) => {
           console.error('WebSocket error:', error);
+          setIsVoiceActive(false);
+          setIsListening(false);
+          setIsSpeaking(false);
           toast({
             title: "Connection Failed",
             description: "Failed to connect to voice chat service",
@@ -348,131 +380,145 @@ export function AiChatSidebar({
       minute: '2-digit'
     });
   };
-  return <div className={cn("fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col", isCollapsed ? "w-16" : "w-96")}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
-        <div className="flex items-center gap-2 overflow-hidden">
-          <Avatar className="h-8 w-8 flex-shrink-0">
-            <AvatarImage src="/placeholder.svg" />
-            <AvatarFallback>
-              <Bot className="h-4 w-4" />
-            </AvatarFallback>
-          </Avatar>
-          {!isCollapsed && <div className="min-w-0">
-              <h3 className="font-semibold text-sm truncate">SkAi</h3>
-              <p className="text-xs text-muted-foreground truncate">Construction Management AI</p>
-            </div>}
-        </div>
-        <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="h-8 w-8 p-0 flex-shrink-0">
-          {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-        </Button>
-      </div>
-
-      {/* Collapsed state */}
-      {isCollapsed && <div className="flex-1 flex flex-col items-center pt-4">
-          <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="h-12 w-12 p-0 mb-4">
-            <MessageCircle className="h-6 w-6" />
+  return (
+    <>
+      {/* Voice Interface Overlay */}
+      <VoiceInterface
+        isActive={isVoiceActive}
+        isListening={isListening}
+        isSpeaking={isSpeaking}
+        onToggle={handleVoiceToggle}
+        onEnd={handleVoiceEnd}
+      />
+      
+      {/* Regular Chat Interface */}
+      <div className={cn("fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col", isCollapsed ? "w-16" : "w-96")}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <Avatar className="h-8 w-8 flex-shrink-0">
+              <AvatarImage src="/placeholder.svg" />
+              <AvatarFallback>
+                <Bot className="h-4 w-4" />
+              </AvatarFallback>
+            </Avatar>
+            {!isCollapsed && <div className="min-w-0">
+                <h3 className="font-semibold text-sm truncate">SkAi</h3>
+                <p className="text-xs text-muted-foreground truncate">Construction Management AI</p>
+              </div>}
+          </div>
+          <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="h-8 w-8 p-0 flex-shrink-0">
+            {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           </Button>
-        </div>}
+        </div>
 
-      {/* Expanded state */}
-      {!isCollapsed && <>
-          {/* Show auth component if not authenticated */}
-          {!isAuthenticated && !loading && <AiChatAuth onNavigateToAuth={() => onNavigate?.('auth')} />}
+        {/* Collapsed state */}
+        {isCollapsed && <div className="flex-1 flex flex-col items-center pt-4">
+            <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="h-12 w-12 p-0 mb-4">
+              <MessageCircle className="h-6 w-6" />
+            </Button>
+          </div>}
 
-          {/* Show loading state */}
-          {loading && <div className="flex-1 flex items-center justify-center">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-sm text-muted-foreground">Loading...</p>
-              </div>
-            </div>}
+        {/* Expanded state */}
+        {!isCollapsed && <>
+            {/* Show auth component if not authenticated */}
+            {!isAuthenticated && !loading && <AiChatAuth onNavigateToAuth={() => onNavigate?.('auth')} />}
 
-          {/* Show chat interface if authenticated */}
-          {isAuthenticated && !loading && <>
-              {/* Authentication status indicator */}
-              {user && <div className="px-4 py-2 border-b border-border bg-muted/50">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-xs text-muted-foreground">
-                      Signed in as {userProfile?.first_name && userProfile?.last_name 
-                        ? `${userProfile.first_name} ${userProfile.last_name}` 
-                        : user.email}
-                    </span>
-                  </div>
-                </div>}
+            {/* Show loading state */}
+            {loading && <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                  <p className="text-sm text-muted-foreground">Loading...</p>
+                </div>
+              </div>}
 
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.length === 0 && <div className="text-center text-muted-foreground py-8">
-                    <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
-                    <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
+            {/* Show chat interface if authenticated */}
+            {isAuthenticated && !loading && <>
+                {/* Authentication status indicator */}
+                {user && <div className="px-4 py-2 border-b border-border bg-muted/50">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-xs text-muted-foreground">
+                        Signed in as {userProfile?.first_name && userProfile?.last_name 
+                          ? `${userProfile.first_name} ${userProfile.last_name}` 
+                          : user.email}
+                      </span>
+                    </div>
                   </div>}
-                
-                {messages.map(message => <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    {message.role === 'assistant' && <Avatar className="h-8 w-8 flex-shrink-0">
+
+                {/* Messages */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {messages.length === 0 && <div className="text-center text-muted-foreground py-8">
+                      <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
+                      <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
+                    </div>}
+                  
+                  {messages.map(message => <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      {message.role === 'assistant' && <Avatar className="h-8 w-8 flex-shrink-0">
+                          <AvatarFallback>
+                            <Bot className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>}
+                      
+                      <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
+                        <div className={`rounded-lg p-3 text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
+                          {message.content}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1 px-1">
+                          {formatTime(message.timestamp)}
+                        </p>
+                      </div>
+
+                      {message.role === 'user' && <Avatar className="h-8 w-8 flex-shrink-0">
+                          <AvatarFallback>
+                            <User className="h-4 w-4" />
+                          </AvatarFallback>
+                        </Avatar>}
+                    </div>)}
+                  
+                  {isLoading && <div className="flex gap-3">
+                      <Avatar className="h-8 w-8">
                         <AvatarFallback>
                           <Bot className="h-4 w-4" />
                         </AvatarFallback>
-                      </Avatar>}
-                    
-                    <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
-                      <div className={`rounded-lg p-3 text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
-                        {message.content}
+                      </Avatar>
+                      <div className="bg-muted rounded-lg p-3 text-sm">
+                        <div className="flex space-x-1">
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
+                    animationDelay: '0.1s'
+                  }} />
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
+                    animationDelay: '0.2s'
+                  }} />
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 px-1">
-                        {formatTime(message.timestamp)}
-                      </p>
-                    </div>
-
-                    {message.role === 'user' && <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarFallback>
-                          <User className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>}
-                  </div>)}
-                
-                {isLoading && <div className="flex gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>
-                        <Bot className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="bg-muted rounded-lg p-3 text-sm">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
-                  animationDelay: '0.1s'
-                }} />
-                        <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
-                  animationDelay: '0.2s'
-                }} />
-                      </div>
-                    </div>
-                  </div>}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Input area */}
-              <div className="p-4 border-t border-border flex-shrink-0">
-                <div className="flex gap-2">
-                  <Button 
-                    variant={isVoiceActive ? "default" : "outline"} 
-                    size="sm" 
-                    onClick={handleVoiceCommand} 
-                    className="flex-shrink-0" 
-                    disabled={isLoading}
-                  >
-                    {isVoiceActive ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                  </Button>
-                  <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
-                  <Button onClick={sendMessage} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
-                    <Send className="h-4 w-4" />
-                  </Button>
+                    </div>}
+                  <div ref={messagesEndRef} />
                 </div>
-              </div>
-            </>}
-        </>}
-    </div>;
+
+                {/* Input area */}
+                <div className="p-4 border-t border-border flex-shrink-0">
+                  <div className="flex gap-2">
+                    <Button 
+                      variant={isVoiceActive ? "default" : "outline"} 
+                      size="sm" 
+                      onClick={handleVoiceCommand} 
+                      className="flex-shrink-0" 
+                      disabled={isLoading}
+                    >
+                      {isVoiceActive ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    </Button>
+                    <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
+                    <Button onClick={sendMessage} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </>}
+          </>}
+      </div>
+    </>
+  );
 }
