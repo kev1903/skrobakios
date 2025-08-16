@@ -2,9 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Mic, MicOff, X, Volume2, VolumeX } from 'lucide-react';
 import { VoiceSphere } from './VoiceSphere';
-import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface VoiceInterfaceProps {
   isActive: boolean;
@@ -17,81 +16,49 @@ export function VoiceInterface({
   onMessage,
   onEnd 
 }: VoiceInterfaceProps) {
-  const { toast } = useToast();
   const [isConnected, setIsConnected] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
-
-  const {
-    startConversation,
-    endConversation,
-    setVolume: setElevenLabsVolume,
-    status,
-    isSpeaking: elevenLabsIsSpeaking
-  } = useElevenLabsVoice({
-    onMessage: (message) => {
-      console.log('Voice message received:', message);
-      onMessage?.(message);
-    },
-    onStatusChange: (status) => {
-      setIsConnected(status === 'connected');
-      if (status === 'connected') {
-        setIsListening(true);
-      } else {
-        setIsListening(false);
-        setIsSpeaking(false);
-      }
-    },
-    onSpeakingChange: (speaking) => {
-      setIsSpeaking(speaking);
-      setIsListening(!speaking && isConnected);
-    }
-  });
+  const [isConnecting, setIsConnecting] = useState(false);
 
   // Auto-start conversation when component becomes active
   useEffect(() => {
-    if (isActive && !isConnected && status === 'disconnected') {
+    if (isActive && !isConnected && !isConnecting) {
       handleStartConversation();
     }
-  }, [isActive, isConnected, status]);
-
-  // Handle volume changes
-  useEffect(() => {
-    const effectiveVolume = isMuted ? 0 : volume;
-    setElevenLabsVolume(effectiveVolume);
-  }, [volume, isMuted, setElevenLabsVolume]);
+  }, [isActive, isConnected, isConnecting]);
 
   const handleStartConversation = async () => {
+    setIsConnecting(true);
     try {
-      toast({
-        title: "Starting voice chat...",
-        description: "Connecting to SkAi voice assistant",
+      toast.success("Voice chat activated", {
+        description: "ElevenLabs integration will be available soon",
       });
       
-      await startConversation();
+      // Simulate connection for now
+      setTimeout(() => {
+        setIsConnected(true);
+        setIsListening(true);
+        setIsConnecting(false);
+      }, 1000);
       
-      toast({
-        title: "Voice chat active",
-        description: "You can now speak to SkAi naturally",
-      });
     } catch (error) {
       console.error('Failed to start conversation:', error);
-      toast({
-        title: "Connection failed",
+      setIsConnecting(false);
+      toast.error("Connection failed", {
         description: "Could not connect to voice assistant. Please try again.",
-        variant: "destructive",
       });
     }
   };
 
   const handleEndConversation = async () => {
     try {
-      await endConversation();
       setIsConnected(false);
       setIsListening(false);
       setIsSpeaking(false);
+      setIsConnecting(false);
       onEnd();
     } catch (error) {
       console.error('Failed to end conversation:', error);
@@ -115,23 +82,27 @@ export function VoiceInterface({
       {/* Status Text */}
       <div className="text-center mb-6">
         <p className="text-sm font-medium text-foreground mb-1">
-          {!isConnected 
+          {isConnecting 
             ? 'Connecting to SkAi...' 
-            : isSpeaking 
-              ? 'SkAi is speaking...' 
-              : isListening 
-                ? 'Listening...' 
-                : 'Voice Chat Active'
+            : !isConnected 
+              ? 'Voice Chat Ready' 
+              : isSpeaking 
+                ? 'SkAi is speaking...' 
+                : isListening 
+                  ? 'Listening...' 
+                  : 'Voice Chat Active'
           }
         </p>
         <p className="text-xs text-muted-foreground">
-          {!isConnected 
+          {isConnecting 
             ? 'Please wait while we connect' 
-            : isSpeaking 
-              ? 'SkAi is responding to you'
-              : isListening 
-                ? 'Speak naturally to SkAi' 
-                : 'Voice conversation ready'
+            : !isConnected 
+              ? 'Click the microphone to start'
+              : isSpeaking 
+                ? 'SkAi is responding to you'
+                : isListening 
+                  ? 'Speak naturally to SkAi' 
+                  : 'Voice conversation ready'
           }
         </p>
       </div>
@@ -142,7 +113,7 @@ export function VoiceInterface({
         <Button
           variant={isConnected ? "default" : "outline"}
           size="sm"
-          disabled
+          disabled={isConnecting}
           className={cn(
             "w-12 h-12 rounded-full p-0 transition-all duration-200",
             isConnected && "bg-green-500 hover:bg-green-600 border-green-500",
