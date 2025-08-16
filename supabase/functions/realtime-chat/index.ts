@@ -32,37 +32,39 @@ serve(async (req) => {
           })
           
           openaiWs.onopen = () => {
-            console.log('Connected to OpenAI Realtime API')
-            
-            // Send session configuration
-            const sessionConfig = {
-              type: 'session.update',
-              session: {
-                modalities: ['text', 'audio'],
-                instructions: 'You are SkAi, a helpful AI assistant for Skrobaki construction management. Help users with their projects, tasks, and construction-related questions.',
-                voice: 'alloy',
-                input_audio_format: 'pcm16',
-                output_audio_format: 'pcm16',
-                input_audio_transcription: {
-                  model: 'whisper-1'
-                },
-                turn_detection: {
-                  type: 'server_vad',
-                  threshold: 0.5,
-                  prefix_padding_ms: 300,
-                  silence_duration_ms: 1000
-                },
-                temperature: 0.8,
-                max_response_output_tokens: 'inf'
-              }
-            }
-            
-            openaiWs?.send(JSON.stringify(sessionConfig))
+            console.log('Connected to OpenAI Realtime API');
+            // Wait for session.created before sending session.update
           }
           
           openaiWs.onmessage = (event) => {
             const data = JSON.parse(event.data)
             console.log('OpenAI message:', data.type)
+            
+            // After session is created, configure it
+            if (data.type === 'session.created') {
+              const sessionConfig = {
+                type: 'session.update',
+                session: {
+                  modalities: ['text', 'audio'],
+                  instructions: 'You are SkAi, a helpful AI assistant for Skrobaki construction management. Help users with their projects, tasks, and construction-related questions.',
+                  voice: 'alloy',
+                  input_audio_format: 'pcm16',
+                  output_audio_format: 'pcm16',
+                  input_audio_transcription: {
+                    model: 'whisper-1'
+                  },
+                  turn_detection: {
+                    type: 'server_vad',
+                    threshold: 0.5,
+                    prefix_padding_ms: 300,
+                    silence_duration_ms: 1000
+                  },
+                  temperature: 0.8,
+                  max_response_output_tokens: 'inf'
+                }
+              }
+              openaiWs?.send(JSON.stringify(sessionConfig))
+            }
             
             // Forward relevant messages to client
             if (data.type === 'response.audio.delta' || 

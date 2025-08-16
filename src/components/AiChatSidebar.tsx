@@ -312,8 +312,8 @@ export function AiChatSidebar({
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true });
         
-        // Connect to OpenAI Realtime API via Supabase edge function
-        const wsUrl = `wss://xtawnkhvxgxylhxwqnmm.supabase.co/functions/v1/realtime-chat`;
+        // Connect to OpenAI Realtime API via Supabase edge function (WebSocket)
+        const wsUrl = `wss://xtawnkhvxgxylhxwqnmm.functions.supabase.co/functions/v1/realtime-chat`;
         const ws = new WebSocket(wsUrl);
         
         ws.onopen = () => {

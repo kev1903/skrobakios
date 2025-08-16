@@ -56,3 +56,6 @@ verify_jwt = true
 
 [functions.process-invoice]
 verify_jwt = true
+
+[functions.realtime-chat]
+verify_jwt = false
