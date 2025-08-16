@@ -41,7 +41,7 @@ export const AwaitingPaymentsTable: React.FC<AwaitingPaymentsTableProps> = ({
         .from('bills')
         .select('*')
         .eq('project_id', projectId)
-        .eq('status', 'approved')
+        .eq('status', 'scheduled')
         .order('due_date', { ascending: true });
 
       if (error) throw error;
@@ -71,10 +71,12 @@ export const AwaitingPaymentsTable: React.FC<AwaitingPaymentsTableProps> = ({
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'approved':
-        return <Badge variant="default" className="bg-blue-100 text-blue-800">Approved</Badge>;
+      case 'scheduled':
+        return <Badge variant="default" className="bg-blue-100 text-blue-800">Awaiting Payment</Badge>;
       case 'part_paid':
         return <Badge variant="secondary">Part Paid</Badge>;
+      case 'approved':
+        return <Badge variant="default" className="bg-blue-100 text-blue-800">Approved</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
