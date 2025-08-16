@@ -534,37 +534,21 @@ export function AiChatSidebar({
   };
 
   const handleVoiceCommand = async () => {
+    // Toggle ElevenLabs Voice Interface only (disable legacy recorder pipeline)
     if (isVoiceActive) {
       handleVoiceEnd();
       return;
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioStreamRef.current = stream;
-      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-
-      recorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          // Enqueue chunk while still recording; processing happens in background
-          enqueueChunk(e.data);
-        }
-      };
-
-      recorder.onstop = () => {
-        // Cleanup is handled in handleVoiceEnd
-      };
-
-      // Start with a timeslice to receive periodic chunks
-      recorder.start(1500); // every 1.5s
-      setAudioRecorder(recorder);
+      // Simply activate the ElevenLabs voice UI; it will request mic access itself
       setIsVoiceActive(true);
       setIsListening(true);
     } catch (error) {
-      console.error('Error accessing microphone:', error);
+      console.error('Error starting voice interface:', error);
       toast({
-        title: 'Microphone Access Denied',
-        description: 'Please allow microphone access to use voice commands',
+        title: 'Voice Start Failed',
+        description: 'Could not start voice interface. Please try again.',
         variant: 'destructive'
       });
     }
