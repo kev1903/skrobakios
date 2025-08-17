@@ -72,19 +72,19 @@ export const LandingPage = ({
 
             {/* Main Content */}
             <div className="flex-1 flex items-center justify-end">
-              <div className="w-full max-w-lg space-y-8 pr-8">
-                {/* Large Typography - Only "skro" */}
-                <div className="space-y-4 text-right">
-                  <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
+              <div className="flex items-center justify-end h-full">
+                {/* Large Typography - Only "skro" positioned at the edge */}
+                <div className="flex flex-col justify-center h-full">
+                  <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight text-right pr-0">
                     skro
                   </h1>
-                </div>
-
-                {/* Section Content */}
-                <div className="space-y-6">
-                  <div className="flex items-center justify-end space-x-4">
-                    <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
-                    <span className="text-white/60 font-mono text-sm">01</span>
+                  
+                  {/* Section Content below the text */}
+                  <div className="mt-8 space-y-6">
+                    <div className="flex items-center justify-end space-x-4">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
+                      <span className="text-white/60 font-mono text-sm">01</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -117,10 +117,10 @@ export const LandingPage = ({
 
           {/* Main Content with "baki" */}
           <div className="flex-1 flex items-center">
-            <div className="w-full pl-8">
-              {/* Large Typography - Only "baki" */}
-              <div className="space-y-4">
-                <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
+            <div className="flex items-center justify-start h-full">
+              {/* Large Typography - Only "baki" positioned at the edge */}
+              <div className="flex flex-col justify-center h-full">
+                <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight text-left pl-0">
                   <span className="text-white/90">baki</span>
                 </h1>
               </div>
