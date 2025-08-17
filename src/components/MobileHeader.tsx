@@ -39,7 +39,7 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
   };
 
   return (
-    <header className="flex items-center justify-between p-4 bg-white/80 backdrop-blur-sm border-b border-white/20 shadow-sm md:hidden relative z-20">{/* Added relative z-20 and removed gap */}
+    <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-4 bg-background/90 backdrop-blur-sm border-b border-border/50 shadow-sm md:hidden z-30">
       <div className="flex items-center space-x-3">
         <button 
           onClick={(e) => {

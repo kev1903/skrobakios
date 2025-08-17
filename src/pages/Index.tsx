@@ -164,16 +164,18 @@ const Index = () => {
           </div>
         ) : isMobile ? (
           // Mobile layout with toggle between chat and app
-          <div className="h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
-            
-            {/* Mobile header */}
+          <div className="relative h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+            {/* Mobile header (fixed) */}
             <MobileHeader onNavigate={handleNavigate} />
+
+            {/* Background Pattern below header and above toggle */}
+            <div className="pointer-events-none absolute left-0 right-0 top-16 bottom-16 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px]" />
             
-            <div className="relative z-10 flex h-full min-h-0" style={{ height: 'calc(100vh - 80px)' }}>
+            {/* Main content area pinned between header and bottom toggle */}
+            <div className="absolute left-0 right-0 top-16 bottom-16 z-10">
               {mobileView === 'chat' ? (
                 // AI Chat view on mobile
-                <div className="w-full pb-16 -mt-1">{/* Added negative margin to close gap */}
+                <div className="w-full h-full">
                   <AiChatSidebar 
                     isCollapsed={false} 
                     onToggleCollapse={() => {}}
@@ -183,7 +185,7 @@ const Index = () => {
                 </div>
               ) : (
                 // App view on mobile
-                <div className="w-full pb-16 -mt-1">{/* Added negative margin to close gap */}
+                <div className="w-full h-full overflow-hidden">
                   <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
                     <div className="w-full h-full">
                       <ContentRenderer 
@@ -197,12 +199,12 @@ const Index = () => {
                   </PageLayout>
                 </div>
               )}
-              
+
               {/* Global sidebar available on all pages */}
               <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
             </div>
             
-            {/* Mobile toggle at bottom */}
+            {/* Mobile toggle at bottom (fixed) */}
             <MobileViewToggle 
               activeView={mobileView}
               onViewChange={setMobileView}
