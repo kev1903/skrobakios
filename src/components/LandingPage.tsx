@@ -71,30 +71,21 @@ export const LandingPage = ({
             </header>
 
             {/* Main Content */}
-            <div className="flex-1 flex items-center">
-              <div className="w-full max-w-lg space-y-8">
-                {/* Large Typography */}
-                <div className="space-y-4">
+            <div className="flex-1 flex items-center justify-end">
+              <div className="w-full max-w-lg space-y-8 pr-8">
+                {/* Large Typography - Only "skro" */}
+                <div className="space-y-4 text-right">
                   <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
                     skro
-                    <br />
-                    <span className="text-white/90">baki</span>
                   </h1>
                 </div>
 
                 {/* Section Content */}
                 <div className="space-y-6">
-                  <div className="flex items-center space-x-4">
-                    <span className="text-white/60 font-mono text-sm">01</span>
+                  <div className="flex items-center justify-end space-x-4">
                     <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
+                    <span className="text-white/60 font-mono text-sm">01</span>
                   </div>
-                  
-                  
-
-                  
-
-                  {/* Service Options */}
-                  
                 </div>
               </div>
             </div>
@@ -124,8 +115,20 @@ export const LandingPage = ({
             </nav>
           </header>
 
+          {/* Main Content with "baki" */}
+          <div className="flex-1 flex items-center">
+            <div className="w-full pl-8">
+              {/* Large Typography - Only "baki" */}
+              <div className="space-y-4">
+                <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
+                  <span className="text-white/90">baki</span>
+                </h1>
+              </div>
+            </div>
+          </div>
+
           {/* Vertical Excellence Text */}
-          <div className="flex-1 hidden lg:flex items-center justify-end pr-12">
+          <div className="hidden lg:flex items-center justify-end pr-12 absolute right-0 top-1/2 transform -translate-y-1/2">
             <div className="writing-mode-vertical text-white/40 text-sm font-medium tracking-widest">
               <span style={{
               writingMode: 'vertical-rl',
