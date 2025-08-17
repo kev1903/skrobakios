@@ -49,9 +49,11 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="flex items-center justify-between mb-8">
                 {/* Logo */}
                 <div className="flex items-center">
-                  <div className="text-white font-bold text-xl tracking-wide">
-                    skrobaki
-                  </div>
+                  <img 
+                    src="/lovable-uploads/8eae48e7-108f-4422-91ee-27da66fcef42.png" 
+                    alt="Skrobaki Logo" 
+                    className="h-8 w-auto"
+                  />
                 </div>
 
                 {/* Mobile Menu Button */}
