@@ -92,20 +92,20 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           <div className="hidden lg:flex items-center space-x-6">
             <button 
               onClick={() => onNavigate('auth')}
-              className="text-gray-600 hover:text-gray-700 transition-colors text-sm font-medium"
+              className="text-gray-600 hover:text-gray-700 transition-colors text-sm font-inter font-medium"
             >
               Login
             </button>
             <span className="text-gray-400">/</span>
             <button 
               onClick={() => onNavigate('auth')}
-              className="text-skrobaki-blue hover:text-skrobaki-blue-light transition-colors text-sm font-medium"
+              className="text-skrobaki-blue hover:text-skrobaki-blue-light transition-colors text-sm font-inter font-medium"
             >
               Register
             </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex items-center text-gray-600 hover:text-gray-700 transition-colors text-sm font-medium"
+              className="flex items-center text-gray-600 hover:text-gray-700 transition-colors text-sm font-inter font-medium"
             >
               <Menu className="w-4 h-4 mr-2" />
               Menu
@@ -134,13 +134,13 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         {/* Main Content Area */}
         <div className="col-span-10 row-span-8 flex flex-col justify-center">
           {/* Section Number */}
-          <div className="text-gray-400 text-8xl md:text-9xl lg:text-[12rem] font-light leading-none mb-4">
+          <div className="text-gray-400 text-8xl md:text-9xl lg:text-[12rem] font-poppins font-extralight leading-none mb-4">
             01
           </div>
           
           {/* Main Heading */}
           <div className="mb-8">
-            <h1 className="text-gray-700 text-4xl md:text-6xl lg:text-7xl font-light leading-tight mb-4">
+            <h1 className="text-gray-700 text-4xl md:text-6xl lg:text-7xl font-poppins font-light leading-tight mb-4">
               <span className="text-skrobaki-blue font-medium">Project Management</span> Essential
               <br />
               Services
@@ -148,7 +148,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             
             {/* Underlined CTA */}
             <div className="mt-8">
-              <span className="text-gray-600 text-xl border-b-2 border-skrobaki-blue pb-1">
+              <span className="text-gray-600 text-xl font-inter font-medium border-b-2 border-skrobaki-blue pb-1">
                 Start today
               </span>
             </div>
@@ -169,8 +169,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <ArrowRight className="w-4 h-4 text-skrobaki-blue" />
             </div>
             <div className="text-left">
-              <div className="text-gray-700 font-medium">Watch</div>
-              <div className="text-gray-500 text-sm">our trailer</div>
+              <div className="text-gray-700 font-inter font-medium">Watch</div>
+              <div className="text-gray-500 text-sm font-inter">our trailer</div>
             </div>
           </button>
         </div>
@@ -178,24 +178,24 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         {/* Bottom Center - Gallery */}
         <div className="col-span-3 row-span-2 flex items-end">
           <div className="text-left">
-            <div className="text-gray-700 font-medium mb-1">Gallery</div>
-            <div className="text-gray-400 text-xs tracking-wider">0A</div>
+            <div className="text-gray-700 font-inter font-medium mb-1">Gallery</div>
+            <div className="text-gray-400 text-xs font-inter tracking-wider">0A</div>
           </div>
         </div>
 
         {/* Bottom Center Right - Training */}
         <div className="col-span-3 row-span-2 flex items-end">
           <div className="text-left">
-            <div className="text-gray-700 font-medium mb-1">Training</div>
-            <div className="text-gray-400 text-xs tracking-wider">0B</div>
+            <div className="text-gray-700 font-inter font-medium mb-1">Training</div>
+            <div className="text-gray-400 text-xs font-inter tracking-wider">0B</div>
           </div>
         </div>
 
         {/* Bottom Right - Certificate */}
         <div className="col-span-3 row-span-2 flex items-end">
           <div className="text-left">
-            <div className="text-gray-700 font-medium mb-1">Certificate</div>
-            <div className="text-gray-400 text-xs tracking-wider">0C</div>
+            <div className="text-gray-700 font-inter font-medium mb-1">Certificate</div>
+            <div className="text-gray-400 text-xs font-inter tracking-wider">0C</div>
           </div>
         </div>
       </div>
