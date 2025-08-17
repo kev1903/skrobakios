@@ -80,7 +80,7 @@ export const LandingPage = ({
             </header>
 
             {/* Main Content */}
-            <div className="flex-1 flex items-center">
+            <div className="flex-1 flex items-start pt-8">
               <div className="w-full space-y-8">
                 {/* Section Content */}
                 <div className="space-y-8">
