@@ -42,7 +42,7 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
         </div>
 
       <Tabs defaultValue="settings" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 glass-panel">
+        <TabsList className="grid w-full grid-cols-6 bg-card border border-border shadow-lg rounded-lg">
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Settings
