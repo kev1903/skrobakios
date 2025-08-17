@@ -9,6 +9,7 @@ import { AboutPage } from "@/components/pages/AboutPage";
 import { ContactPage } from "@/components/pages/ContactPage";
 import { DigitalObjectsProvider } from "@/contexts/DigitalObjectsContext";
 import { TaskProvider } from "@/components/tasks/TaskContext";
+import { MobileHeader } from "@/components/MobileHeader";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { AiChatSidebar } from "@/components/AiChatSidebar";
@@ -165,7 +166,11 @@ const Index = () => {
           // Mobile layout with toggle between chat and app
           <div className="h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
-            <div className="relative z-10 flex h-screen min-h-0">
+            
+            {/* Mobile header */}
+            <MobileHeader onNavigate={handleNavigate} />
+            
+            <div className="relative z-10 flex h-full min-h-0"  style={{ height: 'calc(100vh - 64px)' }}>
               {mobileView === 'chat' ? (
                 // AI Chat view on mobile
                 <div className="w-full pb-16">
