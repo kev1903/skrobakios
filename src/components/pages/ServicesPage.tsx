@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import projectManagementImage from '@/assets/project-management-team.jpg';
 import { 
   ArrowRight, 
+  ArrowLeft,
   Building, 
   Ruler, 
   Eye,
@@ -146,71 +147,65 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-xl border-b border-brand-gold/20">
-        <div className="max-w-7xl mx-auto px-8 py-3">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <div className="flex items-center space-x-4 architectural-accent">
-              <div className="relative group cursor-pointer" onClick={() => onNavigate('landing')}>
-                <img 
-                  src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
-                  alt="SKROBAKI"
-                  className="h-8 w-auto object-contain drop-shadow-lg"
-                />
-                <div className="absolute -inset-2 bg-gradient-to-r from-brand-gold/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm pointer-events-none"></div>
-              </div>
-            </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background with overlay - consistent with landing page */}
+      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+           style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}>
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
 
-            {/* Centered Navigation */}
-            <nav className="hidden md:flex items-center justify-center space-x-8 flex-1">
+      {/* Content */}
+      <div className="relative z-10">
+        {/* Header - consistent with landing page */}
+        <header className="p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => onNavigate('landing')}
+                className="text-white/70 hover:text-white text-sm font-medium tracking-wide transition-colors flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back</span>
+              </button>
+              <img src="/lovable-uploads/b0e435b5-f844-4b7c-bce4-cccf69ad4e5b.png" alt="Skrobaki Logo" className="h-8 w-auto" />
+            </div>
+            
+            <nav className="hidden lg:flex items-center space-x-12">
               <button 
                 onClick={() => onNavigate('services')}
-                className="text-sm font-medium text-brand-gold transition-colors duration-200"
+                className="text-white font-medium text-sm tracking-wide transition-colors"
               >
-                Services
+                SERVICES
               </button>
               <button 
                 onClick={() => onNavigate('projects')}
-                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
               >
-                Projects
+                PROJECTS
               </button>
               <button 
                 onClick={() => onNavigate('about')}
-                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
               >
-                About
+                ABOUT US
               </button>
-              <button 
-                onClick={() => onNavigate('contact')}
-                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
-              >
-                Contact
-              </button>
+              <Button variant="ghost" onClick={() => onNavigate('auth')} className="text-white border border-white/30 hover:bg-white/10 backdrop-blur-sm">
+                Sign In
+              </Button>
             </nav>
-
-            {/* Login Button */}
-            <button 
-              onClick={() => onNavigate('auth')}
-              className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
-            >
-              Login
-            </button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Hero Section */}
-      <section className="pt-24 pb-16 bg-gradient-to-br from-background via-background/95 to-card/30">
-        <div className="max-w-7xl mx-auto px-8">
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
+          {/* Page Title */}
           <div className="text-center mb-16">
-            <h1 className="heading-xl text-foreground mb-8 font-playfair">
-              Our <span className="text-gradient-gold">Services</span>
+            <h1 className="text-5xl lg:text-7xl font-bold text-white leading-none tracking-tight mb-6">
+              Our Services
             </h1>
-            <p className="body-lg text-muted-foreground max-w-3xl mx-auto">
-              Comprehensive architectural and construction services designed for clients who value precision, quality, and innovative solutions. From initial concept to final handover, we deliver excellence at every stage.
+            <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
+              Comprehensive construction and project management solutions designed to deliver excellence 
+              at every stage of your project lifecycle.
             </p>
           </div>
 
@@ -218,105 +213,104 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
           <div className="grid md:grid-cols-4 gap-6 mb-20">
             {features.map((feature, idx) => (
               <div key={idx} className="glass-card p-6 text-center">
-                <feature.icon className="w-8 h-8 text-brand-gold mx-auto mb-4" />
-                <h3 className="font-medium text-foreground mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground text-sm">{feature.description}</p>
+                <feature.icon className="w-8 h-8 text-white/80 mx-auto mb-4" />
+                <h3 className="font-medium text-white mb-2">{feature.title}</h3>
+                <p className="text-white/70 text-sm">{feature.description}</p>
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </main>
 
-      {/* Services Details */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-8">
-          <div className="space-y-20">
-            {services.map((category, idx) => (
-              <div key={idx} className="grid lg:grid-cols-2 gap-16 items-center">
-                <div className={idx % 2 === 1 ? 'lg:order-2' : ''}>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-2 h-12 bg-gradient-to-b from-brand-gold to-brand-gold-light rounded-full"></div>
-                    <h2 className="heading-lg text-foreground font-playfair">
-                      {category.category}
-                    </h2>
-                  </div>
-                  <p className="body-lg text-muted-foreground mb-8">
-                    {category.description}
-                  </p>
-                  <div className="space-y-6">
-                    {category.items.map((item, itemIdx) => (
-                      <div key={itemIdx} className="flex items-start gap-4">
-                        <div className="w-10 h-10 bg-brand-gold/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
-                          <item.icon className="w-5 h-5 text-brand-gold" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-foreground mb-2">{item.name}</h4>
-                          <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className={idx % 2 === 1 ? 'lg:order-1' : ''}>
-                  <Card className="glass-card border-brand-gold/10 p-8">
-                    <CardContent className="p-0">
-                      {category.category === "Project Management" ? (
-                        <div 
-                          className="aspect-square rounded-2xl bg-cover bg-center bg-no-repeat relative overflow-hidden"
-                          style={{ backgroundImage: `url(${projectManagementImage})` }}
-                        >
-                          <div className="absolute inset-0 bg-brand-gold/20 backdrop-blur-[1px] flex items-center justify-center">
-                            <div className="text-6xl text-white font-bold drop-shadow-lg">{idx + 1}</div>
+        {/* Services Details */}
+        <section className="py-20 relative z-10">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="space-y-20">
+              {services.map((category, idx) => (
+                <div key={idx} className="grid lg:grid-cols-2 gap-16 items-center">
+                  <div className={idx % 2 === 1 ? 'lg:order-2' : ''}>
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-2 h-12 bg-gradient-to-b from-white/60 to-white/40 rounded-full"></div>
+                      <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-wide">
+                        {category.category}
+                      </h2>
+                    </div>
+                    <p className="text-lg text-white/80 mb-8 leading-relaxed">
+                      {category.description}
+                    </p>
+                    <div className="space-y-6">
+                      {category.items.map((item, itemIdx) => (
+                        <div key={itemIdx} className="flex items-start gap-4">
+                          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 backdrop-blur-sm">
+                            <item.icon className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-white mb-2">{item.name}</h4>
+                            <p className="text-white/70 text-sm leading-relaxed">{item.description}</p>
                           </div>
                         </div>
-                      ) : (
-                        <div className="aspect-square bg-gradient-to-br from-brand-gold/10 to-brand-gold/5 rounded-2xl flex items-center justify-center">
-                          <div className="text-6xl text-brand-gold/20">{idx + 1}</div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className={idx % 2 === 1 ? 'lg:order-1' : ''}>
+                    <div className="glass-card p-8">
+                      <div className="p-0">
+                        {category.category === "Project Management" ? (
+                          <div 
+                            className="aspect-square rounded-2xl bg-cover bg-center bg-no-repeat relative overflow-hidden"
+                            style={{ backgroundImage: `url(${projectManagementImage})` }}
+                          >
+                            <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center">
+                              <div className="text-6xl text-white font-bold drop-shadow-lg">{idx + 1}</div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="aspect-square bg-gradient-to-br from-white/10 to-white/5 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                            <div className="text-6xl text-white/40 font-bold">{idx + 1}</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Call to Action */}
-      <section className="py-20 bg-card/30">
-        <div className="max-w-4xl mx-auto px-8 text-center">
-          <h2 className="heading-lg text-card-foreground mb-8">
-            Ready to Start Your Project?
-          </h2>
-          <p className="body-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Let's discuss how our comprehensive services can bring your architectural vision to life with exceptional quality and attention to detail.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-              style={{ 
-                backgroundColor: 'rgb(54,119,159)',
-                boxShadow: '0 4px 15px rgba(54, 119, 159, 0.2)',
-                border: 'none'
-              }}
-              onClick={() => onNavigate('contact')}
-            >
-              <Calendar className="w-4 h-4" />
-              Book Consultation
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            <Button 
-              variant="outline" 
-              className="button-ghost px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2"
-              onClick={() => onNavigate('projects')}
-            >
-              View Our Work
-            </Button>
+        {/* Call to Action */}
+        <section className="py-20 relative z-10">
+          <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+            <div className="glass-card p-12">
+              <h2 className="text-3xl font-bold text-white mb-8">
+                Ready to Start Your Project?
+              </h2>
+              <p className="text-lg text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed">
+                Let's discuss how our comprehensive services can bring your architectural vision to life with exceptional quality and attention to detail.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  size="lg"
+                  onClick={() => onNavigate('contact')}
+                  className="text-white bg-white/20 border border-white/30 hover:bg-white/30 backdrop-blur-sm"
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Book Consultation
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  onClick={() => onNavigate('projects')}
+                  className="text-white border-white/30 hover:bg-white/10 backdrop-blur-sm"
+                >
+                  View Our Work
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 };
