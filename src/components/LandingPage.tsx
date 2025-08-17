@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Menu, X, ChevronDown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ServiceModal } from './ServiceModal';
 import heroImage from '@/assets/new-architecture-background.png';
+
 interface LandingPageProps {
   onNavigate: (page: string) => void;
 }
+
 export const LandingPage = ({
   onNavigate
 }: LandingPageProps) => {
@@ -14,7 +15,6 @@ export const LandingPage = ({
   const [activeSection, setActiveSection] = useState('hero');
   const [hoveredService, setHoveredService] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const isMobile = useIsMobile();
 
   const serviceDescriptions = {
@@ -28,6 +28,113 @@ export const LandingPage = ({
     digital: "Advanced digital delivery solutions and analytics to optimize project performance and data-driven decision making."
   };
 
+  const serviceDetails = {
+    advisory: {
+      title: "ADVISORY",
+      description: "Robust front-end planning has been shown to lower total capital cost 10%, shorten schedule 7% and trim change-orders 5%.",
+      scope: "Stages 1-3 only - brief, concept, definition. PDF reports & meeting workshops.",
+      typicalFee: "Lump-sum",
+      whoIsFor: "Ideal for clients who just want early clarity before committing.",
+      benefits: [
+        "Front-end clarity prevents downstream chaos.",
+        "Aligns brief, scope & budget before design spend.",
+        "Early risk workshops cut late design changes and permit re-submissions.",
+        "Owners get a 'go / no-go' decision for < 2 % of project cost."
+      ]
+    },
+    project: {
+      title: "PROJECT MANAGEMENT",
+      description: "End-to-end management of projects, ensuring they are delivered on time, within budget, and to the highest quality standards while protecting the client's interest.",
+      scope: "Full project lifecycle management from inception to completion.",
+      typicalFee: "Percentage of construction cost",
+      whoIsFor: "Clients who want professional oversight and coordination throughout their project.",
+      benefits: [
+        "Expert project coordination and scheduling",
+        "Budget management and cost control",
+        "Quality assurance and compliance oversight",
+        "Risk management and mitigation strategies"
+      ]
+    },
+    construction: {
+      title: "CONSTRUCTION MANAGEMENT",
+      description: "Hands-on coordination and oversight of construction activities, managing trades, schedules, compliance, and site operations to achieve seamless project execution.",
+      scope: "On-site construction oversight and coordination.",
+      typicalFee: "Fixed fee or percentage",
+      whoIsFor: "Projects requiring dedicated on-site management and coordination.",
+      benefits: [
+        "Direct trade coordination and scheduling",
+        "Quality control and safety oversight",
+        "Progress monitoring and reporting",
+        "Issue resolution and problem-solving"
+      ]
+    },
+    estimating: {
+      title: "ESTIMATING SERVICES",
+      description: "Accurate cost estimation and budgeting services to ensure project financial viability and competitive pricing.",
+      scope: "Detailed cost analysis and budget preparation.",
+      typicalFee: "Fixed fee per estimate",
+      whoIsFor: "Clients needing accurate project costing for planning or tendering.",
+      benefits: [
+        "Precise cost forecasting",
+        "Market-based pricing analysis",
+        "Risk assessment and contingency planning",
+        "Competitive advantage in tendering"
+      ]
+    },
+    inspection: {
+      title: "SITE INSPECTION SERVICES",
+      description: "Comprehensive site inspections and condition assessments to identify potential issues and ensure compliance with standards.",
+      scope: "Detailed site surveys and condition reporting.",
+      typicalFee: "Per inspection basis",
+      whoIsFor: "Property owners and developers requiring professional assessments.",
+      benefits: [
+        "Comprehensive condition assessments",
+        "Compliance verification",
+        "Risk identification and mitigation",
+        "Professional reporting and documentation"
+      ]
+    },
+    design: {
+      title: "DESIGN & VISUALISATION",
+      description: "Creative design solutions and 3D visualizations to bring your vision to life with cutting-edge technology.",
+      scope: "Concept through detailed design with 3D modeling.",
+      typicalFee: "Design fee percentage",
+      whoIsFor: "Clients wanting innovative design solutions and clear visualizations.",
+      benefits: [
+        "Creative and functional design solutions",
+        "Photorealistic 3D visualizations",
+        "Design optimization and value engineering",
+        "Clear communication of design intent"
+      ]
+    },
+    bim: {
+      title: "BIM SERVICES",
+      description: "Building Information Modeling services for enhanced project coordination, clash detection, and digital collaboration.",
+      scope: "3D modeling, coordination, and digital project delivery.",
+      typicalFee: "Project-based fee",
+      whoIsFor: "Complex projects requiring advanced coordination and collaboration.",
+      benefits: [
+        "Enhanced project coordination",
+        "Clash detection and resolution",
+        "Improved collaboration and communication",
+        "Digital asset creation and management"
+      ]
+    },
+    digital: {
+      title: "DIGITAL DELIVERY & ANALYTICS",
+      description: "Advanced digital delivery solutions and analytics to optimize project performance and data-driven decision making.",
+      scope: "Digital tools implementation and performance analytics.",
+      typicalFee: "Technology licensing and consulting",
+      whoIsFor: "Forward-thinking clients embracing digital transformation.",
+      benefits: [
+        "Data-driven decision making",
+        "Performance optimization",
+        "Digital workflow automation",
+        "Advanced analytics and reporting"
+      ]
+    }
+  };
+
   // Navigation handler for menu items
   const handleNavigation = (section: string) => {
     // For now, just close mobile menu
@@ -38,14 +145,13 @@ export const LandingPage = ({
   // Service click handler
   const handleServiceClick = (service: string) => {
     setSelectedService(service);
-    setIsModalOpen(true);
   };
 
   // Close modal handler
   const closeModal = () => {
-    setIsModalOpen(false);
     setSelectedService(null);
   };
+
   return <div className="h-screen relative overflow-hidden">
       {/* Hero Background Image */}
       <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
@@ -219,7 +325,7 @@ export const LandingPage = ({
           </div>
         </div>
 
-        {/* Right Side - Clear Background with Navigation */}
+        {/* Right Side - Clear Background with Navigation or Service Details */}
         <div className="w-2/3 h-full flex flex-col">
           {/* Navigation for Desktop */}
           <header className="hidden lg:flex justify-end pt-8 pr-12">
@@ -239,17 +345,79 @@ export const LandingPage = ({
             </nav>
           </header>
 
-          {/* Vertical Excellence Text */}
-          <div className="hidden lg:flex items-center justify-end pr-12 absolute right-0 top-1/2 transform -translate-y-1/2">
-            <div className="writing-mode-vertical text-white/40 text-sm font-medium tracking-widest">
-              <span style={{
-              writingMode: 'vertical-rl',
-              textOrientation: 'mixed'
-            }}>
-                EXCELLENCE
-              </span>
+          {/* Service Details Panel or Vertical Excellence Text */}
+          {selectedService ? (
+            <div className="flex-1 flex items-center justify-center p-8">
+              <div className="bg-white/95 backdrop-blur-md rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl">
+                {/* Header */}
+                <div className="flex items-center justify-between p-6 border-b">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {serviceDetails[selectedService as keyof typeof serviceDetails]?.title}
+                  </h2>
+                  <Button variant="ghost" size="icon" onClick={closeModal}>
+                    <X className="w-6 h-6" />
+                  </Button>
+                </div>
+
+                {/* Content */}
+                <div className="p-6 space-y-6">
+                  {/* Description */}
+                  <div>
+                    <p className="text-gray-700 text-lg leading-relaxed">
+                      {serviceDetails[selectedService as keyof typeof serviceDetails]?.description}
+                    </p>
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-gray-900">Scope</h3>
+                      <p className="text-gray-600">{serviceDetails[selectedService as keyof typeof serviceDetails]?.scope}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-gray-900">Typical Fee Basis*</h3>
+                      <p className="text-gray-600">{serviceDetails[selectedService as keyof typeof serviceDetails]?.typicalFee}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-gray-900">Who is this for?</h3>
+                      <p className="text-gray-600">{serviceDetails[selectedService as keyof typeof serviceDetails]?.whoIsFor}</p>
+                    </div>
+                  </div>
+
+                  {/* Value Added Section */}
+                  <div className="bg-blue-900 text-white p-6 rounded-lg">
+                    <h3 className="text-xl font-bold mb-4">Value Added</h3>
+                    <ul className="space-y-2">
+                      {serviceDetails[selectedService as keyof typeof serviceDetails]?.benefits.map((benefit, index) => (
+                        <li key={index} className="flex items-start">
+                          <span className="text-blue-300 mr-2">•</span>
+                          <span>{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="p-6 border-t bg-gray-50">
+                  <Button onClick={closeModal} className="w-full">
+                    Close
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="hidden lg:flex items-center justify-end pr-12 absolute right-0 top-1/2 transform -translate-y-1/2">
+              <div className="writing-mode-vertical text-white/40 text-sm font-medium tracking-widest">
+                <span style={{
+                  writingMode: 'vertical-rl',
+                  textOrientation: 'mixed'
+                }}>
+                  EXCELLENCE
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
       </div>
@@ -271,12 +439,5 @@ export const LandingPage = ({
           </div>
         </div>
       </div>
-      
-      {/* Service Modal */}
-      <ServiceModal 
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        service={selectedService}
-      />
     </div>;
 };
