@@ -17,7 +17,12 @@ export const LandingPage = ({
   const serviceDescriptions = {
     advisory: "Help clients make informed decisions at every stage of their project, from feasibility and budgeting to design reviews and procurement strategies.",
     project: "End-to-end management of projects, ensuring they are delivered on time, within budget, and to the highest quality standards while protecting the client's interest.",
-    construction: "Hands-on coordination and oversight of construction activities, managing trades, schedules, compliance, and site operations to achieve seamless project execution."
+    construction: "Hands-on coordination and oversight of construction activities, managing trades, schedules, compliance, and site operations to achieve seamless project execution.",
+    estimating: "Accurate cost estimation and budgeting services to ensure project financial viability and competitive pricing.",
+    inspection: "Comprehensive site inspections and condition assessments to identify potential issues and ensure compliance with standards.",
+    design: "Creative design solutions and 3D visualizations to bring your vision to life with cutting-edge technology.",
+    bim: "Building Information Modeling services for enhanced project coordination, clash detection, and digital collaboration.",
+    digital: "Advanced digital delivery solutions and analytics to optimize project performance and data-driven decision making."
   };
 
   // Navigation handler for menu items
@@ -109,6 +114,61 @@ export const LandingPage = ({
                     <span className="text-white/60 text-sm">03</span>
                     <div className="flex-1">
                       <h2 className="text-white font-semibold text-lg tracking-wide">CONSTRUCTION MANAGEMENT</h2>
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                    onMouseEnter={() => setHoveredService('estimating')}
+                    onMouseLeave={() => setHoveredService(null)}
+                  >
+                    <span className="text-white/60 text-sm">04</span>
+                    <div className="flex-1">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">ESTIMATING SERVICES</h2>
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                    onMouseEnter={() => setHoveredService('inspection')}
+                    onMouseLeave={() => setHoveredService(null)}
+                  >
+                    <span className="text-white/60 text-sm">05</span>
+                    <div className="flex-1">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">SITE INSPECTION SERVICES</h2>
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                    onMouseEnter={() => setHoveredService('design')}
+                    onMouseLeave={() => setHoveredService(null)}
+                  >
+                    <span className="text-white/60 text-sm">06</span>
+                    <div className="flex-1">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">DESIGN & VISUALISATION</h2>
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                    onMouseEnter={() => setHoveredService('bim')}
+                    onMouseLeave={() => setHoveredService(null)}
+                  >
+                    <span className="text-white/60 text-sm">07</span>
+                    <div className="flex-1">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">BIM SERVICES</h2>
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                    onMouseEnter={() => setHoveredService('digital')}
+                    onMouseLeave={() => setHoveredService(null)}
+                  >
+                    <span className="text-white/60 text-sm">08</span>
+                    <div className="flex-1">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">DIGITAL DELIVERY & ANALYTICS</h2>
                     </div>
                   </div>
 
