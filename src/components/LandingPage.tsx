@@ -7,7 +7,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import heroImage from '@/assets/hero-landscape.jpg';
+import heroImage from '@/assets/hero-architecture.png';
 
 interface LandingPageProps {
   onNavigate: (page: string) => void;
