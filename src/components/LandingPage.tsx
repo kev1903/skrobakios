@@ -41,9 +41,17 @@ export const LandingPage = ({
 
   // Navigation handler for menu items
   const handleNavigation = (section: string) => {
-    // For now, just close mobile menu
+    // Close mobile menu
     setIsMenuOpen(false);
-    // Future: navigate to different pages or show modals
+    
+    // Navigate to the appropriate page
+    if (section === 'services') {
+      // For now, navigate to services page in current app structure
+      onNavigate('services');
+    } else {
+      // Future: handle other navigation
+      console.log(`Navigate to ${section}`);
+    }
   };
   return <div className="h-screen relative overflow-hidden">
       {/* Hero Background Carousel */}
