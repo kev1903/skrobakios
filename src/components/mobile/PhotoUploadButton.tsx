@@ -18,19 +18,47 @@ export const PhotoUploadButton = ({ onPhotoSelected, disabled = false }: PhotoUp
   const handleTakePhoto = async () => {
     try {
       setIsProcessing(true);
-      const image = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Camera,
-      });
-
-      if (image.dataUrl) {
-        onPhotoSelected(image.dataUrl);
-        toast({
-          title: "Photo captured",
-          description: "Photo has been successfully captured",
+      
+      // Check if we're running in a Capacitor environment
+      if (typeof window !== 'undefined' && (window as any).Capacitor) {
+        const image = await Camera.getPhoto({
+          quality: 90,
+          allowEditing: false,
+          resultType: CameraResultType.DataUrl,
+          source: CameraSource.Camera,
         });
+
+        if (image.dataUrl) {
+          onPhotoSelected(image.dataUrl);
+          toast({
+            title: "Photo captured",
+            description: "Photo has been successfully captured",
+          });
+        }
+      } else {
+        // Fallback for web browsers - trigger file input
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.capture = 'environment';
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const result = e.target?.result as string;
+              if (result) {
+                onPhotoSelected(result);
+                toast({
+                  title: "Photo captured",
+                  description: "Photo has been successfully captured",
+                });
+              }
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
       }
     } catch (error) {
       console.error('Error taking photo:', error);
@@ -48,19 +76,46 @@ export const PhotoUploadButton = ({ onPhotoSelected, disabled = false }: PhotoUp
   const handleSelectFromGallery = async () => {
     try {
       setIsProcessing(true);
-      const image = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Photos,
-      });
-
-      if (image.dataUrl) {
-        onPhotoSelected(image.dataUrl);
-        toast({
-          title: "Photo selected",
-          description: "Photo has been successfully selected from gallery",
+      
+      // Check if we're running in a Capacitor environment
+      if (typeof window !== 'undefined' && (window as any).Capacitor) {
+        const image = await Camera.getPhoto({
+          quality: 90,
+          allowEditing: false,
+          resultType: CameraResultType.DataUrl,
+          source: CameraSource.Photos,
         });
+
+        if (image.dataUrl) {
+          onPhotoSelected(image.dataUrl);
+          toast({
+            title: "Photo selected",
+            description: "Photo has been successfully selected from gallery",
+          });
+        }
+      } else {
+        // Fallback for web browsers
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const result = e.target?.result as string;
+              if (result) {
+                onPhotoSelected(result);
+                toast({
+                  title: "Photo selected",
+                  description: "Photo has been successfully selected from gallery",
+                });
+              }
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
       }
     } catch (error) {
       console.error('Error selecting photo:', error);
