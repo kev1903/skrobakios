@@ -162,41 +162,53 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           </button>
         </div>
 
-        {/* Bottom Left - Watch Trailer */}
+        {/* Bottom Left - About Us */}
         <div className="col-span-3 row-span-2 flex items-end">
-          <button className="flex items-center text-gray-600 hover:text-gray-700 transition-colors group">
+          <button 
+            onClick={() => scrollToSection('about')}
+            className="flex items-center text-gray-600 hover:text-gray-700 transition-colors group"
+          >
             <div className="w-12 h-12 rounded-full border border-skrobaki-blue flex items-center justify-center mr-4 group-hover:bg-skrobaki-blue/10 transition-colors">
               <ArrowRight className="w-4 h-4 text-skrobaki-blue" />
             </div>
             <div className="text-left">
-              <div className="text-gray-700 font-inter font-medium">Watch</div>
-              <div className="text-gray-500 text-sm font-inter">our trailer</div>
+              <div className="text-gray-700 font-inter font-medium">About</div>
+              <div className="text-gray-500 text-sm font-inter">our company</div>
             </div>
           </button>
         </div>
 
-        {/* Bottom Center - Gallery */}
+        {/* Bottom Center - Services */}
         <div className="col-span-3 row-span-2 flex items-end">
-          <div className="text-left">
-            <div className="text-gray-700 font-inter font-medium mb-1">Gallery</div>
-            <div className="text-gray-400 text-xs font-inter tracking-wider">0A</div>
-          </div>
+          <button 
+            onClick={() => scrollToSection('services')}
+            className="text-left group transition-colors"
+          >
+            <div className="text-gray-700 font-inter font-medium mb-1 group-hover:text-skrobaki-blue transition-colors">Services</div>
+            <div className="text-gray-400 text-xs font-inter tracking-wider">01</div>
+          </button>
         </div>
 
-        {/* Bottom Center Right - Training */}
+        {/* Bottom Center Right - Case Studies */}
         <div className="col-span-3 row-span-2 flex items-end">
-          <div className="text-left">
-            <div className="text-gray-700 font-inter font-medium mb-1">Training</div>
-            <div className="text-gray-400 text-xs font-inter tracking-wider">0B</div>
-          </div>
+          <button 
+            onClick={() => scrollToSection('case-studies')}
+            className="text-left group transition-colors"
+          >
+            <div className="text-gray-700 font-inter font-medium mb-1 group-hover:text-skrobaki-blue transition-colors">Case Studies</div>
+            <div className="text-gray-400 text-xs font-inter tracking-wider">02</div>
+          </button>
         </div>
 
-        {/* Bottom Right - Certificate */}
+        {/* Bottom Right - Contact */}
         <div className="col-span-3 row-span-2 flex items-end">
-          <div className="text-left">
-            <div className="text-gray-700 font-inter font-medium mb-1">Certificate</div>
-            <div className="text-gray-400 text-xs font-inter tracking-wider">0C</div>
-          </div>
+          <button 
+            onClick={() => scrollToSection('contact')}
+            className="text-left group transition-colors"
+          >
+            <div className="text-gray-700 font-inter font-medium mb-1 group-hover:text-skrobaki-blue transition-colors">Contact</div>
+            <div className="text-gray-400 text-xs font-inter tracking-wider">03</div>
+          </button>
         </div>
       </div>
 
