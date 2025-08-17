@@ -360,41 +360,96 @@ export const LandingPage = ({
                 </div>
 
                 {/* Content */}
-                <div className="p-6 space-y-6">
-                  {/* Description */}
-                  <div>
-                    <p className="text-gray-700 text-lg leading-relaxed">
-                      {serviceDetails[selectedService as keyof typeof serviceDetails]?.description}
-                    </p>
-                  </div>
-
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-1 gap-6">
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-gray-900">Scope</h3>
-                      <p className="text-gray-600">{serviceDetails[selectedService as keyof typeof serviceDetails]?.scope}</p>
+                <div className="p-8 space-y-8 font-inter">
+                  {/* Profile Section */}
+                  <div className="text-center space-y-6">
+                    <div className="flex justify-center">
+                      <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                        <div className="w-16 h-16 rounded-full bg-gray-400"></div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-gray-900">Typical Fee Basis*</h3>
-                      <p className="text-gray-600">{serviceDetails[selectedService as keyof typeof serviceDetails]?.typicalFee}</p>
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-gray-900">Who is this for?</h3>
-                      <p className="text-gray-600">{serviceDetails[selectedService as keyof typeof serviceDetails]?.whoIsFor}</p>
+                    
+                    <div className="space-y-4">
+                      <h1 className="text-4xl font-bold text-gray-900 leading-tight">
+                        Building digital<br />
+                        products, brands, and<br />
+                        experience.
+                      </h1>
+                      
+                      <button className="bg-gray-900 text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors">
+                        Learn More →
+                      </button>
                     </div>
                   </div>
 
-                  {/* Value Added Section */}
-                  <div className="bg-blue-900 text-white p-6 rounded-lg">
-                    <h3 className="text-xl font-bold mb-4">Value Added</h3>
-                    <ul className="space-y-2">
-                      {serviceDetails[selectedService as keyof typeof serviceDetails]?.benefits.map((benefit, index) => (
-                        <li key={index} className="flex items-start">
-                          <span className="text-blue-300 mr-2">•</span>
-                          <span>{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  {/* Brand Logos */}
+                  <div className="flex justify-center items-center space-x-8 opacity-60">
+                    <div className="text-sm font-medium text-gray-600">NATIONAL BANK</div>
+                    <div className="text-sm font-medium text-gray-600">mattered</div>
+                    <div className="text-sm font-medium text-gray-600">Coca-Cola</div>
+                    <div className="text-sm font-medium text-gray-600">Adobe</div>
+                    <div className="text-sm font-medium text-gray-600">SUBWAY</div>
+                    <div className="text-sm font-medium text-gray-600">code academy</div>
+                  </div>
+
+                  {/* Collaboration Section */}
+                  <div className="text-center space-y-6 py-8">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Collaborate with brands and agencies<br />
+                      to create impactful results.
+                    </h2>
+                    
+                    {/* Services Grid */}
+                    <div className="grid grid-cols-2 gap-6 mt-8">
+                      <div className="text-center space-y-3">
+                        <div className="w-12 h-12 mx-auto bg-gray-100 rounded-lg flex items-center justify-center">
+                          <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                        </div>
+                        <h3 className="font-semibold text-gray-900">UX & UI</h3>
+                        <p className="text-sm text-gray-600">Designing interfaces that are intuitive, efficient, and enjoyable to use.</p>
+                      </div>
+                      
+                      <div className="text-center space-y-3">
+                        <div className="w-12 h-12 mx-auto bg-gray-100 rounded-lg flex items-center justify-center">
+                          <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                        </div>
+                        <h3 className="font-semibold text-gray-900">Web & Mobile App</h3>
+                        <p className="text-sm text-gray-600">Transforming ideas into exceptional web and mobile app experiences.</p>
+                      </div>
+                      
+                      <div className="text-center space-y-3">
+                        <div className="w-12 h-12 mx-auto bg-gray-100 rounded-lg flex items-center justify-center">
+                          <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                        </div>
+                        <h3 className="font-semibold text-gray-900">Design & Creative</h3>
+                        <p className="text-sm text-gray-600">Crafting visually stunning designs that connect with your audience.</p>
+                      </div>
+                      
+                      <div className="text-center space-y-3">
+                        <div className="w-12 h-12 mx-auto bg-gray-100 rounded-lg flex items-center justify-center">
+                          <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                        </div>
+                        <h3 className="font-semibold text-gray-900">Development</h3>
+                        <p className="text-sm text-gray-600">Bringing your vision to life with the latest technology and design trends.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Contact Section */}
+                  <div className="text-center space-y-4 py-6">
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Tell me about your<br />
+                      next project
+                    </h2>
+                    
+                    <div className="flex justify-center space-x-4">
+                      <button className="bg-gray-900 text-white px-6 py-3 rounded-full font-medium hover:bg-gray-800 transition-colors">
+                        📧 Email Me
+                      </button>
+                      <button className="border border-gray-300 text-gray-700 px-6 py-3 rounded-full font-medium hover:bg-gray-50 transition-colors">
+                        WhatsApp
+                      </button>
+                    </div>
                   </div>
                 </div>
 
