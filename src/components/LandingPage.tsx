@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Menu, X, ChevronDown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import heroImage from '@/assets/modern-architecture-background.png';
+import heroImage from '@/assets/new-architecture-background.png';
 interface LandingPageProps {
   onNavigate: (page: string) => void;
 }
