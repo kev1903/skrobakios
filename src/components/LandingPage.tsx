@@ -75,109 +75,164 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-skrobaki-white">
-      {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-skrobaki-white/95 backdrop-blur-md border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <div className="flex items-center">
-              <img 
-                src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
-                alt="SKROBAKI - Independent Project Management"
-                className="h-10 w-auto object-contain cursor-pointer"
-              />
-            </div>
+    <div className="min-h-screen" style={{ 
+      background: `
+        var(--pattern-texture),
+        linear-gradient(135deg, hsl(220 30% 10%) 0%, hsl(220 30% 12%) 50%, hsl(220 25% 20%) 100%)
+      `
+    }}>
+      {/* Header */}
+      <header className="relative z-50 p-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center">
+            <img 
+              src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
+              alt="SKROBAKI Logo"
+              className="h-8 w-auto object-contain"
+            />
+          </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-8">
-              {[
-                { label: 'About Us', id: 'about' },
-                { label: 'Why Hire Us', id: 'why-hire' },
-                { label: 'Services', id: 'services' },
-                { label: 'Case Studies', id: 'case-studies' },
-                { label: 'Contact', id: 'contact' }
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  className="text-sm font-medium text-skrobaki-steel hover:text-skrobaki-navy transition-colors duration-200"
-                >
-                  {item.label}
-                </button>
-              ))}
-            </nav>
-
-            {/* CTA and Sign In Buttons */}
-            <div className="hidden lg:flex items-center space-x-4">
-              <Button 
-                variant="ghost"
-                onClick={() => onNavigate('auth')}
-                className="text-skrobaki-steel hover:text-skrobaki-navy font-medium"
-              >
-                Sign In
-              </Button>
-              <Button 
-                className="bg-skrobaki-gold hover:bg-skrobaki-gold-light text-skrobaki-navy font-medium px-6 py-2 rounded-lg transition-all duration-300"
-              >
-                Book Free Consultation
-              </Button>
-            </div>
-
-            {/* Mobile Menu Button */}
+          {/* Desktop Header Actions */}
+          <div className="hidden lg:flex items-center space-x-6">
+            <button 
+              onClick={() => onNavigate('auth')}
+              className="text-white/80 hover:text-white transition-colors text-sm font-medium"
+            >
+              Login
+            </button>
+            <span className="text-white/40">/</span>
+            <button 
+              onClick={() => onNavigate('auth')}
+              className="text-orange-500 hover:text-orange-400 transition-colors text-sm font-medium"
+            >
+              Register
+            </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 text-skrobaki-steel hover:text-skrobaki-navy"
+              className="flex items-center text-white/80 hover:text-white transition-colors text-sm font-medium"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              <Menu className="w-4 h-4 mr-2" />
+              Menu
             </button>
           </div>
 
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="lg:hidden py-4 border-t border-neutral-200">
-              <nav className="flex flex-col space-y-4">
-                {[
-                  { label: 'About Us', id: 'about' },
-                  { label: 'Why Hire Us', id: 'why-hire' },
-                  { label: 'Services', id: 'services' },
-                  { label: 'Case Studies', id: 'case-studies' },
-                  { label: 'Contact', id: 'contact' }
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    className="text-left text-skrobaki-steel hover:text-skrobaki-navy font-medium"
-                  >
-                    {item.label}
-                  </button>
-                ))}
-                <Button 
-                  variant="ghost"
-                  onClick={() => onNavigate('auth')}
-                  className="text-left text-skrobaki-steel hover:text-skrobaki-navy font-medium justify-start"
-                >
-                  Sign In
-                </Button>
-                <Button 
-                  className="bg-skrobaki-gold hover:bg-skrobaki-gold-light text-skrobaki-navy font-medium mt-4 w-full"
-                >
-                  Book Free Consultation
-                </Button>
-              </nav>
-            </div>
-          )}
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="lg:hidden flex items-center text-white/80 hover:text-white transition-colors"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
         </div>
       </header>
 
-      {/* Main Content - Centered Logo */}
-      <div className="pt-20 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <img 
-            src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
-            alt="SKROBAKI - Independent Project Management"
-            className="h-20 w-auto object-contain mx-auto"
-          />
+      {/* Main Content Grid */}
+      <div className="relative grid grid-cols-12 grid-rows-12 h-[calc(100vh-120px)] max-w-7xl mx-auto px-6 gap-4">
+        {/* Left Navigation Arrow */}
+        <div className="col-span-1 row-span-6 flex items-center justify-start">
+          <button className="text-white/60 hover:text-white transition-colors">
+            <ArrowRight className="w-8 h-8 rotate-180" />
+          </button>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="col-span-10 row-span-8 flex flex-col justify-center">
+          {/* Section Number */}
+          <div className="text-white/40 text-8xl md:text-9xl lg:text-[12rem] font-light leading-none mb-4">
+            01
+          </div>
+          
+          {/* Main Heading */}
+          <div className="mb-8">
+            <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-light leading-tight mb-4">
+              <span className="text-orange-500 font-medium">Project Management</span> Essential
+              <br />
+              Services
+            </h1>
+            
+            {/* Underlined CTA */}
+            <div className="mt-8">
+              <span className="text-white/80 text-xl border-b-2 border-orange-500 pb-1">
+                Start today
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Navigation Arrow */}
+        <div className="col-span-1 row-span-6 flex items-center justify-end">
+          <button className="text-white/60 hover:text-white transition-colors">
+            <ArrowRight className="w-8 h-8" />
+          </button>
+        </div>
+
+        {/* Bottom Left - Watch Trailer */}
+        <div className="col-span-3 row-span-2 flex items-end">
+          <button className="flex items-center text-white/80 hover:text-white transition-colors group">
+            <div className="w-12 h-12 rounded-full border border-orange-500 flex items-center justify-center mr-4 group-hover:bg-orange-500/10 transition-colors">
+              <ArrowRight className="w-4 h-4 text-orange-500" />
+            </div>
+            <div className="text-left">
+              <div className="text-white font-medium">Watch</div>
+              <div className="text-white/60 text-sm">our trailer</div>
+            </div>
+          </button>
+        </div>
+
+        {/* Bottom Center - Gallery */}
+        <div className="col-span-3 row-span-2 flex items-end">
+          <div className="text-left">
+            <div className="text-white font-medium mb-1">Gallery</div>
+            <div className="text-white/40 text-xs tracking-wider">0A</div>
+          </div>
+        </div>
+
+        {/* Bottom Center Right - Training */}
+        <div className="col-span-3 row-span-2 flex items-end">
+          <div className="text-left">
+            <div className="text-white font-medium mb-1">Training</div>
+            <div className="text-white/40 text-xs tracking-wider">0B</div>
+          </div>
+        </div>
+
+        {/* Bottom Right - Certificate */}
+        <div className="col-span-3 row-span-2 flex items-end">
+          <div className="text-left">
+            <div className="text-white font-medium mb-1">Certificate</div>
+            <div className="text-white/40 text-xs tracking-wider">0C</div>
+          </div>
         </div>
       </div>
+
+      {/* Bottom Orange Progress Bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-orange-500"></div>
+
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] lg:hidden">
+          <div className="flex flex-col items-center justify-center h-full text-white space-y-8">
+            <button 
+              onClick={() => onNavigate('auth')}
+              className="text-2xl font-light hover:text-orange-500 transition-colors"
+            >
+              Login
+            </button>
+            <button 
+              onClick={() => onNavigate('auth')}
+              className="text-2xl font-light text-orange-500 hover:text-orange-400 transition-colors"
+            >
+              Register
+            </button>
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="absolute top-6 right-6 text-white/80 hover:text-white"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

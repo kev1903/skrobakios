@@ -133,22 +133,24 @@ div[data-rbd-drag-handle-draggable-id] {
     --glass-shadow-hover: 210 15% 15%;
     --glass-backdrop: blur(16px);
     
-    /* Skrobaki Corporate Brand Colors */
-    --skrobaki-navy: 210 100% 18%;
-    --skrobaki-navy-light: 210 100% 25%;
-    --skrobaki-navy-dark: 210 100% 12%;
-    --skrobaki-steel: 210 8% 60%;
-    --skrobaki-steel-light: 210 8% 75%;
-    --skrobaki-gold: 42 87% 55%;
-    --skrobaki-gold-light: 42 87% 65%;
-    --skrobaki-white: 0 0% 100%;
-    --skrobaki-offwhite: 210 8% 98%;
+    /* Skrobaki Dark Modern Theme Colors */
+    --skrobaki-dark: 220 30% 12%;           /* Very dark navy background */
+    --skrobaki-navy: 220 25% 20%;           /* Navy for cards */
+    --skrobaki-navy-light: 220 25% 30%;     /* Lighter navy */
+    --skrobaki-steel: 215 15% 70%;          /* Light steel text */
+    --skrobaki-white: 0 0% 100%;            /* Pure white */
+    --skrobaki-offwhite: 220 20% 97%;       /* Off white */
+    --skrobaki-orange: 25 95% 60%;          /* Orange accent */
+    --skrobaki-orange-light: 25 95% 70%;    /* Lighter orange */
     
-    /* Corporate Gradients */
-    --gradient-corporate: linear-gradient(135deg, hsl(210 100% 18%) 0%, hsl(210 100% 25%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(42 87% 55%) 0%, hsl(42 87% 65%) 100%);
-    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 8% 98%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(210 100% 12%) 0%, hsl(210 100% 18%) 50%, hsl(210 100% 25%) 100%);
+    /* Corporate Gradients - Dark Theme */
+    --gradient-corporate: linear-gradient(135deg, hsl(220 30% 12%) 0%, hsl(220 25% 20%) 100%);
+    --gradient-orange: linear-gradient(135deg, hsl(25 95% 60%) 0%, hsl(25 95% 70%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(220 30% 12%) 0%, hsl(220 25% 15%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(220 30% 10%) 0%, hsl(220 30% 12%) 50%, hsl(220 25% 20%) 100%);
+    
+    /* Textured pattern overlay */
+    --pattern-texture: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='m0 40l40-40h-40v40zm40 0v-40h-40l40 40z'/%3E%3C/g%3E%3C/svg%3E");
     
     /* Enhanced Design System Colors */
     --neutral-50: 210 8% 98%;
