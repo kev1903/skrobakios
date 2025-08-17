@@ -45,8 +45,15 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           <div className="glass-card w-full h-full flex flex-col p-8 lg:p-12">
             {/* Navigation in Glass Panel */}
             <header className="mb-8">
-              {/* Social and Secondary Nav */}
-              <div className="flex items-center justify-end mb-8">
+              {/* Logo and Navigation */}
+              <div className="flex items-center justify-between mb-8">
+                {/* Logo */}
+                <div className="flex items-center">
+                  <div className="text-white font-bold text-xl tracking-wide">
+                    skrobaki
+                  </div>
+                </div>
+
                 {/* Mobile Menu Button */}
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
