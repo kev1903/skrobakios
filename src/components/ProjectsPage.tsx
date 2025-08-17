@@ -31,6 +31,8 @@ export const ProjectsPage = ({
   };
 
   const currentGallery = projectGalleries[selectedProject as keyof typeof projectGalleries] || projectGalleries['thanet-street'];
+  // Backward-compat alias to avoid runtime references
+  const galleryImages = currentGallery;
 
   const featuredProjects = [
     { id: 'thanet-street', name: 'Thanet Street', location: 'Malvern', type: 'Residential' },
