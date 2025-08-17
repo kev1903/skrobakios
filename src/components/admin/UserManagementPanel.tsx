@@ -151,9 +151,11 @@ export const UserManagementPanel: React.FC = () => {
   const createUser = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('No session');
+      if (!session) throw new Error('No session found. Please login again.');
 
-      const response = await supabase.functions.invoke('create-user-manually', {
+      console.log('Creating user with data:', { email, firstName, lastName, company, role });
+
+      const { data, error } = await supabase.functions.invoke('create-user-manually', {
         body: {
           email,
           password,
@@ -164,13 +166,20 @@ export const UserManagementPanel: React.FC = () => {
         },
       });
 
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to create user');
+      console.log('Function response:', { data, error });
+
+      if (error) {
+        console.error('Function error:', error);
+        throw new Error(error.message || 'Failed to create user');
+      }
+
+      if (!data || !data.success) {
+        throw new Error(data?.error || 'User creation failed');
       }
 
       toast({
         title: "Success",
-        description: "User created successfully",
+        description: `User ${email} created successfully with role: ${role}`,
       });
 
       resetForm();
