@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGlobalSidebar } from '@/contexts/GlobalSidebarContext';
 import { User, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useSidebar } from '@/components/ui/sidebar';
 import { BusinessSwitcher } from './BusinessSwitcher';
 
 interface MobileHeaderProps {
@@ -15,7 +15,7 @@ interface MobileHeaderProps {
 export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
   const { userProfile, loading } = useUser();
   const { user } = useAuth();
-  const { setOpenMobile, openMobile } = useSidebar();
+  const { isOpen, toggleSidebar } = useGlobalSidebar();
 
   // Get the user's display name from the database profile
   const getUserDisplayName = () => {
@@ -45,13 +45,8 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Hamburger clicked - toggling mobile sidebar', { setOpenMobile, openMobile });
-            console.log('Event details:', e.type, e.target);
-            if (setOpenMobile) {
-              setOpenMobile(!openMobile);
-            } else {
-              console.error('setOpenMobile function is undefined!');
-            }
+            console.log('Hamburger clicked - toggling mobile sidebar');
+            toggleSidebar();
           }}
           className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
           aria-label="Toggle sidebar"
