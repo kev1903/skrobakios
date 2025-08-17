@@ -137,22 +137,6 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           <div className="text-gray-400 text-8xl md:text-9xl lg:text-[12rem] font-poppins font-extralight leading-none mb-4">
             01
           </div>
-          
-          {/* Main Heading */}
-          <div className="mb-8">
-            <h1 className="text-gray-700 text-4xl md:text-6xl lg:text-7xl font-poppins font-light leading-tight mb-4">
-              <span className="text-skrobaki-blue font-medium">Project Management</span> Essential
-              <br />
-              Services
-            </h1>
-            
-            {/* Underlined CTA */}
-            <div className="mt-8">
-              <span className="text-gray-600 text-xl font-inter font-medium border-b-2 border-skrobaki-blue pb-1">
-                Start today
-              </span>
-            </div>
-          </div>
         </div>
 
         {/* Right Navigation Arrow */}
@@ -162,54 +146,6 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           </button>
         </div>
 
-        {/* Bottom Left - About Us */}
-        <div className="col-span-3 row-span-2 flex items-end">
-          <button 
-            onClick={() => scrollToSection('about')}
-            className="flex items-center text-gray-600 hover:text-gray-700 transition-colors group"
-          >
-            <div className="w-12 h-12 rounded-full border border-skrobaki-blue flex items-center justify-center mr-4 group-hover:bg-skrobaki-blue/10 transition-colors">
-              <ArrowRight className="w-4 h-4 text-skrobaki-blue" />
-            </div>
-            <div className="text-left">
-              <div className="text-gray-700 font-inter font-medium">About</div>
-              <div className="text-gray-500 text-sm font-inter">our company</div>
-            </div>
-          </button>
-        </div>
-
-        {/* Bottom Center - Services */}
-        <div className="col-span-3 row-span-2 flex items-end">
-          <button 
-            onClick={() => scrollToSection('services')}
-            className="text-left group transition-colors"
-          >
-            <div className="text-gray-700 font-inter font-medium mb-1 group-hover:text-skrobaki-blue transition-colors">Services</div>
-            <div className="text-gray-400 text-xs font-inter tracking-wider">01</div>
-          </button>
-        </div>
-
-        {/* Bottom Center Right - Case Studies */}
-        <div className="col-span-3 row-span-2 flex items-end">
-          <button 
-            onClick={() => scrollToSection('case-studies')}
-            className="text-left group transition-colors"
-          >
-            <div className="text-gray-700 font-inter font-medium mb-1 group-hover:text-skrobaki-blue transition-colors">Case Studies</div>
-            <div className="text-gray-400 text-xs font-inter tracking-wider">02</div>
-          </button>
-        </div>
-
-        {/* Bottom Right - Contact */}
-        <div className="col-span-3 row-span-2 flex items-end">
-          <button 
-            onClick={() => scrollToSection('contact')}
-            className="text-left group transition-colors"
-          >
-            <div className="text-gray-700 font-inter font-medium mb-1 group-hover:text-skrobaki-blue transition-colors">Contact</div>
-            <div className="text-gray-400 text-xs font-inter tracking-wider">03</div>
-          </button>
-        </div>
       </div>
 
       {/* Bottom Skrobaki Blue Progress Bar */}
