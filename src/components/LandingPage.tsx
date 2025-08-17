@@ -18,7 +18,7 @@ export const LandingPage = ({
   // Array of background images for carousel
   const backgroundImages = [
     heroImage,
-    heroImage, // Add more images here as needed
+    '/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png',
     heroImage  // Add more images here as needed
   ];
 
