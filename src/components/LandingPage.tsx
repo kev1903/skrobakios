@@ -87,11 +87,6 @@ export const LandingPage = ({
                     <span className="text-white/60 text-sm">01</span>
                     <div className="flex-1">
                       <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
-                      {hoveredService === 'advisory' && (
-                        <p className="text-white/80 text-sm mt-2 animate-fade-in leading-relaxed">
-                          {serviceDescriptions.advisory}
-                        </p>
-                      )}
                     </div>
                   </div>
                   
@@ -103,11 +98,6 @@ export const LandingPage = ({
                     <span className="text-white/60 text-sm">02</span>
                     <div className="flex-1">
                       <h2 className="text-white font-semibold text-lg tracking-wide">PROJECT MANAGEMENT</h2>
-                      {hoveredService === 'project' && (
-                        <p className="text-white/80 text-sm mt-2 animate-fade-in leading-relaxed">
-                          {serviceDescriptions.project}
-                        </p>
-                      )}
                     </div>
                   </div>
                   
@@ -119,12 +109,20 @@ export const LandingPage = ({
                     <span className="text-white/60 text-sm">03</span>
                     <div className="flex-1">
                       <h2 className="text-white font-semibold text-lg tracking-wide">CONSTRUCTION MANAGEMENT</h2>
-                      {hoveredService === 'construction' && (
-                        <p className="text-white/80 text-sm mt-2 animate-fade-in leading-relaxed">
-                          {serviceDescriptions.construction}
-                        </p>
-                      )}
                     </div>
+                  </div>
+
+                  {/* Dedicated Description Area */}
+                  <div className="mt-8 p-6 border border-blue-400/30 rounded-lg bg-white/5 backdrop-blur-sm min-h-[120px] flex items-center">
+                    {hoveredService ? (
+                      <p className="text-white/80 text-sm leading-relaxed animate-fade-in">
+                        {serviceDescriptions[hoveredService as keyof typeof serviceDescriptions]}
+                      </p>
+                    ) : (
+                      <p className="text-white/50 text-sm italic">
+                        Hover over a service to see its description
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
