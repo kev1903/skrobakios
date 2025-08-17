@@ -57,9 +57,6 @@ export const LandingPage = ({
                     <button className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors" onClick={() => handleNavigation('projects')}>
                       PROJECTS
                     </button>
-                    <button className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors" onClick={() => handleNavigation('offers')}>
-                      SPECIAL OFFERS
-                    </button>
                     <button className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors" onClick={() => handleNavigation('about')}>
                       ABOUT US
                     </button>
@@ -105,9 +102,6 @@ export const LandingPage = ({
               </button>
               <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => handleNavigation('projects')}>
                 PROJECTS
-              </button>
-              <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => handleNavigation('offers')}>
-                SPECIAL OFFERS
               </button>
               <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => handleNavigation('about')}>
                 ABOUT US
