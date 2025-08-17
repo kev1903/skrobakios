@@ -409,12 +409,6 @@ export const LandingPage = ({
                   </div>
                 </div>
 
-                {/* Footer */}
-                <div className="p-6 border-t bg-gray-50">
-                  <Button onClick={closeModal} className="w-full">
-                    Close
-                  </Button>
-                </div>
               </div>
             </div>
           ) : (
