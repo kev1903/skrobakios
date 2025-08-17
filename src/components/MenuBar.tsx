@@ -288,40 +288,6 @@ export const MenuBar = () => {
               <Menu className="w-4 h-4" />
             </button>
             
-            {/* Company Logo */}
-            <div className="flex items-center space-x-2">
-            <div 
-                className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity duration-200"
-                onClick={() => {
-                  if (activeContext === 'company') {
-                    // Navigate to business homepage with map
-                    window.location.href = '/?page=home';
-                  } else {
-                    // Navigate to personal profile with map
-                    window.location.href = '/?page=profile';
-                  }
-                }}
-              >
-                <span className="text-primary-foreground font-bold text-xs">
-                  {getCompanyDisplayText().charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <h1 
-                className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent event bubbling
-                  if (activeContext === 'company') {
-                    // Navigate to business homepage with map
-                    window.location.href = '/?page=home';
-                  } else {
-                    // Navigate to personal profile with map
-                    window.location.href = '/?page=profile';
-                  }
-                }}
-              >
-                {getCompanyDisplayText()}
-              </h1>
-            </div>
           </div>
 
           {/* Center - Timer info */}
