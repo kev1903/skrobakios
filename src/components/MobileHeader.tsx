@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { NotificationBadge } from '@/components/ui/notification-badge';
 import { NotificationDropdown } from '@/components/ui/notification-dropdown';
-import { BusinessSwitcher } from './BusinessSwitcher';
+
 
 interface MobileHeaderProps {
   onNavigate: (page: string) => void;
@@ -64,11 +64,6 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
           </div>
           <h1 className="text-sm font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern">KAKSIK</h1>
         </div>
-      </div>
-      
-      {/* Business Switcher */}
-      <div className="flex-1 flex justify-center">
-        <BusinessSwitcher />
       </div>
       
       {/* Navigation Icons */}
