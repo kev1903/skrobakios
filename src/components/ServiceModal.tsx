@@ -123,11 +123,11 @@ export const ServiceModal = ({ isOpen, onClose, service }: ServiceModalProps) =>
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-50 flex items-center justify-center p-4">
-      <div className="backdrop-blur-xl bg-white/[0.08] border border-white/[0.15] shadow-2xl rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="backdrop-blur-xl bg-gray-900/90 border border-gray-700/50 shadow-2xl rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto font-inter">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/[0.15]">
-          <h2 className="text-2xl font-bold text-white/90">{details.title}</h2>
-          <Button variant="ghost" size="icon" onClick={onClose} className="text-white/70 hover:text-white hover:bg-white/[0.1]">
+        <div className="flex items-center justify-between p-6 border-b border-gray-700/50">
+          <h2 className="text-2xl font-bold text-gray-100">{details.title}</h2>
+          <Button variant="ghost" size="icon" onClick={onClose} className="text-gray-400 hover:text-gray-100 hover:bg-gray-800/50">
             <X className="w-6 h-6" />
           </Button>
         </div>
@@ -136,33 +136,33 @@ export const ServiceModal = ({ isOpen, onClose, service }: ServiceModalProps) =>
         <div className="p-6 space-y-6">
           {/* Description */}
           <div>
-            <p className="text-white/80 text-lg leading-relaxed">{details.description}</p>
+            <p className="text-gray-300 text-lg leading-relaxed">{details.description}</p>
           </div>
 
           {/* Details Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <h3 className="font-semibold text-white/90">Scope</h3>
-              <p className="text-white/70">{details.scope}</p>
+              <h3 className="font-semibold text-gray-200">Scope</h3>
+              <p className="text-gray-400">{details.scope}</p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-semibold text-white/90">Typical Fee Basis*</h3>
-              <p className="text-white/70">{details.typicalFee}</p>
+              <h3 className="font-semibold text-gray-200">Typical Fee Basis*</h3>
+              <p className="text-gray-400">{details.typicalFee}</p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-semibold text-white/90">Who is this for?</h3>
-              <p className="text-white/70">{details.whoIsFor}</p>
+              <h3 className="font-semibold text-gray-200">Who is this for?</h3>
+              <p className="text-gray-400">{details.whoIsFor}</p>
             </div>
           </div>
 
           {/* Value Added Section */}
-          <div className="backdrop-blur-lg bg-white/[0.05] border border-white/[0.15] text-white p-6 rounded-2xl">
-            <h3 className="text-xl font-bold mb-4 text-white/90">Value Added</h3>
+          <div className="backdrop-blur-lg bg-gray-800/80 border border-gray-600/50 text-white p-6 rounded-2xl">
+            <h3 className="text-xl font-bold mb-4 text-gray-100">Value Added</h3>
             <ul className="space-y-2">
               {details.benefits.map((benefit, index) => (
                 <li key={index} className="flex items-start">
-                  <span className="text-white/60 mr-2">•</span>
-                  <span className="text-white/80">{benefit}</span>
+                  <span className="text-gray-400 mr-2">•</span>
+                  <span className="text-gray-300">{benefit}</span>
                 </li>
               ))}
             </ul>
@@ -170,8 +170,8 @@ export const ServiceModal = ({ isOpen, onClose, service }: ServiceModalProps) =>
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-white/[0.15] backdrop-blur-lg bg-white/[0.02]">
-          <Button onClick={onClose} className="w-full bg-white/[0.15] hover:bg-white/[0.25] text-white border border-white/[0.2]">
+        <div className="p-6 border-t border-gray-700/50 backdrop-blur-lg bg-gray-900/50">
+          <Button onClick={onClose} className="w-full bg-gray-700/80 hover:bg-gray-600/80 text-gray-100 border border-gray-600/50">
             Close
           </Button>
         </div>
