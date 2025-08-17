@@ -6,7 +6,7 @@ import { format, startOfWeek, endOfWeek, isSameDay, addDays } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import desertDunesBg from '@/assets/desert-dunes-bg.jpg';
+
 import { supabase } from '@/integrations/supabase/client';
 import { taskService } from '@/components/tasks/taskService';
 import { TaskCard } from '@/components/tasks/TaskCard';
@@ -288,18 +288,8 @@ const TasksPage = () => {
 
   return (
     <div>
-        {/* Glass Morphism Background Container */}
-        <div 
-          className="h-screen relative overflow-hidden"
-          style={{
-            backgroundImage: `url(${desertDunesBg})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed'
-          }}
-        >
-          {/* Background Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-black/20 via-black/10 to-black/30 backdrop-blur-[2px]" />
+        {/* Light theme background */}
+        <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-background via-accent/20 to-muted/30">
           
           {/* Main Content Container */}
           <div className={cn("relative z-10 flex h-full font-inter", spacingClasses)}>
@@ -309,18 +299,17 @@ const TasksPage = () => {
               fullHeightClasses, 
               spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0'
             )}>
-            {/* Return to Home Button */}
-            <Link to="/" className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors group font-inter">
+            <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group font-inter">
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               <span className="font-medium text-sm">Return to Home</span>
             </Link>
 
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
                 placeholder="Type here to search" 
-                className="pl-10 bg-white/10 border-white/20 rounded-xl h-11 text-sm placeholder:text-white/50 text-white backdrop-blur-sm focus:bg-white/15 focus:border-white/30 font-inter" 
+                className="pl-10 input-minimal rounded-xl h-11 text-sm placeholder:text-muted-foreground text-foreground" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -329,7 +318,7 @@ const TasksPage = () => {
             {/* Task Backlog */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-white text-sm font-inter">Task Backlog</h3>
+                <h3 className="font-semibold text-foreground text-sm font-inter">Task Backlog</h3>
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={async () => {
@@ -386,11 +375,11 @@ const TasksPage = () => {
                         });
                       }
                     }}
-                    className="text-orange-400 text-sm font-medium hover:text-orange-300 transition-colors font-inter"
+                    className="text-warning text-sm font-medium hover:opacity-80 transition-colors font-inter"
                   >
                     RESET
                   </button>
-                  <Link to="/tasks/new" className="text-blue-400 text-sm font-medium hover:text-blue-300 transition-colors font-inter">
+                  <Link to="/tasks/new" className="text-primary text-sm font-medium hover:opacity-80 transition-colors font-inter">
                     ADD TASK
                   </Link>
                 </div>
@@ -398,19 +387,19 @@ const TasksPage = () => {
 
               {/* Task Type Filter */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <button onClick={() => setActiveTab('All')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'All' ? 'bg-blue-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
+                <button onClick={() => setActiveTab('All')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'All' ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-accent/50 text-muted-foreground hover:bg-accent/70')}>
                   All
                 </button>
-                <button onClick={() => setActiveTab('Task')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Task' ? 'bg-green-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
+                <button onClick={() => setActiveTab('Task')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Task' ? 'bg-success text-success-foreground shadow-lg' : 'bg-accent/50 text-muted-foreground hover:bg-accent/70')}>
                   Tasks
                 </button>
-                <button onClick={() => setActiveTab('Issue')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Issue' ? 'bg-orange-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
+                <button onClick={() => setActiveTab('Issue')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Issue' ? 'bg-warning text-warning-foreground shadow-lg' : 'bg-accent/50 text-muted-foreground hover:bg-accent/70')}>
                   Issues
                 </button>
-                <button onClick={() => setActiveTab('Bug')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Bug' ? 'bg-red-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
+                <button onClick={() => setActiveTab('Bug')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Bug' ? 'bg-destructive text-destructive-foreground shadow-lg' : 'bg-accent/50 text-muted-foreground hover:bg-accent/70')}>
                   Bugs
                 </button>
-                <button onClick={() => setActiveTab('Feature')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Feature' ? 'bg-purple-500/80 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20')}>
+                <button onClick={() => setActiveTab('Feature')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all backdrop-blur-sm font-inter", activeTab === 'Feature' ? 'bg-secondary text-secondary-foreground shadow-lg' : 'bg-accent/50 text-muted-foreground hover:bg-accent/70')}>
                   Features
                 </button>
               </div>
@@ -418,11 +407,11 @@ const TasksPage = () => {
               <div className="space-y-2 min-h-[100px] p-2 rounded-lg">
                 {loading ? (
                   <div className="text-center py-4">
-                    <div className="text-sm text-white/60 font-inter">Loading tasks...</div>
+                    <div className="text-sm text-muted-foreground font-inter">Loading tasks...</div>
                   </div>
                 ) : userTasks.length === 0 ? (
                   <div className="text-center py-4">
-                    <div className="text-sm text-white/60 font-inter">No tasks assigned to you</div>
+                    <div className="text-sm text-muted-foreground font-inter">No tasks assigned to you</div>
                   </div>
                 ) : (
                   getFilteredTasks(userTasks).filter(task => {
@@ -446,7 +435,7 @@ const TasksPage = () => {
                       onDragStart={(e) => {
                         e.dataTransfer.setData('text/plain', task.id);
                       }}
-                      className="draggable-task-element px-3 py-2 rounded-lg cursor-pointer transition-all group backdrop-blur-sm border bg-white/10 border-white/20 hover:bg-white/20"
+                      className="draggable-task-element px-3 py-2 rounded-lg cursor-pointer transition-all group backdrop-blur-sm border bg-card border-border/50 hover:bg-accent/40"
                       onClick={() => {
                         setSelectedTaskForEdit(task);
                         setIsTaskEditOpen(true);
@@ -454,22 +443,22 @@ const TasksPage = () => {
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex-shrink-0 pt-1">
-                          <GripVertical className="w-4 h-4 text-white/60" />
+                          <GripVertical className="w-4 h-4 text-muted-foreground" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 
-                            className="text-sm font-semibold text-white truncate mb-1 cursor-pointer hover:text-blue-300 transition-colors font-inter"
+                            className="text-sm font-semibold text-foreground truncate mb-1 cursor-pointer hover:text-primary transition-colors font-inter"
                           >
                             {task.taskName}
                           </h4>
                           <div className="flex items-center gap-2">
-                            <p className="text-xs text-white/70 font-medium truncate font-inter">
+                            <p className="text-xs text-muted-foreground font-medium truncate font-inter">
                               {task.projectName || 'No Project'}
                             </p>
-                            <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 backdrop-blur-sm font-inter", task.taskType === 'Task' ? 'bg-green-400/20 text-green-300 border border-green-400/30' : task.taskType === 'Issue' ? 'bg-orange-400/20 text-orange-300 border border-orange-400/30' : task.taskType === 'Bug' ? 'bg-red-400/20 text-red-300 border border-red-400/30' : task.taskType === 'Feature' ? 'bg-purple-400/20 text-purple-300 border border-purple-400/30' : 'bg-white/10 text-white/70 border border-white/20')}>
+                            <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 backdrop-blur-sm font-inter", task.taskType === 'Task' ? 'bg-success/15 text-success border border-success/30' : task.taskType === 'Issue' ? 'bg-warning/15 text-warning border border-warning/30' : task.taskType === 'Bug' ? 'bg-destructive/15 text-destructive border border-destructive/30' : task.taskType === 'Feature' ? 'bg-secondary text-secondary-foreground border border-border' : 'bg-accent/30 text-foreground border border-border/60')}>
                               {task.taskType}
                             </span>
-                            <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-blue-400/20 text-blue-300 border border-blue-400/30 backdrop-blur-sm font-inter">
+                            <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-primary/10 text-primary border border-primary/30 backdrop-blur-sm font-inter">
                               {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : 'No due date'}
                             </span>
                           </div>
@@ -493,7 +482,7 @@ const TasksPage = () => {
                     onClick={() => window.location.href = '/dashboard'}
                     variant="outline"
                     size="sm"
-                    className="h-9 bg-white/10 border-white/20 hover:bg-white/20 text-white hover:text-white font-medium backdrop-blur-sm font-inter text-sm px-3"
+                    className="h-9 bg-background/60 border-border/60 hover:bg-accent/40 text-foreground font-medium backdrop-blur-sm font-inter text-sm px-3"
                   >
                     <BarChart3 className="w-4 h-4 mr-2" />
                     Dashboard
@@ -503,7 +492,7 @@ const TasksPage = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="h-9 bg-white/10 border-white/20 hover:bg-white/20 text-white hover:text-white font-medium backdrop-blur-sm font-inter text-sm px-3"
+                    className="h-9 bg-background/60 border-border/60 hover:bg-accent/40 text-foreground font-medium backdrop-blur-sm font-inter text-sm px-3"
                     onClick={() => {
                       // Navigate to timesheet page
                       window.location.href = '/timesheet';
@@ -517,9 +506,9 @@ const TasksPage = () => {
                 <div className="flex items-center space-x-4">
                   {/* Date and Time - Moved to Right Side */}
                   <div className="flex items-center gap-3">
-                    <h2 className="text-sm font-medium text-white flex items-center gap-3 font-inter">
+                    <h2 className="text-sm font-medium text-foreground flex items-center gap-3 font-inter">
                       {formatDate(currentDate)}
-                      <span className="flex items-center gap-1 text-sm text-blue-300 font-inter">
+                      <span className="flex items-center gap-1 text-sm text-primary font-inter">
                         🕒 {format(currentTime, 'HH:mm')}
                       </span>
                     </h2>
@@ -529,7 +518,7 @@ const TasksPage = () => {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="h-9 w-9 rounded-full p-0 bg-white/10 border-white/20 hover:bg-white/20 text-white backdrop-blur-sm"
+                    className="h-9 w-9 rounded-full p-0 bg-background/60 border-border/60 hover:bg-accent/40 text-foreground backdrop-blur-sm"
                     onClick={() => setShowCalendarSettings(true)}
                   >
                     <Settings className="w-4 h-4" />
@@ -537,15 +526,15 @@ const TasksPage = () => {
                   
                   {/* View Mode Toggle */}
                   <ToggleGroup type="single" value={viewMode} onValueChange={value => value && setViewMode(value as ViewMode)}>
-                    <ToggleGroupItem value="day" size="sm" className="h-9 flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm px-3">
+                    <ToggleGroupItem value="day" size="sm" className="h-9 flex items-center gap-2 text-foreground data-[state=on]:bg-accent/60 data-[state=on]:text-foreground hover:bg-accent/40 font-medium font-inter text-sm px-3">
                       <CalendarDays className="w-4 h-4" />
                       Day
                     </ToggleGroupItem>
-                    <ToggleGroupItem value="week" size="sm" className="h-9 flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm px-3">
+                    <ToggleGroupItem value="week" size="sm" className="h-9 flex items-center gap-2 text-foreground data-[state=on]:bg-accent/60 data-[state=on]:text-foreground hover:bg-accent/40 font-medium font-inter text-sm px-3">
                       <Calendar className="w-4 h-4" />
                       Week
                     </ToggleGroupItem>
-                    <ToggleGroupItem value="month" size="sm" className="h-9 flex items-center gap-2 text-white data-[state=on]:bg-white/20 data-[state=on]:text-white hover:bg-white/10 font-medium font-inter text-sm px-3">
+                    <ToggleGroupItem value="month" size="sm" className="h-9 flex items-center gap-2 text-foreground data-[state=on]:bg-accent/60 data-[state=on]:text-foreground hover:bg-accent/40 font-medium font-inter text-sm px-3">
                       <Calendar className="w-4 h-4" />
                       Month
                     </ToggleGroupItem>
@@ -553,10 +542,10 @@ const TasksPage = () => {
                   
                   {/* Navigation */}
                   <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="sm" className="h-9 w-9 rounded-full p-0 bg-white/10 border-white/20 hover:bg-white/20 text-white backdrop-blur-sm" onClick={() => navigate('prev')}>
+                    <Button variant="outline" size="sm" className="h-9 w-9 rounded-full p-0 bg-background/60 border-border/60 hover:bg-accent/40 text-foreground backdrop-blur-sm" onClick={() => navigate('prev')}>
                       <ChevronLeft className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="sm" className="h-9 w-9 rounded-full p-0 bg-white/10 border-white/20 hover:bg-white/20 text-white backdrop-blur-sm" onClick={() => navigate('next')}>
+                    <Button variant="outline" size="sm" className="h-9 w-9 rounded-full p-0 bg-background/60 border-border/60 hover:bg-accent/40 text-foreground backdrop-blur-sm" onClick={() => navigate('next')}>
                       <ChevronRight className="w-4 h-4" />
                     </Button>
                   </div>
