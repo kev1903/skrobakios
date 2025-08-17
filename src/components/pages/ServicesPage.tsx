@@ -114,10 +114,10 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
       {/* Hero Section - Full Screen */}
       <section className="h-screen relative flex items-center justify-center overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-4 bg-cover bg-center bg-no-repeat rounded-3xl"
           style={{ backgroundImage: `url(${abstractGreyBackground})` }}
         >
-          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 bg-black/60 rounded-3xl" />
         </div>
         
         <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
@@ -164,12 +164,12 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
       </section>
 
       {/* Advisory Section - Full Screen */}
-      <section className="h-screen relative flex items-center justify-center overflow-hidden">
+      <section className="h-screen relative flex items-center justify-center overflow-hidden p-4">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-4 bg-cover bg-center bg-no-repeat rounded-3xl"
           style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 to-indigo-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 to-indigo-900/80 rounded-3xl" />
         </div>
         
         <div className="relative z-10 max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
@@ -216,9 +216,9 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
       </section>
 
       {/* Project Management Section - Full Screen */}
-      <section className="h-screen relative flex items-center justify-center overflow-hidden bg-white">
+      <section className="h-screen relative flex items-center justify-center overflow-hidden bg-white p-4">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+          className="absolute inset-4 bg-cover bg-center bg-no-repeat opacity-20 rounded-3xl"
           style={{ backgroundImage: `url(${projectManagementImage})` }}
         />
         
@@ -268,12 +268,12 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
       </section>
 
       {/* Construction Management Section - Full Screen */}
-      <section className="h-screen relative flex items-center justify-center overflow-hidden">
+      <section className="h-screen relative flex items-center justify-center overflow-hidden p-4">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-4 bg-cover bg-center bg-no-repeat rounded-3xl"
           style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-900/80 to-red-900/80" />
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-900/80 to-red-900/80 rounded-3xl" />
         </div>
         
         <div className="relative z-10 max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
