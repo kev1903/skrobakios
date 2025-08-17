@@ -21,8 +21,9 @@ export const ProjectsPage = ({
       '/lovable-uploads/db0a1768-db8d-4d0d-bc93-f5d9c2dd3098.png'
     ],
     'st-john-ave': [
-      '/lovable-uploads/121a0a8f-2d3d-4510-8eea-aa8d66ca2e81.png',
-      '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png'
+      '/lovable-uploads/acbc2f97-d455-409e-b746-0e1b8c699c29.png',
+      '/lovable-uploads/b60e98c6-6396-4a73-b1c7-55402523ed3b.png',
+      '/lovable-uploads/723dcf11-cdbe-4a53-9aa7-65a1d28a994e.png'
     ],
     'gordon-street': [
       '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
