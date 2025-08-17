@@ -83,92 +83,102 @@ export const LandingPage = ({
             <div className="flex-1 flex items-center">
               <div className="w-full space-y-8">
                 {/* Section Content */}
-                <div className="space-y-6">
-                  <div 
-                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
-                    onMouseEnter={() => setHoveredService('advisory')}
-                    onMouseLeave={() => setHoveredService(null)}
-                  >
-                    <span className="text-white/60 text-sm">01</span>
-                    <div className="flex-1">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
+                <div className="space-y-8">
+                  {/* Service Package Group */}
+                  <div className="space-y-4">
+                    <h3 className="text-white/80 text-sm font-medium tracking-widest uppercase mb-6">Service Package</h3>
+                    
+                    <div 
+                      className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                      onMouseEnter={() => setHoveredService('advisory')}
+                      onMouseLeave={() => setHoveredService(null)}
+                    >
+                      <span className="text-white/60 text-sm">01</span>
+                      <div className="flex-1">
+                        <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
+                      </div>
+                    </div>
+                    
+                    <div 
+                      className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                      onMouseEnter={() => setHoveredService('project')}
+                      onMouseLeave={() => setHoveredService(null)}
+                    >
+                      <span className="text-white/60 text-sm">02</span>
+                      <div className="flex-1">
+                        <h2 className="text-white font-semibold text-lg tracking-wide">PROJECT MANAGEMENT</h2>
+                      </div>
+                    </div>
+                    
+                    <div 
+                      className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                      onMouseEnter={() => setHoveredService('construction')}
+                      onMouseLeave={() => setHoveredService(null)}
+                    >
+                      <span className="text-white/60 text-sm">03</span>
+                      <div className="flex-1">
+                        <h2 className="text-white font-semibold text-lg tracking-wide">CONSTRUCTION MANAGEMENT</h2>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div 
-                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
-                    onMouseEnter={() => setHoveredService('project')}
-                    onMouseLeave={() => setHoveredService(null)}
-                  >
-                    <span className="text-white/60 text-sm">02</span>
-                    <div className="flex-1">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">PROJECT MANAGEMENT</h2>
+
+                  {/* Stand-alone Services Group */}
+                  <div className="space-y-4">
+                    <h3 className="text-white/80 text-sm font-medium tracking-widest uppercase mb-6">Stand-alone Services</h3>
+                    
+                    <div 
+                      className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                      onMouseEnter={() => setHoveredService('estimating')}
+                      onMouseLeave={() => setHoveredService(null)}
+                    >
+                      <span className="text-white/60 text-sm">04</span>
+                      <div className="flex-1">
+                        <h2 className="text-white font-semibold text-lg tracking-wide">ESTIMATING SERVICES</h2>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div 
-                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
-                    onMouseEnter={() => setHoveredService('construction')}
-                    onMouseLeave={() => setHoveredService(null)}
-                  >
-                    <span className="text-white/60 text-sm">03</span>
-                    <div className="flex-1">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">CONSTRUCTION MANAGEMENT</h2>
+                    
+                    <div 
+                      className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                      onMouseEnter={() => setHoveredService('inspection')}
+                      onMouseLeave={() => setHoveredService(null)}
+                    >
+                      <span className="text-white/60 text-sm">05</span>
+                      <div className="flex-1">
+                        <h2 className="text-white font-semibold text-lg tracking-wide">SITE INSPECTION SERVICES</h2>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div 
-                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
-                    onMouseEnter={() => setHoveredService('estimating')}
-                    onMouseLeave={() => setHoveredService(null)}
-                  >
-                    <span className="text-white/60 text-sm">04</span>
-                    <div className="flex-1">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">ESTIMATING SERVICES</h2>
+                    
+                    <div 
+                      className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                      onMouseEnter={() => setHoveredService('design')}
+                      onMouseLeave={() => setHoveredService(null)}
+                    >
+                      <span className="text-white/60 text-sm">06</span>
+                      <div className="flex-1">
+                        <h2 className="text-white font-semibold text-lg tracking-wide">DESIGN & VISUALISATION</h2>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div 
-                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
-                    onMouseEnter={() => setHoveredService('inspection')}
-                    onMouseLeave={() => setHoveredService(null)}
-                  >
-                    <span className="text-white/60 text-sm">05</span>
-                    <div className="flex-1">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">SITE INSPECTION SERVICES</h2>
+                    
+                    <div 
+                      className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                      onMouseEnter={() => setHoveredService('bim')}
+                      onMouseLeave={() => setHoveredService(null)}
+                    >
+                      <span className="text-white/60 text-sm">07</span>
+                      <div className="flex-1">
+                        <h2 className="text-white font-semibold text-lg tracking-wide">BIM SERVICES</h2>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div 
-                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
-                    onMouseEnter={() => setHoveredService('design')}
-                    onMouseLeave={() => setHoveredService(null)}
-                  >
-                    <span className="text-white/60 text-sm">06</span>
-                    <div className="flex-1">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">DESIGN & VISUALISATION</h2>
-                    </div>
-                  </div>
-                  
-                  <div 
-                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
-                    onMouseEnter={() => setHoveredService('bim')}
-                    onMouseLeave={() => setHoveredService(null)}
-                  >
-                    <span className="text-white/60 text-sm">07</span>
-                    <div className="flex-1">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">BIM SERVICES</h2>
-                    </div>
-                  </div>
-                  
-                  <div 
-                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
-                    onMouseEnter={() => setHoveredService('digital')}
-                    onMouseLeave={() => setHoveredService(null)}
-                  >
-                    <span className="text-white/60 text-sm">08</span>
-                    <div className="flex-1">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">DIGITAL DELIVERY & ANALYTICS</h2>
+                    
+                    <div 
+                      className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                      onMouseEnter={() => setHoveredService('digital')}
+                      onMouseLeave={() => setHoveredService(null)}
+                    >
+                      <span className="text-white/60 text-sm">08</span>
+                      <div className="flex-1">
+                        <h2 className="text-white font-semibold text-lg tracking-wide">DIGITAL DELIVERY & ANALYTICS</h2>
+                      </div>
                     </div>
                   </div>
 
