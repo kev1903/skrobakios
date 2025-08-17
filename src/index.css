@@ -346,7 +346,7 @@ div[data-rbd-drag-handle-draggable-id] {
 
   /* Sophisticated Input Styles */
   .input-minimal {
-    @apply backdrop-blur-sm bg-input border border-border/40 focus:bg-input focus:border-brand-blue/50 focus:ring-2 focus:ring-brand-blue/20 transition-all duration-300 rounded-lg;
+    @apply backdrop-blur-sm bg-input border border-border/40 focus:bg-input focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300 rounded-lg;
   }
 
   /* Enhanced Interactive Elements */
@@ -363,7 +363,7 @@ div[data-rbd-drag-handle-draggable-id] {
   }
 
   .button-blue {
-    @apply bg-brand-blue text-white hover:bg-brand-blue-light hover:scale-[1.02] active:scale-[0.98] font-medium;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] font-medium;
     box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
     backdrop-filter: blur(10px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -389,7 +389,7 @@ div[data-rbd-drag-handle-draggable-id] {
   }
 
   .button-ghost {
-    @apply bg-background/60 backdrop-blur-md border border-border/30 text-foreground hover:bg-background/80 hover:border-brand-blue/40 hover:shadow-md;
+    @apply bg-background/60 backdrop-blur-md border border-border/30 text-foreground hover:bg-background/80 hover:border-primary/40 hover:shadow-md;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -400,7 +400,7 @@ div[data-rbd-drag-handle-draggable-id] {
 
   /* Architectural Design Elements */
   .divider-minimal {
-    @apply w-full h-px bg-gradient-to-r from-transparent via-brand-blue/30 to-transparent;
+    @apply w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent;
   }
 
   .architectural-accent {
