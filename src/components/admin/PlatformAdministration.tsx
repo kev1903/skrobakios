@@ -32,13 +32,14 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gradient-primary">Platform Administration</h1>
-          <p className="text-muted-foreground">Comprehensive platform management and control center</p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Platform Administration</h1>
+            <p className="text-muted-foreground">Comprehensive platform management and control center</p>
+          </div>
         </div>
-      </div>
 
       <Tabs defaultValue="settings" className="space-y-6">
         <TabsList className="grid w-full grid-cols-6 glass-panel">
@@ -92,6 +93,7 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
           <AuditLogsPanel />
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };
