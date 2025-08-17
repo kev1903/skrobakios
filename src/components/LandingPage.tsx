@@ -91,35 +91,12 @@ export const LandingPage = ({
                     </h2>
                   </div>
                   
-                  <p className="text-white/80 text-sm leading-relaxed">Project management.
-We Home Owners and Builder to complete construction project on time, on budget and compliant. </p>
+                  
 
-                  <button className="group flex items-center space-x-3 text-white/90 hover:text-white transition-colors" onClick={() => handleNavigation('services')}>
-                    <span className="text-sm font-medium tracking-wide">VIEW ALL SERVICES</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </button>
+                  
 
                   {/* Service Options */}
-                  <div className="flex flex-col space-y-3 mt-6">
-                    <button 
-                      className="text-left text-white/80 hover:text-white text-sm font-medium tracking-wide transition-colors"
-                      onClick={() => handleNavigation('advisory')}
-                    >
-                      Advisory
-                    </button>
-                    <button 
-                      className="text-left text-white/80 hover:text-white text-sm font-medium tracking-wide transition-colors"
-                      onClick={() => handleNavigation('project-management')}
-                    >
-                      Project Management
-                    </button>
-                    <button 
-                      className="text-left text-white/80 hover:text-white text-sm font-medium tracking-wide transition-colors"
-                      onClick={() => handleNavigation('construction-management')}
-                    >
-                      Construction Management
-                    </button>
-                  </div>
+                  
                 </div>
               </div>
             </div>
