@@ -295,9 +295,9 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         {/* Hero Content */}
         <div className="relative z-10 h-full flex items-center justify-center text-center text-white">
           <div className="max-w-4xl px-6">
-            <h1 className="text-6xl lg:text-8xl font-bold mb-6 leading-tight">
+            <h1 className="heading-xl font-light mb-6">
               A construction system that works like an 
-              <span className="text-blue-400"> Organiser</span>
+              <span className="text-accent"> Organiser</span>
             </h1>
             <p className="text-xl mb-8 text-white/90 max-w-2xl mx-auto">
               Great projects deserve a system that does it all, from making plans and smooth checkouts to helping you market and track performance.
@@ -337,7 +337,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       <section id="services" className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-8">
+            <h2 className="heading-lg text-foreground mb-8">
               Our <span className="text-accent">Services</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -373,7 +373,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       <section id="portfolio" className="py-20 bg-card/30">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-8">
+            <h2 className="heading-lg text-foreground mb-8">
               Featured <span className="text-accent">Portfolio</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -439,8 +439,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       <section id="about" className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="heading-xl text-foreground mb-8 font-playfair">
-              About <span className="text-gradient-gold">Skrobaki</span>
+            <h2 className="heading-lg text-foreground mb-8">
+              About <span className="text-accent">Skrobaki</span>
             </h2>
             <p className="body-lg text-muted-foreground max-w-3xl mx-auto">
               For over 25 years, Skrobaki has been at the forefront of architectural excellence, transforming visions into extraordinary built environments through sophisticated design philosophy and uncompromising attention to detail.
