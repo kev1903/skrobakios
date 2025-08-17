@@ -103,7 +103,7 @@ div[data-rbd-drag-handle-draggable-id] {
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 172 100% 41%;
+    --accent: 207 50% 65%;
     --accent-foreground: 0 0% 9%;
 
     --destructive: 0 84% 60%;
@@ -136,13 +136,13 @@ div[data-rbd-drag-handle-draggable-id] {
     /* Modern Card Colors */
     --mountain-overlay: 0 0% 0%;
     --mountain-text: 0 0% 100%;
-    --mountain-accent: 172 100% 41%;
+    --mountain-accent: 207 50% 65%;
     
     /* Clean Brand Colors */
     --brand-primary: 0 0% 9%;
-    --brand-secondary: 172 100% 41%;
-    --brand-accent: 172 100% 41%;
-    --brand-gold: 172 100% 41%;
+    --brand-secondary: 207 50% 65%;
+    --brand-accent: 207 50% 65%;
+    --brand-gold: 207 50% 65%;
     --brand-blue: 0 0% 9%;
     --brand-blue-light: 0 0% 20%;
     
@@ -161,11 +161,11 @@ div[data-rbd-drag-handle-draggable-id] {
       rgba(255, 255, 255, 0.9) 0%, 
       rgba(255, 255, 255, 0.7) 100%);
     --gradient-primary: linear-gradient(135deg, 
-      hsl(172 100% 41%) 0%, 
-      hsl(172 100% 31%) 100%);
+      hsl(207 50% 65%) 0%, 
+      hsl(207 50% 55%) 100%);
     --gradient-gold: linear-gradient(135deg, 
-      hsl(172 100% 41%) 0%, 
-      hsl(172 100% 31%) 100%);
+      hsl(207 50% 65%) 0%, 
+      hsl(207 50% 55%) 100%);
     
     /* Enhanced Design System Colors */
     --neutral-50: 0 0% 98%;
@@ -240,7 +240,7 @@ div[data-rbd-drag-handle-draggable-id] {
     /* Mountain Card Colors */
     --mountain-overlay: 0 0% 4%;
     --mountain-text: 0 0% 98%;
-    --mountain-accent: 172 100% 41%;
+    --mountain-accent: 207 50% 65%;
     
     --sidebar-background: 0 0% 9%;
     --sidebar-foreground: 0 0% 98%;
@@ -350,15 +350,15 @@ div[data-rbd-drag-handle-draggable-id] {
   }
   
   .heading-xl {
-    @apply text-5xl md:text-7xl lg:text-8xl font-display font-normal tracking-tight leading-tight;
+    @apply text-5xl md:text-7xl lg:text-8xl font-inter font-normal tracking-tight leading-tight;
   }
   
   .heading-lg {
-    @apply text-3xl md:text-5xl font-display font-normal tracking-tight leading-tight;
+    @apply text-3xl md:text-5xl font-inter font-normal tracking-tight leading-tight;
   }
   
   .heading-md {
-    @apply text-2xl md:text-3xl font-display font-normal tracking-tight leading-tight;
+    @apply text-2xl md:text-3xl font-inter font-normal tracking-tight leading-tight;
   }
   
   .body-lg {

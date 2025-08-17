@@ -21,9 +21,10 @@ export default {
 		extend: {
 			fontFamily: {
 				'inter': ['Inter', 'system-ui', 'sans-serif'],
-				'playfair': ['Playfair Display', 'serif'],
-				'mono': ['SF Mono', 'Monaco', 'Inconsolata', 'monospace'],
-				'display': ['Playfair Display', 'serif'],
+				'playfair': ['Inter', 'system-ui', 'sans-serif'],
+				'mono': ['Inter', 'system-ui', 'sans-serif'],
+				'display': ['Inter', 'system-ui', 'sans-serif'],
+				'sans': ['Inter', 'system-ui', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
