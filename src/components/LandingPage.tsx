@@ -79,6 +79,16 @@ export const LandingPage = ({
                     <span className="text-white/60 text-sm">01</span>
                     <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
                   </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <span className="text-white/60 text-sm">02</span>
+                    <h2 className="text-white font-semibold text-lg tracking-wide">PROJECT MANAGEMENT</h2>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <span className="text-white/60 text-sm">03</span>
+                    <h2 className="text-white font-semibold text-lg tracking-wide">CONSTRUCTION MANAGEMENT</h2>
+                  </div>
                 </div>
               </div>
             </div>
