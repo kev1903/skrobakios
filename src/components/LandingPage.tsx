@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  ArrowRight, 
-  Menu,
-  X,
-  ChevronDown
-} from 'lucide-react';
+import { ArrowRight, Menu, X, ChevronDown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import heroImage from '@/assets/hero-architecture.png';
-
 interface LandingPageProps {
   onNavigate: (page: string) => void;
 }
-
-export const LandingPage = ({ onNavigate }: LandingPageProps) => {
+export const LandingPage = ({
+  onNavigate
+}: LandingPageProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
   const isMobile = useIsMobile();
@@ -24,16 +19,11 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
     setIsMenuOpen(false);
     // Future: navigate to different pages or show modals
   };
-
-  return (
-    <div className="h-screen relative overflow-hidden">
+  return <div className="h-screen relative overflow-hidden">
       {/* Hero Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url(${heroImage})`,
-        }}
-      >
+      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
+      backgroundImage: `url(${heroImage})`
+    }}>
         {/* Dark overlay for better text readability */}
         <div className="absolute inset-0 bg-black/20" />
       </div>
@@ -49,60 +39,35 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="flex items-center justify-between mb-8">
                 {/* Logo */}
                 <div className="flex items-center">
-                  <img 
-                    src="/lovable-uploads/8eae48e7-108f-4422-91ee-27da66fcef42.png" 
-                    alt="Skrobaki Logo" 
-                    className="h-8 w-auto"
-                  />
+                  <img src="/lovable-uploads/8eae48e7-108f-4422-91ee-27da66fcef42.png" alt="Skrobaki Logo" className="h-8 w-auto" />
                 </div>
 
                 {/* Mobile Menu Button */}
-                <button
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="lg:hidden text-white p-2"
-                >
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden text-white p-2">
                   {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                 </button>
               </div>
 
               {/* Mobile Navigation */}
-              {isMenuOpen && (
-                <div className="lg:hidden bg-black/30 backdrop-blur-md py-6 px-6 rounded-lg mb-8">
+              {isMenuOpen && <div className="lg:hidden bg-black/30 backdrop-blur-md py-6 px-6 rounded-lg mb-8">
                   <nav className="flex flex-col space-y-4">
-                    <button 
-                      className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors"
-                      onClick={() => handleNavigation('services')}
-                    >
+                    <button className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors" onClick={() => handleNavigation('services')}>
                       SERVICES
                     </button>
-                    <button 
-                      className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors"
-                      onClick={() => handleNavigation('projects')}
-                    >
+                    <button className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors" onClick={() => handleNavigation('projects')}>
                       PROJECTS
                     </button>
-                    <button 
-                      className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors"
-                      onClick={() => handleNavigation('offers')}
-                    >
+                    <button className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors" onClick={() => handleNavigation('offers')}>
                       SPECIAL OFFERS
                     </button>
-                    <button 
-                      className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors"
-                      onClick={() => handleNavigation('about')}
-                    >
+                    <button className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors" onClick={() => handleNavigation('about')}>
                       ABOUT US
                     </button>
-                    <Button 
-                      variant="ghost"
-                      onClick={() => onNavigate('auth')}
-                      className="text-white border-white/30 hover:bg-white/10 mt-4"
-                    >
+                    <Button variant="ghost" onClick={() => onNavigate('auth')} className="text-white border-white/30 hover:bg-white/10 mt-4">
                       Sign In
                     </Button>
                   </nav>
-                </div>
-              )}
+                </div>}
             </header>
 
             {/* Main Content */}
@@ -126,16 +91,10 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                     </h2>
                   </div>
                   
-                  <p className="text-white/80 text-sm leading-relaxed">
-                    Expert project management solutions delivering measurable results. 
-                    We specialize in streamlining operations, optimizing workflows, and 
-                    ensuring your projects are completed on time and within budget.
-                  </p>
+                  <p className="text-white/80 text-sm leading-relaxed">Project management.
+We Home Owners and Builder to complete construction project on time, on budget and compliant. </p>
 
-                  <button 
-                    className="group flex items-center space-x-3 text-white/90 hover:text-white transition-colors"
-                    onClick={() => handleNavigation('services')}
-                  >
+                  <button className="group flex items-center space-x-3 text-white/90 hover:text-white transition-colors" onClick={() => handleNavigation('services')}>
                     <span className="text-sm font-medium tracking-wide">VIEW ALL SERVICES</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
@@ -150,35 +109,19 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           {/* Navigation for Desktop */}
           <header className="hidden lg:flex justify-end pt-8 pr-12">
             <nav className="flex items-center space-x-12">
-              <button 
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
-                onClick={() => handleNavigation('services')}
-              >
+              <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => handleNavigation('services')}>
                 SERVICES
               </button>
-              <button 
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
-                onClick={() => handleNavigation('projects')}
-              >
+              <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => handleNavigation('projects')}>
                 PROJECTS
               </button>
-              <button 
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
-                onClick={() => handleNavigation('offers')}
-              >
+              <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => handleNavigation('offers')}>
                 SPECIAL OFFERS
               </button>
-              <button 
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
-                onClick={() => handleNavigation('about')}
-              >
+              <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => handleNavigation('about')}>
                 ABOUT US
               </button>
-              <Button 
-                variant="ghost"
-                onClick={() => onNavigate('auth')}
-                className="text-white border border-white/30 hover:bg-white/10 backdrop-blur-sm"
-              >
+              <Button variant="ghost" onClick={() => onNavigate('auth')} className="text-white border border-white/30 hover:bg-white/10 backdrop-blur-sm">
                 Sign In
               </Button>
             </nav>
@@ -187,7 +130,10 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           {/* Vertical Excellence Text */}
           <div className="flex-1 hidden lg:flex items-center justify-end pr-12">
             <div className="writing-mode-vertical text-white/40 text-sm font-medium tracking-widest">
-              <span style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
+              <span style={{
+              writingMode: 'vertical-rl',
+              textOrientation: 'mixed'
+            }}>
                 EXCELLENCE
               </span>
             </div>
@@ -212,6 +158,5 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
