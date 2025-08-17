@@ -70,28 +70,30 @@ export const LandingPage = ({
     },
     estimating: {
       title: "ESTIMATING SERVICES",
-      description: "Accurate cost estimation and budgeting services to ensure project financial viability and competitive pricing.",
-      scope: "Detailed cost analysis and budget preparation.",
-      typicalFee: "Fixed fee per estimate",
-      whoIsFor: "Clients needing accurate project costing for planning or tendering.",
+      description: "Comprehensive cost estimation and budget management services to maintain financial control throughout your project lifecycle.",
+      scope: "Single-point estimates to detailed quantity take-offs and ongoing cost monitoring.",
+      typicalFee: "Fixed fee per service",
+      whoIsFor: "Clients requiring accurate cost control and competitive tendering strategies.",
       benefits: [
-        "Precise cost forecasting",
-        "Market-based pricing analysis",
-        "Risk assessment and contingency planning",
-        "Competitive advantage in tendering"
+        "Single-Point Budget Estimate: Reality-check the design early",
+        "Cost Plan — 3 Updates: DD → Tender → Pre-let. Keep the budget honest at every design gate",
+        "Detailed Quantity Take-Off & BoQ: Apples-to-apples tendering",
+        "Trade Bid Analysis: Close scope gaps and cut 3-7% from trade prices",
+        "Variation Review: Independent check that stops inflated claims",
+        "Progress-Claim Assessment: Pay only for work actually done"
       ]
     },
     inspection: {
       title: "SITE INSPECTION SERVICES",
-      description: "Comprehensive site inspections and condition assessments to identify potential issues and ensure compliance with standards.",
-      scope: "Detailed site surveys and condition reporting.",
-      typicalFee: "Per inspection basis",
-      whoIsFor: "Property owners and developers requiring professional assessments.",
+      description: "Professional inspection services to protect your investment and optimize building performance throughout its lifecycle.",
+      scope: "Comprehensive health-checks from construction through post-occupancy performance monitoring.",
+      typicalFee: "Per inspection basis / A$250 call-out (first 60 min incl.)",
+      whoIsFor: "Property owners seeking to maximize asset performance and protect final payments.",
       benefits: [
-        "Comprehensive condition assessments",
-        "Compliance verification",
-        "Risk identification and mitigation",
-        "Professional reporting and documentation"
+        "Schedule Health-Check: Recover lost days on the critical path",
+        "Defects & Practical Completion Inspection: Snag list with severity coding to protect final-payment retention",
+        "Post-Occupancy Health Check Audit: 12-month operating-cost benchmark to uncover lifecycle savings",
+        "On-Site Issue Diagnosis & Advice: A$250 call-out (first 60 min incl.) for rapid defect triage, with photo log and next-step guidance"
       ]
     },
     design: {
