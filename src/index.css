@@ -94,7 +94,7 @@ div[data-rbd-drag-handle-draggable-id] {
     --popover: 0 0% 100%;
     --popover-foreground: 210 15% 15%;
 
-    --primary: 210 100% 18%;
+    --primary: 203 50% 41%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 8% 93%;
@@ -117,7 +117,7 @@ div[data-rbd-drag-handle-draggable-id] {
 
     --border: 210 8% 90%;
     --input: 210 8% 97%;
-    --ring: 210 100% 18%;
+    --ring: 203 50% 41%;
 
     --radius: 0.5rem;
 
@@ -140,12 +140,12 @@ div[data-rbd-drag-handle-draggable-id] {
     --skrobaki-steel: 215 15% 70%;          /* Light steel text */
     --skrobaki-white: 0 0% 100%;            /* Pure white */
     --skrobaki-offwhite: 220 20% 97%;       /* Off white */
-    --skrobaki-blue: 190 65% 60%;          /* Skrobaki 'O' teal color */
-    --skrobaki-blue-light: 190 65% 70%;    /* Lighter version of 'O' color */
+    --skrobaki-blue: 203 50% 41%;          /* Updated blue color #34739B */
+    --skrobaki-blue-light: 203 50% 55%;    /* Lighter version */
     
     /* Corporate Gradients - Dark Theme */
     --gradient-corporate: linear-gradient(135deg, hsl(220 30% 12%) 0%, hsl(220 25% 20%) 100%);
-    --gradient-blue: linear-gradient(135deg, hsl(190 65% 60%) 0%, hsl(190 65% 70%) 100%);
+    --gradient-blue: linear-gradient(135deg, hsl(203 50% 41%) 0%, hsl(203 50% 55%) 100%);
     --gradient-subtle: linear-gradient(180deg, hsl(220 30% 12%) 0%, hsl(220 25% 15%) 100%);
     --gradient-hero: linear-gradient(135deg, hsl(220 30% 10%) 0%, hsl(220 30% 12%) 50%, hsl(220 25% 20%) 100%);
     
@@ -168,12 +168,12 @@ div[data-rbd-drag-handle-draggable-id] {
     /* Sidebar Variables */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 210 15% 15%;
-    --sidebar-primary: 210 100% 18%;
+    --sidebar-primary: 203 50% 41%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 210 8% 95%;
     --sidebar-accent-foreground: 210 15% 15%;
     --sidebar-border: 210 8% 90%;
-    --sidebar-ring: 210 100% 18%;
+    --sidebar-ring: 203 50% 41%;
   }
 
   .dark {
