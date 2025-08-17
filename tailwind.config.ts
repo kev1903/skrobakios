@@ -21,10 +21,9 @@ export default {
 		extend: {
 			fontFamily: {
 				'inter': ['Inter', 'system-ui', 'sans-serif'],
-				'poppins': ['Poppins', 'system-ui', 'sans-serif'],
+				'playfair': ['Playfair Display', 'serif'],
 				'mono': ['SF Mono', 'Monaco', 'Inconsolata', 'monospace'],
-				'display': ['Poppins', 'system-ui', 'sans-serif'],
-				'body': ['Inter', 'system-ui', 'sans-serif'],
+				'display': ['Playfair Display', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -90,8 +89,8 @@ export default {
 					'navy-dark': 'hsl(var(--skrobaki-navy-dark))',
 					steel: 'hsl(var(--skrobaki-steel))',
 					'steel-light': 'hsl(var(--skrobaki-steel-light))',
-					blue: 'hsl(var(--skrobaki-blue))',
-					'blue-light': 'hsl(var(--skrobaki-blue-light))',
+					gold: 'hsl(var(--skrobaki-gold))',
+					'gold-light': 'hsl(var(--skrobaki-gold-light))',
 					white: 'hsl(var(--skrobaki-white))',
 					offwhite: 'hsl(var(--skrobaki-offwhite))',
 				},
