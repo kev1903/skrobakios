@@ -1,12 +1,13 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings, Flag, Server, Building2, Shield, Activity, AlertTriangle } from "lucide-react";
+import { Settings, Flag, Server, Building2, Shield, Activity, AlertTriangle, Users } from "lucide-react";
 import { PlatformSettingsPanel } from './PlatformSettingsPanel';
 import { FeatureFlagsPanel } from './FeatureFlagsPanel';
 import { SystemMonitoringPanel } from './SystemMonitoringPanel';
 import { CompanyManagementPanel } from './CompanyManagementPanel';
 import { SecurityOverviewPanel } from './SecurityOverviewPanel';
+import { UserManagementPanel } from './UserManagementPanel';
 import { AuditLogsPanel } from './AuditLogsPanel';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -42,7 +43,7 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
         </div>
 
       <Tabs defaultValue="settings" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 bg-card border border-border shadow-lg rounded-lg">
+        <TabsList className="grid w-full grid-cols-7 bg-card border border-border shadow-lg rounded-lg">
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Settings
@@ -62,6 +63,10 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Security
+          </TabsTrigger>
+          <TabsTrigger value="users" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Users
           </TabsTrigger>
           <TabsTrigger value="audit" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
@@ -87,6 +92,10 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
 
         <TabsContent value="security" className="space-y-6">
           <SecurityOverviewPanel />
+        </TabsContent>
+
+        <TabsContent value="users" className="space-y-6">
+          <UserManagementPanel />
         </TabsContent>
 
         <TabsContent value="audit" className="space-y-6">
