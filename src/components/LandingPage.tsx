@@ -79,6 +79,8 @@ export const LandingPage = ({
                     skro
                     <br />
                     <span className="text-white/90">baki</span>
+                    <br />
+                    <span className="font-playfair italic text-white/80 text-3xl lg:text-4xl xl:text-5xl">PM</span>
                   </h1>
                 </div>
 
