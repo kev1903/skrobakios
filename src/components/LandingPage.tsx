@@ -29,9 +29,18 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   };
 
   return (
-    <div className="min-h-screen relative" style={{
-      background: 'linear-gradient(135deg, #8b9dc3 0%, #dfe3ee 100%)',
-    }}>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Hero Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url(${heroImage})`,
+        }}
+      >
+        {/* Dark overlay for better text readability */}
+        <div className="absolute inset-0 bg-black/20" />
+      </div>
+
       {/* Navigation Header */}
       <header className="relative z-50 pt-8">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
@@ -79,15 +88,6 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 ABOUT US
               </button>
             </nav>
-
-            {/* Sign In Button */}
-            <Button 
-              variant="ghost"
-              onClick={() => onNavigate('auth')}
-              className="text-white border border-white/30 hover:bg-white/10 backdrop-blur-sm hidden lg:flex"
-            >
-              Sign In
-            </Button>
 
             {/* Mobile Menu Button */}
             <button
@@ -140,58 +140,47 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </header>
 
       {/* Main Hero Content */}
-      <div className="relative z-40 min-h-screen flex items-center justify-center px-6 lg:px-12">
-        <div className="max-w-7xl mx-auto w-full">
-          <div className="grid lg:grid-cols-12 gap-8 items-center">
-            {/* Glass Card Container - Half Screen */}
-            <div className="lg:col-span-7 xl:col-span-6">
-              <div 
-                className="glass-mountain rounded-3xl p-8 lg:p-12 relative overflow-hidden"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.15)',
-                  backdropFilter: 'blur(24px)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-                }}
-              >
-                {/* Content */}
-                <div className="space-y-6">
-                  {/* Large Typography */}
-                  <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
-                    skro
-                    <br />
-                    <span className="text-white/90">baki</span>
-                  </h1>
+      <div className="relative z-40 h-screen flex items-center">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 w-full">
+          <div className="grid lg:grid-cols-12 gap-8 items-center h-full">
+            {/* Left Content */}
+            <div className="lg:col-span-8 space-y-8">
+              {/* Large Typography */}
+              <div className="space-y-4">
+                <h1 className="text-6xl lg:text-8xl xl:text-9xl font-bold text-white leading-none tracking-tight">
+                  skro
+                  <br />
+                  <span className="text-white/90">baki</span>
+                </h1>
+              </div>
 
-                  {/* Section Content */}
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-4">
-                      <span className="text-white/60 font-mono text-sm">01</span>
-                      <h2 className="text-white font-semibold text-lg tracking-wide">
-                        DISCOVER SERVICES
-                      </h2>
-                    </div>
-                    
-                    <p className="text-white/80 text-sm leading-relaxed max-w-md">
-                      Independent project management excellence delivering comprehensive solutions 
-                      for your business growth and operational efficiency.
-                    </p>
-
-                    <button 
-                      className="group flex items-center space-x-3 text-white/90 hover:text-white transition-colors mt-6"
-                      onClick={() => scrollToSection('services')}
-                    >
-                      <span className="text-sm font-medium tracking-wide">VIEW ALL SERVICES</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
+              {/* Section Content */}
+              <div className="max-w-md space-y-6">
+                <div className="flex items-center space-x-4">
+                  <span className="text-white/60 font-mono text-sm">01</span>
+                  <h2 className="text-white font-semibold text-lg tracking-wide">
+                    DISCOVER SERVICES
+                  </h2>
                 </div>
+                
+                <p className="text-white/80 text-sm leading-relaxed">
+                  Independent project management excellence delivering comprehensive solutions 
+                  for your business growth and operational efficiency.
+                </p>
+
+                <button 
+                  className="group flex items-center space-x-3 text-white/90 hover:text-white transition-colors"
+                  onClick={() => scrollToSection('services')}
+                >
+                  <span className="text-sm font-medium tracking-wide">VIEW ALL SERVICES</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
             </div>
 
             {/* Right Side - Vertical Text */}
-            <div className="lg:col-span-5 xl:col-span-6 hidden lg:flex justify-end items-center">
-              <div className="text-white/40 text-sm font-medium tracking-widest">
+            <div className="lg:col-span-4 hidden lg:flex justify-end">
+              <div className="writing-mode-vertical text-white/40 text-sm font-medium tracking-widest">
                 <span style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
                   EXCELLENCE
                 </span>
@@ -199,6 +188,17 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Sign In Button - Floating */}
+      <div className="fixed top-8 right-6 lg:right-12 z-50">
+        <Button 
+          variant="ghost"
+          onClick={() => onNavigate('auth')}
+          className="text-white border border-white/30 hover:bg-white/10 backdrop-blur-sm hidden lg:flex"
+        >
+          Sign In
+        </Button>
       </div>
 
       {/* Scroll Indicator */}
