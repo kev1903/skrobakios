@@ -122,13 +122,14 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                   <div className="flex items-center space-x-4">
                     <span className="text-white/60 font-mono text-sm">01</span>
                     <h2 className="text-white font-semibold text-lg tracking-wide">
-                      DISCOVER SERVICES
+                      PROJECT MANAGEMENT SERVICES
                     </h2>
                   </div>
                   
                   <p className="text-white/80 text-sm leading-relaxed">
-                    Independent project management excellence delivering comprehensive solutions 
-                    for your business growth and operational efficiency.
+                    Expert project management solutions delivering measurable results. 
+                    We specialize in streamlining operations, optimizing workflows, and 
+                    ensuring your projects are completed on time and within budget.
                   </p>
 
                   <button 
