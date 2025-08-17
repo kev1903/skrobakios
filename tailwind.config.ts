@@ -92,8 +92,6 @@ export default {
 					'steel-light': 'hsl(var(--skrobaki-steel-light))',
 					blue: 'hsl(var(--skrobaki-blue))',
 					'blue-light': 'hsl(var(--skrobaki-blue-light))',
-					text: 'hsl(var(--skrobaki-text))',
-					'text-light': 'hsl(var(--skrobaki-text-light))',
 					white: 'hsl(var(--skrobaki-white))',
 					offwhite: 'hsl(var(--skrobaki-offwhite))',
 				},
