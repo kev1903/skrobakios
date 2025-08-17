@@ -49,7 +49,10 @@ import {
   Gem,
   MessageCircle,
   UserCheck,
-  ClipboardList
+  ClipboardList,
+  Phone,
+  Mail,
+  Award
 } from 'lucide-react';
 
 interface ServicesPageProps {
@@ -58,15 +61,15 @@ interface ServicesPageProps {
 
 export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50">
       {/* Fixed Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button 
                 onClick={() => onNavigate('landing')}
-                className="text-white/70 hover:text-white text-sm font-medium transition-colors flex items-center space-x-2"
+                className="text-gray-600 hover:text-gray-800 text-sm font-medium transition-colors flex items-center space-x-2"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
@@ -76,25 +79,25 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
             <div className="hidden lg:flex items-center space-x-8">
               <button 
                 onClick={() => onNavigate('services')}
-                className="text-white font-medium text-sm uppercase tracking-wider"
+                className="text-gray-900 font-medium text-sm uppercase tracking-wider"
               >
                 Services
               </button>
               <button 
                 onClick={() => onNavigate('projects')}
-                className="text-white/70 hover:text-white text-sm font-medium uppercase tracking-wider transition-colors"
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium uppercase tracking-wider transition-colors"
               >
                 Projects
               </button>
               <button 
                 onClick={() => onNavigate('about')}
-                className="text-white/70 hover:text-white text-sm font-medium uppercase tracking-wider transition-colors"
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium uppercase tracking-wider transition-colors"
               >
                 About
               </button>
               <button 
                 onClick={() => onNavigate('contact')}
-                className="text-white/70 hover:text-white text-sm font-medium uppercase tracking-wider transition-colors"
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium uppercase tracking-wider transition-colors"
               >
                 Contact
               </button>
@@ -103,7 +106,7 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
             <Button 
               variant="outline" 
               onClick={() => onNavigate('auth')}
-              className="text-white border-white/30 hover:bg-white/10 backdrop-blur-sm"
+              className="border-gray-300 hover:bg-gray-50"
             >
               Sign In
             </Button>
@@ -111,249 +114,352 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
         </div>
       </nav>
 
-      {/* Hero Section - Full Screen */}
-      <section className="h-screen relative flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-4 bg-cover bg-center bg-no-repeat rounded-3xl"
-          style={{ backgroundImage: `url(${abstractGreyBackground})` }}
-        >
-          <div className="absolute inset-0 bg-black/60 rounded-3xl" />
-        </div>
-        
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
+      <div className="pt-20 flex max-w-7xl mx-auto">
+        {/* Sidebar */}
+        <aside className="w-80 bg-white rounded-3xl m-6 p-8 h-fit shadow-lg">
+          {/* Main CTA */}
           <div className="mb-8">
-            <div className="w-24 h-24 mx-auto mb-6 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-              <Building className="w-12 h-12 text-white" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Ready to start your construction project?
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Connect with our professional team and get expert guidance from planning to completion.
+            </p>
+            <Button 
+              onClick={() => onNavigate('contact')}
+              className="w-full bg-gray-900 text-white hover:bg-gray-800 rounded-xl"
+            >
+              Get Professional Consultation
+            </Button>
+          </div>
+
+          {/* Service Advantages */}
+          <div className="mb-8">
+            <h3 className="font-semibold text-gray-900 mb-4">
+              Why Choose Our Services
+            </h3>
+            
+            <div className="space-y-4">
+              <div className="bg-gray-50 rounded-2xl p-4">
+                <div 
+                  className="w-full h-24 bg-cover bg-center rounded-xl mb-3"
+                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
+                />
+                <h4 className="font-medium text-gray-900 mb-1">Energy Efficiency</h4>
+                <p className="text-sm text-gray-600">
+                  Sustainable construction practices with energy-efficient solutions and modern technologies.
+                </p>
+              </div>
+
+              <div className="bg-gray-50 rounded-2xl p-4">
+                <div 
+                  className="w-full h-24 bg-cover bg-center rounded-xl mb-3"
+                  style={{ backgroundImage: `url(${projectManagementImage})` }}
+                />
+                <h4 className="font-medium text-gray-900 mb-1">Eco-friendly Materials</h4>
+                <p className="text-sm text-gray-600">
+                  Premium sustainable materials and environmentally conscious building methods.
+                </p>
+              </div>
             </div>
           </div>
-          <h1 className="text-6xl lg:text-8xl font-bold text-white mb-8 tracking-tight leading-none">
-            CONSTRUCTION
-            <br />
-            <span className="text-white/70">SERVICES</span>
-          </h1>
-          <p className="text-xl lg:text-2xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Professional construction & project management solutions designed for excellence at every stage
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button 
-              size="lg"
-              onClick={() => onNavigate('contact')}
-              className="bg-white text-black hover:bg-white/90 font-medium px-8 py-4 text-lg"
-            >
-              Get Started
-            </Button>
+
+          {/* Working with the Best */}
+          <div className="mb-8">
+            <h3 className="font-semibold text-gray-900 mb-4">
+              Working with the Best
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Our professional team delivers projects using the latest construction technologies and proven methodologies.
+            </p>
             <Button 
               variant="outline"
-              size="lg"
-              className="text-white border-white/30 hover:bg-white/10 backdrop-blur-sm px-8 py-4 text-lg"
+              onClick={() => onNavigate('contact')}
+              className="w-full rounded-xl"
             >
-              Learn More
+              Learn About Our Approach
             </Button>
           </div>
-        </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-          <div className="flex flex-col items-center text-white/60">
-            <span className="text-sm mb-2 uppercase tracking-wider">Scroll</span>
-            <div className="w-6 h-10 border border-white/30 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-white/60 rounded-full mt-2 animate-bounce"></div>
+          {/* News */}
+          <div className="mb-8">
+            <h3 className="font-semibold text-gray-900 mb-4">Latest News</h3>
+            <div className="space-y-3">
+              <div className="text-sm">
+                <p className="text-gray-900 font-medium">New Sustainable Construction Standards</p>
+                <p className="text-gray-500 text-xs">March 15, 2024</p>
+              </div>
+              <div className="text-sm">
+                <p className="text-gray-900 font-medium">Award for Excellence in Project Management</p>
+                <p className="text-gray-500 text-xs">March 10, 2024</p>
+              </div>
+              <div className="text-sm">
+                <p className="text-gray-900 font-medium">New Technology Integration</p>
+                <p className="text-gray-500 text-xs">March 5, 2024</p>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Advisory Section - Full Screen */}
-      <section className="h-screen relative flex items-center justify-center overflow-hidden p-4">
-        <div 
-          className="absolute inset-4 bg-cover bg-center bg-no-repeat rounded-3xl"
-          style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 to-indigo-900/80 rounded-3xl" />
-        </div>
-        
-        <div className="relative z-10 max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-          <div className="text-center lg:text-left">
-            <div className="flex items-center justify-center lg:justify-start mb-6">
-              <span className="text-white/60 text-sm font-medium mr-4">01</span>
-              <div className="h-px bg-white/30 flex-1 max-w-20"></div>
+          {/* Contact */}
+          <div>
+            <h3 className="font-semibold text-gray-900 mb-4">Contacts</h3>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div className="flex items-center space-x-2">
+                <Phone className="w-4 h-4" />
+                <span>+1 (555) 123-4567</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Mail className="w-4 h-4" />
+                <span>info@skrobaki.com</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <MapPin className="w-4 h-4" />
+                <span>Construction District, Building 1</span>
+              </div>
             </div>
-            <h2 className="text-5xl lg:text-7xl font-bold text-white mb-8 leading-none">
-              ADVISORY
-            </h2>
-            <p className="text-xl text-white/80 mb-8 leading-relaxed">
-              Help clients make informed decisions at every stage of their project, from feasibility and budgeting to design reviews and procurement strategies.
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-6">
+          {/* Hero Section */}
+          <section className="mb-12">
+            <div 
+              className="relative h-96 bg-cover bg-center rounded-3xl overflow-hidden"
+              style={{ backgroundImage: `url(${abstractGreyBackground})` }}
+            >
+              <div className="absolute inset-0 bg-black/50 rounded-3xl" />
+              <div className="relative z-10 h-full flex items-center justify-center text-center text-white p-8">
+                <div>
+                  <h1 className="text-5xl lg:text-6xl font-bold mb-4">
+                    Professional Services
+                  </h1>
+                  <p className="text-xl mb-8 max-w-2xl">
+                    Comprehensive construction and project management solutions designed for excellence at every stage
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* About Project */}
+          <section className="mb-12">
+            <div className="grid lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">About Our Services</h2>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Skrobaki provides comprehensive construction and project management services for residential and commercial projects. 
+                  Our experienced team combines modern construction technologies with traditional craftsmanship to deliver exceptional results. 
+                  From initial planning and design consultation to final completion, we ensure every project meets the highest standards 
+                  of quality, safety, and efficiency. Our expertise spans advisory services, full project management, 
+                  and hands-on construction management across all phases of development.
+                </p>
+                
+                {/* Statistics */}
+                <div className="grid grid-cols-3 gap-6 mb-8">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900">150+</div>
+                    <div className="text-sm text-gray-600">Completed Projects</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900">15+</div>
+                    <div className="text-sm text-gray-600">Years Experience</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-gray-900">98%</div>
+                    <div className="text-sm text-gray-600">Client Satisfaction</div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="grid grid-cols-3 gap-4">
+                  <Button 
+                    variant="outline"
+                    onClick={() => onNavigate('projects')}
+                    className="flex items-center justify-center space-x-2 rounded-xl"
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>View Projects</span>
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => onNavigate('contact')}
+                    className="flex items-center justify-center space-x-2 rounded-xl"
+                  >
+                    <Calculator className="w-4 h-4" />
+                    <span>Get Quote</span>
+                  </Button>
+                  <Button 
+                    onClick={() => onNavigate('contact')}
+                    className="bg-gray-900 text-white hover:bg-gray-800 flex items-center justify-center space-x-2 rounded-xl"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    <span>Schedule</span>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div 
+                  className="h-48 bg-cover bg-center rounded-2xl"
+                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
+                />
+                <div 
+                  className="h-48 bg-cover bg-center rounded-2xl"
+                  style={{ backgroundImage: `url(${projectManagementImage})` }}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Services Grid */}
+          <section className="mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">Our Service Areas</h2>
+            
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Advisory */}
+              <Card className="rounded-3xl overflow-hidden shadow-lg">
+                <div 
+                  className="h-48 bg-cover bg-center relative"
+                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 to-indigo-900/80" />
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
+                      01
+                    </span>
+                  </div>
+                </div>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">Advisory Services</h3>
+                  <p className="text-gray-600 mb-4">
+                    Help clients make informed decisions at every stage of their project, from feasibility and budgeting to design reviews.
+                  </p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Project Feasibility Analysis</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Budget Planning & Optimization</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Risk Assessment & Mitigation</span>
+                    </div>
+                  </div>
+                  <Button className="w-full bg-blue-600 text-white hover:bg-blue-700 rounded-xl">
+                    Learn More
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Project Management */}
+              <Card className="rounded-3xl overflow-hidden shadow-lg">
+                <div 
+                  className="h-48 bg-cover bg-center relative"
+                  style={{ backgroundImage: `url(${projectManagementImage})` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-900/80 to-emerald-900/80" />
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
+                      02
+                    </span>
+                  </div>
+                </div>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">Project Management</h3>
+                  <p className="text-gray-600 mb-4">
+                    End-to-end management ensuring projects are delivered on time, within budget, and to the highest quality standards.
+                  </p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Project Planning & Scheduling</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Budget Control & Cost Management</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Quality Assurance & Control</span>
+                    </div>
+                  </div>
+                  <Button className="w-full bg-green-600 text-white hover:bg-green-700 rounded-xl">
+                    Learn More
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Construction Management */}
+              <Card className="rounded-3xl overflow-hidden shadow-lg">
+                <div 
+                  className="h-48 bg-cover bg-center relative"
+                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-900/80 to-red-900/80" />
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
+                      03
+                    </span>
+                  </div>
+                </div>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">Construction Management</h3>
+                  <p className="text-gray-600 mb-4">
+                    Hands-on coordination and oversight of construction activities, managing trades, schedules, and compliance.
+                  </p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Site Coordination & Supervision</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Trade Management & Scheduling</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Safety Compliance & Monitoring</span>
+                    </div>
+                  </div>
+                  <Button className="w-full bg-orange-600 text-white hover:bg-orange-700 rounded-xl">
+                    Learn More
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
+
+          {/* Call to Action */}
+          <section className="bg-gray-900 rounded-3xl p-8 text-center text-white">
+            <h2 className="text-3xl font-bold mb-4">Ready to Start Your Project?</h2>
+            <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+              Let's discuss how our comprehensive services can bring your architectural vision to life with exceptional quality and attention to detail.
             </p>
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center justify-center lg:justify-start space-x-3">
-                <CheckCircle className="w-5 h-5 text-white/60" />
-                <span className="text-white/80">Project Feasibility Analysis</span>
-              </div>
-              <div className="flex items-center justify-center lg:justify-start space-x-3">
-                <CheckCircle className="w-5 h-5 text-white/60" />
-                <span className="text-white/80">Budget Planning & Optimization</span>
-              </div>
-              <div className="flex items-center justify-center lg:justify-start space-x-3">
-                <CheckCircle className="w-5 h-5 text-white/60" />
-                <span className="text-white/80">Risk Assessment & Mitigation</span>
-              </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                size="lg"
+                onClick={() => onNavigate('contact')}
+                className="bg-white text-gray-900 hover:bg-gray-100 font-medium px-8 rounded-xl"
+              >
+                <Calendar className="w-5 h-5 mr-2" />
+                Book Consultation
+              </Button>
+              <Button 
+                variant="outline"
+                size="lg"
+                onClick={() => onNavigate('projects')}
+                className="text-white border-white/30 hover:bg-white/10 backdrop-blur-sm px-8 rounded-xl"
+              >
+                View Our Work
+              </Button>
             </div>
-            <Button 
-              size="lg"
-              onClick={() => onNavigate('contact')}
-              className="bg-white text-black hover:bg-white/90 font-medium px-8"
-            >
-              Learn More
-            </Button>
-          </div>
-          
-          <div className="flex justify-center">
-            <div className="w-80 h-80 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-              <Lightbulb className="w-32 h-32 text-white/60" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Project Management Section - Full Screen */}
-      <section className="h-screen relative flex items-center justify-center overflow-hidden bg-white p-4">
-        <div 
-          className="absolute inset-4 bg-cover bg-center bg-no-repeat opacity-20 rounded-3xl"
-          style={{ backgroundImage: `url(${projectManagementImage})` }}
-        />
-        
-        <div className="relative z-10 max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-          <div className="flex justify-center lg:order-2">
-            <div className="w-80 h-80 bg-gray-900/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-              <Settings className="w-32 h-32 text-gray-900/60" />
-            </div>
-          </div>
-          
-          <div className="text-center lg:text-left lg:order-1">
-            <div className="flex items-center justify-center lg:justify-start mb-6">
-              <span className="text-gray-600 text-sm font-medium mr-4">02</span>
-              <div className="h-px bg-gray-300 flex-1 max-w-20"></div>
-            </div>
-            <h2 className="text-5xl lg:text-7xl font-bold text-gray-900 mb-8 leading-none">
-              PROJECT
-              <br />
-              <span className="text-gray-600">MANAGEMENT</span>
-            </h2>
-            <p className="text-xl text-gray-700 mb-8 leading-relaxed">
-              End-to-end management of projects, ensuring they are delivered on time, within budget, and to the highest quality standards while protecting the client's interest.
-            </p>
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center justify-center lg:justify-start space-x-3">
-                <Calendar className="w-5 h-5 text-gray-600" />
-                <span className="text-gray-700">Project Planning & Scheduling</span>
-              </div>
-              <div className="flex items-center justify-center lg:justify-start space-x-3">
-                <TrendingUp className="w-5 h-5 text-gray-600" />
-                <span className="text-gray-700">Budget Control & Cost Management</span>
-              </div>
-              <div className="flex items-center justify-center lg:justify-start space-x-3">
-                <Users className="w-5 h-5 text-gray-600" />
-                <span className="text-gray-700">Quality Assurance & Control</span>
-              </div>
-            </div>
-            <Button 
-              size="lg"
-              onClick={() => onNavigate('contact')}
-              className="bg-gray-900 text-white hover:bg-gray-800 font-medium px-8"
-            >
-              Learn More
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Construction Management Section - Full Screen */}
-      <section className="h-screen relative flex items-center justify-center overflow-hidden p-4">
-        <div 
-          className="absolute inset-4 bg-cover bg-center bg-no-repeat rounded-3xl"
-          style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-900/80 to-red-900/80 rounded-3xl" />
-        </div>
-        
-        <div className="relative z-10 max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-          <div className="text-center lg:text-left">
-            <div className="flex items-center justify-center lg:justify-start mb-6">
-              <span className="text-white/60 text-sm font-medium mr-4">03</span>
-              <div className="h-px bg-white/30 flex-1 max-w-20"></div>
-            </div>
-            <h2 className="text-5xl lg:text-7xl font-bold text-white mb-8 leading-none">
-              CONSTRUCTION
-              <br />
-              <span className="text-white/70">MANAGEMENT</span>
-            </h2>
-            <p className="text-xl text-white/80 mb-8 leading-relaxed">
-              Hands-on coordination and oversight of construction activities, managing trades, schedules, compliance, and site operations to achieve seamless project execution.
-            </p>
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center justify-center lg:justify-start space-x-3">
-                <HardHat className="w-5 h-5 text-white/60" />
-                <span className="text-white/80">Site Coordination & Supervision</span>
-              </div>
-              <div className="flex items-center justify-center lg:justify-start space-x-3">
-                <Clipboard className="w-5 h-5 text-white/60" />
-                <span className="text-white/80">Trade Management & Scheduling</span>
-              </div>
-              <div className="flex items-center justify-center lg:justify-start space-x-3">
-                <Shield className="w-5 h-5 text-white/60" />
-                <span className="text-white/80">Safety Compliance & Monitoring</span>
-              </div>
-            </div>
-            <Button 
-              size="lg"
-              onClick={() => onNavigate('contact')}
-              className="bg-white text-black hover:bg-white/90 font-medium px-8"
-            >
-              Learn More
-            </Button>
-          </div>
-          
-          <div className="flex justify-center">
-            <div className="w-80 h-80 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-              <HardHat className="w-32 h-32 text-white/60" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Call to Action Section - Full Screen */}
-      <section className="h-screen relative flex items-center justify-center overflow-hidden bg-gray-900">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black" />
-        
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-6">
-          <h2 className="text-5xl lg:text-7xl font-bold text-white mb-8 leading-none">
-            READY TO START
-            <br />
-            <span className="text-white/70">YOUR PROJECT?</span>
-          </h2>
-          <p className="text-xl lg:text-2xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Let's discuss how our comprehensive services can bring your architectural vision to life with exceptional quality and attention to detail.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            <Button 
-              size="lg"
-              onClick={() => onNavigate('contact')}
-              className="bg-white text-black hover:bg-white/90 font-medium px-12 py-4 text-lg"
-            >
-              <Calendar className="w-5 h-5 mr-3" />
-              Book Consultation
-            </Button>
-            <Button 
-              variant="outline"
-              size="lg"
-              onClick={() => onNavigate('projects')}
-              className="text-white border-white/30 hover:bg-white/10 backdrop-blur-sm px-12 py-4 text-lg"
-            >
-              View Our Work
-            </Button>
-          </div>
-        </div>
-      </section>
+          </section>
+        </main>
+      </div>
     </div>
   );
 };
