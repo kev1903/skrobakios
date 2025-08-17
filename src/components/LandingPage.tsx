@@ -121,11 +121,16 @@ export const LandingPage = ({
           </div>
         </div>
 
-        {/* Unified Header - Positioned Center */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-          <div className="text-center">
-            <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
-              Skrobaki
+        {/* Unified Header - Split-aligned across glass seam */}
+        <div className="absolute inset-0 pointer-events-none z-50 flex items-center">
+          <div className="w-[56%] text-right">
+            <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight inline-block">
+              Skro
+            </h1>
+          </div>
+          <div className="w-[44%] text-left">
+            <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight inline-block">
+              baki
             </h1>
           </div>
         </div>
