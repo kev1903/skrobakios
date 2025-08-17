@@ -30,8 +30,8 @@ export const LandingPage = ({
 
       {/* Main Layout with Glass Panel */}
       <div className="relative z-40 h-screen flex">
-        {/* Left Glass Panel - Full Height */}
-        <div className="w-1/2 h-full">
+        {/* Left Glass Panel - Adjusted width to split between 'o' and 'b' */}
+        <div className="w-[56%] h-full">
           <div className="glass-card w-full h-full flex flex-col p-8 lg:p-12">
             {/* Navigation in Glass Panel */}
             <header className="mb-8">
@@ -86,7 +86,7 @@ export const LandingPage = ({
         </div>
 
         {/* Right Side - Clear Background with Navigation */}
-        <div className="w-1/2 h-full flex flex-col">
+        <div className="w-[44%] h-full flex flex-col">
           {/* Navigation for Desktop */}
           <header className="hidden lg:flex justify-end pt-8 pr-12">
             <nav className="flex items-center space-x-12">
