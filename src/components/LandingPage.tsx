@@ -361,51 +361,51 @@ export const LandingPage = ({
 
                 {/* Content */}
                 <div className="p-8 space-y-8 font-inter">
-                  {/* Title */}
-                  <div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-4">1) ADVISORY</h1>
-                    <p className="text-gray-700 text-lg leading-relaxed">
-                      Robust front-end planning has been shown to lower total capital cost 10%, shorten schedule 7% and trim change-orders 5%.
+                  {/* Header */}
+                  <div className="space-y-3">
+                    <h1 className="text-3xl font-medium text-gray-900">Advisory</h1>
+                    <p className="text-gray-600 text-lg font-light leading-relaxed">
+                      Strategic front-end planning reduces capital costs by 10%, shortens schedules by 7%, and minimizes change orders by 5%.
                     </p>
                   </div>
 
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Key Details */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="space-y-2">
-                      <h3 className="font-semibold text-gray-900">Scope</h3>
-                      <p className="text-gray-600">Stages 1-3 only - brief, concept, definition. PDF reports & meeting workshops.</p>
+                      <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Scope</h3>
+                      <p className="text-gray-600 font-light">Early-stage planning through concept definition</p>
                     </div>
                     <div className="space-y-2">
-                      <h3 className="font-semibold text-gray-900">Typical Fee Basis*</h3>
-                      <p className="text-gray-600">Lump-sum</p>
+                      <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Investment</h3>
+                      <p className="text-gray-600 font-light">Fixed fee structure</p>
                     </div>
                     <div className="space-y-2">
-                      <h3 className="font-semibold text-gray-900">Who is this for?</h3>
-                      <p className="text-gray-600">Ideal for clients who just want early clarity before committing.</p>
+                      <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Best For</h3>
+                      <p className="text-gray-600 font-light">Clients seeking early project clarity</p>
                     </div>
                   </div>
 
-                  {/* Value Added Section */}
-                  <div className="bg-blue-900 text-white p-6 rounded-lg">
-                    <h3 className="text-xl font-bold mb-4">Value Added</h3>
-                    <ul className="space-y-2">
-                      <li className="flex items-start">
-                        <span className="text-blue-300 mr-2">•</span>
-                        <span>Front-end clarity prevents downstream chaos.</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-blue-300 mr-2">•</span>
-                        <span>Aligns brief, scope & budget before design spend.</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-blue-300 mr-2">•</span>
-                        <span>Early risk workshops cut late design changes and permit re-submissions.</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="text-blue-300 mr-2">•</span>
-                        <span>Owners get a "go / no-go" decision for &lt; 2 % of project cost.</span>
-                      </li>
-                    </ul>
+                  {/* Value Proposition */}
+                  <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Core Benefits</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <p className="text-gray-600 font-light">Prevents downstream complications through early clarity</p>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <p className="text-gray-600 font-light">Aligns scope and budget before design investment</p>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <p className="text-gray-600 font-light">Reduces late-stage changes through risk planning</p>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <p className="text-gray-600 font-light">Enables confident go/no-go decisions under 2% project cost</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
