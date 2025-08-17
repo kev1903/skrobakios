@@ -153,9 +153,11 @@ export const ProjectsPage = ({
               <div className="h-full flex items-center justify-center p-8">
                 <div className="relative w-full h-full">
                   <img 
+                    key={currentImageIndex}
                     src={galleryImages[currentImageIndex]} 
                     alt={`Project image ${currentImageIndex + 1}`} 
-                    className="w-full h-full object-cover rounded-xl shadow-2xl" 
+                    className="w-full h-full object-cover rounded-xl shadow-2xl"
+                    style={{ transition: 'none' }}
                   />
                   
                   {/* Navigation Arrows */}
