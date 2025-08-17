@@ -14,11 +14,9 @@ export const ProjectsPage = ({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const galleryImages = [
-    '/lovable-uploads/121a0a8f-2d3d-4510-8eea-aa8d66ca2e81.png',
-    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
-    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
-    '/lovable-uploads/121a0a8f-2d3d-4510-8eea-aa8d66ca2e81.png',
-    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png'
+    '/lovable-uploads/03149750-e10c-41e7-884a-397cdec91da4.png',
+    '/lovable-uploads/5f51d8df-70eb-4c6f-95e5-d9c5bd704cfc.png',
+    '/lovable-uploads/299e0760-fc84-47fa-8f12-d9ded792fe4c.png'
   ];
 
   const featuredProjects = [
