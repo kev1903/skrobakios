@@ -1,165 +1,217 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Home, User, Mail, FolderOpen } from 'lucide-react';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
 
 interface ProjectsPageProps {
   onNavigate: (page: string) => void;
 }
 
 export const ProjectsPage = ({ onNavigate }: ProjectsPageProps) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Sample gallery images - replace with actual project images
+  const galleryImages = [
+    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
+    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png', // You can add more images here
+    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
+  ];
+
+  const sidebarItems = [
+    { title: "Overview", icon: Home, id: "overview" },
+    { title: "Gallery", icon: FolderOpen, id: "gallery" },
+    { title: "Details", icon: User, id: "details" },
+    { title: "Contact", icon: Mail, id: "contact" },
+  ];
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Hero Section */}
-      <div className="relative h-screen bg-cover bg-center" style={{
-        backgroundImage: 'url(/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png)'
-      }}>
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black/40" />
-        
-        {/* Navigation */}
-        <header className="relative z-10 flex items-center justify-between p-8 lg:p-12">
-          {/* Logo/Brand */}
-          <div className="flex items-center">
+    <SidebarProvider>
+      <div className="min-h-screen w-full flex">
+        {/* Sidebar */}
+        <Sidebar className="w-64">
+          <div className="p-4 border-b">
             <button 
               onClick={() => onNavigate('landing')}
-              className="flex items-center space-x-2 text-white hover:text-white/80 transition-colors"
+              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors mb-4"
             >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="text-sm font-medium tracking-wide">BACK</span>
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-medium">BACK</span>
             </button>
+            <h2 className="text-lg font-semibold text-gray-900">Thanet Street, Malvern</h2>
+            <p className="text-sm text-gray-600">Residential Architecture</p>
           </div>
-
-          {/* Navigation */}
-          <nav className="hidden lg:flex items-center space-x-12">
-            <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors border-b border-white/60 pb-1">
-              PORTFOLIO
-            </button>
-            <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => onNavigate('about')}>
-              ABOUT
-            </button>
-            <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => onNavigate('contact')}>
-              CONTACT
-            </button>
-          </nav>
-        </header>
-
-        {/* Hero Content */}
-        <div className="relative z-10 flex items-center h-full px-8 lg:px-12">
-          <div className="max-w-4xl">
-            {/* Project Title */}
-            <h1 className="text-6xl lg:text-8xl font-light text-white mb-8 tracking-tight">
-              Thanet Street, Malvern
-            </h1>
+          
+          <SidebarContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {sidebarItems.map((item) => (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton>
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
             
-            {/* Project Description */}
-            <div className="max-w-md space-y-6">
-              <p className="text-white/90 text-sm leading-relaxed">
-                Canada-based studio Bourgeois/Lechasseur Architectes has designed an elegant new modern mountain home adjacent to an existing lakeside chalet in Northern Quebec, at the edge of a ski resort.
-              </p>
-              
-              <div className="space-y-2">
-                <p className="text-white/70 text-xs uppercase tracking-widest">
-                  Project Type
-                </p>
-                <p className="text-white/90 text-sm">
-                  Residential Architecture
+            <SidebarGroup>
+              <SidebarGroupLabel>Project Info</SidebarGroupLabel>
+              <SidebarGroupContent className="space-y-4 p-4">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-1">Location</h4>
+                  <p className="text-sm text-gray-600">Malvern, Victoria</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-1">Year</h4>
+                  <p className="text-sm text-gray-600">2023</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-1">Type</h4>
+                  <p className="text-sm text-gray-600">Residential</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900 mb-1">Area</h4>
+                  <p className="text-sm text-gray-600">350 sqm</p>
+                </div>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+
+        {/* Main Content */}
+        <div className="flex-1 flex">
+          {/* Project Details Section */}
+          <div className="flex-1 p-8">
+            <div className="max-w-4xl">
+              {/* Header */}
+              <div className="mb-8">
+                <h1 className="text-4xl lg:text-6xl font-light text-gray-900 mb-4 tracking-tight">
+                  Thanet Street, Malvern
+                </h1>
+                <p className="text-gray-600 text-lg leading-relaxed max-w-2xl">
+                  A contemporary residential project featuring modern architectural elements with sustainable design principles. 
+                  This elegant home seamlessly blends indoor and outdoor living spaces.
                 </p>
               </div>
-              
-              <Button 
-                variant="outline" 
-                className="text-white border-white/60 hover:bg-white/10 backdrop-blur-sm"
-              >
-                Learn more
-              </Button>
+
+              {/* Project Description */}
+              <div className="space-y-8">
+                <div>
+                  <h2 className="text-2xl font-medium text-gray-900 mb-4">Project Overview</h2>
+                  <p className="text-gray-600 leading-relaxed">
+                    Canada-based studio Bourgeois/Lechasseur Architectes has designed an elegant new modern mountain home 
+                    adjacent to an existing lakeside chalet in Northern Quebec, at the edge of a ski resort. The design 
+                    emphasizes natural materials and sustainable construction methods.
+                  </p>
+                </div>
+
+                <div>
+                  <h2 className="text-2xl font-medium text-gray-900 mb-4">Design Features</h2>
+                  <ul className="text-gray-600 space-y-2">
+                    <li>• Contemporary facade with natural stone cladding</li>
+                    <li>• Large format windows maximizing natural light</li>
+                    <li>• Sustainable materials and energy-efficient systems</li>
+                    <li>• Integrated landscape design</li>
+                    <li>• Private outdoor spaces and courtyards</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h2 className="text-2xl font-medium text-gray-900 mb-4">Awards & Recognition</h2>
+                  <p className="text-gray-600">
+                    This project has been featured in Architectural Digest and received the 2023 Australian Institute 
+                    of Architects Award for Residential Architecture.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Social Media Icons */}
-        <div className="absolute right-8 lg:right-12 top-1/2 transform -translate-y-1/2 space-y-6">
-          <div className="w-8 h-8 border border-white/30 rounded-full flex items-center justify-center">
-            <div className="w-2 h-2 bg-white/60 rounded-full" />
+          {/* Gallery Section */}
+          <div className="w-1/3 min-w-[400px] bg-gray-50 flex flex-col">
+            <div className="p-6 border-b bg-white">
+              <h3 className="text-lg font-semibold text-gray-900">Project Gallery</h3>
+              <p className="text-sm text-gray-600">
+                {currentImageIndex + 1} of {galleryImages.length}
+              </p>
+            </div>
+            
+            <div className="flex-1 relative">
+              {/* Gallery Image */}
+              <div className="relative h-full">
+                <img 
+                  src={galleryImages[currentImageIndex]} 
+                  alt={`Project image ${currentImageIndex + 1}`}
+                  className="w-full h-full object-cover"
+                />
+                
+                {/* Navigation Arrows */}
+                <button 
+                  onClick={prevImage}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-105"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-700" />
+                </button>
+                
+                <button 
+                  onClick={nextImage}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-105"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-700" />
+                </button>
+                
+                {/* Image Indicators */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                  {galleryImages.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                        index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Gallery Controls */}
+            <div className="p-4 bg-white border-t">
+              <div className="flex justify-between items-center">
+                <Button variant="outline" size="sm">
+                  View All Images
+                </Button>
+                <Button size="sm">
+                  Download
+                </Button>
+              </div>
+            </div>
           </div>
-          <div className="w-8 h-8 border border-white/30 rounded-full flex items-center justify-center">
-            <div className="w-2 h-2 bg-white/60 rounded-full" />
-          </div>
-          <div className="w-8 h-8 border border-white/30 rounded-full flex items-center justify-center">
-            <div className="w-2 h-2 bg-white/60 rounded-full" />
-          </div>
-        </div>
-
-        {/* Photography Credit */}
-        <div className="absolute bottom-8 right-8 lg:right-12 text-white/60 text-xs">
-          <p>Photography by</p>
-          <p>Adrien Williams</p>
         </div>
       </div>
-
-      {/* Projects Grid Section */}
-      <section className="py-16 lg:py-24 px-8 lg:px-12">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl lg:text-5xl font-light text-gray-900 mb-16 text-center">
-            Featured Projects
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Project Card 1 */}
-            <div className="group cursor-pointer">
-              <div className="aspect-[4/3] bg-gray-300 rounded-lg overflow-hidden mb-4">
-                <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 group-hover:scale-105 transition-transform duration-500"></div>
-              </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">Modern Residence</h3>
-              <p className="text-gray-600 text-sm">Residential • 2023</p>
-            </div>
-            
-            {/* Project Card 2 */}
-            <div className="group cursor-pointer">
-              <div className="aspect-[4/3] bg-gray-300 rounded-lg overflow-hidden mb-4">
-                <div className="w-full h-full bg-gradient-to-br from-gray-500 to-gray-700 group-hover:scale-105 transition-transform duration-500"></div>
-              </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">Commercial Complex</h3>
-              <p className="text-gray-600 text-sm">Commercial • 2023</p>
-            </div>
-            
-            {/* Project Card 3 */}
-            <div className="group cursor-pointer">
-              <div className="aspect-[4/3] bg-gray-300 rounded-lg overflow-hidden mb-4">
-                <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-800 group-hover:scale-105 transition-transform duration-500"></div>
-              </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">Urban Development</h3>
-              <p className="text-gray-600 text-sm">Mixed Use • 2022</p>
-            </div>
-            
-            {/* Project Card 4 */}
-            <div className="group cursor-pointer">
-              <div className="aspect-[4/3] bg-gray-300 rounded-lg overflow-hidden mb-4">
-                <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-400 group-hover:scale-105 transition-transform duration-500"></div>
-              </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">Cultural Center</h3>
-              <p className="text-gray-600 text-sm">Institutional • 2022</p>
-            </div>
-            
-            {/* Project Card 5 */}
-            <div className="group cursor-pointer">
-              <div className="aspect-[4/3] bg-gray-300 rounded-lg overflow-hidden mb-4">
-                <div className="w-full h-full bg-gradient-to-br from-gray-500 to-gray-600 group-hover:scale-105 transition-transform duration-500"></div>
-              </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">Sustainable Housing</h3>
-              <p className="text-gray-600 text-sm">Residential • 2021</p>
-            </div>
-            
-            {/* Project Card 6 */}
-            <div className="group cursor-pointer">
-              <div className="aspect-[4/3] bg-gray-300 rounded-lg overflow-hidden mb-4">
-                <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-500 group-hover:scale-105 transition-transform duration-500"></div>
-              </div>
-              <h3 className="text-xl font-medium text-gray-900 mb-2">Industrial Renovation</h3>
-              <p className="text-gray-600 text-sm">Industrial • 2021</p>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
+    </SidebarProvider>
   );
 };
