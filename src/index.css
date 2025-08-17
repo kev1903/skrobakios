@@ -140,12 +140,12 @@ div[data-rbd-drag-handle-draggable-id] {
     --skrobaki-steel: 215 15% 70%;          /* Light steel text */
     --skrobaki-white: 0 0% 100%;            /* Pure white */
     --skrobaki-offwhite: 220 20% 97%;       /* Off white */
-    --skrobaki-blue: 195 55% 55%;          /* Skrobaki logo blue/teal */
-    --skrobaki-blue-light: 195 55% 65%;    /* Lighter logo blue */
+    --skrobaki-blue: 190 65% 60%;          /* Skrobaki 'O' teal color */
+    --skrobaki-blue-light: 190 65% 70%;    /* Lighter version of 'O' color */
     
     /* Corporate Gradients - Dark Theme */
     --gradient-corporate: linear-gradient(135deg, hsl(220 30% 12%) 0%, hsl(220 25% 20%) 100%);
-    --gradient-blue: linear-gradient(135deg, hsl(195 55% 55%) 0%, hsl(195 55% 65%) 100%);
+    --gradient-blue: linear-gradient(135deg, hsl(190 65% 60%) 0%, hsl(190 65% 70%) 100%);
     --gradient-subtle: linear-gradient(180deg, hsl(220 30% 12%) 0%, hsl(220 25% 15%) 100%);
     --gradient-hero: linear-gradient(135deg, hsl(220 30% 10%) 0%, hsl(220 30% 12%) 50%, hsl(220 25% 20%) 100%);
     
