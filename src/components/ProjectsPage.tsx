@@ -20,12 +20,18 @@ export const ProjectsPage = ({
     '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png'
   ];
 
-  const services = [
-    { title: "Interior Design", description: "Complete interior architecture solutions", icon: Home, id: "service-4" },
-    { title: "Project Management", description: "End-to-end project coordination", icon: FolderOpen, id: "service-5" },
-    { title: "Consulting", description: "Expert architectural consultation", icon: FileText, id: "service-6" },
-    { title: "3D Visualization", description: "Photorealistic architectural renders", icon: Mail, id: "service-7" },
-    { title: "Sustainable Design", description: "Eco-friendly building solutions", icon: Download, id: "service-8" }
+  const servicePackages = [
+    { id: "01", title: "Advisory", category: "SERVICE PACKAGE" },
+    { id: "02", title: "Project Management", category: "SERVICE PACKAGE" },
+    { id: "03", title: "Construction Management", category: "SERVICE PACKAGE" }
+  ];
+
+  const standAloneServices = [
+    { id: "04", title: "Estimating Services", category: "STAND-ALONE SERVICES" },
+    { id: "05", title: "Site Inspection Services", category: "STAND-ALONE SERVICES" },
+    { id: "06", title: "Design & Visualisation", category: "STAND-ALONE SERVICES" },
+    { id: "07", title: "BIM Services", category: "STAND-ALONE SERVICES" },
+    { id: "08", title: "Digital Delivery & Analytics", category: "STAND-ALONE SERVICES" }
   ];
 
   const nextImage = () => {
@@ -73,32 +79,38 @@ export const ProjectsPage = ({
               </p>
             </div>
 
-            {/* Our Services */}
-            <div className="space-y-6">
+            {/* Service Package */}
+            <div className="space-y-6 flex-1 overflow-y-auto">
               <div>
                 <h3 className="text-white/80 text-xs font-medium tracking-widest uppercase mb-4">
-                  Our Services
+                  Service Package
                 </h3>
-                <div className="space-y-4">
-                  {services.map((service, index) => (
-                    <div 
+                <div className="space-y-2">
+                  {servicePackages.map((service) => (
+                    <button
                       key={service.id}
-                      className="p-4 rounded-lg bg-white/10 hover:bg-white/15 transition-all duration-200 cursor-pointer border border-white/10"
+                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-white/10 hover:bg-white/15 transition-all duration-200 cursor-pointer border border-white/10 text-left"
                     >
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                          <service.icon className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-white text-sm font-medium tracking-wide mb-1">
-                            {service.title}
-                          </h4>
-                          <p className="text-white/60 text-xs leading-relaxed">
-                            {service.description}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                      <span className="text-white/60 text-sm font-mono">{service.id}</span>
+                      <span className="text-white text-sm font-medium tracking-wide">{service.title}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-white/80 text-xs font-medium tracking-widest uppercase mb-4">
+                  Stand-Alone Services
+                </h3>
+                <div className="space-y-2">
+                  {standAloneServices.map((service) => (
+                    <button
+                      key={service.id}
+                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-white/10 hover:bg-white/15 transition-all duration-200 cursor-pointer border border-white/10 text-left"
+                    >
+                      <span className="text-white/60 text-sm font-mono">{service.id}</span>
+                      <span className="text-white text-sm font-medium tracking-wide">{service.title}</span>
+                    </button>
                   ))}
                 </div>
               </div>
