@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { Alert, AlertDescription } from './ui/alert';
+import { PhotoUploadButton } from '@/components/mobile/PhotoUploadButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'react-router-dom';
@@ -19,7 +20,11 @@ interface ChatMessage {
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
+  imageData?: string; // Optional image data for photo messages
 }
+
+// Legacy Message interface for backward compatibility
+interface Message extends ChatMessage {}
 
 interface UserProfile {
   first_name: string | null;
@@ -311,6 +316,37 @@ export function AiChatSidebar({
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handlePhotoSelected = async (photoData: string) => {
+    try {
+      // Create a message with the photo
+      const photoMessage: ChatMessage = {
+        id: Date.now().toString(),
+        content: '📸 Photo shared',
+        role: 'user',
+        timestamp: new Date(),
+        imageData: photoData
+      };
+
+      setMessages(prev => [...prev, photoMessage]);
+      
+      // Optionally send to AI for analysis
+      setInput('Please analyze this photo I just shared.');
+      setTimeout(() => sendMessage(), 100);
+      
+      toast({
+        title: "Photo shared",
+        description: "Your photo has been added to the conversation",
+      });
+    } catch (error) {
+      console.error('Error handling photo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to share photo",
+        variant: "destructive",
+      });
     }
   };
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -670,6 +706,15 @@ export function AiChatSidebar({
                         
                         <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
                           <div className={`rounded-lg p-3 text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
+                            {message.imageData && (
+                              <div className="mb-2">
+                                <img 
+                                  src={message.imageData} 
+                                  alt="Shared photo" 
+                                  className="max-w-48 max-h-48 rounded-lg object-cover"
+                                />
+                              </div>
+                            )}
                             {message.content}
                           </div>
                           <p className="text-xs text-muted-foreground mt-1 px-1">
@@ -710,6 +755,10 @@ export function AiChatSidebar({
                 {!isVoiceActive && (
                   <div className="p-4 border-t border-border flex-shrink-0">
                     <div className="flex gap-2">
+                      <PhotoUploadButton 
+                        onPhotoSelected={handlePhotoSelected}
+                        disabled={isLoading || !isAuthenticated}
+                      />
                       <Button 
                         variant="outline" 
                         size="sm" 
