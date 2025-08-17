@@ -147,170 +147,301 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
   ];
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Background with overlay - consistent with landing page */}
-      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
-           style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}>
-        <div className="absolute inset-0 bg-black/40" />
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10">
-        {/* Header - consistent with landing page */}
-        <header className="p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="min-h-screen bg-white">
+      {/* Clean Header */}
+      <header className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button 
                 onClick={() => onNavigate('landing')}
-                className="text-white/70 hover:text-white text-sm font-medium tracking-wide transition-colors flex items-center space-x-2"
+                className="text-gray-600 hover:text-gray-800 text-sm font-medium transition-colors flex items-center space-x-2"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>Back</span>
               </button>
-              <img src="/lovable-uploads/b0e435b5-f844-4b7c-bce4-cccf69ad4e5b.png" alt="Skrobaki Logo" className="h-8 w-auto" />
+              <img src="/lovable-uploads/b0e435b5-f844-4b7c-bce4-cccf69ad4e5b.png" alt="Skrobaki" className="h-8 w-auto" />
             </div>
             
-            <nav className="hidden lg:flex items-center space-x-12">
+            <nav className="hidden lg:flex items-center space-x-8">
               <button 
                 onClick={() => onNavigate('services')}
-                className="text-white font-medium text-sm tracking-wide transition-colors"
+                className="text-gray-900 font-medium text-sm"
               >
-                SERVICES
+                Services
               </button>
               <button 
                 onClick={() => onNavigate('projects')}
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors"
               >
-                PROJECTS
+                Projects
               </button>
               <button 
                 onClick={() => onNavigate('about')}
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors"
               >
-                ABOUT US
+                About
               </button>
-              <Button variant="ghost" onClick={() => onNavigate('auth')} className="text-white border border-white/30 hover:bg-white/10 backdrop-blur-sm">
+              <button 
+                onClick={() => onNavigate('contact')}
+                className="text-gray-600 hover:text-gray-900 text-sm font-medium transition-colors"
+              >
+                Contact
+              </button>
+              <Button 
+                variant="outline" 
+                onClick={() => onNavigate('auth')}
+                className="ml-4"
+              >
                 Sign In
               </Button>
             </nav>
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
-          {/* Page Title */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl lg:text-7xl font-bold text-white leading-none tracking-tight mb-6">
-              Our Services
+      {/* Hero Section */}
+      <section className="relative h-96 bg-gradient-to-r from-blue-600 to-indigo-700 overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
+        >
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 h-full flex items-center">
+          <div className="text-white max-w-2xl">
+            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+              Professional construction & project management services
             </h1>
-            <p className="text-xl text-white/80 max-w-3xl mx-auto leading-relaxed">
-              Comprehensive construction and project management solutions designed to deliver excellence 
-              at every stage of your project lifecycle.
+            <p className="text-xl mb-8 text-white/90">
+              Award-winning expertise in architectural construction
             </p>
+            <Button 
+              size="lg"
+              onClick={() => onNavigate('contact')}
+              className="bg-white text-gray-900 hover:bg-gray-100 font-medium px-8"
+            >
+              Explore & Book
+            </Button>
           </div>
+        </div>
+      </section>
 
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-4 gap-6 mb-20">
-            {features.map((feature, idx) => (
-              <div key={idx} className="glass-card p-6 text-center">
-                <feature.icon className="w-8 h-8 text-white/80 mx-auto mb-4" />
-                <h3 className="font-medium text-white mb-2">{feature.title}</h3>
-                <p className="text-white/70 text-sm">{feature.description}</p>
+      {/* Services Introduction */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <h2 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">Services</h2>
+            <h3 className="text-3xl font-bold text-gray-900 mb-6">
+              Explore our comprehensive construction & project management services designed for excellence at every stage.
+            </h3>
+          </div>
+        </div>
+      </section>
+
+      {/* Service Cards */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="space-y-12">
+            {/* Advisory Service Card */}
+            <div className="grid lg:grid-cols-2 gap-8 items-center">
+              <div className="relative rounded-2xl overflow-hidden h-80">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/80 to-indigo-700/80" />
+                </div>
+                <div className="absolute top-4 left-4">
+                  <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    Advisory
+                  </span>
+                </div>
               </div>
-            ))}
-          </div>
-        </main>
-
-        {/* Services Details */}
-        <section className="py-20 relative z-10">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <div className="space-y-20">
-              {services.map((category, idx) => (
-                <div key={idx} className="grid lg:grid-cols-2 gap-16 items-center">
-                  <div className={idx % 2 === 1 ? 'lg:order-2' : ''}>
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="w-2 h-12 bg-gradient-to-b from-white/60 to-white/40 rounded-full"></div>
-                      <h2 className="text-3xl lg:text-4xl font-bold text-white tracking-wide">
-                        {category.category}
-                      </h2>
-                    </div>
-                    <p className="text-lg text-white/80 mb-8 leading-relaxed">
-                      {category.description}
-                    </p>
-                    <div className="space-y-6">
-                      {category.items.map((item, itemIdx) => (
-                        <div key={itemIdx} className="flex items-start gap-4">
-                          <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 backdrop-blur-sm">
-                            <item.icon className="w-5 h-5 text-white" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-white mb-2">{item.name}</h4>
-                            <p className="text-white/70 text-sm leading-relaxed">{item.description}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+              <div className="space-y-6">
+                <div className="flex items-center space-x-2">
+                  <div className="flex text-yellow-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-current" />
+                    ))}
                   </div>
-                  
-                  <div className={idx % 2 === 1 ? 'lg:order-1' : ''}>
-                    <div className="glass-card p-8">
-                      <div className="p-0">
-                        {category.category === "Project Management" ? (
-                          <div 
-                            className="aspect-square rounded-2xl bg-cover bg-center bg-no-repeat relative overflow-hidden"
-                            style={{ backgroundImage: `url(${projectManagementImage})` }}
-                          >
-                            <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center">
-                              <div className="text-6xl text-white font-bold drop-shadow-lg">{idx + 1}</div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="aspect-square bg-gradient-to-br from-white/10 to-white/5 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                            <div className="text-6xl text-white/40 font-bold">{idx + 1}</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                  <span className="text-sm font-medium text-gray-600">5.0</span>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">Advisory Services</h3>
+                <p className="text-gray-600">
+                  Help clients make informed decisions at every stage of their project, from feasibility and budgeting to design reviews and procurement strategies.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <Users className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-600">Project Feasibility Analysis</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <CheckCircle className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-600">Budget Planning & Optimization</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Shield className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-600">Risk Assessment & Mitigation</span>
                   </div>
                 </div>
-              ))}
+                <div className="flex space-x-4">
+                  <Button 
+                    onClick={() => onNavigate('contact')}
+                    className="bg-gray-900 text-white hover:bg-gray-800"
+                  >
+                    Book now
+                  </Button>
+                  <Button variant="outline">
+                    Learn more
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
-        </section>
 
-        {/* Call to Action */}
-        <section className="py-20 relative z-10">
-          <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-            <div className="glass-card p-12">
-              <h2 className="text-3xl font-bold text-white mb-8">
-                Ready to Start Your Project?
-              </h2>
-              <p className="text-lg text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed">
-                Let's discuss how our comprehensive services can bring your architectural vision to life with exceptional quality and attention to detail.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  size="lg"
-                  onClick={() => onNavigate('contact')}
-                  className="text-white bg-white/20 border border-white/30 hover:bg-white/30 backdrop-blur-sm"
+            {/* Project Management Service Card */}
+            <div className="grid lg:grid-cols-2 gap-8 items-center">
+              <div className="space-y-6 lg:order-2">
+                <div className="flex items-center space-x-2">
+                  <div className="flex text-yellow-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-current" />
+                    ))}
+                  </div>
+                  <span className="text-sm font-medium text-gray-600">4.9</span>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">Project Management</h3>
+                <p className="text-gray-600">
+                  End-to-end management of projects, ensuring they are delivered on time, within budget, and to the highest quality standards while protecting the client's interest.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <Calendar className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-600">Project Planning & Scheduling</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <TrendingUp className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-600">Budget Control & Cost Management</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Settings className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-600">Quality Assurance & Control</span>
+                  </div>
+                </div>
+                <div className="flex space-x-4">
+                  <Button 
+                    onClick={() => onNavigate('contact')}
+                    className="bg-gray-900 text-white hover:bg-gray-800"
+                  >
+                    Book now
+                  </Button>
+                  <Button variant="outline">
+                    Learn more
+                  </Button>
+                </div>
+              </div>
+              <div className="relative rounded-2xl overflow-hidden h-80 lg:order-1">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${projectManagementImage})` }}
                 >
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Book Consultation
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  onClick={() => onNavigate('projects')}
-                  className="text-white border-white/30 hover:bg-white/10 backdrop-blur-sm"
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-600/80 to-emerald-700/80" />
+                </div>
+                <div className="absolute top-4 left-4">
+                  <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    Project Management
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Construction Management Service Card */}
+            <div className="grid lg:grid-cols-2 gap-8 items-center">
+              <div className="relative rounded-2xl overflow-hidden h-80">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
                 >
-                  View Our Work
-                </Button>
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-600/80 to-red-700/80" />
+                </div>
+                <div className="absolute top-4 left-4">
+                  <span className="bg-black/50 text-white px-3 py-1 rounded-full text-sm font-medium">
+                    Construction
+                  </span>
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div className="flex items-center space-x-2">
+                  <div className="flex text-yellow-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-current" />
+                    ))}
+                  </div>
+                  <span className="text-sm font-medium text-gray-600">4.8</span>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900">Construction Management</h3>
+                <p className="text-gray-600">
+                  Hands-on coordination and oversight of construction activities, managing trades, schedules, compliance, and site operations to achieve seamless project execution.
+                </p>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <HardHat className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-600">Site Coordination & Supervision</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Clipboard className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-600">Trade Management & Scheduling</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Shield className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm text-gray-600">Safety Compliance & Monitoring</span>
+                  </div>
+                </div>
+                <div className="flex space-x-4">
+                  <Button 
+                    onClick={() => onNavigate('contact')}
+                    className="bg-gray-900 text-white hover:bg-gray-800"
+                  >
+                    Book now
+                  </Button>
+                  <Button variant="outline">
+                    Learn more
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">
+            Ready to Start Your Project?
+          </h2>
+          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+            Let's discuss how our comprehensive services can bring your architectural vision to life with exceptional quality and attention to detail.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              size="lg"
+              onClick={() => onNavigate('contact')}
+              className="bg-gray-900 text-white hover:bg-gray-800 px-8"
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              Book Consultation
+            </Button>
+            <Button 
+              variant="outline" 
+              size="lg"
+              onClick={() => onNavigate('projects')}
+              className="px-8"
+            >
+              View Our Work
+            </Button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
