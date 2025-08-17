@@ -15,7 +15,7 @@ interface MobileHeaderProps {
 export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
   const { userProfile, loading } = useUser();
   const { user } = useAuth();
-  const { toggleSidebar } = useSidebar();
+  const { setOpenMobile, openMobile } = useSidebar();
 
   // Get the user's display name from the database profile
   const getUserDisplayName = () => {
@@ -45,12 +45,12 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Hamburger clicked - toggling sidebar', { toggleSidebar });
+            console.log('Hamburger clicked - toggling mobile sidebar', { setOpenMobile, openMobile });
             console.log('Event details:', e.type, e.target);
-            if (toggleSidebar) {
-              toggleSidebar();
+            if (setOpenMobile) {
+              setOpenMobile(!openMobile);
             } else {
-              console.error('toggleSidebar function is undefined!');
+              console.error('setOpenMobile function is undefined!');
             }
           }}
           className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"

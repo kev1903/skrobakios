@@ -20,7 +20,7 @@ export const AppSidebar = ({
   return (
     <SidebarProvider>
       <div className="h-full min-h-0 flex flex-col w-full">
-        {/* Mobile Header - only shown on mobile */}
+        {/* Mobile Header - only shown on mobile, inside SidebarProvider */}
         {isMobile && (
           <MobileHeader onNavigate={onNavigate} />
         )}
