@@ -9,9 +9,15 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UserPlus, Edit, Trash2, Shield, Users, AlertCircle } from "lucide-react";
+import { UserPlus, Edit, Trash2, Shield, Users, AlertCircle, RefreshCw, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+interface Company {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 interface User {
   id: string;
@@ -26,11 +32,13 @@ interface User {
 }
 
 export const UserManagementPanel: React.FC = () => {
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
   const [isEditUserOpen, setIsEditUserOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const { toast } = useToast();
 
   // Form states
@@ -43,6 +51,7 @@ export const UserManagementPanel: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
+    fetchCompanies();
   }, []);
 
   const fetchUsers = async () => {
@@ -87,31 +96,76 @@ export const UserManagementPanel: React.FC = () => {
     }
   };
 
+  const fetchCompanies = async () => {
+    try {
+      const { data: companiesData, error } = await supabase
+        .from('companies')
+        .select('id, name, slug')
+        .eq('public_page', true)
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+
+      setCompanies(companiesData || []);
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch companies",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const generatePassword = () => {
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let password = "";
+    
+    // Ensure at least one character from each type
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const numbers = "0123456789";
+    const symbols = "!@#$%^&*";
+    
+    password += lowercase[Math.floor(Math.random() * lowercase.length)];
+    password += uppercase[Math.floor(Math.random() * uppercase.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    password += symbols[Math.floor(Math.random() * symbols.length)];
+    
+    // Fill the rest randomly
+    for (let i = 4; i < length; i++) {
+      password += charset[Math.floor(Math.random() * charset.length)];
+    }
+    
+    // Shuffle the password
+    password = password.split('').sort(() => Math.random() - 0.5).join('');
+    
+    setPassword(password);
+    toast({
+      title: "Password Generated",
+      description: "A secure password has been generated",
+    });
+  };
+
   const createUser = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('No session');
 
-      const response = await fetch('/functions/v1/create-user-manually', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
+      const response = await supabase.functions.invoke('create-user-manually', {
+        body: {
           email,
           password,
           firstName,
           lastName,
           company,
           role
-        }),
+        },
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to create user');
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to create user');
       }
 
       toast({
@@ -189,6 +243,7 @@ export const UserManagementPanel: React.FC = () => {
     setLastName('');
     setCompany('');
     setRole('user');
+    setShowPassword(false);
   };
 
   const getRoleBadgeVariant = (role: string) => {
@@ -262,22 +317,53 @@ export const UserManagementPanel: React.FC = () => {
                   </div>
                   <div>
                     <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter secure password"
-                    />
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter secure password"
+                        className="pr-20"
+                      />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="h-8 w-8 p-0"
+                          title={showPassword ? "Hide Password" : "Show Password"}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={generatePassword}
+                          className="h-8 w-8 p-0"
+                          title="Generate Password"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <Label htmlFor="company">Company</Label>
-                    <Input
-                      id="company"
-                      value={company}
-                      onChange={(e) => setCompany(e.target.value)}
-                      placeholder="Company name"
-                    />
+                    <Select value={company} onValueChange={setCompany}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select company" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {companies.map((comp) => (
+                          <SelectItem key={comp.id} value={comp.name}>
+                            {comp.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label htmlFor="role">Role</Label>
