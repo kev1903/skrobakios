@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import projectManagementImage from '@/assets/project-management-team.jpg';
+import abstractGreyBackground from '@/assets/abstract-grey-background.jpg';
 import { 
   ArrowRight, 
   ArrowLeft,
@@ -203,7 +204,7 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
       <section className="relative h-96 bg-gradient-to-r from-blue-600 to-indigo-700 overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
+          style={{ backgroundImage: `url(${abstractGreyBackground})` }}
         >
           <div className="absolute inset-0 bg-black/40" />
         </div>
