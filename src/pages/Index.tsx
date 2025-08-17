@@ -17,6 +17,7 @@ import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileViewToggle } from "@/components/mobile/MobileViewToggle";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -26,6 +27,7 @@ const Index = () => {
     return window.location.pathname === "/" ? "landing" : "landing";
   });
   const [isChatCollapsed, setIsChatCollapsed] = useState(true);
+  const [mobileView, setMobileView] = useState<'chat' | 'app'>('app');
   const previousPageRef = useRef<string>("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
   const isMobile = useIsMobile();
@@ -159,24 +161,47 @@ const Index = () => {
             {/* Global sidebar available on all pages */}
             <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
           </div>
-        ) : currentPage === "home" && isMobile ? (
-          // Mobile home page: Show only AI chat full screen, hide map
+        ) : isMobile ? (
+          // Mobile layout with toggle between chat and app
           <div className="h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
             <div className="relative z-10 flex h-screen min-h-0">
-              {/* AI Chat sidebar takes full width on mobile home page */}
-              <div className="w-full">
-                <AiChatSidebar 
-                  isCollapsed={false} 
-                  onToggleCollapse={() => {}} // Disable collapse on mobile home
-                  onNavigate={handleNavigate}
-                  fullScreen
-                />
-              </div>
+              {mobileView === 'chat' ? (
+                // AI Chat view on mobile
+                <div className="w-full pb-16">
+                  <AiChatSidebar 
+                    isCollapsed={false} 
+                    onToggleCollapse={() => {}}
+                    onNavigate={handleNavigate}
+                    fullScreen
+                  />
+                </div>
+              ) : (
+                // App view on mobile
+                <div className="w-full pb-16">
+                  <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
+                    <div className="w-full h-full">
+                      <ContentRenderer 
+                        currentPage={currentPage}
+                        onNavigate={handleNavigate}
+                        onSelectProject={handleSelectProject}
+                        selectedProject={selectedProject}
+                        currentProject={currentProject}
+                      />
+                    </div>
+                  </PageLayout>
+                </div>
+              )}
               
               {/* Global sidebar available on all pages */}
               <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
             </div>
+            
+            {/* Mobile toggle at bottom */}
+            <MobileViewToggle 
+              activeView={mobileView}
+              onViewChange={setMobileView}
+            />
           </div>
         ) : (
           // Home and all other pages get layout with sidebar (desktop/tablet)
