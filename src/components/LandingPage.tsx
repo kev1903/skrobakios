@@ -178,7 +178,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   return (
     <div className="min-h-screen bg-background">
       {/* Fixed Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-border/10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -188,33 +188,33 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <div className="hidden lg:flex items-center space-x-8">
               <button 
                 onClick={() => scrollToSection('hero')}
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
+                className="text-foreground/80 hover:text-foreground text-sm font-medium transition-colors"
               >
-                HOME
+                Home
               </button>
               <button 
                 onClick={() => scrollToSection('services')}
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
+                className="text-foreground/80 hover:text-foreground text-sm font-medium transition-colors"
               >
-                SERVICES
+                Services
               </button>
               <button 
                 onClick={() => scrollToSection('portfolio')}
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
+                className="text-foreground/80 hover:text-foreground text-sm font-medium transition-colors"
               >
-                PORTFOLIO
+                Portfolio
               </button>
               <button 
                 onClick={() => scrollToSection('about')}
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
+                className="text-foreground/80 hover:text-foreground text-sm font-medium transition-colors"
               >
-                ABOUT
+                About
               </button>
               <button 
                 onClick={() => scrollToSection('contact')}
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
+                className="text-foreground/80 hover:text-foreground text-sm font-medium transition-colors"
               >
-                CONTACT
+                Contact
               </button>
             </div>
 
@@ -222,14 +222,14 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <Button 
                 variant="ghost" 
                 onClick={() => onNavigate('auth')}
-                className="text-white border border-white/30 hover:bg-white/10 backdrop-blur-sm"
+                className="text-foreground border border-border/20 hover:bg-muted/50 rounded-full px-6"
               >
                 Sign In
               </Button>
               
               <button 
                 onClick={() => setIsMenuOpen(!isMenuOpen)} 
-                className="lg:hidden text-white p-2"
+                className="lg:hidden text-foreground p-2"
               >
                 {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -277,7 +277,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </nav>
 
       {/* Hero Section */}
-      <section id="hero" className="h-screen relative overflow-hidden">
+      <section id="hero" className="h-screen relative overflow-hidden bg-gray-50">
         {/* Hero Background Carousel */}
         <div className="absolute inset-0">
           {backgroundImages.map((image, index) => (
@@ -289,33 +289,34 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               style={{ backgroundImage: `url(${image})` }}
             />
           ))}
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-gray-900/40" />
         </div>
 
         {/* Hero Content */}
         <div className="relative z-10 h-full flex items-center justify-center text-center text-white">
           <div className="max-w-4xl px-6">
-            <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold mb-6 leading-none tracking-tight">
-              Skrobaki
+            <h1 className="text-6xl lg:text-8xl font-bold mb-6 leading-tight">
+              A construction system that works like an 
+              <span className="text-blue-400"> Organiser</span>
             </h1>
-            <p className="text-xl lg:text-2xl mb-8 text-white/90">
-              Transforming architectural visions into extraordinary built environments
+            <p className="text-xl mb-8 text-white/90 max-w-2xl mx-auto">
+              Great projects deserve a system that does it all, from making plans and smooth checkouts to helping you market and track performance.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg"
                 onClick={() => scrollToSection('services')}
-                className="button-blue px-8"
+                className="bg-gray-900 text-white hover:bg-gray-800 px-8 rounded-full"
               >
-                Explore Our Services
+                Get an Invite
               </Button>
               <Button 
                 variant="outline"
                 size="lg"
                 onClick={() => scrollToSection('contact')}
-                className="button-ghost px-8"
+                className="border-white/30 text-white hover:bg-white/10 px-8 rounded-full"
               >
-                Start Your Project
+                Book a Call
               </Button>
             </div>
           </div>
@@ -336,27 +337,27 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       <section id="services" className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="heading-xl text-foreground mb-8 font-playfair">
-              Our <span className="text-gradient-gold">Services</span>
+            <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-8">
+              Our <span className="text-accent">Services</span>
             </h2>
-            <p className="body-lg text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               Comprehensive construction and project management solutions designed for excellence at every stage
             </p>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
             {services.map((service, index) => (
-              <Card key={index} className="glass-card p-8 hover:shadow-lg transition-all duration-300">
+              <Card key={index} className="bg-white border border-border/10 p-8 hover:shadow-lg transition-all duration-300 rounded-2xl">
                 <CardContent className="p-0">
                   <div className="text-center mb-6">
-                    <service.icon className="w-16 h-16 text-brand-gold mx-auto mb-4" />
+                    <service.icon className="w-16 h-16 text-accent mx-auto mb-4" />
                     <h3 className="text-2xl font-bold text-foreground mb-3">{service.title}</h3>
                   </div>
                   <p className="text-muted-foreground mb-6 text-center">{service.description}</p>
                   <div className="space-y-3">
                     {service.features.map((feature, idx) => (
                       <div key={idx} className="flex items-center space-x-3">
-                        <CheckCircle className="w-5 h-5 text-brand-gold flex-shrink-0" />
+                        <CheckCircle className="w-5 h-5 text-accent flex-shrink-0" />
                         <span className="text-sm text-muted-foreground">{feature}</span>
                       </div>
                     ))}
@@ -372,10 +373,10 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       <section id="portfolio" className="py-20 bg-card/30">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="heading-xl text-card-foreground mb-8 font-playfair">
-              Featured <span className="text-gradient-gold">Portfolio</span>
+            <h2 className="text-4xl md:text-6xl font-bold text-foreground mb-8">
+              Featured <span className="text-accent">Portfolio</span>
             </h2>
-            <p className="body-lg text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               A curated showcase of our most exceptional projects, demonstrating our commitment to architectural excellence
             </p>
           </div>
