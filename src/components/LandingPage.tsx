@@ -12,13 +12,32 @@ export const LandingPage = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
   const [hoveredService, setHoveredService] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const isMobile = useIsMobile();
+
+  // Array of background images for carousel
+  const backgroundImages = [
+    heroImage,
+    heroImage, // Add more images here as needed
+    heroImage  // Add more images here as needed
+  ];
 
   const serviceDescriptions = {
     advisory: "Help clients make informed decisions at every stage of their project, from feasibility and budgeting to design reviews and procurement strategies.",
     project: "End-to-end management of projects, ensuring they are delivered on time, within budget, and to the highest quality standards while protecting the client's interest.",
     construction: "Hands-on coordination and oversight of construction activities, managing trades, schedules, compliance, and site operations to achieve seamless project execution."
   };
+
+  // Auto-rotate carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % backgroundImages.length
+      );
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [backgroundImages.length]);
 
   // Navigation handler for menu items
   const handleNavigation = (section: string) => {
@@ -27,12 +46,21 @@ export const LandingPage = ({
     // Future: navigate to different pages or show modals
   };
   return <div className="h-screen relative overflow-hidden">
-      {/* Hero Background Image */}
-      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
-      backgroundImage: `url(${heroImage})`
-    }}>
+      {/* Hero Background Carousel */}
+      <div className="absolute inset-0">
+        {backgroundImages.map((image, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out ${
+              index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{
+              backgroundImage: `url(${image})`
+            }}
+          />
+        ))}
         {/* Dark overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-black/20 z-10" />
       </div>
 
       {/* Main Layout with Glass Panel */}
