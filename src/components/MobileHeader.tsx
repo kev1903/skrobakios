@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCompany } from '@/contexts/CompanyContext';
+import { useAppContext } from '@/contexts/AppContextProvider';
 import { useGlobalSidebar } from '@/contexts/GlobalSidebarContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { User, Menu, ClipboardList, Bell, Inbox } from 'lucide-react';
@@ -18,6 +20,8 @@ interface MobileHeaderProps {
 export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
   const { userProfile, loading } = useUser();
   const { user } = useAuth();
+  const { currentCompany } = useCompany();
+  const { activeContext } = useAppContext();
   const { isOpen, toggleSidebar } = useGlobalSidebar();
   const { unreadCount } = useNotifications();
 
@@ -33,6 +37,38 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
       return userProfile.lastName;
     } else {
       return user?.email?.split('@')[0] || 'User';
+    }
+  };
+
+  // Get display text for company logo - same logic as desktop MenuBar
+  const getCompanyDisplayText = () => {
+    if (activeContext === 'personal') {
+      // Show user's full name for personal context
+      if (userProfile.firstName || userProfile.lastName) {
+        return `${userProfile.firstName} ${userProfile.lastName}`.trim();
+      }
+      // Fallback to email for personal context
+      return userProfile.email || "Personal";
+    } else {
+      // Show business name for company context
+      // Check if company name looks like an auto-generated default
+      const isDefaultCompanyName = currentCompany?.name && (
+        currentCompany.name.includes('@') || 
+        currentCompany.name.endsWith('\'s Business') ||
+        currentCompany.name.endsWith('\'s Company')
+      );
+      
+      // If we have a real company name (not auto-generated), show it
+      if (currentCompany?.name && !isDefaultCompanyName) {
+        return currentCompany.name;
+      }
+      
+      // Fallback to user's name or default for company context
+      if (userProfile.firstName || userProfile.lastName) {
+        return `${userProfile.firstName} ${userProfile.lastName}`.trim();
+      }
+      
+      return userProfile.email || "KAKSIK";
     }
   };
 
@@ -60,9 +96,13 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
         </button>
         <div className="flex items-center space-x-2">
           <div className="w-6 h-6 bg-gradient-to-br from-slate-600 to-blue-700 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xs font-poppins">K</span>
+            <span className="text-white font-bold text-xs font-poppins">
+              {getCompanyDisplayText().charAt(0).toUpperCase()}
+            </span>
           </div>
-          <h1 className="text-sm font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern">KAKSIK</h1>
+          <h1 className="text-sm font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern">
+            {getCompanyDisplayText()}
+          </h1>
         </div>
       </div>
       
