@@ -18,18 +18,15 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   const [activeSection, setActiveSection] = useState('hero');
   const isMobile = useIsMobile();
 
-  // Handle scroll to sections
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setActiveSection(sectionId);
-    }
+  // Navigation handler for menu items
+  const handleNavigation = (section: string) => {
+    // For now, just close mobile menu
     setIsMenuOpen(false);
+    // Future: navigate to different pages or show modals
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="h-screen relative overflow-hidden">
       {/* Hero Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -65,25 +62,25 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <nav className="hidden lg:flex items-center space-x-12">
               <button 
                 className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
-                onClick={() => scrollToSection('services')}
+                onClick={() => handleNavigation('services')}
               >
                 SERVICES
               </button>
               <button 
                 className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
-                onClick={() => scrollToSection('case-studies')}
+                onClick={() => handleNavigation('projects')}
               >
                 PROJECTS
               </button>
               <button 
                 className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
-                onClick={() => scrollToSection('why-hire')}
+                onClick={() => handleNavigation('offers')}
               >
                 SPECIAL OFFERS
               </button>
               <button 
                 className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
-                onClick={() => scrollToSection('about')}
+                onClick={() => handleNavigation('about')}
               >
                 ABOUT US
               </button>
@@ -104,25 +101,25 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <nav className="flex flex-col space-y-4">
                 <button 
                   className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors"
-                  onClick={() => scrollToSection('services')}
+                  onClick={() => handleNavigation('services')}
                 >
                   SERVICES
                 </button>
                 <button 
                   className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors"
-                  onClick={() => scrollToSection('case-studies')}
+                  onClick={() => handleNavigation('projects')}
                 >
                   PROJECTS
                 </button>
                 <button 
                   className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors"
-                  onClick={() => scrollToSection('why-hire')}
+                  onClick={() => handleNavigation('offers')}
                 >
                   SPECIAL OFFERS
                 </button>
                 <button 
                   className="text-white/90 hover:text-white text-left font-medium tracking-wide transition-colors"
-                  onClick={() => scrollToSection('about')}
+                  onClick={() => handleNavigation('about')}
                 >
                   ABOUT US
                 </button>
@@ -171,7 +168,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
                   <button 
                     className="group flex items-center space-x-3 text-white/90 hover:text-white transition-colors"
-                    onClick={() => scrollToSection('services')}
+                    onClick={() => handleNavigation('services')}
                   >
                     <span className="text-sm font-medium tracking-wide">VIEW ALL SERVICES</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -202,21 +199,6 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           Sign In
         </Button>
       </div>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-40">
-        <div className="flex flex-col items-center space-y-2 text-white/60">
-          <div className="w-px h-12 bg-white/30" />
-          <ChevronDown className="w-4 h-4 animate-bounce" />
-        </div>
-      </div>
-
-      {/* Hidden sections for navigation */}
-      <div id="about" className="h-screen bg-neutral-100" />
-      <div id="services" className="h-screen bg-neutral-200" />
-      <div id="why-hire" className="h-screen bg-neutral-300" />
-      <div id="case-studies" className="h-screen bg-neutral-400" />
-      <div id="contact" className="h-screen bg-neutral-500" />
     </div>
   );
 };
