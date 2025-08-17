@@ -59,7 +59,7 @@ export const LandingPage = ({
       <div className="relative z-40 h-screen flex">
         {/* Left Glass Panel - Centered and Smaller */}
         <div className="w-1/3 h-full mx-auto">
-          <div className="backdrop-blur-md border border-white/10 w-full h-full flex flex-col p-8 lg:p-12 shadow-2xl shadow-black/50" style={{backgroundColor: 'rgba(16,16,16,255)'}}>
+          <div className="bg-black/30 backdrop-blur-xl border border-white/20 w-full h-full flex flex-col p-8 lg:p-12 shadow-2xl shadow-black/60 backdrop-saturate-150" style={{backgroundColor: 'rgba(0,0,0,0.4)'}}>
             {/* Navigation in Glass Panel */}
             <header className="mb-8">
               {/* Logo and Navigation */}
