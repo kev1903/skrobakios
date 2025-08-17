@@ -11,12 +11,29 @@ export const ProjectsPage = ({
   onNavigate
 }: ProjectsPageProps) => {
   const [selectedProject, setSelectedProject] = useState('thanet-street');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const galleryImages = [
+    '/lovable-uploads/121a0a8f-2d3d-4510-8eea-aa8d66ca2e81.png',
+    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
+    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
+    '/lovable-uploads/121a0a8f-2d3d-4510-8eea-aa8d66ca2e81.png',
+    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png'
+  ];
 
   const featuredProjects = [
     { id: 'thanet-street', name: 'Thanet Street', location: 'Malvern', type: 'Residential' },
     { id: 'st-john-ave', name: 'St John Ave', location: 'Melbourne', type: 'Commercial' },
     { id: 'gordon-street', name: 'Gordon Street', location: 'Richmond', type: 'Mixed Use' }
   ];
+
+  const nextImage = () => {
+    setCurrentImageIndex(prev => (prev + 1) % galleryImages.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex(prev => (prev - 1 + galleryImages.length) % galleryImages.length);
+  };
 
   const servicePackages = [
     { id: "01", title: "Advisory", category: "SERVICE PACKAGE" },
@@ -113,75 +130,93 @@ export const ProjectsPage = ({
           </div>
         </div>
 
-        {/* Main Content Area - Feature Projects */}
+        {/* Main Content Area - Image Gallery */}
         <div className="flex-1 p-8">
           <div 
             className="backdrop-blur-xl border border-white/20 h-full flex flex-col shadow-2xl"
             style={{ backgroundColor: 'rgba(0,10,20,0.85)' }}
           >
-            {/* Feature Projects Header */}
+            {/* Gallery Header */}
             <div className="p-8 border-b border-white/10">
               <h1 className="text-white text-4xl lg:text-5xl font-light tracking-tight mb-4">
-                Feature Projects
+                Project Gallery
               </h1>
               <p className="text-white/80 text-lg">
-                Explore our portfolio of exceptional architectural projects
+                Architectural Excellence in Every Detail
+              </p>
+              <p className="text-white/60 text-sm mt-2">
+                {currentImageIndex + 1} of {galleryImages.length} images
               </p>
             </div>
             
-            {/* Projects List */}
-            <div className="flex-1 p-8">
-              <div className="space-y-4">
-                {featuredProjects.map((project, index) => (
-                  <button
-                    key={project.id}
-                    onClick={() => setSelectedProject(project.id)}
-                    className={`w-full p-6 rounded-xl border transition-all duration-300 text-left ${
-                      selectedProject === project.id
-                        ? 'bg-white/20 border-white/30 shadow-lg'
-                        : 'bg-white/10 border-white/20 hover:bg-white/15'
-                    }`}
+            {/* Main Gallery Display */}
+            <div className="flex-1 relative overflow-hidden">
+              <div className="h-full flex items-center justify-center p-8">
+                <div className="relative w-full h-full">
+                  <img 
+                    src={galleryImages[currentImageIndex]} 
+                    alt={`Project image ${currentImageIndex + 1}`} 
+                    className="w-full h-full object-cover rounded-xl shadow-2xl" 
+                  />
+                  
+                  {/* Navigation Arrows */}
+                  <button 
+                    onClick={prevImage} 
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-105 backdrop-blur-sm"
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="flex items-center space-x-4 mb-2">
-                          <span className="text-white/60 text-sm font-mono">
-                            {String(index + 1).padStart(2, '0')}
-                          </span>
-                          <h3 className="text-white text-xl font-medium tracking-wide">
-                            {project.name}
-                          </h3>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <span className="text-white/70 text-sm">{project.location}</span>
-                          <span className="text-white/50 text-sm">•</span>
-                          <span className="text-white/70 text-sm">{project.type}</span>
-                        </div>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-white/60" />
-                    </div>
+                    <ChevronLeft className="w-6 h-6 text-white" />
                   </button>
-                ))}
+                  
+                  <button 
+                    onClick={nextImage} 
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-105 backdrop-blur-sm"
+                  >
+                    <ChevronRight className="w-6 h-6 text-white" />
+                  </button>
+                  
+                  {/* Image Info Overlay */}
+                  <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm rounded-lg p-4">
+                    <h4 className="text-white text-lg font-medium mb-1">
+                      {featuredProjects[selectedProject === 'thanet-street' ? 0 : selectedProject === 'st-john-ave' ? 1 : 2].name}
+                    </h4>
+                    <p className="text-white/70 text-sm">
+                      {featuredProjects[selectedProject === 'thanet-street' ? 0 : selectedProject === 'st-john-ave' ? 1 : 2].location} • {featuredProjects[selectedProject === 'thanet-street' ? 0 : selectedProject === 'st-john-ave' ? 1 : 2].type}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
             
-            {/* Action Buttons */}
+            {/* Gallery Controls */}
             <div className="p-8 border-t border-white/10">
-              <div className="flex space-x-4">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-white/80 hover:text-white hover:bg-white/10 border border-white/20"
-                >
-                  View All Projects
-                </Button>
-                <Button 
-                  size="sm" 
-                  className="bg-white/20 hover:bg-white/30 text-white border border-white/30"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Portfolio
-                </Button>
+              <div className="flex justify-between items-center">
+                <div className="flex space-x-3">
+                  {galleryImages.map((_, index) => (
+                    <button 
+                      key={index} 
+                      onClick={() => setCurrentImageIndex(index)} 
+                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                        index === currentImageIndex ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
+                      }`} 
+                    />
+                  ))}
+                </div>
+                <div className="flex space-x-3">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-white/80 hover:text-white hover:bg-white/10 border border-white/20"
+                  >
+                    View All Images
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="bg-white/20 hover:bg-white/30 text-white border border-white/30"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
