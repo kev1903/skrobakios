@@ -106,112 +106,68 @@ export const ProjectsPage = ({
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex">
-          {/* Project Details Section */}
-          <div className="flex-1 p-8 overflow-y-auto">
-            <div 
-              className="backdrop-blur-md border border-white/10 rounded-2xl p-8 shadow-xl"
-              style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}
-            >
-              {/* Header */}
-              <div className="mb-8">
-                <h1 className="text-4xl lg:text-5xl font-light text-gray-900 mb-4 tracking-tight">
-                  Thanet Street, Malvern
-                </h1>
-                <p className="text-gray-600 text-lg leading-relaxed max-w-3xl">
-                  A contemporary residential project featuring modern architectural elements with sustainable design principles. 
-                  This elegant home seamlessly blends indoor and outdoor living spaces.
-                </p>
-              </div>
-
-              {/* Project Description */}
-              <div className="space-y-8">
-                <div>
-                  <h2 className="text-2xl font-light text-gray-900 mb-4 tracking-wide">Project Overview</h2>
-                  <p className="text-gray-600 leading-relaxed">
-                    Canada-based studio Bourgeois/Lechasseur Architectes has designed an elegant new modern mountain home 
-                    adjacent to an existing lakeside chalet in Northern Quebec, at the edge of a ski resort. The design 
-                    emphasizes natural materials and sustainable construction methods.
-                  </p>
-                </div>
-
-                <div>
-                  <h2 className="text-2xl font-light text-gray-900 mb-4 tracking-wide">Design Features</h2>
-                  <ul className="text-gray-600 space-y-2">
-                    <li>• Contemporary facade with natural stone cladding</li>
-                    <li>• Large format windows maximizing natural light</li>
-                    <li>• Sustainable materials and energy-efficient systems</li>
-                    <li>• Integrated landscape design</li>
-                    <li>• Private outdoor spaces and courtyards</li>
-                  </ul>
-                </div>
-
-                <div>
-                  <h2 className="text-2xl font-light text-gray-900 mb-4 tracking-wide">Awards & Recognition</h2>
-                  <p className="text-gray-600">
-                    This project has been featured in Architectural Digest and received the 2023 Australian Institute 
-                    of Architects Award for Residential Architecture.
-                  </p>
+        {/* Main Content Area - Gallery */}
+        <div className="flex-1 p-8">
+          <div 
+            className="backdrop-blur-xl border border-white/20 h-full flex flex-col shadow-2xl"
+            style={{ backgroundColor: 'rgba(0,10,20,0.85)' }}
+          >
+            {/* Gallery Header */}
+            <div className="p-8 border-b border-white/10">
+              <h1 className="text-white text-4xl lg:text-5xl font-light tracking-tight mb-4">
+                Project Gallery
+              </h1>
+              <p className="text-white/80 text-lg">
+                Thanet Street, Malvern - Residential Architecture
+              </p>
+              <p className="text-white/60 text-sm mt-2">
+                {currentImageIndex + 1} of {galleryImages.length} images
+              </p>
+            </div>
+            
+            {/* Main Gallery Display */}
+            <div className="flex-1 relative overflow-hidden">
+              <div className="h-full flex items-center justify-center p-8">
+                <div className="relative w-full h-full max-w-6xl">
+                  <img 
+                    src={galleryImages[currentImageIndex]} 
+                    alt={`Project image ${currentImageIndex + 1}`} 
+                    className="w-full h-full object-cover rounded-xl shadow-2xl" 
+                  />
+                  
+                  {/* Navigation Arrows */}
+                  <button 
+                    onClick={prevImage} 
+                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-105 backdrop-blur-sm"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-white" />
+                  </button>
+                  
+                  <button 
+                    onClick={nextImage} 
+                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-105 backdrop-blur-sm"
+                  >
+                    <ChevronRight className="w-6 h-6 text-white" />
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Gallery Section */}
-          <div className="w-96 h-full flex flex-col">
-            <div 
-              className="backdrop-blur-xl border border-white/20 h-full flex flex-col shadow-2xl"
-              style={{ backgroundColor: 'rgba(0,10,20,0.85)' }}
-            >
-              {/* Gallery Header */}
-              <div className="p-6 border-b border-white/10">
-                <h3 className="text-white text-lg font-light tracking-wide mb-1">Project Gallery</h3>
-                <p className="text-white/60 text-sm">
-                  {currentImageIndex + 1} of {galleryImages.length}
-                </p>
-              </div>
-              
-              {/* Gallery Image */}
-              <div className="flex-1 relative">
-                <img 
-                  src={galleryImages[currentImageIndex]} 
-                  alt={`Project image ${currentImageIndex + 1}`} 
-                  className="w-full h-full object-cover" 
-                />
-                
-                {/* Navigation Arrows */}
-                <button 
-                  onClick={prevImage} 
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105 backdrop-blur-sm"
-                >
-                  <ChevronLeft className="w-5 h-5 text-white" />
-                </button>
-                
-                <button 
-                  onClick={nextImage} 
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105 backdrop-blur-sm"
-                >
-                  <ChevronRight className="w-5 h-5 text-white" />
-                </button>
-                
-                {/* Image Indicators */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+            
+            {/* Gallery Controls */}
+            <div className="p-8 border-t border-white/10">
+              <div className="flex justify-between items-center">
+                <div className="flex space-x-3">
                   {galleryImages.map((_, index) => (
                     <button 
                       key={index} 
                       onClick={() => setCurrentImageIndex(index)} 
-                      className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                        index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                        index === currentImageIndex ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
                       }`} 
                     />
                   ))}
                 </div>
-              </div>
-              
-              {/* Gallery Controls */}
-              <div className="p-4 border-t border-white/10">
-                <div className="flex justify-between items-center space-x-3">
+                <div className="flex space-x-3">
                   <Button 
                     variant="ghost" 
                     size="sm" 
