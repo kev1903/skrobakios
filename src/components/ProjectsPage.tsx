@@ -69,20 +69,25 @@ export const ProjectsPage = ({
               </p>
             </div>
 
-            {/* Service Package */}
+            {/* Featured Projects */}
             <div className="space-y-6 flex-1 overflow-y-auto">
               <div>
                 <h3 className="text-white/80 text-xs font-medium tracking-widest uppercase mb-4">
-                  Service Package
+                  Featured Projects
                 </h3>
                 <div className="space-y-2">
-                  {servicePackages.map((service) => (
+                  {featuredProjects.map((project) => (
                     <button
-                      key={service.id}
-                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg bg-white/10 hover:bg-white/15 transition-all duration-200 cursor-pointer border border-white/10 text-left"
+                      key={project.id}
+                      onClick={() => setSelectedProject(project.id)}
+                      className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer border text-left ${
+                        selectedProject === project.id
+                          ? 'bg-white/20 border-white/30'
+                          : 'bg-white/10 hover:bg-white/15 border-white/10'
+                      }`}
                     >
-                      <span className="text-white/60 text-sm font-mono">{service.id}</span>
-                      <span className="text-white text-sm font-medium tracking-wide">{service.title}</span>
+                      <span className="text-white/60 text-sm font-mono">{String(featuredProjects.indexOf(project) + 1).padStart(2, '0')}</span>
+                      <span className="text-white text-sm font-medium tracking-wide">{project.name}</span>
                     </button>
                   ))}
                 </div>
