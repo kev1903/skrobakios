@@ -167,9 +167,6 @@ const Index = () => {
           <div className="relative h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
             {/* Mobile header (fixed) */}
             <MobileHeader onNavigate={handleNavigate} />
-
-            {/* Background Pattern below header and above toggle */}
-            <div className="pointer-events-none absolute left-0 right-0 top-16 bottom-16 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px]" />
             
             {/* Main content area pinned between header and bottom toggle */}
             <div className="absolute left-0 right-0 top-16 bottom-16 z-10">
@@ -186,7 +183,7 @@ const Index = () => {
               ) : (
                 // App view on mobile
                 <div className="w-full h-full overflow-hidden">
-                  <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
+                  <PageLayout currentPage={currentPage} onNavigate={handleNavigate} disableSpacing>
                     <div className="w-full h-full">
                       <ContentRenderer 
                         currentPage={currentPage}

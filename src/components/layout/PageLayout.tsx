@@ -8,11 +8,13 @@ interface PageLayoutProps {
   currentPage: string;
   onNavigate: (page: string) => void;
   children: React.ReactNode;
+  disableSpacing?: boolean; // When true, do not apply top margin/height offsets
 }
 
-export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProps) => {
+export const PageLayout = ({ currentPage, onNavigate, children, disableSpacing = false }: PageLayoutProps) => {
   const { spacingClasses, fullHeightClasses } = useMenuBarSpacing(currentPage);
-
+  const spacing = disableSpacing ? '' : spacingClasses;
+  const fullHeight = disableSpacing ? 'h-full' : fullHeightClasses;
   // Auth page has no layout wrapper
   if (currentPage === "auth") {
     return (
@@ -29,7 +31,7 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
         onNavigate={onNavigate}
         requireSuperAdmin={false}
       >
-        <main className={`w-full ${spacingClasses} ${fullHeightClasses} overflow-y-auto relative`}>
+        <main className={`w-full ${spacing} ${fullHeight} overflow-y-auto relative`}>
           <div className="w-full h-full">
             {children}
           </div>
@@ -45,7 +47,7 @@ export const PageLayout = ({ currentPage, onNavigate, children }: PageLayoutProp
       requireSuperAdmin={currentPage === "admin" || currentPage === "user-management"}
       requireAdmin={currentPage === "platform-dashboard"}
     >
-      <main className={`w-full ${spacingClasses} ${fullHeightClasses} overflow-y-auto relative`}>
+      <main className={`w-full ${spacing} ${fullHeight} overflow-y-auto relative`}>
         <div className="w-full h-full">
           {children}
         </div>
