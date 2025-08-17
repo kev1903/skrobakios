@@ -61,52 +61,52 @@ interface ServicesPageProps {
 
 export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">{/* Main Background */}
       {/* Fixed Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <button 
                 onClick={() => onNavigate('landing')}
-                className="text-gray-600 hover:text-gray-800 text-sm font-medium transition-colors flex items-center space-x-2"
+                className="text-white/70 hover:text-white text-sm font-medium transition-colors flex items-center space-x-2"
               >
                 <ArrowLeft className="w-4 h-4" />
               </button>
               <img src="/lovable-uploads/b0e435b5-f844-4b7c-bce4-cccf69ad4e5b.png" alt="Skrobaki" className="h-8 w-auto" />
             </div>
             
-            <div className="hidden lg:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center space-x-12">
               <button 
                 onClick={() => onNavigate('services')}
-                className="text-gray-900 font-medium text-sm uppercase tracking-wider"
+                className="text-white font-medium text-sm tracking-wide"
               >
-                Services
+                SERVICES
               </button>
               <button 
                 onClick={() => onNavigate('projects')}
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium uppercase tracking-wider transition-colors"
+                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
               >
-                Projects
+                PROJECTS
               </button>
               <button 
                 onClick={() => onNavigate('about')}
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium uppercase tracking-wider transition-colors"
+                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
               >
-                About
+                ABOUT US
               </button>
               <button 
                 onClick={() => onNavigate('contact')}
-                className="text-gray-600 hover:text-gray-900 text-sm font-medium uppercase tracking-wider transition-colors"
+                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
               >
-                Contact
+                CONTACT
               </button>
             </div>
 
             <Button 
-              variant="outline" 
+              variant="ghost" 
               onClick={() => onNavigate('auth')}
-              className="border-gray-300 hover:bg-gray-50"
+              className="text-white border border-white/30 hover:bg-white/10 backdrop-blur-sm"
             >
               Sign In
             </Button>
@@ -116,18 +116,18 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
 
       <div className="pt-20 flex max-w-7xl mx-auto">
         {/* Sidebar */}
-        <aside className="w-80 bg-white rounded-3xl m-6 p-8 h-fit shadow-lg">
+        <aside className="w-80 glass-card m-6 p-8 h-fit">
           {/* Main CTA */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            <h2 className="text-xl font-bold text-foreground mb-4">
               Ready to start your construction project?
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
               Connect with our professional team and get expert guidance from planning to completion.
             </p>
             <Button 
               onClick={() => onNavigate('contact')}
-              className="w-full bg-gray-900 text-white hover:bg-gray-800 rounded-xl"
+              className="w-full button-blue rounded-xl"
             >
               Get Professional Consultation
             </Button>
@@ -135,29 +135,29 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
 
           {/* Service Advantages */}
           <div className="mb-8">
-            <h3 className="font-semibold text-gray-900 mb-4">
+            <h3 className="font-medium text-foreground mb-4">
               Why Choose Our Services
             </h3>
             
             <div className="space-y-4">
-              <div className="bg-gray-50 rounded-2xl p-4">
+              <div className="glass-light rounded-2xl p-4">
                 <div 
                   className="w-full h-24 bg-cover bg-center rounded-xl mb-3"
                   style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
                 />
-                <h4 className="font-medium text-gray-900 mb-1">Energy Efficiency</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-medium text-foreground mb-1 text-sm">Energy Efficiency</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   Sustainable construction practices with energy-efficient solutions and modern technologies.
                 </p>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl p-4">
+              <div className="glass-light rounded-2xl p-4">
                 <div 
                   className="w-full h-24 bg-cover bg-center rounded-xl mb-3"
                   style={{ backgroundImage: `url(${projectManagementImage})` }}
                 />
-                <h4 className="font-medium text-gray-900 mb-1">Eco-friendly Materials</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-medium text-foreground mb-1 text-sm">Eco-friendly Materials</h4>
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   Premium sustainable materials and environmentally conscious building methods.
                 </p>
               </div>
@@ -166,16 +166,16 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
 
           {/* Working with the Best */}
           <div className="mb-8">
-            <h3 className="font-semibold text-gray-900 mb-4">
+            <h3 className="font-medium text-foreground mb-4">
               Working with the Best
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
               Our professional team delivers projects using the latest construction technologies and proven methodologies.
             </p>
             <Button 
               variant="outline"
               onClick={() => onNavigate('contact')}
-              className="w-full rounded-xl"
+              className="w-full button-ghost rounded-xl"
             >
               Learn About Our Approach
             </Button>
@@ -183,37 +183,37 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
 
           {/* News */}
           <div className="mb-8">
-            <h3 className="font-semibold text-gray-900 mb-4">Latest News</h3>
+            <h3 className="font-medium text-foreground mb-4">Latest News</h3>
             <div className="space-y-3">
-              <div className="text-sm">
-                <p className="text-gray-900 font-medium">New Sustainable Construction Standards</p>
-                <p className="text-gray-500 text-xs">March 15, 2024</p>
+              <div className="text-xs">
+                <p className="text-foreground font-medium">New Sustainable Construction Standards</p>
+                <p className="text-muted-foreground text-xs">March 15, 2024</p>
               </div>
-              <div className="text-sm">
-                <p className="text-gray-900 font-medium">Award for Excellence in Project Management</p>
-                <p className="text-gray-500 text-xs">March 10, 2024</p>
+              <div className="text-xs">
+                <p className="text-foreground font-medium">Award for Excellence in Project Management</p>
+                <p className="text-muted-foreground text-xs">March 10, 2024</p>
               </div>
-              <div className="text-sm">
-                <p className="text-gray-900 font-medium">New Technology Integration</p>
-                <p className="text-gray-500 text-xs">March 5, 2024</p>
+              <div className="text-xs">
+                <p className="text-foreground font-medium">New Technology Integration</p>
+                <p className="text-muted-foreground text-xs">March 5, 2024</p>
               </div>
             </div>
           </div>
 
           {/* Contact */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-4">Contacts</h3>
-            <div className="space-y-2 text-sm text-gray-600">
+            <h3 className="font-medium text-foreground mb-4">Contacts</h3>
+            <div className="space-y-2 text-xs text-muted-foreground">
               <div className="flex items-center space-x-2">
-                <Phone className="w-4 h-4" />
+                <Phone className="w-3 h-3" />
                 <span>+1 (555) 123-4567</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Mail className="w-4 h-4" />
+                <Mail className="w-3 h-3" />
                 <span>info@skrobaki.com</span>
               </div>
               <div className="flex items-center space-x-2">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-3 h-3" />
                 <span>Construction District, Building 1</span>
               </div>
             </div>
