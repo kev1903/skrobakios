@@ -11,7 +11,14 @@ export const LandingPage = ({
 }: LandingPageProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
+  const [hoveredService, setHoveredService] = useState<string | null>(null);
   const isMobile = useIsMobile();
+
+  const serviceDescriptions = {
+    advisory: "Help clients make informed decisions at every stage of their project, from feasibility and budgeting to design reviews and procurement strategies.",
+    project: "End-to-end management of projects, ensuring they are delivered on time, within budget, and to the highest quality standards while protecting the client's interest.",
+    construction: "Hands-on coordination and oversight of construction activities, managing trades, schedules, compliance, and site operations to achieve seamless project execution."
+  };
 
   // Navigation handler for menu items
   const handleNavigation = (section: string) => {
@@ -72,19 +79,52 @@ export const LandingPage = ({
               <div className="w-full space-y-8">
                 {/* Section Content */}
                 <div className="space-y-6">
-                  <div className="flex items-center space-x-4">
+                  <div 
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300 hover:bg-white/5 hover:backdrop-blur-sm p-4 rounded-lg"
+                    onMouseEnter={() => setHoveredService('advisory')}
+                    onMouseLeave={() => setHoveredService(null)}
+                  >
                     <span className="text-white/60 text-sm">01</span>
-                    <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
+                    <div className="flex-1">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
+                      {hoveredService === 'advisory' && (
+                        <p className="text-white/80 text-sm mt-2 animate-fade-in leading-relaxed">
+                          {serviceDescriptions.advisory}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   
-                  <div className="flex items-center space-x-4">
+                  <div 
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300 hover:bg-white/5 hover:backdrop-blur-sm p-4 rounded-lg"
+                    onMouseEnter={() => setHoveredService('project')}
+                    onMouseLeave={() => setHoveredService(null)}
+                  >
                     <span className="text-white/60 text-sm">02</span>
-                    <h2 className="text-white font-semibold text-lg tracking-wide">PROJECT MANAGEMENT</h2>
+                    <div className="flex-1">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">PROJECT MANAGEMENT</h2>
+                      {hoveredService === 'project' && (
+                        <p className="text-white/80 text-sm mt-2 animate-fade-in leading-relaxed">
+                          {serviceDescriptions.project}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   
-                  <div className="flex items-center space-x-4">
+                  <div 
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300 hover:bg-white/5 hover:backdrop-blur-sm p-4 rounded-lg"
+                    onMouseEnter={() => setHoveredService('construction')}
+                    onMouseLeave={() => setHoveredService(null)}
+                  >
                     <span className="text-white/60 text-sm">03</span>
-                    <h2 className="text-white font-semibold text-lg tracking-wide">CONSTRUCTION MANAGEMENT</h2>
+                    <div className="flex-1">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">CONSTRUCTION MANAGEMENT</h2>
+                      {hoveredService === 'construction' && (
+                        <p className="text-white/80 text-sm mt-2 animate-fade-in leading-relaxed">
+                          {serviceDescriptions.construction}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
