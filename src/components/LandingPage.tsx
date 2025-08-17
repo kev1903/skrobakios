@@ -335,9 +335,6 @@ export const LandingPage = ({
           {/* Navigation for Desktop */}
           <header className="hidden lg:flex justify-end pt-8 pr-12">
             <nav className="flex items-center space-x-12">
-              <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => handleNavigation('services')}>
-                SERVICES
-              </button>
               <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => handleNavigation('projects')}>
                 PROJECTS
               </button>
