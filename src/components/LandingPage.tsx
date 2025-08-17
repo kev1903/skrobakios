@@ -71,20 +71,13 @@ export const LandingPage = ({
             </header>
 
             {/* Main Content */}
-            <div className="flex-1 flex items-center justify-end">
-              <div className="flex items-center justify-end h-full">
-                {/* Large Typography - Only "skro" positioned at the edge */}
-                <div className="flex flex-col justify-center h-full">
-                  <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight text-right pr-0">
-                    skro
-                  </h1>
-                  
-                  {/* Section Content below the text */}
-                  <div className="mt-8 space-y-6">
-                    <div className="flex items-center justify-end space-x-4">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
-                      <span className="text-white/60 font-mono text-sm">01</span>
-                    </div>
+            <div className="flex-1 flex items-center">
+              <div className="w-full space-y-8">
+                {/* Section Content */}
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-4">
+                    <span className="text-white/60 font-mono text-sm">01</span>
+                    <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
                   </div>
                 </div>
               </div>
@@ -115,18 +108,6 @@ export const LandingPage = ({
             </nav>
           </header>
 
-          {/* Main Content with "baki" */}
-          <div className="flex-1 flex items-center">
-            <div className="flex items-center justify-start h-full">
-              {/* Large Typography - Only "baki" positioned at the edge */}
-              <div className="flex flex-col justify-center h-full">
-                <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight text-left pl-0">
-                  <span className="text-white/90">baki</span>
-                </h1>
-              </div>
-            </div>
-          </div>
-
           {/* Vertical Excellence Text */}
           <div className="hidden lg:flex items-center justify-end pr-12 absolute right-0 top-1/2 transform -translate-y-1/2">
             <div className="writing-mode-vertical text-white/40 text-sm font-medium tracking-widest">
@@ -137,6 +118,15 @@ export const LandingPage = ({
                 EXCELLENCE
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Unified Header - Positioned Center */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+          <div className="text-center">
+            <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
+              skro<span className="text-white/90">baki</span>
+            </h1>
           </div>
         </div>
       </div>
