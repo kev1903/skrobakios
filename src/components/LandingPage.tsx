@@ -75,9 +75,11 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-skrobaki-white">
+    <div className="min-h-screen" style={{
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+    }}>
       {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-skrobaki-white/95 backdrop-blur-md border-b border-neutral-200">
+      <header className="fixed top-0 left-0 right-0 z-50 glass-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
@@ -100,7 +102,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               ].map((item) => (
                 <button
                   key={item.id}
-                  className="text-sm font-medium text-skrobaki-steel hover:text-skrobaki-navy transition-colors duration-200"
+                  className="text-sm font-medium text-neutral-700 hover:text-primary transition-all duration-300 hover:scale-105"
+                  onClick={() => scrollToSection(item.id)}
                 >
                   {item.label}
                 </button>
@@ -112,12 +115,16 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <Button 
                 variant="ghost"
                 onClick={() => onNavigate('auth')}
-                className="text-skrobaki-steel hover:text-skrobaki-navy font-medium"
+                className="text-neutral-700 hover:text-primary font-medium glass-hover rounded-2xl px-6"
               >
                 Sign In
               </Button>
               <Button 
-                className="bg-skrobaki-gold hover:bg-skrobaki-gold-light text-skrobaki-navy font-medium px-6 py-2 rounded-lg transition-all duration-300"
+                className="bg-primary hover:bg-primary/90 text-white font-medium px-6 py-3 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                style={{
+                  background: 'linear-gradient(135deg, #34739B 0%, #2a5d7f 100%)',
+                  boxShadow: '0 4px 20px rgba(52, 115, 155, 0.3)'
+                }}
               >
                 Book Free Consultation
               </Button>
@@ -126,7 +133,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden p-2 text-skrobaki-steel hover:text-skrobaki-navy"
+              className="lg:hidden p-2 text-neutral-700 hover:text-primary transition-colors"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -134,7 +141,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
           {/* Mobile Navigation */}
           {isMenuOpen && (
-            <div className="lg:hidden py-4 border-t border-neutral-200">
+            <div className="lg:hidden py-4 border-t border-white/20">
               <nav className="flex flex-col space-y-4">
                 {[
                   { label: 'About Us', id: 'about' },
@@ -145,7 +152,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 ].map((item) => (
                   <button
                     key={item.id}
-                    className="text-left text-skrobaki-steel hover:text-skrobaki-navy font-medium"
+                    className="text-left text-neutral-700 hover:text-primary font-medium transition-colors"
+                    onClick={() => scrollToSection(item.id)}
                   >
                     {item.label}
                   </button>
@@ -153,12 +161,15 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 <Button 
                   variant="ghost"
                   onClick={() => onNavigate('auth')}
-                  className="text-left text-skrobaki-steel hover:text-skrobaki-navy font-medium justify-start"
+                  className="text-left text-neutral-700 hover:text-primary font-medium justify-start"
                 >
                   Sign In
                 </Button>
                 <Button 
-                  className="bg-skrobaki-gold hover:bg-skrobaki-gold-light text-skrobaki-navy font-medium mt-4 w-full"
+                  className="bg-primary hover:bg-primary/90 text-white font-medium mt-4 w-full rounded-2xl"
+                  style={{
+                    background: 'linear-gradient(135deg, #34739B 0%, #2a5d7f 100%)',
+                  }}
                 >
                   Book Free Consultation
                 </Button>
@@ -168,14 +179,32 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </div>
       </header>
 
-      {/* Main Content - Centered Logo */}
-      <div className="pt-20 min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <img 
-            src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
-            alt="SKROBAKI - Independent Project Management"
-            className="h-20 w-auto object-contain mx-auto"
+      {/* Main Content - Centered Logo with Glass Card */}
+      <div className="pt-20 min-h-screen flex items-center justify-center p-6">
+        <div className="glass-mountain rounded-3xl p-12 max-w-md w-full text-center relative overflow-hidden">
+          {/* Mountain backdrop effect */}
+          <div 
+            className="absolute inset-0 opacity-20"
+            style={{
+              background: 'linear-gradient(135deg, rgba(52, 115, 155, 0.1) 0%, rgba(52, 115, 155, 0.05) 100%)',
+            }}
           />
+          
+          <div className="relative z-10">
+            <img 
+              src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
+              alt="SKROBAKI - Independent Project Management"
+              className="h-20 w-auto object-contain mx-auto mb-6"
+            />
+            
+            <h1 className="text-2xl font-display font-light text-neutral-800 mb-3">
+              Welcome to SKROBAKI
+            </h1>
+            
+            <p className="text-neutral-600 font-inter text-sm leading-relaxed">
+              Independent Project Management Excellence
+            </p>
+          </div>
         </div>
       </div>
     </div>
