@@ -35,52 +35,6 @@ export const LandingPage = ({
         <div className="absolute inset-0 bg-black/20" />
       </div>
 
-      {/* Service Package Header - Top of Page */}
-      <div className="relative z-50 pt-20 lg:pt-24">
-        <div className="max-w-7xl mx-auto px-8 lg:px-12">
-          <div className="text-center mb-8">
-            <h2 className="text-white text-2xl lg:text-3xl font-semibold tracking-wide mb-8">SERVICE PACKAGE</h2>
-            <div className="flex flex-col lg:flex-row justify-center items-center lg:space-x-16 space-y-6 lg:space-y-0">
-              <div 
-                className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
-                onMouseEnter={() => setHoveredService('advisory')}
-                onMouseLeave={() => setHoveredService(null)}
-              >
-                <span className="text-white/60 text-sm">01</span>
-                <h3 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h3>
-              </div>
-              
-              <div 
-                className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
-                onMouseEnter={() => setHoveredService('project')}
-                onMouseLeave={() => setHoveredService(null)}
-              >
-                <span className="text-white/60 text-sm">02</span>
-                <h3 className="text-white font-semibold text-lg tracking-wide">PROJECT MANAGEMENT</h3>
-              </div>
-              
-              <div 
-                className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
-                onMouseEnter={() => setHoveredService('construction')}
-                onMouseLeave={() => setHoveredService(null)}
-              >
-                <span className="text-white/60 text-sm">03</span>
-                <h3 className="text-white font-semibold text-lg tracking-wide">CONSTRUCTION MANAGEMENT</h3>
-              </div>
-            </div>
-            
-            {/* Service Description */}
-            <div className="mt-8 min-h-[80px] flex items-center justify-center">
-              {hoveredService && (
-                <p className="text-white/80 text-sm leading-relaxed animate-fade-in max-w-2xl">
-                  {serviceDescriptions[hoveredService as keyof typeof serviceDescriptions]}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Layout with Glass Panel */}
       <div className="relative z-40 h-screen flex">
         {/* Left Glass Panel - Centered and Smaller */}
@@ -120,10 +74,53 @@ export const LandingPage = ({
                 </div>}
             </header>
 
-            {/* Main Content - Empty for now */}
+            {/* Main Content */}
             <div className="flex-1 flex items-center">
-              <div className="w-full">
-                {/* Content can be added here later */}
+              <div className="w-full space-y-8">
+                {/* Section Content */}
+                <div className="space-y-6">
+                  <div 
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                    onMouseEnter={() => setHoveredService('advisory')}
+                    onMouseLeave={() => setHoveredService(null)}
+                  >
+                    <span className="text-white/60 text-sm">01</span>
+                    <div className="flex-1">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                    onMouseEnter={() => setHoveredService('project')}
+                    onMouseLeave={() => setHoveredService(null)}
+                  >
+                    <span className="text-white/60 text-sm">02</span>
+                    <div className="flex-1">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">PROJECT MANAGEMENT</h2>
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
+                    onMouseEnter={() => setHoveredService('construction')}
+                    onMouseLeave={() => setHoveredService(null)}
+                  >
+                    <span className="text-white/60 text-sm">03</span>
+                    <div className="flex-1">
+                      <h2 className="text-white font-semibold text-lg tracking-wide">CONSTRUCTION MANAGEMENT</h2>
+                    </div>
+                  </div>
+
+                  {/* Dedicated Description Area */}
+                  <div className="mt-8 min-h-[120px] flex items-center">
+                    {hoveredService && (
+                      <p className="text-white/80 text-sm leading-relaxed animate-fade-in">
+                        {serviceDescriptions[hoveredService as keyof typeof serviceDescriptions]}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -162,6 +159,14 @@ export const LandingPage = ({
           </div>
         </div>
 
+        {/* Centered Header - Full Screen Center */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+          <div className="text-center">
+            <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
+              Skrobaki
+            </h1>
+          </div>
+        </div>
       </div>
 
       {/* Follow Us - Bottom of Screen */}
