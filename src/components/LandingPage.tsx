@@ -80,7 +80,7 @@ export const LandingPage = ({
                 {/* Section Content */}
                 <div className="space-y-6">
                   <div 
-                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300 hover:bg-white/5 hover:backdrop-blur-sm p-4 rounded-lg"
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
                     onMouseEnter={() => setHoveredService('advisory')}
                     onMouseLeave={() => setHoveredService(null)}
                   >
@@ -91,7 +91,7 @@ export const LandingPage = ({
                   </div>
                   
                   <div 
-                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300 hover:bg-white/5 hover:backdrop-blur-sm p-4 rounded-lg"
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
                     onMouseEnter={() => setHoveredService('project')}
                     onMouseLeave={() => setHoveredService(null)}
                   >
@@ -102,7 +102,7 @@ export const LandingPage = ({
                   </div>
                   
                   <div 
-                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300 hover:bg-white/5 hover:backdrop-blur-sm p-4 rounded-lg"
+                    className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
                     onMouseEnter={() => setHoveredService('construction')}
                     onMouseLeave={() => setHoveredService(null)}
                   >
