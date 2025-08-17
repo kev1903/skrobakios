@@ -21,7 +21,7 @@ export const ProjectsPage = ({ onNavigate }: ProjectsPageProps) => {
           {/* Logo/Brand */}
           <div className="flex items-center">
             <button 
-              onClick={() => onNavigate('home')}
+              onClick={() => onNavigate('landing')}
               className="flex items-center space-x-2 text-white hover:text-white/80 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
