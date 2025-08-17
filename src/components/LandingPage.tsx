@@ -25,9 +25,9 @@ import {
   Award,
   Star,
   Home
- } from 'lucide-react';
+} from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import heroImage from '@/assets/hero-architecture-new.png';
+import heroImage from '@/assets/new-architecture-background.png';
 import projectManagementImage from '@/assets/project-management-team.jpg';
 import modernBuilding from '@/assets/modern-building.jpg';
 import whiteBuilding from '@/assets/white-building.jpg';
@@ -38,6 +38,7 @@ interface LandingPageProps {
 
 export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -46,6 +47,24 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
     message: ''
   });
   const isMobile = useIsMobile();
+
+  // Array of background images for hero carousel
+  const backgroundImages = [
+    heroImage,
+    '/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png',
+    heroImage
+  ];
+
+  // Auto-rotate hero carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % backgroundImages.length
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [backgroundImages.length]);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,12 +278,19 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
       {/* Hero Section */}
       <section id="hero" className="h-screen relative overflow-hidden bg-gray-50">
-        {/* Hero Background */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        />
-        <div className="absolute inset-0 bg-gray-900/40" />
+        {/* Hero Background Carousel */}
+        <div className="absolute inset-0">
+          {backgroundImages.map((image, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ease-in-out ${
+                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ backgroundImage: `url(${image})` }}
+            />
+          ))}
+          <div className="absolute inset-0 bg-gray-900/40" />
+        </div>
 
         {/* Hero Content */}
         <div className="relative z-10 h-full flex items-center justify-center text-center text-white">
