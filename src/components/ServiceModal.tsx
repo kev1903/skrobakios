@@ -122,7 +122,7 @@ export const ServiceModal = ({ isOpen, onClose, service }: ServiceModalProps) =>
   if (!details) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-50 flex items-center justify-center p-4">
       <div className="backdrop-blur-xl bg-white/[0.08] border border-white/[0.15] shadow-2xl rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/[0.15]">
