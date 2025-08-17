@@ -84,27 +84,27 @@ div[data-rbd-drag-handle-draggable-id] {
 
 @layer base {
   :root {
-    /* Light Theme - Modern Blue Gradient Design System */
+    /* Skrobaki Corporate Design System - Professional & Sophisticated */
     --background: 0 0% 100%;
-    --foreground: 220 20% 10%;
+    --foreground: 210 15% 15%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 220 15% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 15% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 15%;
+    --popover-foreground: 210 15% 15%;
 
-    --primary: 217 91% 60%;
+    --primary: 210 100% 18%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 15% 25%;
+    --secondary: 210 8% 93%;
+    --secondary-foreground: 210 15% 25%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 8% 20%;
+    --muted: 210 8% 95%;
+    --muted-foreground: 210 8% 45%;
 
-    --accent: 217 91% 95%;
-    --accent-foreground: 217 91% 60%;
+    --accent: 42 87% 55%;
+    --accent-foreground: 210 15% 15%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
@@ -115,55 +115,63 @@ div[data-rbd-drag-handle-draggable-id] {
     --success: 142 76% 36%;
     --success-foreground: 355 100% 97%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 97%;
-    --ring: 217 91% 60%;
+    --border: 210 8% 90%;
+    --input: 210 8% 97%;
+    --ring: 210 100% 18%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     /* Header height used for fixed menu spacing */
-    --header-height: 73px;
+    --header-height: 80px;
 
-    /* Enhanced Blue Glassmorphism Theme - Ultra Transparent */
+    /* Corporate Glassmorphism */
     --glass-bg: 0 0% 100%;
     --glass-bg-light: 0 0% 100%;
-    --glass-bg-hover: 0 0% 100%;
-    --glass-border: 0 0% 100%;
-    --glass-shadow: 0 0% 0%;
-    --glass-shadow-hover: 0 0% 0%;
-    --glass-backdrop: blur(20px);
+    --glass-bg-hover: 0 0% 98%;
+    --glass-border: 210 8% 90%;
+    --glass-shadow: 210 15% 15%;
+    --glass-shadow-hover: 210 15% 15%;
+    --glass-backdrop: blur(16px);
     
-    /* Blue Gradient Brand Colors */
-    --brand-blue: 217 91% 60%;
-    --brand-blue-light: 217 91% 70%;
-    --brand-blue-dark: 217 91% 50%;
-    --brand-navy: 220 20% 10%;
-    --brand-navy-light: 220 20% 20%;
-    --brand-light-blue: 210 100% 95%;
-    --brand-gray: 220 8% 55%;
+    /* Skrobaki Corporate Brand Colors */
+    --skrobaki-navy: 210 100% 18%;
+    --skrobaki-navy-light: 210 100% 25%;
+    --skrobaki-navy-dark: 210 100% 12%;
+    --skrobaki-steel: 210 8% 60%;
+    --skrobaki-steel-light: 210 8% 75%;
+    --skrobaki-gold: 42 87% 55%;
+    --skrobaki-gold-light: 42 87% 65%;
+    --skrobaki-white: 0 0% 100%;
+    --skrobaki-offwhite: 210 8% 98%;
     
-    /* Modern Blue Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(217 91% 70%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(220 20% 10%) 0%, hsl(220 20% 20%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 197, 253, 0.04) 100%);
-    --gradient-blue-bg: linear-gradient(135deg, hsl(217 91% 95%) 0%, hsl(210 100% 95%) 50%, hsl(217 91% 92%) 100%);
+    /* Corporate Gradients */
+    --gradient-corporate: linear-gradient(135deg, hsl(210 100% 18%) 0%, hsl(210 100% 25%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(42 87% 55%) 0%, hsl(42 87% 65%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 8% 98%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(210 100% 12%) 0%, hsl(210 100% 18%) 50%, hsl(210 100% 25%) 100%);
     
     /* Enhanced Design System Colors */
-    --neutral-50: 210 100% 98%;
-    --neutral-100: 210 40% 95%;
-    --neutral-800: 220 20% 15%;
-    --neutral-900: 220 20% 10%;
-    --neutral-950: 220 20% 5%;
+    --neutral-50: 210 8% 98%;
+    --neutral-100: 210 8% 95%;
+    --neutral-200: 210 8% 90%;
+    --neutral-300: 210 8% 85%;
+    --neutral-400: 210 8% 70%;
+    --neutral-500: 210 8% 60%;
+    --neutral-600: 210 8% 45%;
+    --neutral-700: 210 15% 30%;
+    --neutral-800: 210 15% 20%;
+    --neutral-900: 210 15% 15%;
+    --neutral-950: 210 15% 10%;
     
-    /* Sidebar Variables - Ultra Transparent Glass */
+    /* Sidebar Variables */
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 20% 10%;
-    --sidebar-primary: 217 91% 60%;
+    --sidebar-foreground: 210 15% 15%;
+    --sidebar-primary: 210 100% 18%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 100%;
-    --sidebar-accent-foreground: 220 20% 10%;
-    --sidebar-border: 0 0% 100%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-accent: 210 8% 95%;
+    --sidebar-accent-foreground: 210 15% 15%;
+    --sidebar-border: 210 8% 90%;
+    --sidebar-ring: 210 100% 18%;
   }
 
   .dark {

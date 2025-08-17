@@ -82,18 +82,18 @@ export default {
 					border: 'hsl(var(--glass-border) / 0.1)', 
 					shadow: 'hsl(var(--glass-shadow) / 0.05)'
 				},
-				// Modern Blue Brand Colors
-				'brand-blue': {
-					DEFAULT: 'hsl(var(--brand-blue))',
-					light: 'hsl(var(--brand-blue-light))',
-					dark: 'hsl(var(--brand-blue-dark))',
+				// Skrobaki Corporate Brand Colors
+				'skrobaki': {
+					navy: 'hsl(var(--skrobaki-navy))',
+					'navy-light': 'hsl(var(--skrobaki-navy-light))',
+					'navy-dark': 'hsl(var(--skrobaki-navy-dark))',
+					steel: 'hsl(var(--skrobaki-steel))',
+					'steel-light': 'hsl(var(--skrobaki-steel-light))',
+					gold: 'hsl(var(--skrobaki-gold))',
+					'gold-light': 'hsl(var(--skrobaki-gold-light))',
+					white: 'hsl(var(--skrobaki-white))',
+					offwhite: 'hsl(var(--skrobaki-offwhite))',
 				},
-				'brand-navy': {
-					DEFAULT: 'hsl(var(--brand-navy))',
-					light: 'hsl(var(--brand-navy-light))',
-				},
-				'brand-light-blue': 'hsl(var(--brand-light-blue))',
-				'brand-gray': 'hsl(var(--brand-gray))',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
