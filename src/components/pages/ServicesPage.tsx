@@ -2,10 +2,8 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import projectManagementImage from '@/assets/project-management-team.jpg';
-import abstractGreyBackground from '@/assets/abstract-grey-background.jpg';
 import { 
   ArrowRight, 
-  ArrowLeft,
   Building, 
   Ruler, 
   Eye,
@@ -49,10 +47,7 @@ import {
   Gem,
   MessageCircle,
   UserCheck,
-  ClipboardList,
-  Phone,
-  Mail,
-  Award
+  ClipboardList
 } from 'lucide-react';
 
 interface ServicesPageProps {
@@ -60,562 +55,268 @@ interface ServicesPageProps {
 }
 
 export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
+  const services = [
+    {
+      category: "Design",
+      description: "Crafting visions with precision and elegance.",
+      items: [
+        { name: "Concept Design", icon: Lightbulb, description: "Turning your ideas into creative design proposals." },
+        { name: "Town Planning Drawings", icon: MapPin, description: "Documentation tailored for planning approvals." },
+        { name: "Working Drawings & Construction Documentation", icon: FileText, description: "Full sets for accurate construction and compliance." },
+        { name: "Interior Design", icon: Home, description: "Elegant, functional spaces designed for modern living." },
+        { name: "Spacial Design", icon: LayoutGrid, description: "Designing flow and form to enhance everyday experiences." },
+        { name: "3D Modelling & Visualisation", icon: Box, description: "See your project in 3D before it's built." },
+        { name: "3D Renderings", icon: Camera, description: "Photorealistic visuals for presentations or approvals." },
+        { name: "3D Printed Models", icon: Printer, description: "Scaled architectural models, printed with precision." }
+      ]
+    },
+    {
+      category: "Build",
+      description: "From vision to completion — we build with expertise.",
+      items: [
+        { name: "New Home Construction", icon: Building, description: "Custom-designed family homes with luxury and efficiency." },
+        { name: "High-End Renovations", icon: Wrench, description: "Transforming existing homes with style and structure." },
+        { name: "Hardscapes & Landscaping", icon: TreePine, description: "Durable, aesthetic outdoor spaces, tailored to your lifestyle." },
+        { name: "SDA Home Construction", icon: Heart, description: "Specialist Disability Accommodation built for comfort and compliance." },
+        { name: "Outdoor Pavilions & Alfresco Areas", icon: Tent, description: "Entertain and relax outdoors, all year round." },
+        { name: "Custom Brick Fences", icon: Square, description: "Elegant boundary walls with architectural details." },
+        { name: "Basketball Courts (via CourtScapes)", icon: Circle, description: "Backyard courts designed for performance and fun." }
+      ]
+    },
+    {
+      category: "Project Management",
+      description: "Guiding every stage with control and clarity.",
+      items: [
+        { name: "Full-Service Project Management", icon: Settings, description: "End-to-end oversight for seamless delivery." },
+        { name: "Client-Side Project Management (Home Build Assist)", icon: Users, description: "Acting in your best interest, from plans to handover." },
+        { name: "Construction Administration", icon: Clipboard, description: "Managing contracts, site processes, and documentation." },
+        { name: "Site Inspections & Reports", icon: Search, description: "On-site evaluations with actionable recommendations." },
+        { name: "Procurement Management", icon: ShoppingCart, description: "Securing quality materials and trades, on budget." },
+        { name: "Contractor Coordination", icon: Network, description: "Managing all site professionals under one system." },
+        { name: "Budget & Cost Monitoring", icon: DollarSign, description: "Transparent cost tracking across all phases." },
+        { name: "Timeline & Progress Tracking", icon: Calendar, description: "Keeping your project on schedule, every step of the way." }
+      ]
+    },
+    {
+      category: "Digital & Technical",
+      description: "Built smarter, through innovation and precision.",
+      items: [
+        { name: "BIM Modelling", icon: Box, description: "Intelligent 3D models for planning and coordination." },
+        { name: "Scan to BIM", icon: Scan, description: "Digitising real-world buildings for updates or retrofits." },
+        { name: "Shop Drawings", icon: Ruler, description: "Fabrication-ready technical drawings for builders and fabricators." },
+        { name: "DfMA (Design for Manufacturing and Assembly)", icon: Cog, description: "Optimised designs for efficient off-site manufacturing." },
+        { name: "Digital Twin Systems", icon: Monitor, description: "Live digital replicas of your construction project." },
+        { name: "Live Project Dashboards", icon: BarChart3, description: "Real-time updates on budget, schedule, and progress." },
+        { name: "AI-Powered Estimating (Coming Soon)", icon: Brain, description: "Instant, intelligent cost analysis using AI." }
+      ]
+    },
+    {
+      category: "Estimating & Cost Planning",
+      description: "Plan with clarity. Build with confidence.",
+      items: [
+        { name: "Budget Benchmarking", icon: Target, description: "Early-stage financial planning using real data." },
+        { name: "Elemental Cost Planning (BCIS Method)", icon: Calculator, description: "Detailed estimates broken down by building components." },
+        { name: "Quantity Take-offs", icon: Ruler, description: "Accurate measurements and scope breakdowns." },
+        { name: "Quote Vetting & Matrix System", icon: Grid3x3, description: "Compare and review multiple quotes with our structured approach." },
+        { name: "Variation Management", icon: ArrowRightLeft, description: "Handle changes smoothly, with full transparency." },
+        { name: "Live Cost Tracker", icon: TrendingUp, description: "Track spend vs budget in real-time." },
+        { name: "Cash Flow Forecasting", icon: LineChart, description: "Anticipate cash needs, month by month." }
+      ]
+    },
+    {
+      category: "Consulting",
+      description: "Expert advice to simplify complex decisions.",
+      items: [
+        { name: "Feasibility Studies", icon: CheckCircle, description: "Know if your idea is viable before investing." },
+        { name: "Design Compliance Reviews", icon: Shield, description: "Ensure your plans meet building code and planning rules." },
+        { name: "Buildability Assessments", icon: HardHat, description: "Identify design risks early to avoid costly delays." },
+        { name: "Value Engineering", icon: Gem, description: "Maximise value without compromising quality." },
+        { name: "Private Building Consultation", icon: MessageCircle, description: "Independent advice on-site or during design." },
+        { name: "Expert Advice for Owner Builders", icon: UserCheck, description: "Guidance to help you manage your own build." },
+        { name: "Pre-Construction Planning", icon: ClipboardList, description: "Set up your project for success before starting on site." }
+      ]
+    }
+  ];
+
+  const features = [
+    { icon: CheckCircle, title: "Quality Assurance", description: "Rigorous quality control at every stage" },
+    { icon: Star, title: "Award-Winning", description: "Recognized excellence in architectural construction" },
+    { icon: Users, title: "Expert Team", description: "Skilled professionals with decades of experience" },
+    { icon: TrendingUp, title: "Value Engineering", description: "Optimizing cost without compromising quality" }
+  ];
+
   return (
-    <div className="min-h-screen bg-background">{/* Main Background */}
-      {/* Fixed Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4">
+    <div className="min-h-screen bg-background">
+      {/* Fixed Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 glass backdrop-blur-xl border-b border-brand-gold/20">
+        <div className="max-w-7xl mx-auto px-8 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => onNavigate('landing')}
-                className="text-white/70 hover:text-white text-sm font-medium transition-colors flex items-center space-x-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </button>
-              <img src="/lovable-uploads/b0e435b5-f844-4b7c-bce4-cccf69ad4e5b.png" alt="Skrobaki" className="h-8 w-auto" />
-            </div>
-            
-            <div className="hidden lg:flex items-center space-x-12">
-              {/* Navigation buttons removed as requested */}
+            {/* Logo */}
+            <div className="flex items-center space-x-4 architectural-accent">
+              <div className="relative group cursor-pointer" onClick={() => onNavigate('landing')}>
+                <img 
+                  src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
+                  alt="SKROBAKI"
+                  className="h-8 w-auto object-contain drop-shadow-lg"
+                />
+                <div className="absolute -inset-2 bg-gradient-to-r from-brand-gold/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm pointer-events-none"></div>
+              </div>
             </div>
 
-            <Button 
-              variant="ghost" 
+            {/* Centered Navigation */}
+            <nav className="hidden md:flex items-center justify-center space-x-8 flex-1">
+              <button 
+                onClick={() => onNavigate('services')}
+                className="text-sm font-medium text-brand-gold transition-colors duration-200"
+              >
+                Services
+              </button>
+              <button 
+                onClick={() => onNavigate('projects')}
+                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              >
+                Projects
+              </button>
+              <button 
+                onClick={() => onNavigate('about')}
+                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              >
+                About
+              </button>
+              <button 
+                onClick={() => onNavigate('contact')}
+                className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
+              >
+                Contact
+              </button>
+            </nav>
+
+            {/* Login Button */}
+            <button 
               onClick={() => onNavigate('auth')}
-              className="text-white border border-white/30 hover:bg-white/10 backdrop-blur-sm"
+              className="text-sm font-medium text-muted-foreground hover:text-brand-gold transition-colors duration-200"
             >
-              Sign In
+              Login
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="pt-24 pb-16 bg-gradient-to-br from-background via-background/95 to-card/30">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="text-center mb-16">
+            <h1 className="heading-xl text-foreground mb-8 font-playfair">
+              Our <span className="text-gradient-gold">Services</span>
+            </h1>
+            <p className="body-lg text-muted-foreground max-w-3xl mx-auto">
+              Comprehensive architectural and construction services designed for clients who value precision, quality, and innovative solutions. From initial concept to final handover, we deliver excellence at every stage.
+            </p>
+          </div>
+
+          {/* Features Grid */}
+          <div className="grid md:grid-cols-4 gap-6 mb-20">
+            {features.map((feature, idx) => (
+              <div key={idx} className="glass-card p-6 text-center">
+                <feature.icon className="w-8 h-8 text-brand-gold mx-auto mb-4" />
+                <h3 className="font-medium text-foreground mb-2">{feature.title}</h3>
+                <p className="text-muted-foreground text-sm">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Services Details */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="space-y-20">
+            {services.map((category, idx) => (
+              <div key={idx} className="grid lg:grid-cols-2 gap-16 items-center">
+                <div className={idx % 2 === 1 ? 'lg:order-2' : ''}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-2 h-12 bg-gradient-to-b from-brand-gold to-brand-gold-light rounded-full"></div>
+                    <h2 className="heading-lg text-foreground font-playfair">
+                      {category.category}
+                    </h2>
+                  </div>
+                  <p className="body-lg text-muted-foreground mb-8">
+                    {category.description}
+                  </p>
+                  <div className="space-y-6">
+                    {category.items.map((item, itemIdx) => (
+                      <div key={itemIdx} className="flex items-start gap-4">
+                        <div className="w-10 h-10 bg-brand-gold/20 rounded-xl flex items-center justify-center flex-shrink-0 mt-1">
+                          <item.icon className="w-5 h-5 text-brand-gold" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-foreground mb-2">{item.name}</h4>
+                          <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className={idx % 2 === 1 ? 'lg:order-1' : ''}>
+                  <Card className="glass-card border-brand-gold/10 p-8">
+                    <CardContent className="p-0">
+                      {category.category === "Project Management" ? (
+                        <div 
+                          className="aspect-square rounded-2xl bg-cover bg-center bg-no-repeat relative overflow-hidden"
+                          style={{ backgroundImage: `url(${projectManagementImage})` }}
+                        >
+                          <div className="absolute inset-0 bg-brand-gold/20 backdrop-blur-[1px] flex items-center justify-center">
+                            <div className="text-6xl text-white font-bold drop-shadow-lg">{idx + 1}</div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="aspect-square bg-gradient-to-br from-brand-gold/10 to-brand-gold/5 rounded-2xl flex items-center justify-center">
+                          <div className="text-6xl text-brand-gold/20">{idx + 1}</div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-20 bg-card/30">
+        <div className="max-w-4xl mx-auto px-8 text-center">
+          <h2 className="heading-lg text-card-foreground mb-8">
+            Ready to Start Your Project?
+          </h2>
+          <p className="body-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
+            Let's discuss how our comprehensive services can bring your architectural vision to life with exceptional quality and attention to detail.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button 
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto text-white transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+              style={{ 
+                backgroundColor: 'rgb(54,119,159)',
+                boxShadow: '0 4px 15px rgba(54, 119, 159, 0.2)',
+                border: 'none'
+              }}
+              onClick={() => onNavigate('contact')}
+            >
+              <Calendar className="w-4 h-4" />
+              Book Consultation
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <Button 
+              variant="outline" 
+              className="button-ghost px-6 py-3 text-sm font-medium tracking-wide rounded-lg h-auto flex items-center gap-2"
+              onClick={() => onNavigate('projects')}
+            >
+              View Our Work
             </Button>
           </div>
         </div>
-      </nav>
-
-      <div className="pt-20 flex max-w-7xl mx-auto">
-        {/* Sidebar */}
-        <aside className="w-64 glass-card m-6 p-6 h-fit">
-          {/* Main CTA */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-foreground mb-4">
-              Ready to start your construction project?
-            </h2>
-            <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
-              Connect with our professional team and get expert guidance from planning to completion.
-            </p>
-            <Button 
-              onClick={() => onNavigate('contact')}
-              className="w-full button-blue rounded-xl"
-            >
-              Get Professional Consultation
-            </Button>
-          </div>
-
-          {/* Service Advantages */}
-          <div className="mb-8">
-            <h3 className="font-medium text-foreground mb-4">
-              Why Choose Our Services
-            </h3>
-            
-            <div className="space-y-4">
-              <div className="glass-light rounded-2xl p-4">
-                <div 
-                  className="w-full h-24 bg-cover bg-center rounded-xl mb-3"
-                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
-                />
-                <h4 className="font-medium text-foreground mb-1 text-sm">Energy Efficiency</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Sustainable construction practices with energy-efficient solutions and modern technologies.
-                </p>
-              </div>
-
-              <div className="glass-light rounded-2xl p-4">
-                <div 
-                  className="w-full h-24 bg-cover bg-center rounded-xl mb-3"
-                  style={{ backgroundImage: `url(${projectManagementImage})` }}
-                />
-                <h4 className="font-medium text-foreground mb-1 text-sm">Eco-friendly Materials</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Premium sustainable materials and environmentally conscious building methods.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Working with the Best */}
-          <div className="mb-8">
-            <h3 className="font-medium text-foreground mb-4">
-              Working with the Best
-            </h3>
-            <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
-              Our professional team delivers projects using the latest construction technologies and proven methodologies.
-            </p>
-            <Button 
-              variant="outline"
-              onClick={() => onNavigate('contact')}
-              className="w-full button-ghost rounded-xl"
-            >
-              Learn About Our Approach
-            </Button>
-          </div>
-
-          {/* News */}
-          <div className="mb-8">
-            <h3 className="font-medium text-foreground mb-4">Latest News</h3>
-            <div className="space-y-3">
-              <div className="text-xs">
-                <p className="text-foreground font-medium">New Sustainable Construction Standards</p>
-                <p className="text-muted-foreground text-xs">March 15, 2024</p>
-              </div>
-              <div className="text-xs">
-                <p className="text-foreground font-medium">Award for Excellence in Project Management</p>
-                <p className="text-muted-foreground text-xs">March 10, 2024</p>
-              </div>
-              <div className="text-xs">
-                <p className="text-foreground font-medium">New Technology Integration</p>
-                <p className="text-muted-foreground text-xs">March 5, 2024</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h3 className="font-medium text-foreground mb-4">Contacts</h3>
-            <div className="space-y-2 text-xs text-muted-foreground">
-              <div className="flex items-center space-x-2">
-                <Phone className="w-3 h-3" />
-                <span>+1 (555) 123-4567</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Mail className="w-3 h-3" />
-                <span>info@skrobaki.com</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="w-3 h-3" />
-                <span>Construction District, Building 1</span>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          {/* Hero Section */}
-          <section className="mb-12">
-            <div 
-              className="relative h-96 bg-cover bg-center rounded-3xl overflow-hidden"
-              style={{ backgroundImage: `url(${abstractGreyBackground})` }}
-            >
-              <div className="absolute inset-0 bg-black/50 rounded-3xl" />
-              <div className="relative z-10 h-full flex items-center justify-center text-center text-white p-8">
-                <div>
-                  <h1 className="text-5xl lg:text-6xl font-bold mb-4">
-                    Professional Services
-                  </h1>
-                  <p className="text-xl mb-8 max-w-2xl">
-                    Comprehensive construction and project management solutions designed for excellence at every stage
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* About Project */}
-          <section className="mb-12">
-            <div className="grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">About Our Services</h2>
-                <p className="text-gray-600 mb-6 leading-relaxed">
-                  Skrobaki provides comprehensive construction and project management services for residential and commercial projects. 
-                  Our experienced team combines modern construction technologies with traditional craftsmanship to deliver exceptional results. 
-                  From initial planning and design consultation to final completion, we ensure every project meets the highest standards 
-                  of quality, safety, and efficiency. Our expertise spans advisory services, full project management, 
-                  and hands-on construction management across all phases of development.
-                </p>
-                
-                {/* Statistics */}
-                <div className="grid grid-cols-3 gap-6 mb-8">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900">150+</div>
-                    <div className="text-sm text-gray-600">Completed Projects</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900">15+</div>
-                    <div className="text-sm text-gray-600">Years Experience</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-gray-900">98%</div>
-                    <div className="text-sm text-gray-600">Client Satisfaction</div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="grid grid-cols-3 gap-4">
-                  <Button 
-                    variant="outline"
-                    onClick={() => onNavigate('projects')}
-                    className="flex items-center justify-center space-x-2 rounded-xl"
-                  >
-                    <Eye className="w-4 h-4" />
-                    <span>View Projects</span>
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={() => onNavigate('contact')}
-                    className="flex items-center justify-center space-x-2 rounded-xl"
-                  >
-                    <Calculator className="w-4 h-4" />
-                    <span>Get Quote</span>
-                  </Button>
-                  <Button 
-                    onClick={() => onNavigate('contact')}
-                    className="bg-gray-900 text-white hover:bg-gray-800 flex items-center justify-center space-x-2 rounded-xl"
-                  >
-                    <Calendar className="w-4 h-4" />
-                    <span>Schedule</span>
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div 
-                  className="h-48 bg-cover bg-center rounded-2xl"
-                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
-                />
-                <div 
-                  className="h-48 bg-cover bg-center rounded-2xl"
-                  style={{ backgroundImage: `url(${projectManagementImage})` }}
-                />
-              </div>
-            </div>
-          </section>
-
-          {/* Services Grid */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Our Service Areas</h2>
-            
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Advisory */}
-              <Card className="rounded-3xl overflow-hidden shadow-lg">
-                <div 
-                  className="h-48 bg-cover bg-center relative"
-                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-900/80 to-indigo-900/80" />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
-                      01
-                    </span>
-                  </div>
-                </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">Advisory Services</h3>
-                  <p className="text-gray-600 mb-4">
-                    Help clients make informed decisions at every stage of their project, from feasibility and budgeting to design reviews.
-                  </p>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Project Feasibility Analysis</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Budget Planning & Optimization</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Risk Assessment & Mitigation</span>
-                    </div>
-                  </div>
-                  <Button className="w-full bg-blue-600 text-white hover:bg-blue-700 rounded-xl">
-                    Learn More
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Project Management */}
-              <Card className="rounded-3xl overflow-hidden shadow-lg">
-                <div 
-                  className="h-48 bg-cover bg-center relative"
-                  style={{ backgroundImage: `url(${projectManagementImage})` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-900/80 to-emerald-900/80" />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
-                      02
-                    </span>
-                  </div>
-                </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">Project Management</h3>
-                  <p className="text-gray-600 mb-4">
-                    End-to-end management ensuring projects are delivered on time, within budget, and to the highest quality standards.
-                  </p>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Project Planning & Scheduling</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Budget Control & Cost Management</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Quality Assurance & Control</span>
-                    </div>
-                  </div>
-                  <Button className="w-full bg-green-600 text-white hover:bg-green-700 rounded-xl">
-                    Learn More
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Construction Management */}
-              <Card className="rounded-3xl overflow-hidden shadow-lg">
-                <div 
-                  className="h-48 bg-cover bg-center relative"
-                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-900/80 to-red-900/80" />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
-                      03
-                    </span>
-                  </div>
-                </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">Construction Management</h3>
-                  <p className="text-gray-600 mb-4">
-                    Hands-on coordination and oversight of construction activities, managing trades, schedules, and compliance.
-                  </p>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Site Coordination & Supervision</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Trade Management & Scheduling</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Safety Compliance & Monitoring</span>
-                    </div>
-                  </div>
-                  <Button className="w-full bg-orange-600 text-white hover:bg-orange-700 rounded-xl">
-                    Learn More
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-          </section>
-
-          {/* Call to Action */}
-          <section className="bg-gray-900 rounded-3xl p-8 text-center text-white">
-            <h2 className="text-3xl font-bold mb-4">Ready to Start Your Project?</h2>
-            <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-              Let's discuss how our comprehensive services can bring your architectural vision to life with exceptional quality and attention to detail.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg"
-                onClick={() => onNavigate('contact')}
-                className="bg-white text-gray-900 hover:bg-gray-100 font-medium px-8 rounded-xl"
-              >
-                <Calendar className="w-5 h-5 mr-2" />
-                Book Consultation
-              </Button>
-              <Button 
-                variant="outline"
-                size="lg"
-                onClick={() => onNavigate('projects')}
-                className="text-white border-white/30 hover:bg-white/10 backdrop-blur-sm px-8 rounded-xl"
-              >
-                View Our Work
-              </Button>
-            </div>
-          </section>
-
-          {/* Services Showcase */}
-          <section className="mb-12">
-            <h2 className="heading-lg text-foreground mb-8 font-playfair">
-              Our <span className="text-gradient-gold">Services</span>
-            </h2>
-            <div className="grid lg:grid-cols-3 gap-6">
-              <div className="glass-card p-6 text-center hover:shadow-lg transition-shadow">
-                <Building className="w-12 h-12 text-brand-gold mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-3">Advisory Services</h3>
-                <p className="text-muted-foreground text-sm mb-4">Expert guidance from project conception to completion with strategic planning and risk assessment.</p>
-                <Button 
-                  variant="outline" 
-                  onClick={() => onNavigate('services')}
-                  className="button-ghost w-full"
-                >
-                  Learn More
-                </Button>
-              </div>
-              
-              <div className="glass-card p-6 text-center hover:shadow-lg transition-shadow">
-                <Users className="w-12 h-12 text-brand-gold mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-3">Project Management</h3>
-                <p className="text-muted-foreground text-sm mb-4">End-to-end project coordination ensuring timely delivery within budget and quality standards.</p>
-                <Button 
-                  variant="outline" 
-                  onClick={() => onNavigate('services')}
-                  className="button-ghost w-full"
-                >
-                  Learn More
-                </Button>
-              </div>
-              
-              <div className="glass-card p-6 text-center hover:shadow-lg transition-shadow">
-                <HardHat className="w-12 h-12 text-brand-gold mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-foreground mb-3">Construction Management</h3>
-                <p className="text-muted-foreground text-sm mb-4">On-site coordination and oversight ensuring safety compliance and seamless execution.</p>
-                <Button 
-                  variant="outline" 
-                  onClick={() => onNavigate('services')}
-                  className="button-ghost w-full"
-                >
-                  Learn More
-                </Button>
-              </div>
-            </div>
-          </section>
-
-          {/* Projects Showcase */}
-          <section className="mb-12">
-            <h2 className="heading-lg text-foreground mb-8 font-playfair">
-              Featured <span className="text-gradient-gold">Projects</span>
-            </h2>
-            <div className="grid lg:grid-cols-2 gap-8">
-              <div className="glass-card overflow-hidden">
-                <div 
-                  className="h-48 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${projectManagementImage})` }}
-                />
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xl font-semibold text-foreground">Modern Family Estate</h3>
-                    <span className="text-brand-gold text-sm font-medium">2024</span>
-                  </div>
-                  <p className="text-muted-foreground text-sm mb-4">Luxury 5-bedroom home with sustainable design principles and smart home integration in Toorak, VIC.</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex space-x-4 text-xs text-muted-foreground">
-                      <span>450 sqm</span>
-                      <span>Residential</span>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => onNavigate('projects')}
-                      className="text-brand-gold hover:text-brand-gold/80"
-                    >
-                      View Details <ArrowRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="glass-card overflow-hidden">
-                <div 
-                  className="h-48 bg-cover bg-center"
-                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
-                />
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-xl font-semibold text-foreground">Contemporary Retreat</h3>
-                    <span className="text-brand-gold text-sm font-medium">2023</span>
-                  </div>
-                  <p className="text-muted-foreground text-sm mb-4">Minimalist design with premium finishes and seamless indoor-outdoor living in Brighton, VIC.</p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex space-x-4 text-xs text-muted-foreground">
-                      <span>320 sqm</span>
-                      <span>Residential</span>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => onNavigate('projects')}
-                      className="text-brand-gold hover:text-brand-gold/80"
-                    >
-                      View Details <ArrowRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="text-center mt-8">
-              <Button 
-                onClick={() => onNavigate('projects')}
-                className="button-blue"
-              >
-                View All Projects
-              </Button>
-            </div>
-          </section>
-
-          {/* About Us Showcase */}
-          <section className="mb-12">
-            <h2 className="heading-lg text-foreground mb-8 font-playfair">
-              About <span className="text-gradient-gold">Skrobaki</span>
-            </h2>
-            <div className="grid lg:grid-cols-2 gap-8">
-              <div className="glass-card p-8">
-                <h3 className="text-2xl font-semibold text-foreground mb-4">25+ Years of Excellence</h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
-                  For over 25 years, Skrobaki has been at the forefront of architectural excellence, transforming visions into extraordinary built environments through sophisticated design philosophy and uncompromising attention to detail.
-                </p>
-                
-                <div className="grid grid-cols-2 gap-6 mb-6">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-brand-gold">50+</div>
-                    <div className="text-sm text-muted-foreground">Projects Completed</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-brand-gold">15+</div>
-                    <div className="text-sm text-muted-foreground">Awards Won</div>
-                  </div>
-                </div>
-                
-                <Button 
-                  onClick={() => onNavigate('about')}
-                  className="button-blue w-full"
-                >
-                  Learn About Our Story
-                </Button>
-              </div>
-              
-              <div className="space-y-6">
-                <div className="glass-card p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <Target className="w-8 h-8 text-brand-gold" />
-                    <h4 className="text-lg font-semibold text-foreground">Precision</h4>
-                  </div>
-                  <p className="text-muted-foreground text-sm">Every detail matters. We approach each project with meticulous attention to precision, ensuring excellence in every aspect.</p>
-                </div>
-                
-                <div className="glass-card p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <Heart className="w-8 h-8 text-brand-gold" />
-                    <h4 className="text-lg font-semibold text-foreground">Passion</h4>
-                  </div>
-                  <p className="text-muted-foreground text-sm">Architecture is our passion. We bring enthusiasm and creative energy to every project, transforming visions into reality.</p>
-                </div>
-                
-                <div className="glass-card p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <Lightbulb className="w-8 h-8 text-brand-gold" />
-                    <h4 className="text-lg font-semibold text-foreground">Innovation</h4>
-                  </div>
-                  <p className="text-muted-foreground text-sm">We embrace cutting-edge technology and innovative solutions, staying ahead of industry trends.</p>
-                </div>
-              </div>
-            </div>
-          </section>
-        </main>
-      </div>
+      </section>
     </div>
   );
 };

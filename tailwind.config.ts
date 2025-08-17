@@ -20,10 +20,10 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'sans': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
-				'inter': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
-				'display': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
-				'mono': ['Inter', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+				'inter': ['Inter', 'system-ui', 'sans-serif'],
+				'playfair': ['Playfair Display', 'serif'],
+				'mono': ['SF Mono', 'Monaco', 'Inconsolata', 'monospace'],
+				'display': ['Playfair Display', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -82,14 +82,17 @@ export default {
 					border: 'hsl(var(--glass-border) / 0.1)', 
 					shadow: 'hsl(var(--glass-shadow) / 0.05)'
 				},
-				// Clean Brand Colors
-				'brand': {
-					primary: 'hsl(var(--brand-primary))',
-					secondary: 'hsl(var(--brand-secondary))',
-					accent: 'hsl(var(--brand-accent))',
-					gold: 'hsl(var(--brand-gold))',
-					blue: 'hsl(var(--brand-blue))',
-					'blue-light': 'hsl(var(--brand-blue-light))',
+				// Skrobaki Corporate Brand Colors
+				'skrobaki': {
+					navy: 'hsl(var(--skrobaki-navy))',
+					'navy-light': 'hsl(var(--skrobaki-navy-light))',
+					'navy-dark': 'hsl(var(--skrobaki-navy-dark))',
+					steel: 'hsl(var(--skrobaki-steel))',
+					'steel-light': 'hsl(var(--skrobaki-steel-light))',
+					gold: 'hsl(var(--skrobaki-gold))',
+					'gold-light': 'hsl(var(--skrobaki-gold-light))',
+					white: 'hsl(var(--skrobaki-white))',
+					offwhite: 'hsl(var(--skrobaki-offwhite))',
 				},
 			},
 			borderRadius: {
