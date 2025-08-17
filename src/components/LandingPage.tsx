@@ -113,7 +113,7 @@ export const LandingPage = ({
                   </div>
 
                   {/* Dedicated Description Area */}
-                  <div className="mt-8 p-6 border border-blue-400/30 rounded-lg bg-white/5 backdrop-blur-sm min-h-[120px] flex items-center">
+                  <div className="mt-8 min-h-[120px] flex items-center">
                     {hoveredService ? (
                       <p className="text-white/80 text-sm leading-relaxed animate-fade-in">
                         {serviceDescriptions[hoveredService as keyof typeof serviceDescriptions]}
