@@ -229,14 +229,6 @@ export const LandingPage = ({
           </div>
         </div>
 
-        {/* Centered Header - Full Screen Center */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
-          <div className="text-center">
-            <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
-              Skrobaki
-            </h1>
-          </div>
-        </div>
       </div>
 
       {/* Follow Us - Bottom of Screen */}
