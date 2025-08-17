@@ -16,7 +16,8 @@ export const ProjectsPage = ({
   const galleryImages = [
     '/lovable-uploads/03149750-e10c-41e7-884a-397cdec91da4.png',
     '/lovable-uploads/5f51d8df-70eb-4c6f-95e5-d9c5bd704cfc.png',
-    '/lovable-uploads/299e0760-fc84-47fa-8f12-d9ded792fe4c.png'
+    '/lovable-uploads/299e0760-fc84-47fa-8f12-d9ded792fe4c.png',
+    '/lovable-uploads/db0a1768-db8d-4d0d-bc93-f5d9c2dd3098.png'
   ];
 
   const featuredProjects = [
