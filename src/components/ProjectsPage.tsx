@@ -48,7 +48,7 @@ export const ProjectsPage = ({ onNavigate }: ProjectsPageProps) => {
           <div className="max-w-4xl">
             {/* Project Title */}
             <h1 className="text-6xl lg:text-8xl font-light text-white mb-8 tracking-tight">
-              Villa Vingt
+              Thanet Street, Malvern
             </h1>
             
             {/* Project Description */}
