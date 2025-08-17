@@ -10,14 +10,12 @@ interface ProjectsPageProps {
 export const ProjectsPage = ({
   onNavigate
 }: ProjectsPageProps) => {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [activeSection, setActiveSection] = useState('overview');
+  const [selectedProject, setSelectedProject] = useState('thanet-street');
 
-  // Sample gallery images - replace with actual project images
-  const galleryImages = [
-    '/lovable-uploads/121a0a8f-2d3d-4510-8eea-aa8d66ca2e81.png',
-    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
-    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png'
+  const featuredProjects = [
+    { id: 'thanet-street', name: 'Thanet Street', location: 'Malvern', type: 'Residential' },
+    { id: 'st-john-ave', name: 'St John Ave', location: 'Melbourne', type: 'Commercial' },
+    { id: 'gordon-street', name: 'Gordon Street', location: 'Richmond', type: 'Mixed Use' }
   ];
 
   const servicePackages = [
@@ -33,14 +31,6 @@ export const ProjectsPage = ({
     { id: "07", title: "BIM Services", category: "STAND-ALONE SERVICES" },
     { id: "08", title: "Digital Delivery & Analytics", category: "STAND-ALONE SERVICES" }
   ];
-
-  const nextImage = () => {
-    setCurrentImageIndex(prev => (prev + 1) % galleryImages.length);
-  };
-
-  const prevImage = () => {
-    setCurrentImageIndex(prev => (prev - 1 + galleryImages.length) % galleryImages.length);
-  };
 
   return (
     <div className="h-screen relative overflow-hidden">
@@ -72,10 +62,10 @@ export const ProjectsPage = ({
               </button>
               
               <h1 className="text-white text-xl font-light tracking-wide mb-2">
-                Thanet Street, Malvern
+                Feature Projects
               </h1>
               <p className="text-white/60 text-sm tracking-wide">
-                Residential Architecture
+                Our Latest Work
               </p>
             </div>
 
@@ -118,67 +108,75 @@ export const ProjectsPage = ({
           </div>
         </div>
 
-        {/* Main Content Area - Gallery */}
+        {/* Main Content Area - Feature Projects */}
         <div className="flex-1 p-8">
           <div 
             className="backdrop-blur-xl border border-white/20 h-full flex flex-col shadow-2xl"
             style={{ backgroundColor: 'rgba(0,10,20,0.85)' }}
           >
+            {/* Feature Projects Header */}
+            <div className="p-8 border-b border-white/10">
+              <h1 className="text-white text-4xl lg:text-5xl font-light tracking-tight mb-4">
+                Feature Projects
+              </h1>
+              <p className="text-white/80 text-lg">
+                Explore our portfolio of exceptional architectural projects
+              </p>
+            </div>
             
-            {/* Main Gallery Display - Full Height */}
-            <div className="flex-1 relative overflow-hidden">
-              <div className="h-full flex items-center justify-center p-8">
-                <div className="relative w-full h-full max-w-6xl bg-white/10 rounded-xl shadow-2xl flex items-center justify-center">
-                  <p className="text-white/60 text-lg">No image selected</p>
-                  
-                  {/* Navigation Arrows */}
-                  <button 
-                    onClick={prevImage} 
-                    className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-105 backdrop-blur-sm"
+            {/* Projects List */}
+            <div className="flex-1 p-8">
+              <div className="space-y-4">
+                {featuredProjects.map((project, index) => (
+                  <button
+                    key={project.id}
+                    onClick={() => setSelectedProject(project.id)}
+                    className={`w-full p-6 rounded-xl border transition-all duration-300 text-left ${
+                      selectedProject === project.id
+                        ? 'bg-white/20 border-white/30 shadow-lg'
+                        : 'bg-white/10 border-white/20 hover:bg-white/15'
+                    }`}
                   >
-                    <ChevronLeft className="w-6 h-6 text-white" />
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center space-x-4 mb-2">
+                          <span className="text-white/60 text-sm font-mono">
+                            {String(index + 1).padStart(2, '0')}
+                          </span>
+                          <h3 className="text-white text-xl font-medium tracking-wide">
+                            {project.name}
+                          </h3>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <span className="text-white/70 text-sm">{project.location}</span>
+                          <span className="text-white/50 text-sm">•</span>
+                          <span className="text-white/70 text-sm">{project.type}</span>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-white/60" />
+                    </div>
                   </button>
-                  
-                  <button 
-                    onClick={nextImage} 
-                    className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 p-4 rounded-full shadow-lg transition-all duration-200 hover:scale-105 backdrop-blur-sm"
-                  >
-                    <ChevronRight className="w-6 h-6 text-white" />
-                  </button>
-                </div>
+                ))}
               </div>
             </div>
             
-            {/* Gallery Controls */}
+            {/* Action Buttons */}
             <div className="p-8 border-t border-white/10">
-              <div className="flex justify-between items-center">
-                <div className="flex space-x-3">
-                  {galleryImages.map((_, index) => (
-                    <button 
-                      key={index} 
-                      onClick={() => setCurrentImageIndex(index)} 
-                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                        index === currentImageIndex ? 'bg-white' : 'bg-white/30 hover:bg-white/50'
-                      }`} 
-                    />
-                  ))}
-                </div>
-                <div className="flex space-x-3">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-white/80 hover:text-white hover:bg-white/10 border border-white/20"
-                  >
-                    View All Images
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    className="bg-white/20 hover:bg-white/30 text-white border border-white/30"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download
-                  </Button>
-                </div>
+              <div className="flex space-x-4">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-white/80 hover:text-white hover:bg-white/10 border border-white/20"
+                >
+                  View All Projects
+                </Button>
+                <Button 
+                  size="sm" 
+                  className="bg-white/20 hover:bg-white/30 text-white border border-white/30"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Portfolio
+                </Button>
               </div>
             </div>
           </div>
