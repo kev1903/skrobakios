@@ -98,6 +98,31 @@ We Home Owners and Builder to complete construction project on time, on budget a
                     <span className="text-sm font-medium tracking-wide">VIEW ALL SERVICES</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </button>
+
+                  {/* Service Buttons */}
+                  <div className="flex flex-col space-y-3 mt-6">
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start text-white/80 hover:text-white hover:bg-white/10 border border-white/20 backdrop-blur-sm px-4 py-2 text-sm font-medium tracking-wide transition-all"
+                      onClick={() => handleNavigation('advisory')}
+                    >
+                      Advisory
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start text-white/80 hover:text-white hover:bg-white/10 border border-white/20 backdrop-blur-sm px-4 py-2 text-sm font-medium tracking-wide transition-all"
+                      onClick={() => handleNavigation('project-management')}
+                    >
+                      Project Management
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      className="justify-start text-white/80 hover:text-white hover:bg-white/10 border border-white/20 backdrop-blur-sm px-4 py-2 text-sm font-medium tracking-wide transition-all"
+                      onClick={() => handleNavigation('construction-management')}
+                    >
+                      Construction Management
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
