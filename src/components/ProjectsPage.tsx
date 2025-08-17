@@ -32,7 +32,7 @@ export const ProjectsPage = ({ onNavigate }: ProjectsPageProps) => {
           {/* Navigation */}
           <nav className="hidden lg:flex items-center space-x-12">
             <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors border-b border-white/60 pb-1">
-              PROJECTS
+              PORTFOLIO
             </button>
             <button className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors" onClick={() => onNavigate('about')}>
               ABOUT
