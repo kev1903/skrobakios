@@ -26,8 +26,9 @@ export const ProjectsPage = ({
       '/lovable-uploads/723dcf11-cdbe-4a53-9aa7-65a1d28a994e.png'
     ],
     'gordon-street': [
-      '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
-      '/lovable-uploads/121a0a8f-2d3d-4510-8eea-aa8d66ca2e81.png'
+      '/lovable-uploads/14802e1c-2191-4152-ad3f-527c76f741cb.png',
+      '/lovable-uploads/135ae825-beb7-48c3-8641-17e20155520d.png',
+      '/lovable-uploads/c87084a1-4256-46c1-b42c-d0b501836f43.png'
     ]
   };
 
