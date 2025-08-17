@@ -11,7 +11,7 @@ export const ProjectsPage = ({ onNavigate }: ProjectsPageProps) => {
     <div className="min-h-screen bg-gray-100">
       {/* Hero Section */}
       <div className="relative h-screen bg-cover bg-center" style={{
-        backgroundImage: 'url(/lovable-uploads/2734acd5-927e-4fc6-8794-b79f30235c8c.png)'
+        backgroundImage: 'url(/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png)'
       }}>
         {/* Dark overlay */}
         <div className="absolute inset-0 bg-black/40" />
