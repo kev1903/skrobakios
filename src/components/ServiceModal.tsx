@@ -78,28 +78,31 @@ const serviceDetails = {
   },
   design: {
     title: "DESIGN & VISUALISATION",
-    description: "Creative design solutions and 3D visualizations to bring your vision to life with cutting-edge technology.",
-    scope: "Concept through detailed design with 3D modeling.",
+    description: "Creative design solutions and advanced visualization services to bring your vision to life with cutting-edge technology.",
+    scope: "Concept design through construction documentation with comprehensive 3D modeling and visualization.",
     typicalFee: "Design fee percentage",
-    whoIsFor: "Clients wanting innovative design solutions and clear visualizations.",
+    whoIsFor: "Clients wanting innovative design solutions, clear visualizations, and comprehensive documentation.",
     benefits: [
-      "Creative and functional design solutions",
-      "Photorealistic 3D visualizations",
-      "Design optimization and value engineering",
-      "Clear communication of design intent"
+      "Concept Design Sketch: 2-3 options plus cost range",
+      "Spatial Design: Interior Spaces; Functional, Aesthetic, Compliant Outdoor Spaces",
+      "3D Rendering: Photorealistic visualizations for marketing and approvals",
+      "3D Virtual Walk-through: Immersive client experience and design validation",
+      "3D Printing – Scale Models: High-res resin/PLA models for client approvals or 1:1 component testing",
+      "Construction Drawings: Permit & tender-ready documentation"
     ]
   },
   bim: {
     title: "BIM SERVICES",
-    description: "Building Information Modeling services for enhanced project coordination, clash detection, and digital collaboration.",
-    scope: "3D modeling, coordination, and digital project delivery.",
-    typicalFee: "Project-based fee",
-    whoIsFor: "Complex projects requiring advanced coordination and collaboration.",
+    description: "Advanced Building Information Modeling services for enhanced project coordination, digital collaboration, and lifecycle management.",
+    scope: "Comprehensive BIM authoring, clash detection, digital fabrication, and asset management solutions.",
+    typicalFee: "Project-based fee / Technology licensing",
+    whoIsFor: "Complex projects requiring advanced coordination, digital fabrication, and long-term asset management.",
     benefits: [
-      "Enhanced project coordination",
-      "Clash detection and resolution",
-      "Improved collaboration and communication",
-      "Digital asset creation and management"
+      "BIM Authoring & Clash: LOD 300-350 Archicad model + clash reports feeding CostX & SkrobakiOS",
+      "Shop-Drawings for Trades: Tekla fabrication sheets with CNC outputs",
+      "Drone Survey: Capturing Site Photography, Project Progress Imagery",
+      "5D Cost Estimation: Integrated costing and scheduling",
+      "7D Modeling: As-Built Model for Asset Management"
     ]
   },
   digital: {
