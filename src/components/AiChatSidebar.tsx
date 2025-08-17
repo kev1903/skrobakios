@@ -690,7 +690,7 @@ export function AiChatSidebar({
                     />
                   </Suspense>
                 ) : (
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  <div className={cn("flex-1 overflow-y-auto p-4 space-y-4", fullScreen ? "pb-28" : "")}>
                     {messages.length === 0 && <div className="text-center text-muted-foreground py-8">
                         <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
                         <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
@@ -753,7 +753,10 @@ export function AiChatSidebar({
 
                 {/* Input area - hide when voice is active */}
                 {!isVoiceActive && (
-                  <div className="p-4 border-t border-border flex-shrink-0">
+                  <div className={cn(
+                    "p-4 border-t border-border flex-shrink-0",
+                    fullScreen ? "fixed left-0 right-0 bottom-16 z-[10020] bg-background/95 backdrop-blur-xl" : ""
+                  )}>
                     <div className="flex gap-2">
                       <PhotoUploadButton 
                         onPhotoSelected={handlePhotoSelected}
