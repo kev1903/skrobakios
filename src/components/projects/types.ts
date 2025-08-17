@@ -32,6 +32,7 @@ export interface ProjectTableViewProps {
   onSelectAll: (checked: boolean) => void;
   onSelectProject: (projectId: string, checked: boolean) => void;
   onProjectClick: (projectId: string) => void;
+  isMobile?: boolean;
 }
 
 export interface SortableHeaderProps {

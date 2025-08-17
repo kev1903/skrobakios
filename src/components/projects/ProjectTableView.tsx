@@ -18,6 +18,7 @@ import { MoreHorizontal, Eye } from "lucide-react";
 import { ProjectTableViewProps } from "./types";
 import { getStatusColor, getStatusText, formatDate } from "./utils";
 import { SortableTableHeader } from "./SortableTableHeader";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const ProjectTableView = ({
   projects,
@@ -28,10 +29,78 @@ export const ProjectTableView = ({
   onSelectAll,
   onSelectProject,
   onProjectClick,
+  isMobile = false,
 }: ProjectTableViewProps) => {
   const isAllSelected = selectedProjects.length === projects.length && projects.length > 0;
   const isIndeterminate = selectedProjects.length > 0 && selectedProjects.length < projects.length;
 
+  // Mobile card view
+  if (isMobile) {
+    return (
+      <div className="space-y-3">
+        {projects.map((project) => (
+          <Card key={project.id} className="bg-card border border-border shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedProjects.includes(project.id)}
+                      onChange={(e) => onSelectProject(project.id, e.target.checked)}
+                      className="rounded border-input bg-background text-primary focus:ring-primary/30 scale-90"
+                    />
+                    <Badge 
+                      variant="outline" 
+                      className={`${getStatusColor(project.status)} text-xs`}
+                    >
+                      {getStatusText(project.status)}
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <div className="font-mono text-xs text-muted-foreground">
+                      #{project.project_id}
+                    </div>
+                    <button
+                      onClick={() => onProjectClick(project.id)}
+                      className="text-primary hover:text-primary/80 hover:underline cursor-pointer text-left font-medium text-sm transition-colors duration-200 block truncate"
+                    >
+                      {project.name}
+                    </button>
+                    {project.description && (
+                      <div className="text-xs text-muted-foreground line-clamp-2">
+                        {project.description}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="w-8 h-8 p-0 text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200">
+                      <MoreHorizontal className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-card border border-border shadow-xl">
+                    <DropdownMenuItem 
+                      className="flex items-center space-x-2 text-foreground hover:bg-muted focus:bg-muted transition-colors duration-200 text-sm"
+                      onClick={() => onProjectClick(project.id)}
+                    >
+                      <Eye className="w-4 h-4" />
+                      <span>View Details</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  // Desktop table view
   return (
     <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
       <Table>

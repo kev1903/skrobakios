@@ -13,6 +13,7 @@ import { ProjectTableView } from "./projects/ProjectTableView";
 import { ProjectDashboardView } from "./projects/ProjectDashboardView";
 import { ProjectLoadingState } from "./projects/ProjectLoadingState";
 import { ProjectEmptyState } from "./projects/ProjectEmptyState";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) => {
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
@@ -22,6 +23,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   const { getProjects, loading } = useProjects();
   const { sortField, sortDirection, handleSort: handleSortPersistent, loading: sortLoading } = useSortPreferences('projects', 'name' as SortField);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -106,105 +108,118 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 relative">
       {/* Solid background instead of dot grid */}
       
-      <div className="relative z-10 p-6 space-y-6">
+      <div className={`relative z-10 ${isMobile ? 'p-4' : 'p-6'} space-y-${isMobile ? '4' : '6'}`}>
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className={`flex ${isMobile ? 'flex-col space-y-4' : 'items-center justify-between'}`}>
           <div className="flex items-center space-x-4">
             <Button 
               variant="ghost" 
-              size="sm"
+              size={isMobile ? "sm" : "sm"}
               onClick={() => onNavigate("home")}
               className="flex items-center space-x-2 text-slate-600 hover:text-blue-600 hover:bg-white/50 transition-all duration-200"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Home</span>
             </Button>
-            <div className="h-6 w-px bg-slate-300" />
+            {!isMobile && <div className="h-6 w-px bg-slate-300" />}
             <div>
-              <h1 className="text-3xl font-bold text-slate-800">Project List</h1>
-              <p className="text-slate-600 mt-1">
-                Manage and oversee all your projects • {currentTime.toLocaleDateString('en-US', { 
+              <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold text-slate-800`}>Project List</h1>
+              <p className={`text-slate-600 mt-1 ${isMobile ? 'text-sm' : ''}`}>
+                Manage and oversee all your projects{!isMobile && ' • '}{!isMobile && currentTime.toLocaleDateString('en-US', { 
                   weekday: 'long', 
                   year: 'numeric', 
                   month: 'long', 
                   day: 'numeric' 
                 })}
+                {isMobile && (
+                  <><br />{currentTime.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  })}</>
+                )}
               </p>
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50">
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-            </Button>
-            <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
+          <div className={`flex items-center gap-3 ${isMobile ? 'flex-wrap' : ''}`}>
+            {!isMobile && (
+              <>
+                <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filters
+                </Button>
+                <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </>
+            )}
             <Button 
               className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
               onClick={() => onNavigate('create-project')}
+              size={isMobile ? "sm" : "default"}
             >
               <Plus className="h-4 w-4 mr-2" />
-              New Project
+              {isMobile ? 'New' : 'New Project'}
             </Button>
           </div>
         </div>
 
         {/* Minimized Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className={`grid ${isMobile ? 'grid-cols-2 gap-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3'}`}>
           <Card className="bg-white/80 backdrop-blur-sm border-white/20 shadow-sm">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="text-lg font-bold text-slate-800">{projectStats.total}</div>
-                  <p className="text-sm text-slate-500">Total Projects</p>
+            <CardContent className={isMobile ? "p-2" : "p-3"}>
+              <div className={`flex items-center ${isMobile ? 'flex-col text-center' : 'justify-between'}`}>
+                <div className={`flex items-center ${isMobile ? 'flex-col' : 'gap-2'}`}>
+                  <div className={`${isMobile ? 'text-xl' : 'text-lg'} font-bold text-slate-800`}>{projectStats.total}</div>
+                  <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-slate-500`}>Total Projects</p>
                 </div>
-                <Building2 className="h-4 w-4 text-blue-600" />
+                {!isMobile && <Building2 className="h-4 w-4 text-blue-600" />}
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white/80 backdrop-blur-sm border-white/20 shadow-sm">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="text-lg font-bold text-orange-600">{projectStats.active}</div>
-                  <p className="text-sm text-slate-500">In Progress</p>
+            <CardContent className={isMobile ? "p-2" : "p-3"}>
+              <div className={`flex items-center ${isMobile ? 'flex-col text-center' : 'justify-between'}`}>
+                <div className={`flex items-center ${isMobile ? 'flex-col' : 'gap-2'}`}>
+                  <div className={`${isMobile ? 'text-xl' : 'text-lg'} font-bold text-orange-600`}>{projectStats.active}</div>
+                  <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-slate-500`}>In Progress</p>
                 </div>
-                <Clock className="h-4 w-4 text-orange-600" />
+                {!isMobile && <Clock className="h-4 w-4 text-orange-600" />}
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white/80 backdrop-blur-sm border-white/20 shadow-sm">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="text-lg font-bold text-green-600">{projectStats.completed}</div>
-                  <p className="text-sm text-slate-500">Completed</p>
+            <CardContent className={isMobile ? "p-2" : "p-3"}>
+              <div className={`flex items-center ${isMobile ? 'flex-col text-center' : 'justify-between'}`}>
+                <div className={`flex items-center ${isMobile ? 'flex-col' : 'gap-2'}`}>
+                  <div className={`${isMobile ? 'text-xl' : 'text-lg'} font-bold text-green-600`}>{projectStats.completed}</div>
+                  <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-slate-500`}>Completed</p>
                 </div>
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                {!isMobile && <CheckCircle2 className="h-4 w-4 text-green-600" />}
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white/80 backdrop-blur-sm border-white/20 shadow-sm">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="text-lg font-bold text-yellow-600">{projectStats.pending}</div>
-                  <p className="text-sm text-slate-500">Pending</p>
+            <CardContent className={isMobile ? "p-2" : "p-3"}>
+              <div className={`flex items-center ${isMobile ? 'flex-col text-center' : 'justify-between'}`}>
+                <div className={`flex items-center ${isMobile ? 'flex-col' : 'gap-2'}`}>
+                  <div className={`${isMobile ? 'text-xl' : 'text-lg'} font-bold text-yellow-600`}>{projectStats.pending}</div>
+                  <p className={`${isMobile ? 'text-xs' : 'text-sm'} text-slate-500`}>Pending</p>
                 </div>
-                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                {!isMobile && <AlertTriangle className="h-4 w-4 text-yellow-600" />}
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Project List - No Header */}
-        <div className="bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl shadow-sm p-6">
+        <div className={`bg-white/80 backdrop-blur-sm border border-white/20 rounded-xl shadow-sm ${isMobile ? 'p-3' : 'p-6'}`}>
           {/* Projects Content */}
           <div>
             {projects.length === 0 ? (
@@ -228,6 +243,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
                 onSelectAll={handleSelectAll}
                 onSelectProject={handleSelectProject}
                 onProjectClick={handleProjectClick}
+                isMobile={isMobile}
               />
             )}
           </div>
