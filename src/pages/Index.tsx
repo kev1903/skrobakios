@@ -163,7 +163,6 @@ const Index = () => {
           // Mobile home page: Show only AI chat full screen, hide map
           <div className="h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
-            
             <div className="relative z-10 flex h-screen min-h-0">
               {/* AI Chat sidebar takes full width on mobile home page */}
               <div className="w-full">
@@ -171,6 +170,7 @@ const Index = () => {
                   isCollapsed={false} 
                   onToggleCollapse={() => {}} // Disable collapse on mobile home
                   onNavigate={handleNavigate}
+                  fullScreen
                 />
               </div>
               

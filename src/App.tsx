@@ -15,6 +15,8 @@ import { CompanyProvider } from "./contexts/CompanyContext";
 import { TimeTrackingProvider } from "./contexts/TimeTrackingContext";
 
 import { AppContextProvider } from "./contexts/AppContextProvider";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 
 
 import { InvoicesPage } from "./components/InvoicesPage";
@@ -228,6 +230,9 @@ const AppContent = () => {
     }
   };
 
+  const isMobile = useIsMobile();
+  const showMenuBar = (((user && !isLandingPage && !isAuthPage && !isSignUpPage) || isHomePage) && !(isHomePage && isMobile));
+
   return (
     <GlobalSidebarProvider>
       <AppContextProvider>
@@ -238,7 +243,7 @@ const AppContent = () => {
               {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
                 <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
               )}
-              {(user && !isLandingPage && !isAuthPage && !isSignUpPage) || isHomePage ? <MenuBar /> : null}
+            {showMenuBar ? <MenuBar /> : null}
             <Routes>
         <Route path="/" element={
           <Index />

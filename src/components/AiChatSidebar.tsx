@@ -36,11 +36,13 @@ interface AiChatSidebarProps {
   isCollapsed: boolean;
   onToggleCollapse: () => void;
   onNavigate?: (page: string) => void;
+  fullScreen?: boolean;
 }
 export function AiChatSidebar({
   isCollapsed,
   onToggleCollapse,
-  onNavigate
+  onNavigate,
+  fullScreen = false
 }: AiChatSidebarProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try {
@@ -578,7 +580,12 @@ export function AiChatSidebar({
   return (
     <>
       {/* Regular Chat Interface */}
-      <div className={cn("fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col", isCollapsed ? "w-16" : "w-96")}>
+      <div className={cn(
+        fullScreen
+          ? "fixed inset-0 z-[10010] w-full h-screen bg-background border-0 shadow-none flex flex-col"
+          : "fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col",
+        fullScreen ? "w-full" : (isCollapsed ? "w-16" : "w-96")
+      )}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
           <div className="flex items-center gap-2 overflow-hidden">
