@@ -122,7 +122,7 @@ export const LandingPage = ({
                   >
                     <span className="text-white/60 text-sm">01</span>
                     <div className="flex-1">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
+                      <h2 className="text-white font-medium text-base tracking-normal">ADVISORY</h2>
                     </div>
                   </div>
                   
@@ -133,7 +133,7 @@ export const LandingPage = ({
                   >
                     <span className="text-white/60 text-sm">02</span>
                     <div className="flex-1">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">PROJECT MANAGEMENT</h2>
+                      <h2 className="text-white font-medium text-base tracking-normal">PROJECT MANAGEMENT</h2>
                     </div>
                   </div>
                   
@@ -144,7 +144,7 @@ export const LandingPage = ({
                   >
                     <span className="text-white/60 text-sm">03</span>
                     <div className="flex-1">
-                      <h2 className="text-white font-semibold text-lg tracking-wide">CONSTRUCTION MANAGEMENT</h2>
+                      <h2 className="text-white font-medium text-base tracking-normal">CONSTRUCTION MANAGEMENT</h2>
                     </div>
                   </div>
 
