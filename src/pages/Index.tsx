@@ -16,6 +16,7 @@ import { GlobalSidebar } from "@/components/GlobalSidebar";
 import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -27,6 +28,7 @@ const Index = () => {
   const [isChatCollapsed, setIsChatCollapsed] = useState(true);
   const previousPageRef = useRef<string>("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
+  const isMobile = useIsMobile();
 
   // Enhanced navigation function that tracks previous page
   const handleNavigate = (page: string) => {
@@ -157,8 +159,27 @@ const Index = () => {
             {/* Global sidebar available on all pages */}
             <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
           </div>
+        ) : currentPage === "home" && isMobile ? (
+          // Mobile home page: Show only AI chat full screen, hide map
+          <div className="h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+            
+            <div className="relative z-10 flex h-screen min-h-0">
+              {/* AI Chat sidebar takes full width on mobile home page */}
+              <div className="w-full">
+                <AiChatSidebar 
+                  isCollapsed={false} 
+                  onToggleCollapse={() => {}} // Disable collapse on mobile home
+                  onNavigate={handleNavigate}
+                />
+              </div>
+              
+              {/* Global sidebar available on all pages */}
+              <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
+            </div>
+          </div>
         ) : (
-          // Home and all other pages get layout with sidebar
+          // Home and all other pages get layout with sidebar (desktop/tablet)
           <div className="h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
             {/* Background Pattern */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
