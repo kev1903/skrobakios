@@ -164,16 +164,16 @@ const Index = () => {
           </div>
         ) : isMobile ? (
           // Mobile layout with toggle between chat and app
-          <div className="h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
+          <div className="h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
             
             {/* Mobile header */}
             <MobileHeader onNavigate={handleNavigate} />
             
-            <div className="relative z-10 flex h-full min-h-0"  style={{ height: 'calc(100vh - 64px)' }}>
+            <div className="relative z-10 flex h-full min-h-0" style={{ height: 'calc(100vh - 80px)' }}>
               {mobileView === 'chat' ? (
                 // AI Chat view on mobile
-                <div className="w-full pb-16">
+                <div className="w-full pb-16 -mt-1">{/* Added negative margin to close gap */}
                   <AiChatSidebar 
                     isCollapsed={false} 
                     onToggleCollapse={() => {}}
@@ -183,7 +183,7 @@ const Index = () => {
                 </div>
               ) : (
                 // App view on mobile
-                <div className="w-full pb-16">
+                <div className="w-full pb-16 -mt-1">{/* Added negative margin to close gap */}
                   <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
                     <div className="w-full h-full">
                       <ContentRenderer 
