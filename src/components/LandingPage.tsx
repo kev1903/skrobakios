@@ -44,7 +44,7 @@ export const LandingPage = ({
       <div className="relative z-40 h-screen flex">
         {/* Left Glass Panel - Centered and Smaller */}
         <div className="w-1/3 h-full mx-auto">
-          <div className="bg-gray-900/95 w-full h-full flex flex-col p-8 lg:p-12 !rounded-none !shadow-none">
+          <div className="bg-black w-full h-full flex flex-col p-8 lg:p-12 !rounded-none !shadow-none">
             {/* Navigation in Glass Panel */}
             <header className="mb-8">
               {/* Logo and Navigation */}
