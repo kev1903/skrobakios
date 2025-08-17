@@ -99,7 +99,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <span className="text-gray-400">/</span>
             <button 
               onClick={() => onNavigate('auth')}
-              className="text-blue-600 hover:text-blue-500 transition-colors text-sm font-medium"
+              className="text-skrobaki-blue hover:text-skrobaki-blue-light transition-colors text-sm font-medium"
             >
               Register
             </button>
@@ -141,14 +141,14 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           {/* Main Heading */}
           <div className="mb-8">
             <h1 className="text-gray-700 text-4xl md:text-6xl lg:text-7xl font-light leading-tight mb-4">
-              <span className="text-blue-600 font-medium">Project Management</span> Essential
+              <span className="text-skrobaki-blue font-medium">Project Management</span> Essential
               <br />
               Services
             </h1>
             
             {/* Underlined CTA */}
             <div className="mt-8">
-              <span className="text-gray-600 text-xl border-b-2 border-blue-600 pb-1">
+              <span className="text-gray-600 text-xl border-b-2 border-skrobaki-blue pb-1">
                 Start today
               </span>
             </div>
@@ -165,8 +165,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         {/* Bottom Left - Watch Trailer */}
         <div className="col-span-3 row-span-2 flex items-end">
           <button className="flex items-center text-gray-600 hover:text-gray-700 transition-colors group">
-            <div className="w-12 h-12 rounded-full border border-blue-600 flex items-center justify-center mr-4 group-hover:bg-blue-600/10 transition-colors">
-              <ArrowRight className="w-4 h-4 text-blue-600" />
+            <div className="w-12 h-12 rounded-full border border-skrobaki-blue flex items-center justify-center mr-4 group-hover:bg-skrobaki-blue/10 transition-colors">
+              <ArrowRight className="w-4 h-4 text-skrobaki-blue" />
             </div>
             <div className="text-left">
               <div className="text-gray-700 font-medium">Watch</div>
@@ -200,8 +200,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </div>
       </div>
 
-      {/* Bottom Blue Progress Bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600"></div>
+      {/* Bottom Skrobaki Blue Progress Bar */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-skrobaki-blue"></div>
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
@@ -209,13 +209,13 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           <div className="flex flex-col items-center justify-center h-full text-gray-700 space-y-8">
             <button 
               onClick={() => onNavigate('auth')}
-              className="text-2xl font-light hover:text-blue-600 transition-colors"
+              className="text-2xl font-light hover:text-skrobaki-blue transition-colors"
             >
               Login
             </button>
             <button 
               onClick={() => onNavigate('auth')}
-              className="text-2xl font-light text-blue-600 hover:text-blue-500 transition-colors"
+              className="text-2xl font-light text-skrobaki-blue hover:text-skrobaki-blue-light transition-colors"
             >
               Register
             </button>
