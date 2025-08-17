@@ -32,7 +32,7 @@ export const LandingPage = ({
       <div className="relative z-40 h-screen flex">
         {/* Left Glass Panel - Adjusted width to split between 'o' and 'b' */}
         <div className="w-[56%] h-full">
-          <div className="glass-card w-full h-full flex flex-col p-8 lg:p-12">
+          <div className="glass-card w-full h-full flex flex-col p-8 lg:p-12 !rounded-none !shadow-none">
             {/* Navigation in Glass Panel */}
             <header className="mb-8">
               {/* Logo and Navigation */}
