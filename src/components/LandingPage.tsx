@@ -95,7 +95,7 @@ export const LandingPage = ({
                     >
                       <span className="text-white/60 text-sm">01</span>
                       <div className="flex-1">
-                        <h2 className="text-white font-semibold text-lg tracking-wide">ADVISORY</h2>
+                        <h2 className="text-white font-semibold text-lg tracking-wide">Advisory</h2>
                       </div>
                     </div>
                     
@@ -106,7 +106,7 @@ export const LandingPage = ({
                     >
                       <span className="text-white/60 text-sm">02</span>
                       <div className="flex-1">
-                        <h2 className="text-white font-semibold text-lg tracking-wide">PROJECT MANAGEMENT</h2>
+                        <h2 className="text-white font-semibold text-lg tracking-wide">Project Management</h2>
                       </div>
                     </div>
                     
@@ -117,7 +117,7 @@ export const LandingPage = ({
                     >
                       <span className="text-white/60 text-sm">03</span>
                       <div className="flex-1">
-                        <h2 className="text-white font-semibold text-lg tracking-wide">CONSTRUCTION MANAGEMENT</h2>
+                        <h2 className="text-white font-semibold text-lg tracking-wide">Construction Management</h2>
                       </div>
                     </div>
                   </div>
@@ -133,7 +133,7 @@ export const LandingPage = ({
                     >
                       <span className="text-white/60 text-sm">04</span>
                       <div className="flex-1">
-                        <h2 className="text-white font-semibold text-lg tracking-wide">ESTIMATING SERVICES</h2>
+                        <h2 className="text-white font-semibold text-lg tracking-wide">Estimating Services</h2>
                       </div>
                     </div>
                     
@@ -144,7 +144,7 @@ export const LandingPage = ({
                     >
                       <span className="text-white/60 text-sm">05</span>
                       <div className="flex-1">
-                        <h2 className="text-white font-semibold text-lg tracking-wide">SITE INSPECTION SERVICES</h2>
+                        <h2 className="text-white font-semibold text-lg tracking-wide">Site Inspection Services</h2>
                       </div>
                     </div>
                     
@@ -155,7 +155,7 @@ export const LandingPage = ({
                     >
                       <span className="text-white/60 text-sm">06</span>
                       <div className="flex-1">
-                        <h2 className="text-white font-semibold text-lg tracking-wide">DESIGN & VISUALISATION</h2>
+                        <h2 className="text-white font-semibold text-lg tracking-wide">Design & Visualisation</h2>
                       </div>
                     </div>
                     
@@ -166,7 +166,7 @@ export const LandingPage = ({
                     >
                       <span className="text-white/60 text-sm">07</span>
                       <div className="flex-1">
-                        <h2 className="text-white font-semibold text-lg tracking-wide">BIM SERVICES</h2>
+                        <h2 className="text-white font-semibold text-lg tracking-wide">BIM Services</h2>
                       </div>
                     </div>
                     
@@ -177,7 +177,7 @@ export const LandingPage = ({
                     >
                       <span className="text-white/60 text-sm">08</span>
                       <div className="flex-1">
-                        <h2 className="text-white font-semibold text-lg tracking-wide">DIGITAL DELIVERY & ANALYTICS</h2>
+                        <h2 className="text-white font-semibold text-lg tracking-wide">Digital Delivery & Analytics</h2>
                       </div>
                     </div>
                   </div>
