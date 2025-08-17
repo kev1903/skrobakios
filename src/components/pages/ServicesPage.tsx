@@ -77,30 +77,7 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
             </div>
             
             <div className="hidden lg:flex items-center space-x-12">
-              <button 
-                onClick={() => onNavigate('services')}
-                className="text-white font-medium text-sm tracking-wide"
-              >
-                SERVICES
-              </button>
-              <button 
-                onClick={() => onNavigate('projects')}
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
-              >
-                PROJECTS
-              </button>
-              <button 
-                onClick={() => onNavigate('about')}
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
-              >
-                ABOUT US
-              </button>
-              <button 
-                onClick={() => onNavigate('contact')}
-                className="text-white/90 hover:text-white text-sm font-medium tracking-wide transition-colors"
-              >
-                CONTACT
-              </button>
+              {/* Navigation buttons removed as requested */}
             </div>
 
             <Button 
