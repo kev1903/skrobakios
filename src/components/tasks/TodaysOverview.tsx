@@ -151,28 +151,28 @@ export const TodaysOverview = ({ currentDate }: TodaysOverviewProps) => {
   }, []);
 
   return (
-    <div className="w-80 border-l border-white/20 glass-card flex flex-col overflow-hidden">
+    <div className="w-80 border-l border-border bg-card flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-white/20">
-        <h3 className="text-lg font-semibold text-white font-inter">Today's Overview</h3>
+      <div className="p-4 border-b border-border">
+        <h3 className="text-lg font-semibold text-foreground font-inter">Today's Overview</h3>
       </div>
 
       {/* Top 3 Priorities */}
-      <div className="p-4 border-b border-white/20">
+      <div className="p-4 border-b border-border">
         <div className="flex items-center gap-2 mb-3">
-          <Target className="h-4 w-4 text-accent" />
-          <h4 className="font-medium text-white">Top 3 Priorities</h4>
+          <Target className="h-4 w-4 text-primary" />
+          <h4 className="font-medium text-foreground">Top 3 Priorities</h4>
         </div>
         <div className="space-y-2">
           {[0, 1, 2].map((index) => (
             <div key={index} className="flex items-center gap-2">
-              <span className="text-sm font-medium text-white/70 w-4">{index + 1}.</span>
+              <span className="text-sm font-medium text-muted-foreground w-4">{index + 1}.</span>
               <input
                 type="text"
                 value={data.priorities[index]}
                 onChange={(e) => updatePriority(index, e.target.value)}
                 placeholder={`Priority ${index + 1}`}
-                className={`flex-1 h-8 px-3 text-sm bg-white/10 border border-white/20 rounded-md text-white placeholder:text-white/50 focus:bg-white/15 focus:border-white/30 focus:outline-none ${
+                className={`flex-1 h-8 px-3 text-sm bg-input border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:bg-input focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20 ${
                   data.priority_checked[index] ? 'line-through' : ''
                 }`}
               />
@@ -180,12 +180,12 @@ export const TodaysOverview = ({ currentDate }: TodaysOverviewProps) => {
                 onClick={() => togglePriorityCheck(index)}
                 className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
                   data.priority_checked[index]
-                    ? 'bg-green-500/80 border-green-400'
-                    : 'bg-white/10 border-white/20 hover:bg-white/15'
+                    ? 'bg-success border-success'
+                    : 'bg-muted border-border hover:bg-accent'
                 }`}
               >
                 {data.priority_checked[index] && (
-                  <Check className="w-3 h-3 text-white" />
+                  <Check className="w-3 h-3 text-success-foreground" />
                 )}
               </button>
             </div>
@@ -196,14 +196,14 @@ export const TodaysOverview = ({ currentDate }: TodaysOverviewProps) => {
       {/* Notes Section */}
       <div className="p-4 flex-1 flex flex-col">
         <div className="flex items-center gap-2 mb-3">
-          <FileText className="h-4 w-4 text-accent" />
-          <h4 className="font-medium text-white">Notes</h4>
+          <FileText className="h-4 w-4 text-primary" />
+          <h4 className="font-medium text-foreground">Notes</h4>
         </div>
         <textarea
           value={data.notes}
           onChange={(e) => updateNotes(e.target.value)}
           placeholder="Add your notes here..."
-          className="w-full flex-1 bg-white/10 border border-white/20 rounded-lg p-3 text-sm text-white placeholder:text-white/50 resize-none focus:bg-white/15 focus:border-white/30 focus:outline-none"
+          className="w-full flex-1 bg-input border border-border rounded-lg p-3 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:bg-input focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
         />
       </div>
     </div>

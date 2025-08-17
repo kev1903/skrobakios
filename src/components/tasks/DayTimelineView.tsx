@@ -593,51 +593,51 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   // Removed drag and drop functionality - keeping all other features
 
   const TimelineContent = () => (
-    <div className="h-full flex backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-lg rounded-xl overflow-hidden">
+    <div className="h-full flex bg-card border border-border shadow-lg rounded-xl overflow-hidden">
       {/* Main Timeline Area */}
       <div className="flex flex-col overflow-hidden" style={{
       width: isDragActive ? '100%' : 'calc(100% - 320px)'
     }}>
         {/* Column Headers */}
-        <div className="border-b border-white/[0.08] bg-white/[0.05] backdrop-blur-sm">
+        <div className="border-b border-border bg-muted/50">
           <div className="flex h-10">
-            <div className="border-r border-white/[0.08] flex items-center justify-center bg-white/[0.02]" style={{
+            <div className="border-r border-border flex items-center justify-center bg-muted/30" style={{
             width: '60px',
             minWidth: '60px',
             maxWidth: '60px'
           }}>
-              <span className="text-xs font-medium text-white/60">Time</span>
+              <span className="text-xs font-medium text-muted-foreground">Time</span>
             </div>
-            <div className="border-r border-white/[0.08] flex items-center justify-center bg-white/[0.02]" style={{
+            <div className="border-r border-border flex items-center justify-center bg-muted/30" style={{
             width: '200px',
             minWidth: '200px',
             maxWidth: '200px'
           }}>
-              <span className="text-xs font-medium text-white/60">Blocks</span>
+              <span className="text-xs font-medium text-muted-foreground">Blocks</span>
             </div>
-            <div className="border-r border-white/[0.08] flex items-center justify-center flex-1">
-              <span className="text-xs font-medium text-white/60">Task Name</span>
+            <div className="border-r border-border flex items-center justify-center flex-1">
+              <span className="text-xs font-medium text-muted-foreground">Task Name</span>
             </div>
-            <div className="border-r border-white/[0.08] flex items-center justify-center" style={{
+            <div className="border-r border-border flex items-center justify-center" style={{
             width: '120px',
             minWidth: '120px',
             maxWidth: '120px'
           }}>
-              <span className="text-xs font-medium text-white/60">Project</span>
+              <span className="text-xs font-medium text-muted-foreground">Project</span>
             </div>
-            <div className="border-r border-white/[0.08] flex items-center justify-center" style={{
+            <div className="border-r border-border flex items-center justify-center" style={{
             width: '80px',
             minWidth: '80px',
             maxWidth: '80px'
           }}>
-              <span className="text-xs font-medium text-white/60">Duration</span>
+              <span className="text-xs font-medium text-muted-foreground">Duration</span>
             </div>
             <div className="flex items-center justify-center" style={{
             width: '80px',
             minWidth: '80px',
             maxWidth: '80px'
           }}>
-              <span className="text-xs font-medium text-white/60">Priority</span>
+              <span className="text-xs font-medium text-muted-foreground">Priority</span>
             </div>
           </div>
         </div>
@@ -647,7 +647,7 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
           <div className="h-full overflow-auto">
             <div className="flex min-h-full">
               {/* Time Column */}
-              <div className="border-r border-white/[0.08] bg-white/[0.02] backdrop-blur-sm shadow-inner relative" style={{
+              <div className="border-r border-border bg-muted/20 relative" style={{
               width: '60px',
               minWidth: '60px',
               maxWidth: '60px'
@@ -659,8 +659,8 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
                 const slotHour = Math.floor(slot.hour / 2);
                 const slotMinutes = slot.hour % 2 * 30;
                 const isCurrentSlot = isCurrentDay && slotHour === currentHour && (slotMinutes === 0 && currentMinutes >= 0 && currentMinutes < 30 || slotMinutes === 30 && currentMinutes >= 30 && currentMinutes < 60);
-                return <div key={slot.hour} className={`h-6 border-b flex items-center justify-start pl-3 transition-colors hover:bg-white/[0.05] ${isFullHour ? 'border-b-white/[0.08] bg-white/[0.02]' : 'border-b-white/[0.05] bg-transparent'} ${isCurrentSlot ? 'bg-primary/10 border-primary/20' : ''}`}>
-                       <span className={`font-inter leading-tight ${isFullHour ? 'text-xs font-medium text-white' : 'text-[10px] font-normal text-white'} ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
+                return <div key={slot.hour} className={`h-6 border-b flex items-center justify-start pl-3 transition-colors hover:bg-muted/30 ${isFullHour ? 'border-b-border bg-muted/20' : 'border-b-border/50 bg-transparent'} ${isCurrentSlot ? 'bg-primary/10 border-primary/20' : ''}`}>
+                       <span className={`font-inter leading-tight ${isFullHour ? 'text-xs font-medium text-foreground' : 'text-[10px] font-normal text-muted-foreground'} ${isCurrentSlot ? 'text-primary font-semibold' : ''}`}>
                         {slot.label}
                       </span>
                     </div>;
@@ -683,31 +683,31 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
               )}
 
               {/* Time Blocks Column */}
-              <div className="border-r border-white/[0.08] bg-white/[0.02] backdrop-blur-sm relative" style={{
+              <div className="border-r border-border bg-muted/20 relative" style={{
               width: '200px',
               minWidth: '200px',
               maxWidth: '200px'
             }}>
-                {timeSlots.map((slot, index) => <div key={`timeblock-${slot.hour}`} className="h-6 border-b border-white/[0.05] relative">
+                {timeSlots.map((slot, index) => <div key={`timeblock-${slot.hour}`} className="h-6 border-b border-border/10 relative">
                   </div>)}
                 
                 {/* Render time blocks with layout engine */}
                 {layout.timeBlocks.map(item => {
                 const block = item.data as TimeBlock;
                 const actualColor = categoryColors[block.category] || block.color || categoryColors['Other'] || '217 33% 47%';
-                return <div key={item.id} className="absolute rounded-md backdrop-blur-sm pointer-events-none z-10 border-2 shadow-sm" style={{
+                return <div key={item.id} className="absolute rounded-md border-2 shadow-sm" style={{
                   top: `${item.topPosition}px`,
                   height: `${item.height}px`,
-                  backgroundColor: 'transparent',
+                  backgroundColor: `hsl(${actualColor} / 0.1)`,
                   borderColor: `hsl(${actualColor})`,
                   left: `${item.leftOffset}%`,
                   width: `${item.columnWidth}%`
                 }}>
                       <div className="p-1 h-full flex flex-col justify-center">
-                        <div className="text-xs font-semibold text-center drop-shadow-sm text-white font-inter">
+                        <div className="text-xs font-semibold text-center" style={{ color: `hsl(${actualColor})` }}>
                           {block.title}
                         </div>
-                        {block.description && item.height > 30 && <div className="text-[10px] text-center opacity-80 mt-1 text-white font-inter">
+                        {block.description && item.height > 30 && <div className="text-[10px] text-center opacity-80 mt-1" style={{ color: `hsl(${actualColor})` }}>
                             {block.description}
                           </div>}
                       </div>
