@@ -116,7 +116,7 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
 
       <div className="pt-20 flex max-w-7xl mx-auto">
         {/* Sidebar */}
-        <aside className="w-80 glass-card m-6 p-8 h-fit">
+        <aside className="w-64 glass-card m-6 p-6 h-fit">
           {/* Main CTA */}
           <div className="mb-8">
             <h2 className="text-xl font-bold text-foreground mb-4">
@@ -456,6 +456,185 @@ export const ServicesPage = ({ onNavigate }: ServicesPageProps) => {
               >
                 View Our Work
               </Button>
+            </div>
+          </section>
+
+          {/* Services Showcase */}
+          <section className="mb-12">
+            <h2 className="heading-lg text-foreground mb-8 font-playfair">
+              Our <span className="text-gradient-gold">Services</span>
+            </h2>
+            <div className="grid lg:grid-cols-3 gap-6">
+              <div className="glass-card p-6 text-center hover:shadow-lg transition-shadow">
+                <Building className="w-12 h-12 text-brand-gold mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-3">Advisory Services</h3>
+                <p className="text-muted-foreground text-sm mb-4">Expert guidance from project conception to completion with strategic planning and risk assessment.</p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => onNavigate('services')}
+                  className="button-ghost w-full"
+                >
+                  Learn More
+                </Button>
+              </div>
+              
+              <div className="glass-card p-6 text-center hover:shadow-lg transition-shadow">
+                <Users className="w-12 h-12 text-brand-gold mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-3">Project Management</h3>
+                <p className="text-muted-foreground text-sm mb-4">End-to-end project coordination ensuring timely delivery within budget and quality standards.</p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => onNavigate('services')}
+                  className="button-ghost w-full"
+                >
+                  Learn More
+                </Button>
+              </div>
+              
+              <div className="glass-card p-6 text-center hover:shadow-lg transition-shadow">
+                <HardHat className="w-12 h-12 text-brand-gold mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-3">Construction Management</h3>
+                <p className="text-muted-foreground text-sm mb-4">On-site coordination and oversight ensuring safety compliance and seamless execution.</p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => onNavigate('services')}
+                  className="button-ghost w-full"
+                >
+                  Learn More
+                </Button>
+              </div>
+            </div>
+          </section>
+
+          {/* Projects Showcase */}
+          <section className="mb-12">
+            <h2 className="heading-lg text-foreground mb-8 font-playfair">
+              Featured <span className="text-gradient-gold">Projects</span>
+            </h2>
+            <div className="grid lg:grid-cols-2 gap-8">
+              <div className="glass-card overflow-hidden">
+                <div 
+                  className="h-48 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${projectManagementImage})` }}
+                />
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xl font-semibold text-foreground">Modern Family Estate</h3>
+                    <span className="text-brand-gold text-sm font-medium">2024</span>
+                  </div>
+                  <p className="text-muted-foreground text-sm mb-4">Luxury 5-bedroom home with sustainable design principles and smart home integration in Toorak, VIC.</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex space-x-4 text-xs text-muted-foreground">
+                      <span>450 sqm</span>
+                      <span>Residential</span>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => onNavigate('projects')}
+                      className="text-brand-gold hover:text-brand-gold/80"
+                    >
+                      View Details <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="glass-card overflow-hidden">
+                <div 
+                  className="h-48 bg-cover bg-center"
+                  style={{ backgroundImage: `url(/lovable-uploads/f3e6fb6d-ca4a-40dc-8303-ed7d871ea1ec.png)` }}
+                />
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-xl font-semibold text-foreground">Contemporary Retreat</h3>
+                    <span className="text-brand-gold text-sm font-medium">2023</span>
+                  </div>
+                  <p className="text-muted-foreground text-sm mb-4">Minimalist design with premium finishes and seamless indoor-outdoor living in Brighton, VIC.</p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex space-x-4 text-xs text-muted-foreground">
+                      <span>320 sqm</span>
+                      <span>Residential</span>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => onNavigate('projects')}
+                      className="text-brand-gold hover:text-brand-gold/80"
+                    >
+                      View Details <ArrowRight className="w-4 h-4 ml-1" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center mt-8">
+              <Button 
+                onClick={() => onNavigate('projects')}
+                className="button-blue"
+              >
+                View All Projects
+              </Button>
+            </div>
+          </section>
+
+          {/* About Us Showcase */}
+          <section className="mb-12">
+            <h2 className="heading-lg text-foreground mb-8 font-playfair">
+              About <span className="text-gradient-gold">Skrobaki</span>
+            </h2>
+            <div className="grid lg:grid-cols-2 gap-8">
+              <div className="glass-card p-8">
+                <h3 className="text-2xl font-semibold text-foreground mb-4">25+ Years of Excellence</h3>
+                <p className="text-muted-foreground mb-6 leading-relaxed">
+                  For over 25 years, Skrobaki has been at the forefront of architectural excellence, transforming visions into extraordinary built environments through sophisticated design philosophy and uncompromising attention to detail.
+                </p>
+                
+                <div className="grid grid-cols-2 gap-6 mb-6">
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-brand-gold">50+</div>
+                    <div className="text-sm text-muted-foreground">Projects Completed</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-brand-gold">15+</div>
+                    <div className="text-sm text-muted-foreground">Awards Won</div>
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={() => onNavigate('about')}
+                  className="button-blue w-full"
+                >
+                  Learn About Our Story
+                </Button>
+              </div>
+              
+              <div className="space-y-6">
+                <div className="glass-card p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <Target className="w-8 h-8 text-brand-gold" />
+                    <h4 className="text-lg font-semibold text-foreground">Precision</h4>
+                  </div>
+                  <p className="text-muted-foreground text-sm">Every detail matters. We approach each project with meticulous attention to precision, ensuring excellence in every aspect.</p>
+                </div>
+                
+                <div className="glass-card p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <Heart className="w-8 h-8 text-brand-gold" />
+                    <h4 className="text-lg font-semibold text-foreground">Passion</h4>
+                  </div>
+                  <p className="text-muted-foreground text-sm">Architecture is our passion. We bring enthusiasm and creative energy to every project, transforming visions into reality.</p>
+                </div>
+                
+                <div className="glass-card p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <Lightbulb className="w-8 h-8 text-brand-gold" />
+                    <h4 className="text-lg font-semibold text-foreground">Innovation</h4>
+                  </div>
+                  <p className="text-muted-foreground text-sm">We embrace cutting-edge technology and innovative solutions, staying ahead of industry trends.</p>
+                </div>
+              </div>
             </div>
           </section>
         </main>
