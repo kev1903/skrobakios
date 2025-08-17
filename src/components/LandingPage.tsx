@@ -46,22 +46,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             {/* Navigation in Glass Panel */}
             <header className="mb-8">
               {/* Social and Secondary Nav */}
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center space-x-6 text-sm text-white/80">
-                  <span className="font-medium">FOLLOW US</span>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-6 h-6 border border-white/30 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white/60 rounded-full" />
-                    </div>
-                    <div className="w-6 h-6 border border-white/30 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white/60 rounded-full" />
-                    </div>
-                    <div className="w-6 h-6 border border-white/30 rounded-full flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white/60 rounded-full" />
-                    </div>
-                  </div>
-                </div>
-
+              <div className="flex items-center justify-end mb-8">
                 {/* Mobile Menu Button */}
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -195,6 +180,24 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <span style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
                 EXCELLENCE
               </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Follow Us - Bottom of Screen */}
+      <div className="absolute bottom-8 left-8 lg:left-12 z-50">
+        <div className="flex items-center space-x-6 text-sm text-white/80">
+          <span className="font-medium">FOLLOW US</span>
+          <div className="flex items-center space-x-3">
+            <div className="w-6 h-6 border border-white/30 rounded-full flex items-center justify-center">
+              <div className="w-2 h-2 bg-white/60 rounded-full" />
+            </div>
+            <div className="w-6 h-6 border border-white/30 rounded-full flex items-center justify-center">
+              <div className="w-2 h-2 bg-white/60 rounded-full" />
+            </div>
+            <div className="w-6 h-6 border border-white/30 rounded-full flex items-center justify-center">
+              <div className="w-2 h-2 bg-white/60 rounded-full" />
             </div>
           </div>
         </div>
