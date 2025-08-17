@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 import { useUser } from '@/contexts/UserContext';
 import { taskService } from './tasks/taskService';
@@ -241,16 +243,19 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto">
-        <div className="pt-8 pb-6 px-8">
+    <div className="min-h-screen bg-background">
+      {/* Modern Light Background with Subtle Gradient */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-background via-accent/20 to-muted/30"></div>
+      
+      <div className="max-w-7xl mx-auto relative">
+        <div className="pt-8 pb-6 px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <div className="mb-6">
             <Button 
               variant="ghost" 
               size="sm"
               onClick={() => onNavigate("home")}
-              className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 flex items-center gap-2"
+              className="text-muted-foreground hover:text-foreground hover:bg-accent/50 flex items-center gap-2 transition-all duration-200"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Home</span>
@@ -266,7 +271,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
         </div>
 
         {/* Content Layout - Full width for calendar, two-column for others */}
-        <div className="px-8 pb-8">
+        <div className="px-4 sm:px-6 lg:px-8 pb-8">
           {viewMode === 'calendar' ? (
             <DragDropContext onDragEnd={handleDragEnd}>
               <div className="min-h-screen">
@@ -304,7 +309,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
               </div>
             </DragDropContext>
           ) : (
-            <div className="grid lg:grid-cols-4 gap-8">
+            <div className="grid lg:grid-cols-4 gap-6 lg:gap-8">
               {/* Left Column - Tasks Content */}
               <div className="lg:col-span-3">
                 {tasks.length === 0 ? (
@@ -332,37 +337,46 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
 
               {/* Right Column - Today's Schedule */}
               <div className="lg:col-span-1">
-                <div className="bg-white rounded-xl border border-gray-200 p-6 sticky top-8 shadow-sm">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-6 font-playfair">Today's Schedule</h3>
-                  <div className="space-y-4">
-                    {tasks.length > 0 ? (
-                      tasks.slice(0, 5).map((task) => (
-                        <div key={task.id} className="bg-gray-50 border border-gray-100 rounded-lg p-4 hover:shadow-md transition-all duration-300 cursor-pointer hover:bg-gray-100" onClick={() => handleTaskClick(task)}>
-                          <div className="flex items-center gap-3 mb-2">
-                            <div className="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-medium">
-                              {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:00'}
+                <Card className="glass-card sticky top-8 border-0 shadow-lg backdrop-blur-sm">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold text-foreground mb-6 font-playfair">Today's Schedule</h3>
+                    <div className="space-y-4">
+                      {tasks.length > 0 ? (
+                        tasks.slice(0, 5).map((task) => (
+                          <div 
+                            key={task.id} 
+                            className="bg-card border border-border/50 rounded-lg p-4 hover:shadow-md transition-all duration-300 cursor-pointer hover:bg-accent/20 interactive-minimal" 
+                            onClick={() => handleTaskClick(task)}
+                          >
+                            <div className="flex items-center gap-3 mb-2">
+                              <div className="bg-primary text-primary-foreground px-3 py-1 rounded-lg text-xs font-medium">
+                                {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:00'}
+                              </div>
+                              <Badge 
+                                variant={
+                                  task.priority === 'High' ? 'destructive' :
+                                  task.priority === 'Medium' ? 'secondary' :
+                                  'default'
+                                }
+                                className="text-xs"
+                              >
+                                {task.priority}
+                              </Badge>
                             </div>
-                            <span className={`px-2 py-1 rounded-md text-xs font-medium ${
-                              task.priority === 'High' ? 'bg-red-50 text-red-700 border border-red-200' :
-                              task.priority === 'Medium' ? 'bg-yellow-50 text-yellow-700 border border-yellow-200' :
-                              'bg-green-50 text-green-700 border border-green-200'
-                            }`}>
-                              {task.priority}
-                            </span>
+                            <div>
+                              <h4 className="font-medium text-foreground text-sm mb-1">{task.taskName}</h4>
+                              <p className="text-xs text-muted-foreground">{task.projectName}</p>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-medium text-gray-900 text-sm mb-1">{task.taskName}</h4>
-                            <p className="text-xs text-gray-600">{task.projectName}</p>
-                          </div>
+                        ))
+                      ) : (
+                        <div className="bg-muted/30 rounded-lg p-8 text-center border border-border/30">
+                          <p className="text-muted-foreground">No tasks scheduled for today</p>
                         </div>
-                      ))
-                    ) : (
-                      <div className="bg-gray-50 rounded-lg p-8 text-center border border-gray-100">
-                        <p className="text-gray-600">No tasks scheduled for today</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           )}
