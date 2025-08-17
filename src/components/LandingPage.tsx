@@ -136,55 +136,53 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </div>
       </header>
 
-      {/* Main Hero Content */}
-      <div className="relative z-40 h-screen flex items-center">
-        <div className="w-full h-full flex">
-          {/* Left Glass Panel - Half Screen */}
-          <div className="w-1/2 h-full flex items-center">
-            <div className="glass-card w-full h-full flex items-center justify-center p-8 lg:p-12">
-              <div className="w-full max-w-lg space-y-8">
-                {/* Large Typography */}
-                <div className="space-y-4">
-                  <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
-                    skro
-                    <br />
-                    <span className="text-white/90">baki</span>
-                  </h1>
-                </div>
+      {/* Main Content with Glass Panel */}
+      <div className="relative z-40 h-screen flex">
+        {/* Left Glass Panel - Half Screen, Full Height */}
+        <div className="w-1/2 h-full">
+          <div className="glass-card w-full h-full flex flex-col justify-center p-8 lg:p-12">
+            <div className="w-full max-w-lg space-y-8">
+              {/* Large Typography */}
+              <div className="space-y-4">
+                <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
+                  skro
+                  <br />
+                  <span className="text-white/90">baki</span>
+                </h1>
+              </div>
 
-                {/* Section Content */}
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4">
-                    <span className="text-white/60 font-mono text-sm">01</span>
-                    <h2 className="text-white font-semibold text-lg tracking-wide">
-                      DISCOVER SERVICES
-                    </h2>
-                  </div>
-                  
-                  <p className="text-white/80 text-sm leading-relaxed">
-                    Independent project management excellence delivering comprehensive solutions 
-                    for your business growth and operational efficiency.
-                  </p>
-
-                  <button 
-                    className="group flex items-center space-x-3 text-white/90 hover:text-white transition-colors"
-                    onClick={() => handleNavigation('services')}
-                  >
-                    <span className="text-sm font-medium tracking-wide">VIEW ALL SERVICES</span>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </button>
+              {/* Section Content */}
+              <div className="space-y-6">
+                <div className="flex items-center space-x-4">
+                  <span className="text-white/60 font-mono text-sm">01</span>
+                  <h2 className="text-white font-semibold text-lg tracking-wide">
+                    DISCOVER SERVICES
+                  </h2>
                 </div>
+                
+                <p className="text-white/80 text-sm leading-relaxed">
+                  Independent project management excellence delivering comprehensive solutions 
+                  for your business growth and operational efficiency.
+                </p>
+
+                <button 
+                  className="group flex items-center space-x-3 text-white/90 hover:text-white transition-colors"
+                  onClick={() => handleNavigation('services')}
+                >
+                  <span className="text-sm font-medium tracking-wide">VIEW ALL SERVICES</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Right Side - Clear Background */}
-          <div className="w-1/2 h-full hidden lg:flex items-center justify-end pr-12">
-            <div className="writing-mode-vertical text-white/40 text-sm font-medium tracking-widest">
-              <span style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
-                EXCELLENCE
-              </span>
-            </div>
+        {/* Right Side - Clear Background */}
+        <div className="w-1/2 h-full hidden lg:flex items-center justify-end pr-12">
+          <div className="writing-mode-vertical text-white/40 text-sm font-medium tracking-widest">
+            <span style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}>
+              EXCELLENCE
+            </span>
           </div>
         </div>
       </div>
