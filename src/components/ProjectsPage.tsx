@@ -128,12 +128,8 @@ export const ProjectsPage = ({
             {/* Main Gallery Display - Full Height */}
             <div className="flex-1 relative overflow-hidden">
               <div className="h-full flex items-center justify-center p-8">
-                <div className="relative w-full h-full max-w-6xl">
-                  <img 
-                    src={galleryImages[currentImageIndex]} 
-                    alt={`Project image ${currentImageIndex + 1}`} 
-                    className="w-full h-full object-cover rounded-xl shadow-2xl" 
-                  />
+                <div className="relative w-full h-full max-w-6xl bg-white/10 rounded-xl shadow-2xl flex items-center justify-center">
+                  <p className="text-white/60 text-lg">No image selected</p>
                   
                   {/* Navigation Arrows */}
                   <button 
