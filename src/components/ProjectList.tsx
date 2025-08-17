@@ -13,6 +13,7 @@ import { ProjectTableView } from "./projects/ProjectTableView";
 import { ProjectDashboardView } from "./projects/ProjectDashboardView";
 import { ProjectLoadingState } from "./projects/ProjectLoadingState";
 import { ProjectEmptyState } from "./projects/ProjectEmptyState";
+import { MobileProjectList } from "./projects/MobileProjectList";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) => {
@@ -102,6 +103,11 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
 
   if (loading) {
     return <ProjectLoadingState />;
+  }
+
+  // Use mobile-optimized component on mobile devices
+  if (isMobile) {
+    return <MobileProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
   }
 
   return (
