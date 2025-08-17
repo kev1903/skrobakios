@@ -1,6 +1,7 @@
 import React from 'react';
 import { useGlobalSidebar } from '@/contexts/GlobalSidebarContext';
 import { NavigationRibbon } from '@/components/home/NavigationRibbon';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
 interface GlobalSidebarProps {
   currentPage: string;
@@ -26,15 +27,17 @@ export const GlobalSidebar = ({ currentPage, onNavigate }: GlobalSidebarProps) =
       />
       
       {/* Floating Navigation Ribbon (uses its own floating mode when onClose is provided) */}
-      <div className="fixed left-0 top-0 bottom-0 z-[10000] w-72 sm:w-80">
-        <NavigationRibbon 
-          currentPage={currentPage}
-          onNavigate={handleNavigateWithClose}
-          isCollapsed={false}
-          onCollapse={closeSidebar}
-          onClose={closeSidebar}
-        />
-      </div>
+      <SidebarProvider>
+        <div className="fixed left-0 top-0 bottom-0 z-[10000] w-72 sm:w-80">
+          <NavigationRibbon 
+            currentPage={currentPage}
+            onNavigate={handleNavigateWithClose}
+            isCollapsed={false}
+            onCollapse={closeSidebar}
+            onClose={closeSidebar}
+          />
+        </div>
+      </SidebarProvider>
     </>
   );
 };
