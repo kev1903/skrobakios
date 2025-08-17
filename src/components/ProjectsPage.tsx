@@ -112,20 +112,8 @@ export const ProjectsPage = ({
             className="backdrop-blur-xl border border-white/20 h-full flex flex-col shadow-2xl"
             style={{ backgroundColor: 'rgba(0,10,20,0.85)' }}
           >
-            {/* Gallery Header */}
-            <div className="p-8 border-b border-white/10">
-              <h1 className="text-white text-4xl lg:text-5xl font-light tracking-tight mb-4">
-                Project Gallery
-              </h1>
-              <p className="text-white/80 text-lg">
-                Thanet Street, Malvern - Residential Architecture
-              </p>
-              <p className="text-white/60 text-sm mt-2">
-                {currentImageIndex + 1} of {galleryImages.length} images
-              </p>
-            </div>
             
-            {/* Main Gallery Display */}
+            {/* Main Gallery Display - Full Height */}
             <div className="flex-1 relative overflow-hidden">
               <div className="h-full flex items-center justify-center p-8">
                 <div className="relative w-full h-full max-w-6xl">
