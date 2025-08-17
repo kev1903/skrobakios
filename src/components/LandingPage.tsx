@@ -30,8 +30,8 @@ export const LandingPage = ({
 
       {/* Main Layout with Glass Panel */}
       <div className="relative z-40 h-screen flex">
-        {/* Left Glass Panel - Adjusted width to split between 'o' and 'b' */}
-        <div className="w-[56%] h-full">
+        {/* Left Glass Panel - Centered and Smaller */}
+        <div className="w-1/3 h-full mx-auto">
           <div className="glass-card w-full h-full flex flex-col p-8 lg:p-12 !rounded-none !shadow-none">
             {/* Navigation in Glass Panel */}
             <header className="mb-8">
@@ -86,7 +86,7 @@ export const LandingPage = ({
         </div>
 
         {/* Right Side - Clear Background with Navigation */}
-        <div className="w-[44%] h-full flex flex-col">
+        <div className="w-2/3 h-full flex flex-col">
           {/* Navigation for Desktop */}
           <header className="hidden lg:flex justify-end pt-8 pr-12">
             <nav className="flex items-center space-x-12">
@@ -121,16 +121,11 @@ export const LandingPage = ({
           </div>
         </div>
 
-        {/* Unified Header - Split-aligned across glass seam */}
-        <div className="absolute inset-0 pointer-events-none z-50 flex items-center">
-          <div className="w-[56%] text-right">
-            <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight inline-block">
-              Skro
-            </h1>
-          </div>
-          <div className="w-[44%] text-left">
-            <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight inline-block">
-              baki
+        {/* Centered Header - Full Screen Center */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+          <div className="text-center">
+            <h1 className="text-5xl lg:text-7xl xl:text-8xl font-bold text-white leading-none tracking-tight">
+              Skrobaki
             </h1>
           </div>
         </div>
