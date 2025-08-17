@@ -362,51 +362,49 @@ export const LandingPage = ({
                 {/* Content */}
                 <div className="p-8 space-y-8 font-inter">
                   {/* Header */}
-                  <div className="space-y-3">
-                    <h1 className="text-3xl font-medium text-gray-900">Advisory</h1>
+                  <article className="space-y-3">
+                    <h1 className="text-3xl font-medium text-gray-900">
+                      {serviceDetails[selectedService as keyof typeof serviceDetails]?.title}
+                    </h1>
                     <p className="text-gray-600 text-lg font-light leading-relaxed">
-                      Strategic front-end planning reduces capital costs by 10%, shortens schedules by 7%, and minimizes change orders by 5%.
+                      {serviceDetails[selectedService as keyof typeof serviceDetails]?.description}
                     </p>
-                  </div>
+                  </article>
 
                   {/* Key Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div className="space-y-2">
                       <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Scope</h3>
-                      <p className="text-gray-600 font-light">Early-stage planning through concept definition</p>
+                      <p className="text-gray-600 font-light">
+                        {serviceDetails[selectedService as keyof typeof serviceDetails]?.scope}
+                      </p>
                     </div>
                     <div className="space-y-2">
-                      <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Investment</h3>
-                      <p className="text-gray-600 font-light">Fixed fee structure</p>
+                      <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Typical Fee Basis*</h3>
+                      <p className="text-gray-600 font-light">
+                        {serviceDetails[selectedService as keyof typeof serviceDetails]?.typicalFee}
+                      </p>
                     </div>
                     <div className="space-y-2">
-                      <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Best For</h3>
-                      <p className="text-gray-600 font-light">Clients seeking early project clarity</p>
+                      <h3 className="text-sm font-medium text-gray-900 uppercase tracking-wide">Who is this for?</h3>
+                      <p className="text-gray-600 font-light">
+                        {serviceDetails[selectedService as keyof typeof serviceDetails]?.whoIsFor}
+                      </p>
                     </div>
-                  </div>
+                  </section>
 
                   {/* Value Proposition */}
-                  <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Core Benefits</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <p className="text-gray-600 font-light">Prevents downstream complications through early clarity</p>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <p className="text-gray-600 font-light">Aligns scope and budget before design investment</p>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <p className="text-gray-600 font-light">Reduces late-stage changes through risk planning</p>
-                      </div>
-                      <div className="flex items-start space-x-3">
-                        <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                        <p className="text-gray-600 font-light">Enables confident go/no-go decisions under 2% project cost</p>
-                      </div>
-                    </div>
-                  </div>
+                  <section className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Value Added</h3>
+                    <ul className="space-y-3">
+                      {(serviceDetails[selectedService as keyof typeof serviceDetails]?.benefits || []).map((benefit, idx) => (
+                        <li key={idx} className="flex items-start space-x-3">
+                          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
+                          <p className="text-gray-600 font-light">{benefit}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
                 </div>
 
               </div>
