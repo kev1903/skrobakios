@@ -80,31 +80,31 @@ div[data-rbd-drag-handle-draggable-id] {
 @tailwind components;
 @tailwind utilities;
 
-/* Modern Glass Morphism Design System - Mountain UI Inspired */
+/* Modern Design System with Enhanced Glassmorphism */
 
 @layer base {
   :root {
-    /* Base Light Theme with Glass Morphism */
-    --background: 245 245 250;
-    --foreground: 30 30 35;
+    /* Light Theme - Modern Blue Gradient Design System */
+    --background: 0 0% 100%;
+    --foreground: 220 20% 10%;
 
-    --card: 255 255 255;
-    --card-foreground: 30 30 35;
+    --card: 0 0% 98%;
+    --card-foreground: 220 15% 20%;
 
-    --popover: 255 255 255;
-    --popover-foreground: 30 30 35;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
 
-    --primary: 203 50% 41%;
-    --primary-foreground: 255 255 255;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 13% 91%;
-    --secondary-foreground: 220 9% 46%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 15% 25%;
 
     --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted-foreground: 220 8% 20%;
 
-    --accent: 42 87% 55%;
-    --accent-foreground: 220 9% 9%;
+    --accent: 217 91% 95%;
+    --accent-foreground: 217 91% 60%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
@@ -116,137 +116,110 @@ div[data-rbd-drag-handle-draggable-id] {
     --success-foreground: 355 100% 97%;
 
     --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 203 50% 41%;
+    --input: 220 13% 97%;
+    --ring: 217 91% 60%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
     /* Header height used for fixed menu spacing */
-    --header-height: 80px;
+    --header-height: 73px;
 
-    /* Glass Morphism Variables */
-    --glass-bg: 255 255 255;
-    --glass-bg-secondary: 248 250 252;
-    --glass-bg-tertiary: 241 245 249;
-    --glass-border: 226 232 240;
-    --glass-shadow: 148 163 184;
-    --glass-shadow-strong: 100 116 139;
-    --glass-backdrop: blur(24px);
+    /* Enhanced Blue Glassmorphism Theme - Ultra Transparent */
+    --glass-bg: 0 0% 100%;
+    --glass-bg-light: 0 0% 100%;
+    --glass-bg-hover: 0 0% 100%;
+    --glass-border: 0 0% 100%;
+    --glass-shadow: 0 0% 0%;
+    --glass-shadow-hover: 0 0% 0%;
+    --glass-backdrop: blur(20px);
     
-    /* Mountain Card Colors */
-    --mountain-overlay: 0 0 0;
-    --mountain-text: 255 255 255;
-    --mountain-accent: 203 50% 41%;
+    /* Blue Gradient Brand Colors */
+    --brand-blue: 217 91% 60%;
+    --brand-blue-light: 217 91% 70%;
+    --brand-blue-dark: 217 91% 50%;
+    --brand-navy: 220 20% 10%;
+    --brand-navy-light: 220 20% 20%;
+    --brand-light-blue: 210 100% 95%;
+    --brand-gray: 220 8% 55%;
     
-    /* Skrobaki Corporate Brand Colors */
-    --skrobaki-navy: 203 50% 41%;
-    --skrobaki-navy-light: 203 50% 51%;
-    --skrobaki-navy-dark: 203 50% 31%;
-    --skrobaki-steel: 71 84% 6%;
-    --skrobaki-steel-light: 71 84% 16%;
-    --skrobaki-gold: 42 87% 55%;
-    --skrobaki-gold-light: 42 87% 65%;
-    --skrobaki-white: 0 0% 100%;
-    --skrobaki-offwhite: 210 8% 98%;
-    
-    /* Glass Morphism Gradients */
-    --gradient-glass: linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.1) 0%, 
-      rgba(255, 255, 255, 0.05) 100%);
-    --gradient-mountain: linear-gradient(180deg, 
-      rgba(0, 0, 0, 0) 0%, 
-      rgba(0, 0, 0, 0.4) 60%, 
-      rgba(0, 0, 0, 0.7) 100%);
-    --gradient-hero: linear-gradient(135deg, 
-      rgba(54, 119, 159, 0.95) 0%, 
-      rgba(54, 119, 159, 0.8) 100%);
-    --gradient-card: linear-gradient(135deg, 
-      rgba(255, 255, 255, 0.25) 0%, 
-      rgba(255, 255, 255, 0.1) 100%);
+    /* Modern Blue Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(217 91% 70%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(220 20% 10%) 0%, hsl(220 20% 20%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 197, 253, 0.04) 100%);
+    --gradient-blue-bg: linear-gradient(135deg, hsl(217 91% 95%) 0%, hsl(210 100% 95%) 50%, hsl(217 91% 92%) 100%);
     
     /* Enhanced Design System Colors */
-    --neutral-50: 248 250 252;
-    --neutral-100: 241 245 249;
-    --neutral-200: 226 232 240;
-    --neutral-300: 203 213 225;
-    --neutral-400: 148 163 184;
-    --neutral-500: 100 116 139;
-    --neutral-600: 71 85 105;
-    --neutral-700: 51 65 85;
-    --neutral-800: 30 41 59;
-    --neutral-900: 15 23 42;
-    --neutral-950: 2 6 23;
+    --neutral-50: 210 100% 98%;
+    --neutral-100: 210 40% 95%;
+    --neutral-800: 220 20% 15%;
+    --neutral-900: 220 20% 10%;
+    --neutral-950: 220 20% 5%;
     
-    /* Sidebar Variables */
-    --sidebar-background: 255 255 255;
-    --sidebar-foreground: 30 30 35;
-    --sidebar-primary: 203 50% 41%;
-    --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 220 13% 91%;
-    --sidebar-accent-foreground: 30 30 35;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 203 50% 41%;
+    /* Sidebar Variables - Ultra Transparent Glass */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 20% 10%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 100%;
+    --sidebar-accent-foreground: 220 20% 10%;
+    --sidebar-border: 0 0% 100%;
+    --sidebar-ring: 217 91% 60%;
   }
 
   .dark {
-    --background: 15 23 42;
-    --foreground: 248 250 252;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    --card: 30 41 59;
-    --card-foreground: 248 250 252;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 30 41 59;
-    --popover-foreground: 248 250 252;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 203 50% 61%;
-    --primary-foreground: 30 41 59;
+    --primary: 210 40% 90%;
+    --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 51 65 85;
-    --secondary-foreground: 226 232 240;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 51 65 85;
-    --muted-foreground: 148 163 184;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 51 65 85;
-    --accent-foreground: 248 250 252;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 248 250 252;
+    --destructive-foreground: 210 40% 98%;
 
     --warning: 48 96% 53%;
-    --warning-foreground: 30 41 59;
+    --warning-foreground: 20 14.3% 4.1%;
 
     --success: 142 76% 36%;
-    --success-foreground: 248 250 252;
+    --success-foreground: 355 100% 97%;
 
-    --border: 51 65 85;
-    --input: 51 65 85;
-    --ring: 203 50% 61%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 210 40% 90%;
     
     /* Header height used for fixed menu spacing */
-    --header-height: 80px;
+    --header-height: 73px;
     
-    /* Dark Mode Glass Morphism */
-    --glass-bg: 15 23 42;
-    --glass-bg-secondary: 30 41 59;
-    --glass-bg-tertiary: 51 65 85;
-    --glass-border: 71 85 105;
-    --glass-shadow: 2 6 23;
-    --glass-shadow-strong: 15 23 42;
+    /* Dark Mode Enhanced Glassmorphism - Ultra Transparent */
+    --glass-bg: 0 0% 0%;
+    --glass-bg-light: 0 0% 0%;
+    --glass-bg-hover: 0 0% 0%;
+    --glass-border: 0 0% 100%;
+    --glass-shadow: 0 0% 0%;
+    --glass-shadow-hover: 0 0% 0%;
     
-    /* Mountain Card Colors */
-    --mountain-overlay: 15 23 42;
-    --mountain-text: 248 250 252;
-    --mountain-accent: 203 50% 61%;
-    
-    --sidebar-background: 30 41 59;
-    --sidebar-foreground: 248 250 252;
-    --sidebar-primary: 203 50% 61%;
-    --sidebar-primary-foreground: 30 41 59;
-    --sidebar-accent: 51 65 85;
-    --sidebar-accent-foreground: 248 250 252;
-    --sidebar-border: 51 65 85;
-    --sidebar-ring: 203 50% 61%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 210 40% 90%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 91% 60%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 0 0% 100%;
+    --sidebar-ring: 210 40% 90%;
   }
 }
 
@@ -285,56 +258,39 @@ div[data-rbd-drag-handle-draggable-id] {
     transition: opacity 0.4s ease;
   }
   
-  /* Mountain UI Glass Morphism Utility Classes */
+  /* Enhanced Glassmorphism Utility Classes */
   .glass {
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 var(--glass-shadow);
+    transition: all 0.3s ease;
   }
 
   .glass-light {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.2);
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+    background: var(--glass-bg-light);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 var(--glass-shadow);
+    transition: all 0.3s ease;
   }
 
   .glass-hover:hover {
-    background: rgba(255, 255, 255, 0.35);
-    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
-    transform: translateY(-2px);
+    background: var(--glass-bg-hover);
+    box-shadow: 0 12px 40px 0 var(--glass-shadow-hover);
   }
   
   .glass-card {
-    @apply glass rounded-3xl;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .glass-mountain {
-    background: var(--gradient-card);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
-  }
-  
-  .glass-mountain:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 48px 0 rgba(0, 0, 0, 0.25);
+    @apply glass rounded-2xl;
   }
   
   .glass-sidebar {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--sidebar-background);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-right: 1px solid rgba(226, 232, 240, 0.5);
+    border-right: 1px solid var(--sidebar-border);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
     transition: all 0.3s ease;
   }
@@ -382,7 +338,7 @@ div[data-rbd-drag-handle-draggable-id] {
 
   /* Sophisticated Input Styles */
   .input-minimal {
-    @apply backdrop-blur-sm bg-input border border-border/40 focus:bg-input focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-300 rounded-lg;
+    @apply backdrop-blur-sm bg-input border border-border/40 focus:bg-input focus:border-brand-blue/50 focus:ring-2 focus:ring-brand-blue/20 transition-all duration-300 rounded-lg;
   }
 
   /* Enhanced Interactive Elements */
@@ -399,7 +355,7 @@ div[data-rbd-drag-handle-draggable-id] {
   }
 
   .button-blue {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] font-medium;
+    @apply bg-brand-blue text-white hover:bg-brand-blue-light hover:scale-[1.02] active:scale-[0.98] font-medium;
     box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
     backdrop-filter: blur(10px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -425,7 +381,7 @@ div[data-rbd-drag-handle-draggable-id] {
   }
 
   .button-ghost {
-    @apply bg-background/60 backdrop-blur-md border border-border/30 text-foreground hover:bg-background/80 hover:border-primary/40 hover:shadow-md;
+    @apply bg-background/60 backdrop-blur-md border border-border/30 text-foreground hover:bg-background/80 hover:border-brand-blue/40 hover:shadow-md;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -436,7 +392,7 @@ div[data-rbd-drag-handle-draggable-id] {
 
   /* Architectural Design Elements */
   .divider-minimal {
-    @apply w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent;
+    @apply w-full h-px bg-gradient-to-r from-transparent via-brand-blue/30 to-transparent;
   }
 
   .architectural-accent {

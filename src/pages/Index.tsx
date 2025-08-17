@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { LandingPage } from "@/components/LandingPage";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { ServicesPage } from "@/components/pages/ServicesPage";
-import { ProjectsPage } from "@/components/ProjectsPage";
+import { ProjectsPage } from "@/components/pages/ProjectsPage";
 import { AboutPage } from "@/components/pages/AboutPage";
 import { ContactPage } from "@/components/pages/ContactPage";
 import { DigitalObjectsProvider } from "@/contexts/DigitalObjectsContext";
@@ -125,7 +125,7 @@ const Index = () => {
 
   // Handle public pages vs protected pages
   if (currentPage === 'landing' || currentPage === 'auth' || currentPage === 'signup' || 
-      currentPage === 'services' || currentPage === 'about' || currentPage === 'contact' || currentPage === 'projects') {
+      currentPage === 'services' || currentPage === 'about' || currentPage === 'contact') {
     return (
       <div className="w-full h-screen">
         {renderPage()}
