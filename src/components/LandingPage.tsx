@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Menu, X, ChevronDown } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { ServiceModal } from './ServiceModal';
 import heroImage from '@/assets/new-architecture-background.png';
 interface LandingPageProps {
   onNavigate: (page: string) => void;
@@ -12,6 +13,8 @@ export const LandingPage = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
   const [hoveredService, setHoveredService] = useState<string | null>(null);
+  const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const isMobile = useIsMobile();
 
   const serviceDescriptions = {
@@ -30,6 +33,18 @@ export const LandingPage = ({
     // For now, just close mobile menu
     setIsMenuOpen(false);
     // Future: navigate to different pages or show modals
+  };
+
+  // Service click handler
+  const handleServiceClick = (service: string) => {
+    setSelectedService(service);
+    setIsModalOpen(true);
+  };
+
+  // Close modal handler
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedService(null);
   };
   return <div className="h-screen relative overflow-hidden">
       {/* Hero Background Image */}
@@ -92,6 +107,7 @@ export const LandingPage = ({
                       className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
                       onMouseEnter={() => setHoveredService('advisory')}
                       onMouseLeave={() => setHoveredService(null)}
+                      onClick={() => handleServiceClick('advisory')}
                     >
                       <span className="text-white/60 text-sm">01</span>
                       <div className="flex-1">
@@ -103,6 +119,7 @@ export const LandingPage = ({
                       className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
                       onMouseEnter={() => setHoveredService('project')}
                       onMouseLeave={() => setHoveredService(null)}
+                      onClick={() => handleServiceClick('project')}
                     >
                       <span className="text-white/60 text-sm">02</span>
                       <div className="flex-1">
@@ -114,6 +131,7 @@ export const LandingPage = ({
                       className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
                       onMouseEnter={() => setHoveredService('construction')}
                       onMouseLeave={() => setHoveredService(null)}
+                      onClick={() => handleServiceClick('construction')}
                     >
                       <span className="text-white/60 text-sm">03</span>
                       <div className="flex-1">
@@ -130,6 +148,7 @@ export const LandingPage = ({
                       className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
                       onMouseEnter={() => setHoveredService('estimating')}
                       onMouseLeave={() => setHoveredService(null)}
+                      onClick={() => handleServiceClick('estimating')}
                     >
                       <span className="text-white/60 text-sm">04</span>
                       <div className="flex-1">
@@ -141,6 +160,7 @@ export const LandingPage = ({
                       className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
                       onMouseEnter={() => setHoveredService('inspection')}
                       onMouseLeave={() => setHoveredService(null)}
+                      onClick={() => handleServiceClick('inspection')}
                     >
                       <span className="text-white/60 text-sm">05</span>
                       <div className="flex-1">
@@ -152,6 +172,7 @@ export const LandingPage = ({
                       className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
                       onMouseEnter={() => setHoveredService('design')}
                       onMouseLeave={() => setHoveredService(null)}
+                      onClick={() => handleServiceClick('design')}
                     >
                       <span className="text-white/60 text-sm">06</span>
                       <div className="flex-1">
@@ -163,6 +184,7 @@ export const LandingPage = ({
                       className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
                       onMouseEnter={() => setHoveredService('bim')}
                       onMouseLeave={() => setHoveredService(null)}
+                      onClick={() => handleServiceClick('bim')}
                     >
                       <span className="text-white/60 text-sm">07</span>
                       <div className="flex-1">
@@ -174,6 +196,7 @@ export const LandingPage = ({
                       className="flex items-center space-x-4 cursor-pointer transition-all duration-300"
                       onMouseEnter={() => setHoveredService('digital')}
                       onMouseLeave={() => setHoveredService(null)}
+                      onClick={() => handleServiceClick('digital')}
                     >
                       <span className="text-white/60 text-sm">08</span>
                       <div className="flex-1">
@@ -248,5 +271,12 @@ export const LandingPage = ({
           </div>
         </div>
       </div>
+      
+      {/* Service Modal */}
+      <ServiceModal 
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        service={selectedService}
+      />
     </div>;
 };
