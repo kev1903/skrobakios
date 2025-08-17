@@ -187,9 +187,6 @@ export const LandingPage = ({
 
                 {/* Desktop Navigation */}
                 <div className="hidden md:flex items-center space-x-6">
-                  <Button variant="ghost" onClick={() => onNavigate('auth')} className="text-white border-white/30 hover:bg-white/10">
-                    Sign In
-                  </Button>
                 </div>
               </div>
 
