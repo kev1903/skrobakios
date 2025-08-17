@@ -3,9 +3,12 @@ import React, { useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGlobalSidebar } from '@/contexts/GlobalSidebarContext';
-import { User, Menu } from 'lucide-react';
+import { useNotifications } from '@/hooks/useNotifications';
+import { User, Menu, ClipboardList, Bell, Inbox } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { NotificationBadge } from '@/components/ui/notification-badge';
+import { NotificationDropdown } from '@/components/ui/notification-dropdown';
 import { BusinessSwitcher } from './BusinessSwitcher';
 
 interface MobileHeaderProps {
@@ -16,6 +19,7 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
   const { userProfile, loading } = useUser();
   const { user } = useAuth();
   const { isOpen, toggleSidebar } = useGlobalSidebar();
+  const { unreadCount } = useNotifications();
 
   // Get the user's display name from the database profile
   const getUserDisplayName = () => {
@@ -67,31 +71,62 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
         <BusinessSwitcher />
       </div>
       
-      <div className="flex items-center space-x-2 px-2 py-1 rounded-lg bg-white/10">
-        <Avatar className="w-6 h-6">
-          <AvatarImage 
-            src={userProfile.avatarUrl || undefined} 
-            alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()}
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
-          <AvatarFallback className="bg-gradient-to-br from-slate-600 to-blue-700 text-white text-xs">
-            {userProfile?.firstName && userProfile?.lastName 
-              ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
-              : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || <User className="w-3 h-3" />
-            }
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col items-start">
-          <span className="text-xs font-medium text-slate-800 font-poppins">
-            {getUserDisplayName()}
-          </span>
-          {getUserRole() && (
-            <span className="text-xs text-slate-500 font-inter">
-              {getUserRole()}
+      {/* Navigation Icons */}
+      <div className="flex items-center space-x-3">
+        {/* Tasks Icon */}
+        <button 
+          onClick={() => onNavigate('my-tasks')}
+          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+          aria-label="My Tasks"
+        >
+          <ClipboardList className="w-4 h-4 text-slate-700" />
+        </button>
+        
+        {/* Notifications */}
+        <NotificationDropdown>
+          <NotificationBadge count={unreadCount}>
+            <button className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200">
+              <Bell className="w-4 h-4 text-slate-700" />
+            </button>
+          </NotificationBadge>
+        </NotificationDropdown>
+        
+        {/* Inbox Icon */}
+        <button 
+          onClick={() => onNavigate('inbox')}
+          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+          aria-label="Inbox"
+        >
+          <Inbox className="w-4 h-4 text-slate-700" />
+        </button>
+        
+        {/* User Profile */}
+        <div className="flex items-center space-x-2 px-2 py-1 rounded-lg bg-white/10">
+          <Avatar className="w-6 h-6">
+            <AvatarImage 
+              src={userProfile.avatarUrl || undefined} 
+              alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+            <AvatarFallback className="bg-gradient-to-br from-slate-600 to-blue-700 text-white text-xs">
+              {userProfile?.firstName && userProfile?.lastName 
+                ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
+                : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || <User className="w-3 h-3" />
+              }
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col items-start">
+            <span className="text-xs font-medium text-slate-800 font-poppins">
+              {getUserDisplayName()}
             </span>
-          )}
+            {getUserRole() && (
+              <span className="text-xs text-slate-500 font-inter">
+                {getUserRole()}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </header>
