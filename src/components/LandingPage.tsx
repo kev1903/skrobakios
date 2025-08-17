@@ -66,7 +66,7 @@ export const LandingPage = ({
               <div className="flex items-center justify-between mb-8">
                 {/* Logo */}
                 <div className="flex items-center">
-                  <img src="/lovable-uploads/aa6861f1-3bf5-44ab-a1cb-bae5b3907e13.png" alt="Skrobaki Logo" className="h-8 w-auto" />
+                  <img src="/lovable-uploads/aa6861f1-3bf5-44ab-a1cb-bae5b3907e13.png" alt="Skrobaki Logo" className="h-10 w-auto" />
                 </div>
 
                 {/* Mobile Menu Button */}
