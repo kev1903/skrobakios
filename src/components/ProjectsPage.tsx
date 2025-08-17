@@ -1,58 +1,48 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChevronLeft, ChevronRight, Home, User, Mail, FolderOpen } from 'lucide-react';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
-
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 interface ProjectsPageProps {
   onNavigate: (page: string) => void;
 }
-
-export const ProjectsPage = ({ onNavigate }: ProjectsPageProps) => {
+export const ProjectsPage = ({
+  onNavigate
+}: ProjectsPageProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
+
   // Sample gallery images - replace with actual project images
-  const galleryImages = [
-    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
-    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png', // You can add more images here
-    '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
-  ];
-
-  const sidebarItems = [
-    { title: "Overview", icon: Home, id: "overview" },
-    { title: "Gallery", icon: FolderOpen, id: "gallery" },
-    { title: "Details", icon: User, id: "details" },
-    { title: "Contact", icon: Mail, id: "contact" },
-  ];
-
+  const galleryImages = ['/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png', '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png',
+  // You can add more images here
+  '/lovable-uploads/adb381c0-ea77-44b9-9eed-b0885c7f134f.png'];
+  const sidebarItems = [{
+    title: "Overview",
+    icon: Home,
+    id: "overview"
+  }, {
+    title: "Gallery",
+    icon: FolderOpen,
+    id: "gallery"
+  }, {
+    title: "Details",
+    icon: User,
+    id: "details"
+  }, {
+    title: "Contact",
+    icon: Mail,
+    id: "contact"
+  }];
   const nextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
+    setCurrentImageIndex(prev => (prev + 1) % galleryImages.length);
   };
-
   const prevImage = () => {
-    setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+    setCurrentImageIndex(prev => (prev - 1 + galleryImages.length) % galleryImages.length);
   };
-
-  return (
-    <SidebarProvider>
+  return <SidebarProvider>
       <div className="min-h-screen w-full flex">
         {/* Sidebar */}
         <Sidebar className="w-64">
           <div className="p-4 border-b">
-            <button 
-              onClick={() => onNavigate('landing')}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors mb-4"
-            >
+            <button onClick={() => onNavigate('landing')} className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors mb-4">
               <ArrowLeft className="w-4 h-4" />
               <span className="text-sm font-medium">BACK</span>
             </button>
@@ -65,38 +55,19 @@ export const ProjectsPage = ({ onNavigate }: ProjectsPageProps) => {
               <SidebarGroupLabel>Navigation</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {sidebarItems.map((item) => (
-                    <SidebarMenuItem key={item.id}>
+                  {sidebarItems.map(item => <SidebarMenuItem key={item.id}>
                       <SidebarMenuButton>
                         <item.icon className="w-4 h-4" />
                         <span>{item.title}</span>
                       </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
+                    </SidebarMenuItem>)}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
             
             <SidebarGroup>
               <SidebarGroupLabel>Project Info</SidebarGroupLabel>
-              <SidebarGroupContent className="space-y-4 p-4">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-1">Location</h4>
-                  <p className="text-sm text-gray-600">Malvern, Victoria</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-1">Year</h4>
-                  <p className="text-sm text-gray-600">2023</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-1">Type</h4>
-                  <p className="text-sm text-gray-600">Residential</p>
-                </div>
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900 mb-1">Area</h4>
-                  <p className="text-sm text-gray-600">350 sqm</p>
-                </div>
-              </SidebarGroupContent>
+              
             </SidebarGroup>
           </SidebarContent>
         </Sidebar>
@@ -162,38 +133,20 @@ export const ProjectsPage = ({ onNavigate }: ProjectsPageProps) => {
             <div className="flex-1 relative">
               {/* Gallery Image */}
               <div className="relative h-full">
-                <img 
-                  src={galleryImages[currentImageIndex]} 
-                  alt={`Project image ${currentImageIndex + 1}`}
-                  className="w-full h-full object-cover"
-                />
+                <img src={galleryImages[currentImageIndex]} alt={`Project image ${currentImageIndex + 1}`} className="w-full h-full object-cover" />
                 
                 {/* Navigation Arrows */}
-                <button 
-                  onClick={prevImage}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-105"
-                >
+                <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
                   <ChevronLeft className="w-5 h-5 text-gray-700" />
                 </button>
                 
-                <button 
-                  onClick={nextImage}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-105"
-                >
+                <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white p-2 rounded-full shadow-lg transition-all duration-200 hover:scale-105">
                   <ChevronRight className="w-5 h-5 text-gray-700" />
                 </button>
                 
                 {/* Image Indicators */}
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-                  {galleryImages.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                        index === currentImageIndex ? 'bg-white' : 'bg-white/50'
-                      }`}
-                    />
-                  ))}
+                  {galleryImages.map((_, index) => <button key={index} onClick={() => setCurrentImageIndex(index)} className={`w-2 h-2 rounded-full transition-all duration-200 ${index === currentImageIndex ? 'bg-white' : 'bg-white/50'}`} />)}
                 </div>
               </div>
             </div>
@@ -212,6 +165,5 @@ export const ProjectsPage = ({ onNavigate }: ProjectsPageProps) => {
           </div>
         </div>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>;
 };
