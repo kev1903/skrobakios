@@ -85,7 +85,7 @@ export const LandingPage = ({
                 {/* Section Content */}
                 <div className="space-y-8">
                   {/* Service Package Group */}
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <h3 className="text-white/80 text-sm font-medium tracking-widest uppercase mb-6">Service Package</h3>
                     
                     <div 
@@ -123,7 +123,7 @@ export const LandingPage = ({
                   </div>
 
                   {/* Stand-alone Services Group */}
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <h3 className="text-white/80 text-sm font-medium tracking-widest uppercase mb-6">Stand-alone Services</h3>
                     
                     <div 
