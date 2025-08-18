@@ -125,9 +125,7 @@ export const ProjectTableView = ({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {projects.map((project) => {
-            console.log("Rendering project:", project.name, "with ID:", project.id);
-            return (
+          {projects.map((project) => (
               <TableRow key={project.id} className="hover:bg-muted/50 border-border transition-colors duration-200 h-9">
                 <TableCell className="py-1">
                   <input
@@ -174,12 +172,11 @@ export const ProjectTableView = ({
                         <Eye className="w-3 h-3" />
                         <span className="text-sm">View Details</span>
                       </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            );
-          })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableCell>
+          </TableRow>
+        ))}
         </TableBody>
       </Table>
     </div>

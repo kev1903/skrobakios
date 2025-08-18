@@ -214,7 +214,7 @@ export const useProjects = () => {
       setLoading(false);
       console.log("✅ getProjects finished");
     }
-  }, [currentCompany]); // Add currentCompany as dependency
+  }, [currentCompany]);
 
   const getProject = useCallback(async (projectId: string): Promise<Project | null> => {
     // First try to get from cache
