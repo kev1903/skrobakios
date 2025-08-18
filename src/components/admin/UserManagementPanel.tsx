@@ -220,23 +220,28 @@ export const UserManagementPanel: React.FC = () => {
 
   const deleteUser = async (userId: string) => {
     try {
-      // Delete user (this will cascade to profiles and user_roles due to foreign key constraints)
-      const { error } = await supabase.auth.admin.deleteUser(userId);
+      if (!userId) throw new Error('Invalid user id');
 
-      if (error) throw error;
+      // Use secured Edge Function (runs with service role) instead of client admin API
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No active session');
 
-      toast({
-        title: "Success",
-        description: "User deleted successfully",
+      const { data, error } = await supabase.functions.invoke('delete-user-admin', {
+        body: { targetUserId: userId },
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Failed to delete user');
+
+      toast({ title: 'Success', description: 'User deleted successfully' });
       fetchUsers();
     } catch (error: any) {
       console.error('Error deleting user:', error);
       toast({
-        title: "Error",
-        description: error.message || "Failed to delete user",
-        variant: "destructive",
+        title: 'Error',
+        description: error?.message || 'Failed to delete user',
+        variant: 'destructive',
       });
     }
   };
