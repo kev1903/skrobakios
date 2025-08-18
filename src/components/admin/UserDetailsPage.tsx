@@ -175,126 +175,141 @@ export const UserDetailsPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-4">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate(-1)}
-          className="shrink-0"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
-        <h1 className="text-3xl font-semibold">User Details</h1>
-      </div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto p-6 space-y-6 max-w-6xl">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate(-1)}
+            className="shrink-0"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <h1 className="text-3xl font-semibold text-foreground">User Details</h1>
+        </div>
 
-      {/* User Profile Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile Information</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-6">
-            <Avatar className="h-20 w-20">
-              <AvatarImage src={user.avatar_url} alt={`${user.first_name} ${user.last_name}`} />
-              <AvatarFallback>
-                <User className="h-10 w-10" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold">
-                {user.first_name && user.last_name 
-                  ? `${user.first_name} ${user.last_name}`
-                  : 'No name'
-                }
-              </h2>
-              <p className="text-muted-foreground">{user.email}</p>
-              <div className="flex items-center gap-4">
-                <Badge variant="outline">{user.role}</Badge>
-                <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
-                  {user.status}
-                </Badge>
-                {user.company && (
-                  <span className="text-sm text-muted-foreground">{user.company}</span>
-                )}
+        {/* User Profile Card */}
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <CardTitle className="text-card-foreground">Profile Information</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-6">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={user.avatar_url} alt={`${user.first_name} ${user.last_name}`} />
+                <AvatarFallback className="bg-muted text-muted-foreground">
+                  <User className="h-10 w-10" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold text-card-foreground">
+                  {user.first_name && user.last_name 
+                    ? `${user.first_name} ${user.last_name}`
+                    : 'No name'
+                  }
+                </h2>
+                <p className="text-muted-foreground">{user.email}</p>
+                <div className="flex items-center gap-4">
+                  <Badge variant="outline" className="text-xs">{user.role}</Badge>
+                  <Badge variant={user.status === 'active' ? 'default' : 'secondary'} className="text-xs">
+                    {user.status}
+                  </Badge>
+                  {user.company && (
+                    <span className="text-sm text-muted-foreground">{user.company}</span>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Member since {new Date(user.created_at).toLocaleDateString()}
+                </p>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Permissions Matrix */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Permissions Matrix</CardTitle>
-              <p className="text-muted-foreground mt-2">
-                Manage user permissions for different modules
+        {/* Permissions Matrix */}
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-card-foreground">Permissions Matrix</CardTitle>
+                <p className="text-muted-foreground mt-2">
+                  Manage user permissions for different modules
+                </p>
+              </div>
+              <Button onClick={savePermissions} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                Save Changes
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left p-4 font-medium text-card-foreground">Module</th>
+                    <th className="text-center p-4 font-medium text-card-foreground">View</th>
+                    <th className="text-center p-4 font-medium text-card-foreground">Create</th>
+                    <th className="text-center p-4 font-medium text-card-foreground">Edit</th>
+                    <th className="text-center p-4 font-medium text-card-foreground">Delete</th>
+                    <th className="text-center p-4 font-medium text-card-foreground">Admin</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {permissions.map((permission, index) => (
+                    <tr key={permission.module} className="border-b border-border hover:bg-muted/50 transition-colors">
+                      <td className="p-4 font-medium text-card-foreground">{permission.module}</td>
+                      <td className="p-4 text-center">
+                        <Checkbox
+                          checked={permission.view}
+                          onCheckedChange={() => togglePermission(index, 'view')}
+                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </td>
+                      <td className="p-4 text-center">
+                        <Checkbox
+                          checked={permission.create}
+                          onCheckedChange={() => togglePermission(index, 'create')}
+                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </td>
+                      <td className="p-4 text-center">
+                        <Checkbox
+                          checked={permission.edit}
+                          onCheckedChange={() => togglePermission(index, 'edit')}
+                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </td>
+                      <td className="p-4 text-center">
+                        <Checkbox
+                          checked={permission.delete}
+                          onCheckedChange={() => togglePermission(index, 'delete')}
+                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </td>
+                      <td className="p-4 text-center">
+                        <Checkbox
+                          checked={permission.admin}
+                          onCheckedChange={() => togglePermission(index, 'admin')}
+                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-4 p-4 bg-muted/30 rounded-lg border border-border">
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <span className="inline-flex items-center justify-center w-4 h-4 text-xs bg-primary text-primary-foreground rounded">✓</span>
+                Permission enabled
+                <span className="ml-4 inline-flex items-center justify-center w-4 h-4 text-xs border border-border rounded">✗</span>
+                Permission disabled
               </p>
             </div>
-            <Button onClick={savePermissions}>
-              Save Changes
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-4 font-medium">Module</th>
-                  <th className="text-center p-4 font-medium">View</th>
-                  <th className="text-center p-4 font-medium">Create</th>
-                  <th className="text-center p-4 font-medium">Edit</th>
-                  <th className="text-center p-4 font-medium">Delete</th>
-                  <th className="text-center p-4 font-medium">Admin</th>
-                </tr>
-              </thead>
-              <tbody>
-                {permissions.map((permission, index) => (
-                  <tr key={permission.module} className="border-b">
-                    <td className="p-4 font-medium">{permission.module}</td>
-                    <td className="p-4 text-center">
-                      <Checkbox
-                        checked={permission.view}
-                        onCheckedChange={() => togglePermission(index, 'view')}
-                      />
-                    </td>
-                    <td className="p-4 text-center">
-                      <Checkbox
-                        checked={permission.create}
-                        onCheckedChange={() => togglePermission(index, 'create')}
-                      />
-                    </td>
-                    <td className="p-4 text-center">
-                      <Checkbox
-                        checked={permission.edit}
-                        onCheckedChange={() => togglePermission(index, 'edit')}
-                      />
-                    </td>
-                    <td className="p-4 text-center">
-                      <Checkbox
-                        checked={permission.delete}
-                        onCheckedChange={() => togglePermission(index, 'delete')}
-                      />
-                    </td>
-                    <td className="p-4 text-center">
-                      <Checkbox
-                        checked={permission.admin}
-                        onCheckedChange={() => togglePermission(index, 'admin')}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="mt-4 text-sm text-muted-foreground">
-            <p>✓ means permission enabled; ✗ means disabled</p>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
