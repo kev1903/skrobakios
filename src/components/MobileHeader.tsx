@@ -100,7 +100,7 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
               {getCompanyDisplayText().charAt(0).toUpperCase()}
             </span>
           </div>
-          <h1 className="text-sm font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern hover:from-slate-700 hover:to-blue-500">
+          <h1 className="text-sm font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern">
             {getCompanyDisplayText()}
           </h1>
         </div>
