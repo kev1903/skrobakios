@@ -57,31 +57,27 @@ export const UserManagementPanel: React.FC = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select(`
-          *,
-          user_roles (
-            role
-          )
-        `)
-        .order('created_at', { ascending: false });
+      // Use secure RPC to respect RLS and permissions
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase.rpc('get_manageable_users_for_user', {
+        requesting_user_id: user.id,
+      });
 
       if (error) throw error;
 
-      const formattedUsers = profiles?.map(profile => ({
-        id: profile.user_id || profile.id,
-        email: profile.email || '',
-        first_name: profile.first_name,
-        last_name: profile.last_name,
-        avatar_url: profile.avatar_url,
-        company: profile.company,
-        status: profile.status || 'active',
-        created_at: profile.created_at,
-        role: Array.isArray(profile.user_roles) && profile.user_roles.length > 0 
-          ? profile.user_roles[0].role 
-          : 'user'
-      })) || [];
+      const formattedUsers = (Array.isArray(data) ? data : []).map((u: any) => ({
+        id: u.user_id || u.id,
+        email: u.email || '',
+        first_name: u.first_name,
+        last_name: u.last_name,
+        avatar_url: u.avatar_url,
+        company: u.company,
+        status: u.status || 'active',
+        created_at: u.created_at,
+        role: u.app_role || 'user',
+      }));
 
       setUsers(formattedUsers);
     } catch (error) {
