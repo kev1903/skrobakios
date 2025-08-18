@@ -81,32 +81,32 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Check if user has superadmin role - use maybeSingle instead of single
-    const { data: userRoles, error: roleError } = await supabase
+    // Check if user has superadmin role using the admin client to bypass RLS (avoid recursion)
+    const { data: userRoles, error: roleError } = await supabaseAdmin
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id);
 
-    console.log('User roles check:', { userRoles, roleError, userId: user.id });
+    console.log('User roles check (admin client):', { userRoles, roleError, userId: user.id });
 
     if (roleError) {
       console.error('Role check error:', roleError);
       return new Response(
-        JSON.stringify({ error: 'Failed to verify permissions' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        JSON.stringify({ error: 'Failed to verify permissions', details: roleError.message }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
 
-    const hasSuperadminRole = userRoles?.some(role => role.role === 'superadmin');
+    const hasSuperadminRole = Array.isArray(userRoles) && userRoles.some(r => r.role === 'superadmin');
     if (!hasSuperadminRole) {
       return new Response(
         JSON.stringify({ error: 'Insufficient permissions. Only superadmins can delete users.' }),
-        { 
-          status: 403, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
