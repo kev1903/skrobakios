@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 export const MenuBar = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { activeTimer, stopTimer, pauseTimer, resumeTimer, startTimer, categories, addCategory, settings, loading } = useTimeTracking();
   const { getProjects } = useProjects();
@@ -295,10 +296,10 @@ export const MenuBar = () => {
                 onClick={() => {
                   if (activeContext === 'company') {
                     // Navigate to business homepage with map
-                    window.location.href = '/?page=home';
+                    navigate('/?page=home');
                   } else {
                     // Navigate to personal profile with map
-                    window.location.href = '/?page=profile';
+                    navigate('/?page=profile');
                   }
                 }}
               >
@@ -312,10 +313,10 @@ export const MenuBar = () => {
                   e.stopPropagation(); // Prevent event bubbling
                   if (activeContext === 'company') {
                     // Navigate to business homepage with map
-                    window.location.href = '/?page=home';
+                    navigate('/?page=home');
                   } else {
                     // Navigate to personal profile with map
-                    window.location.href = '/?page=profile';
+                    navigate('/?page=profile');
                   }
                 }}
               >
@@ -378,7 +379,7 @@ export const MenuBar = () => {
                 
                 {/* Inbox Icon */}
                 <button 
-                  onClick={() => window.location.href = '/?page=inbox'} 
+                  onClick={() => navigate('/?page=inbox')} 
                   className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground"
                 >
                   <Inbox className="w-4 h-4" />
