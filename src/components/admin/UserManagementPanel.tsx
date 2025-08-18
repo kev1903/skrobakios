@@ -202,14 +202,22 @@ export const UserManagementPanel: React.FC = () => {
 
   const updateUserRole = async (userId: string, newRole: string) => {
     try {
-      const { error } = await supabase
-        .from('user_roles')
-        .upsert({
-          user_id: userId,
-          role: newRole as any
-        });
+      console.log('Updating user role:', userId, newRole);
+      
+      const { data, error } = await supabase.rpc('set_user_primary_role', {
+        target_user_id: userId,
+        new_role: newRole as 'superadmin' | 'business_admin' | 'project_admin' | 'user' | 'client'
+      });
 
-      if (error) throw error;
+      if (error) {
+        console.error('RPC error:', error);
+        throw new Error(error.message);
+      }
+
+      const result = data as { success?: boolean; error?: string };
+      if (!result || !result.success) {
+        throw new Error(result?.error || 'Failed to update role');
+      }
 
       toast({
         title: "Success",

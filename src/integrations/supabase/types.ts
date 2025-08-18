@@ -4646,6 +4646,13 @@ export type Database = {
         Args: { p_context_id?: string; p_context_type: string }
         Returns: boolean
       }
+      set_user_primary_role: {
+        Args: {
+          new_role: Database["public"]["Enums"]["app_role"]
+          target_user_id: string
+        }
+        Returns: Json
+      }
       switch_user_company: {
         Args: { target_company_id: string; target_user_id: string }
         Returns: Json
