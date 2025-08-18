@@ -32,8 +32,8 @@ serve(async (req) => {
     if (!authorization) {
       console.error('No authorization header provided')
       return new Response(
-        JSON.stringify({ error: 'No authorization header' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+        JSON.stringify({ success: false, error: 'No authorization header' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -44,8 +44,8 @@ serve(async (req) => {
     if (authError || !user) {
       console.error('Invalid token:', authError)
       return new Response(
-        JSON.stringify({ error: 'Invalid token' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+        JSON.stringify({ success: false, error: 'Invalid token' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -63,16 +63,16 @@ serve(async (req) => {
     if (roleError) {
       console.error('Error checking user roles:', roleError)
       return new Response(
-        JSON.stringify({ error: 'Error checking permissions' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+        JSON.stringify({ success: false, error: 'Error checking permissions' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
     if (!userRoles || userRoles.role !== 'superadmin') {
       console.error('Access denied. User role:', userRoles?.role)
       return new Response(
-        JSON.stringify({ error: 'Access denied. Only superadmins can create users.' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
+        JSON.stringify({ success: false, error: 'Access denied. Only superadmins can create users.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
@@ -85,14 +85,18 @@ serve(async (req) => {
     if (!email || !password) {
       console.error('Missing required fields:', { email: !!email, password: !!password })
       return new Response(
-        JSON.stringify({ error: 'Email and password are required' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        JSON.stringify({ success: false, error: 'Email and password are required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
     console.log('Creating user with admin client...')
 
-    // Create user with admin client
+    // Create or find user
+    let createdUserId: string | null = null
+    let createdUserEmail: string | null = null
+    let createdAt: string | null = null
+
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
@@ -106,62 +110,91 @@ serve(async (req) => {
 
     if (createError) {
       console.error('Error creating user:', createError)
-      return new Response(
-        JSON.stringify({ error: createError.message }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-      )
+      // Handle existing email gracefully
+      const code = (createError as any)?.code || (createError as any)?.status
+      if (code === 'email_exists' || code === 422) {
+        console.log('Email already exists, attempting to link to existing profile by email...')
+        const { data: existingProfile, error: findProfileError } = await supabaseAdmin
+          .from('profiles')
+          .select('user_id, email, created_at')
+          .eq('email', email)
+          .maybeSingle()
+
+        if (findProfileError) {
+          console.error('Failed to lookup existing profile by email:', findProfileError)
+          return new Response(
+            JSON.stringify({ success: false, code: 'email_exists', error: 'A user with this email already exists.' }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        if (existingProfile?.user_id) {
+          createdUserId = existingProfile.user_id
+          createdUserEmail = existingProfile.email
+          createdAt = existingProfile.created_at
+          console.log('Using existing user_id from profile:', createdUserId)
+        } else {
+          return new Response(
+            JSON.stringify({ success: false, code: 'email_exists', error: 'A user with this email already exists.' }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+      } else {
+        return new Response(
+          JSON.stringify({ success: false, error: (createError as any)?.message || 'Failed to create user' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    } else {
+      createdUserId = newUser.user?.id || null
+      createdUserEmail = newUser.user?.email || email
+      createdAt = newUser.user?.created_at || null
     }
 
-    console.log('User created successfully:', newUser.user?.id)
-
-    if (newUser.user) {
-      console.log('Creating profile...')
+    if (createdUserId) {
+      console.log('Upserting profile for user:', createdUserId)
       
-      // Create profile
+      // Upsert profile
       const { error: profileError } = await supabaseAdmin
         .from('profiles')
-        .insert({
-          user_id: newUser.user.id,
+        .upsert({
+          user_id: createdUserId,
           email: email,
           first_name: firstName,
           last_name: lastName,
           company: company,
           status: 'active'
-        })
+        }, { onConflict: 'user_id' })
 
       if (profileError) {
-        console.error('Profile creation failed:', profileError)
-        // If profile creation fails, delete the auth user
-        await supabaseAdmin.auth.admin.deleteUser(newUser.user.id)
+        console.error('Profile upsert failed:', profileError)
         return new Response(
-          JSON.stringify({ error: 'Failed to create profile: ' + profileError.message }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+          JSON.stringify({ success: false, error: 'Failed to create/update profile: ' + profileError.message }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
-      console.log('Profile created successfully')
+      console.log('Profile upserted successfully')
       console.log('Assigning role:', role || 'user')
 
-      // Assign role
-      const { error: roleError } = await supabaseAdmin
+      // Upsert role
+      const { error: roleUpsertError } = await supabaseAdmin
         .from('user_roles')
-        .insert({
-          user_id: newUser.user.id,
+        .upsert({
+          user_id: createdUserId,
           role: role || 'user'
-        })
+        }, { onConflict: 'user_id,role' })
 
-      if (roleError) {
-        console.error('Role assignment failed:', roleError)
-        // If role assignment fails, delete the auth user and profile
-        await supabaseAdmin.auth.admin.deleteUser(newUser.user.id)
+      if (roleUpsertError) {
+        console.error('Role assignment failed:', roleUpsertError)
         return new Response(
-          JSON.stringify({ error: 'Failed to assign role: ' + roleError.message }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+          JSON.stringify({ success: false, error: 'Failed to assign role: ' + roleUpsertError.message }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
       console.log('Role assigned successfully')
-
+      
       // Log the action
       try {
         await supabaseAdmin
@@ -169,7 +202,7 @@ serve(async (req) => {
           .insert({
             user_id: user.id,
             action: 'create_user',
-            target_user_id: newUser.user.id,
+            target_user_id: createdUserId,
             details: {
               email,
               role: role || 'user',
@@ -188,9 +221,9 @@ serve(async (req) => {
         JSON.stringify({ 
           success: true, 
           user: {
-            id: newUser.user.id,
-            email: newUser.user.email,
-            created_at: newUser.user.created_at,
+            id: createdUserId,
+            email: createdUserEmail,
+            created_at: createdAt,
             role: role || 'user'
           }
         }),
@@ -200,15 +233,15 @@ serve(async (req) => {
 
     console.error('User creation returned null user')
     return new Response(
-      JSON.stringify({ error: 'Failed to create user - null user returned' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      JSON.stringify({ success: false, error: 'Failed to create user - null user returned' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
     console.error('Unexpected error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error: ' + error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      JSON.stringify({ success: false, error: 'Internal server error: ' + (error as any)?.message }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
 })
