@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { LandingPage } from "@/components/LandingPage";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { ServicesPage } from "@/components/pages/ServicesPage";
@@ -22,6 +22,7 @@ import { MobileViewToggle } from "@/components/mobile/MobileViewToggle";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { isAuthenticated, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState(() => {
     // Initialize based on current route - if we're on root path, show landing page
@@ -39,7 +40,7 @@ const Index = () => {
     
     // Handle URLs with query parameters (like project-cost?projectId=123)
     let targetPage = page;
-    let projectId = null;
+    let projectId: string | null = null;
     
     if (page.includes('?')) {
       const [pageName, queryString] = page.split('?');
@@ -62,6 +63,11 @@ const Index = () => {
     }
     
     setCurrentPage(targetPage);
+    // Sync URL with internal navigation to avoid being overridden by ?page= params
+    const search = new URLSearchParams();
+    search.set('page', targetPage);
+    if (projectId) search.set('projectId', projectId);
+    navigate({ pathname: '/', search: `?${search.toString()}` }, { replace: false });
   };
 
   // Function to go back to previous page
