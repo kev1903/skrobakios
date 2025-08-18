@@ -101,10 +101,10 @@ serve(async (req) => {
       throw new Error('Invalid authentication token');
     }
 
-    const { message, conversation = [], context = {} } = await req.json();
+    const { message, conversation = [], context = {}, imageData } = await req.json();
 
-    if (!message) {
-      throw new Error('Message is required');
+    if (!message && !imageData) {
+      throw new Error('Message or image data is required');
     }
 
     console.log('Processing AI chat request for user:', user.email);
@@ -130,6 +130,7 @@ ${JSON.stringify(projectData, null, 2)}
 
 CAPABILITIES:
 - Answer questions about projects, tasks, costs, and leads
+- Analyze images and photos related to construction work
 - Provide insights and analysis of project data
 - Help with project planning and management
 - Suggest improvements and optimizations
@@ -147,9 +148,33 @@ LANGUAGE ENFORCEMENT: Respond exclusively in English. If any input contains non-
       ...conversation.map((msg: any) => ({
         role: msg.role,
         content: msg.content
-      })),
-      { role: 'user', content: message }
+      }))
     ];
+
+    // Add user message with optional image
+    const userMessage: any = { role: 'user' };
+    
+    if (imageData) {
+      // Handle image with text
+      userMessage.content = [
+        {
+          type: 'text',
+          text: message || 'Please analyze this image in the context of construction management.'
+        },
+        {
+          type: 'image_url',
+          image_url: {
+            url: imageData,
+            detail: 'high'
+          }
+        }
+      ];
+    } else {
+      // Text only
+      userMessage.content = message;
+    }
+    
+    messages.push(userMessage);
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -158,7 +183,7 @@ LANGUAGE ENFORCEMENT: Respond exclusively in English. If any input contains non-
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: messages,
         temperature: 0.1,
         max_tokens: 2000,

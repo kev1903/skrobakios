@@ -265,7 +265,8 @@ export function AiChatSidebar({
         body: {
           message: currentInput,
           conversation,
-          context
+          context,
+          imageData: messages[messages.length - 1]?.imageData // Include image data if present
         }
       });
       if (error) {
