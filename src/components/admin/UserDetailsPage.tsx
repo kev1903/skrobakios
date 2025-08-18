@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, User } from 'lucide-react';
+import { ArrowLeft, User, ChevronDown, ChevronRight } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,12 +28,44 @@ interface Permission {
   edit: boolean;
   delete: boolean;
   admin: boolean;
+  children?: Permission[];
+  isExpanded?: boolean;
 }
 
 const defaultPermissions: Permission[] = [
   { module: 'Business Map', view: false, create: false, edit: false, delete: false, admin: false },
-  { module: 'Projects', view: false, create: false, edit: false, delete: false, admin: false },
-  { module: 'Sales', view: false, create: false, edit: false, delete: false, admin: false },
+  { 
+    module: 'Projects', 
+    view: false, 
+    create: false, 
+    edit: false, 
+    delete: false, 
+    admin: false,
+    isExpanded: false,
+    children: [
+      { module: 'Project Creation', view: false, create: false, edit: false, delete: false, admin: false },
+      { module: 'Project Management', view: false, create: false, edit: false, delete: false, admin: false },
+      { module: 'Project Documents', view: false, create: false, edit: false, delete: false, admin: false },
+      { module: 'Project Costs', view: false, create: false, edit: false, delete: false, admin: false },
+      { module: 'Project Timeline', view: false, create: false, edit: false, delete: false, admin: false },
+    ]
+  },
+  { 
+    module: 'Sales', 
+    view: false, 
+    create: false, 
+    edit: false, 
+    delete: false, 
+    admin: false,
+    isExpanded: false,
+    children: [
+      { module: 'Lead Management', view: false, create: false, edit: false, delete: false, admin: false },
+      { module: 'Estimates', view: false, create: false, edit: false, delete: false, admin: false },
+      { module: 'Proposals', view: false, create: false, edit: false, delete: false, admin: false },
+      { module: 'Client Communications', view: false, create: false, edit: false, delete: false, admin: false },
+      { module: 'Sales Analytics', view: false, create: false, edit: false, delete: false, admin: false },
+    ]
+  },
   { module: 'Finance', view: false, create: false, edit: false, delete: false, admin: false },
   { module: 'Settings', view: false, create: false, edit: false, delete: false, admin: false },
 ];
@@ -92,41 +124,80 @@ export const UserDetailsPage: React.FC = () => {
   const loadPermissionsForRole = (role: string) => {
     // Set default permissions based on role
     const rolePermissions = defaultPermissions.map(permission => {
-      switch (role) {
-        case 'superadmin':
-          return { ...permission, view: true, create: true, edit: true, delete: true, admin: true };
-        case 'business_admin':
-          return { ...permission, view: true, create: true, edit: true, delete: false, admin: false };
-        case 'project_admin':
-          return { 
-            ...permission, 
-            view: true, 
-            create: permission.module === 'Projects',
-            edit: permission.module === 'Projects',
-            delete: false, 
-            admin: false 
-          };
-        case 'user':
-          return { 
-            ...permission, 
-            view: permission.module === 'Projects',
-            create: false,
-            edit: false,
-            delete: false, 
-            admin: false 
-          };
-        default:
-          return permission;
-      }
+      const setPermissionsByRole = (perm: Permission): Permission => {
+        let updatedPerm: Permission;
+        
+        switch (role) {
+          case 'superadmin':
+            updatedPerm = { ...perm, view: true, create: true, edit: true, delete: true, admin: true };
+            break;
+          case 'business_admin':
+            updatedPerm = { ...perm, view: true, create: true, edit: true, delete: false, admin: false };
+            break;
+          case 'project_admin':
+            updatedPerm = { 
+              ...perm, 
+              view: true, 
+              create: perm.module === 'Projects' || (perm.module.includes('Project')),
+              edit: perm.module === 'Projects' || (perm.module.includes('Project')),
+              delete: false, 
+              admin: false 
+            };
+            break;
+          case 'user':
+            updatedPerm = { 
+              ...perm, 
+              view: perm.module === 'Projects' || (perm.module.includes('Project')),
+              create: false,
+              edit: false,
+              delete: false, 
+              admin: false 
+            };
+            break;
+          default:
+            updatedPerm = perm;
+        }
+
+        // Apply same permissions to children if they exist
+        if (perm.children) {
+          updatedPerm.children = perm.children.map(child => setPermissionsByRole(child));
+        }
+
+        return updatedPerm;
+      };
+
+      return setPermissionsByRole(permission);
     });
     setPermissions(rolePermissions);
   };
 
-  const togglePermission = (moduleIndex: number, permissionType: keyof Omit<Permission, 'module'>) => {
+  const togglePermission = (moduleIndex: number, permissionType: keyof Omit<Permission, 'module' | 'children' | 'isExpanded'>, childIndex?: number) => {
+    setPermissions(prev => 
+      prev.map((perm, index) => {
+        if (index === moduleIndex) {
+          if (childIndex !== undefined && perm.children) {
+            // Toggle child permission
+            const updatedChildren = perm.children.map((child, cIndex) => 
+              cIndex === childIndex 
+                ? { ...child, [permissionType]: !child[permissionType] }
+                : child
+            );
+            return { ...perm, children: updatedChildren };
+          } else {
+            // Toggle parent permission
+            return { ...perm, [permissionType]: !perm[permissionType] };
+          }
+        }
+        return perm;
+      })
+    );
+  };
+
+  const toggleExpansion = (moduleIndex: number) => {
     setPermissions(prev => 
       prev.map((perm, index) => 
         index === moduleIndex 
-          ? { ...perm, [permissionType]: !perm[permissionType] }
+          ? { ...perm, isExpanded: !perm.isExpanded }
           : perm
       )
     );
@@ -257,44 +328,114 @@ export const UserDetailsPage: React.FC = () => {
                 </thead>
                 <tbody>
                   {permissions.map((permission, index) => (
-                    <tr key={permission.module} className="border-b border-border hover:bg-muted/50 transition-colors">
-                      <td className="p-4 font-medium text-card-foreground">{permission.module}</td>
-                      <td className="p-4 text-center">
-                        <Checkbox
-                          checked={permission.view}
-                          onCheckedChange={() => togglePermission(index, 'view')}
-                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                        />
-                      </td>
-                      <td className="p-4 text-center">
-                        <Checkbox
-                          checked={permission.create}
-                          onCheckedChange={() => togglePermission(index, 'create')}
-                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                        />
-                      </td>
-                      <td className="p-4 text-center">
-                        <Checkbox
-                          checked={permission.edit}
-                          onCheckedChange={() => togglePermission(index, 'edit')}
-                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                        />
-                      </td>
-                      <td className="p-4 text-center">
-                        <Checkbox
-                          checked={permission.delete}
-                          onCheckedChange={() => togglePermission(index, 'delete')}
-                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                        />
-                      </td>
-                      <td className="p-4 text-center">
-                        <Checkbox
-                          checked={permission.admin}
-                          onCheckedChange={() => togglePermission(index, 'admin')}
-                          className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                        />
-                      </td>
-                    </tr>
+                    <React.Fragment key={permission.module}>
+                      <tr className="border-b border-border hover:bg-muted/50 transition-colors">
+                        <td className="p-4 font-medium text-card-foreground">
+                          <div className="flex items-center gap-2">
+                            {permission.children && (
+                              <button
+                                onClick={() => toggleExpansion(index)}
+                                className="p-1 hover:bg-muted rounded transition-colors"
+                              >
+                                {permission.isExpanded ? (
+                                  <ChevronDown className="h-4 w-4" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4" />
+                                )}
+                              </button>
+                            )}
+                            <span className={permission.children ? 'font-semibold' : ''}>
+                              {permission.module}
+                            </span>
+                            {permission.children && (
+                              <span className="w-2 h-2 bg-primary rounded-full ml-2" />
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-4 text-center">
+                          <Checkbox
+                            checked={permission.view}
+                            onCheckedChange={() => togglePermission(index, 'view')}
+                            className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                        </td>
+                        <td className="p-4 text-center">
+                          <Checkbox
+                            checked={permission.create}
+                            onCheckedChange={() => togglePermission(index, 'create')}
+                            className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                        </td>
+                        <td className="p-4 text-center">
+                          <Checkbox
+                            checked={permission.edit}
+                            onCheckedChange={() => togglePermission(index, 'edit')}
+                            className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                        </td>
+                        <td className="p-4 text-center">
+                          <Checkbox
+                            checked={permission.delete}
+                            onCheckedChange={() => togglePermission(index, 'delete')}
+                            className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                        </td>
+                        <td className="p-4 text-center">
+                          <Checkbox
+                            checked={permission.admin}
+                            onCheckedChange={() => togglePermission(index, 'admin')}
+                            className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                          />
+                        </td>
+                      </tr>
+                      
+                      {/* Child permissions */}
+                      {permission.isExpanded && permission.children && permission.children.map((child, childIndex) => (
+                        <tr key={`${permission.module}-${child.module}`} className="border-b border-border bg-muted/20 hover:bg-muted/40 transition-colors">
+                          <td className="p-4 font-medium text-card-foreground pl-12">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-muted-foreground">└</span>
+                              <span className="text-sm">{child.module}</span>
+                            </div>
+                          </td>
+                          <td className="p-4 text-center">
+                            <Checkbox
+                              checked={child.view}
+                              onCheckedChange={() => togglePermission(index, 'view', childIndex)}
+                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            />
+                          </td>
+                          <td className="p-4 text-center">
+                            <Checkbox
+                              checked={child.create}
+                              onCheckedChange={() => togglePermission(index, 'create', childIndex)}
+                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            />
+                          </td>
+                          <td className="p-4 text-center">
+                            <Checkbox
+                              checked={child.edit}
+                              onCheckedChange={() => togglePermission(index, 'edit', childIndex)}
+                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            />
+                          </td>
+                          <td className="p-4 text-center">
+                            <Checkbox
+                              checked={child.delete}
+                              onCheckedChange={() => togglePermission(index, 'delete', childIndex)}
+                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            />
+                          </td>
+                          <td className="p-4 text-center">
+                            <Checkbox
+                              checked={child.admin}
+                              onCheckedChange={() => togglePermission(index, 'admin', childIndex)}
+                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>
