@@ -620,7 +620,7 @@ export function AiChatSidebar({
         fullScreen
           ? "fixed inset-0 z-[10010] w-full h-screen bg-background border-0 shadow-none flex flex-col"
           : "fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col",
-        fullScreen ? "w-full" : (isCollapsed ? "w-16" : "w-96")
+        fullScreen ? "w-full" : (isCollapsed ? "w-16" : "w-full max-w-96 md:w-96")
       )}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
