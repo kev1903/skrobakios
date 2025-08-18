@@ -95,7 +95,7 @@ export const ContextSwitcher = ({ onNavigate }: ContextSwitcherProps = {}) => {
       <DropdownMenuTrigger asChild>
         <Button 
           variant="ghost" 
-          className="w-full justify-between text-white hover:bg-white/20 hover:text-white border border-white/20 bg-white/5 h-auto p-3"
+          className="w-full justify-between text-white hover:bg-white/20 hover:text-slate-800 border border-white/20 bg-white/5 h-auto p-3"
         >
           <div className="flex items-center space-x-3 min-w-0 flex-1">
             <Avatar className="h-8 w-8 flex-shrink-0">
@@ -110,7 +110,7 @@ export const ContextSwitcher = ({ onNavigate }: ContextSwitcherProps = {}) => {
             </Avatar>
             <div className="flex flex-col items-start min-w-0 flex-1">
               <div className="flex items-center space-x-2">
-                <span className="font-medium text-sm truncate">{currentContext.name}</span>
+                <span className="font-medium text-sm truncate group-hover:text-slate-800">{currentContext.name}</span>
                  <Badge 
                    variant="secondary" 
                    className="bg-white/20 text-white text-xs px-1.5 py-0.5"
