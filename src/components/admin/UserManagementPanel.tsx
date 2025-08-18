@@ -276,6 +276,22 @@ export const UserManagementPanel: React.FC = () => {
         await updateUserRole(selectedUser.id, role);
       }
 
+      // Update password if provided
+      if (password.trim()) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) throw new Error('No active session');
+
+        const { error: passwordError } = await supabase.functions.invoke('update-user-password', {
+          body: { 
+            targetUserId: selectedUser.id,
+            newPassword: password 
+          },
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        });
+
+        if (passwordError) throw passwordError;
+      }
+
       toast({
         title: "Success",
         description: "User profile updated successfully",
@@ -301,6 +317,7 @@ export const UserManagementPanel: React.FC = () => {
     setEmail(user.email);
     setCompany(user.company || '');
     setRole(user.role as any || 'user');
+    setPassword(''); // Reset password field
     setIsEditUserOpen(true);
   };
 
@@ -497,6 +514,44 @@ export const UserManagementPanel: React.FC = () => {
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                       Email cannot be changed
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="editPassword">New Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="editPassword"
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Enter new password (leave blank to keep current)"
+                        className="pr-20"
+                      />
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="h-8 w-8 p-0"
+                          title={showPassword ? "Hide Password" : "Show Password"}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={generatePassword}
+                          className="h-8 w-8 p-0"
+                          title="Generate Password"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Leave blank to keep current password
                     </p>
                   </div>
                   <div>
