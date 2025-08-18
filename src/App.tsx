@@ -26,6 +26,7 @@ import { EstimateCreationPage } from "./components/EstimateCreationPage";
 import { InvoiceDetailsPage } from "./components/InvoiceDetailsPage";
 import { CompanyEditPage } from "./components/CompanyEditPage";
 import { UserProfileEditPage } from "./components/admin/UserProfileEditPage";
+import { UserDetailsPage } from "./components/admin/UserDetailsPage";
 import { ImpersonationGuard } from "./components/admin/ImpersonationGuard";
 import { ImpersonationBanner } from "./components/admin/ImpersonationBanner";
 import { PublicUserProfile } from "./components/public/PublicUserProfile";
@@ -279,6 +280,7 @@ const AppContent = () => {
   </EstimateProvider>
 } />
         <Route path="/company/:companyId/edit" element={<CompanyEditPageWrapper />} />
+        <Route path="/admin/user/:userId" element={<UserDetailsPage />} />
         {/* Profile edit route removed */}
         <Route path="/impersonate" element={<Index />} />
         

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ interface User {
 }
 
 export const UserManagementPanel: React.FC = () => {
+  const navigate = useNavigate();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -667,7 +669,7 @@ export const UserManagementPanel: React.FC = () => {
                               <div>
                                 <div 
                                   className="font-medium cursor-pointer hover:text-primary transition-colors"
-                                  onClick={() => window.location.href = `/?page=user-details&userId=${user.id}`}
+                                  onClick={() => navigate(`/admin/user/${user.id}`)}
                                 >
                                   {user.first_name && user.last_name 
                                     ? `${user.first_name} ${user.last_name}`
