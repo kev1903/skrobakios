@@ -102,7 +102,16 @@ export const UserManagementPanel: React.FC = () => {
 
       if (error) throw error;
 
-      setCompanies(companiesData || []);
+      // Remove duplicates based on company name
+      const uniqueCompanies = (companiesData || []).reduce((acc: Company[], current) => {
+        const existingCompany = acc.find(company => company.name === current.name);
+        if (!existingCompany) {
+          acc.push(current);
+        }
+        return acc;
+      }, []);
+
+      setCompanies(uniqueCompanies);
     } catch (error) {
       console.error('Error fetching companies:', error);
       toast({
