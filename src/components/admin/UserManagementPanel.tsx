@@ -665,7 +665,10 @@ export const UserManagementPanel: React.FC = () => {
                                 </div>
                               )}
                               <div>
-                                <div className="font-medium">
+                                <div 
+                                  className="font-medium cursor-pointer hover:text-primary transition-colors"
+                                  onClick={() => window.location.href = `/?page=user-details&userId=${user.id}`}
+                                >
                                   {user.first_name && user.last_name 
                                     ? `${user.first_name} ${user.last_name}`
                                     : 'No name'

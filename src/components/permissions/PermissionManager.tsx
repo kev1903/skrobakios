@@ -7,6 +7,7 @@ import { RolePermissionsMatrix } from './RolePermissionsMatrix';
 import { PermissionAuditLog } from './PermissionAuditLog';
 import { UserCleanupButton } from '../admin/UserCleanupButton';
 import { PlatformAdministration } from '../admin/PlatformAdministration';
+import { UserDetailsPage } from '../admin/UserDetailsPage';
 import { useUserRole } from '@/hooks/useUserRole';
 
 interface PermissionManagerProps {
@@ -20,6 +21,11 @@ export const PermissionManager: React.FC<PermissionManagerProps> = ({ onNavigate
   // If current page is platform admin, show that component
   if (currentPage === 'platform-admin') {
     return <PlatformAdministration onNavigate={onNavigate} />;
+  }
+
+  // If current page is user details, show that component
+  if (currentPage === 'user-details') {
+    return <UserDetailsPage />;
   }
 
   return (
