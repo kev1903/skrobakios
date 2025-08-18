@@ -20,9 +20,9 @@ Deno.serve(async (req) => {
     if (!supabaseUrl || !supabaseServiceKey || !supabaseAnonKey) {
       console.error('Missing environment variables');
       return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
+        JSON.stringify({ success: false, error: 'Server configuration error: missing SUPABASE envs' }),
         { 
-          status: 500, 
+          status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
@@ -44,9 +44,9 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(
-        JSON.stringify({ error: 'No authorization header' }),
+        JSON.stringify({ success: false, error: 'No authorization header' }),
         { 
-          status: 401, 
+          status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
@@ -73,42 +73,33 @@ Deno.serve(async (req) => {
     if (authError || !user) {
       console.error('Auth error:', authError);
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ success: false, error: 'Unauthorized' }),
         { 
-          status: 401, 
+          status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
     }
 
-    // Check if user has superadmin role using the admin client to bypass RLS (avoid recursion)
-    const { data: userRoles, error: roleError } = await supabaseAdmin
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id);
+    // Check if user has superadmin role using SECURITY DEFINER RPC to avoid RLS recursion
+    const { data: isSuperadmin, error: isSuperadminError } = await supabase
+      .rpc('is_superadmin', { target_user_id: user.id });
 
-    console.log('User roles check (admin client):', { userRoles, roleError, userId: user.id });
+    console.log('is_superadmin RPC result:', { isSuperadmin, isSuperadminError, userId: user.id });
 
-    if (roleError) {
-      console.error('Role check error:', roleError);
+    if (isSuperadminError) {
+      console.error('Role check error (RPC):', isSuperadminError);
       return new Response(
-        JSON.stringify({ error: 'Failed to verify permissions', details: roleError.message }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
+        JSON.stringify({ success: false, error: 'Failed to verify permissions', details: isSuperadminError.message }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const hasSuperadminRole = Array.isArray(userRoles) && userRoles.some(r => r.role === 'superadmin');
-    if (!hasSuperadminRole) {
+    if (!isSuperadmin) {
       return new Response(
-        JSON.stringify({ error: 'Insufficient permissions. Only superadmins can delete users.' }),
-        {
-          status: 403,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
+        JSON.stringify({ success: false, error: 'Insufficient permissions. Only superadmins can delete users.' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Get target user ID or email from request
@@ -118,9 +109,9 @@ Deno.serve(async (req) => {
     } catch (parseError) {
       console.error('Failed to parse request body:', parseError);
       return new Response(
-        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        JSON.stringify({ success: false, error: 'Invalid JSON in request body' }),
         { 
-          status: 400, 
+          status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       );
@@ -142,7 +133,7 @@ Deno.serve(async (req) => {
           receivedBody: requestBody 
         }),
         { 
-          status: 400, 
+          status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
@@ -166,9 +157,9 @@ Deno.serve(async (req) => {
       if (profileDeleteError) {
         console.error('Error deleting profile by email:', profileDeleteError);
         return new Response(
-          JSON.stringify({ error: 'Failed to delete user profile', details: profileDeleteError.message }),
+          JSON.stringify({ success: false, error: 'Failed to delete user profile', details: profileDeleteError.message }),
           { 
-            status: 500, 
+            status: 200, 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
           }
         );
@@ -191,9 +182,9 @@ Deno.serve(async (req) => {
     if (targetUserId === user.id) {
       console.log('Attempted self-deletion blocked');
       return new Response(
-        JSON.stringify({ error: 'Cannot delete your own account' }),
+        JSON.stringify({ success: false, error: 'Cannot delete your own account' }),
         { 
-          status: 400, 
+          status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
@@ -210,9 +201,9 @@ Deno.serve(async (req) => {
     if (deleteError) {
       console.error('Error deleting user data:', deleteError)
       return new Response(
-        JSON.stringify({ error: 'Failed to delete user data', details: deleteError.message }),
+        JSON.stringify({ success: false, error: 'Failed to delete user data', details: deleteError.message }),
         { 
-          status: 500, 
+          status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
@@ -229,11 +220,12 @@ Deno.serve(async (req) => {
       console.error('Error deleting auth user:', authDeleteError)
       return new Response(
         JSON.stringify({ 
+          success: false,
           error: 'User data deleted but failed to revoke authentication', 
           details: authDeleteError.message 
         }),
         { 
-          status: 500, 
+          status: 200, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
@@ -254,9 +246,9 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Unexpected error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      JSON.stringify({ success: false, error: 'Internal server error', details: error.message }),
       { 
-        status: 500, 
+        status: 200, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       }
     )
