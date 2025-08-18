@@ -256,6 +256,54 @@ export const UserManagementPanel: React.FC = () => {
     setShowPassword(false);
   };
 
+  const updateUserProfile = async () => {
+    try {
+      if (!selectedUser?.id) throw new Error('No user selected');
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          first_name: firstName,
+          last_name: lastName,
+          company: company,
+        })
+        .eq('user_id', selectedUser.id);
+
+      if (error) throw error;
+
+      // Update user role if changed
+      if (role !== selectedUser.role) {
+        await updateUserRole(selectedUser.id, role);
+      }
+
+      toast({
+        title: "Success",
+        description: "User profile updated successfully",
+      });
+
+      setIsEditUserOpen(false);
+      resetForm();
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error updating user profile:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update user profile",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setFirstName(user.first_name || '');
+    setLastName(user.last_name || '');
+    setEmail(user.email);
+    setCompany(user.company || '');
+    setRole(user.role as any || 'user');
+    setIsEditUserOpen(true);
+  };
+
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case 'superadmin':
@@ -410,6 +458,97 @@ export const UserManagementPanel: React.FC = () => {
                 </div>
               </DialogContent>
             </Dialog>
+
+            {/* Edit User Profile Dialog */}
+            <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Edit User Profile</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="editFirstName">First Name</Label>
+                      <Input
+                        id="editFirstName"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="John"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="editLastName">Last Name</Label>
+                      <Input
+                        id="editLastName"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Doe"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="editEmail">Email</Label>
+                    <Input
+                      id="editEmail"
+                      type="email"
+                      value={email}
+                      disabled
+                      className="bg-muted"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Email cannot be changed
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="editCompany">Company</Label>
+                    <Select value={company} onValueChange={setCompany}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select company" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {companies.map((comp) => (
+                          <SelectItem key={comp.id} value={comp.name}>
+                            {comp.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="editRole">Role</Label>
+                    <Select value={role} onValueChange={(value: any) => setRole(value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="user">User</SelectItem>
+                        <SelectItem value="project_admin">Project Admin</SelectItem>
+                        <SelectItem value="business_admin">Business Admin</SelectItem>
+                        <SelectItem value="superadmin">Super Admin</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={updateUserProfile}
+                      className="flex-1"
+                    >
+                      Update Profile
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditUserOpen(false);
+                        resetForm();
+                      }}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardHeader>
         <CardContent>
@@ -493,16 +632,13 @@ export const UserManagementPanel: React.FC = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedUser(user);
-                                  setIsEditUserOpen(true);
-                                }}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
+                               <Button
+                                 variant="outline"
+                                 size="sm"
+                                 onClick={() => handleEditUser(user)}
+                               >
+                                 <Edit className="h-4 w-4" />
+                               </Button>
                               <Button
                                 variant="outline"
                                 size="sm"
