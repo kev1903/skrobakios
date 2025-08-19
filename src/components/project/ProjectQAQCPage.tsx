@@ -159,7 +159,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Quality Assurance & Quality Control</h1>
+                <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
                 <p className="text-gray-600">{project.name} - #{project.project_id}</p>
               </div>
               <div className="flex gap-2">
