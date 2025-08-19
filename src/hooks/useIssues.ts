@@ -56,13 +56,13 @@ export const useIssues = (projectId?: string) => {
     try {
       const { error } = await supabase
         .from('issues')
-        .update({ status: 'voided' })
+        .update({ status: 'void' })
         .eq('id', id);
 
       if (error) throw error;
       
       setIssues(prev => prev.map(issue => 
-        issue.id === id ? { ...issue, status: 'voided' } : issue
+        issue.id === id ? { ...issue, status: 'void' } : issue
       ));
       toast({
         title: "Success",
@@ -73,6 +73,31 @@ export const useIssues = (projectId?: string) => {
       toast({
         title: "Error",
         description: "Failed to void issue",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteIssuesForProject = async () => {
+    if (!projectId) return;
+    try {
+      const { error } = await supabase
+        .from('issues')
+        .delete()
+        .eq('project_id', projectId);
+
+      if (error) throw error;
+
+      setIssues([]);
+      toast({
+        title: "Success",
+        description: "Issues report deleted successfully",
+      });
+    } catch (err) {
+      console.error('Error deleting issues for project:', err);
+      toast({
+        title: "Error",
+        description: "Failed to delete issues report",
         variant: "destructive",
       });
     }
@@ -139,6 +164,7 @@ ${issue.issue_number},"${issue.title}","${issue.description}",${issue.status},${
     loading,
     error,
     voidIssue,
+    deleteIssuesForProject,
     exportIssue,
     refetch: fetchIssues,
   };

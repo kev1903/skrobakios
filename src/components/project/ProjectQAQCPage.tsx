@@ -30,7 +30,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const [showNewReportDialog, setShowNewReportDialog] = useState(false);
   
   const { rfis, loading: rfisLoading, deleteRFI, exportRFI, refetch: refetchRFIs } = useRFIs(projectId);
-  const { issues, loading: issuesLoading, voidIssue, exportIssue, refetch: refetchIssues } = useIssues(projectId);
+  const { issues, loading: issuesLoading, voidIssue, deleteIssuesForProject, exportIssue, refetch: refetchIssues } = useIssues(projectId);
   const { defects, loading: defectsLoading, deleteDefect, exportDefect, refetch: refetchDefects } = useDefects(projectId);
 
   useEffect(() => {
@@ -69,6 +69,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
         return 'bg-yellow-100 text-yellow-800';
       case 'resolved':
         return 'bg-green-100 text-green-800';
+      case 'void':
       case 'voided':
         return 'bg-gray-100 text-gray-600';
       default:
@@ -141,9 +142,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const handleDeleteIssuesReport = async () => {
     if (issues.length === 0) return;
     try {
-      for (const issue of issues) {
-        await voidIssue(issue.id);
-      }
+      await deleteIssuesForProject();
       refetchIssues();
     } catch (error) {
       console.error('Failed to delete issues report:', error);
@@ -560,7 +559,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                     <AlertDialogHeader>
                                       <AlertDialogTitle>Void Issue Item</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Are you sure you want to void issue "{issue.title}"? This will mark it as voided but keep it in the report for audit purposes.
+                                        Are you sure you want to void issue "{issue.title}"? This will mark it as void but keep it in the report for audit purposes.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
