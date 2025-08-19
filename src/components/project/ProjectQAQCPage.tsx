@@ -457,64 +457,6 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                 <CardContent>
                   {/* Issues Report Container */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border rounded-lg bg-orange-50/50">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <button 
-                            onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=issue`)}
-                            className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
-                          >
-                            {`Issues Report - ${project?.name || 'Project'}`}
-                          </button>
-                          <Badge className="bg-orange-100 text-orange-800">{issues.length} Items</Badge>
-                        </div>
-                        <h3 className="font-medium text-foreground mb-1">Project Issues Report</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Contains {issues.length} Issue{issues.length !== 1 ? 's' : ''} • Last updated: {issues.length > 0 ? new Date(Math.max(...issues.map(i => new Date(i.updated_at).getTime()))).toLocaleDateString() : 'N/A'}
-                        </p>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-background z-50">
-                          <DropdownMenuItem onClick={() => console.log('Export Issues Report')}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Export Report
-                          </DropdownMenuItem>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <DropdownMenuItem 
-                                onSelect={(e) => e.preventDefault()} 
-                                className={issues.length > 0 ? "text-red-600 focus:text-red-600" : "text-gray-400 cursor-not-allowed"}
-                                disabled={issues.length === 0}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete Report
-                              </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            {issues.length > 0 && (
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Issues Report</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to delete the entire Issues Report? This will permanently remove all {issues.length} issue item{issues.length !== 1 ? 's' : ''} from this report. This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleDeleteIssuesReport} className="bg-red-600 hover:bg-red-700">
-                                    Delete Report
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            )}
-                          </AlertDialog>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
 
                     {/* Issues Items List */}
                     {issuesLoading ? (
