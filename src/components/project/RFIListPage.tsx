@@ -41,7 +41,7 @@ export const RFIListPage = ({ onNavigate }: RFIListPageProps) => {
     switch (type) {
       case 'rfi':
         return {
-          title: 'Request for Information (RFI)',
+          title: 'RFI Report',
           items: [
             {
               id: "RFI-001",
@@ -74,7 +74,7 @@ export const RFIListPage = ({ onNavigate }: RFIListPageProps) => {
         };
       case 'issues':
         return {
-          title: 'Project Issues',
+          title: 'Issues Report',
           items: [
             {
               id: "ISS-001",
@@ -98,7 +98,7 @@ export const RFIListPage = ({ onNavigate }: RFIListPageProps) => {
         };
       case 'defects':
         return {
-          title: 'Defects & Quality Issues',
+          title: 'Defect Report',
           items: [
             {
               id: "DEF-001",
@@ -211,8 +211,8 @@ export const RFIListPage = ({ onNavigate }: RFIListPageProps) => {
                   Back to QA/QC
                 </Button>
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">{data.title}</h1>
-                  <p className="text-muted-foreground">{project.name} - #{project.project_id}</p>
+                  <h1 className="text-3xl font-bold text-foreground">{data.title} - {project.name}</h1>
+                  <p className="text-muted-foreground">#{project.project_id}</p>
                 </div>
               </div>
               <div className="flex gap-2">
