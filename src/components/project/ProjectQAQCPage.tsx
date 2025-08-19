@@ -16,12 +16,9 @@ import {
 } from '@/hooks/useQAQCData';
 import { 
   Plus, 
-  ClipboardCheck, 
-  AlertTriangle, 
-  FileText, 
   ListChecks,
   HelpCircle,
-  AlertCircle,
+  AlertTriangle,
   Bug,
   FlaskConical,
   FileCheck
@@ -98,6 +95,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                 </div>
               </CardContent>
             </Card>
+            
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center">
@@ -161,82 +159,82 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
 
           {/* Main Content - Tabs */}
           <div>
-              <Tabs defaultValue="checklists" className="w-full">
-                <TabsList className="grid w-full grid-cols-6">
-                  <TabsTrigger value="checklists">Checklists</TabsTrigger>
-                  <TabsTrigger value="rfis">RFIs</TabsTrigger>
-                  <TabsTrigger value="issues">Issues/NCRs</TabsTrigger>
-                  <TabsTrigger value="defects">Defects</TabsTrigger>
-                  <TabsTrigger value="inspections">Inspections</TabsTrigger>
-                  <TabsTrigger value="itps">Quality Plans</TabsTrigger>
-                </TabsList>
+            <Tabs defaultValue="checklists" className="w-full">
+              <TabsList className="grid w-full grid-cols-6">
+                <TabsTrigger value="checklists">Checklists</TabsTrigger>
+                <TabsTrigger value="rfis">RFIs</TabsTrigger>
+                <TabsTrigger value="issues">Issues/NCRs</TabsTrigger>
+                <TabsTrigger value="defects">Defects</TabsTrigger>
+                <TabsTrigger value="inspections">Inspections</TabsTrigger>
+                <TabsTrigger value="itps">Quality Plans</TabsTrigger>
+              </TabsList>
 
-                <TabsContent value="checklists" className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Checklists</h3>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      New Checklist
-                    </Button>
-                  </div>
-                  <QAQCTable data={checklists || []} type="checklists" isLoading={checklistsLoading} />
-                </TabsContent>
+              <TabsContent value="checklists" className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Checklists</h3>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Checklist
+                  </Button>
+                </div>
+                <QAQCTable data={checklists || []} type="checklists" isLoading={checklistsLoading} />
+              </TabsContent>
 
-                <TabsContent value="rfis" className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Requests for Information</h3>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      New RFI
-                    </Button>
-                  </div>
-                  <QAQCTable data={rfis || []} type="rfis" isLoading={rfisLoading} />
-                </TabsContent>
+              <TabsContent value="rfis" className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Requests for Information</h3>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New RFI
+                  </Button>
+                </div>
+                <QAQCTable data={rfis || []} type="rfis" isLoading={rfisLoading} />
+              </TabsContent>
 
-                <TabsContent value="issues" className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Issues & Non-Conformance Reports</h3>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      New Issue/NCR
-                    </Button>
-                  </div>
-                  <QAQCTable data={issues || []} type="issues" isLoading={issuesLoading} />
-                </TabsContent>
+              <TabsContent value="issues" className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Issues & Non-Conformance Reports</h3>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Issue/NCR
+                  </Button>
+                </div>
+                <QAQCTable data={issues || []} type="issues" isLoading={issuesLoading} />
+              </TabsContent>
 
-                <TabsContent value="defects" className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Defects & Punch List</h3>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      New Defect
-                    </Button>
-                  </div>
-                  <QAQCTable data={defects || []} type="defects" isLoading={defectsLoading} />
-                </TabsContent>
+              <TabsContent value="defects" className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Defects & Punch List</h3>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Defect
+                  </Button>
+                </div>
+                <QAQCTable data={defects || []} type="defects" isLoading={defectsLoading} />
+              </TabsContent>
 
-                <TabsContent value="inspections" className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Quality Inspections & Tests</h3>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      New Inspection
-                    </Button>
-                  </div>
-                  <QAQCTable data={inspections || []} type="inspections" isLoading={inspectionsLoading} />
-                </TabsContent>
+              <TabsContent value="inspections" className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Quality Inspections & Tests</h3>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Inspection
+                  </Button>
+                </div>
+                <QAQCTable data={inspections || []} type="inspections" isLoading={inspectionsLoading} />
+              </TabsContent>
 
-                <TabsContent value="itps" className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Quality Plans & ITPs</h3>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      New Quality Plan
-                    </Button>
-                  </div>
-                  <QAQCTable data={qualityPlans || []} type="plans" isLoading={qualityPlansLoading} />
-                </TabsContent>
-              </Tabs>
+              <TabsContent value="itps" className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Quality Plans & ITPs</h3>
+                  <Button>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Quality Plan
+                  </Button>
+                </div>
+                <QAQCTable data={qualityPlans || []} type="plans" isLoading={qualityPlansLoading} />
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
