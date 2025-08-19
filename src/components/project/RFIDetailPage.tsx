@@ -224,7 +224,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="title">Title</Label>
+                      <Label htmlFor="title" className="text-foreground font-medium">Title</Label>
                       {isEditing ? (
                         <Input
                           id="title"
@@ -236,7 +236,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                       )}
                     </div>
                     <div>
-                      <Label htmlFor="category">Category</Label>
+                      <Label htmlFor="category" className="text-foreground font-medium">Category</Label>
                       {isEditing ? (
                         <Select value={rfiData.category} onValueChange={(value) => handleInputChange('category', value)}>
                           <SelectTrigger>
@@ -257,7 +257,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                   </div>
 
                   <div>
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description" className="text-foreground font-medium">Description</Label>
                     {isEditing ? (
                       <Textarea
                         id="description"
@@ -271,7 +271,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                   </div>
 
                   <div>
-                    <Label htmlFor="location">Location</Label>
+                    <Label htmlFor="location" className="text-foreground font-medium">Location</Label>
                     {isEditing ? (
                       <Input
                         id="location"
@@ -304,7 +304,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                     
                     {isEditing && (
                       <div className="mt-4">
-                        <Label htmlFor="newResponse">Add Response</Label>
+                        <Label htmlFor="newResponse" className="text-foreground font-medium">Add Response</Label>
                         <Textarea
                           id="newResponse"
                           placeholder="Add your response or comment..."
@@ -330,7 +330,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label>Status</Label>
+                    <Label className="text-foreground font-medium">Status</Label>
                     {isEditing ? (
                       <Select value={rfiData.status} onValueChange={(value) => handleInputChange('status', value)}>
                         <SelectTrigger>
@@ -351,7 +351,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                   </div>
 
                   <div>
-                    <Label>Priority</Label>
+                    <Label className="text-foreground font-medium">Priority</Label>
                     {isEditing ? (
                       <Select value={rfiData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
                         <SelectTrigger>
@@ -376,20 +376,20 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
               {/* Assignment & Dates */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-foreground">
                     <User className="w-5 h-5" />
                     Assignment & Dates
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label>Created By</Label>
+                    <Label className="text-foreground font-medium">Created By</Label>
                     <p className="mt-1 text-sm text-foreground">{rfiData.createdBy}</p>
                     <p className="text-xs text-muted-foreground">{rfiData.created}</p>
                   </div>
 
                   <div>
-                    <Label>Assigned To</Label>
+                    <Label className="text-foreground font-medium">Assigned To</Label>
                     {isEditing ? (
                       <Input
                         value={rfiData.assignedTo}
@@ -401,7 +401,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                   </div>
 
                   <div>
-                    <Label>Due Date</Label>
+                    <Label className="text-foreground font-medium">Due Date</Label>
                     {isEditing ? (
                       <Input
                         type="date"
