@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
-import { ArrowLeft, AlertTriangle, Calendar, User, FileText } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Calendar, User, FileText, ClipboardList, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface IssueDetailPageProps {
@@ -18,7 +18,7 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
   const issueId = searchParams.get('issueId');
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
-  const [issue, setIssue] = useState<any>(null);
+  const [report, setReport] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -28,27 +28,88 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
           const fetchedProject = await getProject(projectId);
           setProject(fetchedProject);
           
-          // Mock issue data for now - in real app, fetch from API
-          const mockIssue = {
+          // Mock comprehensive report data
+          const mockReport = {
             id: issueId,
             issue_number: 'ISS-001',
-            title: 'Concrete Pour Non-Conformance',
+            title: 'Foundation Quality Control Report',
             type: 'ncr',
             severity: 'major',
             status: 'investigating',
             reported_by: 'John Smith',
-            description: 'During the concrete pour for foundation section A-3, the concrete mix did not meet the specified strength requirements. The slump test indicated 180mm instead of the required 120mm ± 20mm.',
+            description: 'Comprehensive quality control report for Foundation Section A-3 covering multiple non-conformance issues identified during inspection.',
             location: 'Foundation Section A-3',
             date_reported: '2024-01-15',
             due_date: '2024-01-25',
-            corrective_action: 'Remove affected concrete section and re-pour with correct mix design.',
+            created_at: '2024-01-15T10:30:00Z',
+            
+            // Report sections with multiple items
+            sections: [
+              {
+                title: 'Concrete Quality Issues',
+                items: [
+                  {
+                    id: 1,
+                    description: 'Concrete mix did not meet specified strength requirements',
+                    severity: 'major',
+                    status: 'open',
+                    findings: 'Slump test indicated 180mm instead of required 120mm ± 20mm',
+                    corrective_action: 'Remove affected concrete and re-pour with correct mix'
+                  },
+                  {
+                    id: 2,
+                    description: 'Improper concrete curing procedures observed',
+                    severity: 'medium',
+                    status: 'resolved',
+                    findings: 'Curing compound not applied within specified timeframe',
+                    corrective_action: 'Retrained crew on proper curing procedures'
+                  }
+                ]
+              },
+              {
+                title: 'Reinforcement Issues',
+                items: [
+                  {
+                    id: 3,
+                    description: 'Rebar spacing non-conformance',
+                    severity: 'minor',
+                    status: 'open',
+                    findings: 'Spacing varies from 200mm to 250mm, specification requires 200mm ± 10mm',
+                    corrective_action: 'Adjust rebar spacing to meet specifications'
+                  }
+                ]
+              },
+              {
+                title: 'Documentation Issues',
+                items: [
+                  {
+                    id: 4,
+                    description: 'Missing test certificates',
+                    severity: 'medium',
+                    status: 'resolved',
+                    findings: 'Concrete test certificates not provided for batch #347',
+                    corrective_action: 'Obtained missing certificates from supplier'
+                  }
+                ]
+              }
+            ],
+            
             attachments: [
               { name: 'concrete_test_results.pdf', url: '#' },
-              { name: 'photo_evidence.jpg', url: '#' }
+              { name: 'photo_evidence.jpg', url: '#' },
+              { name: 'inspection_checklist.pdf', url: '#' }
             ],
-            created_at: '2024-01-15T10:30:00Z'
+            
+            summary: {
+              total_items: 4,
+              open_items: 2,
+              resolved_items: 2,
+              major_issues: 1,
+              medium_issues: 2,
+              minor_issues: 1
+            }
           };
-          setIssue(mockIssue);
+          setReport(mockReport);
         } catch (error) {
           console.error('Failed to fetch data:', error);
         } finally {
@@ -75,6 +136,7 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
 
   const getStatusColor = (status: string) => {
     const statusMap: Record<string, string> = {
+      open: 'bg-red-100 text-red-800',
       investigating: 'bg-orange-100 text-orange-800',
       resolved: 'bg-green-100 text-green-800',
       closed: 'bg-gray-100 text-gray-800',
@@ -92,12 +154,12 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
     );
   }
 
-  if (!issue) {
+  if (!report) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Issue Not Found</h2>
-          <p className="text-gray-600 mb-4">The requested issue could not be found.</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Report Not Found</h2>
+          <p className="text-gray-600 mb-4">The requested report could not be found.</p>
           <Button onClick={handleBack}>Back to QA/QC</Button>
         </div>
       </div>
@@ -115,7 +177,7 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
       />
 
       <div className="flex-1 ml-48 p-6 overflow-auto">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
               <Button variant="ghost" onClick={handleBack}>
@@ -124,72 +186,140 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
               </Button>
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="w-6 h-6 text-red-600" />
-                <h1 className="text-2xl font-bold text-foreground">{issue.issue_number}</h1>
+                <h1 className="text-2xl font-bold text-foreground">{report.issue_number}</h1>
               </div>
             </div>
             <div className="flex space-x-2">
-              <Badge className={getSeverityColor(issue.severity)}>{issue.severity}</Badge>
-              <Badge className={getStatusColor(issue.status)}>{issue.status}</Badge>
+              <Badge className={getSeverityColor(report.severity)}>{report.severity}</Badge>
+              <Badge className={getStatusColor(report.status)}>{report.status}</Badge>
             </div>
           </div>
 
           <div className="grid gap-6">
-            {/* Main Details */}
+            {/* Report Header */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <FileText className="w-5 h-5" />
-                  <span>Issue Details</span>
+                  <span>{report.title}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground">{issue.title}</h3>
-                  <p className="text-sm text-muted-foreground capitalize">Type: {issue.type.replace('_', ' ')}</p>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Location</label>
-                    <p className="text-foreground">{issue.location}</p>
+                    <p className="text-foreground">{report.location}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Reported By</label>
-                    <p className="text-foreground">{issue.reported_by}</p>
+                    <p className="text-foreground">{report.reported_by}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Date Reported</label>
-                    <p className="text-foreground">{format(new Date(issue.date_reported), 'MMM dd, yyyy')}</p>
+                    <p className="text-foreground">{format(new Date(report.date_reported), 'MMM dd, yyyy')}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Due Date</label>
-                    <p className="text-foreground">{format(new Date(issue.due_date), 'MMM dd, yyyy')}</p>
+                    <p className="text-foreground">{format(new Date(report.due_date), 'MMM dd, yyyy')}</p>
                   </div>
                 </div>
-
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Description</label>
-                  <p className="text-foreground mt-1">{issue.description}</p>
+                  <p className="text-foreground mt-1">{report.description}</p>
                 </div>
-
-                {issue.corrective_action && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Corrective Action</label>
-                    <p className="text-foreground mt-1">{issue.corrective_action}</p>
-                  </div>
-                )}
               </CardContent>
             </Card>
 
+            {/* Summary Dashboard */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <ClipboardList className="w-5 h-5" />
+                  <span>Report Summary</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-foreground">{report.summary.total_items}</div>
+                    <div className="text-sm text-muted-foreground">Total Items</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">{report.summary.open_items}</div>
+                    <div className="text-sm text-muted-foreground">Open</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">{report.summary.resolved_items}</div>
+                    <div className="text-sm text-muted-foreground">Resolved</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-600">{report.summary.major_issues}</div>
+                    <div className="text-sm text-muted-foreground">Major</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">{report.summary.medium_issues}</div>
+                    <div className="text-sm text-muted-foreground">Medium</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">{report.summary.minor_issues}</div>
+                    <div className="text-sm text-muted-foreground">Minor</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Report Sections with Items */}
+            {report.sections.map((section: any, sectionIndex: number) => (
+              <Card key={sectionIndex}>
+                <CardHeader>
+                  <CardTitle>{section.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {section.items.map((item: any, itemIndex: number) => (
+                      <div key={item.id} className="border rounded-lg p-4 space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-2">
+                              {item.status === 'resolved' ? (
+                                <CheckCircle className="w-4 h-4 text-green-600" />
+                              ) : (
+                                <XCircle className="w-4 h-4 text-red-600" />
+                              )}
+                              <h4 className="font-medium text-foreground">{item.description}</h4>
+                            </div>
+                            <div className="space-y-2">
+                              <div>
+                                <span className="text-sm font-medium text-muted-foreground">Findings: </span>
+                                <span className="text-sm text-foreground">{item.findings}</span>
+                              </div>
+                              <div>
+                                <span className="text-sm font-medium text-muted-foreground">Corrective Action: </span>
+                                <span className="text-sm text-foreground">{item.corrective_action}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end space-y-1">
+                            <Badge className={getSeverityColor(item.severity)}>{item.severity}</Badge>
+                            <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+
             {/* Attachments */}
-            {issue.attachments && issue.attachments.length > 0 && (
+            {report.attachments && report.attachments.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Attachments</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {issue.attachments.map((attachment: any, index: number) => (
+                    {report.attachments.map((attachment: any, index: number) => (
                       <div key={index} className="flex items-center justify-between p-2 border rounded">
                         <span className="text-sm">{attachment.name}</span>
                         <Button variant="outline" size="sm">Download</Button>
@@ -202,6 +332,7 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
 
             {/* Actions */}
             <div className="flex justify-end space-x-2">
+              <Button variant="outline">Export Report</Button>
               <Button variant="outline">Edit</Button>
               <Button>Update Status</Button>
             </div>
