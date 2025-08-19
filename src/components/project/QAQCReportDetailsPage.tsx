@@ -43,35 +43,32 @@ export const QAQCReportDetailsPage = ({ onNavigate }: QAQCReportDetailsPageProps
 
   const getReportData = () => {
     const titleParam = searchParams.get('title');
-    
+
     switch (reportType) {
       case 'rfi':
-        const filteredRFIs = titleParam ? rfis.filter(rfi => rfi.title === titleParam) : rfis;
         return {
-          items: filteredRFIs,
+          items: rfis,
           loading: rfisLoading,
           title: 'Request for Information (RFI)',
-          description: titleParam ? `Showing RFI: ${titleParam}` : 'Complete list of information requests for this project',
+          description: titleParam ? `Report: ${titleParam}` : 'Complete list of information requests for this project',
           icon: FileText,
           color: 'blue'
         };
       case 'issues':
-        const filteredIssues = titleParam ? issues.filter(issue => issue.title === titleParam) : issues;
         return {
-          items: filteredIssues,
+          items: issues,
           loading: issuesLoading,
           title: 'Project Issues',
-          description: titleParam ? `Showing Issue: ${titleParam}` : 'Complete list of project issues and complications',
+          description: titleParam ? `Report: ${titleParam}` : 'Complete list of project issues and complications',
           icon: AlertTriangle,
           color: 'orange'
         };
       case 'defects':
-        const filteredDefects = titleParam ? defects.filter(defect => defect.title === titleParam) : defects;
         return {
-          items: filteredDefects,
+          items: defects,
           loading: defectsLoading,
           title: 'Defects & Quality Issues',
-          description: titleParam ? `Showing Defect: ${titleParam}` : 'Complete list of construction defects and quality control issues',
+          description: titleParam ? `Report: ${titleParam}` : 'Complete list of construction defects and quality control issues',
           icon: CheckCircle,
           color: 'red'
         };
