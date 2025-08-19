@@ -84,7 +84,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
         <div className="max-w-7xl mx-auto">
           {/* Quick Stats */}
           <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/checklists?projectId=${projectId}`, '_blank')}>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-checklists&projectId=${projectId}`)}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <ListChecks className="w-8 h-8 text-blue-600" />
@@ -96,7 +96,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
             
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/rfis?projectId=${projectId}`, '_blank')}>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-rfis&projectId=${projectId}`)}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <HelpCircle className="w-8 h-8 text-orange-600" />
@@ -108,7 +108,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/issues?projectId=${projectId}`, '_blank')}>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-issues&projectId=${projectId}`)}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <AlertTriangle className="w-8 h-8 text-red-600" />
@@ -120,7 +120,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/defects?projectId=${projectId}`, '_blank')}>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-defects&projectId=${projectId}`)}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <Bug className="w-8 h-8 text-yellow-600" />
@@ -132,7 +132,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/inspections?projectId=${projectId}`, '_blank')}>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-inspections&projectId=${projectId}`)}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <FlaskConical className="w-8 h-8 text-purple-600" />
@@ -144,7 +144,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/quality-plans?projectId=${projectId}`, '_blank')}>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-quality-plans&projectId=${projectId}`)}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <FileCheck className="w-8 h-8 text-green-600" />
@@ -177,7 +177,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                     New Checklist
                   </Button>
                 </div>
-                <QAQCTable data={checklists || []} type="checklists" isLoading={checklistsLoading} />
+                <QAQCTable data={checklists || []} type="checklists" isLoading={checklistsLoading} onNavigate={onNavigate} />
               </TabsContent>
 
               <TabsContent value="rfis" className="space-y-4">
@@ -188,7 +188,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                     New RFI
                   </Button>
                 </div>
-                <QAQCTable data={rfis || []} type="rfis" isLoading={rfisLoading} />
+                <QAQCTable data={rfis || []} type="rfis" isLoading={rfisLoading} onNavigate={onNavigate} />
               </TabsContent>
 
               <TabsContent value="issues" className="space-y-4">
@@ -199,7 +199,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                     New Issue/NCR
                   </Button>
                 </div>
-                <QAQCTable data={issues || []} type="issues" isLoading={issuesLoading} />
+                <QAQCTable data={issues || []} type="issues" isLoading={issuesLoading} onNavigate={onNavigate} />
               </TabsContent>
 
               <TabsContent value="defects" className="space-y-4">
@@ -210,7 +210,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                     New Defect
                   </Button>
                 </div>
-                <QAQCTable data={defects || []} type="defects" isLoading={defectsLoading} />
+                <QAQCTable data={defects || []} type="defects" isLoading={defectsLoading} onNavigate={onNavigate} />
               </TabsContent>
 
               <TabsContent value="inspections" className="space-y-4">
@@ -221,7 +221,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                     New Inspection
                   </Button>
                 </div>
-                <QAQCTable data={inspections || []} type="inspections" isLoading={inspectionsLoading} />
+                <QAQCTable data={inspections || []} type="inspections" isLoading={inspectionsLoading} onNavigate={onNavigate} />
               </TabsContent>
 
               <TabsContent value="itps" className="space-y-4">
@@ -232,7 +232,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                     New Quality Plan
                   </Button>
                 </div>
-                <QAQCTable data={qualityPlans || []} type="plans" isLoading={qualityPlansLoading} />
+                <QAQCTable data={qualityPlans || []} type="plans" isLoading={qualityPlansLoading} onNavigate={onNavigate} />
               </TabsContent>
             </Tabs>
           </div>

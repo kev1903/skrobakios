@@ -15,6 +15,7 @@ interface QAQCTableProps {
   data: any[];
   type: 'checklists' | 'rfis' | 'issues' | 'defects' | 'inspections' | 'plans';
   isLoading?: boolean;
+  onNavigate?: (page: string) => void;
 }
 
 const getStatusColor = (status: string, type: string) => {
@@ -74,7 +75,7 @@ const getSeverityColor = (severity: string) => {
   return severityMap[severity] || 'bg-gray-100 text-gray-800';
 };
 
-export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
+export const QAQCTable = ({ data, type, isLoading, onNavigate }: QAQCTableProps) => {
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -204,7 +205,7 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => window.open(`/qaqc/checklist/${item.id}?projectId=${item.project_id}`, '_blank')}
+                onClick={() => onNavigate?.(`qaqc-checklist-detail&projectId=${item.project_id}&checklistId=${item.id}`)}
               >
                 {item.checklist_number}
               </button>
@@ -249,7 +250,7 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => window.open(`/qaqc/rfi/${item.id}?projectId=${item.project_id}`, '_blank')}
+                onClick={() => onNavigate?.(`qaqc-rfi-detail&projectId=${item.project_id}&rfiId=${item.id}`)}
               >
                 {item.rfi_number}
               </button>
@@ -296,7 +297,7 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => window.open(`/qaqc/issue/${item.id}?projectId=${item.project_id}`, '_blank')}
+                onClick={() => onNavigate?.(`qaqc-issue-detail&projectId=${item.project_id}&issueId=${item.id}`)}
               >
                 {item.issue_number}
               </button>
@@ -343,7 +344,7 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => window.open(`/qaqc/defect/${item.id}?projectId=${item.project_id}`, '_blank')}
+                onClick={() => onNavigate?.(`qaqc-defect-detail&projectId=${item.project_id}&defectId=${item.id}`)}
               >
                 {item.defect_number}
               </button>
@@ -390,7 +391,7 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => window.open(`/qaqc/inspection/${item.id}?projectId=${item.project_id}`, '_blank')}
+                onClick={() => onNavigate?.(`qaqc-inspection-detail&projectId=${item.project_id}&inspectionId=${item.id}`)}
               >
                 {item.inspection_number}
               </button>
@@ -435,7 +436,7 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => window.open(`/qaqc/quality-plan/${item.id}?projectId=${item.project_id}`, '_blank')}
+                onClick={() => onNavigate?.(`qaqc-quality-plan-detail&projectId=${item.project_id}&planId=${item.id}`)}
               >
                 {item.plan_number}
               </button>
