@@ -84,7 +84,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
         <div className="max-w-7xl mx-auto">
           {/* Quick Stats */}
           <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
-            <Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/checklists?projectId=${projectId}`, '_blank')}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <ListChecks className="w-8 h-8 text-blue-600" />
@@ -96,7 +96,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
             
-            <Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/rfis?projectId=${projectId}`, '_blank')}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <HelpCircle className="w-8 h-8 text-orange-600" />
@@ -108,7 +108,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/issues?projectId=${projectId}`, '_blank')}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <AlertTriangle className="w-8 h-8 text-red-600" />
@@ -120,7 +120,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/defects?projectId=${projectId}`, '_blank')}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <Bug className="w-8 h-8 text-yellow-600" />
@@ -132,7 +132,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/inspections?projectId=${projectId}`, '_blank')}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <FlaskConical className="w-8 h-8 text-purple-600" />
@@ -144,7 +144,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => window.open(`/qaqc/quality-plans?projectId=${projectId}`, '_blank')}>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <FileCheck className="w-8 h-8 text-green-600" />

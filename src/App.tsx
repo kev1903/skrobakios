@@ -5,6 +5,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation, useSearchParams } from "react-router-dom";
 import Index from "./pages/Index";
+import { ChecklistsPage } from "./pages/qaqc/ChecklistsPage";
+import { RFIsPage } from "./pages/qaqc/RFIsPage";
+import { IssuesPage } from "./pages/qaqc/IssuesPage";
+import { DefectsPage } from "./pages/qaqc/DefectsPage";
+import { InspectionsPage } from "./pages/qaqc/InspectionsPage";
+import { QualityPlansPage } from "./pages/qaqc/QualityPlansPage";
 import TasksPage from "./pages/TasksPage";
 import TimeSheetPage from "./pages/TimeSheetPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -166,6 +172,55 @@ const ProjectDashboardWrapper = () => {
   return <SK25008Dashboard projectId={projectId} />;
 };
 
+// QA/QC Page Wrappers
+const ChecklistsPageWrapper = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+  return <ChecklistsPage onNavigate={handleNavigate} />;
+};
+
+const RFIsPageWrapper = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+  return <RFIsPage onNavigate={handleNavigate} />;
+};
+
+const IssuesPageWrapper = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+  return <IssuesPage onNavigate={handleNavigate} />;
+};
+
+const DefectsPageWrapper = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+  return <DefectsPage onNavigate={handleNavigate} />;
+};
+
+const InspectionsPageWrapper = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+  return <InspectionsPage onNavigate={handleNavigate} />;
+};
+
+const QualityPlansPageWrapper = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+  return <QualityPlansPage onNavigate={handleNavigate} />;
+};
+
 const App = () => {
   // Create QueryClient inside the component to ensure React is initialized
   const [queryClient] = React.useState(() => new QueryClient({
@@ -308,6 +363,14 @@ const AppContent = () => {
         
         {/* Dynamic Project Dashboard */}
         <Route path="/project-dashboard/:projectId" element={<ProjectDashboardWrapper />} />
+        
+        {/* QA/QC Routes */}
+        <Route path="/qaqc/checklists" element={<ChecklistsPageWrapper />} />
+        <Route path="/qaqc/rfis" element={<RFIsPageWrapper />} />
+        <Route path="/qaqc/issues" element={<IssuesPageWrapper />} />
+        <Route path="/qaqc/defects" element={<DefectsPageWrapper />} />
+        <Route path="/qaqc/inspections" element={<InspectionsPageWrapper />} />
+        <Route path="/qaqc/quality-plans" element={<QualityPlansPageWrapper />} />
         
         {/* Documentation Pages */}
         <Route path="/docs/pdf-extraction" element={<PDFExtractionDocs />} />
