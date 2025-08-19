@@ -1,5 +1,5 @@
 
-import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Boxes, FileText, DollarSign, Users, FileSignature } from "lucide-react";
+import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Boxes, FileText, DollarSign, Users, FileSignature, ClipboardCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
@@ -59,6 +59,12 @@ const ALL_PROJECT_NAV_ITEMS = [{
   label: 'Contracts',
   icon: FileSignature,
   page: 'project-contracts'
+}, {
+  id: 'qaqc',
+  key: 'qaqc',
+  label: 'QA/QC',
+  icon: ClipboardCheck,
+  page: 'project-qaqc'
 }];
 
 export const ProjectSidebar = ({

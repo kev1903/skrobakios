@@ -67,6 +67,7 @@ import { SecurityPage } from "@/components/SecurityPage";
 import NewTaskPage from "@/pages/NewTaskPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
+import { ProjectQAQCPage } from "@/components/project/ProjectQAQCPage";
 
 
 interface ContentRendererProps {
@@ -295,9 +296,11 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-qaqc":
-      // QA/QC module removed - redirect to projects
-      onNavigate("projects");
-      return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <ProjectQAQCPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
     case "qaqc-report-details":
       // QA/QC module removed - redirect to projects
       onNavigate("projects");
