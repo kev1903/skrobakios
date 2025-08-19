@@ -213,7 +213,7 @@ export const QAQCReportDetailsPage = ({ onNavigate }: QAQCReportDetailsPageProps
                 </Button>
                 <Button size="sm">
                   <Plus className="w-4 h-4 mr-2" />
-                  Add New
+                  New {reportType === 'rfi' ? 'RFI' : reportType === 'issues' ? 'Issue' : 'Defect'}
                 </Button>
               </div>
             </div>
