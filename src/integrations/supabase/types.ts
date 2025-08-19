@@ -996,6 +996,75 @@ export type Database = {
         }
         Relationships: []
       }
+      defects: {
+        Row: {
+          assigned_to: string | null
+          attachments: Json | null
+          category: string | null
+          comments: Json | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          defect_number: string
+          description: string | null
+          due_date: string | null
+          fixed_date: string | null
+          id: string
+          location: string | null
+          priority: string
+          project_id: string
+          severity: string | null
+          status: string
+          title: string
+          updated_at: string
+          verified_date: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          category?: string | null
+          comments?: Json | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          defect_number: string
+          description?: string | null
+          due_date?: string | null
+          fixed_date?: string | null
+          id?: string
+          location?: string | null
+          priority?: string
+          project_id: string
+          severity?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          verified_date?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          category?: string | null
+          comments?: Json | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          defect_number?: string
+          description?: string | null
+          due_date?: string | null
+          fixed_date?: string | null
+          id?: string
+          location?: string | null
+          priority?: string
+          project_id?: string
+          severity?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          verified_date?: string | null
+        }
+        Relationships: []
+      }
       digital_objects: {
         Row: {
           company_id: string
@@ -1660,6 +1729,69 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      issues: {
+        Row: {
+          assigned_to: string | null
+          attachments: Json | null
+          category: string | null
+          comments: Json | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          issue_number: string
+          location: string | null
+          priority: string
+          project_id: string
+          resolved_date: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          category?: string | null
+          comments?: Json | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          issue_number: string
+          location?: string | null
+          priority?: string
+          project_id: string
+          resolved_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          category?: string | null
+          comments?: Json | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          issue_number?: string
+          location?: string | null
+          priority?: string
+          project_id?: string
+          resolved_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       leads: {
         Row: {
@@ -2912,6 +3044,72 @@ export type Database = {
           reviewer_id?: string
           status?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      rfis: {
+        Row: {
+          assigned_to: string | null
+          attachments: Json | null
+          category: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          location: string | null
+          priority: string
+          project_id: string
+          resolved_date: string | null
+          response_required_by: string | null
+          responses: Json | null
+          rfi_number: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          category?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          location?: string | null
+          priority?: string
+          project_id: string
+          resolved_date?: string | null
+          response_required_by?: string | null
+          responses?: Json | null
+          rfi_number: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          category?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          location?: string | null
+          priority?: string
+          project_id?: string
+          resolved_date?: string | null
+          response_required_by?: string | null
+          responses?: Json | null
+          rfi_number?: string
+          status?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -4393,12 +4591,24 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      generate_defect_number: {
+        Args: { project_id_param: string }
+        Returns: string
+      }
       generate_invitation_token: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
       generate_invoice_number: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_issue_number: {
+        Args: { project_id_param: string }
+        Returns: string
+      }
+      generate_rfi_number: {
+        Args: { project_id_param: string }
         Returns: string
       }
       generate_slug: {
