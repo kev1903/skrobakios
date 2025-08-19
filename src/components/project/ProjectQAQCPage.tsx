@@ -257,7 +257,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=rfi`)}
                               className="font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
                             >
-                              {rfi.id}
+                              {`RFI Report - ${rfi.id} - ${project.name}`}
                             </button>
                             <Badge className={getStatusColor(rfi.status)}>{rfi.status}</Badge>
                             <Badge className={getPriorityColor(rfi.priority)}>{rfi.priority}</Badge>
