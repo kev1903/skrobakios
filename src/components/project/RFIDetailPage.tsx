@@ -216,7 +216,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
               {/* Basic Information */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-foreground">
                     <FileText className="w-5 h-5" />
                     {type.toUpperCase()} Details
                   </CardTitle>
@@ -323,7 +323,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
               {/* Status & Priority */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-foreground">
                     <AlertCircle className="w-5 h-5" />
                     Status & Priority
                   </CardTitle>
