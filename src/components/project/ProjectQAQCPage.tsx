@@ -416,13 +416,13 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                     <AlertDialogHeader>
                                       <AlertDialogTitle>Delete RFI</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Are you sure you want to delete RFI "{rfi.rfi_number}"? This action cannot be undone.
+                                        Are you sure you want to delete this RFI "{rfi.title}"? This action cannot be undone.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                                       <AlertDialogAction onClick={() => handleDeleteRFI(rfi.id)} className="bg-red-600 hover:bg-red-700">
-                                        Delete
+                                        Delete RFI
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
@@ -556,13 +556,13 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                     <AlertDialogHeader>
                                       <AlertDialogTitle>Void Issue</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Are you sure you want to void issue "{issue.issue_number}"? This will mark it as voided. This action cannot be undone.
+                                        Are you sure you want to void issue "{issue.title}"? This will mark it as voided. This action cannot be undone.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                                       <AlertDialogAction onClick={() => handleVoidIssue(issue.id)} className="bg-red-600 hover:bg-red-700">
-                                        Void
+                                        Void Issue
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
@@ -697,13 +697,13 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                     <AlertDialogHeader>
                                       <AlertDialogTitle>Delete Defect</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Are you sure you want to delete defect "{defect.defect_number}"? This action cannot be undone.
+                                        Are you sure you want to delete defect "{defect.title}"? This action cannot be undone.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                                       <AlertDialogAction onClick={() => handleDeleteDefect(defect.id)} className="bg-red-600 hover:bg-red-700">
-                                        Delete
+                                        Delete Defect
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
