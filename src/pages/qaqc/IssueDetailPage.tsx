@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
@@ -268,48 +269,57 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
               </CardContent>
             </Card>
 
-            {/* Report Sections with Items */}
-            {report.sections.map((section: any, sectionIndex: number) => (
-              <Card key={sectionIndex}>
-                <CardHeader>
-                  <CardTitle>{section.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {section.items.map((item: any, itemIndex: number) => (
-                      <div key={item.id} className="border rounded-lg p-4 space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
+            {/* Issues Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>All Issues</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Findings</TableHead>
+                      <TableHead>Corrective Action</TableHead>
+                      <TableHead>Severity</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {report.sections.map((section: any) => 
+                      section.items.map((item: any) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{section.title}</TableCell>
+                          <TableCell className="max-w-xs">
+                            <div className="flex items-center space-x-2">
                               {item.status === 'resolved' ? (
-                                <CheckCircle className="w-4 h-4 text-green-600" />
+                                <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
                               ) : (
-                                <XCircle className="w-4 h-4 text-red-600" />
+                                <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
                               )}
-                              <h4 className="font-medium text-gray-700">{item.description}</h4>
+                              <span className="text-sm">{item.description}</span>
                             </div>
-                            <div className="space-y-2">
-                              <div>
-                                <span className="text-sm font-medium text-muted-foreground">Findings: </span>
-                                <span className="text-sm text-gray-700">{item.findings}</span>
-                              </div>
-                              <div>
-                                <span className="text-sm font-medium text-muted-foreground">Corrective Action: </span>
-                                <span className="text-sm text-gray-700">{item.corrective_action}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex flex-col items-end space-y-1">
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground max-w-xs">
+                            {item.findings}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground max-w-xs">
+                            {item.corrective_action}
+                          </TableCell>
+                          <TableCell>
                             <Badge className={getSeverityColor(item.severity)}>{item.severity}</Badge>
+                          </TableCell>
+                          <TableCell>
                             <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
 
             {/* Attachments */}
             {report.attachments && report.attachments.length > 0 && (
