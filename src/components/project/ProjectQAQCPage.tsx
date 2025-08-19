@@ -313,64 +313,6 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                 <CardContent>
                   {/* RFI Report Container */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border rounded-lg bg-blue-50/50">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <button 
-                            onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=rfi`)}
-                            className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
-                          >
-                            {`RFI Report - ${project?.name || 'Project'}`}
-                          </button>
-                          <Badge className="bg-blue-100 text-blue-800">{rfis.length} Items</Badge>
-                        </div>
-                        <h3 className="font-medium text-foreground mb-1">Request for Information Report</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Contains {rfis.length} RFI{rfis.length !== 1 ? 's' : ''} • Last updated: {rfis.length > 0 ? new Date(Math.max(...rfis.map(r => new Date(r.updated_at).getTime()))).toLocaleDateString() : 'N/A'}
-                        </p>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-background z-50">
-                          <DropdownMenuItem onClick={() => console.log('Export RFI Report')}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Export Report
-                          </DropdownMenuItem>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <DropdownMenuItem 
-                                onSelect={(e) => e.preventDefault()} 
-                                className={rfis.length > 0 ? "text-red-600 focus:text-red-600" : "text-gray-400 cursor-not-allowed"}
-                                disabled={rfis.length === 0}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete Report
-                              </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            {rfis.length > 0 && (
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete RFI Report</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to delete the entire RFI Report? This will permanently remove all {rfis.length} RFI item{rfis.length !== 1 ? 's' : ''} from this report. This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleDeleteRFIReport} className="bg-red-600 hover:bg-red-700">
-                                    Delete Report
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            )}
-                          </AlertDialog>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
 
                     {/* RFI Items List */}
                     {rfisLoading ? (
@@ -543,64 +485,6 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                 <CardContent>
                   {/* Defects Report Container */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border rounded-lg bg-red-50/50">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <button 
-                            onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=defects`)}
-                            className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
-                          >
-                            {`Defects Report - ${project?.name || 'Project'}`}
-                          </button>
-                          <Badge className="bg-red-100 text-red-800">{defects.length} Items</Badge>
-                        </div>
-                        <h3 className="font-medium text-foreground mb-1">Project Defects Report</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Contains {defects.length} Defect{defects.length !== 1 ? 's' : ''} • Last updated: {defects.length > 0 ? new Date(Math.max(...defects.map(d => new Date(d.updated_at).getTime()))).toLocaleDateString() : 'N/A'}
-                        </p>
-                      </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-background z-50">
-                          <DropdownMenuItem onClick={() => console.log('Export Defects Report')}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Export Report
-                          </DropdownMenuItem>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <DropdownMenuItem 
-                                onSelect={(e) => e.preventDefault()} 
-                                className={defects.length > 0 ? "text-red-600 focus:text-red-600" : "text-gray-400 cursor-not-allowed"}
-                                disabled={defects.length === 0}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete Report
-                              </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                            {defects.length > 0 && (
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Defects Report</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to delete the entire Defects Report? This will permanently remove all {defects.length} defect item{defects.length !== 1 ? 's' : ''} from this report. This action cannot be undone.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleDeleteDefectsReport} className="bg-red-600 hover:bg-red-700">
-                                    Delete Report
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            )}
-                          </AlertDialog>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
 
                     {/* Defects Items List */}
                     {defectsLoading ? (
