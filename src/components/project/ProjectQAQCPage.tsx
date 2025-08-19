@@ -331,7 +331,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-2">
                               <button 
-                                onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=issues`)}
+                                onClick={() => onNavigate(`issues-report?projectId=${projectId}`)}
                                 className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
                               >
                                 {`Issues Report ${issue.issue_number} - ${project.name}`}
