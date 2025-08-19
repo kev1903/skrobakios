@@ -220,9 +220,13 @@ export const RFIListPage = ({ onNavigate }: RFIListPageProps) => {
                   <Search className="w-4 h-4 mr-2" />
                   Search
                 </Button>
+                <Button variant="outline" size="sm">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Filter
+                </Button>
                 <Button size="sm">
                   <Plus className="w-4 h-4 mr-2" />
-                  New Report
+                  New {type.toUpperCase()}
                 </Button>
               </div>
             </div>
