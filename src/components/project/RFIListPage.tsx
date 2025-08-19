@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Search, Filter } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ArrowLeft, Plus, Search, Filter, MoreHorizontal, Edit, Eye } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
@@ -17,6 +19,7 @@ export const RFIListPage = ({ onNavigate }: RFIListPageProps) => {
   const type = searchParams.get('type') || 'rfi';
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   useEffect(() => {
     if (projectId) {
@@ -128,28 +131,44 @@ export const RFIListPage = ({ onNavigate }: RFIListPageProps) => {
       case 'open':
       case 'active':
       case 'critical':
-        return 'bg-red-100 text-red-800';
+        return 'destructive';
       case 'pending':
       case 'in-progress':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'secondary';
       case 'resolved':
-        return 'bg-green-100 text-green-800';
+        return 'default';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'outline';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'destructive';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'secondary';
       case 'low':
-        return 'bg-green-100 text-green-800';
+        return 'default';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'outline';
     }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.length === data.items.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(data.items.map(item => item.id));
+    }
+  };
+
+  const handleSelectItem = (itemId: string) => {
+    setSelectedItems(prev => 
+      prev.includes(itemId) 
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
   };
 
   if (!project) {
@@ -212,38 +231,91 @@ export const RFIListPage = ({ onNavigate }: RFIListPageProps) => {
             </div>
           </div>
 
-          {/* Items List */}
-          <div className="space-y-4">
-            {data.items.map((item) => (
-              <Card key={item.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="text-lg font-semibold text-gray-900">{item.id}</span>
-                        <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
-                        <Badge className={getPriorityColor(item.priority)}>{item.priority}</Badge>
+          {/* Items Table */}
+          <div className="bg-white rounded-lg border shadow-sm">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={selectedItems.length === data.items.length && data.items.length > 0}
+                      onCheckedChange={handleSelectAll}
+                      aria-label="Select all items"
+                    />
+                  </TableHead>
+                  <TableHead className="font-medium">{type.toUpperCase()} #</TableHead>
+                  <TableHead className="font-medium">{type.toUpperCase()} Name</TableHead>
+                  <TableHead className="font-medium">Type</TableHead>
+                  <TableHead className="font-medium">Priority</TableHead>
+                  <TableHead className="font-medium">Assigned To</TableHead>
+                  <TableHead className="font-medium">Created Date</TableHead>
+                  <TableHead className="font-medium">Status</TableHead>
+                  <TableHead className="font-medium">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.items.map((item) => (
+                  <TableRow key={item.id} className="hover:bg-muted/50">
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedItems.includes(item.id)}
+                        onCheckedChange={() => handleSelectItem(item.id)}
+                        aria-label={`Select ${item.id}`}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium text-primary">
+                      {item.id}
+                    </TableCell>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{item.title}</div>
+                        <div className="text-sm text-muted-foreground truncate max-w-64">
+                          {item.description}
+                        </div>
                       </div>
-                      <h3 className="text-xl font-medium text-gray-900 mb-2">{item.title}</h3>
-                      <p className="text-gray-600 mb-3">{item.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>Created: {item.created}</span>
-                        <span>•</span>
-                        <span>Assigned to: {item.assigned}</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        Edit
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{type.toUpperCase()}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getPriorityColor(item.priority)}>
+                        {item.priority}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {item.assigned}
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {item.created}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusColor(item.status)}>
+                        {item.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>
