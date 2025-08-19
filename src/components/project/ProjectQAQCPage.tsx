@@ -161,6 +161,33 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
     }
   };
 
+  // Handle deleting all QA/QC items for the project
+  const handleDeleteAllItems = async () => {
+    try {
+      // Delete all RFIs
+      for (const rfi of rfis) {
+        await deleteRFI(rfi.id);
+      }
+      
+      // Delete all Issues
+      await deleteIssuesForProject();
+      
+      // Delete all Defects
+      for (const defect of defects) {
+        await deleteDefect(defect.id);
+      }
+      
+      // Refresh all data
+      refetchRFIs();
+      refetchIssues();
+      refetchDefects();
+      
+      console.log('All QA/QC items deleted successfully');
+    } catch (error) {
+      console.error('Failed to delete all items:', error);
+    }
+  };
+
   const handleReportSuccess = () => {
     setShowNewReportDialog(false);
     // Refresh the appropriate data based on active tab
@@ -234,6 +261,32 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <Filter className="w-4 h-4 mr-2" />
                   Filter
                 </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="sm">
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete All Items
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete All QA/QC Items</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete ALL QA/QC items for this project? This will permanently remove:
+                        <br />• {rfis.length} RFI item{rfis.length !== 1 ? 's' : ''}
+                        <br />• {issues.length} Issue item{issues.length !== 1 ? 's' : ''}
+                        <br />• {defects.length} Defect item{defects.length !== 1 ? 's' : ''}
+                        <br /><br />This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDeleteAllItems} className="bg-red-600 hover:bg-red-700">
+                        Delete All Items
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 <Button size="sm" onClick={handleNewReportClick}>
                   <Plus className="w-4 h-4 mr-2" />
                   New Report
