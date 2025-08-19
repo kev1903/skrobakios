@@ -620,14 +620,18 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                             <Download className="mr-2 h-4 w-4" />
                             Export Report
                           </DropdownMenuItem>
-                          {defects.length > 0 && (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete Report
-                                </DropdownMenuItem>
-                              </AlertDialogTrigger>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem 
+                                onSelect={(e) => e.preventDefault()} 
+                                className={defects.length > 0 ? "text-red-600 focus:text-red-600" : "text-gray-400 cursor-not-allowed"}
+                                disabled={defects.length === 0}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Report
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            {defects.length > 0 && (
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete Defects Report</AlertDialogTitle>
@@ -642,8 +646,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
-                            </AlertDialog>
-                          )}
+                            )}
+                          </AlertDialog>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
