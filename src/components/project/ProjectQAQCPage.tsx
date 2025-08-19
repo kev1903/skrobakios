@@ -19,6 +19,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { RFIForm } from '@/components/reports/RFIForm';
 import { IssueForm } from '@/components/reports/IssueForm';
 import { DefectForm } from '@/components/reports/DefectForm';
+import { RFIReportForm } from '@/components/reports/RFIReportForm';
 
 interface ProjectQAQCPageProps {
   onNavigate: (page: string) => void;
@@ -200,11 +201,11 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
     setShowNewReportDialog(false);
     // Refresh the appropriate data based on active tab
     if (activeTab === 'rfi') {
-      refetchRFIs();
+      refetchRFIReports();
     } else if (activeTab === 'issues') {
-      refetchIssues();
+      refetchIssueReports();
     } else if (activeTab === 'defects') {
-      refetchDefects();
+      refetchDefectReports();
     }
   };
 
@@ -217,7 +218,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
     
     switch (activeTab) {
       case 'rfi':
-        return <RFIForm projectId={projectId} projectName={project?.name} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
+        return <RFIReportForm projectId={projectId} projectName={project?.name} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
       case 'issues':
         return <IssueForm projectId={projectId} projectName={project?.name} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
       case 'defects':

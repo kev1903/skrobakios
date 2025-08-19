@@ -67,7 +67,7 @@ export const RFIForm = ({ projectId, projectName, onSuccess, onCancel }: RFIForm
 
       toast({
         title: 'Success',
-        description: 'RFI created successfully',
+        description: 'RFI item created successfully',
       });
 
       onSuccess();
