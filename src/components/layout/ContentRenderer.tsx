@@ -68,6 +68,7 @@ import NewTaskPage from "@/pages/NewTaskPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
 import { ProjectQAQCPage } from "@/components/project/ProjectQAQCPage";
+import { QAQCReportDetailsPage } from "@/components/project/QAQCReportDetailsPage";
 import { RFIListPage } from "@/components/project/RFIListPage";
 import { RFIDetailPage } from "@/components/project/RFIDetailPage";
 
@@ -301,6 +302,12 @@ export const ContentRenderer = ({
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectQAQCPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-report-details":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <QAQCReportDetailsPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "rfi-list":
