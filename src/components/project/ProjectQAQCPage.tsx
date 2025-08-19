@@ -394,7 +394,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               </div>
                               <h4 
                                 className="font-medium text-foreground mb-1 cursor-pointer hover:text-blue-600 transition-colors"
-                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=rfi&title=${encodeURIComponent(report.title)}`)}
+                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=rfi&reportId=${report.id}&title=${encodeURIComponent(report.title)}`)}
                               >
                                 {report.title}
                               </h4>
@@ -410,7 +410,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="bg-background z-50">
-                                <DropdownMenuItem onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=rfi&title=${encodeURIComponent(report.title)}`)}>
+                                <DropdownMenuItem onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=rfi&reportId=${report.id}&title=${encodeURIComponent(report.title)}`)}>
                                   View Details
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => console.log('Export Report:', report.id)}>

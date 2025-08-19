@@ -12,6 +12,23 @@ import { useRFIs } from '@/hooks/useRFIs';
 import { useIssues } from '@/hooks/useIssues';
 import { useDefects } from '@/hooks/useDefects';
 
+// Unified type for items across RFIs, Issues, and Defects (only fields we render)
+export type CombinedItem = {
+  id: string;
+  status?: string;
+  updated_at?: string;
+  priority?: string;
+  title?: string;
+  description?: string;
+  created_at?: string;
+  due_date?: string | null;
+  location?: string | null;
+  category?: string | null;
+  rfi_number?: string;
+  issue_number?: string;
+  defect_number?: string;
+};
+
 interface QAQCReportDetailsPageProps {
   onNavigate: (page: string) => void;
 }
@@ -20,6 +37,7 @@ export const QAQCReportDetailsPage = ({ onNavigate }: QAQCReportDetailsPageProps
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('projectId');
   const reportType = searchParams.get('type'); // 'rfi', 'issues', or 'defects'
+  const reportId = searchParams.get('reportId');
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
   
@@ -44,31 +62,37 @@ export const QAQCReportDetailsPage = ({ onNavigate }: QAQCReportDetailsPageProps
   const getReportData = () => {
     const titleParam = searchParams.get('title');
 
+    // Only show items that belong to the selected report container
+    const byReport = <T extends any>(items: T[]) => {
+      if (!reportId) return [] as T[];
+      return (items || []).filter((i: any) => i?.report_id === reportId);
+    };
+
     switch (reportType) {
       case 'rfi':
         return {
-          items: rfis,
+          items: byReport(rfis as any),
           loading: rfisLoading,
           title: 'Request for Information (RFI)',
-          description: titleParam ? `Report: ${titleParam}` : 'Complete list of information requests for this project',
+          description: titleParam ? `Report: ${titleParam}` : 'RFI report items',
           icon: FileText,
           color: 'blue'
         };
       case 'issues':
         return {
-          items: issues,
+          items: byReport(issues as any),
           loading: issuesLoading,
           title: 'Project Issues',
-          description: titleParam ? `Report: ${titleParam}` : 'Complete list of project issues and complications',
+          description: titleParam ? `Report: ${titleParam}` : 'Issue report items',
           icon: AlertTriangle,
           color: 'orange'
         };
       case 'defects':
         return {
-          items: defects,
+          items: byReport(defects as any),
           loading: defectsLoading,
           title: 'Defects & Quality Issues',
-          description: titleParam ? `Report: ${titleParam}` : 'Complete list of construction defects and quality control issues',
+          description: titleParam ? `Report: ${titleParam}` : 'Defect report items',
           icon: CheckCircle,
           color: 'red'
         };
