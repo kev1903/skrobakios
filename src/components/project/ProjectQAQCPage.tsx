@@ -245,65 +245,40 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                 <CardContent>
                   <div className="space-y-4">
                     {rfisLoading ? (
-                      <div className="text-center py-8">Loading RFIs...</div>
+                      <div className="text-center py-8">Loading RFI Reports...</div>
                     ) : rfis.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground">No RFIs found</div>
+                      <div className="text-center py-8 text-muted-foreground">No RFI Reports found</div>
                     ) : (
-                      rfis.map((rfi) => (
-                        <div key={rfi.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <button 
-                                onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=rfi`)}
-                                className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
-                              >
-                                {`RFI Report ${rfi.rfi_number} - ${project.name}`}
-                              </button>
-                              <Badge className={getStatusColor(rfi.status)}>{rfi.status}</Badge>
-                              <Badge className={getPriorityColor(rfi.priority)}>{rfi.priority}</Badge>
-                            </div>
-                            <h3 className="font-medium text-foreground mb-1">{rfi.title}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Created: {new Date(rfi.created_at).toLocaleDateString()} • Assigned to: {rfi.assigned_to}
-                            </p>
+                      <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <button 
+                              onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=rfi`)}
+                              className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
+                            >
+                              {`RFI Report - ${project?.name || 'Project'}`}
+                            </button>
+                            <Badge className="bg-blue-100 text-blue-800">{rfis.length} Items</Badge>
                           </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-background z-50">
-                              <DropdownMenuItem onClick={() => exportRFI(rfi)}>
-                                <Download className="mr-2 h-4 w-4" />
-                                Export
-                              </DropdownMenuItem>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete RFI</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Are you sure you want to delete {rfi.rfi_number}? This action cannot be undone.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => deleteRFI(rfi.id)} className="bg-destructive hover:bg-destructive/90">
-                                      Delete
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <h3 className="font-medium text-foreground mb-1">Request for Information Report</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Contains {rfis.length} RFI{rfis.length !== 1 ? 's' : ''} • Last updated: {rfis.length > 0 ? new Date(Math.max(...rfis.map(r => new Date(r.updated_at).getTime()))).toLocaleDateString() : 'N/A'}
+                          </p>
                         </div>
-                      ))
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-background z-50">
+                            <DropdownMenuItem onClick={() => console.log('Export RFI Report')}>
+                              <Download className="mr-2 h-4 w-4" />
+                              Export Report
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     )}
                   </div>
                 </CardContent>
@@ -322,65 +297,40 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                 <CardContent>
                   <div className="space-y-4">
                     {issuesLoading ? (
-                      <div className="text-center py-8">Loading Issues...</div>
+                      <div className="text-center py-8">Loading Issues Reports...</div>
                     ) : issues.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground">No Issues found</div>
+                      <div className="text-center py-8 text-muted-foreground">No Issues Reports found</div>
                     ) : (
-                      issues.map((issue) => (
-                        <div key={issue.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <button 
-                                onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=issues`)}
-                                className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
-                              >
-                                {`Issues Report ${issue.issue_number} - ${project.name}`}
-                              </button>
-                              <Badge className={getStatusColor(issue.status)}>{issue.status}</Badge>
-                              <Badge className={getPriorityColor(issue.priority)}>{issue.priority}</Badge>
-                            </div>
-                            <h3 className="font-medium text-foreground mb-1">{issue.title}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Created: {new Date(issue.created_at).toLocaleDateString()} • Assigned to: {issue.assigned_to}
-                            </p>
+                      <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <button 
+                              onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=issues`)}
+                              className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
+                            >
+                              {`Issues Report - ${project?.name || 'Project'}`}
+                            </button>
+                            <Badge className="bg-orange-100 text-orange-800">{issues.length} Items</Badge>
                           </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-background z-50">
-                              <DropdownMenuItem onClick={() => exportIssue(issue)}>
-                                <Download className="mr-2 h-4 w-4" />
-                                Export
-                              </DropdownMenuItem>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Void
-                                </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Void Issue</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Are you sure you want to void {issue.issue_number}? This will mark the issue as voided but keep it in the system for record keeping.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => voidIssue(issue.id)} className="bg-destructive hover:bg-destructive/90">
-                                      Void Issue
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <h3 className="font-medium text-foreground mb-1">Project Issues Report</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Contains {issues.length} Issue{issues.length !== 1 ? 's' : ''} • Last updated: {issues.length > 0 ? new Date(Math.max(...issues.map(i => new Date(i.updated_at).getTime()))).toLocaleDateString() : 'N/A'}
+                          </p>
                         </div>
-                      ))
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-background z-50">
+                            <DropdownMenuItem onClick={() => console.log('Export Issues Report')}>
+                              <Download className="mr-2 h-4 w-4" />
+                              Export Report
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     )}
                   </div>
                 </CardContent>
@@ -399,68 +349,40 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                 <CardContent>
                   <div className="space-y-4">
                     {defectsLoading ? (
-                      <div className="text-center py-8">Loading Defects...</div>
+                      <div className="text-center py-8">Loading Defects Reports...</div>
                     ) : defects.length === 0 ? (
-                      <div className="text-center py-8 text-muted-foreground">No Defects found</div>
+                      <div className="text-center py-8 text-muted-foreground">No Defects Reports found</div>
                     ) : (
-                      defects.map((defect) => (
-                        <div key={defect.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <button 
-                                onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=defects`)}
-                                className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
-                              >
-                                {`Defect Report ${defect.defect_number} - ${project.name}`}
-                              </button>
-                              <Badge className={getStatusColor(defect.status)}>{defect.status}</Badge>
-                              <Badge className={getPriorityColor(defect.priority)}>{defect.priority}</Badge>
-                              <Badge variant="outline">
-                                {defect.severity}
-                              </Badge>
-                            </div>
-                            <h3 className="font-medium text-foreground mb-1">{defect.title}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Created: {new Date(defect.created_at).toLocaleDateString()} • Assigned to: {defect.assigned_to}
-                            </p>
+                      <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <button 
+                              onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=defects`)}
+                              className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
+                            >
+                              {`Defects Report - ${project?.name || 'Project'}`}
+                            </button>
+                            <Badge className="bg-red-100 text-red-800">{defects.length} Items</Badge>
                           </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="bg-background z-50">
-                              <DropdownMenuItem onClick={() => exportDefect(defect)}>
-                                <Download className="mr-2 h-4 w-4" />
-                                Export
-                              </DropdownMenuItem>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete Defect</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Are you sure you want to delete {defect.defect_number}? This action cannot be undone.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => deleteDefect(defect.id)} className="bg-destructive hover:bg-destructive/90">
-                                      Delete
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <h3 className="font-medium text-foreground mb-1">Project Defects Report</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Contains {defects.length} Defect{defects.length !== 1 ? 's' : ''} • Last updated: {defects.length > 0 ? new Date(Math.max(...defects.map(d => new Date(d.updated_at).getTime()))).toLocaleDateString() : 'N/A'}
+                          </p>
                         </div>
-                      ))
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-background z-50">
+                            <DropdownMenuItem onClick={() => console.log('Export Defects Report')}>
+                              <Download className="mr-2 h-4 w-4" />
+                              Export Report
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     )}
                   </div>
                 </CardContent>
