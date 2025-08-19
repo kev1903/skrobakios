@@ -201,7 +201,14 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
       case 'checklists':
         return (
           <TableRow key={item.id}>
-            <TableCell className="font-medium">{item.checklist_number}</TableCell>
+            <TableCell className="font-medium">
+              <button 
+                className="text-blue-600 hover:text-blue-800 hover:underline"
+                onClick={() => window.open(`/qaqc/checklist/${item.id}?projectId=${item.project_id}`, '_blank')}
+              >
+                {item.checklist_number}
+              </button>
+            </TableCell>
             <TableCell>{item.title}</TableCell>
             <TableCell className="capitalize">{item.type}</TableCell>
             <TableCell>
@@ -239,7 +246,14 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
       case 'rfis':
         return (
           <TableRow key={item.id}>
-            <TableCell className="font-medium">{item.rfi_number}</TableCell>
+            <TableCell className="font-medium">
+              <button 
+                className="text-blue-600 hover:text-blue-800 hover:underline"
+                onClick={() => window.open(`/qaqc/rfi/${item.id}?projectId=${item.project_id}`, '_blank')}
+              >
+                {item.rfi_number}
+              </button>
+            </TableCell>
             <TableCell>{item.title}</TableCell>
             <TableCell>
               <Badge className={getPriorityColor(item.priority)}>{item.priority}</Badge>
@@ -279,7 +293,14 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
       case 'issues':
         return (
           <TableRow key={item.id}>
-            <TableCell className="font-medium">{item.issue_number}</TableCell>
+            <TableCell className="font-medium">
+              <button 
+                className="text-blue-600 hover:text-blue-800 hover:underline"
+                onClick={() => window.open(`/qaqc/issue/${item.id}?projectId=${item.project_id}`, '_blank')}
+              >
+                {item.issue_number}
+              </button>
+            </TableCell>
             <TableCell>{item.title}</TableCell>
             <TableCell className="capitalize">{item.type?.replace('_', ' ') || '-'}</TableCell>
             <TableCell>
@@ -319,7 +340,14 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
       case 'defects':
         return (
           <TableRow key={item.id}>
-            <TableCell className="font-medium">{item.defect_number}</TableCell>
+            <TableCell className="font-medium">
+              <button 
+                className="text-blue-600 hover:text-blue-800 hover:underline"
+                onClick={() => window.open(`/qaqc/defect/${item.id}?projectId=${item.project_id}`, '_blank')}
+              >
+                {item.defect_number}
+              </button>
+            </TableCell>
             <TableCell>{item.title}</TableCell>
             <TableCell className="capitalize">{item.category}</TableCell>
             <TableCell>
@@ -359,7 +387,14 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
       case 'inspections':
         return (
           <TableRow key={item.id}>
-            <TableCell className="font-medium">{item.inspection_number}</TableCell>
+            <TableCell className="font-medium">
+              <button 
+                className="text-blue-600 hover:text-blue-800 hover:underline"
+                onClick={() => window.open(`/qaqc/inspection/${item.id}?projectId=${item.project_id}`, '_blank')}
+              >
+                {item.inspection_number}
+              </button>
+            </TableCell>
             <TableCell>{item.title}</TableCell>
             <TableCell className="capitalize">{item.type?.replace('_', ' ') || '-'}</TableCell>
             <TableCell>
@@ -397,7 +432,14 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
       case 'plans':
         return (
           <TableRow key={item.id}>
-            <TableCell className="font-medium">{item.plan_number}</TableCell>
+            <TableCell className="font-medium">
+              <button 
+                className="text-blue-600 hover:text-blue-800 hover:underline"
+                onClick={() => window.open(`/qaqc/quality-plan/${item.id}?projectId=${item.project_id}`, '_blank')}
+              >
+                {item.plan_number}
+              </button>
+            </TableCell>
             <TableCell>{item.title}</TableCell>
             <TableCell className="uppercase">{item.type}</TableCell>
             <TableCell>

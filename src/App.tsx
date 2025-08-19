@@ -11,6 +11,7 @@ import { IssuesPage } from "./pages/qaqc/IssuesPage";
 import { DefectsPage } from "./pages/qaqc/DefectsPage";
 import { InspectionsPage } from "./pages/qaqc/InspectionsPage";
 import { QualityPlansPage } from "./pages/qaqc/QualityPlansPage";
+import { IssueDetailPage } from "./pages/qaqc/IssueDetailPage";
 import TasksPage from "./pages/TasksPage";
 import TimeSheetPage from "./pages/TimeSheetPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -221,6 +222,14 @@ const QualityPlansPageWrapper = () => {
   return <QualityPlansPage onNavigate={handleNavigate} />;
 };
 
+const IssueDetailPageWrapper = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+  return <IssueDetailPage onNavigate={handleNavigate} />;
+};
+
 const App = () => {
   // Create QueryClient inside the component to ensure React is initialized
   const [queryClient] = React.useState(() => new QueryClient({
@@ -371,6 +380,7 @@ const AppContent = () => {
         <Route path="/qaqc/defects" element={<DefectsPageWrapper />} />
         <Route path="/qaqc/inspections" element={<InspectionsPageWrapper />} />
         <Route path="/qaqc/quality-plans" element={<QualityPlansPageWrapper />} />
+        <Route path="/qaqc/issue/:issueId" element={<IssueDetailPageWrapper />} />
         
         {/* Documentation Pages */}
         <Route path="/docs/pdf-extraction" element={<PDFExtractionDocs />} />
