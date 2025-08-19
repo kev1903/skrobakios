@@ -63,15 +63,15 @@ export const QAQCReportDetailsPage = ({ onNavigate }: QAQCReportDetailsPageProps
     const titleParam = searchParams.get('title');
 
     // Only show items that belong to the selected report container
-    const byReport = <T extends any>(items: T[]) => {
-      if (!reportId) return [] as T[];
-      return (items || []).filter((i: any) => i?.report_id === reportId);
+    const byReport = (items: CombinedItem[]): CombinedItem[] => {
+      if (!reportId) return [];
+      return items.filter((item) => (item as any)?.report_id === reportId);
     };
 
     switch (reportType) {
       case 'rfi':
         return {
-          items: byReport(rfis as any),
+          items: byReport(rfis as CombinedItem[]),
           loading: rfisLoading,
           title: 'Request for Information (RFI)',
           description: titleParam ? `Report: ${titleParam}` : 'RFI report items',
@@ -80,7 +80,7 @@ export const QAQCReportDetailsPage = ({ onNavigate }: QAQCReportDetailsPageProps
         };
       case 'issues':
         return {
-          items: byReport(issues as any),
+          items: byReport(issues as CombinedItem[]),
           loading: issuesLoading,
           title: 'Project Issues',
           description: titleParam ? `Report: ${titleParam}` : 'Issue report items',
@@ -89,7 +89,7 @@ export const QAQCReportDetailsPage = ({ onNavigate }: QAQCReportDetailsPageProps
         };
       case 'defects':
         return {
-          items: byReport(defects as any),
+          items: byReport(defects as CombinedItem[]),
           loading: defectsLoading,
           title: 'Defects & Quality Issues',
           description: titleParam ? `Report: ${titleParam}` : 'Defect report items',
@@ -98,7 +98,7 @@ export const QAQCReportDetailsPage = ({ onNavigate }: QAQCReportDetailsPageProps
         };
       default:
         return {
-          items: [],
+          items: [] as CombinedItem[],
           loading: false,
           title: 'Unknown Report',
           description: '',
