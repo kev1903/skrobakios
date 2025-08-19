@@ -200,7 +200,7 @@ export const QAQCReportDetailsPage = ({ onNavigate }: QAQCReportDetailsPageProps
                 <div className="flex items-center gap-3 mb-2">
                   <IconComponent className={`w-6 h-6 text-${reportData.color}-600`} />
                   <h1 className="text-3xl font-bold text-foreground">
-                    {reportData.title} - {project.name}
+                    {reportData.title}
                   </h1>
                 </div>
                 <p className="text-muted-foreground">#{project.project_id}</p>
