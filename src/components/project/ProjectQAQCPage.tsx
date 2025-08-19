@@ -93,6 +93,48 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
     setShowNewReportDialog(true);
   };
 
+  const handleDeleteRFI = async () => {
+    if (rfis.length > 0) {
+      try {
+        // Delete all RFIs for this project (as we're deleting the report)
+        for (const rfi of rfis) {
+          await deleteRFI(rfi.id);
+        }
+        refetchRFIs();
+      } catch (error) {
+        console.error('Failed to delete RFI report:', error);
+      }
+    }
+  };
+
+  const handleDeleteIssues = async () => {
+    if (issues.length > 0) {
+      try {
+        // Void all issues for this project (as we're deleting the report)
+        for (const issue of issues) {
+          await voidIssue(issue.id);
+        }
+        refetchIssues();
+      } catch (error) {
+        console.error('Failed to delete Issues report:', error);
+      }
+    }
+  };
+
+  const handleDeleteDefects = async () => {
+    if (defects.length > 0) {
+      try {
+        // Delete all defects for this project (as we're deleting the report)
+        for (const defect of defects) {
+          await deleteDefect(defect.id);
+        }
+        refetchDefects();
+      } catch (error) {
+        console.error('Failed to delete Defects report:', error);
+      }
+    }
+  };
+
   const handleReportSuccess = () => {
     setShowNewReportDialog(false);
     // Refresh the appropriate data based on active tab
@@ -276,10 +318,28 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               <Download className="mr-2 h-4 w-4" />
                               Export Report
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => console.log('Delete RFI Report')} className="text-red-600 focus:text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete Report
-                            </DropdownMenuItem>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete Report
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete RFI Report</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete this RFI report? This will permanently delete all {rfis.length} RFI{rfis.length !== 1 ? 's' : ''} in this report. This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={handleDeleteRFI} className="bg-red-600 hover:bg-red-700">
+                                    Delete Report
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -332,10 +392,28 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               <Download className="mr-2 h-4 w-4" />
                               Export Report
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => console.log('Delete Issues Report')} className="text-red-600 focus:text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete Report
-                            </DropdownMenuItem>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete Report
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Issues Report</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete this Issues report? This will permanently void all {issues.length} issue{issues.length !== 1 ? 's' : ''} in this report. This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={handleDeleteIssues} className="bg-red-600 hover:bg-red-700">
+                                    Delete Report
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -388,10 +466,28 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               <Download className="mr-2 h-4 w-4" />
                               Export Report
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => console.log('Delete Defects Report')} className="text-red-600 focus:text-red-600">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Delete Report
-                            </DropdownMenuItem>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Delete Report
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Defects Report</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete this Defects report? This will permanently delete all {defects.length} defect{defects.length !== 1 ? 's' : ''} in this report. This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={handleDeleteDefects} className="bg-red-600 hover:bg-red-700">
+                                    Delete Report
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
