@@ -340,14 +340,18 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                             <Download className="mr-2 h-4 w-4" />
                             Export Report
                           </DropdownMenuItem>
-                          {rfis.length > 0 && (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete Report
-                                </DropdownMenuItem>
-                              </AlertDialogTrigger>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem 
+                                onSelect={(e) => e.preventDefault()} 
+                                className={rfis.length > 0 ? "text-red-600 focus:text-red-600" : "text-gray-400 cursor-not-allowed"}
+                                disabled={rfis.length === 0}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Report
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            {rfis.length > 0 && (
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete RFI Report</AlertDialogTitle>
@@ -362,8 +366,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
-                            </AlertDialog>
-                          )}
+                            )}
+                          </AlertDialog>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -480,14 +484,18 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                             <Download className="mr-2 h-4 w-4" />
                             Export Report
                           </DropdownMenuItem>
-                          {issues.length > 0 && (
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete Report
-                                </DropdownMenuItem>
-                              </AlertDialogTrigger>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem 
+                                onSelect={(e) => e.preventDefault()} 
+                                className={issues.length > 0 ? "text-red-600 focus:text-red-600" : "text-gray-400 cursor-not-allowed"}
+                                disabled={issues.length === 0}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete Report
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            {issues.length > 0 && (
                               <AlertDialogContent>
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Delete Issues Report</AlertDialogTitle>
@@ -502,8 +510,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
-                            </AlertDialog>
-                          )}
+                            )}
+                          </AlertDialog>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
