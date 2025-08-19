@@ -67,6 +67,7 @@ import { SecurityPage } from "@/components/SecurityPage";
 import NewTaskPage from "@/pages/NewTaskPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
+import { ProjectQAQCPage } from "@/components/project/ProjectQAQCPage";
 
 
 interface ContentRendererProps {
@@ -294,6 +295,12 @@ export const ContentRenderer = ({
           <ProjectFinancePage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
+    case "project-qaqc":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <ProjectQAQCPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
     case "bim":
       return currentProject ? (
           <div className="p-8">
