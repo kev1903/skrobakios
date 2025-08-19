@@ -68,6 +68,7 @@ import NewTaskPage from "@/pages/NewTaskPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
 import { ProjectQAQCPage } from "@/components/project/ProjectQAQCPage";
+import { RFIListPage } from "@/components/project/RFIListPage";
 
 
 interface ContentRendererProps {
@@ -299,6 +300,12 @@ export const ContentRenderer = ({
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectQAQCPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "rfi-list":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <RFIListPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "bim":

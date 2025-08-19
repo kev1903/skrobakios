@@ -249,7 +249,12 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                       <div key={rfi.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <span className="font-medium text-gray-900">{rfi.id}</span>
+                            <button 
+                              onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=rfi`)}
+                              className="font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                            >
+                              {rfi.id}
+                            </button>
                             <Badge className={getStatusColor(rfi.status)}>{rfi.status}</Badge>
                             <Badge className={getPriorityColor(rfi.priority)}>{rfi.priority}</Badge>
                           </div>
@@ -283,7 +288,12 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                       <div key={issue.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <span className="font-medium text-gray-900">{issue.id}</span>
+                            <button 
+                              onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=issues`)}
+                              className="font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                            >
+                              {issue.id}
+                            </button>
                             <Badge className={getStatusColor(issue.status)}>{issue.status}</Badge>
                             <Badge className={getPriorityColor(issue.priority)}>{issue.priority}</Badge>
                           </div>
@@ -317,7 +327,12 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                       <div key={defect.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <span className="font-medium text-gray-900">{defect.id}</span>
+                            <button 
+                              onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=defects`)}
+                              className="font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                            >
+                              {defect.id}
+                            </button>
                             <Badge className={getStatusColor(defect.status)}>{defect.status}</Badge>
                             <Badge className={getPriorityColor(defect.priority)}>{defect.priority}</Badge>
                           </div>
