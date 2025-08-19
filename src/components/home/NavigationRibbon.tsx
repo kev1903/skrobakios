@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database, CheckSquare, ClipboardCheck } from 'lucide-react';
+import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database, CheckSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
@@ -40,11 +40,6 @@ export const NavigationRibbon = ({
     { id: "projects", label: "Projects", icon: Briefcase },
     { id: "sales", label: "Sales", icon: TrendingUp },
     { id: "finance", label: "Finance", icon: DollarSign },
-  ];
-
-  // Project-specific navigation
-  const projectNavigation = [
-    { id: "qa-qc", label: "QA/QC", icon: ClipboardCheck },
   ];
 
   // Business navigation items mapped to their required subscription features
@@ -181,31 +176,6 @@ const handleNavigateAndClose = (page: string) => {
                         handleNavigateAndClose(item.id);
                       }
                     }}
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
-                      isActive 
-                        ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
-                    {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Project Navigation */}
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-gray-600 uppercase tracking-wider px-3 py-2">
-                {!isCollapsed && "Project Navigation"}
-              </div>
-              {projectNavigation.map(item => {
-                const Icon = item.icon;
-                const isActive = currentPage === item.id;
-                return (
-                  <button 
-                    key={item.id} 
-                    onMouseDown={(e) => { e.preventDefault(); handleNavigateAndClose(item.id); }}
                     className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
                       isActive 
                         ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
