@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
+import { QAQCTable } from '@/components/qaqc/QAQCTable';
+import { 
+  useChecklists,
+  useRFIs,
+  useIssues,
+  useDefects,
+  useQualityInspections,
+  useQualityPlans
+} from '@/hooks/useQAQCData';
 import { 
   Plus, 
   ClipboardCheck, 
@@ -15,11 +24,7 @@ import {
   AlertCircle,
   Bug,
   FlaskConical,
-  FileCheck,
-  CheckSquare,
-  Eye,
-  Clock,
-  TrendingUp
+  FileCheck
 } from 'lucide-react';
 
 interface ProjectQAQCPageProps {
@@ -31,6 +36,14 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const projectId = searchParams.get('projectId');
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
+
+  // Fetch QA/QC data
+  const { data: checklists, isLoading: checklistsLoading } = useChecklists(projectId || '');
+  const { data: rfis, isLoading: rfisLoading } = useRFIs(projectId || '');
+  const { data: issues, isLoading: issuesLoading } = useIssues(projectId || '');
+  const { data: defects, isLoading: defectsLoading } = useDefects(projectId || '');
+  const { data: inspections, isLoading: inspectionsLoading } = useQualityInspections(projectId || '');
+  const { data: qualityPlans, isLoading: qualityPlansLoading } = useQualityPlans(projectId || '');
 
   useEffect(() => {
     if (projectId) {
@@ -80,19 +93,18 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <ListChecks className="w-8 h-8 text-blue-600" />
                   <div className="ml-3">
                     <p className="text-sm font-medium text-muted-foreground">Checklists</p>
-                    <p className="text-2xl font-bold text-foreground">0</p>
+                    <p className="text-2xl font-bold text-foreground">{checklists?.length || 0}</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
-            
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center">
                   <HelpCircle className="w-8 h-8 text-orange-600" />
                   <div className="ml-3">
                     <p className="text-sm font-medium text-muted-foreground">RFIs</p>
-                    <p className="text-2xl font-bold text-foreground">0</p>
+                    <p className="text-2xl font-bold text-foreground">{rfis?.length || 0}</p>
                   </div>
                 </div>
               </CardContent>
@@ -104,7 +116,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <AlertTriangle className="w-8 h-8 text-red-600" />
                   <div className="ml-3">
                     <p className="text-sm font-medium text-muted-foreground">Issues/NCRs</p>
-                    <p className="text-2xl font-bold text-foreground">0</p>
+                    <p className="text-2xl font-bold text-foreground">{issues?.length || 0}</p>
                   </div>
                 </div>
               </CardContent>
@@ -116,7 +128,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <Bug className="w-8 h-8 text-yellow-600" />
                   <div className="ml-3">
                     <p className="text-sm font-medium text-muted-foreground">Defects</p>
-                    <p className="text-2xl font-bold text-foreground">0</p>
+                    <p className="text-2xl font-bold text-foreground">{defects?.length || 0}</p>
                   </div>
                 </div>
               </CardContent>
@@ -128,7 +140,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <FlaskConical className="w-8 h-8 text-purple-600" />
                   <div className="ml-3">
                     <p className="text-sm font-medium text-muted-foreground">Inspections</p>
-                    <p className="text-2xl font-bold text-foreground">0</p>
+                    <p className="text-2xl font-bold text-foreground">{inspections?.length || 0}</p>
                   </div>
                 </div>
               </CardContent>
@@ -140,7 +152,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <FileCheck className="w-8 h-8 text-green-600" />
                   <div className="ml-3">
                     <p className="text-sm font-medium text-muted-foreground">ITPs</p>
-                    <p className="text-2xl font-bold text-foreground">0</p>
+                    <p className="text-2xl font-bold text-foreground">{qualityPlans?.length || 0}</p>
                   </div>
                 </div>
               </CardContent>
@@ -161,53 +173,13 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
 
                 <TabsContent value="checklists" className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Standardized Inspections</h3>
+                    <h3 className="text-lg font-semibold">Checklists</h3>
                     <Button>
                       <Plus className="w-4 h-4 mr-2" />
                       New Checklist
                     </Button>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium">Site Setup Inspection</h4>
-                          <CheckSquare className="w-5 h-5 text-green-600" />
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">Initial site setup and safety verification</p>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <Clock className="w-3 h-3 mr-1" />
-                          Last updated: 2 days ago
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium">Structural Inspection</h4>
-                          <Eye className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">Foundation and structural compliance checks</p>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <Clock className="w-3 h-3 mr-1" />
-                          Last updated: 1 week ago
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium">Services Inspection</h4>
-                          <Eye className="w-5 h-5 text-orange-600" />
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">Plumbing, electrical, HVAC verification</p>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <Clock className="w-3 h-3 mr-1" />
-                          Last updated: 3 days ago
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                  <QAQCTable data={checklists || []} type="checklists" isLoading={checklistsLoading} />
                 </TabsContent>
 
                 <TabsContent value="rfis" className="space-y-4">
@@ -218,10 +190,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                       New RFI
                     </Button>
                   </div>
-                  <div className="text-center py-8">
-                    <HelpCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                    <p className="text-muted-foreground">No RFIs created yet. Start by creating your first request for information.</p>
-                  </div>
+                  <QAQCTable data={rfis || []} type="rfis" isLoading={rfisLoading} />
                 </TabsContent>
 
                 <TabsContent value="issues" className="space-y-4">
@@ -232,10 +201,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                       New Issue/NCR
                     </Button>
                   </div>
-                  <div className="text-center py-8">
-                    <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                    <p className="text-muted-foreground">No issues or NCRs logged yet. Track quality and compliance problems here.</p>
-                  </div>
+                  <QAQCTable data={issues || []} type="issues" isLoading={issuesLoading} />
                 </TabsContent>
 
                 <TabsContent value="defects" className="space-y-4">
@@ -246,10 +212,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                       New Defect
                     </Button>
                   </div>
-                  <div className="text-center py-8">
-                    <Bug className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                    <p className="text-muted-foreground">No defects recorded yet. Track final stage defects and punch list items here.</p>
-                  </div>
+                  <QAQCTable data={defects || []} type="defects" isLoading={defectsLoading} />
                 </TabsContent>
 
                 <TabsContent value="inspections" className="space-y-4">
@@ -260,28 +223,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                       New Inspection
                     </Button>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card>
-                      <CardContent className="p-4">
-                        <h4 className="font-medium mb-2">Concrete Slump Tests</h4>
-                        <p className="text-sm text-muted-foreground mb-2">Material testing and quality verification</p>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">0 tests recorded</span>
-                          <TrendingUp className="w-4 h-4 text-green-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                    <Card>
-                      <CardContent className="p-4">
-                        <h4 className="font-medium mb-2">Waterproofing Tests</h4>
-                        <p className="text-sm text-muted-foreground mb-2">Membrane and seal integrity verification</p>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">0 tests recorded</span>
-                          <TrendingUp className="w-4 h-4 text-blue-600" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                  <QAQCTable data={inspections || []} type="inspections" isLoading={inspectionsLoading} />
                 </TabsContent>
 
                 <TabsContent value="itps" className="space-y-4">
@@ -292,10 +234,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                       New Quality Plan
                     </Button>
                   </div>
-                  <div className="text-center py-8">
-                    <FileCheck className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                    <p className="text-muted-foreground">No quality plans created yet. Set up Inspection & Test Plans with hold/witness points.</p>
-                  </div>
+                  <QAQCTable data={qualityPlans || []} type="plans" isLoading={qualityPlansLoading} />
                 </TabsContent>
               </Tabs>
           </div>

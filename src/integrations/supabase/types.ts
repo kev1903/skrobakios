@@ -3017,6 +3017,63 @@ export type Database = {
           },
         ]
       }
+      qaqc_checklists: {
+        Row: {
+          assigned_to: string | null
+          attachments: Json | null
+          checklist_number: string
+          company_id: string
+          completed_date: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          items: Json | null
+          project_id: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          checklist_number: string
+          company_id: string
+          completed_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          items?: Json | null
+          project_id: string
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          attachments?: Json | null
+          checklist_number?: string
+          company_id?: string
+          completed_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          items?: Json | null
+          project_id?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       quality_checks: {
         Row: {
           check_name: string
@@ -3098,6 +3155,135 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      quality_inspections: {
+        Row: {
+          attachments: Json | null
+          company_id: string
+          completion_date: string | null
+          created_at: string
+          equipment_used: string | null
+          id: string
+          inspection_number: string
+          inspector_name: string
+          notes: string | null
+          pass_fail: string | null
+          project_id: string
+          results: Json | null
+          scheduled_date: string | null
+          standards_reference: string | null
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json | null
+          company_id: string
+          completion_date?: string | null
+          created_at?: string
+          equipment_used?: string | null
+          id?: string
+          inspection_number: string
+          inspector_name: string
+          notes?: string | null
+          pass_fail?: string | null
+          project_id: string
+          results?: Json | null
+          scheduled_date?: string | null
+          standards_reference?: string | null
+          status?: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json | null
+          company_id?: string
+          completion_date?: string | null
+          created_at?: string
+          equipment_used?: string | null
+          id?: string
+          inspection_number?: string
+          inspector_name?: string
+          notes?: string | null
+          pass_fail?: string | null
+          project_id?: string
+          results?: Json | null
+          scheduled_date?: string | null
+          standards_reference?: string | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      quality_plans: {
+        Row: {
+          approval_date: string | null
+          approved_by: string | null
+          attachments: Json | null
+          company_id: string
+          created_at: string
+          description: string | null
+          hold_points: Json | null
+          id: string
+          inspection_criteria: Json | null
+          phase: string | null
+          plan_number: string
+          project_id: string
+          responsible_party: string
+          revision_number: number | null
+          status: string
+          title: string
+          type: string
+          updated_at: string
+          witness_points: Json | null
+        }
+        Insert: {
+          approval_date?: string | null
+          approved_by?: string | null
+          attachments?: Json | null
+          company_id: string
+          created_at?: string
+          description?: string | null
+          hold_points?: Json | null
+          id?: string
+          inspection_criteria?: Json | null
+          phase?: string | null
+          plan_number: string
+          project_id: string
+          responsible_party: string
+          revision_number?: number | null
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+          witness_points?: Json | null
+        }
+        Update: {
+          approval_date?: string | null
+          approved_by?: string | null
+          attachments?: Json | null
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          hold_points?: Json | null
+          id?: string
+          inspection_criteria?: Json | null
+          phase?: string | null
+          plan_number?: string
+          project_id?: string
+          responsible_party?: string
+          revision_number?: number | null
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          witness_points?: Json | null
+        }
+        Relationships: []
       }
       reviews: {
         Row: {
