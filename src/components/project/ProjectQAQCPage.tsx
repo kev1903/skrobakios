@@ -126,7 +126,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                 </Button>
                 <Button size="sm">
                   <Plus className="w-4 h-4 mr-2" />
-                  +New Report 
+                  New Report
                 </Button>
               </div>
             </div>
