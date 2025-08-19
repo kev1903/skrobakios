@@ -67,10 +67,6 @@ import { SecurityPage } from "@/components/SecurityPage";
 import NewTaskPage from "@/pages/NewTaskPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
-import { ProjectQAQCPage } from "@/components/project/ProjectQAQCPage";
-import { QAQCReportDetailsPage } from "@/components/project/QAQCReportDetailsPage";
-import { RFIListPage } from "@/components/project/RFIListPage";
-import { RFIDetailPage } from "@/components/project/RFIDetailPage";
 
 
 interface ContentRendererProps {
@@ -299,29 +295,21 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-qaqc":
-      return (
-        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ProjectQAQCPage onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
-      );
+      // QA/QC module removed - redirect to projects
+      onNavigate("projects");
+      return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     case "qaqc-report-details":
-      return (
-        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <QAQCReportDetailsPage onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
-      );
+      // QA/QC module removed - redirect to projects
+      onNavigate("projects");
+      return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     case "rfi-list":
-      return (
-        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <RFIListPage onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
-      );
+      // RFI module removed - redirect to projects
+      onNavigate("projects");
+      return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     case "rfi-detail":
-      return (
-        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <RFIDetailPage onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
-      );
+      // RFI module removed - redirect to projects
+      onNavigate("projects");
+      return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     case "bim":
       return currentProject ? (
           <div className="p-8">
