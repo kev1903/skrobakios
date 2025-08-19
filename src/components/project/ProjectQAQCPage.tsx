@@ -257,7 +257,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=rfi`)}
                               className="font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
                             >
-                              {`RFI Report - ${rfi.id} - ${project.name}`}
+                              {`RFI Report ${rfi.id} - ${project.name}`}
                             </button>
                             <Badge className={getStatusColor(rfi.status)}>{rfi.status}</Badge>
                             <Badge className={getPriorityColor(rfi.priority)}>{rfi.priority}</Badge>
@@ -296,7 +296,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=issues`)}
                               className="font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
                             >
-                              {`Issues Report - ${issue.id} - ${project.name}`}
+                              {`Issues Report ${issue.id} - ${project.name}`}
                             </button>
                             <Badge className={getStatusColor(issue.status)}>{issue.status}</Badge>
                             <Badge className={getPriorityColor(issue.priority)}>{issue.priority}</Badge>
@@ -335,7 +335,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=defects`)}
                               className="font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
                             >
-                              {`Defect Report - ${defect.id} - ${project.name}`}
+                              {`Defect Report ${defect.id} - ${project.name}`}
                             </button>
                             <Badge className={getStatusColor(defect.status)}>{defect.status}</Badge>
                             <Badge className={getPriorityColor(defect.priority)}>{defect.priority}</Badge>
