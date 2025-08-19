@@ -282,7 +282,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-foreground">Project Issues</CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-muted-foreground">
                     Monitor and resolve project issues and complications
                   </CardDescription>
                 </CardHeader>
@@ -321,7 +321,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-foreground">Defects & Quality Issues</CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-muted-foreground">
                     Track construction defects and quality control issues
                   </CardDescription>
                 </CardHeader>
