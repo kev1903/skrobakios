@@ -186,7 +186,7 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
               </Button>
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="w-6 h-6 text-red-600" />
-                <h1 className="text-2xl font-bold text-foreground">{report.issue_number}</h1>
+                <h1 className="text-2xl font-bold text-gray-700">{report.issue_number}</h1>
               </div>
             </div>
             <div className="flex space-x-2">
@@ -208,24 +208,24 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Location</label>
-                    <p className="text-foreground">{report.location}</p>
+                    <p className="text-gray-700">{report.location}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Reported By</label>
-                    <p className="text-foreground">{report.reported_by}</p>
+                    <p className="text-gray-700">{report.reported_by}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Date Reported</label>
-                    <p className="text-foreground">{format(new Date(report.date_reported), 'MMM dd, yyyy')}</p>
+                    <p className="text-gray-700">{format(new Date(report.date_reported), 'MMM dd, yyyy')}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Due Date</label>
-                    <p className="text-foreground">{format(new Date(report.due_date), 'MMM dd, yyyy')}</p>
+                    <p className="text-gray-700">{format(new Date(report.due_date), 'MMM dd, yyyy')}</p>
                   </div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Description</label>
-                  <p className="text-foreground mt-1">{report.description}</p>
+                  <p className="text-gray-700 mt-1">{report.description}</p>
                 </div>
               </CardContent>
             </Card>
@@ -241,7 +241,7 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-foreground">{report.summary.total_items}</div>
+                    <div className="text-2xl font-bold text-gray-700">{report.summary.total_items}</div>
                     <div className="text-sm text-muted-foreground">Total Items</div>
                   </div>
                   <div className="text-center">
@@ -286,16 +286,16 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
                               ) : (
                                 <XCircle className="w-4 h-4 text-red-600" />
                               )}
-                              <h4 className="font-medium text-foreground">{item.description}</h4>
+                              <h4 className="font-medium text-gray-700">{item.description}</h4>
                             </div>
                             <div className="space-y-2">
                               <div>
                                 <span className="text-sm font-medium text-muted-foreground">Findings: </span>
-                                <span className="text-sm text-foreground">{item.findings}</span>
+                                <span className="text-sm text-gray-700">{item.findings}</span>
                               </div>
                               <div>
                                 <span className="text-sm font-medium text-muted-foreground">Corrective Action: </span>
-                                <span className="text-sm text-foreground">{item.corrective_action}</span>
+                                <span className="text-sm text-gray-700">{item.corrective_action}</span>
                               </div>
                             </div>
                           </div>
