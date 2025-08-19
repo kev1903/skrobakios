@@ -211,8 +211,8 @@ export const RFIListPage = ({ onNavigate }: RFIListPageProps) => {
                   Back to QA/QC
                 </Button>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">{data.title}</h1>
-                  <p className="text-gray-600">{project.name} - #{project.project_id}</p>
+                  <h1 className="text-3xl font-bold text-foreground">{data.title}</h1>
+                  <p className="text-muted-foreground">{project.name} - #{project.project_id}</p>
                 </div>
               </div>
               <div className="flex gap-2">
