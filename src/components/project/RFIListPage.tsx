@@ -264,8 +264,13 @@ export const RFIListPage = ({ onNavigate }: RFIListPageProps) => {
                         aria-label={`Select ${item.id}`}
                       />
                     </TableCell>
-                    <TableCell className="font-medium text-primary">
-                      {item.id}
+                    <TableCell>
+                      <button
+                        onClick={() => onNavigate(`rfi-detail?projectId=${projectId}&rfiId=${item.id}&type=${type}`)}
+                        className="font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                      >
+                        {item.id}
+                      </button>
                     </TableCell>
                     <TableCell>
                       <div>
