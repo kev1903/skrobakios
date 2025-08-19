@@ -276,6 +276,10 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               <Download className="mr-2 h-4 w-4" />
                               Export Report
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => console.log('Delete RFI Report')} className="text-red-600 focus:text-red-600">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Report
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -328,6 +332,10 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               <Download className="mr-2 h-4 w-4" />
                               Export Report
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => console.log('Delete Issues Report')} className="text-red-600 focus:text-red-600">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Report
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -379,6 +387,10 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                             <DropdownMenuItem onClick={() => console.log('Export Defects Report')}>
                               <Download className="mr-2 h-4 w-4" />
                               Export Report
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => console.log('Delete Defects Report')} className="text-red-600 focus:text-red-600">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Report
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
