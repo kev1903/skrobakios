@@ -12,6 +12,9 @@ import { useProjects, Project } from '@/hooks/useProjects';
 import { useRFIs } from '@/hooks/useRFIs';
 import { useIssues } from '@/hooks/useIssues';
 import { useDefects } from '@/hooks/useDefects';
+import { useRFIReports } from '@/hooks/useRFIReports';
+import { useIssueReports } from '@/hooks/useIssueReports';
+import { useDefectReports } from '@/hooks/useDefectReports';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { RFIForm } from '@/components/reports/RFIForm';
 import { IssueForm } from '@/components/reports/IssueForm';
@@ -32,6 +35,11 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const { rfis, loading: rfisLoading, deleteRFI, exportRFI, refetch: refetchRFIs } = useRFIs(projectId);
   const { issues, loading: issuesLoading, voidIssue, deleteIssuesForProject, exportIssue, refetch: refetchIssues } = useIssues(projectId);
   const { defects, loading: defectsLoading, deleteDefect, exportDefect, refetch: refetchDefects } = useDefects(projectId);
+  
+  // Report containers
+  const { reports: rfiReports, loading: rfiReportsLoading, createReport: createRFIReport, deleteReport: deleteRFIReport, refetch: refetchRFIReports } = useRFIReports(projectId);
+  const { reports: issueReports, loading: issueReportsLoading, createReport: createIssueReport, deleteReport: deleteIssueReport, refetch: refetchIssueReports } = useIssueReports(projectId);
+  const { reports: defectReports, loading: defectReportsLoading, createReport: createDefectReport, deleteReport: deleteDefectReport, refetch: refetchDefectReports } = useDefectReports(projectId);
 
   useEffect(() => {
     if (projectId) {
@@ -301,8 +309,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <div className="flex items-center">
                     <FileText className="w-8 h-8 text-blue-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-muted-foreground">Total RFIs</p>
-                      <p className="text-2xl font-bold text-foreground">{rfis.length}</p>
+                      <p className="text-sm font-medium text-muted-foreground">RFI Reports</p>
+                      <p className="text-2xl font-bold text-foreground">{rfiReports.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -313,8 +321,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <div className="flex items-center">
                     <AlertTriangle className="w-8 h-8 text-yellow-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-muted-foreground">Active Issues</p>
-                      <p className="text-2xl font-bold text-foreground">{issues.length}</p>
+                      <p className="text-sm font-medium text-muted-foreground">Issue Reports</p>
+                      <p className="text-2xl font-bold text-foreground">{issueReports.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -325,8 +333,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <div className="flex items-center">
                     <CheckCircle className="w-8 h-8 text-red-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-muted-foreground">Defects</p>
-                      <p className="text-2xl font-bold text-foreground">{defects.length}</p>
+                      <p className="text-sm font-medium text-muted-foreground">Defect Reports</p>
+                      <p className="text-2xl font-bold text-foreground">{defectReports.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -337,8 +345,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <div className="flex items-center">
                     <Clock className="w-8 h-8 text-green-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-muted-foreground">Avg Response</p>
-                      <p className="text-2xl font-bold text-foreground">2.3d</p>
+                      <p className="text-sm font-medium text-muted-foreground">Total Items</p>
+                      <p className="text-2xl font-bold text-foreground">{rfis.length + issues.length + defects.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -349,53 +357,50 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="rfi">RFI Report</TabsTrigger>
-              <TabsTrigger value="issues">Issues Report</TabsTrigger>
-              <TabsTrigger value="defects">Defect Report</TabsTrigger>
+              <TabsTrigger value="rfi">RFI Reports</TabsTrigger>
+              <TabsTrigger value="issues">Issue Reports</TabsTrigger>
+              <TabsTrigger value="defects">Defect Reports</TabsTrigger>
             </TabsList>
 
             {/* RFI Tab */}
             <TabsContent value="rfi" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-foreground">Request for Information (RFI)</CardTitle>
+                  <CardTitle className="text-foreground">RFI Reports</CardTitle>
                   <CardDescription className="text-muted-foreground">
-                    Track and manage information requests throughout the project lifecycle
+                    Manage RFI report containers and their information requests
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {/* RFI Report Container */}
+                  {/* RFI Reports Container */}
                   <div className="space-y-4">
-
-                    {/* RFI Items List */}
-                    {rfisLoading ? (
-                      <div className="text-center py-8">Loading RFI items...</div>
-                    ) : rfis.length === 0 ? (
+                    {/* RFI Reports List */}
+                    {rfiReportsLoading ? (
+                      <div className="text-center py-8">Loading RFI reports...</div>
+                    ) : rfiReports.length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground">
                         <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                        <p>No RFI items found</p>
-                        <p className="text-sm">Click "New Report" to create your first RFI</p>
+                        <p>No RFI reports found</p>
+                        <p className="text-sm">Click "New Report" to create your first RFI report</p>
                       </div>
                     ) : (
                       <div className="space-y-2">
-                        {rfis.map((rfi) => (
-                          <div key={rfi.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                        {rfiReports.map((report) => (
+                          <div key={report.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-1">
-                                <span className="font-medium text-sm text-foreground">{rfi.rfi_number}</span>
-                                <Badge className={getStatusColor(rfi.status)}>{rfi.status}</Badge>
-                                <Badge className={getPriorityColor(rfi.priority)}>{rfi.priority}</Badge>
+                                <span className="font-medium text-sm text-foreground">Report #{report.id.slice(0, 8)}</span>
+                                <Badge className="bg-blue-100 text-blue-800">{report.status}</Badge>
                               </div>
                               <h4 
                                 className="font-medium text-foreground mb-1 cursor-pointer hover:text-blue-600 transition-colors"
-                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=rfi&title=${encodeURIComponent(rfi.title)}`)}
+                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=rfi&title=${encodeURIComponent(report.title)}`)}
                               >
-                                {rfi.title}
+                                {report.title}
                               </h4>
-                              <p className="text-sm text-muted-foreground line-clamp-2">{rfi.description}</p>
+                              <p className="text-sm text-muted-foreground line-clamp-2">{report.description}</p>
                               <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                                <span>Due: {new Date(rfi.due_date).toLocaleDateString()}</span>
-                                <span>Created: {new Date(rfi.created_at).toLocaleDateString()}</span>
+                                <span>Created: {new Date(report.created_at).toLocaleDateString()}</span>
                               </div>
                             </div>
                             <DropdownMenu>
@@ -405,10 +410,10 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="bg-background z-50">
-                                <DropdownMenuItem onClick={() => console.log('View RFI:', rfi.id)}>
+                                <DropdownMenuItem onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=rfi&title=${encodeURIComponent(report.title)}`)}>
                                   View Details
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => console.log('Export RFI:', rfi.id)}>
+                                <DropdownMenuItem onClick={() => console.log('Export Report:', report.id)}>
                                   <Download className="mr-2 h-4 w-4" />
                                   Export
                                 </DropdownMenuItem>
@@ -416,20 +421,20 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                   <AlertDialogTrigger asChild>
                                     <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-orange-600 focus:text-orange-600">
                                       <Trash2 className="mr-2 h-4 w-4" />
-                                      Void Item
+                                      Delete Report
                                     </DropdownMenuItem>
                                   </AlertDialogTrigger>
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle>Void RFI Item</AlertDialogTitle>
+                                      <AlertDialogTitle>Delete RFI Report</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Are you sure you want to void this RFI "{rfi.title}"? This will mark it as voided but keep it in the report for audit purposes.
+                                        Are you sure you want to delete "{report.title}"? This will also delete all RFI items within this report. This action cannot be undone.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => handleVoidRFI(rfi.id)} className="bg-orange-600 hover:bg-orange-700">
-                                        Void Item
+                                      <AlertDialogAction onClick={() => deleteRFIReport(report.id)} className="bg-orange-600 hover:bg-orange-700">
+                                        Delete Report
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>

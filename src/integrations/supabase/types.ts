@@ -996,6 +996,42 @@ export type Database = {
         }
         Relationships: []
       }
+      defect_reports: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          project_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          project_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          project_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       defects: {
         Row: {
           assigned_to: string | null
@@ -1013,6 +1049,7 @@ export type Database = {
           location: string | null
           priority: string
           project_id: string
+          report_id: string | null
           severity: string | null
           status: string
           title: string
@@ -1035,6 +1072,7 @@ export type Database = {
           location?: string | null
           priority?: string
           project_id: string
+          report_id?: string | null
           severity?: string | null
           status?: string
           title: string
@@ -1057,13 +1095,22 @@ export type Database = {
           location?: string | null
           priority?: string
           project_id?: string
+          report_id?: string | null
           severity?: string | null
           status?: string
           title?: string
           updated_at?: string
           verified_date?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "defects_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "defect_reports"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       digital_objects: {
         Row: {
@@ -1730,6 +1777,42 @@ export type Database = {
           },
         ]
       }
+      issue_reports: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          project_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          project_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          project_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       issues: {
         Row: {
           assigned_to: string | null
@@ -1746,6 +1829,7 @@ export type Database = {
           location: string | null
           priority: string
           project_id: string
+          report_id: string | null
           resolved_date: string | null
           status: string
           title: string
@@ -1766,6 +1850,7 @@ export type Database = {
           location?: string | null
           priority?: string
           project_id: string
+          report_id?: string | null
           resolved_date?: string | null
           status?: string
           title: string
@@ -1786,12 +1871,21 @@ export type Database = {
           location?: string | null
           priority?: string
           project_id?: string
+          report_id?: string | null
           resolved_date?: string | null
           status?: string
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "issues_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "issue_reports"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads: {
         Row: {
@@ -3047,6 +3141,42 @@ export type Database = {
         }
         Relationships: []
       }
+      rfi_reports: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          project_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          project_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          project_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       rfis: {
         Row: {
           assigned_to: string | null
@@ -3061,6 +3191,7 @@ export type Database = {
           location: string | null
           priority: string
           project_id: string
+          report_id: string | null
           resolved_date: string | null
           response_required_by: string | null
           responses: Json | null
@@ -3082,6 +3213,7 @@ export type Database = {
           location?: string | null
           priority?: string
           project_id: string
+          report_id?: string | null
           resolved_date?: string | null
           response_required_by?: string | null
           responses?: Json | null
@@ -3103,6 +3235,7 @@ export type Database = {
           location?: string | null
           priority?: string
           project_id?: string
+          report_id?: string | null
           resolved_date?: string | null
           response_required_by?: string | null
           responses?: Json | null
@@ -3111,7 +3244,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rfis_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "rfi_reports"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_categories: {
         Row: {
