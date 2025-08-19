@@ -229,9 +229,9 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="rfi">RFI (Request for Information)</TabsTrigger>
-              <TabsTrigger value="issues">Issues</TabsTrigger>
-              <TabsTrigger value="defects">Defects</TabsTrigger>
+              <TabsTrigger value="rfi">RFI Report</TabsTrigger>
+              <TabsTrigger value="issues">Issues Report</TabsTrigger>
+              <TabsTrigger value="defects">Defect Report</TabsTrigger>
             </TabsList>
 
             {/* RFI Tab */}
