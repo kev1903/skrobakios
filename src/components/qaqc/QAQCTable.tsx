@@ -281,7 +281,7 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
           <TableRow key={item.id}>
             <TableCell className="font-medium">{item.issue_number}</TableCell>
             <TableCell>{item.title}</TableCell>
-            <TableCell className="capitalize">{item.type.replace('_', ' ')}</TableCell>
+            <TableCell className="capitalize">{item.type?.replace('_', ' ') || '-'}</TableCell>
             <TableCell>
               <Badge className={getSeverityColor(item.severity)}>{item.severity}</Badge>
             </TableCell>
@@ -361,7 +361,7 @@ export const QAQCTable = ({ data, type, isLoading }: QAQCTableProps) => {
           <TableRow key={item.id}>
             <TableCell className="font-medium">{item.inspection_number}</TableCell>
             <TableCell>{item.title}</TableCell>
-            <TableCell className="capitalize">{item.type.replace('_', ' ')}</TableCell>
+            <TableCell className="capitalize">{item.type?.replace('_', ' ') || '-'}</TableCell>
             <TableCell>
               <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
             </TableCell>
