@@ -333,7 +333,12 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                 <Badge className={getStatusColor(rfi.status)}>{rfi.status}</Badge>
                                 <Badge className={getPriorityColor(rfi.priority)}>{rfi.priority}</Badge>
                               </div>
-                              <h4 className="font-medium text-foreground mb-1">{rfi.title}</h4>
+                              <h4 
+                                className="font-medium text-foreground mb-1 cursor-pointer hover:text-blue-600 transition-colors"
+                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=rfi`)}
+                              >
+                                {rfi.title}
+                              </h4>
                               <p className="text-sm text-muted-foreground line-clamp-2">{rfi.description}</p>
                               <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                                 <span>Due: {new Date(rfi.due_date).toLocaleDateString()}</span>
@@ -419,7 +424,12 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                 <Badge className={getStatusColor(issue.status)}>{issue.status}</Badge>
                                 <Badge className={getPriorityColor(issue.priority)}>{issue.priority}</Badge>
                               </div>
-                              <h4 className="font-medium text-foreground mb-1">{issue.title}</h4>
+                              <h4 
+                                className="font-medium text-foreground mb-1 cursor-pointer hover:text-orange-600 transition-colors"
+                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=issues`)}
+                              >
+                                {issue.title}
+                              </h4>
                               <p className="text-sm text-muted-foreground line-clamp-2">{issue.description}</p>
                               <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                                 <span>Location: {issue.location}</span>
@@ -505,7 +515,12 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                 <Badge className={getStatusColor(defect.status)}>{defect.status}</Badge>
                                 <Badge className={getPriorityColor(defect.priority)}>{defect.priority}</Badge>
                               </div>
-                              <h4 className="font-medium text-foreground mb-1">{defect.title}</h4>
+                              <h4 
+                                className="font-medium text-foreground mb-1 cursor-pointer hover:text-red-600 transition-colors"
+                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=defects`)}
+                              >
+                                {defect.title}
+                              </h4>
                               <p className="text-sm text-muted-foreground line-clamp-2">{defect.description}</p>
                               <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                                 <span>Location: {defect.location}</span>

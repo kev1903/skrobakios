@@ -37,6 +37,7 @@ import { InvitePage } from "./pages/InvitePage";
 import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
 import { MenuBar } from "./components/MenuBar";
 import PDFExtractionDocs from "./pages/PDFExtractionDocs";
+import { QAQCReportDetailsPage } from "./components/project/QAQCReportDetailsPage";
 
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SK25008Dashboard } from "./components/SK25008Dashboard";
@@ -157,6 +158,17 @@ const SubscriptionPageWrapper = () => {
   };
 
   return <SubscriptionPage onNavigate={handleNavigate} />;
+};
+
+// Wrapper component for QAQCReportDetailsPage with proper navigation
+const QAQCReportDetailsPageWrapper = () => {
+  const navigate = useNavigate();
+  
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+
+  return <QAQCReportDetailsPage onNavigate={handleNavigate} />;
 };
 
 // Wrapper component for Project Dashboard with dynamic projectId
@@ -311,6 +323,9 @@ const AppContent = () => {
         
         {/* Documentation Pages */}
         <Route path="/docs/pdf-extraction" element={<PDFExtractionDocs />} />
+        
+        {/* QA/QC Report Details */}
+        <Route path="/qaqc-report-details" element={<QAQCReportDetailsPageWrapper />} />
       </Routes>
       {location.pathname !== "/" && (
         <GlobalSidebar currentPage={currentPageForSidebar} onNavigate={handleSidebarNavigate} />
