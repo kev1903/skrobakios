@@ -335,7 +335,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               </div>
                               <h4 
                                 className="font-medium text-foreground mb-1 cursor-pointer hover:text-blue-600 transition-colors"
-                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=rfi`)}
+                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=rfi&title=${encodeURIComponent(rfi.title)}`)}
                               >
                                 {rfi.title}
                               </h4>
@@ -426,7 +426,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               </div>
                               <h4 
                                 className="font-medium text-foreground mb-1 cursor-pointer hover:text-orange-600 transition-colors"
-                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=issues`)}
+                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=issues&title=${encodeURIComponent(issue.title)}`)}
                               >
                                 {issue.title}
                               </h4>
@@ -517,7 +517,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               </div>
                               <h4 
                                 className="font-medium text-foreground mb-1 cursor-pointer hover:text-red-600 transition-colors"
-                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=defects`)}
+                                onClick={() => onNavigate(`qaqc-report-details?projectId=${projectId}&type=defects&title=${encodeURIComponent(defect.title)}`)}
                               >
                                 {defect.title}
                               </h4>

@@ -41,12 +41,16 @@ const Index = () => {
     // Handle URLs with query parameters (like project-cost?projectId=123)
     let targetPage = page;
     let projectId: string | null = null;
+    let typeParam: string | null = null;
+    let titleParam: string | null = null;
     
     if (page.includes('?')) {
       const [pageName, queryString] = page.split('?');
       targetPage = pageName;
       const params = new URLSearchParams(queryString);
       projectId = params.get('projectId');
+      typeParam = params.get('type');
+      titleParam = params.get('title');
       
       console.log(`🧭 Extracted page: ${targetPage}, projectId: ${projectId}`);
     }
@@ -67,6 +71,8 @@ const Index = () => {
     const search = new URLSearchParams();
     search.set('page', targetPage);
     if (projectId) search.set('projectId', projectId);
+    if (typeParam) search.set('type', typeParam);
+    if (titleParam) search.set('title', titleParam);
     navigate({ pathname: '/', search: `?${search.toString()}` }, { replace: false });
   };
 

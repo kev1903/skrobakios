@@ -155,6 +155,12 @@ export const QAQCReportDetailsPage = ({ onNavigate }: QAQCReportDetailsPageProps
 
   const reportData = getReportData();
   const IconComponent = reportData.icon;
+  const titleParam = searchParams.get('title');
+  const headingTitle = titleParam || (
+    reportType === 'rfi' ? 'RFI Report' : 
+    reportType === 'issues' ? 'Issues Report' : 
+    reportType === 'defects' ? 'Defects Report' : 'Report'
+  );
 
   if (!project) {
     return (
@@ -200,9 +206,7 @@ export const QAQCReportDetailsPage = ({ onNavigate }: QAQCReportDetailsPageProps
                 <div className="flex items-center gap-3 mb-2">
                   <IconComponent className={`w-6 h-6 text-${reportData.color}-600`} />
                   <h1 className="text-3xl font-bold text-foreground">
-                    {reportType === 'rfi' ? 'RFI Report' : 
-                     reportType === 'issues' ? 'Issues Report' : 
-                     reportType === 'defects' ? 'Defects Report' : 'Report'}
+                    {headingTitle}
                   </h1>
                 </div>
                 <p className="text-muted-foreground">#{project.project_id}</p>
