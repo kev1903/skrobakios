@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Edit, FileText, Calendar, User, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Edit, FileText, Calendar, User, AlertCircle, X, Upload, Paperclip } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
@@ -23,6 +23,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
 
   // Mock RFI data - in real app, fetch based on rfiId
   const [rfiData, setRfiData] = useState({
@@ -74,6 +75,49 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleDeleteAttachment = (index: number) => {
+    setRfiData(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleFileUpload = (files: FileList | null) => {
+    if (files) {
+      const newAttachments = Array.from(files).map(file => file.name);
+      setRfiData(prev => ({
+        ...prev,
+        attachments: [...prev.attachments, ...newAttachments]
+      }));
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileUpload(e.dataTransfer.files);
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const files = e.clipboardData.files;
+    if (files.length > 0) {
+      handleFileUpload(files);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -141,8 +185,8 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                   Back to {type.toUpperCase()} List
                 </Button>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">{rfiData.id} - {rfiData.title}</h1>
-                  <p className="text-gray-600">{project.name} - #{project.project_id}</p>
+                  <h1 className="text-3xl font-bold text-foreground">{rfiData.id} - {rfiData.title}</h1>
+                  <p className="text-muted-foreground">{project.name} - #{project.project_id}</p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -188,7 +232,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                           onChange={(e) => handleInputChange('title', e.target.value)}
                         />
                       ) : (
-                        <p className="mt-1 text-sm text-gray-900">{rfiData.title}</p>
+                        <p className="mt-1 text-sm text-foreground">{rfiData.title}</p>
                       )}
                     </div>
                     <div>
@@ -207,7 +251,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                           </SelectContent>
                         </Select>
                       ) : (
-                        <p className="mt-1 text-sm text-gray-900">{rfiData.category}</p>
+                        <p className="mt-1 text-sm text-foreground">{rfiData.category}</p>
                       )}
                     </div>
                   </div>
@@ -222,7 +266,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                         rows={4}
                       />
                     ) : (
-                      <p className="mt-1 text-sm text-gray-900">{rfiData.description}</p>
+                      <p className="mt-1 text-sm text-foreground">{rfiData.description}</p>
                     )}
                   </div>
 
@@ -235,7 +279,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                         onChange={(e) => handleInputChange('location', e.target.value)}
                       />
                     ) : (
-                      <p className="mt-1 text-sm text-gray-900">{rfiData.location}</p>
+                      <p className="mt-1 text-sm text-foreground">{rfiData.location}</p>
                     )}
                   </div>
                 </CardContent>
@@ -244,17 +288,17 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
               {/* Responses */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Responses & Comments</CardTitle>
+                  <CardTitle className="text-foreground">Responses & Comments</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     {rfiData.responses.map((response) => (
                       <div key={response.id} className="border-l-4 border-blue-500 pl-4 py-2">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-sm">{response.author}</span>
-                          <span className="text-xs text-gray-500">{response.date}</span>
+                          <span className="font-medium text-sm text-foreground">{response.author}</span>
+                          <span className="text-xs text-muted-foreground">{response.date}</span>
                         </div>
-                        <p className="text-sm text-gray-700">{response.message}</p>
+                        <p className="text-sm text-foreground">{response.message}</p>
                       </div>
                     ))}
                     
@@ -340,8 +384,8 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Created By</Label>
-                    <p className="mt-1 text-sm text-gray-900">{rfiData.createdBy}</p>
-                    <p className="text-xs text-gray-500">{rfiData.created}</p>
+                    <p className="mt-1 text-sm text-foreground">{rfiData.createdBy}</p>
+                    <p className="text-xs text-muted-foreground">{rfiData.created}</p>
                   </div>
 
                   <div>
@@ -352,7 +396,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                         onChange={(e) => handleInputChange('assignedTo', e.target.value)}
                       />
                     ) : (
-                      <p className="mt-1 text-sm text-gray-900">{rfiData.assignedTo}</p>
+                      <p className="mt-1 text-sm text-foreground">{rfiData.assignedTo}</p>
                     )}
                   </div>
 
@@ -365,7 +409,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                         onChange={(e) => handleInputChange('dueDate', e.target.value)}
                       />
                     ) : (
-                      <p className="mt-1 text-sm text-gray-900">{rfiData.dueDate}</p>
+                      <p className="mt-1 text-sm text-foreground">{rfiData.dueDate}</p>
                     )}
                   </div>
                 </CardContent>
@@ -374,24 +418,92 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
               {/* Attachments */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Attachments</CardTitle>
+                  <CardTitle className="text-foreground">Attachments</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent 
+                  className="space-y-4"
+                  onPaste={handlePaste}
+                  tabIndex={0}
+                >
+                  {/* Existing Attachments */}
                   <div className="space-y-2">
                     {rfiData.attachments.map((attachment, index) => (
-                      <div key={index} className="flex items-center gap-2 text-sm">
-                        <FileText className="w-4 h-4" />
-                        <span className="text-blue-600 hover:text-blue-800 cursor-pointer">
-                          {attachment}
-                        </span>
+                      <div key={index} className="flex items-center justify-between p-2 border rounded-md bg-gray-50">
+                        <div className="flex items-center gap-2 text-sm">
+                          <FileText className="w-4 h-4 text-blue-600" />
+                          <span className="text-blue-600 hover:text-blue-800 cursor-pointer text-foreground">
+                            {attachment}
+                          </span>
+                        </div>
+                        {isEditing && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteAttachment(index)}
+                            className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        )}
                       </div>
                     ))}
-                    {isEditing && (
-                      <Button variant="outline" size="sm" className="mt-2">
-                        Add Attachment
-                      </Button>
-                    )}
                   </div>
+
+                  {isEditing && (
+                    <>
+                      {/* Drag & Drop Zone */}
+                      <div
+                        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                          dragActive 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                        onDragEnter={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDragOver={handleDrag}
+                        onDrop={handleDrop}
+                      >
+                        <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                        <p className="text-sm text-gray-600 mb-2">
+                          Drag and drop files here, or click to browse
+                        </p>
+                        <input
+                          type="file"
+                          multiple
+                          className="hidden"
+                          id="file-upload"
+                          onChange={(e) => handleFileUpload(e.target.files)}
+                        />
+                        <div className="flex gap-2 justify-center">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => document.getElementById('file-upload')?.click()}
+                          >
+                            <Paperclip className="w-4 h-4 mr-2" />
+                            Browse Files
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              // Focus the container to enable paste
+                              const container = document.activeElement;
+                              if (container) {
+                                (container as HTMLElement).focus();
+                              }
+                            }}
+                          >
+                            <Upload className="w-4 h-4 mr-2" />
+                            Paste Files
+                          </Button>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                          Supports PDF, DOC, JPG, PNG files up to 10MB
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </div>
