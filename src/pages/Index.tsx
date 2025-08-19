@@ -40,18 +40,17 @@ const Index = () => {
     
     // Handle URLs with query parameters (like project-cost?projectId=123)
     let targetPage = page;
+    let paramsObj: Record<string, string> = {};
     let projectId: string | null = null;
-    let typeParam: string | null = null;
-    let titleParam: string | null = null;
-    
+
     if (page.includes('?')) {
       const [pageName, queryString] = page.split('?');
       targetPage = pageName;
       const params = new URLSearchParams(queryString);
+      params.forEach((value, key) => {
+        paramsObj[key] = value;
+      });
       projectId = params.get('projectId');
-      typeParam = params.get('type');
-      titleParam = params.get('title');
-      
       console.log(`🧭 Extracted page: ${targetPage}, projectId: ${projectId}`);
     }
     
@@ -70,9 +69,7 @@ const Index = () => {
     // Sync URL with internal navigation to avoid being overridden by ?page= params
     const search = new URLSearchParams();
     search.set('page', targetPage);
-    if (projectId) search.set('projectId', projectId);
-    if (typeParam) search.set('type', typeParam);
-    if (titleParam) search.set('title', titleParam);
+    Object.entries(paramsObj).forEach(([key, value]) => search.set(key, value));
     navigate({ pathname: '/', search: `?${search.toString()}` }, { replace: false });
   };
 

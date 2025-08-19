@@ -205,7 +205,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate }: QAQCTableProps)
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => onNavigate?.(`qaqc-checklist-detail&projectId=${item.project_id}&checklistId=${item.id}`)}
+                onClick={() => onNavigate?.(`qaqc-checklist-detail?projectId=${item.project_id}&checklistId=${item.id}`)}
               >
                 {item.checklist_number}
               </button>
@@ -250,7 +250,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate }: QAQCTableProps)
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => onNavigate?.(`qaqc-rfi-detail&projectId=${item.project_id}&rfiId=${item.id}`)}
+                onClick={() => onNavigate?.(`qaqc-rfi-detail?projectId=${item.project_id}&rfiId=${item.id}`)}
               >
                 {item.rfi_number}
               </button>
@@ -297,7 +297,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate }: QAQCTableProps)
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => onNavigate?.(`qaqc-issue-detail&projectId=${item.project_id}&issueId=${item.id}`)}
+                onClick={() => onNavigate?.(`qaqc-issue-detail?projectId=${item.project_id}&issueId=${item.id}`)}
               >
                 {item.issue_number}
               </button>
@@ -344,7 +344,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate }: QAQCTableProps)
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => onNavigate?.(`qaqc-defect-detail&projectId=${item.project_id}&defectId=${item.id}`)}
+                onClick={() => onNavigate?.(`qaqc-defect-detail?projectId=${item.project_id}&defectId=${item.id}`)}
               >
                 {item.defect_number}
               </button>
@@ -391,7 +391,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate }: QAQCTableProps)
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => onNavigate?.(`qaqc-inspection-detail&projectId=${item.project_id}&inspectionId=${item.id}`)}
+                onClick={() => onNavigate?.(`qaqc-inspection-detail?projectId=${item.project_id}&inspectionId=${item.id}`)}
               >
                 {item.inspection_number}
               </button>
@@ -436,7 +436,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate }: QAQCTableProps)
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => onNavigate?.(`qaqc-quality-plan-detail&projectId=${item.project_id}&planId=${item.id}`)}
+                onClick={() => onNavigate?.(`qaqc-quality-plan-detail?projectId=${item.project_id}&planId=${item.id}`)}
               >
                 {item.plan_number}
               </button>

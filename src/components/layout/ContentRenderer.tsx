@@ -68,6 +68,14 @@ import NewTaskPage from "@/pages/NewTaskPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
 import { ProjectQAQCPage } from "@/components/project/ProjectQAQCPage";
+import { ChecklistsPage } from "@/pages/qaqc/ChecklistsPage";
+import { RFIsPage } from "@/pages/qaqc/RFIsPage";
+import { IssuesPage } from "@/pages/qaqc/IssuesPage";
+import { DefectsPage } from "@/pages/qaqc/DefectsPage";
+import { InspectionsPage } from "@/pages/qaqc/InspectionsPage";
+import { QualityPlansPage } from "@/pages/qaqc/QualityPlansPage";
+import { IssueDetailPage } from "@/pages/qaqc/IssueDetailPage";
+import { RFIDetailPage } from "@/pages/qaqc/RFIDetailPage";
 
 
 interface ContentRendererProps {
@@ -301,18 +309,54 @@ export const ContentRenderer = ({
           <ProjectQAQCPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
-    case "qaqc-report-details":
-      // QA/QC module removed - redirect to projects
-      onNavigate("projects");
-      return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
-    case "rfi-list":
-      // RFI module removed - redirect to projects
-      onNavigate("projects");
-      return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
-    case "rfi-detail":
-      // RFI module removed - redirect to projects
-      onNavigate("projects");
-      return <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />;
+    case "qaqc-checklists":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <ChecklistsPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-rfis":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <RFIsPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-issues":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <IssuesPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-defects":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <DefectsPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-inspections":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <InspectionsPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-quality-plans":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <QualityPlansPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-issue-detail":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <IssueDetailPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-rfi-detail":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <RFIDetailPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
     case "bim":
       return currentProject ? (
           <div className="p-8">
