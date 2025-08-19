@@ -72,22 +72,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
       {/* Main Content */}
       <div className="flex-1 ml-48 p-6 overflow-auto">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">Quality Assurance & Control</h1>
-                <p className="text-muted-foreground">Manage project quality and compliance for {project.name}</p>
-              </div>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                New QA/QC Item
-              </Button>
-            </div>
-          </div>
-
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center">
