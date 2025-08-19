@@ -148,14 +148,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
           </div>
 
           {/* Main Content - Tabs */}
-          <Card>
-            <CardHeader>
-              <CardTitle>QA/QC Management</CardTitle>
-              <CardDescription>
-                Comprehensive quality assurance and control management for all project phases.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <div>
               <Tabs defaultValue="checklists" className="w-full">
                 <TabsList className="grid w-full grid-cols-6">
                   <TabsTrigger value="checklists">Checklists</TabsTrigger>
@@ -305,8 +298,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   </div>
                 </TabsContent>
               </Tabs>
-            </CardContent>
-          </Card>
+          </div>
         </div>
       </div>
     </div>
