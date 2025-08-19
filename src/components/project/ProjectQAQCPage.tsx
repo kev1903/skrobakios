@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Plus, AlertTriangle, FileText, CheckCircle, Clock, Filter, MoreHorizontal, Download, Trash2 } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
@@ -12,6 +13,9 @@ import { useRFIs } from '@/hooks/useRFIs';
 import { useIssues } from '@/hooks/useIssues';
 import { useDefects } from '@/hooks/useDefects';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { RFIForm } from '@/components/reports/RFIForm';
+import { IssueForm } from '@/components/reports/IssueForm';
+import { DefectForm } from '@/components/reports/DefectForm';
 
 interface ProjectQAQCPageProps {
   onNavigate: (page: string) => void;
@@ -23,10 +27,11 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
   const [activeTab, setActiveTab] = useState("rfi");
+  const [showNewReportDialog, setShowNewReportDialog] = useState(false);
   
-  const { rfis, loading: rfisLoading, deleteRFI, exportRFI } = useRFIs(projectId);
-  const { issues, loading: issuesLoading, deleteIssue, exportIssue } = useIssues(projectId);
-  const { defects, loading: defectsLoading, deleteDefect, exportDefect } = useDefects(projectId);
+  const { rfis, loading: rfisLoading, deleteRFI, exportRFI, refetch: refetchRFIs } = useRFIs(projectId);
+  const { issues, loading: issuesLoading, deleteIssue, exportIssue, refetch: refetchIssues } = useIssues(projectId);
+  const { defects, loading: defectsLoading, deleteDefect, exportDefect, refetch: refetchDefects } = useDefects(projectId);
 
   useEffect(() => {
     if (projectId) {
@@ -82,6 +87,41 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
     }
   };
 
+  const handleNewReportClick = () => {
+    setShowNewReportDialog(true);
+  };
+
+  const handleReportSuccess = () => {
+    setShowNewReportDialog(false);
+    // Refresh the appropriate data based on active tab
+    if (activeTab === 'rfi') {
+      refetchRFIs();
+    } else if (activeTab === 'issues') {
+      refetchIssues();
+    } else if (activeTab === 'defects') {
+      refetchDefects();
+    }
+  };
+
+  const handleReportCancel = () => {
+    setShowNewReportDialog(false);
+  };
+
+  const renderForm = () => {
+    if (!projectId) return null;
+    
+    switch (activeTab) {
+      case 'rfi':
+        return <RFIForm projectId={projectId} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
+      case 'issues':
+        return <IssueForm projectId={projectId} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
+      case 'defects':
+        return <DefectForm projectId={projectId} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
+      default:
+        return null;
+    }
+  };
+
   if (!project) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -124,7 +164,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <Filter className="w-4 h-4 mr-2" />
                   Filter
                 </Button>
-                <Button size="sm">
+                <Button size="sm" onClick={handleNewReportClick}>
                   <Plus className="w-4 h-4 mr-2" />
                   New Report
                 </Button>
@@ -427,6 +467,13 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
           </Tabs>
         </div>
       </div>
+
+      {/* New Report Dialog */}
+      <Dialog open={showNewReportDialog} onOpenChange={setShowNewReportDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {renderForm()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
