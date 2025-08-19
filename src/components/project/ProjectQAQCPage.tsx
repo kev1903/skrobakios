@@ -159,8 +159,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
-                <p className="text-gray-600">{project.name} - #{project.project_id}</p>
+                <h1 className="text-3xl font-bold text-foreground">Reports</h1>
+                <p className="text-muted-foreground">{project.name} - #{project.project_id}</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
@@ -181,8 +181,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <div className="flex items-center">
                     <FileText className="w-8 h-8 text-blue-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-600">Total RFIs</p>
-                      <p className="text-2xl font-bold text-gray-900">{mockRFIs.length}</p>
+                      <p className="text-sm font-medium text-muted-foreground">Total RFIs</p>
+                      <p className="text-2xl font-bold text-foreground">{mockRFIs.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -193,8 +193,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <div className="flex items-center">
                     <AlertTriangle className="w-8 h-8 text-yellow-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-600">Active Issues</p>
-                      <p className="text-2xl font-bold text-gray-900">{mockIssues.length}</p>
+                      <p className="text-sm font-medium text-muted-foreground">Active Issues</p>
+                      <p className="text-2xl font-bold text-foreground">{mockIssues.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -205,8 +205,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <div className="flex items-center">
                     <CheckCircle className="w-8 h-8 text-red-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-600">Defects</p>
-                      <p className="text-2xl font-bold text-gray-900">{mockDefects.length}</p>
+                      <p className="text-sm font-medium text-muted-foreground">Defects</p>
+                      <p className="text-2xl font-bold text-foreground">{mockDefects.length}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -217,8 +217,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <div className="flex items-center">
                     <Clock className="w-8 h-8 text-green-600" />
                     <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-600">Avg Response</p>
-                      <p className="text-2xl font-bold text-gray-900">2.3d</p>
+                      <p className="text-sm font-medium text-muted-foreground">Avg Response</p>
+                      <p className="text-2xl font-bold text-foreground">2.3d</p>
                     </div>
                   </div>
                 </CardContent>
@@ -238,8 +238,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
             <TabsContent value="rfi" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Request for Information (RFI)</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-foreground">Request for Information (RFI)</CardTitle>
+                  <CardDescription className="text-muted-foreground">
                     Track and manage information requests throughout the project lifecycle
                   </CardDescription>
                 </CardHeader>
@@ -258,8 +258,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                             <Badge className={getStatusColor(rfi.status)}>{rfi.status}</Badge>
                             <Badge className={getPriorityColor(rfi.priority)}>{rfi.priority}</Badge>
                           </div>
-                          <h3 className="font-medium text-gray-900 mb-1">{rfi.title}</h3>
-                          <p className="text-sm text-gray-600">
+                          <h3 className="font-medium text-foreground mb-1">{rfi.title}</h3>
+                          <p className="text-sm text-muted-foreground">
                             Created: {rfi.created} • Assigned to: {rfi.assigned}
                           </p>
                         </div>
@@ -297,8 +297,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                             <Badge className={getStatusColor(issue.status)}>{issue.status}</Badge>
                             <Badge className={getPriorityColor(issue.priority)}>{issue.priority}</Badge>
                           </div>
-                          <h3 className="font-medium text-gray-900 mb-1">{issue.title}</h3>
-                          <p className="text-sm text-gray-600">
+                          <h3 className="font-medium text-foreground mb-1">{issue.title}</h3>
+                          <p className="text-sm text-muted-foreground">
                             Created: {issue.created} • Assigned to: {issue.assigned}
                           </p>
                         </div>
@@ -336,8 +336,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                             <Badge className={getStatusColor(defect.status)}>{defect.status}</Badge>
                             <Badge className={getPriorityColor(defect.priority)}>{defect.priority}</Badge>
                           </div>
-                          <h3 className="font-medium text-gray-900 mb-1">{defect.title}</h3>
-                          <p className="text-sm text-gray-600">
+                          <h3 className="font-medium text-foreground mb-1">{defect.title}</h3>
+                          <p className="text-sm text-muted-foreground">
                             Created: {defect.created} • Assigned to: {defect.assigned}
                           </p>
                         </div>
