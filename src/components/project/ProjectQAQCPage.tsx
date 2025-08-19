@@ -159,8 +159,12 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-3xl font-bold text-foreground">Reports</h1>
-                <p className="text-muted-foreground">{project.name} - #{project.project_id}</p>
+                <h1 className="text-3xl font-bold text-foreground">
+                  {activeTab === 'rfi' && 'RFI Report'} 
+                  {activeTab === 'issues' && 'Issues Report'} 
+                  {activeTab === 'defects' && 'Defect Report'} - {project.name}
+                </h1>
+                <p className="text-muted-foreground">#{project.project_id}</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
