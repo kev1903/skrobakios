@@ -23,7 +23,6 @@ export const IssueForm = ({ projectId, projectName, onSuccess, onCancel }: Issue
     priority: 'medium',
     assigned_to: '',
     due_date: '',
-    location: '',
   });
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -62,7 +61,6 @@ export const IssueForm = ({ projectId, projectName, onSuccess, onCancel }: Issue
           assigned_to: formData.assigned_to,
           created_by: user.user.id,
           due_date: formData.due_date || null,
-          location: formData.location || null,
         });
 
       if (error) throw error;
@@ -178,15 +176,6 @@ export const IssueForm = ({ projectId, projectName, onSuccess, onCancel }: Issue
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="location">Location</Label>
-          <Input
-            id="location"
-            value={formData.location}
-            onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-            placeholder="Project location or area"
-          />
-        </div>
 
         <div className="flex justify-end gap-2 pt-4">
           <Button type="button" variant="outline" onClick={onCancel}>
