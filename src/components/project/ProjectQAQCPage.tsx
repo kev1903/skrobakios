@@ -93,45 +93,54 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
     setShowNewReportDialog(true);
   };
 
-  const handleDeleteRFI = async () => {
-    if (rfis.length > 0) {
-      try {
-        // Delete all RFIs for this project (as we're deleting the report)
-        for (const rfi of rfis) {
-          await deleteRFI(rfi.id);
-        }
-        refetchRFIs();
-      } catch (error) {
-        console.error('Failed to delete RFI report:', error);
+  const handleDeleteAllRFIs = async () => {
+    if (rfis.length === 0) {
+      console.log('No RFIs to delete');
+      return;
+    }
+    
+    try {
+      // Delete all RFIs for this project
+      for (const rfi of rfis) {
+        await deleteRFI(rfi.id);
       }
+      refetchRFIs();
+    } catch (error) {
+      console.error('Failed to delete all RFIs:', error);
     }
   };
 
-  const handleDeleteIssues = async () => {
-    if (issues.length > 0) {
-      try {
-        // Void all issues for this project (as we're deleting the report)
-        for (const issue of issues) {
-          await voidIssue(issue.id);
-        }
-        refetchIssues();
-      } catch (error) {
-        console.error('Failed to delete Issues report:', error);
+  const handleDeleteAllIssues = async () => {
+    if (issues.length === 0) {
+      console.log('No Issues to void');
+      return;
+    }
+    
+    try {
+      // Void all issues for this project
+      for (const issue of issues) {
+        await voidIssue(issue.id);
       }
+      refetchIssues();
+    } catch (error) {
+      console.error('Failed to void all issues:', error);
     }
   };
 
-  const handleDeleteDefects = async () => {
-    if (defects.length > 0) {
-      try {
-        // Delete all defects for this project (as we're deleting the report)
-        for (const defect of defects) {
-          await deleteDefect(defect.id);
-        }
-        refetchDefects();
-      } catch (error) {
-        console.error('Failed to delete Defects report:', error);
+  const handleDeleteAllDefects = async () => {
+    if (defects.length === 0) {
+      console.log('No Defects to delete');
+      return;
+    }
+    
+    try {
+      // Delete all defects for this project
+      for (const defect of defects) {
+        await deleteDefect(defect.id);
       }
+      refetchDefects();
+    } catch (error) {
+      console.error('Failed to delete all defects:', error);
     }
   };
 
@@ -322,20 +331,20 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               <AlertDialogTrigger asChild>
                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
                                   <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete Report
+                                  Clear All RFIs
                                 </DropdownMenuItem>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete RFI Report</AlertDialogTitle>
+                                  <AlertDialogTitle>Clear All RFIs</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to delete this RFI report? This will permanently delete all {rfis.length} RFI{rfis.length !== 1 ? 's' : ''} in this report. This action cannot be undone.
+                                    Are you sure you want to delete all {rfis.length} RFI{rfis.length !== 1 ? 's' : ''} from this project? This will permanently remove all RFI items. This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleDeleteRFI} className="bg-red-600 hover:bg-red-700">
-                                    Delete Report
+                                  <AlertDialogAction onClick={handleDeleteAllRFIs} className="bg-red-600 hover:bg-red-700">
+                                    Delete All RFIs
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -396,20 +405,20 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               <AlertDialogTrigger asChild>
                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
                                   <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete Report
+                                  Clear All Issues
                                 </DropdownMenuItem>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Issues Report</AlertDialogTitle>
+                                  <AlertDialogTitle>Clear All Issues</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to delete this Issues report? This will permanently void all {issues.length} issue{issues.length !== 1 ? 's' : ''} in this report. This action cannot be undone.
+                                    Are you sure you want to void all {issues.length} issue{issues.length !== 1 ? 's' : ''} from this project? This will mark all issues as voided. This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleDeleteIssues} className="bg-red-600 hover:bg-red-700">
-                                    Delete Report
+                                  <AlertDialogAction onClick={handleDeleteAllIssues} className="bg-red-600 hover:bg-red-700">
+                                    Void All Issues
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -470,20 +479,20 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               <AlertDialogTrigger asChild>
                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
                                   <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete Report
+                                  Clear All Defects
                                 </DropdownMenuItem>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Defects Report</AlertDialogTitle>
+                                  <AlertDialogTitle>Clear All Defects</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to delete this Defects report? This will permanently delete all {defects.length} defect{defects.length !== 1 ? 's' : ''} in this report. This action cannot be undone.
+                                    Are you sure you want to delete all {defects.length} defect{defects.length !== 1 ? 's' : ''} from this project? This will permanently remove all defect items. This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleDeleteDefects} className="bg-red-600 hover:bg-red-700">
-                                    Delete Report
+                                  <AlertDialogAction onClick={handleDeleteAllDefects} className="bg-red-600 hover:bg-red-700">
+                                    Delete All Defects
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
