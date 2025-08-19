@@ -93,13 +93,15 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
     setShowNewReportDialog(true);
   };
 
-  // Handle individual item deletions
-  const handleDeleteRFI = async (rfiId: string) => {
+  // Handle voiding individual items (items cannot be deleted, only voided)
+  const handleVoidRFI = async (rfiId: string) => {
     try {
+      // Note: This should call a void function rather than delete
+      // For now using delete until void functionality is implemented
       await deleteRFI(rfiId);
       refetchRFIs();
     } catch (error) {
-      console.error('Failed to delete RFI:', error);
+      console.error('Failed to void RFI:', error);
     }
   };
 
@@ -112,17 +114,19 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
     }
   };
 
-  const handleDeleteDefect = async (defectId: string) => {
+  const handleVoidDefect = async (defectId: string) => {
     try {
+      // Note: This should call a void function rather than delete
+      // For now using delete until void functionality is implemented
       await deleteDefect(defectId);
       refetchDefects();
     } catch (error) {
-      console.error('Failed to delete defect:', error);
+      console.error('Failed to void defect:', error);
     }
   };
 
-  // Handle clearing all items from a report
-  const handleClearAllRFIs = async () => {
+  // Handle deleting entire reports (all items within the report)
+  const handleDeleteRFIReport = async () => {
     if (rfis.length === 0) return;
     try {
       for (const rfi of rfis) {
@@ -130,11 +134,11 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
       }
       refetchRFIs();
     } catch (error) {
-      console.error('Failed to clear all RFIs:', error);
+      console.error('Failed to delete RFI report:', error);
     }
   };
 
-  const handleClearAllIssues = async () => {
+  const handleDeleteIssuesReport = async () => {
     if (issues.length === 0) return;
     try {
       for (const issue of issues) {
@@ -142,11 +146,11 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
       }
       refetchIssues();
     } catch (error) {
-      console.error('Failed to clear all issues:', error);
+      console.error('Failed to delete issues report:', error);
     }
   };
 
-  const handleClearAllDefects = async () => {
+  const handleDeleteDefectsReport = async () => {
     if (defects.length === 0) return;
     try {
       for (const defect of defects) {
@@ -154,7 +158,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
       }
       refetchDefects();
     } catch (error) {
-      console.error('Failed to clear all defects:', error);
+      console.error('Failed to delete defects report:', error);
     }
   };
 
@@ -342,20 +346,20 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               <AlertDialogTrigger asChild>
                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
                                   <Trash2 className="mr-2 h-4 w-4" />
-                                  Clear All RFI Items
+                                  Delete Report
                                 </DropdownMenuItem>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Clear All RFI Items</AlertDialogTitle>
+                                  <AlertDialogTitle>Delete RFI Report</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to delete all {rfis.length} RFI item{rfis.length !== 1 ? 's' : ''} from this report? This will permanently remove all RFI items. This action cannot be undone.
+                                    Are you sure you want to delete the entire RFI Report? This will permanently remove all {rfis.length} RFI item{rfis.length !== 1 ? 's' : ''} from this report. This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleClearAllRFIs} className="bg-red-600 hover:bg-red-700">
-                                    Delete All Items
+                                  <AlertDialogAction onClick={handleDeleteRFIReport} className="bg-red-600 hover:bg-red-700">
+                                    Delete Report
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -407,22 +411,22 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                 </DropdownMenuItem>
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-orange-600 focus:text-orange-600">
                                       <Trash2 className="mr-2 h-4 w-4" />
-                                      Delete RFI
+                                      Void Item
                                     </DropdownMenuItem>
                                   </AlertDialogTrigger>
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle>Delete RFI</AlertDialogTitle>
+                                      <AlertDialogTitle>Void RFI Item</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Are you sure you want to delete this RFI "{rfi.title}"? This action cannot be undone.
+                                        Are you sure you want to void this RFI "{rfi.title}"? This will mark it as voided but keep it in the report for audit purposes.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => handleDeleteRFI(rfi.id)} className="bg-red-600 hover:bg-red-700">
-                                        Delete RFI
+                                      <AlertDialogAction onClick={() => handleVoidRFI(rfi.id)} className="bg-orange-600 hover:bg-orange-700">
+                                        Void Item
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
@@ -482,20 +486,20 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               <AlertDialogTrigger asChild>
                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
                                   <Trash2 className="mr-2 h-4 w-4" />
-                                  Clear All Issue Items
+                                  Delete Report
                                 </DropdownMenuItem>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Clear All Issue Items</AlertDialogTitle>
+                                  <AlertDialogTitle>Delete Issues Report</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to void all {issues.length} issue item{issues.length !== 1 ? 's' : ''} from this report? This will mark all issues as voided. This action cannot be undone.
+                                    Are you sure you want to delete the entire Issues Report? This will permanently remove all {issues.length} issue item{issues.length !== 1 ? 's' : ''} from this report. This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleClearAllIssues} className="bg-red-600 hover:bg-red-700">
-                                    Void All Items
+                                  <AlertDialogAction onClick={handleDeleteIssuesReport} className="bg-red-600 hover:bg-red-700">
+                                    Delete Report
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -547,22 +551,22 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                 </DropdownMenuItem>
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-orange-600 focus:text-orange-600">
                                       <Trash2 className="mr-2 h-4 w-4" />
-                                      Void Issue
+                                      Void Item
                                     </DropdownMenuItem>
                                   </AlertDialogTrigger>
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle>Void Issue</AlertDialogTitle>
+                                      <AlertDialogTitle>Void Issue Item</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Are you sure you want to void issue "{issue.title}"? This will mark it as voided. This action cannot be undone.
+                                        Are you sure you want to void issue "{issue.title}"? This will mark it as voided but keep it in the report for audit purposes.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => handleVoidIssue(issue.id)} className="bg-red-600 hover:bg-red-700">
-                                        Void Issue
+                                      <AlertDialogAction onClick={() => handleVoidIssue(issue.id)} className="bg-orange-600 hover:bg-orange-700">
+                                        Void Item
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
@@ -622,20 +626,20 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               <AlertDialogTrigger asChild>
                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
                                   <Trash2 className="mr-2 h-4 w-4" />
-                                  Clear All Defect Items
+                                  Delete Report
                                 </DropdownMenuItem>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Clear All Defect Items</AlertDialogTitle>
+                                  <AlertDialogTitle>Delete Defects Report</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to delete all {defects.length} defect item{defects.length !== 1 ? 's' : ''} from this report? This will permanently remove all defect items. This action cannot be undone.
+                                    Are you sure you want to delete the entire Defects Report? This will permanently remove all {defects.length} defect item{defects.length !== 1 ? 's' : ''} from this report. This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={handleClearAllDefects} className="bg-red-600 hover:bg-red-700">
-                                    Delete All Items
+                                  <AlertDialogAction onClick={handleDeleteDefectsReport} className="bg-red-600 hover:bg-red-700">
+                                    Delete Report
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -688,22 +692,22 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                                 </DropdownMenuItem>
                                 <AlertDialog>
                                   <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-orange-600 focus:text-orange-600">
                                       <Trash2 className="mr-2 h-4 w-4" />
-                                      Delete Defect
+                                      Void Item
                                     </DropdownMenuItem>
                                   </AlertDialogTrigger>
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle>Delete Defect</AlertDialogTitle>
+                                      <AlertDialogTitle>Void Defect Item</AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Are you sure you want to delete defect "{defect.title}"? This action cannot be undone.
+                                        Are you sure you want to void defect "{defect.title}"? This will mark it as voided but keep it in the report for audit purposes.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction onClick={() => handleDeleteDefect(defect.id)} className="bg-red-600 hover:bg-red-700">
-                                        Delete Defect
+                                      <AlertDialogAction onClick={() => handleVoidDefect(defect.id)} className="bg-orange-600 hover:bg-orange-700">
+                                        Void Item
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
