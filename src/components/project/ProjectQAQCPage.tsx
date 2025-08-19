@@ -53,6 +53,11 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
     return [...rfis, ...issues, ...defects].filter(item => item.status === 'resolved').length;
   };
 
+  const handleNewReport = () => {
+    const reportType = activeTab === 'rfi' ? 'rfi' : activeTab === 'issues' ? 'issue' : 'defect';
+    onNavigate(`new-${reportType}?projectId=${projectId}`);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'open':
@@ -124,7 +129,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <Filter className="w-4 h-4 mr-2" />
                   Filter
                 </Button>
-                <Button size="sm">
+                <Button size="sm" onClick={handleNewReport}>
                   <Plus className="w-4 h-4 mr-2" />
                   New Report
                 </Button>
