@@ -281,7 +281,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
             <TabsContent value="issues" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Project Issues</CardTitle>
+                  <CardTitle className="text-foreground">Project Issues</CardTitle>
                   <CardDescription>
                     Monitor and resolve project issues and complications
                   </CardDescription>
@@ -320,7 +320,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
             <TabsContent value="defects" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Defects & Quality Issues</CardTitle>
+                  <CardTitle className="text-foreground">Defects & Quality Issues</CardTitle>
                   <CardDescription>
                     Track construction defects and quality control issues
                   </CardDescription>
