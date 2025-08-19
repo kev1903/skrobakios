@@ -30,7 +30,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const [showNewReportDialog, setShowNewReportDialog] = useState(false);
   
   const { rfis, loading: rfisLoading, deleteRFI, exportRFI, refetch: refetchRFIs } = useRFIs(projectId);
-  const { issues, loading: issuesLoading, deleteIssue, exportIssue, refetch: refetchIssues } = useIssues(projectId);
+  const { issues, loading: issuesLoading, voidIssue, exportIssue, refetch: refetchIssues } = useIssues(projectId);
   const { defects, loading: defectsLoading, deleteDefect, exportDefect, refetch: refetchDefects } = useDefects(projectId);
 
   useEffect(() => {
@@ -69,6 +69,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
         return 'bg-yellow-100 text-yellow-800';
       case 'resolved':
         return 'bg-green-100 text-green-800';
+      case 'voided':
+        return 'bg-gray-100 text-gray-600';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -355,22 +357,22 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                               </DropdownMenuItem>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete
-                                  </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  Void
+                                </DropdownMenuItem>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete Issue</AlertDialogTitle>
+                                    <AlertDialogTitle>Void Issue</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Are you sure you want to delete {issue.issue_number}? This action cannot be undone.
+                                      Are you sure you want to void {issue.issue_number}? This will mark the issue as voided but keep it in the system for record keeping.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => deleteIssue(issue.id)} className="bg-destructive hover:bg-destructive/90">
-                                      Delete
+                                    <AlertDialogAction onClick={() => voidIssue(issue.id)} className="bg-destructive hover:bg-destructive/90">
+                                      Void Issue
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
