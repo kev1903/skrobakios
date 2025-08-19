@@ -255,7 +255,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                           <div className="flex items-center gap-3 mb-2">
                             <button 
                               onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=rfi`)}
-                              className="font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                              className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
                             >
                               {`RFI Report ${rfi.id} - ${project.name}`}
                             </button>
@@ -294,7 +294,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                           <div className="flex items-center gap-3 mb-2">
                             <button 
                               onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=issues`)}
-                              className="font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                              className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
                             >
                               {`Issues Report ${issue.id} - ${project.name}`}
                             </button>
@@ -333,7 +333,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                           <div className="flex items-center gap-3 mb-2">
                             <button 
                               onClick={() => onNavigate(`rfi-list?projectId=${projectId}&type=defects`)}
-                              className="font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                              className="font-medium text-foreground hover:text-foreground/80 transition-colors cursor-pointer"
                             >
                               {`Defect Report ${defect.id} - ${project.name}`}
                             </button>
