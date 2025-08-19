@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database, CheckSquare } from 'lucide-react';
+import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database, CheckSquare, ClipboardCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
@@ -38,6 +38,7 @@ export const NavigationRibbon = ({
   const coreBusinessModules = [
     { id: "system", label: "Business Map", icon: Database },
     { id: "projects", label: "Projects", icon: Briefcase },
+    { id: "qa-qc", label: "QA/QC", icon: ClipboardCheck },
     { id: "sales", label: "Sales", icon: TrendingUp },
     { id: "finance", label: "Finance", icon: DollarSign },
   ];
