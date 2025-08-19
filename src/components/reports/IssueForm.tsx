@@ -10,11 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 
 interface IssueFormProps {
   projectId: string;
+  projectName?: string;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export const IssueForm = ({ projectId, onSuccess, onCancel }: IssueFormProps) => {
+export const IssueForm = ({ projectId, projectName, onSuccess, onCancel }: IssueFormProps) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -91,6 +92,18 @@ export const IssueForm = ({ projectId, onSuccess, onCancel }: IssueFormProps) =>
       </DialogHeader>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {projectName && (
+          <div className="space-y-2">
+            <Label htmlFor="project">Project</Label>
+            <Input
+              id="project"
+              value={projectName}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="title">Title *</Label>
           <Input

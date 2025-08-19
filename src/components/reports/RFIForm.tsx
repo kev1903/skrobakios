@@ -10,11 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 
 interface RFIFormProps {
   projectId: string;
+  projectName?: string;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export const RFIForm = ({ projectId, onSuccess, onCancel }: RFIFormProps) => {
+export const RFIForm = ({ projectId, projectName, onSuccess, onCancel }: RFIFormProps) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -91,6 +92,18 @@ export const RFIForm = ({ projectId, onSuccess, onCancel }: RFIFormProps) => {
       </DialogHeader>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {projectName && (
+          <div className="space-y-2">
+            <Label htmlFor="project">Project</Label>
+            <Input
+              id="project"
+              value={projectName}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="title">Title *</Label>
           <Input

@@ -112,11 +112,11 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
     
     switch (activeTab) {
       case 'rfi':
-        return <RFIForm projectId={projectId} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
+        return <RFIForm projectId={projectId} projectName={project?.name} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
       case 'issues':
-        return <IssueForm projectId={projectId} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
+        return <IssueForm projectId={projectId} projectName={project?.name} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
       case 'defects':
-        return <DefectForm projectId={projectId} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
+        return <DefectForm projectId={projectId} projectName={project?.name} onSuccess={handleReportSuccess} onCancel={handleReportCancel} />;
       default:
         return null;
     }

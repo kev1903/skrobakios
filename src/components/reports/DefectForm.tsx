@@ -10,11 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 
 interface DefectFormProps {
   projectId: string;
+  projectName?: string;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export const DefectForm = ({ projectId, onSuccess, onCancel }: DefectFormProps) => {
+export const DefectForm = ({ projectId, projectName, onSuccess, onCancel }: DefectFormProps) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -93,6 +94,18 @@ export const DefectForm = ({ projectId, onSuccess, onCancel }: DefectFormProps) 
       </DialogHeader>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {projectName && (
+          <div className="space-y-2">
+            <Label htmlFor="project">Project</Label>
+            <Input
+              id="project"
+              value={projectName}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="title">Title *</Label>
           <Input
