@@ -55,6 +55,24 @@ export const useIssues = (projectId: string) => {
   });
 };
 
+// Hook for fetching a single issue by ID
+export const useIssue = (issueId: string) => {
+  return useQuery({
+    queryKey: ['issue', issueId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('issues')
+        .select('*')
+        .eq('id', issueId)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!issueId,
+  });
+};
+
 // Hook for fetching Defects
 export const useDefects = (projectId: string) => {
   return useQuery({

@@ -7,6 +7,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { useNavigationWithHistory } from '@/hooks/useNavigationWithHistory';
+import { useIssue } from '@/hooks/useQAQCData';
 import { ArrowLeft, AlertTriangle, Calendar, User, FileText, ClipboardList, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -23,102 +24,24 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
     onNavigate, 
     currentPage: 'qaqc-issue-detail' 
   });
+  const { data: issue, isLoading: issueLoading } = useIssue(issueId || '');
   const [project, setProject] = useState<Project | null>(null);
-  const [report, setReport] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (projectId && issueId) {
-      const fetchData = async () => {
+    if (projectId) {
+      const fetchProject = async () => {
         try {
           const fetchedProject = await getProject(projectId);
           setProject(fetchedProject);
-          
-          // Mock comprehensive report data
-          const mockReport = {
-            id: issueId,
-            issue_number: 'ISS-001',
-            title: 'Foundation Quality Control Report',
-            type: 'ncr',
-            severity: 'major',
-            status: 'investigating',
-            reported_by: 'John Smith',
-            description: 'Comprehensive quality control report for Foundation Section A-3 covering multiple non-conformance issues identified during inspection.',
-            location: 'Foundation Section A-3',
-            date_reported: '2024-01-15',
-            due_date: '2024-01-25',
-            created_at: '2024-01-15T10:30:00Z',
-            
-            // Report sections with multiple items
-            sections: [
-              {
-                title: 'Concrete Quality Issues',
-                items: [
-                  {
-                    id: 1,
-                    description: 'Concrete mix did not meet specified strength requirements',
-                    severity: 'major',
-                    status: 'open',
-                    findings: 'Slump test indicated 180mm instead of required 120mm ± 20mm',
-                    corrective_action: 'Remove affected concrete and re-pour with correct mix'
-                  },
-                  {
-                    id: 2,
-                    description: 'Improper concrete curing procedures observed',
-                    severity: 'medium',
-                    status: 'resolved',
-                    findings: 'Curing compound not applied within specified timeframe',
-                    corrective_action: 'Retrained crew on proper curing procedures'
-                  }
-                ]
-              },
-              {
-                title: 'Reinforcement Issues',
-                items: [
-                  {
-                    id: 3,
-                    description: 'Rebar spacing non-conformance',
-                    severity: 'minor',
-                    status: 'open',
-                    findings: 'Spacing varies from 200mm to 250mm, specification requires 200mm ± 10mm',
-                    corrective_action: 'Adjust rebar spacing to meet specifications'
-                  }
-                ]
-              },
-              {
-                title: 'Documentation Issues',
-                items: [
-                  {
-                    id: 4,
-                    description: 'Missing test certificates',
-                    severity: 'medium',
-                    status: 'resolved',
-                    findings: 'Concrete test certificates not provided for batch #347',
-                    corrective_action: 'Obtained missing certificates from supplier'
-                  }
-                ]
-              }
-            ],
-            
-            summary: {
-              total_items: 4,
-              open_items: 2,
-              resolved_items: 2,
-              major_issues: 1,
-              medium_issues: 2,
-              minor_issues: 1
-            }
-          };
-          setReport(mockReport);
         } catch (error) {
-          console.error('Failed to fetch data:', error);
-        } finally {
-          setIsLoading(false);
+          console.error('Failed to fetch project:', error);
         }
       };
-      fetchData();
+      fetchProject();
     }
-  }, [projectId, issueId, getProject]);
+  }, [projectId, getProject]);
+
+  const isLoading = issueLoading || !project;
 
   const handleBack = () => {
     navigateBack();
@@ -154,12 +77,12 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
     );
   }
 
-  if (!report) {
+  if (!issue) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Report Not Found</h2>
-          <p className="text-gray-600 mb-4">The requested report could not be found.</p>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Issue Not Found</h2>
+          <p className="text-gray-600 mb-4">The requested issue could not be found.</p>
           <Button onClick={handleBack}>Back to QA/QC</Button>
         </div>
       </div>
@@ -187,131 +110,110 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
                 </Button>
                 <div className="flex items-center space-x-2">
                   <AlertTriangle className="w-6 h-6 text-red-600" />
-                  <h1 className="text-2xl font-bold text-gray-700">{report.issue_number}</h1>
+                  <h1 className="text-2xl font-bold text-gray-700">{issue.issue_number || 'Issue Detail'}</h1>
                 </div>
               </div>
               <div className="flex space-x-2">
-                <Badge className={getSeverityColor(report.severity)}>{report.severity}</Badge>
-                <Badge className={getStatusColor(report.status)}>{report.status}</Badge>
+                <Badge className={getStatusColor(issue.priority?.toLowerCase() || 'medium')}>{issue.priority || 'Medium'}</Badge>
+                <Badge className={getStatusColor(issue.status || 'open')}>{issue.status || 'Open'}</Badge>
               </div>
             </div>
 
             <div className="space-y-4 pb-8">
-              {/* Compact Report Info */}
+              {/* Issue Info */}
               <Card className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <FileText className="w-4 h-4" />
-                  <h2 className="font-semibold">{report.title}</h2>
+                  <h2 className="font-semibold">{issue.title}</h2>
                 </div>
                 <div className="grid grid-cols-4 gap-4 text-sm mb-3">
                   <div>
                     <span className="text-muted-foreground">Location:</span>
-                    <div className="font-medium">{report.location}</div>
+                    <div className="font-medium">{issue.location || 'Not specified'}</div>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Reported By:</span>
-                    <div className="font-medium">{report.reported_by}</div>
+                    <span className="text-muted-foreground">Category:</span>
+                    <div className="font-medium">{issue.category}</div>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">Date Reported:</span>
-                    <div className="font-medium">{format(new Date(report.date_reported), 'MMM dd, yyyy')}</div>
+                    <span className="text-muted-foreground">Date Created:</span>
+                    <div className="font-medium">{format(new Date(issue.created_at), 'MMM dd, yyyy')}</div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Due Date:</span>
-                    <div className="font-medium">{format(new Date(report.due_date), 'MMM dd, yyyy')}</div>
+                    <div className="font-medium">
+                      {issue.due_date ? format(new Date(issue.due_date), 'MMM dd, yyyy') : 'Not set'}
+                    </div>
                   </div>
                 </div>
                 <div className="text-sm">
                   <span className="text-muted-foreground">Description:</span>
-                  <p className="mt-1">{report.description}</p>
+                  <p className="mt-1">{issue.description || 'No description provided'}</p>
                 </div>
+                {issue.assigned_to && (
+                  <div className="text-sm mt-3">
+                    <span className="text-muted-foreground">Assigned To:</span>
+                    <div className="font-medium mt-1">{issue.assigned_to}</div>
+                  </div>
+                )}
               </Card>
 
-              {/* Compact Summary */}
-              <Card className="p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <ClipboardList className="w-4 h-4" />
-                  <h3 className="font-semibold">Report Summary</h3>
-                </div>
-                <div className="grid grid-cols-6 gap-4 text-center">
-                  <div>
-                    <div className="text-xl font-bold">{report.summary.total_items}</div>
-                    <div className="text-xs text-muted-foreground">Total Items</div>
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold text-red-600">{report.summary.open_items}</div>
-                    <div className="text-xs text-muted-foreground">Open</div>
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold text-green-600">{report.summary.resolved_items}</div>
-                    <div className="text-xs text-muted-foreground">Resolved</div>
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold text-orange-600">{report.summary.major_issues}</div>
-                    <div className="text-xs text-muted-foreground">Major</div>
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold text-yellow-600">{report.summary.medium_issues}</div>
-                    <div className="text-xs text-muted-foreground">Medium</div>
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold text-green-600">{report.summary.minor_issues}</div>
-                    <div className="text-xs text-muted-foreground">Minor</div>
-                  </div>
-                </div>
-              </Card>
+              {/* Comments Section */}
+              {issue.comments && Array.isArray(issue.comments) && issue.comments.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Comments</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {(issue.comments as any[]).map((comment: any, index: number) => (
+                        <div key={index} className="border-l-4 border-blue-200 pl-4">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <span className="font-medium text-sm">{comment.author || 'Unknown'}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {comment.date ? format(new Date(comment.date), 'MMM dd, yyyy HH:mm') : 'No date'}
+                            </span>
+                          </div>
+                          <p className="text-sm">{comment.text || comment.comment}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-              {/* Issues Table */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>All Issues</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Findings</TableHead>
-                        <TableHead>Corrective Action</TableHead>
-                        <TableHead>Severity</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {report.sections.map((section: any) => 
-                        section.items.map((item: any) => (
-                          <TableRow key={item.id}>
-                            <TableCell className="font-medium">{section.title}</TableCell>
-                            <TableCell className="max-w-xs">
-                              <div className="flex items-center space-x-2">
-                                {item.status === 'resolved' ? (
-                                  <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-                                ) : (
-                                  <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
-                                )}
-                                <span className="text-sm">{item.description}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground max-w-xs">
-                              {item.findings}
-                            </TableCell>
-                            <TableCell className="text-sm text-muted-foreground max-w-xs">
-                              {item.corrective_action}
-                            </TableCell>
-                            <TableCell>
-                              <Badge className={getSeverityColor(item.severity)}>{item.severity}</Badge>
-                            </TableCell>
-                            <TableCell>
-                              <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+              {/* Attachments Section */}
+              {issue.attachments && Array.isArray(issue.attachments) && issue.attachments.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Attachments</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {(issue.attachments as any[]).map((attachment: any, index: number) => (
+                        <div key={index} className="border rounded-lg p-3">
+                          <div className="flex items-center space-x-2">
+                            <FileText className="w-4 h-4" />
+                            <span className="text-sm font-medium truncate">
+                              {attachment.name || `Attachment ${index + 1}`}
+                            </span>
+                          </div>
+                          {attachment.url && (
+                            <a 
+                              href={attachment.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:underline mt-1 block"
+                            >
+                              View File
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>
