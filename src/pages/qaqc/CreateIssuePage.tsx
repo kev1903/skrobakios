@@ -162,8 +162,12 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
         description: "Issue created successfully",
       });
 
-      // Always navigate back to the Issues list after creating
-      onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
+      // Navigate back to the report's Issue List if creating within a report; otherwise go to project Issues tab
+      if (reportId) {
+        onNavigate(`qaqc-issue-report-detail?projectId=${projectId}&reportId=${reportId}`);
+      } else {
+        onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
+      }
       
     } catch (error) {
       console.error('Error creating issue:', error);
