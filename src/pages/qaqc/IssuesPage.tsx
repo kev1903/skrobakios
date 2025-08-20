@@ -34,7 +34,7 @@ export const IssuesPage = ({ onNavigate }: IssuesPageProps) => {
   }, [projectId, getProject]);
 
   const handleBackToQAQC = () => {
-    onNavigate(`project-qaqc?projectId=${projectId}`);
+    onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
   };
 
   if (!project) {
