@@ -168,7 +168,7 @@ const Index = () => {
                   onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
                   onNavigate={handleNavigate}
                 />
-                <ChatOffsetSpacer isCollapsed={isChatCollapsed} />
+                <ChatOffsetSpacer />
               </>
             )}
             {/* Global sidebar available on all pages */}
@@ -246,7 +246,7 @@ const Index = () => {
                 onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
                 onNavigate={handleNavigate}
               />
-              <ChatOffsetSpacer isCollapsed={isChatCollapsed} />
+              <ChatOffsetSpacer />
               
               {/* Global sidebar available on all pages */}
               <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />

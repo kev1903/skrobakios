@@ -164,6 +164,23 @@ export function AiChatSidebar({
     }
   }, [isCollapsed, messages.length]);
 
+  // Keep a global CSS variable in sync with actual sidebar width so layout can reserve exact space
+  useEffect(() => {
+    const root = document.documentElement;
+    const computeOffset = () => {
+      const isDesktop = window.matchMedia('(min-width: 768px)').matches; // md breakpoint
+      // When expanded on desktop and not fullscreen, reserve 24rem; otherwise reserve 0
+      const offsetPx = (!fullScreen && isDesktop && !isCollapsed) ? 384 : 0; // 24rem = 384px
+      root.style.setProperty('--ai-chat-offset', `${offsetPx}px`);
+    };
+    computeOffset();
+    window.addEventListener('resize', computeOffset);
+    return () => {
+      window.removeEventListener('resize', computeOffset);
+      root.style.removeProperty('--ai-chat-offset');
+    };
+  }, [isCollapsed, fullScreen]);
+
   // Save messages to localStorage with non-English filtering
   useEffect(() => {
     try {
