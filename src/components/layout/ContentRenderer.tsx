@@ -76,6 +76,8 @@ import { InspectionsPage } from "@/pages/qaqc/InspectionsPage";
 import { QualityPlansPage } from "@/pages/qaqc/QualityPlansPage";
 import { IssueDetailPage } from "@/pages/qaqc/IssueDetailPage";
 import { RFIDetailPage } from "@/pages/qaqc/RFIDetailPage";
+import { CreateIssueReportPage } from "@/pages/qaqc/CreateIssueReportPage";
+import { IssueReportDetailPage } from "@/pages/qaqc/IssueReportDetailPage";
 
 
 interface ContentRendererProps {
@@ -343,6 +345,18 @@ export const ContentRenderer = ({
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <QualityPlansPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-issue-report-create":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <CreateIssueReportPage />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-issue-report-detail":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <IssueReportDetailPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "qaqc-issue-detail":
