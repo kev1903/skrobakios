@@ -196,9 +196,156 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
             </div>
           </div>
 
-          {/* Content area - all sections removed */}
-          <div className="flex items-center justify-center h-64">
-            <p className="text-muted-foreground">All sections have been removed</p>
+          <div className="grid gap-6">
+            {/* Report Header */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FileText className="w-5 h-5" />
+                  <span>{report.title}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Location</label>
+                    <p className="text-gray-700">{report.location}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Reported By</label>
+                    <p className="text-gray-700">{report.reported_by}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Date Reported</label>
+                    <p className="text-gray-700">{format(new Date(report.date_reported), 'MMM dd, yyyy')}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Due Date</label>
+                    <p className="text-gray-700">{format(new Date(report.due_date), 'MMM dd, yyyy')}</p>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Description</label>
+                  <p className="text-gray-700 mt-1">{report.description}</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Summary Dashboard */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <ClipboardList className="w-5 h-5" />
+                  <span>Report Summary</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-700">{report.summary.total_items}</div>
+                    <div className="text-sm text-muted-foreground">Total Items</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-red-600">{report.summary.open_items}</div>
+                    <div className="text-sm text-muted-foreground">Open</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">{report.summary.resolved_items}</div>
+                    <div className="text-sm text-muted-foreground">Resolved</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-orange-600">{report.summary.major_issues}</div>
+                    <div className="text-sm text-muted-foreground">Major</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">{report.summary.medium_issues}</div>
+                    <div className="text-sm text-muted-foreground">Medium</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">{report.summary.minor_issues}</div>
+                    <div className="text-sm text-muted-foreground">Minor</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Issues Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>All Issues</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead>Findings</TableHead>
+                      <TableHead>Corrective Action</TableHead>
+                      <TableHead>Severity</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {report.sections.map((section: any) => 
+                      section.items.map((item: any) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{section.title}</TableCell>
+                          <TableCell className="max-w-xs">
+                            <div className="flex items-center space-x-2">
+                              {item.status === 'resolved' ? (
+                                <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                              ) : (
+                                <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                              )}
+                              <span className="text-sm">{item.description}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground max-w-xs">
+                            {item.findings}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground max-w-xs">
+                            {item.corrective_action}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getSeverityColor(item.severity)}>{item.severity}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            {/* Attachments */}
+            {report.attachments && report.attachments.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Attachments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {report.attachments.map((attachment: any, index: number) => (
+                      <div key={index} className="flex items-center justify-between p-2 border rounded">
+                        <span className="text-sm">{attachment.name}</span>
+                        <Button variant="outline" size="sm">Download</Button>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Actions */}
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline">Export Report</Button>
+              <Button variant="outline">Edit</Button>
+              <Button>Update Status</Button>
+            </div>
           </div>
         </div>
       </div>
