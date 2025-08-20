@@ -659,23 +659,38 @@ pdf.addImage(
         pdf.setTextColor(0, 0, 0);
       }
       
-      // Issue details panel - positioned below attachments
-      const detailsX = 20;
-      let detailsY = attachmentY + attachmentAreaHeight + 20;
+      // Description box - positioned below attachments in landscape format
+      const descriptionBoxX = 20;
+      const descriptionBoxY = attachmentY + attachmentAreaHeight + 20;
+      const descriptionBoxWidth = 170; // Wide landscape format
+      const descriptionBoxHeight = 40;
       
+      // Draw description box border
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.5);
+      pdf.rect(descriptionBoxX, descriptionBoxY, descriptionBoxWidth, descriptionBoxHeight);
+      
+      // Description title
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
+      pdf.text('Description:', descriptionBoxX + 5, descriptionBoxY + 10);
       
-      // Issue details
-      pdf.text('Description:', detailsX, detailsY);
-      detailsY += 8;
+      // Description content
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
+      pdf.setFontSize(10);
       const description = issue.description || 'No description provided';
-      const wrappedDescription = pdf.splitTextToSize(description, 40);
-      pdf.text(wrappedDescription, detailsX, detailsY);
-      detailsY += wrappedDescription.length * 4 + 8;
+      const wrappedDescription = pdf.splitTextToSize(description, descriptionBoxWidth - 10);
+      
+      // Ensure description fits within the box
+      const maxLines = Math.floor((descriptionBoxHeight - 15) / 4);
+      const displayedLines = wrappedDescription.slice(0, maxLines);
+      pdf.text(displayedLines, descriptionBoxX + 5, descriptionBoxY + 18);
+      
+      // Position other details below the description box
+      let detailsY = descriptionBoxY + descriptionBoxHeight + 15;
+      const detailsX = 20;
       
       // Category
       pdf.setFont('helvetica', 'bold');
