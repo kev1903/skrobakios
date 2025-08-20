@@ -9,6 +9,7 @@ import { Plus, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { useIssueReport } from '@/hooks/useQAQCData';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { exportIssueReportToPDF } from '@/utils/pdfExport';
 
 interface IssueReportDetailPageProps {
   onNavigate: (page: string) => void;
@@ -119,6 +120,28 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
   const handleBack = () => onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
   const handleAddIssue = () => onNavigate(`qaqc-issue-create?projectId=${projectId}&reportId=${reportId}`);
 
+  const handleExportPDF = async (id: string, type: string) => {
+    if (type === 'issueReport' && projectId) {
+      try {
+        setLoading(true);
+        await exportIssueReportToPDF(id, projectId);
+        toast({
+          title: "Success",
+          description: "PDF report exported successfully"
+        });
+      } catch (error) {
+        console.error('Error exporting PDF:', error);
+        toast({
+          title: "Error",
+          description: "Failed to export PDF. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
   if (!project) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -210,6 +233,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
               onNavigate={onNavigate} 
               onDelete={handleDelete}
               onRefresh={refreshIssues}
+              onExportPDF={handleExportPDF}
             />
           </div>
         </div>

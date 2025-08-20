@@ -27,6 +27,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { exportIssueReportToPDF } from '@/utils/pdfExport';
 
 interface ProjectQAQCPageProps {
   onNavigate: (page: string) => void;
@@ -39,6 +40,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const defaultTab = (['checklists','rfis','issues','defects','inspections','itps'] as const).includes(tabParam as any) ? (tabParam as any) : 'checklists';
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
+  const { toast } = useToast();
 
   // Fetch QA/QC data
   const { data: checklists, isLoading: checklistsLoading } = useChecklists(projectId || '');
@@ -64,9 +66,27 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
 }, [projectId, getProject]);
 
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
-  const handleDelete = async (id: string, type: string) => {
+  const handleExportPDF = async (id: string, type: string) => {
+    if (type === 'issueReport' && projectId) {
+      try {
+        await exportIssueReportToPDF(id, projectId);
+        toast({
+          title: "Success",
+          description: "PDF report exported successfully"
+        });
+      } catch (error) {
+        console.error('Error exporting PDF:', error);
+        toast({
+          title: "Error",
+          description: "Failed to export PDF. Please try again.",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const handleDeleteIssueReport = async (id: string, type: string) => {
     if (!projectId) return;
     if (type === 'issueReport') {
       const confirmed = window.confirm('Delete this report? This cannot be undone.');
@@ -228,7 +248,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                     New Issue Report
                   </Button>
                 </div>
-                <QAQCTable data={issueReports || []} type="issueReports" isLoading={issueReportsLoading} onNavigate={onNavigate} onDelete={handleDelete} />
+                <QAQCTable data={issueReports || []} type="issueReports" isLoading={issueReportsLoading} onNavigate={onNavigate} onDelete={handleDeleteIssueReport} onExportPDF={handleExportPDF} />
               </TabsContent>
 
               <TabsContent value="defects" className="space-y-4">

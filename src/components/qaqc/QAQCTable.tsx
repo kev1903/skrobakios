@@ -2,7 +2,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Eye, Edit, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Eye, Edit, Trash2, FileDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +18,7 @@ interface QAQCTableProps {
   onNavigate?: (page: string) => void;
   onDelete?: (id: string, type: string) => void;
   onRefresh?: () => void;
+  onExportPDF?: (id: string, type: string) => void;
 }
 
 const getStatusColor = (status: string, type: string) => {
@@ -77,7 +78,7 @@ const getSeverityColor = (severity: string) => {
   return severityMap[severity] || 'bg-gray-100 text-gray-800';
 };
 
-export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefresh }: QAQCTableProps) => {
+export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefresh, onExportPDF }: QAQCTableProps) => {
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -392,6 +393,10 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
                   <DropdownMenuItem onClick={() => onNavigate?.(`qaqc-issue-report-edit?projectId=${item.project_id}&reportId=${item.id}`)}>
                     <Edit className="w-4 h-4 mr-2" />
                     Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onExportPDF?.(item.id, 'issueReport')}>
+                    <FileDown className="w-4 h-4 mr-2" />
+                    Export PDF
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     className="text-red-600 focus:text-red-600 focus:bg-red-50"
