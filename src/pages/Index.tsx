@@ -19,7 +19,7 @@ import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileViewToggle } from "@/components/mobile/MobileViewToggle";
-
+import { ChatOffsetSpacer } from "@/components/layout/ChatOffsetSpacer";
 const Index = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -151,7 +151,7 @@ const Index = () => {
         {currentPage === "sales" || currentPage === "landing" || currentPage === "auth" ? (
           // Sales CRM, Landing, and Auth take full screen - no main layout wrapper
           <div className="flex h-screen min-h-0">
-            <div className="flex-1 bg-background transition-all duration-300" style={{ marginRight: (currentPage !== "landing" && currentPage !== "auth") ? (isChatCollapsed ? 0 : '24rem') : 0 }}>
+            <div className={`flex-1 bg-background transition-all duration-300`}>
               <ContentRenderer 
                 currentPage={currentPage}
                 onNavigate={handleNavigate}
@@ -162,11 +162,14 @@ const Index = () => {
             </div>
             {/* AI Chat sidebar on all pages except landing/auth */}
             {currentPage !== "landing" && currentPage !== "auth" && (
-              <AiChatSidebar 
-                isCollapsed={isChatCollapsed} 
-                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
-                onNavigate={handleNavigate}
-              />
+              <>
+                <AiChatSidebar 
+                  isCollapsed={isChatCollapsed} 
+                  onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
+                  onNavigate={handleNavigate}
+                />
+                <ChatOffsetSpacer isCollapsed={isChatCollapsed} />
+              </>
             )}
             {/* Global sidebar available on all pages */}
             <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
@@ -223,7 +226,7 @@ const Index = () => {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
             
             <div className="relative z-10 flex h-screen min-h-0">
-              <div className="flex-1 bg-background transition-all duration-300" style={{ marginRight: isChatCollapsed ? 0 : '24rem' }}>
+              <div className={`flex-1 bg-background transition-all duration-300`}>
         <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
           <div className="w-full h-full">
             <ContentRenderer 
@@ -243,6 +246,7 @@ const Index = () => {
                 onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
                 onNavigate={handleNavigate}
               />
+              <ChatOffsetSpacer isCollapsed={isChatCollapsed} />
               
               {/* Global sidebar available on all pages */}
               <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
