@@ -97,30 +97,31 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
             
             // Load existing attachments and ensure proper URLs
             if (issue.attachments && Array.isArray(issue.attachments)) {
-              const attachmentsWithUrls = issue.attachments.map((attachment: any) => {
+              const attachmentsWithUrls = await Promise.all(issue.attachments.map(async (attachment: any) => {
                 const attachmentObj = attachment as AttachmentType;
                 
-                // If the URL is not a full URL (doesn't start with http), generate public URL
-                if (attachmentObj.url && !attachmentObj.url.startsWith('http')) {
-                  const { data: urlData } = supabase.storage
-                    .from('issue-attachments')
-                    .getPublicUrl(attachmentObj.path || attachmentObj.url);
-                  return {
-                    ...attachmentObj,
-                    url: urlData.publicUrl
-                  };
-                } else if (attachmentObj.path && !attachmentObj.url) {
-                  // If there's only a path but no URL, generate the public URL
+                // Always generate fresh public URL from path or existing URL
+                let publicUrl = attachmentObj.url;
+                
+                if (attachmentObj.path) {
+                  // Generate public URL from path
                   const { data: urlData } = supabase.storage
                     .from('issue-attachments')
                     .getPublicUrl(attachmentObj.path);
-                  return {
-                    ...attachmentObj,
-                    url: urlData.publicUrl
-                  };
+                  publicUrl = urlData.publicUrl;
+                } else if (attachmentObj.url && !attachmentObj.url.startsWith('http')) {
+                  // Generate public URL if URL is a storage path
+                  const { data: urlData } = supabase.storage
+                    .from('issue-attachments')
+                    .getPublicUrl(attachmentObj.url);
+                  publicUrl = urlData.publicUrl;
                 }
-                return attachmentObj;
-              });
+                
+                return {
+                  ...attachmentObj,
+                  url: publicUrl
+                };
+              }));
               setExistingAttachments(attachmentsWithUrls);
             }
           }
@@ -416,8 +417,9 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
         activeSection="qaqc"
       />
 
-      <div className="flex-1 ml-48 p-6 overflow-auto">
-        <div className="max-w-4xl mx-auto">
+      <div className="flex-1 ml-48 overflow-hidden">
+        <div className="h-full overflow-y-auto p-6">
+          <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
               <Button variant="ghost" onClick={handleBack}>
@@ -630,15 +632,23 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                               
                               {/* File preview */}
                               <div className="space-y-2">
-                                {isImage ? (
-                                  <div className="relative">
-                                    <img
-                                      src={attachment.url}
-                                      alt={attachment.name}
-                                      className="w-full h-32 object-cover rounded border"
-                                    />
-                                  </div>
-                                ) : (
+                                 {isImage ? (
+                                   <div className="relative">
+                                     <img
+                                       src={attachment.url}
+                                       alt={attachment.name}
+                                       className="w-full h-32 object-cover rounded border"
+                                       onError={(e) => {
+                                         console.error('Failed to load image:', attachment.url);
+                                         e.currentTarget.style.display = 'none';
+                                         e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                       }}
+                                     />
+                                     <div className="hidden flex items-center justify-center h-32 bg-muted rounded border">
+                                       <Paperclip className="w-8 h-8 text-muted-foreground" />
+                                     </div>
+                                   </div>
+                                 ) : (
                                   <div className="flex items-center justify-center h-32 bg-muted rounded border">
                                     <Paperclip className="w-8 h-8 text-muted-foreground" />
                                   </div>
@@ -726,6 +736,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
               </form>
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
     </div>
