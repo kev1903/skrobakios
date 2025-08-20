@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { useNavigationWithHistory } from '@/hooks/useNavigationWithHistory';
@@ -19,6 +19,7 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('projectId');
   const issueId = searchParams.get('issueId');
+  const navigate = useNavigate();
   const { getProject } = useProjects();
   const { navigateBack } = useNavigationWithHistory({ 
     onNavigate, 
@@ -54,7 +55,7 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
   };
 
   const handleAddIssue = () => {
-    onNavigate(`project-qaqc-create-issue&projectId=${projectId}`);
+    navigate(`/qaqc/issues/create?projectId=${projectId}`);
   };
 
   const getSeverityColor = (severity: string) => {
