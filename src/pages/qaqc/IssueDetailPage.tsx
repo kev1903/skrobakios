@@ -8,7 +8,7 @@ import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { useNavigationWithHistory } from '@/hooks/useNavigationWithHistory';
 import { useIssue } from '@/hooks/useQAQCData';
-import { ArrowLeft, AlertTriangle, Calendar, User, FileText, ClipboardList, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, Calendar, User, FileText, ClipboardList, CheckCircle, XCircle, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface IssueDetailPageProps {
@@ -51,6 +51,10 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
 
   const handleBack = () => {
     navigateBack();
+  };
+
+  const handleAddIssue = () => {
+    onNavigate(`project-qaqc-create-issue&projectId=${projectId}`);
   };
 
   const getSeverityColor = (severity: string) => {
@@ -142,9 +146,15 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
                   <h1 className="text-2xl font-bold text-gray-700">{issue.issue_number || 'Issue Detail'}</h1>
                 </div>
               </div>
-              <div className="flex space-x-2">
-                <Badge className={getStatusColor(issue.priority?.toLowerCase() || 'medium')}>{issue.priority || 'Medium'}</Badge>
-                <Badge className={getStatusColor(issue.status || 'open')}>{issue.status || 'Open'}</Badge>
+              <div className="flex items-center space-x-3">
+                <Button onClick={handleAddIssue} className="flex items-center space-x-2">
+                  <Plus className="w-4 h-4" />
+                  <span>Add Issue</span>
+                </Button>
+                <div className="flex space-x-2">
+                  <Badge className={getStatusColor(issue.priority?.toLowerCase() || 'medium')}>{issue.priority || 'Medium'}</Badge>
+                  <Badge className={getStatusColor(issue.status || 'open')}>{issue.status || 'Open'}</Badge>
+                </div>
               </div>
             </div>
 
