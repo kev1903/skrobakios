@@ -24,8 +24,14 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
     onNavigate, 
     currentPage: 'qaqc-issue-detail' 
   });
-  const { data: issue, isLoading: issueLoading } = useIssue(issueId || '');
+  const { data: issue, isLoading: issueLoading, error: issueError } = useIssue(issueId || '');
   const [project, setProject] = useState<Project | null>(null);
+  
+  // Debug logging
+  console.log('IssueDetailPage - issueId:', issueId);
+  console.log('IssueDetailPage - issue data:', issue);
+  console.log('IssueDetailPage - isLoading:', issueLoading);
+  console.log('IssueDetailPage - error:', issueError);
 
   useEffect(() => {
     if (projectId) {
@@ -77,13 +83,36 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
     );
   }
 
-  if (!issue) {
+  if (issueError) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Issue</h2>
+          <p className="text-gray-600 mb-4">Failed to load issue: {issueError.message}</p>
+          <Button onClick={handleBack}>Back to QA/QC</Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!issue && !issueLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Issue Not Found</h2>
           <p className="text-gray-600 mb-4">The requested issue could not be found.</p>
           <Button onClick={handleBack}>Back to QA/QC</Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Only render the main content if we have both project and issue data
+  if (!issue) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Issue...</h2>
         </div>
       </div>
     );
