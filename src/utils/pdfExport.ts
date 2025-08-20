@@ -439,14 +439,21 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
           try {
             // Load image and convert to base64
 const { dataUrl, format } = await getAttachmentDataUrl(firstAttachment);
-pdf.addImage(
-  dataUrl, 
-  format, 
-  previewX, 
-  previewY, 
-  previewSize, 
-  previewSize * 0.75
-);
+// Fit image into preview box while preserving aspect ratio
+const boxW = previewSize;
+const boxH = previewSize * 0.75;
+const { width: imgW, height: imgH } = await new Promise<{ width: number; height: number }>((resolve) => {
+  const imgEl = new Image();
+  imgEl.onload = () => resolve({ width: imgEl.naturalWidth, height: imgEl.naturalHeight });
+  imgEl.src = dataUrl;
+});
+const scale = imgW && imgH ? Math.min(boxW / imgW, boxH / imgH) : 1;
+const drawW = Math.max(1, (imgW || boxW) * scale);
+const drawH = Math.max(1, (imgH || boxH) * scale);
+const drawX = previewX + (boxW - drawW) / 2;
+const drawY = previewY + (boxH - drawH) / 2;
+
+pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
           } catch (imageError) {
             console.warn('Failed to load image for preview:', imageError);
             // Fallback icon for images
@@ -563,17 +570,28 @@ pdf.addImage(
               pdf.setLineWidth(1);
               pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
               
-              // Load image and convert to base64
+// Load image and convert to base64
 const { dataUrl, format } = await getAttachmentDataUrl(attachment);
-pdf.addImage(
-  dataUrl, 
-  format, 
-  attachmentX + 2, 
-  attachmentY + 2, 
-  attachmentWidth - 4, 
-  attachmentHeight - 4
-);
-              
+
+// Preserve original aspect ratio within the box
+const padding = 2;
+const boxW = attachmentWidth - padding * 2;
+const boxH = attachmentHeight - padding * 2;
+
+// Obtain natural image dimensions
+const { width: imgW, height: imgH } = await new Promise<{ width: number; height: number }>((resolve) => {
+  const imgEl = new Image();
+  imgEl.onload = () => resolve({ width: imgEl.naturalWidth, height: imgEl.naturalHeight });
+  imgEl.src = dataUrl;
+});
+
+const scale = imgW && imgH ? Math.min(boxW / imgW, boxH / imgH) : 1;
+const drawW = Math.max(1, (imgW || boxW) * scale);
+const drawH = Math.max(1, (imgH || boxH) * scale);
+const drawX = attachmentX + (attachmentWidth - drawW) / 2;
+const drawY = attachmentY + (attachmentHeight - drawH) / 2;
+
+pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
               // Add attachment number if multiple
               if (issue.attachments.length > 1) {
                 pdf.setFillColor(0, 0, 0);
