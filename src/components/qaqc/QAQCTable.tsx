@@ -223,7 +223,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="bg-white border border-border shadow-lg z-50">
                   <DropdownMenuItem>
                     <Eye className="w-4 h-4 mr-2" />
                     View
@@ -286,7 +286,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="bg-white border border-border shadow-lg z-50">
                   <DropdownMenuItem>
                     <Eye className="w-4 h-4 mr-2" />
                     View
@@ -428,7 +428,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="bg-white border border-border shadow-lg z-50">
                   <DropdownMenuItem>
                     <Eye className="w-4 h-4 mr-2" />
                     View
@@ -473,7 +473,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="bg-white border border-border shadow-lg z-50">
                   <DropdownMenuItem>
                     <Eye className="w-4 h-4 mr-2" />
                     View
@@ -518,7 +518,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
                     <MoreHorizontal className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="bg-white border border-border shadow-lg z-50">
                   <DropdownMenuItem>
                     <Eye className="w-4 h-4 mr-2" />
                     View
