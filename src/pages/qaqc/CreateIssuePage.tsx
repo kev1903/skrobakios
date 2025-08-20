@@ -30,7 +30,6 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
     description: '',
     category: 'General',
     priority: 'medium',
-    location: '',
     assigned_to: '',
     due_date: ''
   });
@@ -95,7 +94,7 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
         description: formData.description.trim() || null,
         category: formData.category,
         priority: formData.priority,
-        location: formData.location.trim() || null,
+        location: null, // Not needed for project-specific issues
         assigned_to: formData.assigned_to.trim() || null,
         due_date: formData.due_date || null,
         created_by: userData.user?.id || null,
@@ -357,15 +356,6 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
-                    <Input
-                      id="location"
-                      value={formData.location}
-                      onChange={(e) => handleInputChange('location', e.target.value)}
-                      placeholder="Enter location"
-                    />
-                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="assigned_to">Assigned To</Label>
