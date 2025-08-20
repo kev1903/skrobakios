@@ -171,7 +171,8 @@ export function AiChatSidebar({
 
     const update = () => {
       const isDesktop = mql.matches;
-      const width = (!fullScreen && isDesktop && el) ? el.offsetWidth : 0;
+      // Only reserve space when expanded; when collapsed, overlay should float
+      const width = (!fullScreen && isDesktop && el) ? (isCollapsed ? 0 : el.offsetWidth) : 0;
       root.style.setProperty('--ai-chat-offset', `${width}px`);
     };
 
