@@ -272,8 +272,8 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         console.warn(`⚠️ Project "${project.name}" has coordinates outside Melbourne area: ${lat}, ${lng}`);
       }
       
-      // Create enhanced marker with coordinate status using design system
-      const markerColor = hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--secondary))';
+      // Create enhanced marker with consistent primary color
+      const markerColor = 'hsl(var(--primary))';
 
       // Create enhanced marker with precise positioning
       const markerEl = document.createElement('div');
@@ -357,10 +357,8 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         }
         
         // Don't scale the marker - it causes positioning issues
-        markerEl.style.boxShadow = hasRealCoords ? 
-          '0 6px 20px hsl(var(--primary) / 0.4)' : 
-          '0 6px 20px hsl(var(--secondary) / 0.4)';
-        markerEl.style.background = hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--secondary))';
+        markerEl.style.boxShadow = '0 6px 20px hsl(var(--primary) / 0.4)';
+        markerEl.style.background = 'hsl(var(--primary))';
         // Use the marker's position instead of manual coordinates
         hoverPopup.setLngLat(marker.getLngLat()).addTo(map.current!);
         
