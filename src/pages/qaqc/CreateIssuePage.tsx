@@ -137,10 +137,11 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
   };
 
   // File upload handlers
-  const handleFileSelect = useCallback((files: FileList | null) => {
+  const handleFileSelect = useCallback((files: FileList | File[] | null) => {
     if (!files) return;
     
-    const newFiles = Array.from(files).filter(file => {
+    const fileArray = Array.isArray(files) ? files : Array.from(files);
+    const newFiles = fileArray.filter(file => {
       if (file.size > 10 * 1024 * 1024) { // 10MB limit
         toast({
           title: "File too large",
@@ -171,13 +172,40 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
     handleFileSelect(e.dataTransfer.files);
   }, [handleFileSelect]);
 
-  const handlePaste = useCallback((e: ClipboardEvent) => {
-    const files = e.clipboardData?.files;
-    if (files && files.length > 0) {
-      handleFileSelect(files);
+  const handlePasteFromClipboard = useCallback(async () => {
+    try {
+      const items = await navigator.clipboard.read();
+      const files: File[] = [];
+      
+      for (const item of items) {
+        for (const type of item.types) {
+          if (type.startsWith('image/')) {
+            const blob = await item.getType(type);
+            const file = new File([blob], `pasted-image-${Date.now()}.${type.split('/')[1]}`, { type });
+            files.push(file);
+          }
+        }
+      }
+      
+      if (files.length > 0) {
+        handleFileSelect(files);
+        toast({
+          title: "Files pasted",
+          description: `${files.length} file(s) added from clipboard`,
+        });
+      } else {
+        toast({
+          title: "No files found",
+          description: "No files found in clipboard. Copy an image and try again.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error accessing clipboard:', error);
       toast({
-        title: "Files pasted",
-        description: `${files.length} file(s) added from clipboard`,
+        title: "Clipboard access failed",
+        description: "Unable to access clipboard. Please try dragging and dropping files instead.",
+        variant: "destructive"
       });
     }
   }, [handleFileSelect, toast]);
@@ -186,10 +214,7 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
     setAttachments(prev => prev.filter((_, i) => i !== index));
   }, []);
 
-  useEffect(() => {
-    document.addEventListener('paste', handlePaste);
-    return () => document.removeEventListener('paste', handlePaste);
-  }, [handlePaste]);
+  // Remove the automatic paste event listener since we're using button click now
 
   const handleBack = () => {
     if (reportId) {
@@ -346,22 +371,10 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => {
-                        navigator.clipboard.read().then(() => {
-                          toast({
-                            title: "Paste Ready",
-                            description: "Use Ctrl+V to paste files from clipboard",
-                          });
-                        }).catch(() => {
-                          toast({
-                            title: "Paste Tip",
-                            description: "Copy files and use Ctrl+V to paste them here",
-                          });
-                        });
-                      }}
+                      onClick={handlePasteFromClipboard}
                       className="flex items-center gap-2"
                     >
-                      <Upload className="w-4 h-4" />
+                      <Paperclip className="w-4 h-4" />
                       Paste Files
                     </Button>
                   </div>
@@ -392,36 +405,61 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
                     </p>
                   </div>
 
-                  {/* File List */}
+                  {/* File Previews */}
                   {attachments.length > 0 && (
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium">Selected Files ({attachments.length})</Label>
-                      <div className="grid gap-2">
-                        {attachments.map((file, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center justify-between p-3 bg-muted rounded-lg border"
-                          >
-                            <div className="flex items-center gap-3">
-                              <Paperclip className="w-4 h-4 text-muted-foreground" />
-                              <div>
-                                <p className="text-sm font-medium text-foreground">{file.name}</p>
-                                <p className="text-xs text-muted-foreground">
-                                  {(file.size / 1024 / 1024).toFixed(2)} MB
-                                </p>
+                    <div className="space-y-4">
+                      <Label className="text-sm font-medium">Attachments ({attachments.length})</Label>
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {attachments.map((file, index) => {
+                          const isImage = file.type.startsWith('image/');
+                          const fileUrl = URL.createObjectURL(file);
+                          
+                          return (
+                            <div
+                              key={index}
+                              className="relative group border rounded-lg p-3 bg-card hover:shadow-md transition-shadow"
+                            >
+                              {/* Remove button */}
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeAttachment(index)}
+                                className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground"
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                              
+                              {/* File preview */}
+                              <div className="space-y-2">
+                                {isImage ? (
+                                  <div className="relative">
+                                    <img
+                                      src={fileUrl}
+                                      alt={file.name}
+                                      className="w-full h-32 object-cover rounded border"
+                                      onLoad={() => URL.revokeObjectURL(fileUrl)}
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center justify-center h-32 bg-muted rounded border">
+                                    <Paperclip className="w-8 h-8 text-muted-foreground" />
+                                  </div>
+                                )}
+                                
+                                {/* File info */}
+                                <div className="space-y-1">
+                                  <p className="text-sm font-medium text-foreground truncate" title={file.name}>
+                                    {file.name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeAttachment(index)}
-                              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                            >
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
