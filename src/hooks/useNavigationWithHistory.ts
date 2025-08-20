@@ -39,7 +39,6 @@ export const useNavigationWithHistory = ({ onNavigate, currentPage }: Navigation
       'milestones': 'project-detail',
       
       // QA/QC flows - preserve project ID when going back
-      'qaqc-issue-detail': 'project-qaqc',
        
       // Settings flows
       'platform-dashboard': 'home',

@@ -311,7 +311,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
             <TableCell className="font-medium">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
-                onClick={() => onNavigate?.(`qaqc-issue-detail?projectId=${item.project_id}&issueId=${item.id}`)}
+                onClick={() => onNavigate?.(`qaqc-issue-report-detail?projectId=${item.project_id}&reportId=${item.report_id}`)}
               >
                 {item.auto_number || item.issue_number || '-'}
               </button>
@@ -341,9 +341,9 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-white border border-border shadow-lg z-50">
-                  <DropdownMenuItem onClick={() => onNavigate?.(`qaqc-issue-detail?projectId=${item.project_id}&issueId=${item.id}`)}>
+                  <DropdownMenuItem onClick={() => onNavigate?.(`qaqc-issue-report-detail?projectId=${item.project_id}&reportId=${item.report_id}`)}>
                     <Eye className="w-4 h-4 mr-2" />
-                    View
+                    View Report
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => onNavigate?.(`qaqc-issue-edit?projectId=${item.project_id}&issueId=${item.id}`)}>
                     <Edit className="w-4 h-4 mr-2" />

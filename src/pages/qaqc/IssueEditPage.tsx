@@ -23,6 +23,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
   const issueId = searchParams.get('issueId');
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
+  const [issueData, setIssueData] = useState<any>(null);
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -72,6 +73,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
           if (error) throw error;
 
           if (issue) {
+            setIssueData(issue);
             setFormData({
               title: issue.title || '',
               description: issue.description || '',
@@ -336,7 +338,11 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
   }, [toast]);
 
   const handleBack = () => {
-    onNavigate(`qaqc-issue-detail?projectId=${projectId}&issueId=${issueId}`);
+    if (issueData?.report_id) {
+      onNavigate(`qaqc-issue-report-detail?projectId=${projectId}&reportId=${issueData.report_id}`);
+    } else {
+      onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
+    }
   };
 
   if (isLoading) {
