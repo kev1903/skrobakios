@@ -91,9 +91,8 @@ export function AiChatSidebar({
   const pendingTranscriptRef = useRef<string>('');
   const finalizeTimerRef = useRef<number | null>(null);
   const finalizingRef = useRef(false);
-  const {
-    toast
-  } = useToast();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
   const location = useLocation();
   const {
     user,
@@ -164,22 +163,37 @@ export function AiChatSidebar({
     }
   }, [isCollapsed, messages.length]);
 
-  // Keep a global CSS variable in sync with actual sidebar width so layout can reserve exact space
+  // Keep a global CSS variable in sync with actual sidebar width using ResizeObserver
   useEffect(() => {
     const root = document.documentElement;
-    const computeOffset = () => {
-      const isDesktop = window.matchMedia('(min-width: 768px)').matches; // md breakpoint
-      // Reserve width for the sidebar on desktop: collapsed (64px) or expanded (384px). None on mobile or fullscreen.
-      const offsetPx = (!fullScreen && isDesktop) ? (isCollapsed ? 64 : 384) : 0;
-      root.style.setProperty('--ai-chat-offset', `${offsetPx}px`);
+    const el = containerRef.current;
+    const mql = window.matchMedia('(min-width: 768px)'); // md breakpoint
+
+    const update = () => {
+      const isDesktop = mql.matches;
+      const width = (!fullScreen && isDesktop && el) ? el.offsetWidth : 0;
+      root.style.setProperty('--ai-chat-offset', `${width}px`);
     };
-    computeOffset();
-    window.addEventListener('resize', computeOffset);
+
+    update();
+
+    let ro: ResizeObserver | null = null;
+    if (el && 'ResizeObserver' in window) {
+      ro = new ResizeObserver(() => update());
+      ro.observe(el);
+    }
+
+    const handleChange = () => update();
+    mql.addEventListener?.('change', handleChange);
+    window.addEventListener('resize', handleChange);
+
     return () => {
-      window.removeEventListener('resize', computeOffset);
+      ro?.disconnect();
+      mql.removeEventListener?.('change', handleChange);
+      window.removeEventListener('resize', handleChange);
       root.style.removeProperty('--ai-chat-offset');
     };
-  }, [isCollapsed, fullScreen]);
+  }, [fullScreen, isCollapsed]);
 
   // Save messages to localStorage with non-English filtering
   useEffect(() => {
@@ -634,7 +648,7 @@ export function AiChatSidebar({
   return (
     <>
       {/* Regular Chat Interface */}
-      <div className={cn(
+       <div ref={containerRef} className={cn(
         fullScreen
           ? "fixed inset-0 z-[10010] w-full h-screen bg-background border-0 shadow-none flex flex-col"
           : "fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col",
