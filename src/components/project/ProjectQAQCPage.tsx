@@ -196,7 +196,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <h3 className="text-lg font-semibold">Issues & Non-Conformance Reports</h3>
                   <Button>
                     <Plus className="w-4 h-4 mr-2" />
-                    New Issue/NCR
+                    New Issue Report
                   </Button>
                 </div>
                 <QAQCTable data={issues || []} type="issues" isLoading={issuesLoading} onNavigate={onNavigate} />
