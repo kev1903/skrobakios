@@ -8,6 +8,7 @@ import { QAQCTable } from '@/components/qaqc/QAQCTable';
 import { Plus, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { useIssueReport } from '@/hooks/useQAQCData';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface IssueReportDetailPageProps {
   onNavigate: (page: string) => void;
@@ -22,6 +23,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
   const { data: report } = useIssueReport(reportId || '');
   const [issues, setIssues] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (projectId) {
@@ -44,6 +46,55 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
     };
     fetchIssues();
   }, [projectId, reportId]);
+
+  const handleDelete = async (id: string, type: string) => {
+    if (!confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      if (type === 'issue') {
+        const { error } = await supabase
+          .from('issues')
+          .delete()
+          .eq('id', id);
+        
+        if (error) throw error;
+        
+        // Remove from local state
+        setIssues(prev => prev.filter(issue => issue.id !== id));
+        
+        toast({
+          title: "Success",
+          description: "Issue deleted successfully"
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting item:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete item. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshIssues = async () => {
+    if (!reportId) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('issues')
+      .select('*')
+      .eq('project_id', projectId)
+      .eq('report_id', reportId)
+      .order('created_at', { ascending: false });
+    if (!error) setIssues(data || []);
+    setLoading(false);
+  };
 
   const handleBack = () => onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
   const handleAddIssue = () => onNavigate(`qaqc-issue-create?projectId=${projectId}&reportId=${reportId}`);
@@ -155,7 +206,14 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
           </Card>
 
           <div className="bg-white rounded-lg shadow">
-            <QAQCTable data={issues} type="issues" isLoading={loading} onNavigate={onNavigate} />
+            <QAQCTable 
+              data={issues} 
+              type="issues" 
+              isLoading={loading} 
+              onNavigate={onNavigate} 
+              onDelete={handleDelete}
+              onRefresh={refreshIssues}
+            />
           </div>
         </div>
       </div>
