@@ -316,7 +316,14 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
                 {item.auto_number || item.issue_number || '-'}
               </button>
             </TableCell>
-            <TableCell>{item.title}</TableCell>
+            <TableCell>
+              <button 
+                className="text-left hover:text-blue-600 hover:underline transition-colors"
+                onClick={() => onNavigate?.(`qaqc-issue-edit?projectId=${item.project_id}&issueId=${item.id}`)}
+              >
+                {item.title}
+              </button>
+            </TableCell>
             <TableCell className="capitalize">{item.type?.replace('_', ' ') || '-'}</TableCell>
             <TableCell>
               <Badge className={getSeverityColor(item.severity)}>{item.severity}</Badge>
