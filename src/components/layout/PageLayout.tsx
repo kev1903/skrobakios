@@ -18,7 +18,7 @@ export const PageLayout = ({ currentPage, onNavigate, children, disableSpacing =
   // Auth page has no layout wrapper
   if (currentPage === "auth") {
     return (
-      <main className="w-full h-screen overflow-y-auto">
+      <main className="w-full h-screen">
         {children}
       </main>
     );
@@ -31,8 +31,8 @@ export const PageLayout = ({ currentPage, onNavigate, children, disableSpacing =
         onNavigate={onNavigate}
         requireSuperAdmin={false}
       >
-        <main className={`w-full ${spacing} ${fullHeight} overflow-y-auto relative`}>
-          <div className="w-full h-full">
+        <main className={`w-full ${spacing} ${fullHeight} relative`}>
+          <div className="w-full h-full overflow-y-auto">
             {children}
           </div>
         </main>
@@ -40,14 +40,14 @@ export const PageLayout = ({ currentPage, onNavigate, children, disableSpacing =
     );
   }
 
-  // Default layout for all other pages
+  // Default layout for all other pages - let individual pages handle their own scrolling
   return (
     <ProtectedRoute 
       onNavigate={onNavigate}
       requireSuperAdmin={currentPage === "admin" || currentPage === "user-management"}
       requireAdmin={currentPage === "platform-dashboard"}
     >
-      <main className={`w-full ${spacing} ${fullHeight} overflow-y-auto relative`}>
+      <main className={`w-full ${spacing} ${fullHeight} relative`}>
         <div className="w-full h-full">
           {children}
         </div>

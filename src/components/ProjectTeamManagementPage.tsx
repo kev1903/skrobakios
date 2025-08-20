@@ -22,7 +22,7 @@ const ProjectTeamManagementContent = ({ project, onNavigate }: ProjectTeamManage
       />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
+      <div className="flex-1 ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10 h-full overflow-y-auto">
         <div className="p-8">
           {/* Team Management Header */}
           <div className="mb-8 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">

@@ -658,7 +658,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto ml-48 bg-white/90 backdrop-blur-sm border-l border-gray-200/30">
+      <div className="flex-1 ml-48 bg-white/90 backdrop-blur-sm border-l border-gray-200/30 h-full overflow-y-auto">
         <div className="p-8">
           <TaskPageHeader project={project} />
           

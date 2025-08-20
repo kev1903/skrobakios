@@ -211,7 +211,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
       
       <div className="flex-1 flex flex-col ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10">
         {/* Header */}
-        <div className="relative backdrop-blur-xl bg-white/60 dark:bg-slate-900/60 border-b border-white/20 dark:border-slate-700/20 shadow-sm">
+        <div className="relative backdrop-blur-xl bg-white/60 dark:bg-slate-900/60 border-b border-white/20 dark:border-slate-700/20 shadow-sm flex-shrink-0">
           <div className="px-8 py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-6">

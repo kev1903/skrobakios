@@ -111,7 +111,7 @@ export const TimeManagementPage = ({ onNavigate }: TimeManagementPageProps) => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto p-8">
+      <div className="flex-1 p-8 h-full overflow-y-auto">
         <div className="max-w-7xl mx-auto space-y-8">
           {/* Daily Summary */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

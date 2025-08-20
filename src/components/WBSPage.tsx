@@ -420,7 +420,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
         </div>
 
         {/* WBS Content */}
-        <div className="flex-1 overflow-auto bg-white/5 backdrop-blur-sm">
+        <div className="flex-1 bg-white/5 backdrop-blur-sm h-full overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center h-64">
               <div className="text-center">

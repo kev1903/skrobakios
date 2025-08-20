@@ -241,7 +241,7 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({
       {/* Main Content */}
       <div className="flex-1 flex flex-col ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10 overflow-hidden">
         {/* Content Area */}
-        <div className="flex-1 overflow-auto p-4 md:p-6 space-y-6">
+        <div className="flex-1 p-4 md:p-6 space-y-6 h-full overflow-y-auto">
 
           {/* Schedule Section */}
           <Card className="bg-white/10 backdrop-blur-sm border-white/20">

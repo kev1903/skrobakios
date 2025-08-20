@@ -596,7 +596,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
         </div>
 
         {/* Mobile Content */}
-        <div className="flex-1 overflow-auto backdrop-blur-xl bg-white/95">
+        <div className="flex-1 backdrop-blur-xl bg-white/95 h-full overflow-y-auto">
           {renderMainContent()}
         </div>
       </div>
@@ -629,7 +629,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
         </div>
 
         {/* Tablet Content */}
-        <div className="flex-1 overflow-auto backdrop-blur-xl bg-white/95 border-l border-white/10">
+        <div className="flex-1 backdrop-blur-xl bg-white/95 border-l border-white/10 h-full overflow-y-auto">
           {renderMainContent()}
         </div>
       </div>
@@ -649,7 +649,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
       />
 
       {/* Desktop Content */}
-      <div className="flex-1 overflow-auto ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10 animate-fade-in">
+      <div className="flex-1 ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10 animate-fade-in h-full overflow-y-auto">
         {renderMainContent()}
       </div>
     </div>

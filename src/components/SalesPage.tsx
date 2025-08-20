@@ -73,7 +73,7 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
   // Full-screen mode for estimates
   if (activeTab === 'estimates') {
     return (
-      <div className="bg-background mt-[var(--header-height)] min-h-[calc(100vh-var(--header-height))] h-[calc(100vh-var(--header-height))] overflow-y-auto">
+      <div className="bg-background mt-[var(--header-height)] min-h-[calc(100vh-var(--header-height))] h-[calc(100vh-var(--header-height))]">
         {renderContent()}
       </div>
     );
@@ -103,7 +103,7 @@ export const SalesPage = ({ onNavigate }: SalesPageProps) => {
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 h-full overflow-y-auto">
             <div className="p-6 space-y-6 max-w-7xl mx-auto">
               {renderContent()}
             </div>

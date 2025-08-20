@@ -57,7 +57,7 @@ export const UploadProject = ({ onNavigate }: UploadProjectProps) => {
   };
 
   return (
-    <div className="h-full overflow-auto">
+    <div className="h-full overflow-y-auto">
       <div className="p-8">
         <div className="flex items-center space-x-4 mb-6">
           <Button

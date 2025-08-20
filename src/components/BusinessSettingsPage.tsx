@@ -381,7 +381,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
       <div className="flex-1 overflow-hidden">
         <div className="h-full flex">
           {/* Navigation Sidebar */}
-          <div className="w-64 bg-white/50 backdrop-blur-sm border-r border-white/20 overflow-y-auto">
+          <div className="w-64 bg-white/50 backdrop-blur-sm border-r border-white/20 h-full overflow-y-auto">
             <div className="p-4">
               <nav className="space-y-1">
                 {navigationItems.map((item) => {
@@ -407,7 +407,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 h-full overflow-y-auto">
             <div className="p-6">
               {renderContent()}
             </div>
