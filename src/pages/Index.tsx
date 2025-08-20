@@ -19,7 +19,6 @@ import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileViewToggle } from "@/components/mobile/MobileViewToggle";
-import { ChatOffsetSpacer } from "@/components/layout/ChatOffsetSpacer";
 const Index = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -151,7 +150,7 @@ const Index = () => {
         {currentPage === "sales" || currentPage === "landing" || currentPage === "auth" ? (
           // Sales CRM, Landing, and Auth take full screen - no main layout wrapper
           <div className="flex h-screen min-h-0">
-            <div className={`flex-1 bg-background transition-all duration-300`}>
+            <div className={`flex-1 bg-background transition-all duration-300 md:pr-[var(--ai-chat-offset,0px)]`}>
               <ContentRenderer 
                 currentPage={currentPage}
                 onNavigate={handleNavigate}
@@ -162,14 +161,11 @@ const Index = () => {
             </div>
             {/* AI Chat sidebar on all pages except landing/auth */}
             {currentPage !== "landing" && currentPage !== "auth" && (
-              <>
-                <AiChatSidebar 
-                  isCollapsed={isChatCollapsed} 
-                  onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
-                  onNavigate={handleNavigate}
-                />
-                <ChatOffsetSpacer />
-              </>
+              <AiChatSidebar 
+                isCollapsed={isChatCollapsed} 
+                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
+                onNavigate={handleNavigate}
+              />
             )}
             {/* Global sidebar available on all pages */}
             <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
@@ -246,7 +242,6 @@ const Index = () => {
                 onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
                 onNavigate={handleNavigate}
               />
-              <ChatOffsetSpacer />
               
               {/* Global sidebar available on all pages */}
               <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
