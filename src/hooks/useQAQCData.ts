@@ -126,3 +126,37 @@ export const useQualityPlans = (projectId: string) => {
     enabled: !!projectId,
   });
 };
+
+// NEW: Hook for fetching Issue Reports (parent containers of Issues)
+export const useIssueReports = (projectId: string) => {
+  return useQuery({
+    queryKey: ['issue_reports', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('issue_reports')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!projectId,
+  });
+};
+
+// NEW: Hook for fetching a single Issue Report by ID
+export const useIssueReport = (reportId: string) => {
+  return useQuery({
+    queryKey: ['issue_report', reportId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('issue_reports')
+        .select('*')
+        .eq('id', reportId)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!reportId,
+  });
+};

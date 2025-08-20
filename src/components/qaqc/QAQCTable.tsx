@@ -13,7 +13,7 @@ import { format } from 'date-fns';
 
 interface QAQCTableProps {
   data: any[];
-  type: 'checklists' | 'rfis' | 'issues' | 'defects' | 'inspections' | 'plans';
+  type: 'checklists' | 'rfis' | 'issueReports' | 'issues' | 'defects' | 'inspections' | 'plans';
   isLoading?: boolean;
   onNavigate?: (page: string) => void;
 }
@@ -112,16 +112,12 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate }: QAQCTableProps)
           </TableHeader>
         );
       
-      case 'rfis':
+      case 'issueReports':
         return (
           <TableHeader>
             <TableRow>
-              <TableHead>Number</TableHead>
               <TableHead>Title</TableHead>
-              <TableHead>Priority</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Requested By</TableHead>
-              <TableHead>Due Date</TableHead>
               <TableHead>Created</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
@@ -337,6 +333,48 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate }: QAQCTableProps)
             </TableCell>
           </TableRow>
         );
+      
+      case 'issueReports':
+        return (
+          <TableRow key={item.id}>
+            <TableCell className="font-medium">
+              <button 
+                className="text-blue-600 hover:text-blue-800 hover:underline"
+                onClick={() => onNavigate?.(`qaqc-issue-report-detail?projectId=${item.project_id}&reportId=${item.id}`)}
+              >
+                {item.title}
+              </button>
+            </TableCell>
+            <TableCell>
+              <Badge className={getStatusColor(item.status, 'issues')}>{item.status || 'active'}</Badge>
+            </TableCell>
+            <TableCell>{format(new Date(item.created_at), 'MMM dd, yyyy')}</TableCell>
+            <TableCell>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>
+                    <Eye className="w-4 h-4 mr-2" />
+                    View
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-600">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableCell>
+          </TableRow>
+        );
+      
       
       case 'defects':
         return (

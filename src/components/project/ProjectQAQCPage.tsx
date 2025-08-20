@@ -12,7 +12,8 @@ import {
   useIssues,
   useDefects,
   useQualityInspections,
-  useQualityPlans
+  useQualityPlans,
+  useIssueReports
 } from '@/hooks/useQAQCData';
 import { 
   Plus, 
@@ -43,6 +44,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const { data: defects, isLoading: defectsLoading } = useDefects(projectId || '');
   const { data: inspections, isLoading: inspectionsLoading } = useQualityInspections(projectId || '');
   const { data: qualityPlans, isLoading: qualityPlansLoading } = useQualityPlans(projectId || '');
+  const { data: issueReports, isLoading: issueReportsLoading } = useIssueReports(projectId || '');
 
   useEffect(() => {
     if (projectId) {
@@ -116,7 +118,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   <AlertTriangle className="w-8 h-8 text-red-600" />
                   <div className="ml-3">
                     <p className="text-sm font-medium text-muted-foreground">Issues/NCRs</p>
-                    <p className="text-2xl font-bold text-foreground">{issues?.length || 0}</p>
+                    <p className="text-2xl font-bold text-foreground">{issueReports?.length || 0}</p>
                   </div>
                 </div>
               </CardContent>
@@ -196,12 +198,12 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               <TabsContent value="issues" className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Issues & Non-Conformance Reports</h3>
-                  <Button onClick={() => window.location.href = `/qaqc/issues/create?projectId=${projectId}`}>
+                  <Button onClick={() => onNavigate(`qaqc-issue-report-create?projectId=${projectId}`)}>
                     <Plus className="w-4 h-4 mr-2" />
                     New Issue Report
                   </Button>
                 </div>
-                <QAQCTable data={issues || []} type="issues" isLoading={issuesLoading} onNavigate={onNavigate} />
+                <QAQCTable data={issueReports || []} type="issueReports" isLoading={issueReportsLoading} onNavigate={onNavigate} />
               </TabsContent>
 
               <TabsContent value="defects" className="space-y-4">

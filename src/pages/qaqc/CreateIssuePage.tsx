@@ -20,6 +20,7 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const projectId = searchParams.get('projectId');
+  const reportId = searchParams.get('reportId');
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
   const { toast } = useToast();
