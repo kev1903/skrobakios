@@ -41,6 +41,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Fetch QA/QC data
   const { data: checklists, isLoading: checklistsLoading } = useChecklists(projectId || '');
@@ -62,10 +63,12 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
         }
       };
       fetchProject();
+      
+      // Invalidate and refetch issue reports when the component mounts
+      // This ensures fresh data is loaded
+      queryClient.invalidateQueries({ queryKey: ['issue_reports', projectId] });
     }
-}, [projectId, getProject]);
-
-  const queryClient = useQueryClient();
+  }, [projectId, getProject, queryClient]);
 
   const handleExportPDF = async (id: string, type: string) => {
     if (type === 'issueReport' && projectId) {
@@ -243,10 +246,18 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               <TabsContent value="issues" className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Issues & Non-Conformance Reports</h3>
-                  <Button onClick={() => onNavigate(`qaqc-issue-report-create?projectId=${projectId}`)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Issue Report
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => queryClient.invalidateQueries({ queryKey: ['issue_reports', projectId] })}
+                    >
+                      Refresh
+                    </Button>
+                    <Button onClick={() => onNavigate(`qaqc-issue-report-create?projectId=${projectId}`)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      New Issue Report
+                    </Button>
+                  </div>
                 </div>
                 <QAQCTable data={issueReports || []} type="issueReports" isLoading={issueReportsLoading} onNavigate={onNavigate} onDelete={handleDeleteIssueReport} onExportPDF={handleExportPDF} />
               </TabsContent>
