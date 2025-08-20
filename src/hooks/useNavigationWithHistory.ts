@@ -38,6 +38,9 @@ export const useNavigationWithHistory = ({ onNavigate, currentPage }: Navigation
       'my-tasks': 'home',
       'milestones': 'project-detail',
       
+      // QA/QC flows
+      'qaqc-issue-detail': 'project-qaqc',
+      
       // Settings flows
       'platform-dashboard': 'home',
       
