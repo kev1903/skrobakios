@@ -159,71 +159,48 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
             </Button>
           </div>
 
-          {/* Report Details Section */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <AlertTriangle className="w-5 h-5 text-red-600" />
-                <span>Report Details</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-2">Report Title</h3>
-                  <p className="text-foreground font-medium">{report?.title || 'N/A'}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-2">Status</h3>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    report?.status === 'active' 
-                      ? 'bg-green-100 text-green-800' 
-                      : report?.status === 'closed'
-                      ? 'bg-gray-100 text-gray-800'
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {report?.status || 'N/A'}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-2">Created Date</h3>
-                  <p className="text-foreground">
-                    {report?.created_at ? new Date(report.created_at).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    }) : 'N/A'}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-2">Last Updated</h3>
-                  <p className="text-foreground">
-                    {report?.updated_at ? new Date(report.updated_at).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    }) : 'N/A'}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-2">Total Issues</h3>
-                  <p className="text-foreground font-medium">{issues?.length || 0}</p>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground mb-2">Open Issues</h3>
-                  <p className="text-foreground font-medium text-red-600">
-                    {issues?.filter(issue => issue.status === 'open').length || 0}
-                  </p>
-                </div>
+          {/* Compact Report Summary */}
+          <div className="bg-card border border-border rounded-lg p-3 mb-4">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+              <div className="flex items-center space-x-2">
+                <span className="text-muted-foreground">Status:</span>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                  report?.status === 'active' 
+                    ? 'bg-green-100 text-green-800' 
+                    : report?.status === 'closed'
+                    ? 'bg-gray-100 text-gray-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {report?.status || 'N/A'}
+                </span>
               </div>
-              {report?.description && (
-                <div className="mt-6 pt-6 border-t border-border">
-                  <h3 className="text-sm font-medium text-muted-foreground mb-2">Description</h3>
-                  <p className="text-foreground leading-relaxed">{report.description}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              <div className="flex items-center space-x-1">
+                <span className="text-muted-foreground">Created:</span>
+                <span className="text-foreground">
+                  {report?.created_at ? new Date(report.created_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  }) : 'N/A'}
+                </span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <span className="text-muted-foreground">Total:</span>
+                <span className="text-foreground font-medium">{issues?.length || 0}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <span className="text-muted-foreground">Open:</span>
+                <span className="text-red-600 font-medium">
+                  {issues?.filter(issue => issue.status === 'open').length || 0}
+                </span>
+              </div>
+            </div>
+            {report?.description && (
+              <div className="mt-2 pt-2 border-t border-border">
+                <p className="text-sm text-muted-foreground">{report.description}</p>
+              </div>
+            )}
+          </div>
 
           <div className="bg-white rounded-lg shadow">
             <QAQCTable 
