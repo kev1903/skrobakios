@@ -541,8 +541,8 @@ pdf.addImage(
       // Main content area
       let yPos = 60;
       
-      // Enhanced attachment display with mid-size previews - adjusted for A4
-      const attachmentAreaWidth = 120;
+      // Enhanced attachment display with full margin width - adjusted for A4
+      const attachmentAreaWidth = pageWidth - 40; // Full width minus margins (20 each side)
       const attachmentAreaHeight = 90;
       let attachmentY = yPos;
       
