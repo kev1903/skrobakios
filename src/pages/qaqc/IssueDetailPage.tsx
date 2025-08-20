@@ -196,77 +196,69 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
             </div>
           </div>
 
-          <div className="grid gap-6">
-            {/* Report Header */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <FileText className="w-5 h-5" />
-                  <span>{report.title}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Location</label>
-                    <p className="text-gray-700">{report.location}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Reported By</label>
-                    <p className="text-gray-700">{report.reported_by}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Date Reported</label>
-                    <p className="text-gray-700">{format(new Date(report.date_reported), 'MMM dd, yyyy')}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Due Date</label>
-                    <p className="text-gray-700">{format(new Date(report.due_date), 'MMM dd, yyyy')}</p>
-                  </div>
+          <div className="space-y-4">
+            {/* Compact Report Info */}
+            <Card className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="w-4 h-4" />
+                <h2 className="font-semibold">{report.title}</h2>
+              </div>
+              <div className="grid grid-cols-4 gap-4 text-sm mb-3">
+                <div>
+                  <span className="text-muted-foreground">Location:</span>
+                  <div className="font-medium">{report.location}</div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Description</label>
-                  <p className="text-gray-700 mt-1">{report.description}</p>
+                  <span className="text-muted-foreground">Reported By:</span>
+                  <div className="font-medium">{report.reported_by}</div>
                 </div>
-              </CardContent>
+                <div>
+                  <span className="text-muted-foreground">Date Reported:</span>
+                  <div className="font-medium">{format(new Date(report.date_reported), 'MMM dd, yyyy')}</div>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Due Date:</span>
+                  <div className="font-medium">{format(new Date(report.due_date), 'MMM dd, yyyy')}</div>
+                </div>
+              </div>
+              <div className="text-sm">
+                <span className="text-muted-foreground">Description:</span>
+                <p className="mt-1">{report.description}</p>
+              </div>
             </Card>
 
-            {/* Summary Dashboard */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <ClipboardList className="w-5 h-5" />
-                  <span>Report Summary</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-gray-700">{report.summary.total_items}</div>
-                    <div className="text-sm text-muted-foreground">Total Items</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-600">{report.summary.open_items}</div>
-                    <div className="text-sm text-muted-foreground">Open</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{report.summary.resolved_items}</div>
-                    <div className="text-sm text-muted-foreground">Resolved</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-orange-600">{report.summary.major_issues}</div>
-                    <div className="text-sm text-muted-foreground">Major</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">{report.summary.medium_issues}</div>
-                    <div className="text-sm text-muted-foreground">Medium</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">{report.summary.minor_issues}</div>
-                    <div className="text-sm text-muted-foreground">Minor</div>
-                  </div>
+            {/* Compact Summary */}
+            <Card className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <ClipboardList className="w-4 h-4" />
+                <h3 className="font-semibold">Report Summary</h3>
+              </div>
+              <div className="grid grid-cols-6 gap-4 text-center">
+                <div>
+                  <div className="text-xl font-bold">{report.summary.total_items}</div>
+                  <div className="text-xs text-muted-foreground">Total Items</div>
                 </div>
-              </CardContent>
+                <div>
+                  <div className="text-xl font-bold text-red-600">{report.summary.open_items}</div>
+                  <div className="text-xs text-muted-foreground">Open</div>
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-green-600">{report.summary.resolved_items}</div>
+                  <div className="text-xs text-muted-foreground">Resolved</div>
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-orange-600">{report.summary.major_issues}</div>
+                  <div className="text-xs text-muted-foreground">Major</div>
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-yellow-600">{report.summary.medium_issues}</div>
+                  <div className="text-xs text-muted-foreground">Medium</div>
+                </div>
+                <div>
+                  <div className="text-xl font-bold text-green-600">{report.summary.minor_issues}</div>
+                  <div className="text-xs text-muted-foreground">Minor</div>
+                </div>
+              </div>
             </Card>
 
             {/* Issues Table */}
