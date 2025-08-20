@@ -579,7 +579,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => removeExistingAttachment(attachment)}
-                                className="absolute top-1 right-1 h-7 w-7 p-0 opacity-70 hover:opacity-100 transition-opacity bg-destructive/90 hover:bg-destructive text-destructive-foreground hover:text-destructive-foreground shadow-sm"
+                                className="absolute top-1 right-1 h-7 w-7 p-0 opacity-70 hover:opacity-100 transition-opacity bg-destructive/90 hover:bg-destructive text-destructive-foreground hover:text-destructive-foreground shadow-sm z-10"
                               >
                                 <X className="w-4 h-4" />
                               </Button>
@@ -630,7 +630,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => removeAttachment(index)}
-                                className="absolute top-1 right-1 h-7 w-7 p-0 opacity-70 hover:opacity-100 transition-opacity bg-destructive/90 hover:bg-destructive text-destructive-foreground hover:text-destructive-foreground shadow-sm"
+                                className="absolute top-1 right-1 h-7 w-7 p-0 opacity-70 hover:opacity-100 transition-opacity bg-destructive/90 hover:bg-destructive text-destructive-foreground hover:text-destructive-foreground shadow-sm z-10"
                               >
                                 <X className="w-4 h-4" />
                               </Button>
