@@ -377,7 +377,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate }: QAQCTableProps)
                     <Eye className="w-4 h-4 mr-2" />
                     View
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onNavigate?.(`qaqc-issue-report-edit?projectId=${item.project_id}&reportId=${item.id}`)}>
                     <Edit className="w-4 h-4 mr-2" />
                     Edit
                   </DropdownMenuItem>

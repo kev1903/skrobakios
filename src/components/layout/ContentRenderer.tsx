@@ -78,6 +78,7 @@ import { IssueDetailPage } from "@/pages/qaqc/IssueDetailPage";
 import { RFIDetailPage } from "@/pages/qaqc/RFIDetailPage";
 import { CreateIssueReportPage } from "@/pages/qaqc/CreateIssueReportPage";
 import { IssueReportDetailPage } from "@/pages/qaqc/IssueReportDetailPage";
+import { IssueReportEditPage } from "@/pages/qaqc/IssueReportEditPage";
 import { CreateIssuePage } from "@/pages/qaqc/CreateIssuePage";
 
 
@@ -358,6 +359,12 @@ export const ContentRenderer = ({
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <IssueReportDetailPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-issue-report-edit":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <IssueReportEditPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "qaqc-issue-detail":
