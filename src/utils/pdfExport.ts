@@ -464,57 +464,124 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       // Main content area
       let yPos = 60;
       
-      // Load and display issue attachment/image
+      // Enhanced attachment display with mid-size previews
+      const attachmentAreaWidth = 160;
+      const attachmentAreaHeight = 120;
+      let attachmentY = yPos;
+      
       if (issue.issue_attachments && issue.issue_attachments.length > 0) {
-        const firstAttachment = issue.issue_attachments[0];
-        if (firstAttachment.file_type?.startsWith('image/')) {
-          try {
-            const imageWidth = 120;
-            const imageHeight = 90;
-            pdf.addImage(
-              firstAttachment.file_url, 
-              'JPEG', 
-              20, 
-              yPos, 
-              imageWidth, 
-              imageHeight
-            );
-          } catch (imageError) {
-            // Fallback placeholder for failed image load
-            pdf.setFillColor(240, 240, 240);
-            pdf.rect(20, yPos, 120, 90, 'F');
+        // Multiple attachments handling
+        const maxAttachmentsToShow = Math.min(3, issue.issue_attachments.length);
+        const attachmentWidth = attachmentAreaWidth / maxAttachmentsToShow - 10;
+        const attachmentHeight = 80;
+        
+        for (let i = 0; i < maxAttachmentsToShow; i++) {
+          const attachment = issue.issue_attachments[i];
+          const attachmentX = 20 + (i * (attachmentWidth + 10));
+          
+          if (attachment.file_type?.startsWith('image/')) {
+            try {
+              // Add border for images
+              pdf.setDrawColor(200, 200, 200);
+              pdf.setLineWidth(1);
+              pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
+              
+              pdf.addImage(
+                attachment.file_url, 
+                'JPEG', 
+                attachmentX + 2, 
+                attachmentY + 2, 
+                attachmentWidth - 4, 
+                attachmentHeight - 4
+              );
+              
+              // Add attachment number if multiple
+              if (issue.issue_attachments.length > 1) {
+                pdf.setFillColor(0, 0, 0);
+                pdf.setDrawColor(0, 0, 0);
+                const badgeX = attachmentX + attachmentWidth - 15;
+                const badgeY = attachmentY + 5;
+                pdf.circle(badgeX, badgeY, 8, 'F');
+                pdf.setFontSize(8);
+                pdf.setTextColor(255, 255, 255);
+                pdf.text(`${i + 1}`, badgeX, badgeY + 2, { align: 'center' });
+                pdf.setTextColor(0, 0, 0);
+              }
+            } catch (imageError) {
+              // Fallback for failed image load
+              pdf.setFillColor(240, 240, 240);
+              pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight, 'F');
+              pdf.setDrawColor(200, 200, 200);
+              pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
+              pdf.setFontSize(10);
+              pdf.setTextColor(120, 120, 120);
+              pdf.text('Image', attachmentX + attachmentWidth/2, attachmentY + attachmentHeight/2 - 5, { align: 'center' });
+              pdf.text('Failed', attachmentX + attachmentWidth/2, attachmentY + attachmentHeight/2 + 5, { align: 'center' });
+              pdf.setTextColor(0, 0, 0);
+            }
+          } else {
+            // File attachment with icon and name
+            pdf.setFillColor(245, 245, 245);
+            pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight, 'F');
             pdf.setDrawColor(200, 200, 200);
-            pdf.rect(20, yPos, 120, 90);
-            pdf.setFontSize(12);
-            pdf.setTextColor(120, 120, 120);
-            pdf.text('Image Preview', 80, yPos + 50, { align: 'center' });
+            pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
+            
+            // File icon
+            pdf.setFillColor(100, 100, 100);
+            const iconSize = 20;
+            const iconX = attachmentX + (attachmentWidth - iconSize) / 2;
+            const iconY = attachmentY + 15;
+            pdf.rect(iconX, iconY, iconSize, iconSize * 1.2, 'F');
+            
+            // File name
+            pdf.setFontSize(8);
+            pdf.setTextColor(60, 60, 60);
+            const fileName = attachment.file_name || 'File';
+            const truncatedName = fileName.length > 15 ? fileName.substring(0, 12) + '...' : fileName;
+            pdf.text(truncatedName, attachmentX + attachmentWidth/2, attachmentY + attachmentHeight - 15, { align: 'center' });
             pdf.setTextColor(0, 0, 0);
           }
-        } else {
-          // File attachment indicator
-          pdf.setFillColor(245, 245, 245);
-          pdf.rect(20, yPos, 120, 90, 'F');
-          pdf.setDrawColor(200, 200, 200);
-          pdf.rect(20, yPos, 120, 90);
-          pdf.setFontSize(12);
-          pdf.setTextColor(100, 100, 100);
-          pdf.text('File Attachment', 80, yPos + 50, { align: 'center' });
+        }
+        
+        // Show attachment count if more than 3
+        if (issue.issue_attachments.length > 3) {
+          pdf.setFontSize(9);
+          pdf.setTextColor(80, 80, 80);
+          pdf.text(`+${issue.issue_attachments.length - 3} more attachments`, 20, attachmentY + attachmentHeight + 15);
           pdf.setTextColor(0, 0, 0);
         }
       } else {
         // No attachment placeholder
         pdf.setFillColor(250, 250, 250);
-        pdf.rect(20, yPos, 120, 90, 'F');
+        pdf.rect(20, attachmentY, attachmentAreaWidth, attachmentAreaHeight, 'F');
         pdf.setDrawColor(220, 220, 220);
-        pdf.rect(20, yPos, 120, 90);
-        pdf.setFontSize(10);
+        pdf.setLineWidth(1);
+        pdf.rect(20, attachmentY, attachmentAreaWidth, attachmentAreaHeight);
+        
+        // Dashed border for empty state
+        pdf.setDrawColor(180, 180, 180);
+        pdf.setLineWidth(0.5);
+        // Create dashed effect with multiple lines
+        const dashLength = 3;
+        const gapLength = 3;
+        for (let x = 20; x < 20 + attachmentAreaWidth; x += dashLength + gapLength) {
+          pdf.line(x, attachmentY, Math.min(x + dashLength, 20 + attachmentAreaWidth), attachmentY);
+          pdf.line(x, attachmentY + attachmentAreaHeight, Math.min(x + dashLength, 20 + attachmentAreaWidth), attachmentY + attachmentAreaHeight);
+        }
+        for (let y = attachmentY; y < attachmentY + attachmentAreaHeight; y += dashLength + gapLength) {
+          pdf.line(20, y, 20, Math.min(y + dashLength, attachmentY + attachmentAreaHeight));
+          pdf.line(20 + attachmentAreaWidth, y, 20 + attachmentAreaWidth, Math.min(y + dashLength, attachmentY + attachmentAreaHeight));
+        }
+        
+        pdf.setFontSize(12);
         pdf.setTextColor(150, 150, 150);
-        pdf.text('Issue Preview', 80, yPos + 50, { align: 'center' });
+        pdf.text('No Attachments', 20 + attachmentAreaWidth/2, attachmentY + attachmentAreaHeight/2 - 5, { align: 'center' });
+        pdf.text('Available', 20 + attachmentAreaWidth/2, attachmentY + attachmentAreaHeight/2 + 5, { align: 'center' });
         pdf.setTextColor(0, 0, 0);
       }
       
-      // Issue details panel
-      const detailsX = 150;
+      // Issue details panel - positioned next to attachments
+      const detailsX = 200;
       let detailsY = yPos;
       
       pdf.setFontSize(11);
