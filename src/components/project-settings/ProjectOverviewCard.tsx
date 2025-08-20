@@ -14,6 +14,7 @@ interface ProjectOverviewCardProps {
     project_id: string;
     priority: string;
     status: string;
+    contract_price: string;
   };
   onInputChange: (field: string, value: string) => void;
   getStatusColor: (status: string) => string;
@@ -100,6 +101,19 @@ export const ProjectOverviewCard = ({
           </div>
           
           <div className="space-y-4">
+            <div>
+              <Label htmlFor="contract-amount" className="text-sm font-medium text-gray-600">
+                Contract Amount
+              </Label>
+              <Input
+                id="contract-amount"
+                value={formData.contract_price}
+                onChange={(e) => onInputChange("contract_price", e.target.value)}
+                placeholder="Enter contract amount"
+                className="text-sm"
+              />
+            </div>
+            
             <div>
               <Label className="text-sm font-medium text-gray-600">
                 Created
