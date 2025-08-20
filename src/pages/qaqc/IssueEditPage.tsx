@@ -213,8 +213,12 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
         description: "Issue updated successfully",
       });
 
-      // Navigate back to Issues list page after save
-      onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
+      // Navigate back to the issue report detail page if it exists, otherwise to QA/QC page
+      if (issueData?.report_id) {
+        onNavigate(`qaqc-issue-report-detail?projectId=${projectId}&reportId=${issueData.report_id}`);
+      } else {
+        onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
+      }
       
     } catch (error) {
       console.error('Error updating issue:', error);
