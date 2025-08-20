@@ -291,240 +291,243 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
         activeSection="qaqc"
       />
 
-      <div className="flex-1 ml-48 p-6 overflow-auto">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" onClick={handleBack}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
+      <div className="flex-1 ml-48 overflow-hidden">
+        <div className="h-full overflow-y-auto">
+          <div className="p-4">
+            {/* Header */}
+            <div className="flex items-center space-x-3 mb-4">
+              <Button variant="ghost" size="sm" onClick={handleBack}>
+                <ArrowLeft className="w-4 h-4 mr-1" />
                 {reportId ? 'Back to Report' : 'Back to Issues'}
               </Button>
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-                <h1 className="text-2xl font-bold text-foreground">Create New Issue</h1>
-              </div>
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <h1 className="text-xl font-bold text-foreground">Create New Issue</h1>
             </div>
-          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Issue Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Issue Title *</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) => handleInputChange('title', e.target.value)}
-                      placeholder="Enter issue title"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="General">General</SelectItem>
-                        <SelectItem value="Safety">Safety</SelectItem>
-                        <SelectItem value="Quality">Quality</SelectItem>
-                        <SelectItem value="Design">Design</SelectItem>
-                        <SelectItem value="Construction">Construction</SelectItem>
-                        <SelectItem value="Environmental">Environmental</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="priority">Priority</Label>
-                    <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select priority" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="critical">Critical</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-
-                  <div className="space-y-2">
-                    <Label htmlFor="assigned_to">Assigned To</Label>
-                    <Input
-                      id="assigned_to"
-                      value={formData.assigned_to}
-                      onChange={(e) => handleInputChange('assigned_to', e.target.value)}
-                      placeholder="Enter assignee name"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="due_date">Due Date</Label>
-                    <Input
-                      id="due_date"
-                      type="date"
-                      value={formData.due_date}
-                      onChange={(e) => handleInputChange('due_date', e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    placeholder="Enter detailed description of the issue"
-                    rows={4}
-                  />
-                </div>
-
-                {/* File Upload Section */}
-                <div className="space-y-4">
-                  <Label>Attachments</Label>
-                  
-                  {/* Upload Actions */}
-                  <div className="flex gap-2 mb-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex items-center gap-2"
-                    >
-                      <Paperclip className="w-4 h-4" />
-                      Browse Files
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handlePasteFromClipboard}
-                      className="flex items-center gap-2"
-                    >
-                      <Paperclip className="w-4 h-4" />
-                      Paste Files
-                    </Button>
-                  </div>
-
-                  {/* Drag & Drop Zone */}
-                  <div
-                    ref={dropZoneRef}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={`
-                      border-2 border-dashed rounded-lg p-8 text-center transition-colors
-                      ${isDragOver 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-muted-foreground/25 hover:border-muted-foreground/50'
-                      }
-                    `}
-                  >
-                    <Upload className={`w-12 h-12 mx-auto mb-4 ${isDragOver ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <p className={`text-lg font-medium mb-2 ${isDragOver ? 'text-primary' : 'text-foreground'}`}>
-                      {isDragOver ? 'Drop files here' : 'Drag & drop files here'}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      or use the buttons above to browse or paste files
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Supports images, documents, and other files up to 10MB
-                    </p>
-                  </div>
-
-                  {/* File Previews */}
-                  {attachments.length > 0 && (
-                    <div className="space-y-4">
-                      <Label className="text-sm font-medium">Attachments ({attachments.length})</Label>
-                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {attachments.map((file, index) => {
-                          const isImage = file.type.startsWith('image/');
-                          const fileUrl = URL.createObjectURL(file);
-                          
-                          return (
-                            <div
-                              key={index}
-                              className="relative group border rounded-lg p-3 bg-card hover:shadow-md transition-shadow"
-                            >
-                              {/* Remove button */}
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeAttachment(index)}
-                                className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground"
-                              >
-                                <X className="w-3 h-3" />
-                              </Button>
-                              
-                              {/* File preview */}
-                              <div className="space-y-2">
-                                {isImage ? (
-                                  <div className="relative">
-                                    <img
-                                      src={fileUrl}
-                                      alt={file.name}
-                                      className="w-full h-32 object-cover rounded border"
-                                      onLoad={() => URL.revokeObjectURL(fileUrl)}
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center justify-center h-32 bg-muted rounded border">
-                                    <Paperclip className="w-8 h-8 text-muted-foreground" />
-                                  </div>
-                                )}
-                                
-                                {/* File info */}
-                                <div className="space-y-1">
-                                  <p className="text-sm font-medium text-foreground truncate" title={file.name}>
-                                    {file.name}
-                                  </p>
-                                  <p className="text-xs text-muted-foreground">
-                                    {(file.size / 1024 / 1024).toFixed(2)} MB
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+            <Card className="max-w-5xl">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Issue Details</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {/* Form Fields - Compact Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="title" className="text-sm">Issue Title *</Label>
+                      <Input
+                        id="title"
+                        value={formData.title}
+                        onChange={(e) => handleInputChange('title', e.target.value)}
+                        placeholder="Enter issue title"
+                        required
+                        className="h-9"
+                      />
                     </div>
-                  )}
 
-                  {/* Hidden file input */}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => handleFileSelect(e.target.files)}
-                    accept="image/*,application/pdf,.doc,.docx,.txt,.csv,.xlsx,.xls"
-                  />
-                </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="category" className="text-sm">Category</Label>
+                      <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+                        <SelectTrigger className="h-9">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="General">General</SelectItem>
+                          <SelectItem value="Safety">Safety</SelectItem>
+                          <SelectItem value="Quality">Quality</SelectItem>
+                          <SelectItem value="Design">Design</SelectItem>
+                          <SelectItem value="Construction">Construction</SelectItem>
+                          <SelectItem value="Environmental">Environmental</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div className="flex justify-end space-x-4">
-                  <Button type="button" variant="outline" onClick={handleBack}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    <Save className="w-4 h-4 mr-2" />
-                    {isSubmitting ? 'Creating...' : 'Create Issue'}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-};
+                    <div className="space-y-1">
+                      <Label htmlFor="priority" className="text-sm">Priority</Label>
+                      <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
+                        <SelectTrigger className="h-9">
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="critical">Critical</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label htmlFor="assigned_to" className="text-sm">Assigned To</Label>
+                      <Input
+                        id="assigned_to"
+                        value={formData.assigned_to}
+                        onChange={(e) => handleInputChange('assigned_to', e.target.value)}
+                        placeholder="Enter assignee name"
+                        className="h-9"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <Label htmlFor="due_date" className="text-sm">Due Date</Label>
+                      <Input
+                        id="due_date"
+                        type="date"
+                        value={formData.due_date}
+                        onChange={(e) => handleInputChange('due_date', e.target.value)}
+                        className="h-9"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Description - Full Width */}
+                  <div className="space-y-1">
+                    <Label htmlFor="description" className="text-sm">Description</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => handleInputChange('description', e.target.value)}
+                      placeholder="Enter detailed description of the issue"
+                      rows={3}
+                      className="resize-none"
+                    />
+                  </div>
+
+                  {/* Attachments Section - Compact */}
+                  <div className="space-y-3">
+                    <Label className="text-sm">Attachments</Label>
+                    
+                    {/* Upload Actions - Inline */}
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex items-center gap-1 h-8"
+                      >
+                        <Paperclip className="w-3 h-3" />
+                        Browse Files
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePasteFromClipboard}
+                        className="flex items-center gap-1 h-8"
+                      >
+                        <Paperclip className="w-3 h-3" />
+                        Paste Files
+                      </Button>
+                    </div>
+
+                    {/* Compact Drag & Drop Zone */}
+                    <div
+                      ref={dropZoneRef}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      className={`
+                        border-2 border-dashed rounded-lg p-4 text-center transition-colors
+                        ${isDragOver 
+                          ? 'border-primary bg-primary/5' 
+                          : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                        }
+                      `}
+                    >
+                      <Upload className={`w-8 h-8 mx-auto mb-2 ${isDragOver ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <p className={`text-sm font-medium mb-1 ${isDragOver ? 'text-primary' : 'text-foreground'}`}>
+                        {isDragOver ? 'Drop files here' : 'Drag & drop files here'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Supports images, documents up to 10MB
+                      </p>
+                    </div>
+
+                    {/* File Previews - Compact */}
+                    {attachments.length > 0 && (
+                      <div className="space-y-2">
+                        <Label className="text-xs font-medium text-muted-foreground">Attachments ({attachments.length})</Label>
+                        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                          {attachments.map((file, index) => {
+                            const isImage = file.type.startsWith('image/');
+                            const fileUrl = URL.createObjectURL(file);
+                            
+                            return (
+                              <div
+                                key={index}
+                                className="relative group border rounded-lg p-2 bg-card hover:shadow-sm transition-shadow"
+                              >
+                                {/* Remove button */}
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeAttachment(index)}
+                                  className="absolute top-1 right-1 h-5 w-5 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground"
+                                >
+                                  <X className="w-2 h-2" />
+                                </Button>
+                                
+                                 {/* File preview */}
+                                 <div className="space-y-1">
+                                   {isImage ? (
+                                     <div className="relative">
+                                       <img
+                                         src={fileUrl}
+                                         alt={file.name}
+                                         className="w-full h-20 object-cover rounded border"
+                                         onLoad={() => URL.revokeObjectURL(fileUrl)}
+                                       />
+                                     </div>
+                                   ) : (
+                                     <div className="flex items-center justify-center h-20 bg-muted rounded border">
+                                       <Paperclip className="w-6 h-6 text-muted-foreground" />
+                                     </div>
+                                   )}
+                                   
+                                   {/* File info */}
+                                   <div className="space-y-1">
+                                     <p className="text-xs font-medium text-foreground truncate" title={file.name}>
+                                       {file.name}
+                                     </p>
+                                     <p className="text-xs text-muted-foreground">
+                                       {(file.size / 1024 / 1024).toFixed(2)} MB
+                                     </p>
+                                   </div>
+                                 </div>
+                               </div>
+                             );
+                           })}
+                         </div>
+                       </div>
+                     )}
+
+                     {/* Hidden file input */}
+                     <input
+                       ref={fileInputRef}
+                       type="file"
+                       multiple
+                       className="hidden"
+                       onChange={(e) => handleFileSelect(e.target.files)}
+                       accept="image/*,application/pdf,.doc,.docx,.txt,.csv,.xlsx,.xls"
+                     />
+                   </div>
+
+                   <div className="flex justify-end gap-2 pt-4">
+                     <Button type="button" variant="outline" size="sm" onClick={handleBack}>
+                       Cancel
+                     </Button>
+                     <Button type="submit" disabled={isSubmitting} size="sm">
+                       <Save className="w-3 h-3 mr-1" />
+                       {isSubmitting ? 'Creating...' : 'Create Issue'}
+                     </Button>
+                   </div>
+                 </form>
+               </CardContent>
+             </Card>
+           </div>
+         </div>
+       </div>
+     </div>
+   );
+ };
