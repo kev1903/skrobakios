@@ -102,14 +102,60 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
         status: 'open',
         report_id: reportId || null,
         issue_number: '',
+        attachments: [], // Will be updated after creating issue if there are attachments
       };
 
-      const { error } = await supabase
+      const { data: newIssue, error } = await supabase
         .from('issues')
-        .insert(issueData);
+        .insert(issueData)
+        .select()
+        .single();
 
       if (error) {
         throw error;
+      }
+
+      // Upload attachments if any
+      if (attachments.length > 0 && newIssue) {
+        const uploadedAttachments = [];
+        
+        for (const file of attachments) {
+          try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const filePath = `${newIssue.id}/${fileName}`;
+
+            const { data, error: uploadError } = await supabase.storage
+              .from('issue-attachments')
+              .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = supabase.storage
+              .from('issue-attachments')
+              .getPublicUrl(filePath);
+
+            uploadedAttachments.push({
+              id: Date.now() + Math.random(),
+              name: file.name,
+              size: file.size,
+              type: file.type,
+              url: urlData.publicUrl,
+              path: filePath,
+              uploaded_at: new Date().toISOString()
+            });
+          } catch (uploadError) {
+            console.error('Error uploading file:', file.name, uploadError);
+          }
+        }
+        
+        // Update issue with attachments
+        if (uploadedAttachments.length > 0) {
+          await supabase
+            .from('issues')
+            .update({ attachments: uploadedAttachments })
+            .eq('id', newIssue.id);
+        }
       }
 
       toast({

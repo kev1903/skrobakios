@@ -39,7 +39,9 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [existingAttachments, setExistingAttachments] = useState<any[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
@@ -80,6 +82,11 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
               due_date: issue.due_date || '',
               status: issue.status || 'open'
             });
+            
+            // Load existing attachments
+            if (issue.attachments && Array.isArray(issue.attachments)) {
+              setExistingAttachments(issue.attachments);
+            }
           }
         } catch (error) {
           console.error('Failed to fetch issue:', error);
@@ -101,6 +108,49 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const uploadAttachments = async (files: File[]): Promise<any[]> => {
+    if (!issueId || files.length === 0) return [];
+    
+    const uploadedAttachments = [];
+    
+    for (const file of files) {
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const filePath = `${issueId}/${fileName}`;
+
+        const { data, error } = await supabase.storage
+          .from('issue-attachments')
+          .upload(filePath, file);
+
+        if (error) throw error;
+
+        const { data: urlData } = supabase.storage
+          .from('issue-attachments')
+          .getPublicUrl(filePath);
+
+        uploadedAttachments.push({
+          id: Date.now() + Math.random(),
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          url: urlData.publicUrl,
+          path: filePath,
+          uploaded_at: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error('Error uploading file:', file.name, error);
+        toast({
+          title: "Upload Error",
+          description: `Failed to upload ${file.name}`,
+          variant: "destructive",
+        });
+      }
+    }
+    
+    return uploadedAttachments;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,8 +175,15 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
     }
 
     setIsSubmitting(true);
+    setIsUploading(true);
 
     try {
+      // Upload new attachments first
+      const newUploadedAttachments = await uploadAttachments(attachments);
+      
+      // Combine existing and new attachments
+      const allAttachments = [...existingAttachments, ...newUploadedAttachments];
+      
       const updateData = {
         title: formData.title.trim(),
         description: formData.description.trim() || null,
@@ -136,6 +193,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
         assigned_to: formData.assigned_to.trim() || null,
         due_date: formData.due_date || null,
         status: formData.status,
+        attachments: allAttachments,
         updated_at: new Date().toISOString()
       };
 
@@ -153,6 +211,9 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
         description: "Issue updated successfully",
       });
 
+      // Clear uploaded files from state
+      setAttachments([]);
+
       // Navigate back to issue detail page
       onNavigate(`qaqc-issue-detail?projectId=${projectId}&issueId=${issueId}`);
       
@@ -165,6 +226,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
       });
     } finally {
       setIsSubmitting(false);
+      setIsUploading(false);
     }
   };
 
@@ -245,6 +307,36 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
   const removeAttachment = useCallback((index: number) => {
     setAttachments(prev => prev.filter((_, i) => i !== index));
   }, []);
+
+  const removeExistingAttachment = useCallback(async (attachment: any) => {
+    try {
+      // Remove from storage
+      if (attachment.path) {
+        const { error: storageError } = await supabase.storage
+          .from('issue-attachments')
+          .remove([attachment.path]);
+        
+        if (storageError) {
+          console.error('Error removing file from storage:', storageError);
+        }
+      }
+      
+      // Remove from state
+      setExistingAttachments(prev => prev.filter(a => a.id !== attachment.id));
+      
+      toast({
+        title: "File removed",
+        description: `${attachment.name} has been removed`,
+      });
+    } catch (error) {
+      console.error('Error removing attachment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to remove attachment",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
 
   const handleBack = () => {
     onNavigate(`qaqc-issue-detail?projectId=${projectId}&issueId=${issueId}`);
@@ -468,10 +560,64 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                   </div>
 
                   {/* File Previews */}
-                  {attachments.length > 0 && (
+                  {(existingAttachments.length > 0 || attachments.length > 0) && (
                     <div className="space-y-4">
-                      <Label className="text-sm font-medium">Attachments ({attachments.length})</Label>
+                      <Label className="text-sm font-medium">
+                        Attachments ({existingAttachments.length + attachments.length})
+                      </Label>
+                      
                       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {/* Existing Attachments */}
+                        {existingAttachments.map((attachment) => {
+                          const isImage = attachment.type?.startsWith('image/') || attachment.name?.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp)$/);
+                          
+                          return (
+                            <div
+                              key={attachment.id}
+                              className="relative group border rounded-lg p-3 bg-card hover:shadow-md transition-shadow"
+                            >
+                              {/* Remove button */}
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeExistingAttachment(attachment)}
+                                className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive/10 hover:bg-destructive hover:text-destructive-foreground"
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                              
+                              {/* File preview */}
+                              <div className="space-y-2">
+                                {isImage ? (
+                                  <div className="relative">
+                                    <img
+                                      src={attachment.url}
+                                      alt={attachment.name}
+                                      className="w-full h-32 object-cover rounded border"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center justify-center h-32 bg-muted rounded border">
+                                    <Paperclip className="w-8 h-8 text-muted-foreground" />
+                                  </div>
+                                )}
+                                
+                                {/* File info */}
+                                <div className="space-y-1">
+                                  <p className="text-sm font-medium text-foreground truncate" title={attachment.name}>
+                                    {attachment.name}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {attachment.size ? `${(attachment.size / 1024 / 1024).toFixed(2)} MB` : 'Existing file'}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        
+                        {/* New Attachments */}
                         {attachments.map((file, index) => {
                           const isImage = file.type.startsWith('image/');
                           const fileUrl = URL.createObjectURL(file);
@@ -531,9 +677,9 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                   <Button type="button" variant="outline" onClick={handleBack}>
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button type="submit" disabled={isSubmitting || isUploading}>
                     <Save className="w-4 h-4 mr-2" />
-                    {isSubmitting ? 'Updating...' : 'Update Issue'}
+                    {isSubmitting ? (isUploading ? 'Uploading files...' : 'Updating...') : 'Update Issue'}
                   </Button>
                 </div>
               </form>
