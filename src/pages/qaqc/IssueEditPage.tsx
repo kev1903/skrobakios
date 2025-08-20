@@ -211,11 +211,8 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
         description: "Issue updated successfully",
       });
 
-      // Clear uploaded files from state
-      setAttachments([]);
-
-      // Navigate back to issue detail page
-      onNavigate(`qaqc-issue-detail?projectId=${projectId}&issueId=${issueId}`);
+      // Navigate back to Issues list page after save
+      onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
       
     } catch (error) {
       console.error('Error updating issue:', error);
