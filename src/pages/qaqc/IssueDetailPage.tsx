@@ -95,12 +95,6 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
               }
             ],
             
-            attachments: [
-              { name: 'concrete_test_results.pdf', url: '#' },
-              { name: 'photo_evidence.jpg', url: '#' },
-              { name: 'inspection_checklist.pdf', url: '#' }
-            ],
-            
             summary: {
               total_items: 4,
               open_items: 2,
@@ -177,142 +171,143 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
         activeSection="qaqc"
       />
 
-      <div className="flex-1 ml-48 p-6 overflow-auto">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" onClick={handleBack}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to QA/QC
-              </Button>
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-                <h1 className="text-2xl font-bold text-gray-700">{report.issue_number}</h1>
+      <div className="flex-1 ml-48 flex flex-col h-full">
+        <div className="p-6 overflow-y-auto">
+          <div className="min-h-full">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-4">
+                <Button variant="ghost" onClick={handleBack}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to QA/QC
+                </Button>
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="w-6 h-6 text-red-600" />
+                  <h1 className="text-2xl font-bold text-gray-700">{report.issue_number}</h1>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <Badge className={getSeverityColor(report.severity)}>{report.severity}</Badge>
+                <Badge className={getStatusColor(report.status)}>{report.status}</Badge>
               </div>
             </div>
-            <div className="flex space-x-2">
-              <Badge className={getSeverityColor(report.severity)}>{report.severity}</Badge>
-              <Badge className={getStatusColor(report.status)}>{report.status}</Badge>
+
+            <div className="space-y-4 pb-8">
+              {/* Compact Report Info */}
+              <Card className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText className="w-4 h-4" />
+                  <h2 className="font-semibold">{report.title}</h2>
+                </div>
+                <div className="grid grid-cols-4 gap-4 text-sm mb-3">
+                  <div>
+                    <span className="text-muted-foreground">Location:</span>
+                    <div className="font-medium">{report.location}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Reported By:</span>
+                    <div className="font-medium">{report.reported_by}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Date Reported:</span>
+                    <div className="font-medium">{format(new Date(report.date_reported), 'MMM dd, yyyy')}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Due Date:</span>
+                    <div className="font-medium">{format(new Date(report.due_date), 'MMM dd, yyyy')}</div>
+                  </div>
+                </div>
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Description:</span>
+                  <p className="mt-1">{report.description}</p>
+                </div>
+              </Card>
+
+              {/* Compact Summary */}
+              <Card className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <ClipboardList className="w-4 h-4" />
+                  <h3 className="font-semibold">Report Summary</h3>
+                </div>
+                <div className="grid grid-cols-6 gap-4 text-center">
+                  <div>
+                    <div className="text-xl font-bold">{report.summary.total_items}</div>
+                    <div className="text-xs text-muted-foreground">Total Items</div>
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-red-600">{report.summary.open_items}</div>
+                    <div className="text-xs text-muted-foreground">Open</div>
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-green-600">{report.summary.resolved_items}</div>
+                    <div className="text-xs text-muted-foreground">Resolved</div>
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-orange-600">{report.summary.major_issues}</div>
+                    <div className="text-xs text-muted-foreground">Major</div>
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-yellow-600">{report.summary.medium_issues}</div>
+                    <div className="text-xs text-muted-foreground">Medium</div>
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold text-green-600">{report.summary.minor_issues}</div>
+                    <div className="text-xs text-muted-foreground">Minor</div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Issues Table */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>All Issues</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Findings</TableHead>
+                        <TableHead>Corrective Action</TableHead>
+                        <TableHead>Severity</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {report.sections.map((section: any) => 
+                        section.items.map((item: any) => (
+                          <TableRow key={item.id}>
+                            <TableCell className="font-medium">{section.title}</TableCell>
+                            <TableCell className="max-w-xs">
+                              <div className="flex items-center space-x-2">
+                                {item.status === 'resolved' ? (
+                                  <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                                ) : (
+                                  <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+                                )}
+                                <span className="text-sm">{item.description}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground max-w-xs">
+                              {item.findings}
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground max-w-xs">
+                              {item.corrective_action}
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={getSeverityColor(item.severity)}>{item.severity}</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-
-          <div className="space-y-4">
-            {/* Compact Report Info */}
-            <Card className="p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <FileText className="w-4 h-4" />
-                <h2 className="font-semibold">{report.title}</h2>
-              </div>
-              <div className="grid grid-cols-4 gap-4 text-sm mb-3">
-                <div>
-                  <span className="text-muted-foreground">Location:</span>
-                  <div className="font-medium">{report.location}</div>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Reported By:</span>
-                  <div className="font-medium">{report.reported_by}</div>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Date Reported:</span>
-                  <div className="font-medium">{format(new Date(report.date_reported), 'MMM dd, yyyy')}</div>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Due Date:</span>
-                  <div className="font-medium">{format(new Date(report.due_date), 'MMM dd, yyyy')}</div>
-                </div>
-              </div>
-              <div className="text-sm">
-                <span className="text-muted-foreground">Description:</span>
-                <p className="mt-1">{report.description}</p>
-              </div>
-            </Card>
-
-            {/* Compact Summary */}
-            <Card className="p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <ClipboardList className="w-4 h-4" />
-                <h3 className="font-semibold">Report Summary</h3>
-              </div>
-              <div className="grid grid-cols-6 gap-4 text-center">
-                <div>
-                  <div className="text-xl font-bold">{report.summary.total_items}</div>
-                  <div className="text-xs text-muted-foreground">Total Items</div>
-                </div>
-                <div>
-                  <div className="text-xl font-bold text-red-600">{report.summary.open_items}</div>
-                  <div className="text-xs text-muted-foreground">Open</div>
-                </div>
-                <div>
-                  <div className="text-xl font-bold text-green-600">{report.summary.resolved_items}</div>
-                  <div className="text-xs text-muted-foreground">Resolved</div>
-                </div>
-                <div>
-                  <div className="text-xl font-bold text-orange-600">{report.summary.major_issues}</div>
-                  <div className="text-xs text-muted-foreground">Major</div>
-                </div>
-                <div>
-                  <div className="text-xl font-bold text-yellow-600">{report.summary.medium_issues}</div>
-                  <div className="text-xs text-muted-foreground">Medium</div>
-                </div>
-                <div>
-                  <div className="text-xl font-bold text-green-600">{report.summary.minor_issues}</div>
-                  <div className="text-xs text-muted-foreground">Minor</div>
-                </div>
-              </div>
-            </Card>
-
-            {/* Issues Table */}
-            <Card>
-              <CardHeader>
-                <CardTitle>All Issues</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Findings</TableHead>
-                      <TableHead>Corrective Action</TableHead>
-                      <TableHead>Severity</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {report.sections.map((section: any) => 
-                      section.items.map((item: any) => (
-                        <TableRow key={item.id}>
-                          <TableCell className="font-medium">{section.title}</TableCell>
-                          <TableCell className="max-w-xs">
-                            <div className="flex items-center space-x-2">
-                              {item.status === 'resolved' ? (
-                                <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-                              ) : (
-                                <XCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
-                              )}
-                              <span className="text-sm">{item.description}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground max-w-xs">
-                            {item.findings}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground max-w-xs">
-                            {item.corrective_action}
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getSeverityColor(item.severity)}>{item.severity}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-
           </div>
         </div>
       </div>
