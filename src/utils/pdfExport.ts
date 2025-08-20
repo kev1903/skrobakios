@@ -541,20 +541,20 @@ pdf.addImage(
       // Main content area
       let yPos = 60;
       
-      // Enhanced attachment display with mid-size previews
-      const attachmentAreaWidth = 160;
-      const attachmentAreaHeight = 120;
+      // Enhanced attachment display with mid-size previews - adjusted for A4
+      const attachmentAreaWidth = 120;
+      const attachmentAreaHeight = 90;
       let attachmentY = yPos;
       
       if (issue.attachments && issue.attachments.length > 0) {
-        // Multiple attachments handling
-        const maxAttachmentsToShow = Math.min(3, issue.attachments.length);
-        const attachmentWidth = attachmentAreaWidth / maxAttachmentsToShow - 10;
-        const attachmentHeight = 80;
+        // Multiple attachments handling - limit to 2 for better fit
+        const maxAttachmentsToShow = Math.min(2, issue.attachments.length);
+        const attachmentWidth = attachmentAreaWidth / maxAttachmentsToShow - 5;
+        const attachmentHeight = 65;
         
         for (let i = 0; i < maxAttachmentsToShow; i++) {
           const attachment = issue.attachments[i];
-          const attachmentX = 20 + (i * (attachmentWidth + 10));
+          const attachmentX = 20 + (i * (attachmentWidth + 5));
           
           if (attachment.type?.startsWith('image/')) {
             try {
@@ -622,11 +622,11 @@ pdf.addImage(
           }
         }
         
-        // Show attachment count if more than 3
-        if (issue.attachments.length > 3) {
+        // Show attachment count if more than 2
+        if (issue.attachments.length > 2) {
           pdf.setFontSize(9);
           pdf.setTextColor(80, 80, 80);
-          pdf.text(`+${issue.attachments.length - 3} more attachments`, 20, attachmentY + attachmentHeight + 15);
+          pdf.text(`+${issue.attachments.length - 2} more attachments`, 20, attachmentY + attachmentHeight + 15);
           pdf.setTextColor(0, 0, 0);
         }
       } else {
@@ -659,8 +659,8 @@ pdf.addImage(
         pdf.setTextColor(0, 0, 0);
       }
       
-      // Issue details panel - positioned next to attachments
-      const detailsX = 200;
+      // Issue details panel - positioned next to attachments with proper A4 margins
+      const detailsX = 150;
       let detailsY = yPos;
       
       pdf.setFontSize(11);
@@ -673,9 +673,9 @@ pdf.addImage(
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
       const description = issue.description || 'No description provided';
-      const wrappedDescription = pdf.splitTextToSize(description, 45);
+      const wrappedDescription = pdf.splitTextToSize(description, 40);
       pdf.text(wrappedDescription, detailsX, detailsY);
-      detailsY += wrappedDescription.length * 5 + 10;
+      detailsY += wrappedDescription.length * 4 + 8;
       
       // Category
       pdf.setFont('helvetica', 'bold');
@@ -685,7 +685,7 @@ pdf.addImage(
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
       pdf.text(issue.category || 'N/A', detailsX, detailsY);
-      detailsY += 15;
+      detailsY += 12;
       
       // Location
       pdf.setFont('helvetica', 'bold');
@@ -694,8 +694,10 @@ pdf.addImage(
       detailsY += 8;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      pdf.text(issue.location || 'N/A', detailsX, detailsY);
-      detailsY += 15;
+      const locationText = issue.location || 'N/A';
+      const truncatedLocation = locationText.length > 25 ? locationText.substring(0, 25) + '...' : locationText;
+      pdf.text(truncatedLocation, detailsX, detailsY);
+      detailsY += 12;
       
       // Created by
       pdf.setFont('helvetica', 'bold');
@@ -704,8 +706,10 @@ pdf.addImage(
       detailsY += 8;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      pdf.text(issue.created_by || 'N/A', detailsX, detailsY);
-      detailsY += 15;
+      const createdByText = issue.created_by || 'N/A';
+      const truncatedCreatedBy = createdByText.length > 20 ? createdByText.substring(0, 20) + '...' : createdByText;
+      pdf.text(truncatedCreatedBy, detailsX, detailsY);
+      detailsY += 12;
       
       // Created date
       pdf.setFont('helvetica', 'bold');
@@ -720,11 +724,11 @@ pdf.addImage(
         day: 'numeric'
       }), detailsX, detailsY);
       
-      // Comments section placeholder
-      if (detailsY < 170) {
-        pdf.setFontSize(9);
+      // Comments section placeholder - positioned properly within A4 bounds
+      if (detailsY < 200) {
+        pdf.setFontSize(8);
         pdf.setTextColor(120, 120, 120);
-        pdf.text('Comments section - check issue details in app', 20, 185);
+        pdf.text('Additional comments available in app', 20, 220);
         pdf.setTextColor(0, 0, 0);
       }
     }
