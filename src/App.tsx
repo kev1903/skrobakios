@@ -12,6 +12,7 @@ import { DefectsPage } from "./pages/qaqc/DefectsPage";
 import { InspectionsPage } from "./pages/qaqc/InspectionsPage";
 import { QualityPlansPage } from "./pages/qaqc/QualityPlansPage";
 import { IssueDetailPage } from "./pages/qaqc/IssueDetailPage";
+import { CreateIssuePage } from "./pages/qaqc/CreateIssuePage";
 import { RFIDetailPage } from "./pages/qaqc/RFIDetailPage";
 import TasksPage from "./pages/TasksPage";
 import TimeSheetPage from "./pages/TimeSheetPage";
@@ -231,6 +232,14 @@ const IssueDetailPageWrapper = () => {
   return <IssueDetailPage onNavigate={handleNavigate} />;
 };
 
+const CreateIssuePageWrapper = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+  return <CreateIssuePage onNavigate={handleNavigate} />;
+};
+
 const RFIDetailPageWrapper = () => {
   const navigate = useNavigate();
   const handleNavigate = (page: string) => {
@@ -390,6 +399,7 @@ const AppContent = () => {
         <Route path="/qaqc/inspections" element={<InspectionsPageWrapper />} />
         <Route path="/qaqc/quality-plans" element={<QualityPlansPageWrapper />} />
         <Route path="/qaqc/issue/:issueId" element={<IssueDetailPageWrapper />} />
+        <Route path="/qaqc/issues/create" element={<CreateIssuePageWrapper />} />
         <Route path="/qaqc/rfi/:rfiId" element={<RFIDetailPageWrapper />} />
         
         {/* Documentation Pages */}

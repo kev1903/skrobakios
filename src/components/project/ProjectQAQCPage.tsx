@@ -196,7 +196,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               <TabsContent value="issues" className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Issues & Non-Conformance Reports</h3>
-                  <Button>
+                  <Button onClick={() => window.location.href = `/qaqc/issues/create?projectId=${projectId}`}>
                     <Plus className="w-4 h-4 mr-2" />
                     New Issue Report
                   </Button>

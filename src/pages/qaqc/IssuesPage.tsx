@@ -72,7 +72,7 @@ export const IssuesPage = ({ onNavigate }: IssuesPageProps) => {
                 <h1 className="text-2xl font-bold text-foreground">Issues & Non-Conformance Reports</h1>
               </div>
             </div>
-            <Button>
+            <Button onClick={() => window.location.href = `/qaqc/issues/create?projectId=${projectId}`}>
               <Plus className="w-4 h-4 mr-2" />
               New Issue/NCR
             </Button>
