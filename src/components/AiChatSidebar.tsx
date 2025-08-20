@@ -169,8 +169,8 @@ export function AiChatSidebar({
     const root = document.documentElement;
     const computeOffset = () => {
       const isDesktop = window.matchMedia('(min-width: 768px)').matches; // md breakpoint
-      // When expanded on desktop and not fullscreen, reserve 24rem; otherwise reserve 0
-      const offsetPx = (!fullScreen && isDesktop && !isCollapsed) ? 384 : 0; // 24rem = 384px
+      // Reserve width for the sidebar on desktop: collapsed (64px) or expanded (384px). None on mobile or fullscreen.
+      const offsetPx = (!fullScreen && isDesktop) ? (isCollapsed ? 64 : 384) : 0;
       root.style.setProperty('--ai-chat-offset', `${offsetPx}px`);
     };
     computeOffset();
