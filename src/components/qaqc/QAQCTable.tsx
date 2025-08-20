@@ -313,7 +313,7 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
                 className="text-blue-600 hover:text-blue-800 hover:underline"
                 onClick={() => onNavigate?.(`qaqc-issue-detail?projectId=${item.project_id}&issueId=${item.id}`)}
               >
-                {item.issue_number}
+                {item.auto_number || item.issue_number || '-'}
               </button>
             </TableCell>
             <TableCell>{item.title}</TableCell>

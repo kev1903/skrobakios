@@ -40,8 +40,15 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
         .select('*')
         .eq('project_id', projectId)
         .eq('report_id', reportId)
-        .order('created_at', { ascending: false });
-      if (!error) setIssues(data || []);
+        .order('created_at', { ascending: true }); // Change to ascending for proper numbering
+      if (!error) {
+        // Add automatic numbering to issues in ascending order
+        const numberedIssues = (data || []).map((issue, index) => ({
+          ...issue,
+          auto_number: index + 1
+        }));
+        setIssues(numberedIssues);
+      }
       setLoading(false);
     };
     fetchIssues();
@@ -63,8 +70,14 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
         
         if (error) throw error;
         
-        // Remove from local state
-        setIssues(prev => prev.filter(issue => issue.id !== id));
+        // Remove from local state and renumber
+        setIssues(prev => {
+          const filtered = prev.filter(issue => issue.id !== id);
+          return filtered.map((issue, index) => ({
+            ...issue,
+            auto_number: index + 1
+          }));
+        });
         
         toast({
           title: "Success",
@@ -91,8 +104,15 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
       .select('*')
       .eq('project_id', projectId)
       .eq('report_id', reportId)
-      .order('created_at', { ascending: false });
-    if (!error) setIssues(data || []);
+      .order('created_at', { ascending: true }); // Change to ascending for proper numbering
+    if (!error) {
+      // Add automatic numbering to issues in ascending order
+      const numberedIssues = (data || []).map((issue, index) => ({
+        ...issue,
+        auto_number: index + 1
+      }));
+      setIssues(numberedIssues);
+    }
     setLoading(false);
   };
 
