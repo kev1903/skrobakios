@@ -35,7 +35,7 @@ export const OutputIntegrationPage = () => {
   return (
     <PageShell withPattern>
       {/* Header */}
-      <div className={`px-4 py-2 border-b border-border bg-background transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
+      <div className={`px-4 py-2 border-b border-border bg-background transition-[padding] ${isChatCollapsed ? 'pr-0' : 'pr-[26rem]'}`}>
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="shrink-0">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -52,12 +52,12 @@ export const OutputIntegrationPage = () => {
       </div>
 
       {/* Steps */}
-      <div className={`transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>
+      <div className={`transition-[padding] ${isChatCollapsed ? 'pr-0' : 'pr-[26rem]'}`}>
         <StepTimeline steps={steps} current={5} onChange={handleStepChange} />
       </div>
 
       {/* Body */}
-      <div className={`p-6 text-sm text-muted-foreground transition-[padding] ${isChatCollapsed ? 'pr-24' : 'pr-[26rem]'}`}>Output & Integration page</div>
+      <div className={`p-6 text-sm text-muted-foreground transition-[padding] ${isChatCollapsed ? 'pr-0' : 'pr-[26rem]'}`}>Output & Integration page</div>
 
       <AiChatSidebar isCollapsed={isChatCollapsed} onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)} />
     </PageShell>
