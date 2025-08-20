@@ -39,8 +39,8 @@ export const useNavigationWithHistory = ({ onNavigate, currentPage }: Navigation
       'milestones': 'project-detail',
       
       // QA/QC flows - preserve project ID when going back
-      'qaqc-issue-detail': 'project-qaqc',
-      
+      'qaqc-issue-detail': 'qaqc-issues',
+       
       // Settings flows
       'platform-dashboard': 'home',
       
@@ -51,13 +51,21 @@ export const useNavigationWithHistory = ({ onNavigate, currentPage }: Navigation
 
     const parentPage = pageHierarchy[currentPage];
     if (parentPage) {
-      // For QA/QC pages, preserve the project ID
-      if (currentPage.startsWith('qaqc-') && parentPage === 'project-qaqc') {
-        // Extract projectId from current URL if present
+      // For QA/QC pages, preserve the project ID and return to Issues list
+      if (currentPage.startsWith('qaqc-') && (parentPage === 'project-qaqc' || parentPage === 'qaqc-issues')) {
+        // Extract projectId from top-level URL or from the page param
         const urlParams = new URLSearchParams(window.location.search);
-        const projectId = urlParams.get('projectId');
+        let projectId = urlParams.get('projectId');
+        if (!projectId) {
+          const pageParam = urlParams.get('page') || '';
+          const idx = pageParam.indexOf('?');
+          if (idx !== -1) {
+            const innerParams = new URLSearchParams(pageParam.slice(idx + 1));
+            projectId = innerParams.get('projectId');
+          }
+        }
         if (projectId) {
-          onNavigate(`${parentPage}&projectId=${projectId}`);
+          onNavigate(`${parentPage}?projectId=${projectId}`);
         } else {
           onNavigate(parentPage);
         }
