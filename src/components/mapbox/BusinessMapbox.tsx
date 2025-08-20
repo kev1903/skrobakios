@@ -294,12 +294,8 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         pointer-events: auto;
       `;
       
-      // Add coordinate status indicator
-      if (hasRealCoords) {
-        markerEl.innerHTML = `<div style="color: hsl(var(--primary-foreground)); font-size: 11px; font-weight: 600;">${displayedCount}</div>`;
-      } else {
-        markerEl.innerHTML = `<div style="color: hsl(var(--secondary-foreground)); font-size: 11px; font-weight: 600;">${displayedCount}</div>`;
-      }
+      // Add numbered marker with consistent white text
+      markerEl.innerHTML = `<div style="color: white; font-size: 11px; font-weight: 600;">${displayedCount}</div>`;
 
       // Add marker to map and store reference
       const marker = new mapboxgl.Marker(markerEl)
