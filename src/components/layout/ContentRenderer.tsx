@@ -80,6 +80,7 @@ import { CreateIssueReportPage } from "@/pages/qaqc/CreateIssueReportPage";
 import { IssueReportDetailPage } from "@/pages/qaqc/IssueReportDetailPage";
 import { IssueReportEditPage } from "@/pages/qaqc/IssueReportEditPage";
 import { CreateIssuePage } from "@/pages/qaqc/CreateIssuePage";
+import { IssueEditPage } from "@/pages/qaqc/IssueEditPage";
 
 
 interface ContentRendererProps {
@@ -377,6 +378,12 @@ export const ContentRenderer = ({
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <CreateIssuePage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "qaqc-issue-edit":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <IssueEditPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "qaqc-rfi-detail":

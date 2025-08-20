@@ -14,6 +14,7 @@ import { QualityPlansPage } from "./pages/qaqc/QualityPlansPage";
 import { IssueDetailPage } from "./pages/qaqc/IssueDetailPage";
 import { CreateIssuePage } from "./pages/qaqc/CreateIssuePage";
 import { RFIDetailPage } from "./pages/qaqc/RFIDetailPage";
+import { IssueEditPage } from "./pages/qaqc/IssueEditPage";
 import TasksPage from "./pages/TasksPage";
 import TimeSheetPage from "./pages/TimeSheetPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -248,6 +249,14 @@ const RFIDetailPageWrapper = () => {
   return <RFIDetailPage onNavigate={handleNavigate} />;
 };
 
+const IssueEditPageWrapper = () => {
+  const navigate = useNavigate();
+  const handleNavigate = (page: string) => {
+    navigate(`/?page=${page}`);
+  };
+  return <IssueEditPage onNavigate={handleNavigate} />;
+};
+
 const App = () => {
   // Create QueryClient inside the component to ensure React is initialized
   const [queryClient] = React.useState(() => new QueryClient({
@@ -400,6 +409,7 @@ const AppContent = () => {
         <Route path="/qaqc/quality-plans" element={<QualityPlansPageWrapper />} />
         <Route path="/qaqc/issue/:issueId" element={<IssueDetailPageWrapper />} />
         <Route path="/qaqc/issues/create" element={<CreateIssuePageWrapper />} />
+        <Route path="/qaqc/issue/:issueId/edit" element={<IssueEditPageWrapper />} />
         <Route path="/qaqc/rfi/:rfiId" element={<RFIDetailPageWrapper />} />
         
         {/* Documentation Pages */}
