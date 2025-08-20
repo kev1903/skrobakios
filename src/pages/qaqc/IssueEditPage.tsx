@@ -16,6 +16,16 @@ interface IssueEditPageProps {
   onNavigate: (page: string) => void;
 }
 
+interface AttachmentType {
+  id: string | number;
+  name: string;
+  size?: number;
+  type?: string;
+  url?: string;
+  path?: string;
+  uploaded_at?: string;
+}
+
 export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
   const [searchParams] = useSearchParams();
   
@@ -40,7 +50,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [attachments, setAttachments] = useState<File[]>([]);
-  const [existingAttachments, setExistingAttachments] = useState<any[]>([]);
+  const [existingAttachments, setExistingAttachments] = useState<AttachmentType[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -85,9 +95,33 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
               status: issue.status || 'open'
             });
             
-            // Load existing attachments
+            // Load existing attachments and ensure proper URLs
             if (issue.attachments && Array.isArray(issue.attachments)) {
-              setExistingAttachments(issue.attachments);
+              const attachmentsWithUrls = issue.attachments.map((attachment: any) => {
+                const attachmentObj = attachment as AttachmentType;
+                
+                // If the URL is not a full URL (doesn't start with http), generate public URL
+                if (attachmentObj.url && !attachmentObj.url.startsWith('http')) {
+                  const { data: urlData } = supabase.storage
+                    .from('issue-attachments')
+                    .getPublicUrl(attachmentObj.path || attachmentObj.url);
+                  return {
+                    ...attachmentObj,
+                    url: urlData.publicUrl
+                  };
+                } else if (attachmentObj.path && !attachmentObj.url) {
+                  // If there's only a path but no URL, generate the public URL
+                  const { data: urlData } = supabase.storage
+                    .from('issue-attachments')
+                    .getPublicUrl(attachmentObj.path);
+                  return {
+                    ...attachmentObj,
+                    url: urlData.publicUrl
+                  };
+                }
+                return attachmentObj;
+              });
+              setExistingAttachments(attachmentsWithUrls);
             }
           }
         } catch (error) {
