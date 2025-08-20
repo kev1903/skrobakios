@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { ArrowLeft, Save, AlertTriangle, Upload, Paperclip, X } from 'lucide-react';
@@ -18,7 +18,7 @@ interface CreateIssuePageProps {
 
 export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+  
   const projectId = searchParams.get('projectId');
   const reportId = searchParams.get('reportId');
   const { getProject } = useProjects();
@@ -192,7 +192,11 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
   }, [handlePaste]);
 
   const handleBack = () => {
-    navigate(`/qaqc/issues?projectId=${projectId}`);
+    if (reportId) {
+      onNavigate(`qaqc-issue-report-detail?projectId=${projectId}&reportId=${reportId}`);
+    } else {
+      onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
+    }
   };
 
   if (!project) {
@@ -223,7 +227,7 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
             <div className="flex items-center space-x-4">
               <Button variant="ghost" onClick={handleBack}>
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Issues
+                {reportId ? 'Back to Report' : 'Back to Issues'}
               </Button>
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="w-6 h-6 text-red-600" />
