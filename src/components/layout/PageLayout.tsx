@@ -31,7 +31,7 @@ export const PageLayout = ({ currentPage, onNavigate, children, disableSpacing =
         onNavigate={onNavigate}
         requireSuperAdmin={false}
       >
-        <main className={`w-full ${spacing} ${fullHeight} relative`}>
+        <main className={`w-full ${spacing} ${fullHeight} relative md:pr-[var(--ai-chat-offset,0px)] transition-[padding] duration-300`}>
           <div className="w-full h-full overflow-y-auto">
             {children}
           </div>
@@ -47,7 +47,7 @@ export const PageLayout = ({ currentPage, onNavigate, children, disableSpacing =
       requireSuperAdmin={currentPage === "admin" || currentPage === "user-management"}
       requireAdmin={currentPage === "platform-dashboard"}
     >
-      <main className={`w-full ${spacing} ${fullHeight} relative`}>
+      <main className={`w-full ${spacing} ${fullHeight} relative md:pr-[var(--ai-chat-offset,0px)] transition-[padding] duration-300`}>
         <div className="w-full h-full">
           {children}
         </div>
