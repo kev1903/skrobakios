@@ -321,31 +321,6 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
               </CardContent>
             </Card>
 
-            {/* Attachments */}
-            {report.attachments && report.attachments.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Attachments</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {report.attachments.map((attachment: any, index: number) => (
-                      <div key={index} className="flex items-center justify-between p-2 border rounded">
-                        <span className="text-sm">{attachment.name}</span>
-                        <Button variant="outline" size="sm">Download</Button>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Actions */}
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline">Export Report</Button>
-              <Button variant="outline">Edit</Button>
-              <Button>Update Status</Button>
-            </div>
           </div>
         </div>
       </div>
