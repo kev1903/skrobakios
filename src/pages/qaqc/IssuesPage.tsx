@@ -6,6 +6,7 @@ import { useProjects, Project } from '@/hooks/useProjects';
 import { QAQCTable } from '@/components/qaqc/QAQCTable';
 import { useIssues } from '@/hooks/useQAQCData';
 import { Plus, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { PageShell } from '@/components/layout/PageShell';
 
 interface IssuesPageProps {
   onNavigate: (page: string) => void;
@@ -40,50 +41,54 @@ export const IssuesPage = ({ onNavigate }: IssuesPageProps) => {
 
   if (!project) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
-          <p className="text-gray-600 mb-4">The requested project could not be found.</p>
-          <Button onClick={() => onNavigate('projects')}>Back to Projects</Button>
+      <PageShell>
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
+            <p className="text-gray-600 mb-4">The requested project could not be found.</p>
+            <Button onClick={() => onNavigate('projects')}>Back to Projects</Button>
+          </div>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 pt-[var(--header-height,60px)]">
-      <ProjectSidebar
-        project={project}
-        onNavigate={onNavigate}
-        getStatusColor={() => "bg-blue-100 text-blue-800"}
-        getStatusText={() => "Active"}
-        activeSection="qaqc"
-      />
+    <PageShell className="bg-gray-50">
+      <div className="flex h-full">
+        <ProjectSidebar
+          project={project}
+          onNavigate={onNavigate}
+          getStatusColor={() => "bg-blue-100 text-blue-800"}
+          getStatusText={() => "Active"}
+          activeSection="qaqc"
+        />
 
-      <div className="flex-1 ml-48 p-6 overflow-auto">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" onClick={handleBackToQAQC}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to QA/QC
-              </Button>
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-                <h1 className="text-2xl font-bold text-foreground">Issues & Non-Conformance Reports</h1>
+        <div className="flex-1 ml-48 p-6 overflow-auto">
+          <div className="max-w-7xl mx-auto h-full">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-4">
+                <Button variant="ghost" onClick={handleBackToQAQC}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to QA/QC
+                </Button>
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="w-6 h-6 text-red-600" />
+                  <h1 className="text-2xl font-bold text-foreground">Issues & Non-Conformance Reports</h1>
+                </div>
               </div>
+              <Button onClick={() => navigate(`/qaqc/issues/create?projectId=${projectId}`)}>
+                <Plus className="w-4 h-4 mr-2" />
+                New Issue/NCR
+              </Button>
             </div>
-            <Button onClick={() => navigate(`/qaqc/issues/create?projectId=${projectId}`)}>
-              <Plus className="w-4 h-4 mr-2" />
-              New Issue/NCR
-            </Button>
-          </div>
 
-          <div className="bg-white rounded-lg shadow">
-            <QAQCTable data={issues || []} type="issues" isLoading={isLoading} />
+            <div className="bg-white rounded-lg shadow flex-1">
+              <QAQCTable data={issues || []} type="issues" isLoading={isLoading} />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 };
