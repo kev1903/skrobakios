@@ -24,6 +24,9 @@ import {
   FlaskConical,
   FileCheck
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface ProjectQAQCPageProps {
   onNavigate: (page: string) => void;
@@ -58,7 +61,29 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
       };
       fetchProject();
     }
-  }, [projectId, getProject]);
+}, [projectId, getProject]);
+
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const handleDelete = async (id: string, type: string) => {
+    if (!projectId) return;
+    if (type === 'issueReport') {
+      const confirmed = window.confirm('Delete this report? This cannot be undone.');
+      if (!confirmed) return;
+      const { error } = await supabase
+        .from('issue_reports')
+        .delete()
+        .eq('id', id);
+      if (error) {
+        console.error('Failed to delete report', error);
+        toast({ title: 'Error', description: 'Failed to delete report', variant: 'destructive' });
+        return;
+      }
+      toast({ title: 'Deleted', description: 'Report deleted successfully' });
+      await queryClient.invalidateQueries({ queryKey: ['issue_reports', projectId] });
+    }
+  };
 
   if (!project) {
     return (
@@ -203,7 +228,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                     New Issue Report
                   </Button>
                 </div>
-                <QAQCTable data={issueReports || []} type="issueReports" isLoading={issueReportsLoading} onNavigate={onNavigate} />
+                <QAQCTable data={issueReports || []} type="issueReports" isLoading={issueReportsLoading} onNavigate={onNavigate} onDelete={handleDelete} />
               </TabsContent>
 
               <TabsContent value="defects" className="space-y-4">
