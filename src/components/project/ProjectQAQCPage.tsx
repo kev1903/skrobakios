@@ -31,6 +31,8 @@ interface ProjectQAQCPageProps {
 export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('projectId');
+  const tabParam = searchParams.get('tab') || 'checklists';
+  const defaultTab = (['checklists','rfis','issues','defects','inspections','itps'] as const).includes(tabParam as any) ? (tabParam as any) : 'checklists';
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
 
@@ -159,7 +161,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
 
           {/* Main Content - Tabs */}
           <div>
-            <Tabs defaultValue="checklists" className="w-full">
+            <Tabs defaultValue={defaultTab} className="w-full">
               <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="checklists">Checklists</TabsTrigger>
                 <TabsTrigger value="rfis">RFIs</TabsTrigger>

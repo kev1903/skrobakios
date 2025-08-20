@@ -39,7 +39,7 @@ export const useNavigationWithHistory = ({ onNavigate, currentPage }: Navigation
       'milestones': 'project-detail',
       
       // QA/QC flows - preserve project ID when going back
-      'qaqc-issue-detail': 'qaqc-issues',
+      'qaqc-issue-detail': 'project-qaqc',
        
       // Settings flows
       'platform-dashboard': 'home',
@@ -65,7 +65,11 @@ export const useNavigationWithHistory = ({ onNavigate, currentPage }: Navigation
           }
         }
         if (projectId) {
-          onNavigate(`${parentPage}?projectId=${projectId}`);
+          if (parentPage === 'project-qaqc' && currentPage.includes('issue')) {
+            onNavigate(`${parentPage}?projectId=${projectId}&tab=issues`);
+          } else {
+            onNavigate(`${parentPage}?projectId=${projectId}`);
+          }
         } else {
           onNavigate(parentPage);
         }
