@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
-import { ArrowLeft, Save, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Save, AlertTriangle, Upload, Paperclip, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -36,6 +36,10 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (projectId) {
@@ -131,6 +135,61 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
       setIsSubmitting(false);
     }
   };
+
+  // File upload handlers
+  const handleFileSelect = useCallback((files: FileList | null) => {
+    if (!files) return;
+    
+    const newFiles = Array.from(files).filter(file => {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast({
+          title: "File too large",
+          description: `${file.name} exceeds 10MB limit`,
+          variant: "destructive",
+        });
+        return false;
+      }
+      return true;
+    });
+    
+    setAttachments(prev => [...prev, ...newFiles]);
+  }, [toast]);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    handleFileSelect(e.dataTransfer.files);
+  }, [handleFileSelect]);
+
+  const handlePaste = useCallback((e: ClipboardEvent) => {
+    const files = e.clipboardData?.files;
+    if (files && files.length > 0) {
+      handleFileSelect(files);
+      toast({
+        title: "Files pasted",
+        description: `${files.length} file(s) added from clipboard`,
+      });
+    }
+  }, [handleFileSelect, toast]);
+
+  const removeAttachment = useCallback((index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
+  }, [handlePaste]);
 
   const handleBack = () => {
     navigate(`/qaqc/issues?projectId=${projectId}`);
@@ -262,6 +321,115 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     placeholder="Enter detailed description of the issue"
                     rows={4}
+                  />
+                </div>
+
+                {/* File Upload Section */}
+                <div className="space-y-4">
+                  <Label>Attachments</Label>
+                  
+                  {/* Upload Actions */}
+                  <div className="flex gap-2 mb-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-2"
+                    >
+                      <Paperclip className="w-4 h-4" />
+                      Browse Files
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.read().then(() => {
+                          toast({
+                            title: "Paste Ready",
+                            description: "Use Ctrl+V to paste files from clipboard",
+                          });
+                        }).catch(() => {
+                          toast({
+                            title: "Paste Tip",
+                            description: "Copy files and use Ctrl+V to paste them here",
+                          });
+                        });
+                      }}
+                      className="flex items-center gap-2"
+                    >
+                      <Upload className="w-4 h-4" />
+                      Paste Files
+                    </Button>
+                  </div>
+
+                  {/* Drag & Drop Zone */}
+                  <div
+                    ref={dropZoneRef}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`
+                      border-2 border-dashed rounded-lg p-8 text-center transition-colors
+                      ${isDragOver 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                      }
+                    `}
+                  >
+                    <Upload className={`w-12 h-12 mx-auto mb-4 ${isDragOver ? 'text-primary' : 'text-muted-foreground'}`} />
+                    <p className={`text-lg font-medium mb-2 ${isDragOver ? 'text-primary' : 'text-foreground'}`}>
+                      {isDragOver ? 'Drop files here' : 'Drag & drop files here'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      or use the buttons above to browse or paste files
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Supports images, documents, and other files up to 10MB
+                    </p>
+                  </div>
+
+                  {/* File List */}
+                  {attachments.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Selected Files ({attachments.length})</Label>
+                      <div className="grid gap-2">
+                        {attachments.map((file, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-3 bg-muted rounded-lg border"
+                          >
+                            <div className="flex items-center gap-3">
+                              <Paperclip className="w-4 h-4 text-muted-foreground" />
+                              <div>
+                                <p className="text-sm font-medium text-foreground">{file.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {(file.size / 1024 / 1024).toFixed(2)} MB
+                                </p>
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeAttachment(index)}
+                              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => handleFileSelect(e.target.files)}
+                    accept="image/*,application/pdf,.doc,.docx,.txt,.csv,.xlsx,.xls"
                   />
                 </div>
 
