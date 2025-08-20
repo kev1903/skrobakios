@@ -367,6 +367,18 @@ export const ContentRenderer = ({
           <IssueReportEditPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
+     case "qaqc-issue-detail":
+      // Redirect old issue detail route to project QA/QC page  
+      const issueUrlParams = new URLSearchParams(window.location.search);
+      const issueProjectId = issueUrlParams.get('projectId');
+      if (issueProjectId) {
+        onNavigate(`project-qaqc?projectId=${issueProjectId}&tab=issues`);
+      } else {
+        onNavigate('projects');
+      }
+      return <div className="flex items-center justify-center h-full">
+        <p className="text-slate-500">Redirecting...</p>
+      </div>;
     case "qaqc-issue-create":
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
