@@ -38,6 +38,45 @@ const loadImageAsDataUrl = (url: string): Promise<string> => {
   });
 };
 
+// Convert Blob to data URL
+const blobToDataUrl = (blob: Blob): Promise<string> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+
+// Prefer downloading from Supabase Storage to avoid CORS/canvas tainting
+const getAttachmentDataUrl = async (
+  attachment: { path?: string; type?: string; url: string }
+): Promise<{ dataUrl: string; format: 'JPEG' | 'PNG' }> => {
+  // Try storage download first when we have a path
+  if (attachment.path) {
+    try {
+      const { data, error } = await supabase.storage
+        .from('issue-attachments')
+        .download(attachment.path);
+      if (!error && data) {
+        const dataUrl = await blobToDataUrl(data);
+        const format: 'JPEG' | 'PNG' = attachment.type?.toLowerCase().includes('png') ? 'PNG' : 'JPEG';
+        return { dataUrl, format };
+      }
+    } catch (e) {
+      console.warn('Storage download failed, falling back to fetch:', e);
+    }
+  }
+  // Fallback: fetch the public URL
+  const res = await fetch(attachment.url, { mode: 'cors' });
+  const blob = await res.blob();
+  const format: 'JPEG' | 'PNG' =
+    attachment.type?.toLowerCase().includes('png') || blob.type.toLowerCase().includes('png')
+      ? 'PNG'
+      : 'JPEG';
+  const dataUrl = await blobToDataUrl(blob);
+  return { dataUrl, format };
+};
+
 interface IssueReportData {
   id: string;
   title: string;
@@ -399,15 +438,15 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         if (firstAttachment.type?.startsWith('image/')) {
           try {
             // Load image and convert to base64
-            const imageDataUrl = await loadImageAsDataUrl(firstAttachment.url);
-            pdf.addImage(
-              imageDataUrl, 
-              'JPEG', 
-              previewX, 
-              previewY, 
-              previewSize, 
-              previewSize * 0.75
-            );
+const { dataUrl, format } = await getAttachmentDataUrl(firstAttachment);
+pdf.addImage(
+  dataUrl, 
+  format, 
+  previewX, 
+  previewY, 
+  previewSize, 
+  previewSize * 0.75
+);
           } catch (imageError) {
             console.warn('Failed to load image for preview:', imageError);
             // Fallback icon for images
@@ -525,15 +564,15 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
               pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
               
               // Load image and convert to base64
-              const imageDataUrl = await loadImageAsDataUrl(attachment.url);
-              pdf.addImage(
-                imageDataUrl, 
-                'JPEG', 
-                attachmentX + 2, 
-                attachmentY + 2, 
-                attachmentWidth - 4, 
-                attachmentHeight - 4
-              );
+const { dataUrl, format } = await getAttachmentDataUrl(attachment);
+pdf.addImage(
+  dataUrl, 
+  format, 
+  attachmentX + 2, 
+  attachmentY + 2, 
+  attachmentWidth - 4, 
+  attachmentHeight - 4
+);
               
               // Add attachment number if multiple
               if (issue.attachments.length > 1) {
