@@ -659,9 +659,9 @@ pdf.addImage(
         pdf.setTextColor(0, 0, 0);
       }
       
-      // Issue details panel - positioned next to attachments with proper A4 margins
-      const detailsX = 150;
-      let detailsY = yPos;
+      // Issue details panel - positioned below attachments
+      const detailsX = 20;
+      let detailsY = attachmentY + attachmentAreaHeight + 20;
       
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'bold');
