@@ -38,7 +38,7 @@ export const useNavigationWithHistory = ({ onNavigate, currentPage }: Navigation
       'my-tasks': 'home',
       'milestones': 'project-detail',
       
-      // QA/QC flows
+      // QA/QC flows - preserve project ID when going back
       'qaqc-issue-detail': 'project-qaqc',
       
       // Settings flows
@@ -51,7 +51,19 @@ export const useNavigationWithHistory = ({ onNavigate, currentPage }: Navigation
 
     const parentPage = pageHierarchy[currentPage];
     if (parentPage) {
-      onNavigate(parentPage);
+      // For QA/QC pages, preserve the project ID
+      if (currentPage.startsWith('qaqc-') && parentPage === 'project-qaqc') {
+        // Extract projectId from current URL if present
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('projectId');
+        if (projectId) {
+          onNavigate(`${parentPage}&projectId=${projectId}`);
+        } else {
+          onNavigate(parentPage);
+        }
+      } else {
+        onNavigate(parentPage);
+      }
     } else {
       // Fallback to home or landing based on context
       if (currentPage === 'landing' || currentPage === 'auth') {
