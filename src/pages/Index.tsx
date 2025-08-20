@@ -150,7 +150,7 @@ const Index = () => {
         {currentPage === "sales" || currentPage === "landing" || currentPage === "auth" ? (
           // Sales CRM, Landing, and Auth take full screen - no main layout wrapper
           <div className="flex h-screen min-h-0">
-            <div className={`flex-1 bg-background transition-all duration-300`}>
+            <div className={`flex-1 bg-background transition-all duration-300 md:pr-[var(--ai-chat-offset,0px)]`}>
               <ContentRenderer 
                 currentPage={currentPage}
                 onNavigate={handleNavigate}
@@ -222,7 +222,7 @@ const Index = () => {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
             
             <div className="relative z-10 flex h-screen min-h-0">
-              <div className={`flex-1 bg-background transition-all duration-300`}>
+              <div className={`flex-1 bg-background transition-all duration-300 md:pr-[var(--ai-chat-offset,0px)]`}>
         <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
           <div className="w-full h-full">
             <ContentRenderer 
