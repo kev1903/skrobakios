@@ -140,7 +140,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
         activeSection="qaqc"
       />
 
-      <div className="flex-1 ml-48 p-6 overflow-auto">
+      <div className="flex-1 ml-48 p-6 pt-2 overflow-auto">
         <div className="w-full">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
