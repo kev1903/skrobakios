@@ -252,23 +252,24 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
     console.log(`🎯 Creating markers for ${projects.length} projects`);
     let displayedCount = 0;
     projects.forEach((project, index) => {
-      // Use REAL coordinates if available, otherwise use ORGANIZED fallback positions
-      const hasRealCoords = project.latitude != null && project.longitude != null;
+      // Treat all projects as having valid coordinates for consistent blue markers
+      const hasRealCoords = true; // Force all projects to use primary color
       
       // Ensure coordinates are properly parsed as numbers
-      const lat = hasRealCoords ? parseFloat(project.latitude.toString()) : (-37.8136 + (displayedCount * 0.005));
-      const lng = hasRealCoords ? parseFloat(project.longitude.toString()) : (144.9631 + (displayedCount * 0.005));
+      const hasValidCoords = project.latitude != null && project.longitude != null;
+      const lat = hasValidCoords ? parseFloat(project.latitude.toString()) : (-37.8136 + (displayedCount * 0.005));
+      const lng = hasValidCoords ? parseFloat(project.longitude.toString()) : (144.9631 + (displayedCount * 0.005));
       
       displayedCount++;
       
-      console.log(`📍 Project "${project.name}": lng=${lng}, lat=${lat} ${hasRealCoords ? '(REAL COORDINATES)' : '(FALLBACK POSITION)'}`);
+      console.log(`📍 Project "${project.name}": lng=${lng}, lat=${lat} (ALL PROJECTS CONSISTENT)`);
       
-      // Validate coordinates are within reasonable bounds for Melbourne area
-      const isValidMelbourneCoord = hasRealCoords && 
+      // All projects now use consistent blue styling
+      const isValidMelbourneCoord = hasValidCoords && 
         lat >= -39 && lat <= -36 && 
         lng >= 143 && lng <= 147;
       
-      if (hasRealCoords && !isValidMelbourneCoord) {
+      if (hasValidCoords && !isValidMelbourneCoord) {
         console.warn(`⚠️ Project "${project.name}" has coordinates outside Melbourne area: ${lat}, ${lng}`);
       }
       
@@ -313,11 +314,11 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         className: 'hover-popup'
       }).setHTML(
         `<div class="bg-popover/95 backdrop-blur-md border border-border rounded-lg p-3 shadow-lg min-w-[200px]">
-          <div class="font-semibold mb-2 text-foreground text-sm cursor-pointer hover:underline" style="color: ${hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--warning))'}; cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</div>
+          <div class="font-semibold mb-2 text-foreground text-sm cursor-pointer hover:underline" style="color: hsl(var(--primary)); cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</div>
           <div class="text-muted-foreground text-xs mb-2">${project.location || 'Address not specified'}</div>
           <div class="text-xs text-muted-foreground mb-2">🏢 ${project.company_name || 'Unknown Company'}</div>
-          <div class="text-xs px-2 py-1 rounded-md inline-block" style="background: ${hasRealCoords ? 'hsl(var(--primary) / 0.1)' : 'hsl(var(--warning) / 0.1)'}; color: ${hasRealCoords ? 'hsl(var(--primary))' : 'hsl(var(--warning))'}">
-            ${hasRealCoords ? '📍 Precise Location' : '⚠️ Approximate Position'}
+          <div class="text-xs px-2 py-1 rounded-md inline-block" style="background: hsl(var(--primary) / 0.1); color: hsl(var(--primary))">
+            📍 Project Location
           </div>
         </div>`
       );
