@@ -1,6 +1,43 @@
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
 
+// Helper function to load images and convert to data URL
+const loadImageAsDataUrl = (url: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // Handle CORS
+    
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'));
+          return;
+        }
+        
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        
+        ctx.drawImage(img, 0, 0);
+        
+        // Convert to data URL
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        resolve(dataUrl);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    
+    img.onerror = () => {
+      reject(new Error('Failed to load image'));
+    };
+    
+    img.src = url;
+  });
+};
+
 interface IssueReportData {
   id: string;
   title: string;
@@ -361,8 +398,10 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         const firstAttachment = issue.attachments[0];
         if (firstAttachment.type?.startsWith('image/')) {
           try {
+            // Load image and convert to base64
+            const imageDataUrl = await loadImageAsDataUrl(firstAttachment.url);
             pdf.addImage(
-              firstAttachment.url, 
+              imageDataUrl, 
               'JPEG', 
               previewX, 
               previewY, 
@@ -370,12 +409,13 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
               previewSize * 0.75
             );
           } catch (imageError) {
+            console.warn('Failed to load image for preview:', imageError);
             // Fallback icon for images
             pdf.setFillColor(230, 230, 230);
             pdf.rect(previewX, previewY, previewSize, previewSize * 0.75, 'F');
             pdf.setFontSize(7);
             pdf.setTextColor(120, 120, 120);
-            pdf.text('IMG', previewX + previewSize/2, previewY + 12, { align: 'center' });
+            pdf.text('No preview', previewX + previewSize/2, previewY + 12, { align: 'center' });
             pdf.setTextColor(0, 0, 0);
           }
         } else {
@@ -484,8 +524,10 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
               pdf.setLineWidth(1);
               pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
               
+              // Load image and convert to base64
+              const imageDataUrl = await loadImageAsDataUrl(attachment.url);
               pdf.addImage(
-                attachment.url, 
+                imageDataUrl, 
                 'JPEG', 
                 attachmentX + 2, 
                 attachmentY + 2, 
