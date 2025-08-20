@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut } from 'lucide-react';
+import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { NotificationBadge } from '@/components/ui/notification-badge';
 import { NotificationDropdown } from '@/components/ui/notification-dropdown';
@@ -21,6 +22,7 @@ import { useGlobalSidebar } from '@/contexts/GlobalSidebarContext';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { AiChatSidebar } from '@/components/AiChatSidebar';
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -50,6 +52,7 @@ export const MenuBar = () => {
   
   // Header icons state
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [showAiChat, setShowAiChat] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   // Handle clicking outside the dropdown to close it
@@ -385,6 +388,15 @@ export const MenuBar = () => {
                   <Inbox className="w-4 h-4" />
                 </button>
                 
+                {/* AI Chat Icon */}
+                <button 
+                  onClick={() => setShowAiChat(true)} 
+                  className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground"
+                  title="Open AI Assistant"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                </button>
+                
                 {/* User Profile */}
                 <div className="relative" ref={profileDropdownRef}>
                   <div 
@@ -645,6 +657,19 @@ export const MenuBar = () => {
           </div>
         )}
       </div>
+      
+      {/* AI Chat Modal */}
+      <Dialog open={showAiChat} onOpenChange={setShowAiChat}>
+        <DialogContent className="max-w-2xl h-[80vh] p-0 overflow-hidden">
+          <DialogTitle className="sr-only">AI Assistant</DialogTitle>
+          <AiChatSidebar 
+            isCollapsed={false} 
+            onToggleCollapse={() => {}}
+            onNavigate={() => {}}
+            fullScreen={true}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

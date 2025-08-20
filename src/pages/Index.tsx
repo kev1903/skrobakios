@@ -12,7 +12,6 @@ import { TaskProvider } from "@/components/tasks/TaskContext";
 import { MobileHeader } from "@/components/MobileHeader";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { AiChatSidebar } from "@/components/AiChatSidebar";
 import { GlobalSidebar } from "@/components/GlobalSidebar";
 import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
@@ -27,7 +26,6 @@ const Index = () => {
     // Initialize based on current route - if we're on root path, show landing page
     return window.location.pathname === "/" ? "landing" : "landing";
   });
-  const [isChatCollapsed, setIsChatCollapsed] = useState(true);
   const [mobileView, setMobileView] = useState<'chat' | 'app'>('app');
   const previousPageRef = useRef<string>("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
@@ -150,7 +148,7 @@ const Index = () => {
         {currentPage === "sales" || currentPage === "landing" || currentPage === "auth" ? (
           // Sales CRM, Landing, and Auth take full screen - no main layout wrapper
           <div className="flex h-screen min-h-0">
-            <div className={`flex-1 bg-background transition-all duration-300 md:pr-[var(--ai-chat-offset,0px)]`}>
+            <div className={`flex-1 bg-background transition-all duration-300`}>
               <ContentRenderer 
                 currentPage={currentPage}
                 onNavigate={handleNavigate}
@@ -159,14 +157,6 @@ const Index = () => {
                 currentProject={currentProject}
               />
             </div>
-            {/* AI Chat sidebar on all pages except landing/auth */}
-            {currentPage !== "landing" && currentPage !== "auth" && (
-              <AiChatSidebar 
-                isCollapsed={isChatCollapsed} 
-                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
-                onNavigate={handleNavigate}
-              />
-            )}
             {/* Global sidebar available on all pages */}
             <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
           </div>
@@ -179,14 +169,9 @@ const Index = () => {
             {/* Main content area pinned between header and bottom toggle */}
             <div className="absolute left-0 right-0 top-16 bottom-16 z-10">
               {mobileView === 'chat' ? (
-                // AI Chat view on mobile
-                <div className="w-full h-full">
-                  <AiChatSidebar 
-                    isCollapsed={false} 
-                    onToggleCollapse={() => {}}
-                    onNavigate={handleNavigate}
-                    fullScreen
-                  />
+                // AI Chat view on mobile - Show full screen chat modal in menu bar instead
+                <div className="w-full h-full flex items-center justify-center">
+                  <p className="text-muted-foreground">Click the AI chat icon in the menu bar to start chatting</p>
                 </div>
               ) : (
                 // App view on mobile
@@ -222,7 +207,7 @@ const Index = () => {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
             
             <div className="relative z-10 flex h-screen min-h-0">
-              <div className={`flex-1 bg-background transition-all duration-300 md:pr-[var(--ai-chat-offset,0px)]`}>
+              <div className={`flex-1 bg-background transition-all duration-300`}>
         <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
           <div className="w-full h-full">
             <ContentRenderer 
@@ -235,13 +220,6 @@ const Index = () => {
           </div>
         </PageLayout>
               </div>
-              
-              {/* AI Chat sidebar appears on all pages */}
-              <AiChatSidebar 
-                isCollapsed={isChatCollapsed} 
-                onToggleCollapse={() => setIsChatCollapsed(!isChatCollapsed)}
-                onNavigate={handleNavigate}
-              />
               
               {/* Global sidebar available on all pages */}
               <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
