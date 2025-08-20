@@ -147,7 +147,7 @@ const Index = () => {
       <TaskProvider>
         {currentPage === "sales" || currentPage === "landing" || currentPage === "auth" ? (
           // Sales CRM, Landing, and Auth take full screen - no main layout wrapper
-          <div className="flex h-screen min-h-0">
+          <div className="flex h-screen min-h-0 overflow-hidden">
             <div className={`flex-1 bg-background transition-all duration-300`}>
               <ContentRenderer 
                 currentPage={currentPage}
@@ -202,7 +202,7 @@ const Index = () => {
           </div>
         ) : (
           // Home and all other pages get layout with sidebar (desktop/tablet)
-          <div className="h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative">
+          <div className="h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative overflow-hidden">
             {/* Background Pattern */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
             
