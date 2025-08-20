@@ -11,10 +11,13 @@ interface IssueReportData {
 }
 
 interface IssueAttachment {
-  id: string;
-  file_name: string;
-  file_url: string;
-  file_type: string;
+  id: number;
+  name: string;
+  path: string;
+  size: number;
+  type: string;
+  uploaded_at: string;
+  url: string;
 }
 
 interface IssueData {
@@ -27,7 +30,7 @@ interface IssueData {
   created_by: string;
   created_at: string;
   auto_number?: number;
-  issue_attachments?: IssueAttachment[];
+  attachments?: IssueAttachment[];
 }
 
 interface CompanyData {
@@ -73,12 +76,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     // Fetch associated issues with attachments
     const { data: issues, error: issuesError } = await supabase
       .from('issues')
-      .select(`
-        *,
-        issue_attachments (
-          id, file_name, file_url, file_type
-        )
-      `)
+      .select('*')
       .eq('report_id', reportId)
       .order('created_at', { ascending: true });
 
@@ -359,12 +357,12 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       const previewX = columns[0].x + (columns[0].width - previewSize) / 2;
       const previewY = yPosition - 2;
       
-      if (issue.issue_attachments && issue.issue_attachments.length > 0) {
-        const firstAttachment = issue.issue_attachments[0];
-        if (firstAttachment.file_type?.startsWith('image/')) {
+      if (issue.attachments && issue.attachments.length > 0) {
+        const firstAttachment = issue.attachments[0];
+        if (firstAttachment.type?.startsWith('image/')) {
           try {
             pdf.addImage(
-              firstAttachment.file_url, 
+              firstAttachment.url, 
               'JPEG', 
               previewX, 
               previewY, 
@@ -469,17 +467,17 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       const attachmentAreaHeight = 120;
       let attachmentY = yPos;
       
-      if (issue.issue_attachments && issue.issue_attachments.length > 0) {
+      if (issue.attachments && issue.attachments.length > 0) {
         // Multiple attachments handling
-        const maxAttachmentsToShow = Math.min(3, issue.issue_attachments.length);
+        const maxAttachmentsToShow = Math.min(3, issue.attachments.length);
         const attachmentWidth = attachmentAreaWidth / maxAttachmentsToShow - 10;
         const attachmentHeight = 80;
         
         for (let i = 0; i < maxAttachmentsToShow; i++) {
-          const attachment = issue.issue_attachments[i];
+          const attachment = issue.attachments[i];
           const attachmentX = 20 + (i * (attachmentWidth + 10));
           
-          if (attachment.file_type?.startsWith('image/')) {
+          if (attachment.type?.startsWith('image/')) {
             try {
               // Add border for images
               pdf.setDrawColor(200, 200, 200);
@@ -487,7 +485,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
               pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
               
               pdf.addImage(
-                attachment.file_url, 
+                attachment.url, 
                 'JPEG', 
                 attachmentX + 2, 
                 attachmentY + 2, 
@@ -496,7 +494,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
               );
               
               // Add attachment number if multiple
-              if (issue.issue_attachments.length > 1) {
+              if (issue.attachments.length > 1) {
                 pdf.setFillColor(0, 0, 0);
                 pdf.setDrawColor(0, 0, 0);
                 const badgeX = attachmentX + attachmentWidth - 15;
@@ -536,7 +534,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
             // File name
             pdf.setFontSize(8);
             pdf.setTextColor(60, 60, 60);
-            const fileName = attachment.file_name || 'File';
+            const fileName = attachment.name || 'File';
             const truncatedName = fileName.length > 15 ? fileName.substring(0, 12) + '...' : fileName;
             pdf.text(truncatedName, attachmentX + attachmentWidth/2, attachmentY + attachmentHeight - 15, { align: 'center' });
             pdf.setTextColor(0, 0, 0);
@@ -544,10 +542,10 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         }
         
         // Show attachment count if more than 3
-        if (issue.issue_attachments.length > 3) {
+        if (issue.attachments.length > 3) {
           pdf.setFontSize(9);
           pdf.setTextColor(80, 80, 80);
-          pdf.text(`+${issue.issue_attachments.length - 3} more attachments`, 20, attachmentY + attachmentHeight + 15);
+          pdf.text(`+${issue.attachments.length - 3} more attachments`, 20, attachmentY + attachmentHeight + 15);
           pdf.setTextColor(0, 0, 0);
         }
       } else {
