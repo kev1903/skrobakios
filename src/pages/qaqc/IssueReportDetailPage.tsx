@@ -131,7 +131,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 pt-[var(--header-height,60px)]">
+    <div className="flex h-screen bg-gray-50">
       <ProjectSidebar
         project={project}
         onNavigate={onNavigate}
