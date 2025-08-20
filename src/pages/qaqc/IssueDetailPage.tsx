@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
+import { useNavigationWithHistory } from '@/hooks/useNavigationWithHistory';
 import { ArrowLeft, AlertTriangle, Calendar, User, FileText, ClipboardList, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -18,6 +19,10 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
   const projectId = searchParams.get('projectId');
   const issueId = searchParams.get('issueId');
   const { getProject } = useProjects();
+  const { navigateBack } = useNavigationWithHistory({ 
+    onNavigate, 
+    currentPage: 'qaqc-issue-detail' 
+  });
   const [project, setProject] = useState<Project | null>(null);
   const [report, setReport] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -116,7 +121,7 @@ export const IssueDetailPage = ({ onNavigate }: IssueDetailPageProps) => {
   }, [projectId, issueId, getProject]);
 
   const handleBack = () => {
-    onNavigate(`project-qaqc&projectId=${projectId}`);
+    navigateBack();
   };
 
   const getSeverityColor = (severity: string) => {
