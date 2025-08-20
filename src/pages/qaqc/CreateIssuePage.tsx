@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { ArrowLeft, Save, AlertTriangle } from 'lucide-react';
@@ -18,6 +18,7 @@ interface CreateIssuePageProps {
 
 export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const projectId = searchParams.get('projectId');
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
@@ -111,7 +112,7 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
       });
 
       // Navigate back to issues list
-      window.location.href = `/qaqc/issues?projectId=${projectId}`;
+      navigate(`/qaqc/issues?projectId=${projectId}`);
       
     } catch (error) {
       console.error('Error creating issue:', error);
@@ -126,7 +127,7 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
   };
 
   const handleBack = () => {
-    window.location.href = `/qaqc/issues?projectId=${projectId}`;
+    navigate(`/qaqc/issues?projectId=${projectId}`);
   };
 
   if (!project) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { QAQCTable } from '@/components/qaqc/QAQCTable';
@@ -13,6 +13,7 @@ interface IssuesPageProps {
 
 export const IssuesPage = ({ onNavigate }: IssuesPageProps) => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const projectId = searchParams.get('projectId');
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
@@ -72,7 +73,7 @@ export const IssuesPage = ({ onNavigate }: IssuesPageProps) => {
                 <h1 className="text-2xl font-bold text-foreground">Issues & Non-Conformance Reports</h1>
               </div>
             </div>
-            <Button onClick={() => window.location.href = `/qaqc/issues/create?projectId=${projectId}`}>
+            <Button onClick={() => navigate(`/qaqc/issues/create?projectId=${projectId}`)}>
               <Plus className="w-4 h-4 mr-2" />
               New Issue/NCR
             </Button>
