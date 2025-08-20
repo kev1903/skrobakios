@@ -242,6 +242,22 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate }: QAQCTableProps)
       
       case 'rfis':
         return (
+          <TableHeader>
+            <TableRow>
+              <TableHead>Number</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead>Priority</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Requested By</TableHead>
+              <TableHead>Due Date</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead className="w-12"></TableHead>
+            </TableRow>
+          </TableHeader>
+        );
+      
+      case 'rfis':
+        return (
           <TableRow key={item.id}>
             <TableCell className="font-medium">
               <button 
