@@ -612,7 +612,6 @@ export const UserManagementPanel: React.FC = () => {
                       <TableRow>
                         <TableHead>User</TableHead>
                         <TableHead>Email</TableHead>
-                        <TableHead>Company</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Created</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
@@ -648,7 +647,6 @@ export const UserManagementPanel: React.FC = () => {
                             </div>
                           </TableCell>
                           <TableCell>{user.email}</TableCell>
-                          <TableCell>{user.company || '-'}</TableCell>
                           <TableCell>
                             <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
                               {user.status}
