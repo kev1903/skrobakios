@@ -677,10 +677,6 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       const descriptionBoxWidth = 170; // Wide landscape format
       const descriptionBoxHeight = 40;
       
-      // Draw description box border
-      pdf.setDrawColor(200, 200, 200);
-      pdf.setLineWidth(0.5);
-      pdf.rect(descriptionBoxX, descriptionBoxY, descriptionBoxWidth, descriptionBoxHeight);
       
       // Description title
       pdf.setFontSize(11);
