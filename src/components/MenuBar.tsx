@@ -418,6 +418,13 @@ export const MenuBar = () => {
                         }
                       </AvatarFallback>
                     </Avatar>
+                    <span className="text-sm font-medium text-foreground max-w-24 truncate">
+                      {userProfile?.firstName && userProfile?.lastName 
+                        ? `${userProfile.firstName} ${userProfile.lastName}`.trim()
+                        : userProfile?.firstName || userProfile?.email?.split('@')[0] || 'User'
+                      }
+                    </span>
+                    <ChevronDown className="w-3 h-3 text-muted-foreground" />
                   </div>
                   
                   {/* Profile Dropdown */}
