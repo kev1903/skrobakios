@@ -116,7 +116,7 @@ const handleNavigateAndClose = (page: string) => {
     <>
       {/* Context Switcher - only show if in floating mode */}
       {isFloatingMode && (
-        <div className="px-3 pb-4 pt-20 border-b border-white/20">
+        <div className="px-3 pb-4 pt-20 border-b border-gray-200">
           <SidebarContextSwitcher onNavigate={onNavigate} isCollapsed={isCollapsed} />
         </div>
       )}
@@ -218,8 +218,8 @@ const handleNavigateAndClose = (page: string) => {
       </div>
 
       {/* Support Section */}
-      {filteredSupportNavigation.length > 0 && (
-        <div className={`border-t border-white/20 space-y-1 ${isFloatingMode ? 'px-3 py-4' : 'p-4'}`}>
+        {filteredSupportNavigation.length > 0 && (
+          <div className={`border-t border-gray-200 space-y-1 ${isFloatingMode ? 'px-3 py-4' : 'p-4'}`}>
           <div className="text-xs font-medium text-gray-600 uppercase tracking-wider px-3 py-2">
             {!isCollapsed && "Support"}
           </div>
@@ -250,7 +250,7 @@ const handleNavigateAndClose = (page: string) => {
   if (isFloatingMode) {
     // Floating mode - fixed positioning
     return (
-      <div className="fixed left-0 top-0 w-48 h-full bg-white/95 border-r border-white/20 shadow-lg z-40 transition-all duration-300">
+      <div className="fixed left-0 top-0 w-48 h-full bg-white border-r border-gray-200 shadow-lg z-40 transition-all duration-300">
         <div className="flex flex-col h-full">
           {sidebarContent}
         </div>
@@ -259,7 +259,7 @@ const handleNavigateAndClose = (page: string) => {
   } else {
     // Embedded mode - use SidebarContent wrapper
     return (
-      <div className={`h-full transition-all duration-300 ${open ? 'bg-white/95' : 'bg-transparent'}`}>
+      <div className={`h-full transition-all duration-300 ${open ? 'bg-white' : 'bg-transparent'}`}>
         <div className="flex flex-col h-full">
           {sidebarContent}
         </div>
