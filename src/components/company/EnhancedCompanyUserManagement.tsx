@@ -32,6 +32,7 @@ import { Label } from '@/components/ui/label';
 import { Search, RefreshCw, MoreHorizontal, Building2, Trash2, Crown, Shield, User, UserPlus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import { toast } from '@/hooks/use-toast';
 
 interface CompanyMember {
@@ -66,6 +67,7 @@ export const EnhancedCompanyUserManagement = ({
   companyName 
 }: EnhancedCompanyUserManagementProps) => {
   const { user } = useAuth();
+  const { isSuperAdmin } = useUserRole();
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -327,8 +329,8 @@ export const EnhancedCompanyUserManagement = ({
     }
   };
 
-  const canManageMembers = currentUserRole === 'owner' || currentUserRole === 'admin';
-  const canChangeRoles = currentUserRole === 'owner';
+  const canManageMembers = isSuperAdmin() || currentUserRole === 'owner' || currentUserRole === 'admin';
+  const canChangeRoles = isSuperAdmin() || currentUserRole === 'owner';
 
   const filteredMembers = members.filter(member => {
     const searchLower = searchTerm.toLowerCase();
