@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, User, Shield, Settings, Save, Mail, Building2, Calendar, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, User, Shield, Settings, Save, Mail, Building2, Calendar, CheckCircle2, XCircle, AlertCircle, Eye } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
+import { PermissionDemo } from "@/components/PermissionDemo";
 
 interface UserDetails {
   id: string;
@@ -440,6 +441,25 @@ export const UserDetailsPage: React.FC = () => {
                 </div>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Live Permission Demo */}
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Eye className="h-4 w-4" />
+              Live Permission Preview
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              This shows exactly what {user.first_name || 'this user'} can access with their current permissions
+            </p>
+          </CardHeader>
+          <CardContent>
+            <PermissionDemo 
+              companyId={selectedCompanyId || user.company_id} 
+              userName={user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : 'this user'}
+            />
           </CardContent>
         </Card>
       </div>
