@@ -4,10 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, User, ChevronDown, ChevronRight } from 'lucide-react';
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { ArrowLeft, User, Shield, Settings, Save, Mail, Building2, Calendar, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { defaultPermissions } from "@/constants/permissions";
+import { Permission } from '@/types/permission';
 
 interface UserDetails {
   id: string;
@@ -21,62 +24,22 @@ interface UserDetails {
   created_at: string;
 }
 
-interface Permission {
-  module: string;
-  view: boolean;
-  create: boolean;
-  edit: boolean;
-  delete: boolean;
-  admin: boolean;
-  children?: Permission[];
-  isExpanded?: boolean;
+interface UserPermission {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  granted: boolean;
 }
-
-const defaultPermissions: Permission[] = [
-  { module: 'Business Map', view: false, create: false, edit: false, delete: false, admin: false },
-  { 
-    module: 'Projects', 
-    view: false, 
-    create: false, 
-    edit: false, 
-    delete: false, 
-    admin: false,
-    isExpanded: false,
-    children: [
-      { module: 'Project Creation', view: false, create: false, edit: false, delete: false, admin: false },
-      { module: 'Project Management', view: false, create: false, edit: false, delete: false, admin: false },
-      { module: 'Project Documents', view: false, create: false, edit: false, delete: false, admin: false },
-      { module: 'Project Costs', view: false, create: false, edit: false, delete: false, admin: false },
-      { module: 'Project Timeline', view: false, create: false, edit: false, delete: false, admin: false },
-    ]
-  },
-  { 
-    module: 'Sales', 
-    view: false, 
-    create: false, 
-    edit: false, 
-    delete: false, 
-    admin: false,
-    isExpanded: false,
-    children: [
-      { module: 'Lead Management', view: false, create: false, edit: false, delete: false, admin: false },
-      { module: 'Estimates', view: false, create: false, edit: false, delete: false, admin: false },
-      { module: 'Proposals', view: false, create: false, edit: false, delete: false, admin: false },
-      { module: 'Client Communications', view: false, create: false, edit: false, delete: false, admin: false },
-      { module: 'Sales Analytics', view: false, create: false, edit: false, delete: false, admin: false },
-    ]
-  },
-  { module: 'Finance', view: false, create: false, edit: false, delete: false, admin: false },
-  { module: 'Settings', view: false, create: false, edit: false, delete: false, admin: false },
-];
 
 export const UserDetailsPage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<UserDetails | null>(null);
-  const [permissions, setPermissions] = useState<Permission[]>(defaultPermissions);
+  const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -106,7 +69,7 @@ export const UserDetailsPage: React.FC = () => {
           created_at: foundUser.created_at
         });
         
-        // Load permissions based on user role
+        // Convert permissions to the new format and load based on role
         loadPermissionsForRole(foundUser.app_role);
       }
     } catch (error: any) {
@@ -122,95 +85,61 @@ export const UserDetailsPage: React.FC = () => {
   };
 
   const loadPermissionsForRole = (role: string) => {
-    // Set default permissions based on role
-    const rolePermissions = defaultPermissions.map(permission => {
-      const setPermissionsByRole = (perm: Permission): Permission => {
-        let updatedPerm: Permission;
-        
-        switch (role) {
-          case 'superadmin':
-            updatedPerm = { ...perm, view: true, create: true, edit: true, delete: true, admin: true };
-            break;
-          case 'business_admin':
-            updatedPerm = { ...perm, view: true, create: true, edit: true, delete: false, admin: false };
-            break;
-          case 'project_admin':
-            updatedPerm = { 
-              ...perm, 
-              view: true, 
-              create: perm.module === 'Projects' || (perm.module.includes('Project')),
-              edit: perm.module === 'Projects' || (perm.module.includes('Project')),
-              delete: false, 
-              admin: false 
-            };
-            break;
-          case 'user':
-            updatedPerm = { 
-              ...perm, 
-              view: perm.module === 'Projects' || (perm.module.includes('Project')),
-              create: false,
-              edit: false,
-              delete: false, 
-              admin: false 
-            };
-            break;
-          default:
-            updatedPerm = perm;
-        }
+    const permissions: UserPermission[] = defaultPermissions.map(permission => {
+      let granted = false;
+      
+      // Set default permissions based on role
+      switch (role) {
+        case 'superadmin':
+          granted = true;
+          break;
+        case 'business_admin':
+          granted = permission.category === 'Company Permissions' || 
+                   ['view_platform_analytics', 'view_all_companies', 'view_all_projects'].includes(permission.id);
+          break;
+        case 'project_admin':
+          granted = ['projects', 'tasks', 'files', 'dashboard'].includes(permission.id);
+          break;
+        case 'user':
+          granted = ['projects', 'dashboard'].includes(permission.id);
+          break;
+        default:
+          granted = false;
+      }
 
-        // Apply same permissions to children if they exist
-        if (perm.children) {
-          updatedPerm.children = perm.children.map(child => setPermissionsByRole(child));
-        }
-
-        return updatedPerm;
+      return {
+        id: permission.id,
+        name: permission.name,
+        description: permission.description,
+        category: permission.category,
+        granted
       };
-
-      return setPermissionsByRole(permission);
     });
-    setPermissions(rolePermissions);
+
+    setUserPermissions(permissions);
   };
 
-  const togglePermission = (moduleIndex: number, permissionType: keyof Omit<Permission, 'module' | 'children' | 'isExpanded'>, childIndex?: number) => {
-    setPermissions(prev => 
-      prev.map((perm, index) => {
-        if (index === moduleIndex) {
-          if (childIndex !== undefined && perm.children) {
-            // Toggle child permission
-            const updatedChildren = perm.children.map((child, cIndex) => 
-              cIndex === childIndex 
-                ? { ...child, [permissionType]: !child[permissionType] }
-                : child
-            );
-            return { ...perm, children: updatedChildren };
-          } else {
-            // Toggle parent permission
-            return { ...perm, [permissionType]: !perm[permissionType] };
-          }
-        }
-        return perm;
-      })
-    );
-  };
-
-  const toggleExpansion = (moduleIndex: number) => {
-    setPermissions(prev => 
-      prev.map((perm, index) => 
-        index === moduleIndex 
-          ? { ...perm, isExpanded: !perm.isExpanded }
+  const togglePermission = (permissionId: string) => {
+    setUserPermissions(prev => 
+      prev.map(perm => 
+        perm.id === permissionId 
+          ? { ...perm, granted: !perm.granted }
           : perm
       )
     );
+    setHasUnsavedChanges(true);
   };
 
   const savePermissions = async () => {
     try {
       // Here you would save permissions to your database
-      // For now, just show a success message
+      console.log('Saving permissions:', userPermissions);
+      
       toast({
         title: "Success",
         description: "User permissions updated successfully"
       });
+      setHasUnsavedChanges(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -220,12 +149,36 @@ export const UserDetailsPage: React.FC = () => {
     }
   };
 
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case 'superadmin': return 'destructive';
+      case 'business_admin': return 'default';
+      case 'project_admin': return 'secondary';
+      case 'user': return 'outline';
+      default: return 'outline';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    return status === 'active' 
+      ? <CheckCircle2 className="h-4 w-4 text-green-500" />
+      : <XCircle className="h-4 w-4 text-red-500" />;
+  };
+
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/4 mb-6"></div>
-          <div className="h-64 bg-muted rounded"></div>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="container mx-auto p-6">
+          <div className="animate-pulse space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="h-10 bg-muted rounded w-20"></div>
+              <div className="h-8 bg-muted rounded w-48"></div>
+            </div>
+            <div className="grid gap-6">
+              <div className="h-48 bg-muted rounded-lg"></div>
+              <div className="h-96 bg-muted rounded-lg"></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -233,221 +186,192 @@ export const UserDetailsPage: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold mb-4">User not found</h1>
-          <Button onClick={() => navigate(-1)}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Go Back
-          </Button>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+            <h1 className="text-2xl font-semibold mb-2">User not found</h1>
+            <p className="text-muted-foreground mb-6">The requested user could not be found or you don't have permission to view them.</p>
+            <Button onClick={() => navigate(-1)} className="w-full">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Go Back
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
+  const groupedPermissions = userPermissions.reduce((acc, permission) => {
+    if (!acc[permission.category]) {
+      acc[permission.category] = [];
+    }
+    acc[permission.category].push(permission);
+    return acc;
+  }, {} as Record<string, UserPermission[]>);
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 space-y-6 max-w-6xl">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate(-1)}
-            className="shrink-0"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-          <h1 className="text-3xl font-semibold text-foreground">User Details</h1>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="container mx-auto p-6 space-y-8 max-w-6xl">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate(-1)}
+              className="shrink-0 hover:bg-muted"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
+              <p className="text-muted-foreground">Configure user permissions and access levels</p>
+            </div>
+          </div>
+          {hasUnsavedChanges && (
+            <Button onClick={savePermissions} className="gap-2">
+              <Save className="h-4 w-4" />
+              Save Changes
+            </Button>
+          )}
         </div>
 
         {/* User Profile Card */}
-        <Card className="bg-card border-border">
-          <CardHeader>
-            <CardTitle className="text-card-foreground">Profile Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-6">
-              <Avatar className="h-20 w-20">
+        <Card className="overflow-hidden">
+          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6">
+            <CardTitle className="flex items-center gap-2 mb-4">
+              <Shield className="h-5 w-5" />
+              Profile Information
+            </CardTitle>
+            <div className="flex items-start gap-6">
+              <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
                 <AvatarImage src={user.avatar_url} alt={`${user.first_name} ${user.last_name}`} />
-                <AvatarFallback className="bg-muted text-muted-foreground">
-                  <User className="h-10 w-10" />
+                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-lg">
+                  <User className="h-12 w-12" />
                 </AvatarFallback>
               </Avatar>
-              <div className="space-y-2">
-                <h2 className="text-2xl font-semibold text-card-foreground">
-                  {user.first_name && user.last_name 
-                    ? `${user.first_name} ${user.last_name}`
-                    : 'No name'
-                  }
-                </h2>
-                <p className="text-muted-foreground">{user.email}</p>
-                <div className="flex items-center gap-4">
-                  <Badge variant="outline" className="text-xs">{user.role}</Badge>
-                  <Badge variant={user.status === 'active' ? 'default' : 'secondary'} className="text-xs">
-                    {user.status}
-                  </Badge>
+              <div className="flex-1 min-w-0 space-y-4">
+                <div>
+                  <h2 className="text-2xl font-semibold text-foreground mb-1">
+                    {user.first_name && user.last_name 
+                      ? `${user.first_name} ${user.last_name}`
+                      : 'No name provided'
+                    }
+                  </h2>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                    <span>{user.email}</span>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="flex items-center gap-2">
+                    <Badge variant={getRoleBadgeVariant(user.role)} className="gap-1">
+                      <Shield className="h-3 w-3" />
+                      {user.role}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">Role</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {getStatusIcon(user.status)}
+                      <span className="text-sm font-medium capitalize">{user.status}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">Status</span>
+                  </div>
+                  
                   {user.company && (
-                    <span className="text-sm text-muted-foreground">{user.company}</span>
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">{user.company}</span>
+                    </div>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Member since {new Date(user.created_at).toLocaleDateString()}
-                </p>
+
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>Member since {new Date(user.created_at).toLocaleDateString()}</span>
+                </div>
               </div>
             </div>
-          </CardContent>
+          </div>
         </Card>
 
         {/* Permissions Matrix */}
-        <Card className="bg-card border-border">
+        <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-card-foreground">Permissions Matrix</CardTitle>
-                <p className="text-muted-foreground mt-2">
-                  Manage user permissions for different modules
+              <div className="space-y-1">
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Permissions Matrix
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Manage user permissions for different modules and features
                 </p>
               </div>
-              <Button onClick={savePermissions} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                Save Changes
-              </Button>
+              {!hasUnsavedChanges && (
+                <Button variant="outline" onClick={savePermissions} className="gap-2">
+                  <Save className="h-4 w-4" />
+                  Save Changes
+                </Button>
+              )}
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left p-4 font-medium text-card-foreground">Module</th>
-                    <th className="text-center p-4 font-medium text-card-foreground">View</th>
-                    <th className="text-center p-4 font-medium text-card-foreground">Create</th>
-                    <th className="text-center p-4 font-medium text-card-foreground">Edit</th>
-                    <th className="text-center p-4 font-medium text-card-foreground">Delete</th>
-                    <th className="text-center p-4 font-medium text-card-foreground">Admin</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {permissions.map((permission, index) => (
-                    <React.Fragment key={permission.module}>
-                      <tr className="border-b border-border hover:bg-muted/50 transition-colors">
-                        <td className="p-4 font-medium text-card-foreground">
-                          <div className="flex items-center gap-2">
-                            {permission.children && (
-                              <button
-                                onClick={() => toggleExpansion(index)}
-                                className="p-1 hover:bg-muted rounded transition-colors"
-                              >
-                                {permission.isExpanded ? (
-                                  <ChevronDown className="h-4 w-4" />
-                                ) : (
-                                  <ChevronRight className="h-4 w-4" />
-                                )}
-                              </button>
-                            )}
-                            <span className={permission.children ? 'font-semibold' : ''}>
-                              {permission.module}
-                            </span>
-                            {permission.children && (
-                              <span className="w-2 h-2 bg-primary rounded-full ml-2" />
+          <CardContent className="space-y-6">
+            {Object.entries(groupedPermissions).map(([category, permissions]) => (
+              <div key={category} className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold text-lg text-foreground">{category}</h3>
+                  <div className="h-px flex-1 bg-border"></div>
+                </div>
+                
+                <div className="grid gap-3">
+                  {permissions.map((permission) => (
+                    <div 
+                      key={permission.id}
+                      className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${
+                            permission.granted 
+                              ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
+                              : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                          }`}>
+                            {permission.granted ? (
+                              <CheckCircle2 className="h-4 w-4" />
+                            ) : (
+                              <XCircle className="h-4 w-4" />
                             )}
                           </div>
-                        </td>
-                        <td className="p-4 text-center">
-                          <Checkbox
-                            checked={permission.view}
-                            onCheckedChange={() => togglePermission(index, 'view')}
-                            className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                        </td>
-                        <td className="p-4 text-center">
-                          <Checkbox
-                            checked={permission.create}
-                            onCheckedChange={() => togglePermission(index, 'create')}
-                            className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                        </td>
-                        <td className="p-4 text-center">
-                          <Checkbox
-                            checked={permission.edit}
-                            onCheckedChange={() => togglePermission(index, 'edit')}
-                            className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                        </td>
-                        <td className="p-4 text-center">
-                          <Checkbox
-                            checked={permission.delete}
-                            onCheckedChange={() => togglePermission(index, 'delete')}
-                            className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                        </td>
-                        <td className="p-4 text-center">
-                          <Checkbox
-                            checked={permission.admin}
-                            onCheckedChange={() => togglePermission(index, 'admin')}
-                            className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                          />
-                        </td>
-                      </tr>
-                      
-                      {/* Child permissions */}
-                      {permission.isExpanded && permission.children && permission.children.map((child, childIndex) => (
-                        <tr key={`${permission.module}-${child.module}`} className="border-b border-border bg-muted/20 hover:bg-muted/40 transition-colors">
-                          <td className="p-4 font-medium text-card-foreground pl-12">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">└</span>
-                              <span className="text-sm">{child.module}</span>
-                            </div>
-                          </td>
-                          <td className="p-4 text-center">
-                            <Checkbox
-                              checked={child.view}
-                              onCheckedChange={() => togglePermission(index, 'view', childIndex)}
-                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                            />
-                          </td>
-                          <td className="p-4 text-center">
-                            <Checkbox
-                              checked={child.create}
-                              onCheckedChange={() => togglePermission(index, 'create', childIndex)}
-                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                            />
-                          </td>
-                          <td className="p-4 text-center">
-                            <Checkbox
-                              checked={child.edit}
-                              onCheckedChange={() => togglePermission(index, 'edit', childIndex)}
-                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                            />
-                          </td>
-                          <td className="p-4 text-center">
-                            <Checkbox
-                              checked={child.delete}
-                              onCheckedChange={() => togglePermission(index, 'delete', childIndex)}
-                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                            />
-                          </td>
-                          <td className="p-4 text-center">
-                            <Checkbox
-                              checked={child.admin}
-                              onCheckedChange={() => togglePermission(index, 'admin', childIndex)}
-                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </React.Fragment>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-foreground">{permission.name}</p>
+                            <p className="text-sm text-muted-foreground">{permission.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <Switch
+                        checked={permission.granted}
+                        onCheckedChange={() => togglePermission(permission.id)}
+                        className="ml-4"
+                      />
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="mt-4 p-4 bg-muted/30 rounded-lg border border-border">
-              <p className="text-sm text-muted-foreground flex items-center gap-2">
-                <span className="inline-flex items-center justify-center w-4 h-4 text-xs bg-primary text-primary-foreground rounded">✓</span>
-                Permission enabled
-                <span className="ml-4 inline-flex items-center justify-center w-4 h-4 text-xs border border-border rounded">✗</span>
-                Permission disabled
-              </p>
-            </div>
+                </div>
+              </div>
+            ))}
+            
+            {hasUnsavedChanges && (
+              <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="text-sm font-medium">You have unsaved changes</span>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
