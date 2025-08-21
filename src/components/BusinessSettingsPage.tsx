@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, User, CreditCard, Shield, Settings, Users, Bell, FileText, Plug, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
+import { ArrowLeft, User, CreditCard, Settings, Users, Bell, FileText, Plug, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { PermissionManager } from '@/components/permissions/PermissionManager';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -165,11 +164,9 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
   const navigationItems = [
     { id: 'my-info', label: 'My info', icon: User },
     { id: 'billing-payments', label: 'Billing & Payments', icon: CreditCard },
-    { id: 'password-security', label: 'Password & Security', icon: Shield },
     { id: 'membership-settings', label: 'Membership Settings', icon: Settings },
     { id: 'teams', label: 'Teams', icon: Users },
     { id: 'notification-settings', label: 'Notification Settings', icon: Bell },
-    { id: 'members-permissions', label: 'Members & Permissions', icon: Users },
     { id: 'tax-information', label: 'Tax Information', icon: FileText },
     { id: 'connected-services', label: 'Connected Services', icon: Plug },
   ];
@@ -216,19 +213,6 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
           </Card>
         );
 
-      case 'password-security':
-        return (
-          <Card className="backdrop-blur-sm bg-white/60 border-white/30">
-            <CardHeader>
-              <CardTitle>Password & Security</CardTitle>
-              <CardDescription>Manage your password and security settings</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">Password and security settings will be displayed here.</p>
-            </CardContent>
-          </Card>
-        );
-
       case 'membership-settings':
         return (
           <Card className="backdrop-blur-sm bg-white/60 border-white/30">
@@ -241,9 +225,6 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
             </CardContent>
           </Card>
         );
-
-      case 'members-permissions':
-        return <PermissionManager onNavigate={onNavigate} currentPage="members-permissions" />;
 
       case 'connected-services':
         return (
