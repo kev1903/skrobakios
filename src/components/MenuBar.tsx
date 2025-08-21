@@ -23,9 +23,6 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AiChatSidebar } from '@/components/AiChatSidebar';
-import { BusinessSwitcher } from '@/components/rbac/BusinessSwitcher';
-import { BusinessCreationModal } from '@/components/BusinessCreationModal';
-import { useActiveBusiness } from '@/hooks/useActiveBusiness';
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -38,7 +35,6 @@ export const MenuBar = () => {
   const { currentCompany } = useCompany();
   const { activeContext, setActiveContext } = useAppContext();
   const { toggleSidebar } = useGlobalSidebar();
-  const { activeBusinessId } = useActiveBusiness();
   const barRef = useRef<HTMLDivElement>(null);
   
   const [currentDuration, setCurrentDuration] = useState(0);
@@ -57,7 +53,6 @@ export const MenuBar = () => {
   // Header icons state
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showAiChat, setShowAiChat] = useState(false);
-  const [showBusinessCreation, setShowBusinessCreation] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   // Handle clicking outside the dropdown to close it
@@ -296,20 +291,6 @@ export const MenuBar = () => {
             >
               <Menu className="w-4 h-4" />
             </button>
-            
-            {/* Business Switcher */}
-            {activeBusinessId ? (
-              <BusinessSwitcher onCreateBusiness={() => setShowBusinessCreation(true)} />
-            ) : (
-              <Button 
-                onClick={() => setShowBusinessCreation(true)}
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <span className="text-xs">Create Business</span>
-              </Button>
-            )}
             
             {/* Company Logo */}
             <div className="flex items-center space-x-2">
@@ -689,15 +670,6 @@ export const MenuBar = () => {
           />
         </DialogContent>
       </Dialog>
-      
-      {/* Business Creation Modal */}
-      <BusinessCreationModal 
-        open={showBusinessCreation}
-        onClose={() => setShowBusinessCreation(false)}
-        onSuccess={(businessId) => {
-          console.log('Business created:', businessId);
-        }}
-      />
     </>
   );
 };

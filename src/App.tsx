@@ -44,7 +44,6 @@ import { PublicDirectory } from "./components/public/PublicDirectory";
 import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
 import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
-import { AcceptInvitePage } from "./pages/AcceptInvitePage";
 import { MenuBar } from "./components/MenuBar";
 import PDFExtractionDocs from "./pages/PDFExtractionDocs";
 
@@ -57,7 +56,6 @@ import { TakeOffPage } from "./components/sales/pages/TakeOffPage";
 import { CostDatabasePage } from "./components/sales/pages/CostDatabasePage";
 import { EstimationProcessPage } from "./components/sales/pages/EstimationProcessPage";
 import { OutputIntegrationPage } from "./components/sales/pages/OutputIntegrationPage";
-import { BusinessBootstrapProvider } from "./components/auth/BusinessBootstrapProvider";
 import { EstimateProvider } from "./components/sales/context/EstimateContext";
 
 // Wrapper component for InvoicesPage with proper navigation
@@ -324,7 +322,6 @@ const AppContent = () => {
         <UserProvider>
           <CompanyProvider>
             <TimeTrackingProvider>
-              <BusinessBootstrapProvider>
             <>
               {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
                 <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
@@ -376,7 +373,6 @@ const AppContent = () => {
         <Route path="/reviews" element={<ReviewsPageWrapper />} />
         <Route path="/invite/:token" element={<InvitePage />} />
         <Route path="/invitation-signup" element={<InvitationSignupPage />} />
-        <Route path="/accept-invite" element={<AcceptInvitePage />} />
         
         {/* Subscription Management */}
         <Route path="/subscription" element={<SubscriptionPageWrapper />} />
@@ -413,7 +409,6 @@ const AppContent = () => {
         <GlobalSidebar currentPage={currentPageForSidebar} onNavigate={handleSidebarNavigate} />
       )}
             </>
-              </BusinessBootstrapProvider>
           </TimeTrackingProvider>
         </CompanyProvider>
       </UserProvider>
