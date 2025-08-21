@@ -270,14 +270,14 @@ export const PlatformUserManagement = ({
                                       {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <div>
-                                    <div className="font-medium">
-                                      {user.first_name} {user.last_name}
-                                    </div>
-                                    {user.phone && <div className="text-sm text-muted-foreground">
-                                        {user.phone}
-                                      </div>}
-                                  </div>
+                                   <div className="min-w-0 flex-1">
+                                     <div className="font-medium text-sm truncate">
+                                       {user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.email?.split('@')[0] || 'Unknown User'}
+                                     </div>
+                                     {user.phone && <div className="text-xs text-muted-foreground truncate">
+                                         {user.phone}
+                                       </div>}
+                                   </div>
                                 </div>
                               </TableCell>
                               <TableCell>{user.email}</TableCell>
