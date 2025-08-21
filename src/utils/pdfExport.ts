@@ -546,14 +546,14 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       
       // Enhanced attachment display with full margin width - adjusted for A4
       const attachmentAreaWidth = pageWidth - 40; // Full width minus margins (20 each side)
-      const attachmentAreaHeight = 90;
+      const attachmentAreaHeight = 120;
       let attachmentY = yPos;
       
       if (issue.attachments && issue.attachments.length > 0) {
         // Multiple attachments handling - limit to 2 for better fit
         const maxAttachmentsToShow = Math.min(2, issue.attachments.length);
         const attachmentWidth = attachmentAreaWidth / maxAttachmentsToShow - 5;
-        const attachmentHeight = 65;
+        const attachmentHeight = 85;
         
         for (let i = 0; i < maxAttachmentsToShow; i++) {
           const attachment = issue.attachments[i];
