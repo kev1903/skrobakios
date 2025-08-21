@@ -78,7 +78,7 @@ export const EnhancedCompanyUserManagement = ({
   const [availableUsers, setAvailableUsers] = useState<AvailableUser[]>([]);
   const [availableUsersLoading, setAvailableUsersLoading] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'admin' | 'manager' | 'worker' | 'supplier'>('worker');
+  const [selectedRole, setSelectedRole] = useState<'admin' | 'manager' | 'supplier'>('manager');
 
   const fetchMembers = async () => {
     if (!companyId) return;
@@ -303,7 +303,7 @@ export const EnhancedCompanyUserManagement = ({
 
       setAddUserDialogOpen(false);
       setUserSearchTerm('');
-      setSelectedRole('worker');
+      setSelectedRole('manager');
       fetchMembers();
     } catch (error) {
       console.error('Error adding user to company:', error);
@@ -448,7 +448,6 @@ export const EnhancedCompanyUserManagement = ({
                           <SelectContent>
                             <SelectItem value="admin">Admin</SelectItem>
                             <SelectItem value="manager">Manager</SelectItem>
-                            <SelectItem value="worker">Worker</SelectItem>
                             <SelectItem value="supplier">Supplier</SelectItem>
                           </SelectContent>
                         </Select>
@@ -595,7 +594,6 @@ export const EnhancedCompanyUserManagement = ({
                             <SelectContent>
                               <SelectItem value="admin">Admin</SelectItem>
                               <SelectItem value="manager">Manager</SelectItem>
-                              <SelectItem value="worker">Worker</SelectItem>
                               <SelectItem value="supplier">Supplier</SelectItem>
                             </SelectContent>
                           </Select>
