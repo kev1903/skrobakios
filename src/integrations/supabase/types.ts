@@ -4280,30 +4280,36 @@ export type Database = {
           created_at: string
           expires_at: string
           id: string
+          last_used_at: string | null
           token: string
           token_type: string
           updated_at: string
           used_at: string | null
+          used_count: number | null
           user_id: string
         }
         Insert: {
           created_at?: string
           expires_at: string
           id?: string
+          last_used_at?: string | null
           token: string
           token_type: string
           updated_at?: string
           used_at?: string | null
+          used_count?: number | null
           user_id: string
         }
         Update: {
           created_at?: string
           expires_at?: string
           id?: string
+          last_used_at?: string | null
           token?: string
           token_type?: string
           updated_at?: string
           used_at?: string | null
+          used_count?: number | null
           user_id?: string
         }
         Relationships: [
@@ -5200,7 +5206,12 @@ export type Database = {
       }
       use_access_token: {
         Args: { token_value: string }
-        Returns: Json
+        Returns: {
+          error: string
+          success: boolean
+          token_type: string
+          user_id: string
+        }[]
       }
       user_can_access_project_direct: {
         Args: { project_id_param: string; user_id_param: string }
