@@ -468,8 +468,6 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
           // File icon placeholder
           pdf.setFillColor(240, 240, 240);
           pdf.rect(previewX, previewY, previewSize, previewSize * 0.75, 'F');
-          pdf.setDrawColor(200, 200, 200);
-          pdf.rect(previewX, previewY, previewSize, previewSize * 0.75);
           pdf.setFontSize(7);
           pdf.setTextColor(100, 100, 100);
           pdf.text('FILE', previewX + previewSize/2, previewY + 12, { align: 'center' });
@@ -477,8 +475,6 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
         }
       } else {
         // No attachment placeholder
-        pdf.setDrawColor(220, 220, 220);
-        pdf.rect(previewX, previewY, previewSize, previewSize * 0.75);
         pdf.setFontSize(6);
         pdf.setTextColor(180, 180, 180);
         pdf.text('No preview', previewX + previewSize/2, previewY + 12, { align: 'center' });
@@ -565,10 +561,6 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
           
           if (attachment.type?.startsWith('image/')) {
             try {
-              // Add border for images
-              pdf.setDrawColor(200, 200, 200);
-              pdf.setLineWidth(1);
-              pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
               
 // Load image and convert to base64
 const { dataUrl, format } = await getAttachmentDataUrl(attachment);
