@@ -91,6 +91,64 @@ export const useProfile = () => {
             .update({ company: currentCompanyName })
             .eq('user_id', user.id);
         }
+      } else {
+        // No profile found - create a minimal default profile for this user
+        const { data: activeCompany } = await supabase
+          .from('company_members')
+          .select(`
+            companies (
+              name
+            )
+          `)
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .maybeSingle();
+
+        const defaultCompanyName = activeCompany?.companies?.name 
+          || (user.user_metadata as any)?.company 
+          || '';
+
+        const defaultProfileInsert = {
+          user_id: user.id,
+          first_name: (user.user_metadata as any)?.first_name || '',
+          last_name: (user.user_metadata as any)?.last_name || '',
+          email: user.email || '',
+          phone: '',
+          job_title: '',
+          company: defaultCompanyName,
+          location: '',
+          bio: '',
+          avatar_url: (user.user_metadata as any)?.avatar_url || '',
+          birth_date: null as any,
+          website: '',
+          company_slogan: ''
+        };
+
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert(defaultProfileInsert);
+
+        if (insertError) {
+          console.error('Error creating default profile:', insertError);
+        }
+
+        setProfile({
+          first_name: defaultProfileInsert.first_name,
+          last_name: defaultProfileInsert.last_name,
+          email: defaultProfileInsert.email,
+          phone: '',
+          job_title: '',
+          company: defaultCompanyName,
+          location: '',
+          bio: '',
+          avatar_url: defaultProfileInsert.avatar_url || '',
+          birth_date: '',
+          website: '',
+          company_slogan: '',
+          qualifications: [],
+          licenses: [],
+          awards: [],
+        });
       }
     } catch (error) {
       console.error('Error in fetchProfile:', error);

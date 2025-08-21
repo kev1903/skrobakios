@@ -56,8 +56,68 @@ export const useCompanies = () => {
         business_type: (item.companies as any)?.business_type
       })) || [];
       
-      console.log('✅ Companies processed successfully:', companies);
-      return companies as UserCompany[];
+      // Also include companies where the user is an active project member
+      let projectDerivedCompanies: UserCompany[] = [];
+      
+      try {
+        const { data: projectMemberships, error: pmError } = await supabase
+          .from('project_members')
+          .select('project_id, role, status')
+          .eq('user_id', user.id)
+          .eq('status', 'active');
+        
+        if (pmError) {
+          console.warn('⚠️ Project memberships fetch error (non-fatal):', pmError);
+        } else if (projectMemberships && projectMemberships.length > 0) {
+          const projectIds = Array.from(new Set(projectMemberships.map(pm => pm.project_id).filter(Boolean)));
+          
+          if (projectIds.length > 0) {
+            const { data: projects, error: projectsError } = await supabase
+              .from('projects')
+              .select('id, company_id')
+              .in('id', projectIds);
+            
+            if (projectsError) {
+              console.warn('⚠️ Projects fetch error (non-fatal):', projectsError);
+            } else {
+              const companyIds = Array.from(new Set((projects || []).map(p => p.company_id).filter(Boolean)));
+              
+              if (companyIds.length > 0) {
+                const { data: companiesRows, error: companiesError } = await supabase
+                  .from('companies')
+                  .select('id, name, slug, logo_url, business_type')
+                  .in('id', companyIds);
+                  
+                if (companiesError) {
+                  console.warn('⚠️ Companies fetch error (non-fatal):', companiesError);
+                } else {
+                  projectDerivedCompanies = (companiesRows || []).map((c: any) => ({
+                    id: c.id,
+                    name: c.name,
+                    slug: c.slug,
+                    logo_url: c.logo_url,
+                    role: 'member', // Company-level role unknown for project-only users; default to member
+                    status: 'active',
+                    business_type: c.business_type
+                  }));
+                }
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ Non-fatal error while augmenting companies from project memberships:', e);
+      }
+      
+      // Merge and de-duplicate by company id
+      const mergedMap = new Map<string, UserCompany>();
+      [...(companies as UserCompany[]), ...projectDerivedCompanies].forEach(c => {
+        if (!mergedMap.has(c.id)) mergedMap.set(c.id, c);
+      });
+      const mergedCompanies = Array.from(mergedMap.values());
+      
+      console.log('✅ Companies processed successfully (merged):', mergedCompanies);
+      return mergedCompanies as UserCompany[];
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch companies';
       console.error('💥 getUserCompanies error:', err);
