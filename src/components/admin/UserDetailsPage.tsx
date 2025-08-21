@@ -42,6 +42,8 @@ export const UserDetailsPage: React.FC = () => {
   const [userPermissions, setUserPermissions] = useState<UserPermission[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [companies, setCompanies] = useState<{ company_id: string; company_name: string; membership_status: string }[]>([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
 
   useEffect(() => {
     if (userId) {
@@ -59,20 +61,25 @@ export const UserDetailsPage: React.FC = () => {
 
       const foundUser = data?.find((u: any) => u.user_id === userId);
       if (foundUser) {
-        // Get the user's active company
-        const { data: companyData, error: companyError } = await supabase
-          .from('company_members')
-          .select('company_id')
-          .eq('user_id', foundUser.user_id)
-          .eq('status', 'active')
-          .limit(1)
-          .single();
+        // Get all companies for the target user via secure RPC
+        const { data: companiesData, error: companiesError } = await supabase.rpc('debug_user_company_access', {
+          target_user_id: foundUser.user_id
+        });
 
-        if (companyError && companyError.code !== 'PGRST116') { // PGRST116 is "not found" error
-          console.warn('Could not fetch user company:', companyError);
+        if (companiesError) {
+          console.warn('Could not fetch user companies:', companiesError);
         }
 
-        const userCompanyId = companyData?.company_id || '';
+        const userCompanies = (companiesData || []).map((c: any) => ({
+          company_id: c.company_id,
+          company_name: c.company_name,
+          membership_status: c.membership_status
+        }));
+        setCompanies(userCompanies);
+
+        const activeCompany = userCompanies.find(c => c.membership_status === 'active') || userCompanies[0];
+        const userCompanyId = activeCompany?.company_id || '';
+        setSelectedCompanyId(userCompanyId);
 
         setUser({
           id: foundUser.user_id,
@@ -80,7 +87,7 @@ export const UserDetailsPage: React.FC = () => {
           last_name: foundUser.last_name || '',
           email: foundUser.email,
           avatar_url: foundUser.avatar_url,
-          company: foundUser.company,
+          company: activeCompany?.company_name || foundUser.company,
           role: foundUser.app_role,
           status: foundUser.status,
           created_at: foundUser.created_at,
@@ -155,7 +162,7 @@ export const UserDetailsPage: React.FC = () => {
 
       const { data, error } = await supabase.rpc('set_user_permissions', {
         target_user_id: user.id,
-        target_company_id: user.company_id,
+        target_company_id: selectedCompanyId || user.company_id,
         permissions_data: permissionsData
       });
 
@@ -179,6 +186,16 @@ export const UserDetailsPage: React.FC = () => {
         description: error.message || "Failed to update permissions",
         variant: "destructive"
       });
+    }
+  };
+
+  const handleCompanyChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const companyId = e.target.value;
+    setSelectedCompanyId(companyId);
+    if (user) {
+      await loadUserPermissions(user.id, companyId);
+      const selected = companies.find(c => c.company_id === companyId);
+      setUser({ ...user, company_id: companyId, company: selected?.company_name || user.company });
     }
   };
 
@@ -345,12 +362,29 @@ export const UserDetailsPage: React.FC = () => {
                   Manage user permissions for different modules and features
                 </p>
               </div>
-              {!hasUnsavedChanges && (
-                <Button variant="outline" onClick={savePermissions} className="gap-2">
-                  <Save className="h-4 w-4" />
-                  Save Changes
-                </Button>
-              )}
+              <div className="flex items-center gap-2">
+                {companies.length > 0 && (
+                  <select
+                    value={selectedCompanyId}
+                    onChange={handleCompanyChange}
+                    className="h-9 rounded-md border bg-background px-2 text-sm"
+                    aria-label="Select company context"
+                    title="Select company context"
+                  >
+                    {companies.map((c) => (
+                      <option key={c.company_id} value={c.company_id}>
+                        {c.company_name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {!hasUnsavedChanges && (
+                  <Button variant="outline" onClick={savePermissions} className="gap-2">
+                    <Save className="h-4 w-4" />
+                    Save Changes
+                  </Button>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-5">
