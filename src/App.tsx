@@ -20,8 +20,8 @@ import DashboardPage from "./pages/DashboardPage";
 import NewTaskPage from "./pages/NewTaskPage";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { UserProvider } from "./contexts/UserContext";
-import { CompanyProvider } from "@/contexts/CompanyContext";
-import { TimeTrackingProvider } from "@/contexts/TimeTrackingContext";
+import { CompanyProvider } from "./contexts/CompanyContext";
+import { TimeTrackingProvider } from "./contexts/TimeTrackingContext";
 
 import { AppContextProvider } from "./contexts/AppContextProvider";
 import { useIsMobile } from "@/hooks/use-mobile";
