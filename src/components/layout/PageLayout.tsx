@@ -24,6 +24,20 @@ export const PageLayout = ({ currentPage, onNavigate, children, disableSpacing =
     );
   }
 
+  // Profile pages need a single scroll container to avoid double scrollbars
+  if (currentPage === "profile" || currentPage === "personal-dashboard" || currentPage === "user-profile") {
+    return (
+      <ProtectedRoute 
+        onNavigate={onNavigate}
+        requireSuperAdmin={false}
+      >
+        <main className={`w-full ${spacing} ${fullHeight} relative transition-[padding] duration-300 overflow-y-auto`}>
+          {children}
+        </main>
+      </ProtectedRoute>
+    );
+  }
+
   // Sales, system, home, and tasks pages get consistent full-screen layout
   if (currentPage === "sales" || currentPage === "system" || currentPage === "home" || currentPage === "tasks") {
     return (

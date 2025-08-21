@@ -121,7 +121,7 @@ const handleNavigateAndClose = (page: string) => {
         </div>
       )}
       
-      <div className={`flex-1 flex flex-col space-y-2 overflow-y-auto ${isFloatingMode ? 'py-4 px-3' : 'p-4'}`}>
+      <div className={`flex-1 flex flex-col space-y-2 ${isFloatingMode ? 'overflow-y-auto' : 'overflow-visible'} ${isFloatingMode ? 'py-4 px-3' : 'p-4'}`}>
         {/* Show Profile Navigation when in personal context, otherwise show business sections */}
         {activeContext === 'personal' ? (
           <div className="space-y-1">
