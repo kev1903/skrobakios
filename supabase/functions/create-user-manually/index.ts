@@ -80,12 +80,12 @@ serve(async (req) => {
     const requestBody = await req.json()
     console.log('Request body received:', { ...requestBody, password: '[REDACTED]' })
     
-    const { email, password, firstName, lastName, company, role } = requestBody
+    const { email, password, firstName, lastName } = requestBody
 
-    if (!email || !password) {
-      console.error('Missing required fields:', { email: !!email, password: !!password })
+    if (!email || !password || !firstName || !lastName) {
+      console.error('Missing required fields:', { email: !!email, password: !!password, firstName: !!firstName, lastName: !!lastName })
       return new Response(
-        JSON.stringify({ success: false, error: 'Email and password are required' }),
+        JSON.stringify({ success: false, error: 'Email, password, first name, and last name are required' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -102,8 +102,7 @@ serve(async (req) => {
       password,
       user_metadata: {
         first_name: firstName,
-        last_name: lastName,
-        company: company
+        last_name: lastName
       },
       email_confirm: true
     })
@@ -162,7 +161,6 @@ serve(async (req) => {
           email: email,
           first_name: firstName,
           last_name: lastName,
-          company: company,
           status: 'active'
         }, { onConflict: 'user_id' })
 
@@ -175,14 +173,14 @@ serve(async (req) => {
       }
 
       console.log('Profile upserted successfully')
-      console.log('Assigning role:', role || 'user')
+      console.log('Assigning default user role')
 
-      // Upsert role
+      // Assign default 'user' role
       const { error: roleUpsertError } = await supabaseAdmin
         .from('user_roles')
         .upsert({
           user_id: createdUserId,
-          role: role || 'user'
+          role: 'user'
         }, { onConflict: 'user_id,role' })
 
       if (roleUpsertError) {
@@ -205,7 +203,7 @@ serve(async (req) => {
             target_user_id: createdUserId,
             details: {
               email,
-              role: role || 'user',
+              role: 'user',
               created_by: user.email
             }
           })
@@ -224,7 +222,7 @@ serve(async (req) => {
             id: createdUserId,
             email: createdUserEmail,
             created_at: createdAt,
-            role: role || 'user'
+            role: 'user'
           }
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

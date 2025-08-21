@@ -12,22 +12,14 @@ import { Loader2, UserPlus } from 'lucide-react';
 import { useManualUserCreate } from '@/hooks/useManualUserCreate';
 import { UserInfoFields } from './form-fields/UserInfoFields';
 import { PasswordField } from './form-fields/PasswordField';
-import { RoleSelectionFields } from './form-fields/RoleSelectionFields';
-
-interface CompanyOption {
-  id: string;
-  name: string;
-}
 
 interface ManualUserCreateDialogProps {
-  companies: CompanyOption[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUserCreated?: () => void;
 }
 
 export const ManualUserCreateDialog = ({
-  companies,
   open,
   onOpenChange,
   onUserCreated
@@ -46,10 +38,10 @@ export const ManualUserCreateDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="w-5 h-5" />
-            Create New User Manually
+            Create New User
           </DialogTitle>
           <DialogDescription>
-            Create a new user account with login credentials. The user will be able to log in immediately.
+            Create a new user account with login credentials. The user will be able to log in immediately. Roles and company assignments can be managed later.
           </DialogDescription>
         </DialogHeader>
 
@@ -66,15 +58,6 @@ export const ManualUserCreateDialog = ({
             password={formData.password}
             disabled={creating}
             onChange={(value) => handleInputChange('password', value)}
-          />
-
-          <RoleSelectionFields
-            platformRole={formData.platformRole}
-            companyId={formData.companyId}
-            companyRole={formData.companyRole}
-            companies={companies}
-            disabled={creating}
-            onChange={handleInputChange}
           />
         </div>
 

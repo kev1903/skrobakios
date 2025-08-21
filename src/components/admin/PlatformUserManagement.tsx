@@ -334,6 +334,10 @@ export const PlatformUserManagement = ({
          </CardContent>
        </Card>
       
-      <ManualUserCreateDialog companies={companies} open={showManualCreateDialog} onOpenChange={setShowManualCreateDialog} onUserCreated={handleUserCreated} />
+      <ManualUserCreateDialog 
+        open={showManualCreateDialog} 
+        onOpenChange={setShowManualCreateDialog} 
+        onUserCreated={handleUserCreated} 
+      />
     </div>;
 };

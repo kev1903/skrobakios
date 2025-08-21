@@ -617,7 +617,6 @@ export const TeamMembersList: React.FC = () => {
       ) : (
         <>
           <ManualUserCreateDialog
-            companies={companies}
             open={showInviteDialog}
             onOpenChange={setShowInviteDialog}
             onUserCreated={fetchTeamMembers}

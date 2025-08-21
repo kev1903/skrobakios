@@ -7,9 +7,6 @@ interface FormData {
   lastName: string;
   email: string;
   password: string;
-  companyId: string;
-  companyRole: 'owner' | 'admin' | 'member';
-  platformRole: 'superadmin' | 'company_admin';
 }
 
 interface UseManualUserCreateProps {
@@ -24,10 +21,7 @@ export const useManualUserCreate = ({ onUserCreated, onOpenChange }: UseManualUs
     firstName: '',
     lastName: '',
     email: '',
-    password: '',
-    companyId: '',
-    companyRole: 'member',
-    platformRole: 'company_admin' // Changed default to company_admin
+    password: ''
   });
 
   const handleInputChange = (field: keyof FormData, value: string) => {
@@ -42,10 +36,7 @@ export const useManualUserCreate = ({ onUserCreated, onOpenChange }: UseManualUs
       firstName: '',
       lastName: '',
       email: '',
-      password: '',
-      companyId: '',
-      companyRole: 'member',
-      platformRole: 'company_admin'
+      password: ''
     });
   };
 
@@ -84,10 +75,7 @@ export const useManualUserCreate = ({ onUserCreated, onOpenChange }: UseManualUs
           firstName: formData.firstName,
           lastName: formData.lastName,
           email: formData.email,
-          password: formData.password,
-          companyId: formData.companyId === 'none' ? undefined : formData.companyId || undefined,
-          companyRole: formData.companyRole,
-          platformRole: formData.platformRole
+          password: formData.password
         },
       });
 
@@ -95,7 +83,7 @@ export const useManualUserCreate = ({ onUserCreated, onOpenChange }: UseManualUs
         throw error;
       }
 
-      const createdUserId = data.user_id;
+      const createdUserId = data.user?.id;
 
       // Generate activation token for the new user
       const { data: tokenData, error: tokenError } = await supabase.functions.invoke('generate-access-token', {
