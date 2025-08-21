@@ -613,7 +613,6 @@ export const UserManagementPanel: React.FC = () => {
                         <TableHead>User</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Company</TableHead>
-                        <TableHead>Role</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Created</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
@@ -651,24 +650,6 @@ export const UserManagementPanel: React.FC = () => {
                           <TableCell>{user.email}</TableCell>
                           <TableCell>{user.company || '-'}</TableCell>
                           <TableCell>
-                            <Select
-                              value={user.role}
-                              onValueChange={(value) => updateUserRole(user.id, value)}
-                            >
-                              <SelectTrigger className="w-32">
-                                <Badge variant={getRoleBadgeVariant(user.role || 'user')}>
-                                  {user.role || 'user'}
-                                </Badge>
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="user">User</SelectItem>
-                                <SelectItem value="project_admin">Project Admin</SelectItem>
-                                <SelectItem value="business_admin">Business Admin</SelectItem>
-                                <SelectItem value="superadmin">Super Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell>
                             <Badge variant={user.status === 'active' ? 'default' : 'secondary'}>
                               {user.status}
                             </Badge>
@@ -685,17 +666,19 @@ export const UserManagementPanel: React.FC = () => {
                                >
                                  <Edit className="h-4 w-4" />
                                </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  if (confirm('Are you sure you want to delete this user?')) {
-                                    deleteUser(user.id);
-                                  }
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              {user.role !== 'superadmin' && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (confirm('Are you sure you want to delete this user?')) {
+                                      deleteUser(user.id);
+                                    }
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>
