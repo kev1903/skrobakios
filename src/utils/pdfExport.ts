@@ -22,8 +22,8 @@ const loadImageAsDataUrl = (url: string): Promise<string> => {
         
         ctx.drawImage(img, 0, 0);
         
-        // Convert to data URL
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        // Convert to data URL with lower quality for smaller file size
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
         resolve(dataUrl);
       } catch (error) {
         reject(error);
@@ -58,23 +58,20 @@ const getAttachmentDataUrl = async (
         .from('issue-attachments')
         .download(attachment.path);
       if (!error && data) {
-        const dataUrl = await blobToDataUrl(data);
-        const format: 'JPEG' | 'PNG' = attachment.type?.toLowerCase().includes('png') ? 'PNG' : 'JPEG';
-        return { dataUrl, format };
+        // Create compressed data URL
+        const blob = new Blob([data], { type: attachment.type });
+        const url = URL.createObjectURL(blob);
+        const compressedDataUrl = await loadImageAsDataUrl(url);
+        URL.revokeObjectURL(url);
+        return { dataUrl: compressedDataUrl, format: 'JPEG' as const };
       }
     } catch (e) {
       console.warn('Storage download failed, falling back to fetch:', e);
     }
   }
-  // Fallback: fetch the public URL
-  const res = await fetch(attachment.url, { mode: 'cors' });
-  const blob = await res.blob();
-  const format: 'JPEG' | 'PNG' =
-    attachment.type?.toLowerCase().includes('png') || blob.type.toLowerCase().includes('png')
-      ? 'PNG'
-      : 'JPEG';
-  const dataUrl = await blobToDataUrl(blob);
-  return { dataUrl, format };
+  // Fallback: fetch the public URL and compress
+  const compressedDataUrl = await loadImageAsDataUrl(attachment.url);
+  return { dataUrl: compressedDataUrl, format: 'JPEG' as const };
 };
 
 interface IssueReportData {
@@ -161,8 +158,11 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     // Type the issues properly
     const typedIssues = (issues || []) as unknown as IssueData[];
 
-    // Create PDF
-    const pdf = new jsPDF();
+    // Create PDF with compression enabled
+    const pdf = new jsPDF({
+      compress: true,
+      precision: 2
+    });
     const pageWidth = pdf.internal.pageSize.width;
     const pageHeight = pdf.internal.pageSize.height;
     let pageNumber = 1;
@@ -277,8 +277,10 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         const bannerWidth = pageWidth - (2 * bannerMargin);
         const bannerHeight = bannerWidth / bannerAspectRatio;
         
+        // Compress banner image
+        const compressedBanner = await loadImageAsDataUrl(projectBanner);
         pdf.addImage(
-          projectBanner, 
+          compressedBanner, 
           'JPEG', 
           bannerMargin, 
           yPos, 
