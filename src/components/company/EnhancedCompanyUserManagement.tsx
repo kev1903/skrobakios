@@ -28,7 +28,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Search, UserPlus, RefreshCw, MoreHorizontal, Building2, Trash2, Crown, Shield, User } from 'lucide-react';
+import { Search, RefreshCw, MoreHorizontal, Building2, Trash2, Crown, Shield, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
@@ -59,9 +59,6 @@ export const EnhancedCompanyUserManagement = ({
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showInviteDialog, setShowInviteDialog] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'admin' | 'member'>('member');
   const [currentUserRole, setCurrentUserRole] = useState<string>('');
 
   const fetchMembers = async () => {
@@ -128,101 +125,6 @@ export const EnhancedCompanyUserManagement = ({
     }
   };
 
-  const handleInviteMember = async () => {
-    if (!inviteEmail) {
-      toast({
-        title: "Error",
-        description: "Please enter an email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      // First check if user already exists and get their ID
-      const { data: existingUser, error: userError } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('email', inviteEmail)
-        .single();
-
-      if (userError && userError.code !== 'PGRST116') {
-        console.error('Error checking user:', userError);
-        toast({
-          title: "Error",
-          description: "Failed to check user existence",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (existingUser) {
-        // User exists, add them directly to company
-        const { error } = await supabase
-          .from('company_members')
-          .insert({
-            company_id: companyId,
-            user_id: existingUser.user_id,
-            role: inviteRole,
-            status: 'active'
-          });
-
-        if (error) {
-          if (error.code === '23505') { // Unique constraint violation
-            toast({
-              title: "Error",
-              description: "User is already a member of this company",
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "Error",
-              description: "Failed to add user to company",
-              variant: "destructive",
-            });
-          }
-          return;
-        }
-      } else {
-        // User doesn't exist, send invitation via edge function
-        const { error } = await supabase.functions.invoke('invite-user', {
-          body: { 
-            email: inviteEmail, 
-            company_id: companyId,
-            role: inviteRole
-          }
-        });
-
-        if (error) {
-          console.error('Error inviting user:', error);
-          toast({
-            title: "Error",
-            description: "Failed to send invitation",
-            variant: "destructive",
-          });
-          return;
-        }
-      }
-
-      toast({
-        title: "Success",
-        description: existingUser ? "User added to company" : "Invitation sent successfully",
-      });
-
-      setShowInviteDialog(false);
-      setInviteEmail('');
-      setInviteRole('member');
-      fetchMembers();
-
-    } catch (error) {
-      console.error('Error inviting member:', error);
-      toast({
-        title: "Error",
-        description: "Failed to invite member",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleRoleChange = async (memberId: string, newRole: 'owner' | 'admin' | 'member') => {
     try {
@@ -354,64 +256,15 @@ export const EnhancedCompanyUserManagement = ({
                 {companyName} Team Management
               </CardTitle>
               <CardDescription>
-                Manage team members, roles, and permissions for this company. {members.length} total members.
+                Manage existing team members, roles, and permissions for this company. {members.length} total members.
+                <br />
+                <em className="text-xs text-muted-foreground">Note: New users must be created through Platform Administration.</em>
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={fetchMembers}>
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh
-              </Button>
-              {canManageMembers && (
-                <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
-                  <DialogTrigger asChild>
-                    <Button size="sm">
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Invite Member
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Invite Team Member</DialogTitle>
-                      <DialogDescription>
-                        Send an invitation to join {companyName} as a team member.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Email Address</label>
-                        <Input
-                          type="email"
-                          placeholder="member@example.com"
-                          value={inviteEmail}
-                          onChange={(e) => setInviteEmail(e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Role</label>
-                        <Select value={inviteRole} onValueChange={(value: any) => setInviteRole(value)}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="member">Member</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button variant="outline" onClick={() => setShowInviteDialog(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleInviteMember}>
-                        Send Invitation
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              )}
-            </div>
+            <Button variant="outline" size="sm" onClick={fetchMembers}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
           </div>
         </CardHeader>
         <CardContent>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, RefreshCw, UserPlus } from 'lucide-react';
+import { Search, RefreshCw } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,14 +27,12 @@ export const UserManagementHeader = ({
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
-            <Button size="sm">
-              <UserPlus className="w-4 h-4 mr-2" />
-              Invite User
-            </Button>
           </div>
         </CardTitle>
         <CardDescription>
           Manage platform users, roles, and permissions. {totalUsers} total users.
+          <br />
+          <em className="text-xs text-muted-foreground">Note: New users must be created through Platform Administration.</em>
         </CardDescription>
       </CardHeader>
       <CardContent>
