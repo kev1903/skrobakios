@@ -131,6 +131,9 @@ export const EnhancedCompanyUserManagement = ({
       // Get current user's role in the company
       const currentMember = transformedMembers.find(m => m.user_id === user?.id);
       setCurrentUserRole(currentMember?.role || '');
+      
+      console.log('Current user role in company:', currentMember?.role || 'none');
+      console.log('Can manage members:', (isSuperAdmin() || currentMember?.role === 'owner' || currentMember?.role === 'admin'));
 
     } catch (error) {
       console.error('Error fetching members:', error);
@@ -368,6 +371,12 @@ export const EnhancedCompanyUserManagement = ({
                 Manage existing team members, roles, and permissions for this company. {members.length} total members.
                 <br />
                 <em className="text-xs text-muted-foreground">Note: New users must be created through Platform Administration.</em>
+                <br />
+                <em className="text-xs text-muted-foreground">
+                  Current role: {currentUserRole || 'none'} | 
+                  Can manage: {canManageMembers ? 'yes' : 'no'} | 
+                  Is superadmin: {isSuperAdmin() ? 'yes' : 'no'}
+                </em>
               </CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={fetchMembers}>
