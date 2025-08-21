@@ -218,9 +218,9 @@ export const PersonalAnalyticsDashboard = ({ onNavigate }: PersonalAnalyticsDash
   }
 
   return (
-    <div className="h-screen flex bg-background">
+    <div className="flex bg-background">
       {/* Main Content */}
-      <div className="flex-1 overflow-auto bg-background">
+      <div className="flex-1 bg-background">
         <div className="p-6">
           {/* Header */}
           <div className="mb-6">
