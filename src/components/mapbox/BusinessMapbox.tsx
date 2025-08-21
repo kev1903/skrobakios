@@ -89,6 +89,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
             company_id,
             companies!inner(name)
           `)
+          .eq('company_id', currentCompany.id)
           .order('created_at', { ascending: false });
         
         if (error) throw error;
