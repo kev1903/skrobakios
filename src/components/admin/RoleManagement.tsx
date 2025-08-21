@@ -79,6 +79,16 @@ export const RoleManagement: React.FC<RoleManagementProps> = ({
       return;
     }
 
+    // Prevent removing superadmin role
+    if (role === 'superadmin') {
+      toast({
+        title: 'Cannot Remove Superadmin Role',
+        description: 'Superadmin roles are locked and cannot be removed for security reasons.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const result = await onRemoveRole(user.id, role);
@@ -118,7 +128,7 @@ export const RoleManagement: React.FC<RoleManagementProps> = ({
               {roleHierarchy[role].label}
               {role === user.role && <span className="ml-1 text-xs">(Primary)</span>}
             </Badge>
-            {user.roles.length > 1 && (
+            {user.roles.length > 1 && role !== 'superadmin' && (
               <Button
                 variant="ghost"
                 size="sm"

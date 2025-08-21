@@ -122,6 +122,12 @@ export const useUserRole = () => {
   const removeRole = async (roleToRemove: UserRole): Promise<boolean> => {
     if (!user || !roles.includes(roleToRemove)) return false;
 
+    // Prevent removing superadmin role
+    if (roleToRemove === 'superadmin') {
+      console.warn('Cannot remove superadmin role - it is locked for security reasons');
+      return false;
+    }
+
     try {
       const { error } = await supabase
         .from('user_roles')
