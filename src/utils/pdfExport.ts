@@ -673,7 +673,7 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       const descriptionBoxX = 20;
       // Use actual image height (85) when images exist, otherwise use full area height (120)
       const actualAttachmentHeight = issue.attachments && issue.attachments.length > 0 ? 85 : attachmentAreaHeight;
-      const descriptionBoxY = attachmentY + actualAttachmentHeight + 10;
+      const descriptionBoxY = attachmentY + actualAttachmentHeight + 5;
       const descriptionBoxWidth = 170; // Wide landscape format
       const descriptionBoxHeight = 40;
       
@@ -701,48 +701,48 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       pdf.text(displayedLines, descriptionBoxX + 5, descriptionBoxY + 18);
       
       // Position other details below the description box
-      let detailsY = descriptionBoxY + descriptionBoxHeight + 15;
+      let detailsY = descriptionBoxY + descriptionBoxHeight + 5;
       const detailsX = 20;
       
       // Category
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
       pdf.text('Category:', detailsX, detailsY);
-      detailsY += 8;
+      detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
       pdf.text(issue.category || 'N/A', detailsX, detailsY);
-      detailsY += 12;
+      detailsY += 5;
       
       // Location
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
       pdf.text('Location:', detailsX, detailsY);
-      detailsY += 8;
+      detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
       const locationText = issue.location || 'N/A';
       const truncatedLocation = locationText.length > 25 ? locationText.substring(0, 25) + '...' : locationText;
       pdf.text(truncatedLocation, detailsX, detailsY);
-      detailsY += 12;
+      detailsY += 5;
       
       // Created by
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
       pdf.text('Created by:', detailsX, detailsY);
-      detailsY += 8;
+      detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
       const createdByText = issue.created_by || 'N/A';
       const truncatedCreatedBy = createdByText.length > 20 ? createdByText.substring(0, 20) + '...' : createdByText;
       pdf.text(truncatedCreatedBy, detailsX, detailsY);
-      detailsY += 12;
+      detailsY += 5;
       
       // Created date
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
       pdf.text('Created:', detailsX, detailsY);
-      detailsY += 8;
+      detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
       pdf.text(new Date(issue.created_at).toLocaleDateString('en-US', {
