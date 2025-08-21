@@ -671,7 +671,9 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       
       // Description box - positioned below attachments in landscape format
       const descriptionBoxX = 20;
-      const descriptionBoxY = attachmentY + attachmentAreaHeight + 10;
+      // Use actual image height (85) when images exist, otherwise use full area height (120)
+      const actualAttachmentHeight = issue.attachments && issue.attachments.length > 0 ? 85 : attachmentAreaHeight;
+      const descriptionBoxY = attachmentY + actualAttachmentHeight + 10;
       const descriptionBoxWidth = 170; // Wide landscape format
       const descriptionBoxHeight = 40;
       
