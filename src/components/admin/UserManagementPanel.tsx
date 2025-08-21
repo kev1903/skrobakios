@@ -160,16 +160,14 @@ export const UserManagementPanel: React.FC = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('No session found. Please login again.');
 
-      console.log('Creating user with data:', { email, firstName, lastName, company, role });
+      console.log('Creating user with data:', { email, firstName, lastName });
 
       const { data, error } = await supabase.functions.invoke('create-user-manually', {
         body: {
           email,
           password,
           firstName,
-          lastName,
-          company,
-          role
+          lastName
         },
       });
 
@@ -186,7 +184,7 @@ export const UserManagementPanel: React.FC = () => {
 
       toast({
         title: "Success",
-        description: `User ${email} created successfully with role: ${role}`,
+        description: `User ${email} created successfully`,
       });
 
       resetForm();
@@ -443,35 +441,6 @@ export const UserManagementPanel: React.FC = () => {
                         </Button>
                       </div>
                     </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="company">Company</Label>
-                    <Select value={company} onValueChange={setCompany}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select company" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {companies.map((comp) => (
-                          <SelectItem key={comp.id} value={comp.name}>
-                            {comp.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="role">Role</Label>
-                    <Select value={role} onValueChange={(value: any) => setRole(value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="user">User</SelectItem>
-                        <SelectItem value="project_admin">Project Admin</SelectItem>
-                        <SelectItem value="business_admin">Business Admin</SelectItem>
-                        <SelectItem value="superadmin">Super Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                   <div className="flex gap-2">
                     <Button 
