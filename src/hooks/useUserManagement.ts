@@ -89,20 +89,21 @@ export const useUserManagement = () => {
 
   const updateUserRole = async (userId: string, newRole: UserRole) => {
     try {
-      // First, delete existing roles
-      await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
-
-      // Then insert new role
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({ user_id: userId, role: newRole });
+      // Use the secure database function to update role
+      const { data, error } = await supabase
+        .rpc('set_user_primary_role', {
+          target_user_id: userId,
+          new_role: newRole
+        });
 
       if (error) {
         console.error('Error updating user role:', error);
         throw error;
+      }
+
+      const result = data as { success: boolean; error?: string };
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update role');
       }
 
       // Refresh users list
@@ -116,25 +117,22 @@ export const useUserManagement = () => {
 
   const addUserRole = async (userId: string, role: UserRole) => {
     try {
-      // Check if user already has this role
-      const { data: existingRole } = await supabase
-        .from('user_roles')
-        .select('id')
-        .eq('user_id', userId)
-        .eq('role', role)
-        .single();
-
-      if (existingRole) {
-        return { success: false, error: 'User already has this role' };
-      }
-
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({ user_id: userId, role });
+      // Use the secure database function to add role
+      const { data, error } = await supabase
+        .rpc('manage_user_role', {
+          target_user_id: userId,
+          role_to_manage: role,
+          operation: 'add'
+        });
 
       if (error) {
         console.error('Error adding user role:', error);
         throw error;
+      }
+
+      const result = data as { success: boolean; error?: string };
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to add role');
       }
 
       // Refresh users list
@@ -148,15 +146,22 @@ export const useUserManagement = () => {
 
   const removeUserRole = async (userId: string, role: UserRole) => {
     try {
-      const { error } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId)
-        .eq('role', role);
+      // Use the secure database function to remove role
+      const { data, error } = await supabase
+        .rpc('manage_user_role', {
+          target_user_id: userId,
+          role_to_manage: role,
+          operation: 'remove'
+        });
 
       if (error) {
         console.error('Error removing user role:', error);
         throw error;
+      }
+
+      const result = data as { success: boolean; error?: string };
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to remove role');
       }
 
       // Refresh users list

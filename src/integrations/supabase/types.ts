@@ -5306,6 +5306,14 @@ export type Database = {
         }
         Returns: undefined
       }
+      manage_user_role: {
+        Args: {
+          operation: string
+          role_to_manage: Database["public"]["Enums"]["app_role"]
+          target_user_id: string
+        }
+        Returns: Json
+      }
       mask_contact_info: {
         Args: { input_text: string }
         Returns: string
