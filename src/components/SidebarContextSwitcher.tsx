@@ -48,8 +48,11 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
     return isDefaultCompanyName ? 'Default Business' : currentCompany.name;
   };
 
-  // Filter out auto-generated company names for display purposes
+  // Filter out auto-generated company names and show only active companies for switching
   const realBusinesses = companies.filter(company => {
+    // Only show active companies in the switcher
+    if (company.status !== 'active') return false;
+    
     const isDefaultCompanyName = company.name && (
       company.name.includes('@') || 
       company.name.endsWith('\'s Business') ||
