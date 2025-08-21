@@ -43,7 +43,7 @@ interface CompanyMember {
   last_name: string;
   avatar_url?: string;
   phone?: string;
-  role: 'owner' | 'admin' | 'manager' | 'worker' | 'supplier';
+  role: 'owner' | 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client';
   status: 'active' | 'invited' | 'inactive';
   joined_at: string;
 }
@@ -78,7 +78,7 @@ export const EnhancedCompanyUserManagement = ({
   const [availableUsers, setAvailableUsers] = useState<AvailableUser[]>([]);
   const [availableUsersLoading, setAvailableUsersLoading] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'admin' | 'manager' | 'supplier'>('manager');
+  const [selectedRole, setSelectedRole] = useState<'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'>('manager');
 
   const fetchMembers = async () => {
     if (!companyId) return;
@@ -164,7 +164,7 @@ export const EnhancedCompanyUserManagement = ({
   };
 
 
-  const handleRoleChange = async (memberId: string, newRole: 'owner' | 'admin' | 'manager' | 'worker' | 'supplier') => {
+  const handleRoleChange = async (memberId: string, newRole: 'owner' | 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client') => {
     try {
       const { error } = await supabase
         .from('company_members')
@@ -449,6 +449,9 @@ export const EnhancedCompanyUserManagement = ({
                             <SelectItem value="admin">Admin</SelectItem>
                             <SelectItem value="manager">Manager</SelectItem>
                             <SelectItem value="supplier">Supplier</SelectItem>
+                            <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
+                            <SelectItem value="consultant">Consultant</SelectItem>
+                            <SelectItem value="client">Client</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -595,6 +598,9 @@ export const EnhancedCompanyUserManagement = ({
                               <SelectItem value="admin">Admin</SelectItem>
                               <SelectItem value="manager">Manager</SelectItem>
                               <SelectItem value="supplier">Supplier</SelectItem>
+                              <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
+                              <SelectItem value="consultant">Consultant</SelectItem>
+                              <SelectItem value="client">Client</SelectItem>
                             </SelectContent>
                           </Select>
                         ) : (
