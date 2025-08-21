@@ -3,6 +3,8 @@ import { ArrowLeft, User, CreditCard, Settings, Users, Bell, FileText, Plug, Che
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { EnhancedCompanyUserManagement } from '@/components/company/EnhancedCompanyUserManagement';
+import { useCompany } from '@/contexts/CompanyContext';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -15,6 +17,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
   const [isConnecting, setIsConnecting] = useState(false);
   const [hasXeroConnection, setHasXeroConnection] = useState(false);
   const [xeroConnection, setXeroConnection] = useState<any>(null);
+  const { currentCompany } = useCompany();
 
   useEffect(() => {
     if (activeSection === 'connected-services') {
@@ -224,6 +227,30 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
               <p className="text-gray-600">Membership settings will be displayed here.</p>
             </CardContent>
           </Card>
+        );
+
+      case 'teams':
+        if (!currentCompany) {
+          return (
+            <Card className="backdrop-blur-sm bg-white/60 border-white/30">
+              <CardHeader>
+                <CardTitle>Teams</CardTitle>
+                <CardDescription>No company selected</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Please select a company to manage team members.</p>
+              </CardContent>
+            </Card>
+          );
+        }
+        
+        return (
+          <div className="space-y-6">
+            <EnhancedCompanyUserManagement
+              companyId={currentCompany.id}
+              companyName={currentCompany.name}
+            />
+          </div>
         );
 
       case 'connected-services':
