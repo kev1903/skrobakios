@@ -694,6 +694,44 @@ export type Database = {
           },
         ]
       }
+      company_permission_settings: {
+        Row: {
+          company_id: string | null
+          configured_by: string | null
+          created_at: string
+          id: string
+          is_enabled: boolean
+          permission_key: string
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          configured_by?: string | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          permission_key: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          configured_by?: string | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          permission_key?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_permission_settings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contract_actions: {
         Row: {
           action_description: string
@@ -2185,6 +2223,42 @@ export type Database = {
           severity_level?: string
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      platform_permissions: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          permission_key: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          permission_key: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          permission_key?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -4430,6 +4504,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_permissions: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          granted: boolean
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          permission_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          granted?: boolean
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          permission_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          granted?: boolean
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          permission_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permissions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -5075,6 +5193,17 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: number
       }
+      get_user_permissions_for_company: {
+        Args: { target_company_id: string; target_user_id: string }
+        Returns: {
+          category: string
+          description: string
+          granted: boolean
+          is_available: boolean
+          name: string
+          permission_key: string
+        }[]
+      }
       get_user_profile: {
         Args: { _user_id: string }
         Returns: {
@@ -5189,6 +5318,14 @@ export type Database = {
         Args: { p_context_id?: string; p_context_type: string }
         Returns: boolean
       }
+      set_user_permissions: {
+        Args: {
+          permissions_data: Json
+          target_company_id: string
+          target_user_id: string
+        }
+        Returns: Json
+      }
       set_user_primary_role: {
         Args: {
           new_role: Database["public"]["Enums"]["app_role"]
@@ -5215,6 +5352,14 @@ export type Database = {
       }
       user_can_access_project_direct: {
         Args: { project_id_param: string; user_id_param: string }
+        Returns: boolean
+      }
+      user_has_permission: {
+        Args: {
+          permission_key_param: string
+          target_company_id: string
+          target_user_id: string
+        }
         Returns: boolean
       }
     }

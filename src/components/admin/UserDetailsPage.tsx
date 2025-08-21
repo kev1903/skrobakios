@@ -9,8 +9,6 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, User, Shield, Settings, Save, Mail, Building2, Calendar, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { defaultPermissions } from "@/constants/permissions";
-import { Permission } from '@/types/permission';
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 
 interface UserDetails {
@@ -23,14 +21,16 @@ interface UserDetails {
   role: string;
   status: string;
   created_at: string;
+  company_id: string;
 }
 
 interface UserPermission {
-  id: string;
+  permission_key: string;
   name: string;
   description: string;
   category: string;
   granted: boolean;
+  is_available: boolean;
 }
 
 export const UserDetailsPage: React.FC = () => {
@@ -59,6 +59,21 @@ export const UserDetailsPage: React.FC = () => {
 
       const foundUser = data?.find((u: any) => u.user_id === userId);
       if (foundUser) {
+        // Get the user's active company
+        const { data: companyData, error: companyError } = await supabase
+          .from('company_members')
+          .select('company_id')
+          .eq('user_id', foundUser.user_id)
+          .eq('status', 'active')
+          .limit(1)
+          .single();
+
+        if (companyError && companyError.code !== 'PGRST116') { // PGRST116 is "not found" error
+          console.warn('Could not fetch user company:', companyError);
+        }
+
+        const userCompanyId = companyData?.company_id || '';
+
         setUser({
           id: foundUser.user_id,
           first_name: foundUser.first_name || '',
@@ -68,11 +83,14 @@ export const UserDetailsPage: React.FC = () => {
           company: foundUser.company,
           role: foundUser.app_role,
           status: foundUser.status,
-          created_at: foundUser.created_at
+          created_at: foundUser.created_at,
+          company_id: userCompanyId
         });
         
-        // Convert permissions to the new format and load based on role
-        loadPermissionsForRole(foundUser.app_role);
+        // Load real permissions from database if company_id exists
+        if (userCompanyId) {
+          await loadUserPermissions(foundUser.user_id, userCompanyId);
+        }
       }
     } catch (error: any) {
       console.error('Error fetching user details:', error);
@@ -86,45 +104,39 @@ export const UserDetailsPage: React.FC = () => {
     }
   };
 
-  const loadPermissionsForRole = (role: string) => {
-    const permissions: UserPermission[] = defaultPermissions.map(permission => {
-      let granted = false;
-      
-      // Set default permissions based on role
-      switch (role) {
-        case 'superadmin':
-          granted = true;
-          break;
-        case 'business_admin':
-          granted = permission.category === 'Company Permissions' || 
-                   ['view_platform_analytics', 'view_all_companies', 'view_all_projects'].includes(permission.id);
-          break;
-        case 'project_admin':
-          granted = ['projects', 'tasks', 'files', 'dashboard'].includes(permission.id);
-          break;
-        case 'user':
-          granted = ['projects', 'dashboard'].includes(permission.id);
-          break;
-        default:
-          granted = false;
-      }
+  const loadUserPermissions = async (targetUserId: string, companyId: string) => {
+    try {
+      const { data, error } = await supabase.rpc('get_user_permissions_for_company', {
+        target_user_id: targetUserId,
+        target_company_id: companyId
+      });
 
-      return {
-        id: permission.id,
-        name: permission.name,
-        description: permission.description,
-        category: permission.category,
-        granted
-      };
-    });
+      if (error) throw error;
 
-    setUserPermissions(permissions);
+      const permissions: UserPermission[] = data?.map((perm: any) => ({
+        permission_key: perm.permission_key,
+        name: perm.name,
+        description: perm.description,
+        category: perm.category,
+        granted: perm.granted,
+        is_available: perm.is_available
+      })) || [];
+
+      setUserPermissions(permissions);
+    } catch (error: any) {
+      console.error('Error loading permissions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load user permissions",
+        variant: "destructive"
+      });
+    }
   };
 
-  const togglePermission = (permissionId: string) => {
+  const togglePermission = (permissionKey: string) => {
     setUserPermissions(prev => 
       prev.map(perm => 
-        perm.id === permissionId 
+        perm.permission_key === permissionKey 
           ? { ...perm, granted: !perm.granted }
           : perm
       )
@@ -133,19 +145,38 @@ export const UserDetailsPage: React.FC = () => {
   };
 
   const savePermissions = async () => {
+    if (!user) return;
+
     try {
-      // Here you would save permissions to your database
-      console.log('Saving permissions:', userPermissions);
-      
-      toast({
-        title: "Success",
-        description: "User permissions updated successfully"
+      const permissionsData = userPermissions.map(perm => ({
+        permission_key: perm.permission_key,
+        granted: perm.granted
+      }));
+
+      const { data, error } = await supabase.rpc('set_user_permissions', {
+        target_user_id: user.id,
+        target_company_id: user.company_id,
+        permissions_data: permissionsData
       });
-      setHasUnsavedChanges(false);
-    } catch (error) {
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; error?: string };
+      
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "User permissions updated successfully"
+        });
+        setHasUnsavedChanges(false);
+      } else {
+        throw new Error(result.error || 'Failed to update permissions');
+      }
+    } catch (error: any) {
+      console.error('Error saving permissions:', error);
       toast({
         title: "Error",
-        description: "Failed to update permissions",
+        description: error.message || "Failed to update permissions",
         variant: "destructive"
       });
     }
@@ -330,38 +361,39 @@ export const UserDetailsPage: React.FC = () => {
                   <div className="h-px flex-1 bg-border"></div>
                 </div>
                 
-                <div className="grid gap-2">
-                  {permissions.map((permission) => (
-                    <div 
-                      key={permission.id}
-                      className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-1.5 rounded-md ${
-                            permission.granted 
-                              ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
-                              : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
-                          }`}>
-                            {permission.granted ? (
-                              <CheckCircle2 className="h-3 w-3" />
-                            ) : (
-                              <XCircle className="h-3 w-3" />
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="font-medium text-sm text-foreground">{permission.name}</p>
-                            <p className="text-xs text-muted-foreground">{permission.description}</p>
-                          </div>
-                        </div>
-                      </div>
-                      <Switch
-                        checked={permission.granted}
-                        onCheckedChange={() => togglePermission(permission.id)}
-                        className="ml-3"
-                      />
-                    </div>
-                  ))}
+                 <div className="grid gap-2">
+                   {permissions.map((permission) => (
+                     <div 
+                       key={permission.permission_key}
+                       className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+                     >
+                       <div className="flex-1 min-w-0">
+                         <div className="flex items-center gap-3">
+                           <div className={`p-1.5 rounded-md ${
+                             permission.granted 
+                               ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
+                               : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                           }`}>
+                             {permission.granted ? (
+                               <CheckCircle2 className="h-3 w-3" />
+                             ) : (
+                               <XCircle className="h-3 w-3" />
+                             )}
+                           </div>
+                           <div className="min-w-0 flex-1">
+                             <p className="font-medium text-sm text-foreground">{permission.name}</p>
+                             <p className="text-xs text-muted-foreground">{permission.description}</p>
+                           </div>
+                         </div>
+                       </div>
+                       <Switch
+                         checked={permission.granted}
+                         onCheckedChange={() => togglePermission(permission.permission_key)}
+                         className="ml-3"
+                         disabled={!permission.is_available}
+                       />
+                     </div>
+                   ))}
                 </div>
               </div>
             ))}
