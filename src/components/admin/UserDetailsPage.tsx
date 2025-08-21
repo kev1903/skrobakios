@@ -217,7 +217,7 @@ export const UserDetailsPage: React.FC = () => {
       <div className="container mx-auto p-6 space-y-8 max-w-6xl">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
               onClick={() => navigate(-1)}
@@ -227,8 +227,8 @@ export const UserDetailsPage: React.FC = () => {
               Back
             </Button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
-              <p className="text-muted-foreground">Configure user permissions and access levels</p>
+              <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
+              <p className="text-sm text-muted-foreground">Configure user permissions and access levels</p>
             </div>
           </div>
           {hasUnsavedChanges && (
@@ -241,35 +241,35 @@ export const UserDetailsPage: React.FC = () => {
 
         {/* User Profile Card */}
         <Card className="overflow-hidden">
-          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-6">
-            <CardTitle className="flex items-center gap-2 mb-4">
-              <Shield className="h-5 w-5" />
+          <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4">
+            <CardTitle className="flex items-center gap-2 mb-3 text-lg">
+              <Shield className="h-4 w-4" />
               Profile Information
             </CardTitle>
-            <div className="flex items-start gap-6">
-              <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
+            <div className="flex items-start gap-4">
+              <Avatar className="h-16 w-16 border-2 border-background shadow-lg">
                 <AvatarImage src={user.avatar_url} alt={`${user.first_name} ${user.last_name}`} />
-                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-lg">
-                  <User className="h-12 w-12" />
+                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-sm">
+                  <User className="h-8 w-8" />
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 min-w-0 space-y-4">
+              <div className="flex-1 min-w-0 space-y-3">
                 <div>
-                  <h2 className="text-2xl font-semibold text-foreground mb-1">
+                  <h2 className="text-xl font-semibold text-foreground mb-1">
                     {user.first_name && user.last_name 
                       ? `${user.first_name} ${user.last_name}`
                       : 'No name provided'
                     }
                   </h2>
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Mail className="h-4 w-4" />
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Mail className="h-3 w-3" />
                     <span>{user.email}</span>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="flex items-center gap-2">
-                    <Badge variant={getRoleBadgeVariant(user.role)} className="gap-1">
+                    <Badge variant={getRoleBadgeVariant(user.role)} className="gap-1 text-xs">
                       <Shield className="h-3 w-3" />
                       {user.role}
                     </Badge>
@@ -286,14 +286,14 @@ export const UserDetailsPage: React.FC = () => {
                   
                   {user.company && (
                     <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                      <Building2 className="h-3 w-3 text-muted-foreground" />
                       <span className="text-sm">{user.company}</span>
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Calendar className="h-3 w-3" />
                   <span>Member since {new Date(user.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
@@ -303,11 +303,11 @@ export const UserDetailsPage: React.FC = () => {
 
         {/* Permissions Matrix */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Settings className="h-4 w-4" />
                   Permissions Matrix
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
@@ -322,43 +322,43 @@ export const UserDetailsPage: React.FC = () => {
               )}
             </div>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-5">
             {Object.entries(groupedPermissions).map(([category, permissions]) => (
-              <div key={category} className="space-y-4">
+              <div key={category} className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-lg text-foreground">{category}</h3>
+                  <h3 className="font-semibold text-base text-foreground">{category}</h3>
                   <div className="h-px flex-1 bg-border"></div>
                 </div>
                 
-                <div className="grid gap-3">
+                <div className="grid gap-2">
                   {permissions.map((permission) => (
                     <div 
                       key={permission.id}
-                      className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
+                      className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/30 transition-colors"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${
+                          <div className={`p-1.5 rounded-md ${
                             permission.granted 
                               ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' 
                               : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
                           }`}>
                             {permission.granted ? (
-                              <CheckCircle2 className="h-4 w-4" />
+                              <CheckCircle2 className="h-3 w-3" />
                             ) : (
-                              <XCircle className="h-4 w-4" />
+                              <XCircle className="h-3 w-3" />
                             )}
                           </div>
                           <div className="min-w-0 flex-1">
-                            <p className="font-medium text-foreground">{permission.name}</p>
-                            <p className="text-sm text-muted-foreground">{permission.description}</p>
+                            <p className="font-medium text-sm text-foreground">{permission.name}</p>
+                            <p className="text-xs text-muted-foreground">{permission.description}</p>
                           </div>
                         </div>
                       </div>
                       <Switch
                         checked={permission.granted}
                         onCheckedChange={() => togglePermission(permission.id)}
-                        className="ml-4"
+                        className="ml-3"
                       />
                     </div>
                   ))}
@@ -367,10 +367,10 @@ export const UserDetailsPage: React.FC = () => {
             ))}
             
             {hasUnsavedChanges && (
-              <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+              <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg">
                 <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm font-medium">You have unsaved changes</span>
+                  <AlertCircle className="h-3 w-3" />
+                  <span className="text-xs font-medium">You have unsaved changes</span>
                 </div>
               </div>
             )}
