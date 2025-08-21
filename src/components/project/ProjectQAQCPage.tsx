@@ -92,19 +92,41 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const handleDeleteIssueReport = async (id: string, type: string) => {
     if (!projectId) return;
     if (type === 'issueReport') {
-      const confirmed = window.confirm('Delete this report? This cannot be undone.');
+      const confirmed = window.confirm('Delete this report and all associated issues? This cannot be undone.');
       if (!confirmed) return;
-      const { error } = await supabase
-        .from('issue_reports')
-        .delete()
-        .eq('id', id);
-      if (error) {
-        console.error('Failed to delete report', error);
-        toast({ title: 'Error', description: 'Failed to delete report', variant: 'destructive' });
-        return;
+      
+      try {
+        // First, delete all issues associated with this report
+        const { error: issuesError } = await supabase
+          .from('issues')
+          .delete()
+          .eq('report_id', id);
+        
+        if (issuesError) {
+          console.error('Failed to delete associated issues', issuesError);
+          toast({ title: 'Error', description: 'Failed to delete associated issues', variant: 'destructive' });
+          return;
+        }
+
+        // Then delete the report
+        const { error: reportError } = await supabase
+          .from('issue_reports')
+          .delete()
+          .eq('id', id);
+          
+        if (reportError) {
+          console.error('Failed to delete report', reportError);
+          toast({ title: 'Error', description: 'Failed to delete report', variant: 'destructive' });
+          return;
+        }
+        
+        toast({ title: 'Deleted', description: 'Report and associated issues deleted successfully' });
+        await queryClient.invalidateQueries({ queryKey: ['issue_reports', projectId] });
+        await queryClient.invalidateQueries({ queryKey: ['issues', projectId] });
+      } catch (error) {
+        console.error('Unexpected error during deletion', error);
+        toast({ title: 'Error', description: 'An unexpected error occurred', variant: 'destructive' });
       }
-      toast({ title: 'Deleted', description: 'Report deleted successfully' });
-      await queryClient.invalidateQueries({ queryKey: ['issue_reports', projectId] });
     }
   };
 
