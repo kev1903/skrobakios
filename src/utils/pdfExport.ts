@@ -671,7 +671,7 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       
       // Description box - positioned below attachments in landscape format
       const descriptionBoxX = 20;
-      const descriptionBoxY = attachmentY + attachmentAreaHeight + 20;
+      const descriptionBoxY = attachmentY + attachmentAreaHeight + 5;
       const descriptionBoxWidth = 170; // Wide landscape format
       const descriptionBoxHeight = 40;
       
