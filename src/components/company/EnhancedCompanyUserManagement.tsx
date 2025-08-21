@@ -43,7 +43,7 @@ interface CompanyMember {
   last_name: string;
   avatar_url?: string;
   phone?: string;
-  role: 'owner' | 'admin' | 'member';
+  role: 'owner' | 'admin' | 'manager' | 'worker' | 'supplier';
   status: 'active' | 'invited' | 'inactive';
   joined_at: string;
 }
@@ -78,7 +78,7 @@ export const EnhancedCompanyUserManagement = ({
   const [availableUsers, setAvailableUsers] = useState<AvailableUser[]>([]);
   const [availableUsersLoading, setAvailableUsersLoading] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'admin' | 'member'>('member');
+  const [selectedRole, setSelectedRole] = useState<'admin' | 'manager' | 'worker' | 'supplier'>('worker');
 
   const fetchMembers = async () => {
     if (!companyId) return;
@@ -86,24 +86,15 @@ export const EnhancedCompanyUserManagement = ({
     try {
       setLoading(true);
       
-      // Get company members with their profile information
-      const { data, error } = await supabase
+      // Step 1: Fetch company members (no joins to avoid FK requirement)
+      const { data: memberRows, error: membersError } = await supabase
         .from('company_members')
-        .select(`
-          *,
-          profiles:user_id (
-            email,
-            first_name,
-            last_name,
-            avatar_url,
-            phone
-          )
-        `)
+        .select('*')
         .eq('company_id', companyId)
         .eq('status', 'active');
 
-      if (error) {
-        console.error('Error fetching company members:', error);
+      if (membersError) {
+        console.error('Error fetching company members:', membersError);
         toast({
           title: "Error",
           description: "Failed to fetch company members",
@@ -112,19 +103,44 @@ export const EnhancedCompanyUserManagement = ({
         return;
       }
 
-      // Transform the data to match our interface
-      const transformedMembers = data?.map((member: any) => ({
-        id: member.id,
-        user_id: member.user_id,
-        email: member.profiles?.email || '',
-        first_name: member.profiles?.first_name || '',
-        last_name: member.profiles?.last_name || '',
-        avatar_url: member.profiles?.avatar_url,
-        phone: member.profiles?.phone,
-        role: member.role,
-        status: member.status,
-        joined_at: member.joined_at
-      })) || [];
+      const userIds = (memberRows || []).map((m: any) => m.user_id).filter(Boolean);
+
+      // Step 2: Fetch profiles for those user IDs
+      let profilesMap = new Map<string, any>();
+      if (userIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, email, first_name, last_name, avatar_url, phone')
+          .in('user_id', userIds);
+
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError);
+          toast({
+            title: "Error",
+            description: "Failed to fetch member profiles",
+            variant: "destructive",
+          });
+        } else {
+          profiles?.forEach((p: any) => profilesMap.set(p.user_id, p));
+        }
+      }
+
+      // Merge members with profile data
+      const transformedMembers = (memberRows || []).map((member: any) => {
+        const profile = profilesMap.get(member.user_id) || {};
+        return {
+          id: member.id,
+          user_id: member.user_id,
+          email: profile.email || '',
+          first_name: profile.first_name || '',
+          last_name: profile.last_name || '',
+          avatar_url: profile.avatar_url,
+          phone: profile.phone,
+          role: member.role,
+          status: member.status,
+          joined_at: member.joined_at,
+        } as CompanyMember;
+      });
 
       setMembers(transformedMembers);
 
@@ -148,7 +164,7 @@ export const EnhancedCompanyUserManagement = ({
   };
 
 
-  const handleRoleChange = async (memberId: string, newRole: 'owner' | 'admin' | 'member') => {
+  const handleRoleChange = async (memberId: string, newRole: 'owner' | 'admin' | 'manager' | 'worker' | 'supplier') => {
     try {
       const { error } = await supabase
         .from('company_members')
@@ -287,7 +303,7 @@ export const EnhancedCompanyUserManagement = ({
 
       setAddUserDialogOpen(false);
       setUserSearchTerm('');
-      setSelectedRole('member');
+      setSelectedRole('worker');
       fetchMembers();
     } catch (error) {
       console.error('Error adding user to company:', error);
@@ -431,7 +447,9 @@ export const EnhancedCompanyUserManagement = ({
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="member">Member</SelectItem>
+                            <SelectItem value="manager">Manager</SelectItem>
+                            <SelectItem value="worker">Worker</SelectItem>
+                            <SelectItem value="supplier">Supplier</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -576,7 +594,9 @@ export const EnhancedCompanyUserManagement = ({
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="admin">Admin</SelectItem>
-                              <SelectItem value="member">Member</SelectItem>
+                              <SelectItem value="manager">Manager</SelectItem>
+                              <SelectItem value="worker">Worker</SelectItem>
+                              <SelectItem value="supplier">Supplier</SelectItem>
                             </SelectContent>
                           </Select>
                         ) : (
