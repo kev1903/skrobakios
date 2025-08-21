@@ -1,10 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.2";
+import { validateRequest, safeParseJson, isValidUUID, checkRateLimit, getSecureHeaders } from "../_shared/security.ts";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const corsHeaders = getSecureHeaders();
 
 interface ValidateTokenRequest {
   token: string;
@@ -17,13 +15,45 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Security validation
+    const validation = validateRequest(req, {
+      maxRequestSize: 1000, // Small limit for token requests
+      rateLimitPerMinute: 10
+    });
+    
+    if (!validation.isValid) {
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        { status: validation.statusCode || 400, headers: corsHeaders }
+      );
+    }
+
+    // Rate limiting check
+    const clientIP = req.headers.get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(`token-validation:${clientIP}`, 10)) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded' }),
+        { status: 429, headers: corsHeaders }
+      );
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Parse the request body
-    const { token }: ValidateTokenRequest = await req.json();
+    // Parse and validate the request body
+    const bodyText = await req.text();
+    const { data: body, error: parseError } = safeParseJson<ValidateTokenRequest>(bodyText);
+    
+    if (parseError || !body?.token) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request format or missing token' }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    const { token } = body;
 
     if (!token) {
       return new Response(

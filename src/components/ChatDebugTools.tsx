@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from './ui/button';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { safeJsonParse } from '@/utils/secureJson';
 
 export function ChatDebugTools() {
   const { toast } = useToast();
@@ -26,42 +27,33 @@ export function ChatDebugTools() {
   };
 
   const inspectChatHistory = () => {
-    try {
-      const raw = localStorage.getItem('aiChatMessages');
-      if (raw) {
-        const messages = JSON.parse(raw);
-        console.log('Current chat history:', messages);
+    const raw = localStorage.getItem('aiChatMessages');
+    if (raw) {
+      const messages = safeJsonParse(raw, { fallback: [] });
+      console.log('Current chat history:', messages);
         
-        // Check for non-English messages
-        const nonEnglishMessages = messages.filter((m: any) => {
-          return /[^\x00-\x7F]/.test(m.content);
+      // Check for non-English messages
+      const nonEnglishMessages = messages.filter((m: any) => {
+        return /[^\x00-\x7F]/.test(m.content);
+      });
+      
+      if (nonEnglishMessages.length > 0) {
+        console.warn('Found non-English messages:', nonEnglishMessages);
+        toast({
+          title: "Non-English messages detected",
+          description: `Found ${nonEnglishMessages.length} non-English messages in chat history. Check console for details.`,
+          variant: "destructive"
         });
-        
-        if (nonEnglishMessages.length > 0) {
-          console.warn('Found non-English messages:', nonEnglishMessages);
-          toast({
-            title: "Non-English messages detected",
-            description: `Found ${nonEnglishMessages.length} non-English messages in chat history. Check console for details.`,
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Chat history clean",
-            description: "No non-English messages found in chat history.",
-          });
-        }
       } else {
         toast({
-          title: "No chat history",
-          description: "No chat messages found in localStorage.",
+          title: "Chat history clean",
+          description: "No non-English messages found in chat history.",
         });
       }
-    } catch (error) {
-      console.error('Failed to inspect chat history:', error);
+    } else {
       toast({
-        title: "Error",
-        description: "Failed to inspect chat history.",
-        variant: "destructive"
+        title: "No chat history",
+        description: "No chat messages found in localStorage.",
       });
     }
   };

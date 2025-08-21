@@ -11,6 +11,7 @@ import { DangerZoneCard } from "./project-settings/DangerZoneCard";
 import { ProjectOverviewCard } from "./project-settings/ProjectOverviewCard";
 import { ProjectBannerCard } from "./project-settings/ProjectBannerCard";
 import { ProjectSidebar } from "./ProjectSidebar";
+import { safeJsonParse } from "@/utils/secureJson";
 
 interface ProjectSettingsPageProps {
   project: Project;
@@ -164,14 +165,12 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     // Load existing coordinates from localStorage
     const savedCoordinates = localStorage.getItem(`project_coordinates_${project.id}`);
     if (savedCoordinates) {
-      try {
-        const coordinates = JSON.parse(savedCoordinates);
+      const coordinates = safeJsonParse(savedCoordinates, { fallback: null });
+      if (coordinates) {
         setFormData(prev => ({
           ...prev,
           coordinates
         }));
-      } catch (error) {
-        console.error('Error parsing saved coordinates:', error);
       }
     }
 
@@ -187,14 +186,12 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     // Load existing banner position from localStorage
     const savedBannerPosition = localStorage.getItem(`project_banner_position_${project.id}`);
     if (savedBannerPosition) {
-      try {
-        const bannerPosition = JSON.parse(savedBannerPosition);
+      const bannerPosition = safeJsonParse(savedBannerPosition, { fallback: null });
+      if (bannerPosition) {
         setFormData(prev => ({
           ...prev,
           banner_position: bannerPosition
         }));
-      } catch (error) {
-        console.error('Error parsing saved banner position:', error);
       }
     }
   }, [project.id]);

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye, Download, FileText, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { safeJsonParse } from '@/utils/secureJson';
 
 interface Bill {
   id: string;
@@ -71,7 +72,7 @@ export const InvoiceDetailsTable = ({
 
   const handleDownloadAttachment = async (fileAttachmentsStr: string) => {
     try {
-      const attachments = JSON.parse(fileAttachmentsStr);
+      const attachments = safeJsonParse(fileAttachmentsStr, { fallback: [] });
       if (attachments && attachments.length > 0) {
         const attachment = attachments[0];
         window.open(attachment.url, '_blank');

@@ -8,6 +8,7 @@ import { ProjectMetrics } from "./ProjectMetrics";
 import { LatestUpdates } from "./LatestUpdates";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { safeJsonParse } from "@/utils/secureJson";
 
 interface ProjectDetailProps {
   projectId: string | null;
@@ -73,11 +74,9 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
           // Load banner position from localStorage
           const savedBannerPosition = localStorage.getItem(`project_banner_position_${foundProject.id}`);
           if (savedBannerPosition) {
-            try {
-              const position = JSON.parse(savedBannerPosition);
+            const position = safeJsonParse(savedBannerPosition, { fallback: null });
+            if (position) {
               setBannerPosition(position);
-            } catch (error) {
-              console.error('Error parsing saved banner position:', error);
             }
           }
         } else {
