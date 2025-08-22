@@ -95,7 +95,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
       setTimeout(() => {
         isScrolling = false;
-      }, 800);
+      }, 1400);
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
