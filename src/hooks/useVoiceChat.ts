@@ -138,6 +138,184 @@ export function useVoiceChat() {
     }
   }, []);
 
+  const stopCurrentAudio = useCallback(() => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
+    }
+    
+    // Stop browser speech synthesis
+    if ('speechSynthesis' in window) {
+      speechSynthesis.cancel();
+    }
+    
+    updateState({ isSpeaking: false });
+    console.log('Stopped current audio playback for interruption');
+  }, [updateState]);
+
+  const speakText = useCallback(async (text: string) => {
+    try {
+      console.log('Converting text to speech:', text);
+      
+      // Use our text-to-speech edge function
+      const ttsResult = await invokeEdge('text-to-speech', {
+        text: text,
+        voice: 'alloy'
+      });
+
+      if (!ttsResult?.audioContent) {
+        throw new Error('No audio content received from TTS');
+      }
+
+      // Convert base64 to blob and play
+      const binaryString = atob(ttsResult.audioContent);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      const audioBlob = new Blob([bytes], { type: 'audio/mp3' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      
+      // Store reference for potential interruption
+      currentAudioRef.current = audio;
+      
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl);
+        updateState({ isSpeaking: false });
+        currentAudioRef.current = null;
+        console.log('AI finished speaking, continuing to listen...');
+      };
+
+      audio.onerror = () => {
+        URL.revokeObjectURL(audioUrl);
+        currentAudioRef.current = null;
+        throw new Error('Audio playback failed');
+      };
+
+      await audio.play();
+      
+    } catch (error) {
+      console.error('Error in text-to-speech:', error);
+      
+      // Fallback: Use browser's speech synthesis
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 0.8;
+        
+        utterance.onend = () => {
+          updateState({ isSpeaking: false });
+          console.log('Browser speech finished, continuing to listen...');
+        };
+        
+        speechSynthesis.speak(utterance);
+      } else {
+        updateState({ isSpeaking: false });
+        toast.error('Text-to-speech not available');
+      }
+    }
+  }, [updateState]);
+
+  const processAudioChunks = useCallback(async () => {
+    try {
+      updateState({ isProcessing: true, isListening: false });
+      console.log('Processing audio chunks...');
+
+      // If AI is speaking, interrupt it
+      if (state.isSpeaking) {
+        console.log('Interrupting AI speech...');
+        stopCurrentAudio();
+      }
+
+      // Combine audio chunks
+      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+      
+      // Enhanced audio filtering
+      const minSize = settings.enableVAD ? 5000 : 1000;
+      if (audioBlob.size < minSize) {
+        console.log(`Audio too short (${audioBlob.size} bytes), skipping...`);
+        updateState({ isProcessing: false });
+        return;
+      }
+      
+      // Convert to base64
+      const base64Audio = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          const base64 = result.split(',')[1] || '';
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(audioBlob);
+      });
+
+      console.log('Sending audio to voice-transcribe function...');
+
+      // Transcribe speech to text
+      const transcriptionResult = await invokeEdge('voice-transcribe', {
+        audio: base64Audio
+      });
+
+      let transcribedText = transcriptionResult?.text?.trim();
+      
+      // Additional client-side filtering for safety
+      if (transcribedText && /[^\x00-\x7F]/.test(transcribedText)) {
+        console.warn('Client-side: Filtering non-English text from transcription');
+        transcribedText = transcribedText.replace(/[^\x00-\x7F]/g, ' ').replace(/\s+/g, ' ').trim();
+      }
+      
+      // Apply media phrase filtering
+      transcribedText = filterMediaPhrases(transcribedText);
+      
+      if (!transcribedText || transcribedText.length < 2) {
+        console.log('No meaningful speech detected after filtering, continuing to listen...');
+        updateState({ isProcessing: false });
+        return;
+      }
+
+      console.log('Transcribed text:', transcribedText);
+      toast.success('Speech recognized', {
+        description: `"${transcribedText}"`
+      });
+
+      // Send to SkAi for processing
+      console.log('Sending to SkAi...');
+      updateState({ isSpeaking: true });
+
+      const aiResponse = await invokeEdge('ai-chat', {
+        message: transcribedText,
+        conversationHistory: []
+      });
+
+      const aiText = aiResponse?.response;
+      
+      if (!aiText) {
+        toast.error('No response from SkAi');
+        updateState({ isProcessing: false, isSpeaking: false });
+        return;
+      }
+
+      console.log('SkAi response:', aiText);
+
+      // Convert AI response to speech
+      await speakText(aiText);
+
+    } catch (error) {
+      console.error('Error processing audio:', error);
+      toast.error('Voice processing failed', {
+        description: 'Please try again.'
+      });
+    } finally {
+      updateState({ isProcessing: false });
+      audioChunksRef.current = [];
+    }
+  }, [updateState, state.isSpeaking, stopCurrentAudio, filterMediaPhrases, settings.enableVAD, speakText]);
+
   const startContinuousListening = useCallback(async () => {
     if (!isActiveRef.current || state.listeningMode !== 'continuous') return;
     
@@ -247,7 +425,7 @@ export function useVoiceChat() {
         description: 'Please allow microphone access to use voice chat.'
       });
     }
-  }, [state.isProcessing, state.listeningMode, settings, updateState, setupAudioAnalysis, detectVoiceActivity]);
+  }, [state.isProcessing, state.listeningMode, settings, updateState, setupAudioAnalysis, detectVoiceActivity, processAudioChunks]);
 
   const startPushToTalk = useCallback(async () => {
     if (!isActiveRef.current || isPushToTalkActiveRef.current) return;
@@ -304,7 +482,7 @@ export function useVoiceChat() {
       isPushToTalkActiveRef.current = false;
       updateState({ isListening: false });
     }
-  }, [setupAudioAnalysis, updateState]);
+  }, [setupAudioAnalysis, updateState, processAudioChunks]);
 
   const stopPushToTalk = useCallback(() => {
     if (audioRecorderRef.current && isPushToTalkActiveRef.current) {
@@ -321,14 +499,39 @@ export function useVoiceChat() {
         listeningMode: mode 
       });
       
+      // Trigger SkAi greeting
+      console.log('Triggering SkAi greeting...');
+      updateState({ isSpeaking: true });
+      
+      try {
+        const greetingResponse = await invokeEdge('ai-chat', {
+          message: 'Hello! I just activated voice chat. Please greet me warmly and let me know you\'re ready to help.',
+          conversationHistory: []
+        });
+
+        const greetingText = greetingResponse?.response;
+        
+        if (greetingText) {
+          console.log('SkAi greeting:', greetingText);
+          await speakText(greetingText);
+        } else {
+          // Fallback greeting if AI doesn't respond
+          await speakText('Hello! SkAi is ready to help you. How can I assist you today?');
+        }
+      } catch (greetingError) {
+        console.error('Failed to get SkAi greeting:', greetingError);
+        // Fallback greeting
+        await speakText('Hello! SkAi voice interface is now active. How can I help you?');
+      }
+      
       if (mode === 'continuous') {
         await startContinuousListening();
         toast.success('Continuous voice mode activated', {
-          description: 'Always listening with smart voice detection!'
+          description: 'SkAi is ready and listening!'
         });
       } else {
         toast.success('Push-to-talk mode activated', {
-          description: 'Hold the mic button to speak'
+          description: 'SkAi is ready - hold the mic button to speak'
         });
       }
 
@@ -336,185 +539,7 @@ export function useVoiceChat() {
       console.error('Failed to initialize voice chat:', error);
       toast.error('Voice chat initialization failed');
     }
-  }, [startContinuousListening, updateState]);
-
-  const stopCurrentAudio = useCallback(() => {
-    if (currentAudioRef.current) {
-      currentAudioRef.current.pause();
-      currentAudioRef.current.currentTime = 0;
-      currentAudioRef.current = null;
-    }
-    
-    // Stop browser speech synthesis
-    if ('speechSynthesis' in window) {
-      speechSynthesis.cancel();
-    }
-    
-    updateState({ isSpeaking: false });
-    console.log('Stopped current audio playback for interruption');
-  }, [updateState]);
-
-  const processAudioChunks = useCallback(async () => {
-    try {
-      updateState({ isProcessing: true, isListening: false });
-      console.log('Processing audio chunks...');
-
-      // If AI is speaking, interrupt it
-      if (state.isSpeaking) {
-        console.log('Interrupting AI speech...');
-        stopCurrentAudio();
-      }
-
-      // Combine audio chunks
-      const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-      
-      // Enhanced audio filtering
-      const minSize = settings.enableVAD ? 5000 : 1000;
-      if (audioBlob.size < minSize) {
-        console.log(`Audio too short (${audioBlob.size} bytes), skipping...`);
-        updateState({ isProcessing: false });
-        return;
-      }
-      
-      // Convert to base64
-      const base64Audio = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const result = reader.result as string;
-          const base64 = result.split(',')[1] || '';
-          resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(audioBlob);
-      });
-
-      console.log('Sending audio to voice-transcribe function...');
-
-      // Transcribe speech to text
-      const transcriptionResult = await invokeEdge('voice-transcribe', {
-        audio: base64Audio
-      });
-
-      let transcribedText = transcriptionResult?.text?.trim();
-      
-      // Additional client-side filtering for safety
-      if (transcribedText && /[^\x00-\x7F]/.test(transcribedText)) {
-        console.warn('Client-side: Filtering non-English text from transcription');
-        transcribedText = transcribedText.replace(/[^\x00-\x7F]/g, ' ').replace(/\s+/g, ' ').trim();
-      }
-      
-      // Apply media phrase filtering
-      transcribedText = filterMediaPhrases(transcribedText);
-      
-      if (!transcribedText || transcribedText.length < 2) {
-        console.log('No meaningful speech detected after filtering, continuing to listen...');
-        updateState({ isProcessing: false });
-        return;
-      }
-
-      console.log('Transcribed text:', transcribedText);
-      toast.success('Speech recognized', {
-        description: `"${transcribedText}"`
-      });
-
-      // Send to SkAi for processing
-      console.log('Sending to SkAi...');
-      updateState({ isSpeaking: true });
-
-      const aiResponse = await invokeEdge('ai-chat', {
-        message: transcribedText,
-        conversationHistory: []
-      });
-
-      const aiText = aiResponse?.response;
-      
-      if (!aiText) {
-        toast.error('No response from SkAi');
-        updateState({ isProcessing: false, isSpeaking: false });
-        return;
-      }
-
-      console.log('SkAi response:', aiText);
-
-      // Convert AI response to speech
-      await speakText(aiText);
-
-    } catch (error) {
-      console.error('Error processing audio:', error);
-      toast.error('Voice processing failed', {
-        description: 'Please try again.'
-      });
-    } finally {
-      updateState({ isProcessing: false });
-      audioChunksRef.current = [];
-    }
-  }, [updateState, state.isSpeaking, stopCurrentAudio, filterMediaPhrases, settings.enableVAD]);
-
-  const speakText = useCallback(async (text: string) => {
-    try {
-      console.log('Converting text to speech:', text);
-      
-      // Use our text-to-speech edge function
-      const ttsResult = await invokeEdge('text-to-speech', {
-        text: text,
-        voice: 'alloy'
-      });
-
-      if (!ttsResult?.audioContent) {
-        throw new Error('No audio content received from TTS');
-      }
-
-      // Convert base64 to blob and play
-      const binaryString = atob(ttsResult.audioContent);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      
-      const audioBlob = new Blob([bytes], { type: 'audio/mp3' });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      
-      // Store reference for potential interruption
-      currentAudioRef.current = audio;
-      
-      audio.onended = () => {
-        URL.revokeObjectURL(audioUrl);
-        updateState({ isSpeaking: false });
-        currentAudioRef.current = null;
-        console.log('AI finished speaking, continuing to listen...');
-      };
-
-      audio.onerror = () => {
-        URL.revokeObjectURL(audioUrl);
-        currentAudioRef.current = null;
-        throw new Error('Audio playback failed');
-      };
-
-      await audio.play();
-      
-    } catch (error) {
-      console.error('Error in text-to-speech:', error);
-      
-      // Fallback: Use browser's speech synthesis
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
-        utterance.volume = 0.8;
-        
-        utterance.onend = () => {
-          updateState({ isSpeaking: false });
-          console.log('Browser speech finished, continuing to listen...');
-        };
-        
-        speechSynthesis.speak(utterance);
-      } else {
-        updateState({ isSpeaking: false });
-        toast.error('Text-to-speech not available');
-      }
-    }
-  }, [updateState]);
+  }, [startContinuousListening, updateState, speakText]);
 
   const disconnect = useCallback(() => {
     console.log('Disconnecting voice chat...');
