@@ -129,13 +129,13 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   return (
     <div className="h-screen overflow-hidden relative bg-brand-white">
       
-      {/* Fixed Header with Navigation - Hidden */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md opacity-0 pointer-events-none">
+      {/* Fixed Header with Navigation - Restored */}
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-brand-white/80 border-b border-brand-gray/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <div className="text-xl font-playfair font-light text-brand-charcoal cursor-pointer" onClick={() => goToSlide(0)}>
+              <div className="text-2xl font-playfair font-light text-brand-charcoal cursor-pointer" onClick={() => goToSlide(0)}>
                 soulay
               </div>
             </div>
@@ -144,34 +144,52 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <nav className="hidden lg:flex items-center justify-center space-x-8 flex-1">
               <button 
                 onClick={() => onNavigate('services')}
-                className="text-sm font-medium text-brand-charcoal/90 hover:text-brand-charcoal transition-colors duration-200"
+                className="text-sm font-medium text-brand-charcoal/80 hover:text-brand-charcoal transition-colors duration-200 uppercase tracking-wide"
               >
                 Collections
               </button>
               <button 
                 onClick={() => onNavigate('projects')}
-                className="text-sm font-medium text-brand-charcoal/90 hover:text-brand-charcoal transition-colors duration-200"
+                className="text-sm font-medium text-brand-charcoal/80 hover:text-brand-charcoal transition-colors duration-200 uppercase tracking-wide"
               >
                 About
               </button>
               <button 
                 onClick={() => onNavigate('about')}
-                className="text-sm font-medium text-brand-charcoal/90 hover:text-brand-charcoal transition-colors duration-200"
+                className="text-sm font-medium text-brand-charcoal/80 hover:text-brand-charcoal transition-colors duration-200 uppercase tracking-wide"
               >
                 Studio
               </button>
               <button 
                 onClick={() => onNavigate('contact')}
-                className="text-sm font-medium text-brand-charcoal/90 hover:text-brand-charcoal transition-colors duration-200"
+                className="text-sm font-medium text-brand-charcoal/80 hover:text-brand-charcoal transition-colors duration-200 uppercase tracking-wide"
               >
                 Contact
               </button>
             </nav>
 
-            {/* Login Button */}
+            {/* Mobile Navigation Menu */}
+            <div className="lg:hidden flex items-center space-x-4">
+              <nav className="flex items-center space-x-4">
+                <button 
+                  onClick={() => onNavigate('services')}
+                  className="text-xs font-medium text-brand-charcoal/80 hover:text-brand-charcoal transition-colors duration-200 uppercase tracking-wide"
+                >
+                  Collections
+                </button>
+                <button 
+                  onClick={() => onNavigate('projects')}
+                  className="text-xs font-medium text-brand-charcoal/80 hover:text-brand-charcoal transition-colors duration-200 uppercase tracking-wide"
+                >
+                  Studio
+                </button>
+              </nav>
+            </div>
+
+            {/* Shop Button */}
             <button 
               onClick={() => onNavigate('auth')}
-              className="px-6 py-2 text-sm font-medium text-brand-charcoal hover:text-brand-black border border-brand-charcoal/20 hover:border-brand-charcoal/40 transition-all duration-200 uppercase tracking-wider"
+              className="px-6 py-2 text-sm font-medium text-brand-charcoal hover:text-brand-white hover:bg-brand-charcoal border border-brand-charcoal/30 hover:border-brand-charcoal transition-all duration-300 uppercase tracking-wider"
             >
               Shop
             </button>
