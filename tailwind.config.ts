@@ -82,18 +82,22 @@ export default {
 					border: 'hsl(var(--glass-border) / 0.1)', 
 					shadow: 'hsl(var(--glass-shadow) / 0.05)'
 				},
-				// Modern Blue Brand Colors
-				'brand-blue': {
-					DEFAULT: 'hsl(var(--brand-blue))',
-					light: 'hsl(var(--brand-blue-light))',
-					dark: 'hsl(var(--brand-blue-dark))',
-				},
+				// Soleil Eclat Brand Colors
 				'brand-navy': {
 					DEFAULT: 'hsl(var(--brand-navy))',
 					light: 'hsl(var(--brand-navy-light))',
 				},
-				'brand-light-blue': 'hsl(var(--brand-light-blue))',
+				'brand-blue': {
+					DEFAULT: 'hsl(var(--brand-blue))',
+					light: 'hsl(var(--brand-blue-light))',
+				},
+				'brand-gold': {
+					DEFAULT: 'hsl(var(--brand-gold))',
+					light: 'hsl(var(--brand-gold-light))',
+				},
+				'brand-amber': 'hsl(var(--brand-amber))',
 				'brand-gray': 'hsl(var(--brand-gray))',
+				'brand-cream': 'hsl(var(--brand-cream))',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

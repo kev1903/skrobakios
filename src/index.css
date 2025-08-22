@@ -84,27 +84,27 @@ div[data-rbd-drag-handle-draggable-id] {
 
 @layer base {
   :root {
-    /* Light Theme - Modern Blue Gradient Design System */
-    --background: 0 0% 100%;
-    --foreground: 220 20% 10%;
+    /* Light Theme - Soleil Eclat Brand Design System */
+    --background: 0 0% 98%;
+    --foreground: 200 25% 10%;
 
-    --card: 0 0% 98%;
-    --card-foreground: 220 15% 20%;
+    --card: 0 0% 96%;
+    --card-foreground: 200 20% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 15%;
+    --popover: 0 0% 98%;
+    --popover-foreground: 200 20% 15%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 199 84% 22%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 15% 25%;
+    --secondary: 45 45% 75%;
+    --secondary-foreground: 200 25% 10%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 8% 20%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 200 15% 40%;
 
-    --accent: 217 91% 95%;
-    --accent-foreground: 217 91% 60%;
+    --accent: 210 75% 65%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
@@ -115,38 +115,40 @@ div[data-rbd-drag-handle-draggable-id] {
     --success: 142 76% 36%;
     --success-foreground: 355 100% 97%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 97%;
-    --ring: 217 91% 60%;
+    --border: 200 15% 85%;
+    --input: 200 10% 92%;
+    --ring: 199 84% 22%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     /* Header height used for fixed menu spacing */
     --header-height: 73px;
 
-    /* Enhanced Blue Glassmorphism Theme - Ultra Transparent */
-    --glass-bg: 0 0% 100%;
+    /* Soleil Eclat Glassmorphism Theme */
+    --glass-bg: 0 0% 98%;
     --glass-bg-light: 0 0% 100%;
-    --glass-bg-hover: 0 0% 100%;
-    --glass-border: 0 0% 100%;
-    --glass-shadow: 0 0% 0%;
-    --glass-shadow-hover: 0 0% 0%;
+    --glass-bg-hover: 0 0% 96%;
+    --glass-border: 200 15% 85%;
+    --glass-shadow: 200 25% 10%;
+    --glass-shadow-hover: 200 25% 10%;
     --glass-backdrop: blur(20px);
     
-    /* Blue Gradient Brand Colors */
-    --brand-blue: 217 91% 60%;
-    --brand-blue-light: 217 91% 70%;
-    --brand-blue-dark: 217 91% 50%;
-    --brand-navy: 220 20% 10%;
-    --brand-navy-light: 220 20% 20%;
-    --brand-light-blue: 210 100% 95%;
-    --brand-gray: 220 8% 55%;
+    /* Soleil Eclat Brand Colors - From Brand Guidelines */
+    --brand-navy: 199 84% 22%;        /* #1E3C40 */
+    --brand-navy-light: 199 70% 30%;
+    --brand-blue: 210 75% 65%;        /* #4284D0 */
+    --brand-blue-light: 210 75% 75%;
+    --brand-gold: 45 45% 56%;         /* #BF9F54 */
+    --brand-gold-light: 45 45% 66%;
+    --brand-amber: 50 68% 42%;        /* #A29E21 */
+    --brand-gray: 200 15% 60%;
+    --brand-cream: 45 30% 92%;
     
-    /* Modern Blue Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(217 91% 70%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(220 20% 10%) 0%, hsl(220 20% 20%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 197, 253, 0.04) 100%);
-    --gradient-blue-bg: linear-gradient(135deg, hsl(217 91% 95%) 0%, hsl(210 100% 95%) 50%, hsl(217 91% 92%) 100%);
+    /* Soleil Eclat Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(199 84% 22%) 0%, hsl(210 75% 65%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(45 45% 56%) 0%, hsl(50 68% 42%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(30, 60, 64, 0.08) 0%, rgba(66, 132, 208, 0.04) 100%);
+    --gradient-cream-bg: linear-gradient(135deg, hsl(45 30% 96%) 0%, hsl(0 0% 98%) 50%, hsl(45 20% 94%) 100%);
     
     /* Enhanced Design System Colors */
     --neutral-50: 210 100% 98%;
@@ -231,9 +233,9 @@ div[data-rbd-drag-handle-draggable-id] {
   body {
     @apply bg-background text-foreground font-inter;
     background: 
-      radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(147, 197, 253, 0.08) 0%, transparent 60%),
-      var(--gradient-blue-bg);
+      radial-gradient(circle at 20% 30%, rgba(30, 60, 64, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(191, 159, 84, 0.03) 0%, transparent 60%),
+      var(--gradient-cream-bg);
     min-height: 100vh;
     position: relative;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
