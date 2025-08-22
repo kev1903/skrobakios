@@ -29,25 +29,25 @@ export const VoiceSphere = ({
         "relative flex items-center justify-center w-full h-full rounded-full transition-all duration-700 ease-out group",
         // Inactive state - greyscale and dormant
         !isActive && "bg-gradient-to-br from-gray-400 via-gray-500 to-gray-600 backdrop-blur-xl border border-gray-400/20 shadow-lg",
-        // Active state - colorful and alive  
-        isActive && "bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 backdrop-blur-xl border border-white/20 shadow-2xl",
+        // Active state - blue theme to match Skrobaki logo  
+        isActive && "bg-gradient-to-br from-blue-500 via-blue-600 to-slate-700 backdrop-blur-xl border border-white/20 shadow-2xl",
         onClick && "cursor-pointer active:scale-95 focus:outline-none focus:ring-4",
         // Inactive hover effects
         onClick && !isActive && "hover:shadow-[0_0_30px_rgba(107,114,128,0.5)] hover:scale-105 hover:border-gray-300/40 focus:ring-gray-400/30 focus:ring-offset-2",
         // Active hover effects  
-        onClick && isActive && "hover:shadow-[0_0_40px_rgba(147,51,234,0.6)] hover:scale-110 hover:border-white/40 focus:ring-purple-400/30 focus:ring-offset-2",
-        (isActive || isListening) && "shadow-[0_0_50px_rgba(147,51,234,0.8)] ring-4 ring-purple-300/50",
+        onClick && isActive && "hover:shadow-[0_0_40px_rgba(59,130,246,0.6)] hover:scale-110 hover:border-white/40 focus:ring-blue-400/30 focus:ring-offset-2",
+        (isActive || isListening) && "shadow-[0_0_50px_rgba(59,130,246,0.8)] ring-4 ring-blue-300/50",
         isSpeaking && "animate-pulse",
         className
       )}
       style={{
         transform: `scale(${isActive ? getScaleIntensity() : 1}) rotate(${isSpeaking ? pulseIntensity * 2 : 0}deg)`,
         boxShadow: isActive && isSpeaking 
-          ? `0 0 ${40 + getGlowIntensity() * 60}px rgba(147, 51, 234, ${0.6 + getGlowIntensity() * 0.4}), 
-             0 0 ${80 + getGlowIntensity() * 40}px rgba(59, 130, 246, ${0.3 + getGlowIntensity() * 0.3}),
+          ? `0 0 ${40 + getGlowIntensity() * 60}px rgba(59, 130, 246, ${0.6 + getGlowIntensity() * 0.4}), 
+             0 0 ${80 + getGlowIntensity() * 40}px rgba(30, 64, 175, ${0.3 + getGlowIntensity() * 0.3}),
              inset 0 2px 4px rgba(255, 255, 255, 0.3)` 
           : isActive 
-            ? "0 20px 40px rgba(147, 51, 234, 0.4), 0 10px 20px rgba(59, 130, 246, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.3)"
+            ? "0 20px 40px rgba(59, 130, 246, 0.4), 0 10px 20px rgba(30, 64, 175, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.3)"
             : "0 10px 20px rgba(107, 114, 128, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.1)"
       }}
       title={onClick ? (isActive ? "Stop Voice Chat" : "Start Voice Chat with SkAi") : undefined}
@@ -76,7 +76,7 @@ export const VoiceSphere = ({
         <div 
           className="absolute inset-2 rounded-full opacity-80"
           style={{
-            background: "linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 25%, rgba(147, 51, 234, 0.1) 50%, transparent 75%)"
+            background: "linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.4) 25%, rgba(59, 130, 246, 0.1) 50%, transparent 75%)"
           }}
         />
       )}
@@ -86,29 +86,28 @@ export const VoiceSphere = ({
         <div className="absolute inset-0 rounded-full overflow-hidden">
           <div className="absolute w-1 h-1 bg-white/60 rounded-full animate-ping" style={{top: '20%', left: '30%', animationDelay: '0s'}} />
           <div className="absolute w-1 h-1 bg-white/40 rounded-full animate-ping" style={{top: '70%', right: '25%', animationDelay: '1s'}} />
-          <div className="absolute w-0.5 h-0.5 bg-purple-200/80 rounded-full animate-ping" style={{bottom: '30%', left: '60%', animationDelay: '2s'}} />
+          <div className="absolute w-0.5 h-0.5 bg-blue-200/80 rounded-full animate-ping" style={{bottom: '30%', left: '60%', animationDelay: '2s'}} />
         </div>
       )}
 
       {/* Enhanced listening glow */}
       {isListening && !isSpeaking && (
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-blue-400/30 to-pink-400/20 animate-pulse" />
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400/40 via-slate-600/30 to-white/20 animate-pulse" />
       )}
-
 
       {/* Sophisticated outer ring animation for listening state */}
       {isListening && !isSpeaking && (
-        <div className="absolute inset-0 rounded-full border-2 border-purple-300/50 animate-ping" />
+        <div className="absolute inset-0 rounded-full border-2 border-blue-300/50 animate-ping" />
       )}
 
       {/* Enhanced audio level visualization ring */}
       {audioLevel > 0 && isListening && (
         <div 
-          className="absolute inset-0 rounded-full border-2 border-gradient-to-r from-purple-400 to-blue-400 transition-all duration-100 shadow-lg"
+          className="absolute inset-0 rounded-full border-2 border-gradient-to-r from-blue-400 to-slate-600 transition-all duration-100 shadow-lg"
           style={{
             transform: `scale(${1 + audioLevel * 0.3})`,
             opacity: audioLevel * 0.8 + 0.2,
-            boxShadow: `0 0 ${10 + audioLevel * 20}px rgba(147, 51, 234, ${audioLevel * 0.6})`
+            boxShadow: `0 0 ${10 + audioLevel * 20}px rgba(59, 130, 246, ${audioLevel * 0.6})`
           }}
         />
       )}
@@ -117,9 +116,9 @@ export const VoiceSphere = ({
       {onClick && (
         <div className={cn(
           "absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-white/80 transition-all duration-500 shadow-lg backdrop-blur-sm",
-          isActive && isSpeaking ? "bg-gradient-to-r from-purple-400 to-pink-400 animate-pulse shadow-purple-400/50" : 
-          isActive && isListening ? "bg-gradient-to-r from-blue-400 to-purple-400 animate-pulse shadow-blue-400/50" :
-          isActive ? "bg-gradient-to-r from-orange-400 to-yellow-400 shadow-orange-400/50" : "bg-gradient-to-r from-gray-400 to-gray-500"
+          isActive && isSpeaking ? "bg-gradient-to-r from-blue-400 to-slate-600 animate-pulse shadow-blue-400/50" : 
+          isActive && isListening ? "bg-gradient-to-r from-blue-400 to-slate-700 animate-pulse shadow-blue-400/50" :
+          isActive ? "bg-gradient-to-r from-blue-300 to-white shadow-blue-300/50" : "bg-gradient-to-r from-gray-400 to-gray-500"
         )} />
       )}
     </div>

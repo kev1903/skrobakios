@@ -25,7 +25,7 @@ export const AISpeakingEffects = ({ isSpeaking, pulseIntensity, getGlowIntensity
       <div 
         className="absolute inset-0 rounded-full"
         style={{
-          background: `radial-gradient(circle, rgba(147, 197, 253, ${getGlowIntensity() * 0.6}) 0%, rgba(147, 197, 253, 0) 60%)`,
+          background: `radial-gradient(circle, rgba(96, 165, 250, ${getGlowIntensity() * 0.6}) 0%, rgba(96, 165, 250, 0) 60%)`,
           filter: 'blur(10px)',
           transform: 'scale(1.5)',
         }}
