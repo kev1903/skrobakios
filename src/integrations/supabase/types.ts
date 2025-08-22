@@ -3514,6 +3514,33 @@ export type Database = {
           },
         ]
       }
+      security_rate_limits: {
+        Row: {
+          action_type: string
+          attempt_count: number
+          created_at: string
+          id: string
+          identifier: string
+          window_start: string
+        }
+        Insert: {
+          action_type: string
+          attempt_count?: number
+          created_at?: string
+          id?: string
+          identifier: string
+          window_start?: string
+        }
+        Update: {
+          action_type?: string
+          attempt_count?: number
+          created_at?: string
+          id?: string
+          identifier?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       service_categories: {
         Row: {
           created_at: string
@@ -4352,10 +4379,12 @@ export type Database = {
       user_access_tokens: {
         Row: {
           created_at: string
+          encryption_key_id: string | null
           expires_at: string
           id: string
           last_used_at: string | null
           token: string
+          token_encrypted: string | null
           token_type: string
           updated_at: string
           used_at: string | null
@@ -4364,10 +4393,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          encryption_key_id?: string | null
           expires_at: string
           id?: string
           last_used_at?: string | null
           token: string
+          token_encrypted?: string | null
           token_type: string
           updated_at?: string
           used_at?: string | null
@@ -4376,10 +4407,12 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          encryption_key_id?: string | null
           expires_at?: string
           id?: string
           last_used_at?: string | null
           token?: string
+          token_encrypted?: string | null
           token_type?: string
           updated_at?: string
           used_at?: string | null
@@ -4794,12 +4827,15 @@ export type Database = {
       xero_connections: {
         Row: {
           access_token: string
+          access_token_encrypted: string | null
           connected_at: string
           created_at: string
+          encryption_key_id: string | null
           expires_at: string
           id: string
           last_sync: string | null
           refresh_token: string
+          refresh_token_encrypted: string | null
           tenant_id: string
           tenant_name: string | null
           updated_at: string
@@ -4807,12 +4843,15 @@ export type Database = {
         }
         Insert: {
           access_token: string
+          access_token_encrypted?: string | null
           connected_at?: string
           created_at?: string
+          encryption_key_id?: string | null
           expires_at: string
           id?: string
           last_sync?: string | null
           refresh_token: string
+          refresh_token_encrypted?: string | null
           tenant_id: string
           tenant_name?: string | null
           updated_at?: string
@@ -4820,12 +4859,15 @@ export type Database = {
         }
         Update: {
           access_token?: string
+          access_token_encrypted?: string | null
           connected_at?: string
           created_at?: string
+          encryption_key_id?: string | null
           expires_at?: string
           id?: string
           last_sync?: string | null
           refresh_token?: string
+          refresh_token_encrypted?: string | null
           tenant_id?: string
           tenant_name?: string | null
           updated_at?: string
@@ -4998,6 +5040,15 @@ export type Database = {
         Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
       }
+      check_security_rate_limit: {
+        Args: {
+          action_type_param: string
+          identifier_param: string
+          max_attempts?: number
+          window_minutes?: number
+        }
+        Returns: boolean
+      }
       copy_monday_blocks_to_weekdays: {
         Args: { target_user_id: string }
         Returns: undefined
@@ -5026,6 +5077,10 @@ export type Database = {
           user_role: string
         }[]
       }
+      decrypt_sensitive_data: {
+        Args: { encrypted_data: string }
+        Returns: string
+      }
       delete_company_completely: {
         Args: { target_company_id: string }
         Returns: Json
@@ -5033,6 +5088,10 @@ export type Database = {
       delete_user_completely: {
         Args: { target_user_id: string }
         Returns: Json
+      }
+      encrypt_sensitive_data: {
+        Args: { data: string }
+        Returns: string
       }
       generate_access_token: {
         Args: Record<PropertyKey, never>
