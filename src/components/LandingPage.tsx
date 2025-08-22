@@ -30,6 +30,7 @@ import {
 import heroImage from '@/assets/hero-architecture.jpg';
 import modernBuilding from '@/assets/modern-building.jpg';
 import whiteBuilding from '@/assets/white-building.jpg';
+import heroBackground from '@/assets/hero-background.png';
 import { Architectural3DScene } from '@/components/3d/Architectural3DScene';
 
 interface LandingPageProps {
@@ -232,10 +233,10 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+          backgroundImage: `url(${heroBackground})`
         }}
       >
-        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="absolute inset-0 bg-black/40"></div>
       </div>
       
       {/* Fixed Header with Navigation */}
