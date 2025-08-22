@@ -318,7 +318,7 @@ const AppContent = () => {
   };
 
   const isMobile = useIsMobile();
-  const showMenuBar = (((user && !isLandingPage && !isAuthPage && !isSignUpPage) || isHomePage) && !(isHomePage && isMobile));
+  const showMenuBar = user && !isLandingPage && !isAuthPage && !isSignUpPage;
 
   return (
     <AppContextProvider>
