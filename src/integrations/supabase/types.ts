@@ -5154,7 +5154,7 @@ export type Database = {
         }[]
       }
       get_leads_with_masked_contact: {
-        Args: { requesting_user_id?: string }
+        Args: Record<PropertyKey, never> | { requesting_user_id?: string }
         Returns: {
           avatar_url: string
           company: string
@@ -5471,6 +5471,10 @@ export type Database = {
       }
       user_can_access_project_direct: {
         Args: { project_id_param: string; user_id_param: string }
+        Returns: boolean
+      }
+      user_can_view_lead_contacts: {
+        Args: { company_id: string; user_id: string }
         Returns: boolean
       }
       user_has_permission: {
