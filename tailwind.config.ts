@@ -82,27 +82,15 @@ export default {
 					border: 'hsl(var(--glass-border) / 0.1)', 
 					shadow: 'hsl(var(--glass-shadow) / 0.05)'
 				},
-				// Soleil Eclat Brand Colors - Updated from Guidelines
-				'brand-navy': {
-					DEFAULT: 'hsl(var(--brand-navy))',
-					light: 'hsl(var(--brand-navy-light))',
-				},
-				'brand-blue': {
-					DEFAULT: 'hsl(var(--brand-blue))',
-					light: 'hsl(var(--brand-blue-light))',
-				},
-				'brand-beige': {
-					DEFAULT: 'hsl(var(--brand-beige))',
-					light: 'hsl(var(--brand-beige-light))',
-				},
-				'brand-brown': 'hsl(var(--brand-brown))',
-				'brand-gold': {
-					DEFAULT: 'hsl(var(--brand-gold))',
-					light: 'hsl(var(--brand-gold-light))',
-				},
-				'brand-amber': 'hsl(var(--brand-amber))',
+				// Soulay Brand Colors - Luxury Neutral Palette
+				'brand-black': 'hsl(var(--brand-black))',
+				'brand-charcoal': 'hsl(var(--brand-charcoal))',
 				'brand-gray': 'hsl(var(--brand-gray))',
+				'brand-light-gray': 'hsl(var(--brand-light-gray))',
 				'brand-cream': 'hsl(var(--brand-cream))',
+				'brand-beige': 'hsl(var(--brand-beige))',
+				'brand-sand': 'hsl(var(--brand-sand))',
+				'brand-white': 'hsl(var(--brand-white))',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

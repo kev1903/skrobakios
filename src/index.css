@@ -84,27 +84,27 @@ div[data-rbd-drag-handle-draggable-id] {
 
 @layer base {
   :root {
-    /* Light Theme - Soleil Eclat Brand Design System */
-    --background: 0 0% 98%;
-    --foreground: 200 25% 10%;
+    /* Light Theme - Soulay Luxury Brand Design System */
+    --background: 0 0% 97%;
+    --foreground: 0 0% 15%;
 
-    --card: 0 0% 96%;
-    --card-foreground: 200 20% 15%;
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 20%;
 
     --popover: 0 0% 98%;
-    --popover-foreground: 200 20% 15%;
+    --popover-foreground: 0 0% 20%;
 
-    --primary: 199 84% 22%;
+    --primary: 0 0% 20%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 45 45% 75%;
-    --secondary-foreground: 200 25% 10%;
+    --secondary: 30 15% 85%;
+    --secondary-foreground: 0 0% 20%;
 
     --muted: 0 0% 94%;
-    --muted-foreground: 200 15% 40%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 210 75% 65%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 30 20% 90%;
+    --accent-foreground: 0 0% 20%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
@@ -115,43 +115,39 @@ div[data-rbd-drag-handle-draggable-id] {
     --success: 142 76% 36%;
     --success-foreground: 355 100% 97%;
 
-    --border: 200 15% 85%;
-    --input: 200 10% 92%;
-    --ring: 199 84% 22%;
+    --border: 0 0% 90%;
+    --input: 0 0% 95%;
+    --ring: 0 0% 20%;
 
-    --radius: 0.5rem;
+    --radius: 0.25rem;
 
     /* Header height used for fixed menu spacing */
     --header-height: 73px;
 
-    /* Soleil Eclat Glassmorphism Theme */
+    /* Soulay Luxury Brand Colors */
     --glass-bg: 0 0% 98%;
     --glass-bg-light: 0 0% 100%;
     --glass-bg-hover: 0 0% 96%;
-    --glass-border: 200 15% 85%;
-    --glass-shadow: 200 25% 10%;
-    --glass-shadow-hover: 200 25% 10%;
+    --glass-border: 0 0% 90%;
+    --glass-shadow: 0 0% 0%;
+    --glass-shadow-hover: 0 0% 0%;
     --glass-backdrop: blur(20px);
     
-    /* Soleil Eclat Brand Colors - Updated from Brand Guidelines */
-    --brand-navy: 199 84% 22%;        /* #1E3C40 - Primary Navy */
-    --brand-navy-light: 199 70% 30%;
-    --brand-blue: 203 43% 69%;        /* #A2B4D0 - Light Blue from guidelines */
-    --brand-blue-light: 203 43% 79%;
-    --brand-beige: 45 25% 75%;        /* #C4B8A8 - Beige from guidelines */
-    --brand-beige-light: 45 25% 85%;
-    --brand-brown: 25 35% 45%;        /* #8B6B47 - Brown from guidelines */
-    --brand-gold: 45 45% 56%;         /* #BF9F54 - Gold from guidelines */
-    --brand-gold-light: 45 45% 66%;
-    --brand-amber: 50 68% 42%;        /* #AA9821 - Amber from guidelines */
-    --brand-gray: 200 15% 60%;
-    --brand-cream: 45 30% 92%;
+    /* Soulay Brand Colors - Luxury Neutral Palette */
+    --brand-black: 0 0% 8%;           /* Deep Black */
+    --brand-charcoal: 0 0% 20%;       /* Charcoal Gray */
+    --brand-gray: 0 0% 45%;           /* Medium Gray */
+    --brand-light-gray: 0 0% 70%;     /* Light Gray */
+    --brand-cream: 30 25% 92%;        /* Warm Cream */
+    --brand-beige: 30 20% 85%;        /* Soft Beige */
+    --brand-sand: 35 25% 75%;         /* Sand Color */
+    --brand-white: 0 0% 98%;          /* Soft White */
     
-    /* Soleil Eclat Gradients - Updated */
-    --gradient-primary: linear-gradient(135deg, hsl(199 84% 22%) 0%, hsl(203 43% 69%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(45 45% 56%) 0%, hsl(50 68% 42%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(30, 60, 64, 0.08) 0%, rgba(162, 180, 208, 0.04) 100%);
-    --gradient-cream-bg: linear-gradient(135deg, hsl(45 30% 96%) 0%, hsl(45 25% 85%) 50%, hsl(45 20% 94%) 100%);
+    /* Soulay Gradients - Luxury Neutral */
+    --gradient-primary: linear-gradient(135deg, hsl(0 0% 8%) 0%, hsl(0 0% 20%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(30 25% 92%) 0%, hsl(30 20% 85%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.05) 100%);
+    --gradient-cream-bg: linear-gradient(135deg, hsl(0 0% 98%) 0%, hsl(30 25% 95%) 50%, hsl(0 0% 96%) 100%);
     
     /* Enhanced Design System Colors */
     --neutral-50: 210 100% 98%;
@@ -235,10 +231,7 @@ div[data-rbd-drag-handle-draggable-id] {
 
   body {
     @apply bg-background text-foreground font-inter;
-    background: 
-      radial-gradient(circle at 20% 30%, rgba(30, 60, 64, 0.02) 0%, transparent 50%),
-      radial-gradient(circle at 80% 70%, rgba(191, 159, 84, 0.03) 0%, transparent 60%),
-      var(--gradient-cream-bg);
+    background: var(--gradient-cream-bg);
     min-height: 100vh;
     position: relative;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
