@@ -20,9 +20,9 @@ export const GlobalSidebar = ({ currentPage, onNavigate }: GlobalSidebarProps) =
 
   return (
     <>
-      {/* Backdrop - higher z-index to ensure it's above maps and toolbars */}
+      {/* Backdrop - transparent click-catcher (no blur so background stays unchanged) */}
       <div 
-        className="fixed inset-0 bg-background/60 backdrop-blur-sm z-[9995]"
+        className="fixed inset-0 z-[9995] bg-transparent"
         onClick={closeSidebar}
       />
       
