@@ -83,19 +83,13 @@ export const VoiceSphere = ({
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-blue-400/30 to-pink-400/20 animate-pulse" />
       )}
 
-      {/* Icon */}
+      {/* Center focal point */}
       <div className="relative z-10 flex items-center justify-center">
-        {isActive ? (
-          <MicOff className={cn(
-            "w-6 h-6 text-white drop-shadow-sm transition-all duration-300",
-            isSpeaking && "animate-pulse"
-          )} />
-        ) : (
-          <Mic className={cn(
-            "w-6 h-6 text-white drop-shadow-sm transition-all duration-300",
-            "group-hover:scale-110"
-          )} />
-        )}
+        <div className={cn(
+          "w-2 h-2 rounded-full bg-white/90 shadow-lg transition-all duration-300",
+          "group-hover:scale-125 group-hover:bg-white",
+          isSpeaking && "animate-pulse scale-150"
+        )} />
       </div>
 
       {/* Sophisticated outer ring animation for listening state */}
