@@ -5082,6 +5082,30 @@ export type Database = {
           context_type: string
         }[]
       }
+      get_leads_with_masked_contact: {
+        Args: { requesting_user_id?: string }
+        Returns: {
+          avatar_url: string
+          company: string
+          company_id: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          description: string
+          id: string
+          last_activity: string
+          location: string
+          notes: string
+          priority: string
+          project_address: string
+          source: string
+          stage: string
+          updated_at: string
+          value: number
+          website: string
+        }[]
+      }
       get_manageable_users_for_user: {
         Args: { requesting_user_id: string }
         Returns: {

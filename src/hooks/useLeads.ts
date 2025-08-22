@@ -33,9 +33,9 @@ export const useLeads = () => {
   const fetchLeads = async () => {
     try {
       setIsLoading(true);
+      // Use secure function that masks contact info for unauthorized users
       const { data, error } = await supabase
-        .from('leads')
-        .select('*')
+        .rpc('get_leads_with_masked_contact')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
