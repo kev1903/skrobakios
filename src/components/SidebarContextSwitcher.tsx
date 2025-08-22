@@ -96,7 +96,7 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
         </DropdownMenuTrigger>
         
         <DropdownMenuContent 
-          className="w-64 bg-background border shadow-lg z-50" 
+          className="w-64 bg-background border shadow-lg z-[10001]" 
           align="start"
           side="right"
         >
@@ -172,7 +172,7 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
       </DropdownMenuTrigger>
       
       <DropdownMenuContent 
-        className="w-64 bg-background border shadow-lg z-50" 
+        className="w-64 bg-background border shadow-lg z-[10001]" 
         align="start"
       >
         {/* Personal Context */}
