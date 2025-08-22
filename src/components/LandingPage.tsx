@@ -237,7 +237,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       >
         {/* Slide 1: Hero Brand Section */}
         <section className="min-h-screen flex items-center justify-center overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-cream/30 to-brand-white"></div>
+          <div className="absolute inset-0 bg-brand-white"></div>
           
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-16 items-center">
             {/* Left: Brand Image */}
