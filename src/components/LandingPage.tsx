@@ -193,7 +193,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               onClick={() => onNavigate('auth')}
               className="px-6 py-2 text-sm font-medium text-brand-charcoal hover:text-brand-white hover:bg-brand-charcoal border border-brand-charcoal/30 hover:border-brand-charcoal transition-all duration-300 uppercase tracking-wider"
             >
-              Services
+              Login
             </button>
           </div>
         </div>
