@@ -748,30 +748,21 @@ export function AiChatSidebar({
                    </div>
                  )}
 
-                 {/* Input area - hide when voice is active */}
-                 {!isVoiceActive && (
-                   <div className="p-4 border-t border-border flex-shrink-0">
-                     <div className="flex gap-2">
-                       <PhotoUploadButton 
-                         onPhotoSelected={handlePhotoSelected}
-                         disabled={isLoading || !isAuthenticated}
-                       />
-                       <Button 
-                         variant="outline" 
-                         size="sm" 
-                         onClick={handleVoiceCommand} 
-                         className="flex-shrink-0" 
-                         disabled={isLoading}
-                       >
-                         <Mic className="h-4 w-4" />
-                       </Button>
-                       <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
-                       <Button onClick={() => sendMessage()} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
-                         <Send className="h-4 w-4" />
-                       </Button>
-                     </div>
-                   </div>
-                 )}
+                  {/* Input area - hide when voice is active */}
+                  {!isVoiceActive && (
+                    <div className="p-4 border-t border-border flex-shrink-0">
+                      <div className="flex gap-2">
+                        <PhotoUploadButton 
+                          onPhotoSelected={handlePhotoSelected}
+                          disabled={isLoading || !isAuthenticated}
+                        />
+                        <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
+                        <Button onClick={() => sendMessage()} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
 
          {/* Debug Tools - Only shown when there might be language issues */}
          <ChatDebugTools />
