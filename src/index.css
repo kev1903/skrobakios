@@ -133,21 +133,21 @@ div[data-rbd-drag-handle-draggable-id] {
     --glass-shadow-hover: 0 0% 0%;
     --glass-backdrop: blur(20px);
     
-    /* Soulay Brand Colors - Luxury Neutral Palette */
+    /* Soulay Brand Colors - Clean White Palette */
     --brand-black: 0 0% 8%;           /* Deep Black */
     --brand-charcoal: 0 0% 20%;       /* Charcoal Gray */
     --brand-gray: 0 0% 45%;           /* Medium Gray */
     --brand-light-gray: 0 0% 70%;     /* Light Gray */
-    --brand-cream: 30 25% 92%;        /* Warm Cream */
-    --brand-beige: 30 20% 85%;        /* Soft Beige */
-    --brand-sand: 35 25% 75%;         /* Sand Color */
-    --brand-white: 0 0% 98%;          /* Soft White */
+    --brand-cream: 0 0% 98%;          /* Pure White */
+    --brand-beige: 0 0% 96%;          /* Light White */
+    --brand-sand: 0 0% 94%;           /* Subtle White */
+    --brand-white: 0 0% 100%;         /* Pure White */
     
-    /* Soulay Gradients - Luxury Neutral */
+    /* Soulay Gradients - Clean White */
     --gradient-primary: linear-gradient(135deg, hsl(0 0% 8%) 0%, hsl(0 0% 20%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(30 25% 92%) 0%, hsl(30 20% 85%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(0 0% 98%) 100%);
     --gradient-glass: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.05) 100%);
-    --gradient-cream-bg: linear-gradient(135deg, hsl(0 0% 98%) 0%, hsl(30 25% 95%) 50%, hsl(0 0% 96%) 100%);
+    --gradient-cream-bg: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(0 0% 98%) 50%, hsl(0 0% 96%) 100%);
     
     /* Enhanced Design System Colors */
     --neutral-50: 210 100% 98%;

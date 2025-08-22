@@ -371,7 +371,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
         {/* Slide 3: Collections */}
         <section className="min-h-screen flex items-center overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-cream to-brand-beige/50"></div>
+          <div className="absolute inset-0 bg-brand-white"></div>
 
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="grid lg:grid-cols-3 gap-12 items-center">
