@@ -193,7 +193,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               onClick={() => onNavigate('auth')}
               className="px-6 py-2 text-sm font-medium text-brand-charcoal hover:text-brand-white hover:bg-brand-charcoal border border-brand-charcoal/30 hover:border-brand-charcoal transition-all duration-300 uppercase tracking-wider"
             >
-              Projects
+              Services
             </button>
           </div>
         </div>
@@ -247,7 +247,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="aspect-square bg-brand-black/5 rounded-lg overflow-hidden">
                 <img 
                   src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                  alt="SKROBAKI architecture"
+                  alt="SKROBAKI project management"
                   className="w-full h-full object-cover grayscale opacity-80"
                 />
                 <div className="absolute inset-0 bg-brand-black/20"></div>
@@ -257,7 +257,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                       SKROBAKI
                     </h1>
                     <p className="text-sm tracking-[0.3em] uppercase opacity-90">
-                      Architectural Innovation
+                      Project Management Excellence
                     </p>
                   </div>
                 </div>
@@ -271,19 +271,19 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                   Brand Story
                 </p>
                 <h2 className="text-4xl lg:text-5xl font-playfair font-light text-brand-charcoal mb-8 leading-tight">
-                  Designed for the<br />
-                  <span className="italic">modern world</span>
+                  Delivering success<br />
+                  <span className="italic">on every project</span>
                 </h2>
               </div>
               
               <div className="space-y-6 text-brand-gray leading-relaxed">
                 <p>
-                  SKROBAKI represents the intersection of innovative design and functional architecture. 
-                  Every project is thoughtfully conceived to create spaces that inspire and endure.
+                  SKROBAKI specializes in comprehensive project management solutions that transform complex challenges into successful outcomes. 
+                  We orchestrate every detail from conception to completion with precision and expertise.
                 </p>
                 <p>
-                  Our philosophy embraces both form and function, creating environments that evolve 
-                  with the changing needs of modern life while maintaining timeless aesthetic appeal.
+                  Our methodology combines strategic planning with agile execution, ensuring projects are delivered on time, within budget, 
+                  and exceed expectations while maintaining the highest standards of quality.
                 </p>
               </div>
 
@@ -291,7 +291,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 onClick={() => onNavigate('auth')}
                 className="group flex items-center gap-3 text-brand-charcoal hover:text-brand-black transition-colors duration-300"
               >
-                <span className="text-sm uppercase tracking-widest">Explore Projects</span>
+                <span className="text-sm uppercase tracking-widest">View Our Services</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
               </button>
             </div>
@@ -305,7 +305,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="mb-12 text-center">
               <h2 className="text-4xl font-playfair font-light text-brand-charcoal mb-6">
-                Gallery
+                Our Process
               </h2>
               <div className="w-16 h-px bg-brand-charcoal mx-auto"></div>
             </div>
@@ -315,8 +315,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="col-span-1 row-span-2">
                 <div className="h-full bg-brand-cream rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Architectural detail"
+                    src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Project planning"
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
@@ -326,8 +326,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="col-span-1">
                 <div className="h-full bg-brand-beige rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Modern architecture"
+                    src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Team collaboration"
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
@@ -337,8 +337,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="col-span-1">
                 <div className="h-full bg-brand-sand rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Interior design"
+                    src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Strategic planning"
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
@@ -348,8 +348,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="col-span-1 row-span-2">
                 <div className="h-full bg-brand-charcoal rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Architectural structure"
+                    src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Project execution"
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
@@ -359,8 +359,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="col-span-1">
                 <div className="h-full bg-brand-light-gray/30 rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Geometric design"
+                    src="https://images.unsplash.com/photo-1556761175-b413da4baf72?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Data analysis"
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
@@ -389,8 +389,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 
                 <div className="space-y-4 text-brand-gray">
                   <p className="leading-relaxed">
-                    Each project represents our commitment to innovative design and exceptional craftsmanship, 
-                    created for clients who value both aesthetic excellence and functional integrity.
+                    Each project showcases our expertise in delivering complex initiatives across diverse industries, 
+                    from technology implementations to organizational transformations that drive measurable results.
                   </p>
                 </div>
 
@@ -406,13 +406,13 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 <div className="space-y-6">
                   <div className="aspect-[3/4] bg-brand-white rounded-lg overflow-hidden shadow-sm">
                     <img 
-                      src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                      alt="Residential Project"
+                      src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                      alt="Tech Implementation"
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="text-center">
-                    <h3 className="font-medium text-brand-charcoal mb-1">Urban Villa</h3>
+                    <h3 className="font-medium text-brand-charcoal mb-1">Digital Transformation</h3>
                     <p className="text-sm text-brand-gray">Completed 2024</p>
                   </div>
                 </div>
@@ -420,13 +420,13 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 <div className="space-y-6 mt-12">
                   <div className="aspect-[3/4] bg-brand-white rounded-lg overflow-hidden shadow-sm">
                     <img 
-                      src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                      alt="Commercial Project"
+                      src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                      alt="Organizational Change"
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="text-center">
-                    <h3 className="font-medium text-brand-charcoal mb-1">Corporate Tower</h3>
+                    <h3 className="font-medium text-brand-charcoal mb-1">Enterprise Restructure</h3>
                     <p className="text-sm text-brand-gray">Completed 2023</p>
                   </div>
                 </div>
@@ -445,8 +445,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="relative">
                 <div className="aspect-[4/5] rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                    alt="SKROBAKI architecture"
+                    src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    alt="SKROBAKI project management"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -456,28 +456,28 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="space-y-8 text-brand-white">
                 <div>
                   <p className="text-brand-white/60 font-inter text-sm tracking-[0.2em] uppercase mb-6">
-                    Design • Philosophy
+                    Methodology • Philosophy
                   </p>
                   <h2 className="text-4xl font-playfair font-light mb-8 leading-tight">
-                    Build with<br />
-                    <span className="italic">purpose</span>
+                    Execute with<br />
+                    <span className="italic">precision</span>
                   </h2>
                 </div>
                 
                 <div className="space-y-6 text-brand-white/80 leading-relaxed">
                   <p>
-                    SKROBAKI is more than architecture—it's a philosophy of conscious design. 
-                    We believe in creating spaces that honor both human connection and environmental harmony.
+                    SKROBAKI is more than project management—it's a philosophy of strategic execution. 
+                    We believe in transforming complex challenges into streamlined solutions that deliver exceptional value.
                   </p>
                   <p>
-                    Every structure is conceived to enhance the lives of those who inhabit it, 
-                    from intimate residences to inspiring commercial spaces, always with respect for context and community.
+                    Every initiative is approached with meticulous planning and adaptive leadership, 
+                    ensuring stakeholder alignment while maintaining focus on measurable outcomes and sustainable success.
                   </p>
                 </div>
 
                 <div className="pt-8">
                   <div className="text-sm text-brand-white/60 font-inter italic">
-                    "Architecture is the thoughtful making of spaces." — Louis Kahn
+                    "Excellence is never an accident. It is always the result of high intention, sincere effort, and intelligent execution." — Aristotle
                   </div>
                 </div>
               </div>
@@ -497,8 +497,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               </h2>
               <div className="w-16 h-px bg-brand-charcoal mx-auto mb-8"></div>
               <p className="text-lg text-brand-gray leading-relaxed max-w-2xl mx-auto">
-                Let's discuss your next architectural project. Contact us to explore how 
-                SKROBAKI can bring your vision to life with innovative design solutions.
+                Let's discuss your next project challenge. Contact us to explore how 
+                SKROBAKI can transform your vision into successful outcomes through strategic project management.
               </p>
             </div>
 
@@ -537,7 +537,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               </button>
               
               <p className="text-xs text-brand-gray/60 uppercase tracking-[0.3em]">
-                SKROBAKI • Architectural Innovation • est. 2024
+                SKROBAKI • Project Management Excellence • est. 2024
               </p>
             </div>
           </div>
