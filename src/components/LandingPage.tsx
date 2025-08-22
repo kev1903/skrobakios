@@ -22,7 +22,6 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
     { id: 'gallery', title: 'Gallery' },
     { id: 'collections', title: 'Collections' },
     { id: 'lifestyle', title: 'Lifestyle' },
-    { id: 'materials', title: 'Materials' },
     { id: 'contact', title: 'Contact' }
   ];
 
@@ -486,62 +485,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           </div>
         </section>
 
-        {/* Slide 5: Brand Materials */}
-        <section className="min-h-screen flex items-center overflow-hidden relative">
-          <div className="absolute inset-0 bg-brand-white"></div>
-
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-playfair font-light text-brand-charcoal mb-6">
-                Brand Materials
-              </h2>
-              <div className="w-16 h-px bg-brand-charcoal mx-auto"></div>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {/* Business Cards */}
-              <div className="group">
-                <div className="aspect-[3/2] bg-brand-cream rounded-lg p-8 flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-105">
-                  <div className="text-center">
-                    <div className="text-2xl font-playfair font-light text-brand-charcoal mb-2">SKROBAKI</div>
-                    <div className="w-12 h-px bg-brand-charcoal/30 mx-auto"></div>
-                  </div>
-                </div>
-                <p className="text-sm text-brand-gray text-center">Business Cards</p>
-              </div>
-
-              {/* Letterhead */}
-              <div className="group">
-                <div className="aspect-[3/4] bg-brand-white border border-brand-gray/20 rounded-lg p-6 mb-4 transition-transform duration-300 group-hover:scale-105">
-                  <div className="text-brand-charcoal">
-                    <div className="text-lg font-playfair font-light mb-8">SKROBAKI</div>
-                    <div className="space-y-2">
-                      <div className="w-full h-px bg-brand-gray/20"></div>
-                      <div className="w-3/4 h-px bg-brand-gray/20"></div>
-                      <div className="w-1/2 h-px bg-brand-gray/20"></div>
-                    </div>
-                  </div>
-                </div>
-                <p className="text-sm text-brand-gray text-center">Letterhead</p>
-              </div>
-
-              {/* Labels */}
-              <div className="group">
-                <div className="aspect-square bg-brand-beige rounded-lg p-6 flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-105">
-                  <div className="text-center">
-                    <div className="w-16 h-16 border border-brand-charcoal/30 rounded-full flex items-center justify-center mb-3">
-                      <div className="text-xs font-playfair text-brand-charcoal">SKROBAKI</div>
-                    </div>
-                    <div className="text-xs text-brand-gray uppercase tracking-wider">Premium</div>
-                  </div>
-                </div>
-                <p className="text-sm text-brand-gray text-center">Product Labels</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Slide 6: Contact */}
+        {/* Slide 5: Contact */}
         <section className="min-h-screen flex items-center justify-center overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-brand-cream to-brand-white"></div>
 
