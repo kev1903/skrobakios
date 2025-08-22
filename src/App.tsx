@@ -51,7 +51,7 @@ import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SK25008Dashboard } from "./components/SK25008Dashboard";
 import { GlobalSidebarProvider } from "./contexts/GlobalSidebarContext";
 import { GlobalSidebar } from "./components/GlobalSidebar";
-import { useGlobalSidebar } from "./contexts/GlobalSidebarContext";
+
 import { InputDataPage } from "./components/sales/pages/InputDataPage";
 import { TakeOffPage } from "./components/sales/pages/TakeOffPage";
 import { CostDatabasePage } from "./components/sales/pages/CostDatabasePage";
@@ -283,7 +283,7 @@ const AppContent = () => {
   const { impersonationMode, user } = useAuth();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { isOpen: isSidebarOpen } = useGlobalSidebar();
+  
   
   // Check if we're specifically on the landing page (not authenticated home page)
   // Landing page is when we're on "/" and either no page param or page=landing, AND user is not authenticated
@@ -330,7 +330,6 @@ const AppContent = () => {
               <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
             )}
             {showMenuBar ? <MenuBar /> : null}
-            <div className={`transition-all duration-300 ${isSidebarOpen && !isMobile ? 'pl-72 sm:pl-80' : ''}`}>
             <Routes>
         <Route path="/" element={
           <Index />
@@ -409,7 +408,6 @@ const AppContent = () => {
         {/* Documentation Pages */}
         <Route path="/docs/pdf-extraction" element={<PDFExtractionDocs />} />
       </Routes>
-      </div>
       {location.pathname !== "/" && (
         <GlobalSidebar currentPage={currentPageForSidebar} onNavigate={handleSidebarNavigate} />
       )}
