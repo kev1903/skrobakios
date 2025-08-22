@@ -4828,14 +4828,18 @@ export type Database = {
         Row: {
           access_token: string
           access_token_encrypted: string | null
+          access_token_encrypted_v2: string | null
           connected_at: string
           created_at: string
+          encryption_algorithm: string | null
           encryption_key_id: string | null
           expires_at: string
           id: string
+          key_version: number | null
           last_sync: string | null
           refresh_token: string
           refresh_token_encrypted: string | null
+          refresh_token_encrypted_v2: string | null
           tenant_id: string
           tenant_name: string | null
           updated_at: string
@@ -4844,14 +4848,18 @@ export type Database = {
         Insert: {
           access_token: string
           access_token_encrypted?: string | null
+          access_token_encrypted_v2?: string | null
           connected_at?: string
           created_at?: string
+          encryption_algorithm?: string | null
           encryption_key_id?: string | null
           expires_at: string
           id?: string
+          key_version?: number | null
           last_sync?: string | null
           refresh_token: string
           refresh_token_encrypted?: string | null
+          refresh_token_encrypted_v2?: string | null
           tenant_id: string
           tenant_name?: string | null
           updated_at?: string
@@ -4860,14 +4868,18 @@ export type Database = {
         Update: {
           access_token?: string
           access_token_encrypted?: string | null
+          access_token_encrypted_v2?: string | null
           connected_at?: string
           created_at?: string
+          encryption_algorithm?: string | null
           encryption_key_id?: string | null
           expires_at?: string
           id?: string
+          key_version?: number | null
           last_sync?: string | null
           refresh_token?: string
           refresh_token_encrypted?: string | null
+          refresh_token_encrypted_v2?: string | null
           tenant_id?: string
           tenant_name?: string | null
           updated_at?: string
@@ -5257,6 +5269,14 @@ export type Database = {
           years_experience: number
         }[]
       }
+      get_security_overview: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          current_value: number
+          risk_level: string
+          security_metric: string
+        }[]
+      }
       get_user_companies: {
         Args: { target_user_id?: string }
         Returns: {
@@ -5403,6 +5423,14 @@ export type Database = {
       }
       mask_invitation_email: {
         Args: { invitation_email: string; requesting_user_id: string }
+        Returns: string
+      }
+      mask_sensitive_data: {
+        Args: {
+          context_company_id: string
+          input_value: string
+          requesting_user_id: string
+        }
         Returns: string
       }
       set_active_context: {
