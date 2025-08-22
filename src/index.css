@@ -306,7 +306,7 @@ div[data-rbd-drag-handle-draggable-id] {
   }
   
   .text-gradient-blue {
-    background: linear-gradient(135deg, hsl(var(--brand-blue)) 0%, hsl(var(--brand-blue-light)) 100%);
+    background: linear-gradient(135deg, hsl(var(--brand-charcoal)) 0%, hsl(var(--brand-gray)) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -314,12 +314,12 @@ div[data-rbd-drag-handle-draggable-id] {
   
   .heading-xl {
     @apply text-6xl md:text-8xl lg:text-9xl font-display font-extralight tracking-tighter leading-none;
-    text-shadow: 0 2px 20px rgba(115, 171, 204, 0.15);
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
   }
   
   .heading-lg {
     @apply text-4xl md:text-6xl font-display font-light tracking-tight leading-tight;
-    text-shadow: 0 1px 15px rgba(115, 171, 204, 0.1);
+    text-shadow: 0 1px 15px rgba(0, 0, 0, 0.03);
   }
   
   .heading-md {
@@ -336,7 +336,7 @@ div[data-rbd-drag-handle-draggable-id] {
 
   /* Sophisticated Input Styles */
   .input-minimal {
-    @apply backdrop-blur-sm bg-input border border-border/40 focus:bg-input focus:border-brand-blue/50 focus:ring-2 focus:ring-brand-blue/20 transition-all duration-300 rounded-lg;
+    @apply backdrop-blur-sm bg-input border border-border/40 focus:bg-input focus:border-brand-charcoal/50 focus:ring-2 focus:ring-brand-charcoal/20 transition-all duration-300 rounded-lg;
   }
 
   /* Enhanced Interactive Elements */
@@ -345,7 +345,7 @@ div[data-rbd-drag-handle-draggable-id] {
   }
 
   .interactive-minimal:hover {
-    box-shadow: 0 20px 40px rgba(115, 171, 204, 0.15);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
   }
 
   .button-minimal {
@@ -353,44 +353,44 @@ div[data-rbd-drag-handle-draggable-id] {
   }
 
   .button-blue {
-    @apply bg-brand-blue text-white hover:bg-brand-blue-light hover:scale-[1.02] active:scale-[0.98] font-medium;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+    @apply bg-brand-charcoal text-white hover:bg-brand-black hover:scale-[1.02] active:scale-[0.98] font-medium;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .button-blue:hover {
-    box-shadow: 0 6px 25px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
     transform: translateY(-1px);
   }
 
   .button-blue {
-    background-color: rgb(54,119,159);
+    background-color: hsl(var(--brand-charcoal));
     @apply text-white hover:scale-[1.02] active:scale-[0.98] font-medium;
-    box-shadow: 0 4px 15px rgba(54, 119, 159, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .button-blue:hover {
-    background-color: rgb(44, 99, 139);
-    box-shadow: 0 6px 25px rgba(54, 119, 159, 0.3);
+    background-color: hsl(var(--brand-black));
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
     transform: translateY(-1px);
   }
 
   .button-ghost {
-    @apply bg-background/60 backdrop-blur-md border border-border/30 text-foreground hover:bg-background/80 hover:border-brand-blue/40 hover:shadow-md;
+    @apply bg-background/60 backdrop-blur-md border border-border/30 text-foreground hover:bg-background/80 hover:border-brand-charcoal/40 hover:shadow-md;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .button-ghost:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 20px rgba(115, 171, 204, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   /* Architectural Design Elements */
   .divider-minimal {
-    @apply w-full h-px bg-gradient-to-r from-transparent via-brand-blue/30 to-transparent;
+    @apply w-full h-px bg-gradient-to-r from-transparent via-brand-charcoal/30 to-transparent;
   }
 
   .architectural-accent {
