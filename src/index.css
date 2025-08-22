@@ -133,22 +133,25 @@ div[data-rbd-drag-handle-draggable-id] {
     --glass-shadow-hover: 200 25% 10%;
     --glass-backdrop: blur(20px);
     
-    /* Soleil Eclat Brand Colors - From Brand Guidelines */
-    --brand-navy: 199 84% 22%;        /* #1E3C40 */
+    /* Soleil Eclat Brand Colors - Updated from Brand Guidelines */
+    --brand-navy: 199 84% 22%;        /* #1E3C40 - Primary Navy */
     --brand-navy-light: 199 70% 30%;
-    --brand-blue: 210 75% 65%;        /* #4284D0 */
-    --brand-blue-light: 210 75% 75%;
-    --brand-gold: 45 45% 56%;         /* #BF9F54 */
+    --brand-blue: 203 43% 69%;        /* #A2B4D0 - Light Blue from guidelines */
+    --brand-blue-light: 203 43% 79%;
+    --brand-beige: 45 25% 75%;        /* #C4B8A8 - Beige from guidelines */
+    --brand-beige-light: 45 25% 85%;
+    --brand-brown: 25 35% 45%;        /* #8B6B47 - Brown from guidelines */
+    --brand-gold: 45 45% 56%;         /* #BF9F54 - Gold from guidelines */
     --brand-gold-light: 45 45% 66%;
-    --brand-amber: 50 68% 42%;        /* #A29E21 */
+    --brand-amber: 50 68% 42%;        /* #AA9821 - Amber from guidelines */
     --brand-gray: 200 15% 60%;
     --brand-cream: 45 30% 92%;
     
-    /* Soleil Eclat Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(199 84% 22%) 0%, hsl(210 75% 65%) 100%);
+    /* Soleil Eclat Gradients - Updated */
+    --gradient-primary: linear-gradient(135deg, hsl(199 84% 22%) 0%, hsl(203 43% 69%) 100%);
     --gradient-secondary: linear-gradient(135deg, hsl(45 45% 56%) 0%, hsl(50 68% 42%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(30, 60, 64, 0.08) 0%, rgba(66, 132, 208, 0.04) 100%);
-    --gradient-cream-bg: linear-gradient(135deg, hsl(45 30% 96%) 0%, hsl(0 0% 98%) 50%, hsl(45 20% 94%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(30, 60, 64, 0.08) 0%, rgba(162, 180, 208, 0.04) 100%);
+    --gradient-cream-bg: linear-gradient(135deg, hsl(45 30% 96%) 0%, hsl(45 25% 85%) 50%, hsl(45 20% 94%) 100%);
     
     /* Enhanced Design System Colors */
     --neutral-50: 210 100% 98%;

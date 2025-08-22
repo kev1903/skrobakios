@@ -438,18 +438,18 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                   </div>
                 </div>
 
-                {/* Gold */}
-                <div className="aspect-square bg-brand-gold rounded-lg flex items-center justify-center group hover:scale-105 transition-transform duration-300">
+                {/* Beige */}
+                <div className="aspect-square bg-brand-beige rounded-lg flex items-center justify-center group hover:scale-105 transition-transform duration-300">
                   <div className="text-center">
-                    <div className="text-2xl sm:text-3xl font-playfair font-light text-white mb-2">
+                    <div className="text-2xl sm:text-3xl font-playfair font-light text-brand-navy mb-2">
                       Soleil<br />
                       <span className="italic">Éclat</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Amber */}
-                <div className="aspect-square bg-brand-amber rounded-lg flex items-center justify-center group hover:scale-105 transition-transform duration-300">
+                {/* Brown */}
+                <div className="aspect-square bg-brand-brown rounded-lg flex items-center justify-center group hover:scale-105 transition-transform duration-300">
                   <div className="text-center">
                     <div className="text-2xl sm:text-3xl font-playfair font-light text-white mb-2">
                       Soleil<br />
@@ -551,16 +551,16 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                     <p className="text-sm font-medium text-brand-navy">#BF9F54</p>
                   </div>
                   
-                  {/* Blue */}
+                  {/* Light Blue */}
                   <div className="group">
                     <div className="w-full h-32 bg-brand-blue rounded-lg mb-3 group-hover:scale-105 transition-transform duration-300"></div>
-                    <p className="text-sm font-medium text-brand-navy">#4284D0</p>
+                    <p className="text-sm font-medium text-brand-navy">#A2B4D0</p>
                   </div>
                   
                   {/* Amber */}
                   <div className="group">
                     <div className="w-full h-32 bg-brand-amber rounded-lg mb-3 group-hover:scale-105 transition-transform duration-300"></div>
-                    <p className="text-sm font-medium text-brand-navy">#A29E21</p>
+                    <p className="text-sm font-medium text-brand-navy">#AA9821</p>
                   </div>
                 </div>
               </div>

@@ -82,7 +82,7 @@ export default {
 					border: 'hsl(var(--glass-border) / 0.1)', 
 					shadow: 'hsl(var(--glass-shadow) / 0.05)'
 				},
-				// Soleil Eclat Brand Colors
+				// Soleil Eclat Brand Colors - Updated from Guidelines
 				'brand-navy': {
 					DEFAULT: 'hsl(var(--brand-navy))',
 					light: 'hsl(var(--brand-navy-light))',
@@ -91,6 +91,11 @@ export default {
 					DEFAULT: 'hsl(var(--brand-blue))',
 					light: 'hsl(var(--brand-blue-light))',
 				},
+				'brand-beige': {
+					DEFAULT: 'hsl(var(--brand-beige))',
+					light: 'hsl(var(--brand-beige-light))',
+				},
+				'brand-brown': 'hsl(var(--brand-brown))',
 				'brand-gold': {
 					DEFAULT: 'hsl(var(--brand-gold))',
 					light: 'hsl(var(--brand-gold-light))',
