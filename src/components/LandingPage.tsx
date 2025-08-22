@@ -80,26 +80,42 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   // Scroll navigation
   useEffect(() => {
     let isScrolling = false;
+    let scrollTimeout: NodeJS.Timeout;
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       
       if (isScrolling) return;
-      isScrolling = true;
 
-      if (e.deltaY > 0) {
-        nextSlide();
-      } else {
-        prevSlide();
+      // Clear any existing timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
       }
 
-      setTimeout(() => {
-        isScrolling = false;
-      }, 1400);
+      // Only trigger on significant scroll
+      if (Math.abs(e.deltaY) > 50) {
+        isScrolling = true;
+
+        if (e.deltaY > 0) {
+          nextSlide();
+        } else {
+          prevSlide();
+        }
+
+        // Reset scrolling flag after animation completes
+        scrollTimeout = setTimeout(() => {
+          isScrolling = false;
+        }, 1400);
+      }
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+    };
   }, [currentSlide]);
 
   // Touch/swipe navigation
