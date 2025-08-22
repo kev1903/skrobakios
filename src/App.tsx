@@ -410,9 +410,7 @@ const AppContent = () => {
         <Route path="/docs/pdf-extraction" element={<PDFExtractionDocs />} />
       </Routes>
       </div>
-      {location.pathname !== "/" && (
-        <GlobalSidebar currentPage={currentPageForSidebar} onNavigate={handleSidebarNavigate} />
-      )}
+      <GlobalSidebar currentPage={currentPageForSidebar} onNavigate={handleSidebarNavigate} />
           </>
         </TimeTrackingProvider>
       </CompanyProvider>

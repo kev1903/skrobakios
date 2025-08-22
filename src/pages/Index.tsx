@@ -12,13 +12,13 @@ import { TaskProvider } from "@/components/tasks/TaskContext";
 import { MobileHeader } from "@/components/MobileHeader";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { GlobalSidebar } from "@/components/GlobalSidebar";
+
 import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileViewToggle } from "@/components/mobile/MobileViewToggle";
-import { useGlobalSidebar } from "@/contexts/GlobalSidebarContext";
+
 const Index = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const Index = () => {
   const previousPageRef = useRef<string>("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
   const isMobile = useIsMobile();
-  const { isOpen: isSidebarOpen } = useGlobalSidebar();
+  
 
   // Enhanced navigation function that tracks previous page
   const handleNavigate = (page: string) => {
@@ -159,8 +159,6 @@ const Index = () => {
                 currentProject={currentProject}
               />
             </div>
-            {/* Global sidebar available on all pages */}
-            <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
           </div>
         ) : isMobile ? (
           // Mobile layout with toggle between chat and app
@@ -192,8 +190,6 @@ const Index = () => {
                 </div>
               )}
 
-              {/* Global sidebar available on all pages */}
-              <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
             </div>
             
             {/* Mobile toggle at bottom (fixed) */}
@@ -223,8 +219,6 @@ const Index = () => {
         </PageLayout>
               </div>
               
-              {/* Global sidebar available on all pages */}
-              <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
             </div>
           </div>
         )}
