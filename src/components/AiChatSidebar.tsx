@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { Send, Bot, User, MessageCircle, ChevronLeft, ChevronRight, AlertCircle, Mic, MicOff } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Send, Bot, User, MessageCircle, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
@@ -11,8 +11,6 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AiChatAuth } from './AiChatAuth';
 import { ChatDebugTools } from './ChatDebugTools';
-// Lazy load the heavy voice interface to keep initial load fast and robust
-const VoiceInterfaceLazy = React.lazy(() => import('./VoiceInterface').then(m => ({ default: m.VoiceInterface })));
 import { cn } from '@/lib/utils';
 
 interface ChatMessage {
@@ -77,21 +75,8 @@ export function AiChatSidebar({
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isVoiceActive, setIsVoiceActive] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [audioRecorder, setAudioRecorder] = useState<MediaRecorder | null>(null);
-  const [websocket, setWebsocket] = useState<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const recordedChunksRef = useRef<Blob[]>([]);
-  const audioStreamRef = useRef<MediaStream | null>(null);
-  const chunkQueueRef = useRef<Blob[]>([]);
-  const processingRef = useRef(false);
-  const pendingTranscriptRef = useRef<string>('');
-  const finalizeTimerRef = useRef<number | null>(null);
-  const finalizingRef = useRef(false);
-  const containerRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const location = useLocation();
   const {
@@ -146,14 +131,6 @@ export function AiChatSidebar({
       return () => clearTimeout(timeoutId);
     }
   }, [isLoading]);
-
-  // Auto-scroll when voice chat is active
-  useEffect(() => {
-    if (isVoiceActive) {
-      const timeoutId = setTimeout(scrollToBottom, 50);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isVoiceActive]);
 
   // Auto-scroll when sidebar is expanded (not collapsed)
   useEffect(() => {
@@ -394,219 +371,7 @@ export function AiChatSidebar({
     }
     event.target.value = '';
   };
-  const handleVoiceToggle = async () => {
-    if (!audioRecorder) return;
-    try {
-      if (audioRecorder.state === 'recording') {
-        audioRecorder.pause?.();
-        setIsListening(false);
-      } else if (audioRecorder.state === 'paused') {
-        audioRecorder.resume?.();
-        setIsListening(true);
-      }
-    } catch (e) {
-      console.error('Failed to toggle recorder', e);
-    }
-  };
 
-  // Queue-based background transcription while recording
-  const enqueueChunk = (blob: Blob) => {
-    chunkQueueRef.current.push(blob);
-    if (!processingRef.current) void processQueue();
-  };
-
-  const finalizePending = async () => {
-    // Prevent overlapping finalizations
-    if (finalizingRef.current) return;
-
-    // Stop any pending finalize timer
-    if (finalizeTimerRef.current) {
-      clearTimeout(finalizeTimerRef.current);
-      finalizeTimerRef.current = null;
-    }
-
-    const text = pendingTranscriptRef.current.trim();
-    if (!text) return;
-
-    // Avoid sending tiny one-word artifacts like "you"
-    if (text.split(/\s+/).length <= 1 && text.length < 4) {
-      pendingTranscriptRef.current = '';
-      return;
-    }
-
-    // Clear pending first to avoid duplicates on errors
-    pendingTranscriptRef.current = '';
-
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      content: text,
-      role: 'user',
-      timestamp: new Date()
-    };
-
-    // Append message using functional update to avoid stale state
-    setMessages(prev => [...prev, userMessage]);
-
-    if (!isAuthenticated || !session) return;
-
-    finalizingRef.current = true;
-    setIsLoading(true);
-    try {
-      const context = getScreenContext();
-      const conversation = [...messages, userMessage].map(msg => ({ role: msg.role, content: msg.content }));
-      const { data: aiData, error: aiError } = await supabase.functions.invoke('ai-chat', {
-        body: { message: text, conversation, context }
-      });
-      if (!aiError && aiData?.response) {
-        const aiMessage: ChatMessage = {
-          id: (Date.now() + 1).toString(),
-          content: aiData.response,
-          role: 'assistant',
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, aiMessage]);
-      }
-    } catch (e) {
-      console.error('AI send failed (finalizePending)', e);
-    } finally {
-      setIsLoading(false);
-      finalizingRef.current = false;
-    }
-  };
-
-  const processQueue = async () => {
-    if (processingRef.current) return;
-    processingRef.current = true;
-    try {
-      while (chunkQueueRef.current.length > 0) {
-        const first = chunkQueueRef.current.shift()!;
-        const batch: Blob[] = [first];
-        // Coalesce small chunks for better transcription accuracy
-        while (chunkQueueRef.current.length > 0 && batch.length < 2) {
-          batch.push(chunkQueueRef.current.shift()!);
-        }
-        const mergedBlob = new Blob(batch, { type: 'audio/webm' });
-        // Convert to base64
-        const base64 = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            try {
-              const result = reader.result as string;
-              const b64 = result.split(',')[1] || '';
-              resolve(b64);
-            } catch (err) {
-              reject(err);
-            }
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(mergedBlob);
-        });
-
-        const { data, error } = await supabase.functions.invoke('voice-transcribe', {
-          body: { audio: base64 }
-        });
-
-        if (error) {
-          console.error('Transcription error (queue):', error);
-          continue;
-        }
-        const partial = String(data?.text || '').trim();
-        if (!partial) continue;
-
-        // Accumulate and decide when to finalize
-        pendingTranscriptRef.current += (pendingTranscriptRef.current ? ' ' : '') + partial;
-        const endsSentence = /[.!?]$/.test(partial);
-
-        // Reset a short inactivity timer to finalize when user pauses speaking
-        if (finalizeTimerRef.current) clearTimeout(finalizeTimerRef.current);
-        finalizeTimerRef.current = window.setTimeout(() => {
-          if (pendingTranscriptRef.current.trim()) {
-            void finalizePending();
-          }
-        }, 1200);
-
-        // Also finalize immediately on clear sentence end or very long buffer
-        if (endsSentence || pendingTranscriptRef.current.length > 120) {
-          await finalizePending();
-        }
-      }
-    } catch (err) {
-      console.error('Error processing transcription queue', err);
-    } finally {
-      processingRef.current = false;
-    }
-  };
-
-  const handleVoiceEnd = () => {
-    try {
-      if (audioRecorder) {
-        if (audioRecorder.state === 'recording' || audioRecorder.state === 'paused') {
-          audioRecorder.stop();
-        }
-      }
-      if (audioStreamRef.current) {
-        audioStreamRef.current.getTracks().forEach(t => t.stop());
-        audioStreamRef.current = null;
-      }
-    } catch (e) {
-      console.error('Error stopping voice', e);
-    }
-    if (websocket) {
-      websocket.close();
-    }
-    // Clear any pending inactivity finalization
-    if (finalizeTimerRef.current) {
-      clearTimeout(finalizeTimerRef.current);
-      finalizeTimerRef.current = null;
-    }
-    // Flush any remaining partial transcript
-    void finalizePending();
-    setIsVoiceActive(false);
-    setIsListening(false);
-    setIsSpeaking(false);
-    setAudioRecorder(null);
-    setWebsocket(null);
-    
-    // Force scroll to bottom when returning to chat
-    setTimeout(() => scrollToBottom(true), 50);
-  };
-
-  const handleVoiceCommand = async () => {
-    if (isVoiceActive) {
-      handleVoiceEnd();
-      return;
-    }
-
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      audioStreamRef.current = stream;
-      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-
-      recorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          // Enqueue chunk while still recording; processing happens in background
-          enqueueChunk(e.data);
-        }
-      };
-
-      recorder.onstop = () => {
-        // Cleanup is handled in handleVoiceEnd
-      };
-
-      // Start with a timeslice to receive periodic chunks
-      recorder.start(1500); // every 1.5s
-      setAudioRecorder(recorder);
-      setIsVoiceActive(true);
-      setIsListening(true);
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      toast({
-        title: 'Microphone Access Denied',
-        description: 'Please allow microphone access to use voice commands',
-        variant: 'destructive'
-      });
-    }
-  };
   const formatTime = (timestamp: Date) => {
     return timestamp.toLocaleTimeString([], {
       hour: '2-digit',
@@ -672,97 +437,80 @@ export function AiChatSidebar({
                      </div>
                    </div>}
 
-                 {/* Messages or Voice Interface */}
-                 {isVoiceActive ? (
-                   <Suspense fallback={<div className="flex-1 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
-                     <VoiceInterfaceLazy
-                       isActive={isVoiceActive}
-                        onMessage={(message) => {
-                          // Handle voice messages from ElevenLabs
-                          if (message.trim()) {
-                            sendMessage(message);
-                          }
-                        }}
-                       onEnd={handleVoiceEnd}
-                     />
-                   </Suspense>
-                 ) : (
-                   <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                     {messages.length === 0 && <div className="text-center text-muted-foreground py-8">
-                         <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                         <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
-                         <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
-                       </div>}
-                     
-                     {messages.map(message => <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                         {message.role === 'assistant' && <Avatar className="h-8 w-8 flex-shrink-0">
-                             <AvatarFallback>
-                               <Bot className="h-4 w-4" />
-                             </AvatarFallback>
-                           </Avatar>}
-                         
-                         <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
-                           <div className={`rounded-lg p-3 text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
-                             {message.imageData && (
-                               <div className="mb-2">
-                                 <img 
-                                   src={message.imageData} 
-                                   alt="Shared photo" 
-                                   className="max-w-48 max-h-48 rounded-lg object-cover"
-                                 />
-                               </div>
-                             )}
-                             {message.content}
-                           </div>
-                           <p className="text-xs text-muted-foreground mt-1 px-1">
-                             {formatTime(message.timestamp)}
-                           </p>
-                         </div>
-
-                         {message.role === 'user' && <Avatar className="h-8 w-8 flex-shrink-0">
-                             <AvatarFallback>
-                               <User className="h-4 w-4" />
-                             </AvatarFallback>
-                           </Avatar>}
-                       </div>)}
-                     
-                     {isLoading && <div className="flex gap-3">
-                         <Avatar className="h-8 w-8">
+                 {/* Messages */}
+                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                   {messages.length === 0 && <div className="text-center text-muted-foreground py-8">
+                       <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                       <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
+                       <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
+                     </div>}
+                   
+                   {messages.map(message => <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                       {message.role === 'assistant' && <Avatar className="h-8 w-8 flex-shrink-0">
                            <AvatarFallback>
                              <Bot className="h-4 w-4" />
                            </AvatarFallback>
-                         </Avatar>
-                         <div className="bg-muted rounded-lg p-3 text-sm">
-                           <div className="flex space-x-1">
-                             <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                             <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
-                       animationDelay: '0.1s'
-                     }} />
-                             <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
-                       animationDelay: '0.2s'
-                     }} />
-                           </div>
+                         </Avatar>}
+                       
+                       <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
+                         <div className={`rounded-lg p-3 text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
+                           {message.imageData && (
+                             <div className="mb-2">
+                               <img 
+                                 src={message.imageData} 
+                                 alt="Shared photo" 
+                                 className="max-w-48 max-h-48 rounded-lg object-cover"
+                               />
+                             </div>
+                           )}
+                           {message.content}
                          </div>
-                       </div>}
-                     <div ref={messagesEndRef} />
-                   </div>
-                 )}
+                         <p className="text-xs text-muted-foreground mt-1 px-1">
+                           {formatTime(message.timestamp)}
+                         </p>
+                       </div>
 
-                  {/* Input area - hide when voice is active */}
-                  {!isVoiceActive && (
-                    <div className="p-4 border-t border-border flex-shrink-0">
-                      <div className="flex gap-2">
-                        <PhotoUploadButton 
-                          onPhotoSelected={handlePhotoSelected}
-                          disabled={isLoading || !isAuthenticated}
-                        />
-                        <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
-                        <Button onClick={() => sendMessage()} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
-                          <Send className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+                       {message.role === 'user' && <Avatar className="h-8 w-8 flex-shrink-0">
+                           <AvatarFallback>
+                             <User className="h-4 w-4" />
+                           </AvatarFallback>
+                         </Avatar>}
+                     </div>)}
+                   
+                   {isLoading && <div className="flex gap-3">
+                       <Avatar className="h-8 w-8">
+                         <AvatarFallback>
+                           <Bot className="h-4 w-4" />
+                         </AvatarFallback>
+                       </Avatar>
+                       <div className="bg-muted rounded-lg p-3 text-sm">
+                         <div className="flex space-x-1">
+                           <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                           <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
+                     animationDelay: '0.1s'
+                   }} />
+                           <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
+                     animationDelay: '0.2s'
+                   }} />
+                         </div>
+                       </div>
+                     </div>}
+                   <div ref={messagesEndRef} />
+                 </div>
+
+                 {/* Input area */}
+                 <div className="p-4 border-t border-border flex-shrink-0">
+                   <div className="flex gap-2">
+                     <PhotoUploadButton 
+                       onPhotoSelected={handlePhotoSelected}
+                       disabled={isLoading || !isAuthenticated}
+                     />
+                     <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
+                     <Button onClick={() => sendMessage()} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
+                       <Send className="h-4 w-4" />
+                     </Button>
+                   </div>
+                 </div>
 
          {/* Debug Tools - Only shown when there might be language issues */}
          <ChatDebugTools />
