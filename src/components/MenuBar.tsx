@@ -231,7 +231,7 @@ export const MenuBar = () => {
   };
 
   const handleVoiceToggle = () => {
-    setShowVoiceInterface(!showVoiceInterface);
+    setShowAiChat(true);
   };
 
   const handleVoiceMessage = (message: string) => {
@@ -240,7 +240,7 @@ export const MenuBar = () => {
   };
 
   const handleVoiceEnd = () => {
-    setShowVoiceInterface(false);
+    setShowAiChat(false);
     setIsVoiceSpeaking(false);
   };
 
@@ -376,9 +376,9 @@ export const MenuBar = () => {
             ) : (
               /* AI Voice Sphere when no timer is active */
               <VoiceSphere
-                isActive={showVoiceInterface}
-                isSpeaking={isVoiceSpeaking}
-                isListening={showVoiceInterface && !isVoiceSpeaking}
+                isActive={showAiChat}
+                isSpeaking={false}
+                isListening={false}
                 onClick={handleVoiceToggle}
               />
             )}
@@ -703,15 +703,6 @@ export const MenuBar = () => {
           />
         </DialogContent>
       </Dialog>
-
-      {/* Voice Interface */}
-      {showVoiceInterface && (
-        <VoiceInterface
-          isActive={showVoiceInterface}
-          onMessage={handleVoiceMessage}
-          onEnd={handleVoiceEnd}
-        />
-      )}
     </>
   );
 };
