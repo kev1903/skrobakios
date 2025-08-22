@@ -245,8 +245,8 @@ export const MenuBar = () => {
       const recorder = new MediaRecorder(stream);
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          // Here you would typically send the audio to the AI chat
-          setShowAiChat(true); // Open AI chat when voice is used
+          // Voice recording completed - audio data would be processed here
+          // Not opening AI chat automatically
         }
       };
       
