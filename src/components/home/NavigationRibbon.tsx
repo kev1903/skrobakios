@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database, CheckSquare, X } from 'lucide-react';
+import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database, CheckSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
@@ -247,18 +247,10 @@ const handleNavigateAndClose = (page: string) => {
   );
 
   // Return different containers based on mode
-    if (isFloatingMode) {
+  if (isFloatingMode) {
     // Floating mode - fixed positioning
     return (
       <div className="fixed left-0 top-0 w-48 h-full bg-white border-r border-gray-200 shadow-lg z-40 transition-all duration-300">
-        {/* Close button */}
-        <button
-          aria-label="Close navigation"
-          onClick={onClose}
-          className="absolute top-3 right-3 inline-flex items-center justify-center w-7 h-7 rounded-md border border-gray-200 hover:bg-gray-100 text-gray-600"
-        >
-          <X className="w-4 h-4" />
-        </button>
         <div className="flex flex-col h-full">
           {sidebarContent}
         </div>

@@ -18,7 +18,7 @@ import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileViewToggle } from "@/components/mobile/MobileViewToggle";
-
+import { useGlobalSidebar } from "@/contexts/GlobalSidebarContext";
 const Index = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -31,6 +31,7 @@ const Index = () => {
   const previousPageRef = useRef<string>("landing");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
   const isMobile = useIsMobile();
+  const { isOpen: isSidebarOpen } = useGlobalSidebar();
 
   // Enhanced navigation function that tracks previous page
   const handleNavigate = (page: string) => {
@@ -146,66 +147,38 @@ const Index = () => {
   return (
     <DigitalObjectsProvider>
       <TaskProvider>
-        <div className="relative">
-          {currentPage === "sales" || currentPage === "landing" || currentPage === "auth" ? (
-            // Sales CRM, Landing, and Auth take full screen - no main layout wrapper
-            <div className="w-full h-screen min-h-0 overflow-hidden">
-              <div className="w-full h-full bg-background">
-                <ContentRenderer 
-                  currentPage={currentPage}
-                  onNavigate={handleNavigate}
-                  onSelectProject={handleSelectProject}
-                  selectedProject={selectedProject}
-                  currentProject={currentProject}
-                />
-              </div>
-            </div>
-          ) : isMobile ? (
-            // Mobile layout with toggle between chat and app
-            <div className="w-full h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
-              {/* Mobile header (fixed) */}
-              <MobileHeader onNavigate={handleNavigate} />
-              
-              {/* Main content area pinned between header and bottom toggle */}
-              <div className="absolute left-0 right-0 top-16 bottom-16 z-10">
-                {mobileView === 'chat' ? (
-                  // AI Chat view on mobile - Show full screen chat modal in menu bar instead
-                  <div className="w-full h-full flex items-center justify-center">
-                    <p className="text-muted-foreground">Click the AI chat icon in the menu bar to start chatting</p>
-                  </div>
-                ) : (
-                  // App view on mobile
-                  <div className="w-full h-full overflow-hidden">
-                    <PageLayout currentPage={currentPage} onNavigate={handleNavigate} disableSpacing>
-                      <div className="w-full h-full">
-                        <ContentRenderer 
-                          currentPage={currentPage}
-                          onNavigate={handleNavigate}
-                          onSelectProject={handleSelectProject}
-                          selectedProject={selectedProject}
-                          currentProject={currentProject}
-                        />
-                      </div>
-                    </PageLayout>
-                  </div>
-                )}
-              </div>
-              
-              {/* Mobile toggle at bottom (fixed) */}
-              <MobileViewToggle 
-                activeView={mobileView}
-                onViewChange={setMobileView}
+        {currentPage === "sales" || currentPage === "landing" || currentPage === "auth" ? (
+          // Sales CRM, Landing, and Auth take full screen - no main layout wrapper
+          <div className="flex h-screen min-h-0 overflow-hidden">
+            <div className={`flex-1 bg-background transition-all duration-300 ${isSidebarOpen && !isMobile ? 'pl-72 sm:pl-80' : ''}`}>
+              <ContentRenderer 
+                currentPage={currentPage}
+                onNavigate={handleNavigate}
+                onSelectProject={handleSelectProject}
+                selectedProject={selectedProject}
+                currentProject={currentProject}
               />
             </div>
-          ) : (
-            // Home and all other pages get layout with sidebar (desktop/tablet)
-            <div className="w-full h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 overflow-hidden">
-              {/* Background Pattern */}
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
-              
-              <div className="relative z-10 w-full h-full">
-                <div className="w-full h-full bg-background">
-                  <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
+            {/* Global sidebar available on all pages */}
+            <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
+          </div>
+        ) : isMobile ? (
+          // Mobile layout with toggle between chat and app
+          <div className="relative h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+            {/* Mobile header (fixed) */}
+            <MobileHeader onNavigate={handleNavigate} />
+            
+            {/* Main content area pinned between header and bottom toggle */}
+            <div className="absolute left-0 right-0 top-16 bottom-16 z-10">
+              {mobileView === 'chat' ? (
+                // AI Chat view on mobile - Show full screen chat modal in menu bar instead
+                <div className="w-full h-full flex items-center justify-center">
+                  <p className="text-muted-foreground">Click the AI chat icon in the menu bar to start chatting</p>
+                </div>
+              ) : (
+                // App view on mobile
+                <div className="w-full h-full overflow-hidden">
+                  <PageLayout currentPage={currentPage} onNavigate={handleNavigate} disableSpacing>
                     <div className="w-full h-full">
                       <ContentRenderer 
                         currentPage={currentPage}
@@ -217,13 +190,44 @@ const Index = () => {
                     </div>
                   </PageLayout>
                 </div>
-              </div>
+              )}
+
+              {/* Global sidebar available on all pages */}
+              <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
             </div>
-          )}
-          
-          {/* Global sidebar - moved outside all layouts to prevent layout shifts */}
-          <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
-        </div>
+            
+            {/* Mobile toggle at bottom (fixed) */}
+            <MobileViewToggle 
+              activeView={mobileView}
+              onViewChange={setMobileView}
+            />
+          </div>
+        ) : (
+          // Home and all other pages get layout with sidebar (desktop/tablet)
+          <div className="h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 relative overflow-hidden">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(148,163,184,0.15)_1px,transparent_0)] bg-[length:24px_24px] pointer-events-none" />
+            
+            <div className="relative z-10 flex h-screen min-h-0">
+              <div className={`flex-1 bg-background transition-all duration-300 ${isSidebarOpen && !isMobile ? 'pl-72 sm:pl-80' : ''}`}>
+        <PageLayout currentPage={currentPage} onNavigate={handleNavigate}>
+          <div className="w-full h-full">
+            <ContentRenderer 
+              currentPage={currentPage}
+              onNavigate={handleNavigate}
+              onSelectProject={handleSelectProject}
+              selectedProject={selectedProject}
+              currentProject={currentProject}
+            />
+          </div>
+        </PageLayout>
+              </div>
+              
+              {/* Global sidebar available on all pages */}
+              <GlobalSidebar currentPage={currentPage} onNavigate={handleNavigate} />
+            </div>
+          </div>
+        )}
       </TaskProvider>
     </DigitalObjectsProvider>
   );

@@ -15,8 +15,7 @@ export const PageLayout = ({ currentPage, onNavigate, children, disableSpacing =
   const { spacingClasses, fullHeightClasses } = useMenuBarSpacing(currentPage);
   const spacing = disableSpacing ? '' : spacingClasses;
   const fullHeight = disableSpacing ? 'h-full' : fullHeightClasses;
-
-  // Auth page has no layout wrapper - no protection needed
+  // Auth page has no layout wrapper
   if (currentPage === "auth") {
     return (
       <main className="w-full h-screen">
@@ -25,17 +24,48 @@ export const PageLayout = ({ currentPage, onNavigate, children, disableSpacing =
     );
   }
 
-  // All protected pages use consistent layout with overflow-hidden container
-  // Individual page components handle their own scrolling
+  // Profile pages need a single scroll container to avoid double scrollbars
+  if (currentPage === "profile" || currentPage === "personal-dashboard" || currentPage === "user-profile") {
+    return (
+      <ProtectedRoute 
+        onNavigate={onNavigate}
+        requireSuperAdmin={false}
+      >
+        <main className={`w-full ${spacing} ${fullHeight} relative transition-[padding] duration-300 overflow-y-auto`}>
+          {children}
+        </main>
+      </ProtectedRoute>
+    );
+  }
+
+  // Sales, system, home, and tasks pages get consistent full-screen layout
+  if (currentPage === "sales" || currentPage === "system" || currentPage === "home" || currentPage === "tasks") {
+    return (
+      <ProtectedRoute 
+        onNavigate={onNavigate}
+        requireSuperAdmin={false}
+      >
+        <main className={`w-full ${spacing} ${fullHeight} relative transition-[padding] duration-300 overflow-hidden`}>
+          <div className="w-full h-full overflow-y-auto">
+            {children}
+          </div>
+        </main>
+      </ProtectedRoute>
+    );
+  }
+
+  // Default layout for all other pages - let individual pages handle their own scrolling
   return (
     <ProtectedRoute 
       onNavigate={onNavigate}
-      requireSuperAdmin={currentPage === "admin" || currentPage === "user-management" || currentPage === "platform-admin"}
+      requireSuperAdmin={currentPage === "admin" || currentPage === "user-management"}
       requireAdmin={currentPage === "platform-dashboard"}
     >
-      <main className={`w-full ${spacing} ${fullHeight} relative transition-[padding] duration-300 overflow-hidden`}>
-        {children}
-      </main>
+        <main className={`w-full ${spacing} ${fullHeight} relative transition-[padding] duration-300 overflow-hidden`}>
+          <div className="w-full h-full overflow-y-auto">
+            {children}
+          </div>
+        </main>
     </ProtectedRoute>
   );
 };
