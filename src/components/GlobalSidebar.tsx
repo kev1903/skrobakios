@@ -11,6 +11,25 @@ interface GlobalSidebarProps {
 export const GlobalSidebar = ({ currentPage, onNavigate }: GlobalSidebarProps) => {
   const { isOpen, closeSidebar } = useGlobalSidebar();
 
+  // Lock page scroll when sidebar is open to avoid double scrollbars
+  React.useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    if (isOpen) {
+      html.style.overflow = 'hidden';
+      body.style.overflow = 'hidden';
+    } else {
+      html.style.overflow = prevHtmlOverflow || '';
+      body.style.overflow = prevBodyOverflow || '';
+    }
+    return () => {
+      html.style.overflow = prevHtmlOverflow || '';
+      body.style.overflow = prevBodyOverflow || '';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleNavigateWithClose = (page: string) => {
