@@ -330,7 +330,7 @@ const AppContent = () => {
               <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
             )}
             {showMenuBar ? <MenuBar /> : null}
-            <div className={`transition-all duration-300 ${isSidebarOpen && !isMobile ? 'pl-72 sm:pl-80' : ''}`}>
+            <div className="transition-all duration-300">
             <Routes>
         <Route path="/" element={
           <Index />
