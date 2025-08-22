@@ -1,5 +1,4 @@
 import React from 'react';
-import { Bot } from 'lucide-react';
 import { AISpeakingEffects } from '@/components/company/AISpeakingEffects';
 import { useAISpeakingEffects } from '@/components/company/useAISpeakingEffects';
 import { cn } from '@/lib/utils';
@@ -96,15 +95,15 @@ export const VoiceSphere = ({
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-blue-400/30 to-pink-400/20 animate-pulse" />
       )}
 
-      {/* AI Bot Icon */}
+      {/* Center focal point - no icon, just pure sphere */}
       <div className="relative z-10 flex items-center justify-center">
-        <Bot className={cn(
-          "transition-all duration-500 drop-shadow-lg",
-          // Inactive state - smaller, grey, subtle
-          !isActive && "w-5 h-5 text-gray-300 group-hover:text-gray-200 group-hover:scale-110",
-          // Active state - larger, white, dynamic
-          isActive && "w-6 h-6 text-white group-hover:scale-125",
-          isSpeaking && "animate-pulse scale-125 text-white"
+        <div className={cn(
+          "transition-all duration-500",
+          // Inactive state - smaller, grey dot
+          !isActive && "w-3 h-3 rounded-full bg-gray-300/80 group-hover:bg-gray-200/90 group-hover:scale-110",
+          // Active state - larger, white dot with glow
+          isActive && "w-4 h-4 rounded-full bg-white/90 shadow-lg group-hover:scale-125 group-hover:bg-white",
+          isSpeaking && "animate-pulse scale-150 bg-white shadow-xl"
         )} />
       </div>
 
