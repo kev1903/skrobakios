@@ -268,7 +268,9 @@ const App = () => {
         <BrowserRouter>
           <AuthProvider>
             <ImpersonationGuard>
-              <AppContent />
+              <GlobalSidebarProvider>
+                <AppContent />
+              </GlobalSidebarProvider>
             </ImpersonationGuard>
           </AuthProvider>
         </BrowserRouter>
@@ -319,18 +321,17 @@ const AppContent = () => {
   const showMenuBar = (((user && !isLandingPage && !isAuthPage && !isSignUpPage) || isHomePage) && !(isHomePage && isMobile));
 
   return (
-    <GlobalSidebarProvider>
-      <AppContextProvider>
-        <UserProvider>
-          <CompanyProvider>
-            <TimeTrackingProvider>
-                <>
-                  {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
-                    <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
-                  )}
-                {showMenuBar ? <MenuBar /> : null}
-                <div className={`transition-all duration-300 ${isSidebarOpen && !isMobile ? 'pl-72 sm:pl-80' : ''}`}>
-                <Routes>
+    <AppContextProvider>
+      <UserProvider>
+        <CompanyProvider>
+          <TimeTrackingProvider>
+          <>
+            {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
+              <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
+            )}
+            {showMenuBar ? <MenuBar /> : null}
+            <div className={`transition-all duration-300 ${isSidebarOpen && !isMobile ? 'pl-72 sm:pl-80' : ''}`}>
+            <Routes>
         <Route path="/" element={
           <Index />
         } />
@@ -412,12 +413,11 @@ const AppContent = () => {
       {location.pathname !== "/" && (
         <GlobalSidebar currentPage={currentPageForSidebar} onNavigate={handleSidebarNavigate} />
       )}
-            </>
-          </TimeTrackingProvider>
-        </CompanyProvider>
-      </UserProvider>
-    </AppContextProvider>
-    </GlobalSidebarProvider>
+          </>
+        </TimeTrackingProvider>
+      </CompanyProvider>
+    </UserProvider>
+  </AppContextProvider>
   );
 };
 
