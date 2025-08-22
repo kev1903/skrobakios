@@ -80,42 +80,26 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   // Scroll navigation
   useEffect(() => {
     let isScrolling = false;
-    let scrollTimeout: NodeJS.Timeout;
 
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       
       if (isScrolling) return;
+      isScrolling = true;
 
-      // Clear any existing timeout
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
+      if (e.deltaY > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
       }
 
-      // Only trigger on significant scroll
-      if (Math.abs(e.deltaY) > 50) {
-        isScrolling = true;
-
-        if (e.deltaY > 0) {
-          nextSlide();
-        } else {
-          prevSlide();
-        }
-
-        // Reset scrolling flag after animation completes
-        scrollTimeout = setTimeout(() => {
-          isScrolling = false;
-        }, 1400);
-      }
+      setTimeout(() => {
+        isScrolling = false;
+      }, 1400);
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => {
-      window.removeEventListener('wheel', handleWheel);
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-    };
+    return () => window.removeEventListener('wheel', handleWheel);
   }, [currentSlide]);
 
   // Touch/swipe navigation
@@ -256,7 +240,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </div>
       
       {/* Fixed Header with Navigation */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md opacity-0 pointer-events-none">
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
