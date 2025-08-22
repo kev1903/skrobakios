@@ -499,6 +499,73 @@ export function useVoiceChat() {
         listeningMode: mode 
       });
       
+      // Create a local function to handle text-to-speech to avoid dependency issues
+      const handleSpeech = async (text: string) => {
+        try {
+          console.log('Converting text to speech:', text);
+          
+          // Use our text-to-speech edge function
+          const ttsResult = await invokeEdge('text-to-speech', {
+            text: text,
+            voice: 'alloy'
+          });
+
+          if (!ttsResult?.audioContent) {
+            throw new Error('No audio content received from TTS');
+          }
+
+          // Convert base64 to blob and play
+          const binaryString = atob(ttsResult.audioContent);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          
+          const audioBlob = new Blob([bytes], { type: 'audio/mp3' });
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          
+          // Store reference for potential interruption
+          currentAudioRef.current = audio;
+          
+          audio.onended = () => {
+            URL.revokeObjectURL(audioUrl);
+            updateState({ isSpeaking: false });
+            currentAudioRef.current = null;
+            console.log('AI finished speaking, continuing to listen...');
+          };
+
+          audio.onerror = () => {
+            URL.revokeObjectURL(audioUrl);
+            currentAudioRef.current = null;
+            throw new Error('Audio playback failed');
+          };
+
+          await audio.play();
+          
+        } catch (error) {
+          console.error('Error in text-to-speech:', error);
+          
+          // Fallback: Use browser's speech synthesis
+          if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 0.8;
+            
+            utterance.onend = () => {
+              updateState({ isSpeaking: false });
+              console.log('Browser speech finished, continuing to listen...');
+            };
+            
+            speechSynthesis.speak(utterance);
+          } else {
+            updateState({ isSpeaking: false });
+            toast.error('Text-to-speech not available');
+          }
+        }
+      };
+      
       // Trigger SkAi greeting
       console.log('Triggering SkAi greeting...');
       updateState({ isSpeaking: true });
@@ -513,15 +580,15 @@ export function useVoiceChat() {
         
         if (greetingText) {
           console.log('SkAi greeting:', greetingText);
-          await speakText(greetingText);
+          await handleSpeech(greetingText);
         } else {
           // Fallback greeting if AI doesn't respond
-          await speakText('Hello! SkAi is ready to help you. How can I assist you today?');
+          await handleSpeech('Hello! SkAi is ready to help you. How can I assist you today?');
         }
       } catch (greetingError) {
         console.error('Failed to get SkAi greeting:', greetingError);
         // Fallback greeting
-        await speakText('Hello! SkAi voice interface is now active. How can I help you?');
+        await handleSpeech('Hello! SkAi voice interface is now active. How can I help you?');
       }
       
       if (mode === 'continuous') {
@@ -539,7 +606,7 @@ export function useVoiceChat() {
       console.error('Failed to initialize voice chat:', error);
       toast.error('Voice chat initialization failed');
     }
-  }, [startContinuousListening, updateState, speakText]);
+  }, [startContinuousListening, updateState]);
 
   const disconnect = useCallback(() => {
     console.log('Disconnecting voice chat...');
