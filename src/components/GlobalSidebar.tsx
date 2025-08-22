@@ -41,8 +41,14 @@ export const GlobalSidebar = ({ currentPage, onNavigate }: GlobalSidebarProps) =
     <>
       {/* Backdrop - higher z-index to ensure it's above maps and toolbars */}
       <div 
-        className="fixed inset-0 bg-background/60 backdrop-blur-sm z-[9995]"
-        onClick={closeSidebar}
+        className="fixed inset-0 bg-background/60 backdrop-blur-sm z-[9995] cursor-pointer"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeSidebar();
+        }}
+        role="button"
+        aria-label="Close sidebar"
       />
       
       {/* Floating Navigation Ribbon (uses its own floating mode when onClose is provided) */}
