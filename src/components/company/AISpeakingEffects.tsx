@@ -15,7 +15,7 @@ export const AISpeakingEffects = ({ isSpeaking, pulseIntensity, getGlowIntensity
       <div 
         className="absolute inset-0 rounded-full animate-pulse"
         style={{
-          background: `radial-gradient(circle, rgba(59, 130, 246, ${getGlowIntensity()}) 0%, rgba(59, 130, 246, 0) 70%)`,
+          background: `radial-gradient(circle, rgba(71, 85, 105, ${getGlowIntensity()}) 0%, rgba(71, 85, 105, 0) 70%)`,
           filter: 'blur(20px)',
           transform: 'scale(2)',
         }}
@@ -25,7 +25,7 @@ export const AISpeakingEffects = ({ isSpeaking, pulseIntensity, getGlowIntensity
       <div 
         className="absolute inset-0 rounded-full"
         style={{
-          background: `radial-gradient(circle, rgba(96, 165, 250, ${getGlowIntensity() * 0.6}) 0%, rgba(96, 165, 250, 0) 60%)`,
+          background: `radial-gradient(circle, rgba(148, 163, 184, ${getGlowIntensity() * 0.6}) 0%, rgba(148, 163, 184, 0) 60%)`,
           filter: 'blur(10px)',
           transform: 'scale(1.5)',
         }}
@@ -36,7 +36,7 @@ export const AISpeakingEffects = ({ isSpeaking, pulseIntensity, getGlowIntensity
         {[...Array(8)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-blue-300 rounded-full animate-ping"
+            className="absolute w-1 h-1 bg-slate-300 rounded-full animate-ping"
             style={{
               top: `${20 + Math.sin((pulseIntensity + i) * 0.5) * 30}%`,
               left: `${20 + Math.cos((pulseIntensity + i) * 0.5) * 30}%`,
