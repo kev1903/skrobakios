@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut, MessageCircle, Mic } from 'lucide-react';
+import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,6 +23,8 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AiChatSidebar } from '@/components/AiChatSidebar';
+import { VoiceSphere } from '@/components/VoiceSphere';
+import { VoiceInterface } from '@/components/VoiceInterface';
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -53,8 +55,8 @@ export const MenuBar = () => {
   // Header icons state
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showAiChat, setShowAiChat] = useState(false);
-  const [isVoiceActive, setIsVoiceActive] = useState(false);
-  const [audioRecorder, setAudioRecorder] = useState<MediaRecorder | null>(null);
+  const [showVoiceInterface, setShowVoiceInterface] = useState(false);
+  const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   // Handle clicking outside the dropdown to close it
@@ -228,39 +230,18 @@ export const MenuBar = () => {
     }
   };
 
-  const handleVoiceCommand = async () => {
-    if (isVoiceActive) {
-      // Stop voice
-      setIsVoiceActive(false);
-      if (audioRecorder) {
-        audioRecorder.stop();
-        setAudioRecorder(null);
-      }
-      return;
-    }
+  const handleVoiceToggle = () => {
+    setShowVoiceInterface(!showVoiceInterface);
+  };
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
-      const recorder = new MediaRecorder(stream);
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          // Voice recording completed - audio data would be processed here
-          // Not opening AI chat automatically
-        }
-      };
-      
-      recorder.start(1500);
-      setAudioRecorder(recorder);
-      setIsVoiceActive(true);
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      toast({
-        title: 'Microphone Access Denied',
-        description: 'Please allow microphone access to use voice commands',
-        variant: 'destructive',
-      });
-    }
+  const handleVoiceMessage = (message: string) => {
+    // Voice message received - could be forwarded to AI chat if needed
+    console.log('Voice message received:', message);
+  };
+
+  const handleVoiceEnd = () => {
+    setShowVoiceInterface(false);
+    setIsVoiceSpeaking(false);
   };
 
   // Get display text for company logo - using same logic as CenteredCompanyName
@@ -393,19 +374,13 @@ export const MenuBar = () => {
                 )}
               </>
             ) : (
-              /* Click to Speak Button when no timer is active */
-              <Button 
-                variant={isVoiceActive ? "destructive" : "outline"} 
-                size="sm" 
-                onClick={handleVoiceCommand}
-                className="flex items-center gap-2"
-                title={isVoiceActive ? "Stop Voice Recording" : "Click to Speak with AI"}
-              >
-                <Mic className={`h-4 w-4 ${isVoiceActive ? 'animate-pulse' : ''}`} />
-                <span className="text-sm font-medium">
-                  {isVoiceActive ? "Stop Recording" : "Click to Speak"}
-                </span>
-              </Button>
+              /* AI Voice Sphere when no timer is active */
+              <VoiceSphere
+                isActive={showVoiceInterface}
+                isSpeaking={isVoiceSpeaking}
+                isListening={showVoiceInterface && !isVoiceSpeaking}
+                onClick={handleVoiceToggle}
+              />
             )}
           </div>
 
@@ -728,6 +703,15 @@ export const MenuBar = () => {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Voice Interface */}
+      {showVoiceInterface && (
+        <VoiceInterface
+          isActive={showVoiceInterface}
+          onMessage={handleVoiceMessage}
+          onEnd={handleVoiceEnd}
+        />
+      )}
     </>
   );
 };
