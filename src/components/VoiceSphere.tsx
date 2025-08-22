@@ -95,17 +95,6 @@ export const VoiceSphere = ({
         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/40 via-blue-400/30 to-pink-400/20 animate-pulse" />
       )}
 
-      {/* Center focal point - no icon, just pure sphere */}
-      <div className="relative z-10 flex items-center justify-center">
-        <div className={cn(
-          "transition-all duration-500",
-          // Inactive state - smaller, grey dot
-          !isActive && "w-3 h-3 rounded-full bg-gray-300/80 group-hover:bg-gray-200/90 group-hover:scale-110",
-          // Active state - larger, white dot with glow
-          isActive && "w-4 h-4 rounded-full bg-white/90 shadow-lg group-hover:scale-125 group-hover:bg-white",
-          isSpeaking && "animate-pulse scale-150 bg-white shadow-xl"
-        )} />
-      </div>
 
       {/* Sophisticated outer ring animation for listening state */}
       {isListening && !isSpeaking && (
