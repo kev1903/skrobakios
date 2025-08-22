@@ -25,6 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { AiChatSidebar } from '@/components/AiChatSidebar';
 import { VoiceSphere } from '@/components/VoiceSphere';
 import { VoiceInterface } from '@/components/VoiceInterface';
+import { useVoiceChat } from '@/hooks/useVoiceChat';
 
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -38,6 +39,16 @@ export const MenuBar = () => {
   const { activeContext, setActiveContext } = useAppContext();
   const { toggleSidebar } = useGlobalSidebar();
   const barRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize voice chat functionality
+  const {
+    state: voiceState,
+    settings: voiceSettings,
+    initializeVoiceChat,
+    startPushToTalk,
+    stopPushToTalk,
+    disconnect: disconnectVoice
+  } = useVoiceChat();
   
   const [currentDuration, setCurrentDuration] = useState(0);
   const isPaused = activeTimer?.status === 'paused';
@@ -230,8 +241,25 @@ export const MenuBar = () => {
     }
   };
 
-  const handleVoiceToggle = () => {
-    setShowAiChat(true);
+  const handleVoiceToggle = async () => {
+    try {
+      if (voiceState.isListening) {
+        // Stop listening
+        stopPushToTalk();
+        disconnectVoice();
+      } else {
+        // Initialize and start listening
+        await initializeVoiceChat('push-to-talk');
+        startPushToTalk();
+      }
+    } catch (error) {
+      console.error('Voice toggle error:', error);
+      toast({
+        title: "Voice Error",
+        description: "Failed to start voice interface. Please check microphone permissions.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleVoiceMessage = (message: string) => {
@@ -376,9 +404,10 @@ export const MenuBar = () => {
             ) : (
               /* AI Voice Sphere when no timer is active */
               <VoiceSphere
-                isActive={showAiChat}
-                isSpeaking={false}
-                isListening={false}
+                isActive={voiceState.isConnected || voiceState.isListening}
+                isSpeaking={voiceState.isSpeaking}
+                isListening={voiceState.isListening}
+                audioLevel={voiceState.audioLevel}
                 onClick={handleVoiceToggle}
               />
             )}
