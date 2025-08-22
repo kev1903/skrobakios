@@ -135,9 +135,12 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <div className="text-2xl font-playfair font-light text-brand-charcoal cursor-pointer" onClick={() => goToSlide(0)}>
-                soulay
-              </div>
+              <img 
+                src="/lovable-uploads/461d9849-11c8-4272-a62b-c5c846dae9c3.png"
+                alt="SKROBAKI"
+                className="h-8 cursor-pointer"
+                onClick={() => goToSlide(0)}
+              />
             </div>
 
             {/* Centered Navigation */}
