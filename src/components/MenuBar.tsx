@@ -402,14 +402,14 @@ export const MenuBar = () => {
                 )}
               </>
             ) : (
-              /* AI Voice Sphere when no timer is active - reduced size */
+              /* AI Voice Sphere when no timer is active - smaller size */
               <VoiceSphere
                 isActive={voiceState.isConnected || voiceState.isListening}
                 isSpeaking={voiceState.isSpeaking}
                 isListening={voiceState.isListening}
                 audioLevel={voiceState.audioLevel}
                 onClick={handleVoiceToggle}
-                className="w-12 h-12"
+                className="w-10 h-10"
               />
             )}
           </div>
