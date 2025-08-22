@@ -111,7 +111,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   }
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-slate-50 to-slate-100 relative">
+    <div className="w-full h-full bg-gradient-to-br from-slate-50 to-slate-100 relative overflow-y-auto">
       {/* Main content container */}
       <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-${isMobile ? '4' : '6'} min-h-full`}>
         {/* Header */}

@@ -54,6 +54,20 @@ export const PageLayout = ({ currentPage, onNavigate, children, disableSpacing =
     );
   }
 
+  // Projects page handles its own scrolling to avoid double scroll bars
+  if (currentPage === "projects") {
+    return (
+      <ProtectedRoute 
+        onNavigate={onNavigate}
+        requireSuperAdmin={false}
+      >
+        <main className={`w-full ${spacing} ${fullHeight} relative transition-[padding] duration-300 overflow-hidden`}>
+          {children}
+        </main>
+      </ProtectedRoute>
+    );
+  }
+
   // Default layout for all other pages - let individual pages handle their own scrolling
   return (
     <ProtectedRoute 
