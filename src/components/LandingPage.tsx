@@ -194,7 +194,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               onClick={() => onNavigate('auth')}
               className="px-6 py-2 text-sm font-medium text-brand-charcoal hover:text-brand-white hover:bg-brand-charcoal border border-brand-charcoal/30 hover:border-brand-charcoal transition-all duration-300 uppercase tracking-wider"
             >
-              Shop
+              Projects
             </button>
           </div>
         </div>
@@ -247,18 +247,18 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             <div className="relative">
               <div className="aspect-square bg-brand-black/5 rounded-lg overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                  alt="soulay fashion"
+                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                  alt="SKROBAKI architecture"
                   className="w-full h-full object-cover grayscale opacity-80"
                 />
                 <div className="absolute inset-0 bg-brand-black/20"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center text-brand-white">
                     <h1 className="text-6xl lg:text-8xl font-playfair font-extralight mb-4 tracking-tight">
-                      soulay
+                      SKROBAKI
                     </h1>
                     <p className="text-sm tracking-[0.3em] uppercase opacity-90">
-                      Premium Clothing
+                      Architectural Innovation
                     </p>
                   </div>
                 </div>
@@ -272,19 +272,19 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                   Brand Story
                 </p>
                 <h2 className="text-4xl lg:text-5xl font-playfair font-light text-brand-charcoal mb-8 leading-tight">
-                  Crafted for the<br />
-                  <span className="italic">discerning soul</span>
+                  Designed for the<br />
+                  <span className="italic">modern world</span>
                 </h2>
               </div>
               
               <div className="space-y-6 text-brand-gray leading-relaxed">
                 <p>
-                  Soulay represents the intersection of timeless elegance and contemporary sophistication. 
-                  Each piece is meticulously crafted to embody the essence of modern luxury.
+                  SKROBAKI represents the intersection of innovative design and functional architecture. 
+                  Every project is thoughtfully conceived to create spaces that inspire and endure.
                 </p>
                 <p>
-                  Our collections speak to those who understand that true style transcends trends, 
-                  creating a wardrobe that evolves with you through every season of life.
+                  Our philosophy embraces both form and function, creating environments that evolve 
+                  with the changing needs of modern life while maintaining timeless aesthetic appeal.
                 </p>
               </div>
 
@@ -292,7 +292,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 onClick={() => onNavigate('auth')}
                 className="group flex items-center gap-3 text-brand-charcoal hover:text-brand-black transition-colors duration-300"
               >
-                <span className="text-sm uppercase tracking-widest">Discover Collection</span>
+                <span className="text-sm uppercase tracking-widest">Explore Projects</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
               </button>
             </div>
@@ -316,8 +316,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="col-span-1 row-span-2">
                 <div className="h-full bg-brand-cream rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Fashion detail"
+                    src="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Architectural detail"
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
@@ -327,8 +327,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="col-span-1">
                 <div className="h-full bg-brand-beige rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Fashion style"
+                    src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Modern architecture"
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
@@ -338,8 +338,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="col-span-1">
                 <div className="h-full bg-brand-sand rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Lifestyle"
+                    src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Interior design"
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
@@ -349,8 +349,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="col-span-1 row-span-2">
                 <div className="h-full bg-brand-charcoal rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Fashion portrait"
+                    src="https://images.unsplash.com/photo-1479839672679-a46483c0e7c8?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Architectural structure"
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
@@ -360,8 +360,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="col-span-1">
                 <div className="h-full bg-brand-light-gray/30 rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                    alt="Fashion detail"
+                    src="https://images.unsplash.com/photo-1511818966892-d7d671e672a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Geometric design"
                     className="w-full h-full object-cover grayscale"
                   />
                 </div>
@@ -380,24 +380,24 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="lg:col-span-1 space-y-8">
                 <div>
                   <p className="text-brand-gray/60 font-inter text-sm tracking-[0.2em] uppercase mb-4">
-                    Collections • 2024
+                    Projects • 2024
                   </p>
                   <h2 className="text-4xl font-playfair font-light text-brand-charcoal mb-6 leading-tight">
-                    Seasonal<br />
-                    <span className="italic">Essentials</span>
+                    Featured<br />
+                    <span className="italic">Works</span>
                   </h2>
                 </div>
                 
                 <div className="space-y-4 text-brand-gray">
                   <p className="leading-relaxed">
-                    Each collection tells a story of refined craftsmanship and thoughtful design, 
-                    created for the modern individual who values quality over quantity.
+                    Each project represents our commitment to innovative design and exceptional craftsmanship, 
+                    created for clients who value both aesthetic excellence and functional integrity.
                   </p>
                 </div>
 
                 <div className="pt-6">
                   <button className="text-sm text-brand-charcoal hover:text-brand-black uppercase tracking-widest border-b border-brand-charcoal/30 hover:border-brand-charcoal transition-colors duration-300">
-                    View All Collections
+                    View All Projects
                   </button>
                 </div>
               </div>
@@ -407,28 +407,28 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 <div className="space-y-6">
                   <div className="aspect-[3/4] bg-brand-white rounded-lg overflow-hidden shadow-sm">
                     <img 
-                      src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                      alt="Collection 1"
+                      src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                      alt="Residential Project"
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="text-center">
-                    <h3 className="font-medium text-brand-charcoal mb-1">Autumn Essentials</h3>
-                    <p className="text-sm text-brand-gray">Starting from $180</p>
+                    <h3 className="font-medium text-brand-charcoal mb-1">Urban Villa</h3>
+                    <p className="text-sm text-brand-gray">Completed 2024</p>
                   </div>
                 </div>
 
                 <div className="space-y-6 mt-12">
                   <div className="aspect-[3/4] bg-brand-white rounded-lg overflow-hidden shadow-sm">
                     <img 
-                      src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                      alt="Collection 2"
+                      src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                      alt="Commercial Project"
                       className="w-full h-full object-cover"
                     />
                   </div>
                   <div className="text-center">
-                    <h3 className="font-medium text-brand-charcoal mb-1">Winter Luxe</h3>
-                    <p className="text-sm text-brand-gray">Starting from $280</p>
+                    <h3 className="font-medium text-brand-charcoal mb-1">Corporate Tower</h3>
+                    <p className="text-sm text-brand-gray">Completed 2023</p>
                   </div>
                 </div>
               </div>
@@ -446,8 +446,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="relative">
                 <div className="aspect-[4/5] rounded-lg overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1539008835657-9e8e9680c956?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                    alt="soulay lifestyle"
+                    src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                    alt="SKROBAKI architecture"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -457,28 +457,28 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="space-y-8 text-brand-white">
                 <div>
                   <p className="text-brand-white/60 font-inter text-sm tracking-[0.2em] uppercase mb-6">
-                    Lifestyle • Philosophy
+                    Design • Philosophy
                   </p>
                   <h2 className="text-4xl font-playfair font-light mb-8 leading-tight">
-                    Live with<br />
-                    <span className="italic">intention</span>
+                    Build with<br />
+                    <span className="italic">purpose</span>
                   </h2>
                 </div>
                 
                 <div className="space-y-6 text-brand-white/80 leading-relaxed">
                   <p>
-                    Soulay is more than clothing—it's a philosophy of mindful living. 
-                    We believe in the power of thoughtful choices and the beauty of simplicity.
+                    SKROBAKI is more than architecture—it's a philosophy of conscious design. 
+                    We believe in creating spaces that honor both human connection and environmental harmony.
                   </p>
                   <p>
-                    Every piece is designed to move with you through life's moments, 
-                    from quiet mornings to meaningful encounters, always with grace and confidence.
+                    Every structure is conceived to enhance the lives of those who inhabit it, 
+                    from intimate residences to inspiring commercial spaces, always with respect for context and community.
                   </p>
                 </div>
 
                 <div className="pt-8">
                   <div className="text-sm text-brand-white/60 font-inter italic">
-                    "Style is a way to say who you are without speaking."
+                    "Architecture is the thoughtful making of spaces." — Louis Kahn
                   </div>
                 </div>
               </div>
@@ -503,7 +503,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="group">
                 <div className="aspect-[3/2] bg-brand-cream rounded-lg p-8 flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-105">
                   <div className="text-center">
-                    <div className="text-2xl font-playfair font-light text-brand-charcoal mb-2">soulay</div>
+                    <div className="text-2xl font-playfair font-light text-brand-charcoal mb-2">SKROBAKI</div>
                     <div className="w-12 h-px bg-brand-charcoal/30 mx-auto"></div>
                   </div>
                 </div>
@@ -514,7 +514,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="group">
                 <div className="aspect-[3/4] bg-brand-white border border-brand-gray/20 rounded-lg p-6 mb-4 transition-transform duration-300 group-hover:scale-105">
                   <div className="text-brand-charcoal">
-                    <div className="text-lg font-playfair font-light mb-8">soulay</div>
+                    <div className="text-lg font-playfair font-light mb-8">SKROBAKI</div>
                     <div className="space-y-2">
                       <div className="w-full h-px bg-brand-gray/20"></div>
                       <div className="w-3/4 h-px bg-brand-gray/20"></div>
@@ -530,7 +530,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 <div className="aspect-square bg-brand-beige rounded-lg p-6 flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-105">
                   <div className="text-center">
                     <div className="w-16 h-16 border border-brand-charcoal/30 rounded-full flex items-center justify-center mb-3">
-                      <div className="text-xs font-playfair text-brand-charcoal">soulay</div>
+                      <div className="text-xs font-playfair text-brand-charcoal">SKROBAKI</div>
                     </div>
                     <div className="text-xs text-brand-gray uppercase tracking-wider">Premium</div>
                   </div>
@@ -553,8 +553,8 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               </h2>
               <div className="w-16 h-px bg-brand-charcoal mx-auto mb-8"></div>
               <p className="text-lg text-brand-gray leading-relaxed max-w-2xl mx-auto">
-                We'd love to hear from you. Reach out to discuss custom pieces, 
-                collaborations, or simply to share your soulay story.
+                Let's discuss your next architectural project. Contact us to explore how 
+                SKROBAKI can bring your vision to life with innovative design solutions.
               </p>
             </div>
 
@@ -564,7 +564,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                   <Mail className="w-6 h-6 text-brand-charcoal" />
                 </div>
                 <h3 className="text-sm uppercase tracking-wider text-brand-charcoal mb-2">Email</h3>
-                <p className="text-brand-gray">hello@soulay.studio</p>
+                <p className="text-brand-gray">hello@skrobaki.studio</p>
               </div>
 
               <div className="text-center">
@@ -593,7 +593,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               </button>
               
               <p className="text-xs text-brand-gray/60 uppercase tracking-[0.3em]">
-                soulay • premium clothing • est. 2024
+                SKROBAKI • Architectural Innovation • est. 2024
               </p>
             </div>
           </div>
