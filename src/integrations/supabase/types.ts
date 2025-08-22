@@ -5384,6 +5384,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_project_accessible: {
+        Args: { target_project_id: string; target_user_id: string }
+        Returns: boolean
+      }
       is_project_admin_secure: {
         Args: { target_project_id: string; target_user_id: string }
         Returns: boolean
