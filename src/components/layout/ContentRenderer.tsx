@@ -80,6 +80,7 @@ import { IssueReportDetailPage } from "@/pages/qaqc/IssueReportDetailPage";
 import { IssueReportEditPage } from "@/pages/qaqc/IssueReportEditPage";
 import { CreateIssuePage } from "@/pages/qaqc/CreateIssuePage";
 import { IssueEditPage } from "@/pages/qaqc/IssueEditPage";
+import { StakeholdersPage } from "@/pages/StakeholdersPage";
 
 
 interface ContentRendererProps {
@@ -277,6 +278,8 @@ export const ContentRenderer = ({
       );
     case "system":
       return <BusinessMapPage onNavigate={onNavigate} />;
+    case "stakeholders":
+      return <StakeholdersPage />;
     case "business-invitations":
       // Business invitations removed - redirect to home
       onNavigate("home");

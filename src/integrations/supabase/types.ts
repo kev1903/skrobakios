@@ -3881,6 +3881,314 @@ export type Database = {
         }
         Relationships: []
       }
+      stakeholder_activities: {
+        Row: {
+          activity_date: string | null
+          activity_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          stakeholder_id: string
+          title: string
+        }
+        Insert: {
+          activity_date?: string | null
+          activity_type: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          stakeholder_id: string
+          title: string
+        }
+        Update: {
+          activity_date?: string | null
+          activity_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          stakeholder_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholder_activities_stakeholder_id_fkey"
+            columns: ["stakeholder_id"]
+            isOneToOne: false
+            referencedRelation: "stakeholders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stakeholder_addresses: {
+        Row: {
+          address_line_1: string
+          address_line_2: string | null
+          city: string
+          country: string | null
+          created_at: string
+          id: string
+          is_primary: boolean | null
+          latitude: number | null
+          longitude: number | null
+          postal_code: string
+          stakeholder_id: string
+          state: string
+          type: string
+        }
+        Insert: {
+          address_line_1: string
+          address_line_2?: string | null
+          city: string
+          country?: string | null
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          postal_code: string
+          stakeholder_id: string
+          state: string
+          type: string
+        }
+        Update: {
+          address_line_1?: string
+          address_line_2?: string | null
+          city?: string
+          country?: string | null
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          postal_code?: string
+          stakeholder_id?: string
+          state?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholder_addresses_stakeholder_id_fkey"
+            columns: ["stakeholder_id"]
+            isOneToOne: false
+            referencedRelation: "stakeholders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stakeholder_contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          is_preferred: boolean | null
+          is_primary: boolean | null
+          mobile: string | null
+          name: string
+          phone: string | null
+          stakeholder_id: string
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_preferred?: boolean | null
+          is_primary?: boolean | null
+          mobile?: string | null
+          name: string
+          phone?: string | null
+          stakeholder_id: string
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_preferred?: boolean | null
+          is_primary?: boolean | null
+          mobile?: string | null
+          name?: string
+          phone?: string | null
+          stakeholder_id?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholder_contacts_stakeholder_id_fkey"
+            columns: ["stakeholder_id"]
+            isOneToOne: false
+            referencedRelation: "stakeholders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stakeholder_documents: {
+        Row: {
+          created_at: string
+          document_name: string
+          document_type: string
+          expiry_date: string | null
+          file_url: string | null
+          id: string
+          stakeholder_id: string
+          status: Database["public"]["Enums"]["compliance_status"] | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_name: string
+          document_type: string
+          expiry_date?: string | null
+          file_url?: string | null
+          id?: string
+          stakeholder_id: string
+          status?: Database["public"]["Enums"]["compliance_status"] | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_name?: string
+          document_type?: string
+          expiry_date?: string | null
+          file_url?: string | null
+          id?: string
+          stakeholder_id?: string
+          status?: Database["public"]["Enums"]["compliance_status"] | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholder_documents_stakeholder_id_fkey"
+            columns: ["stakeholder_id"]
+            isOneToOne: false
+            referencedRelation: "stakeholders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stakeholder_project_roles: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          project_id: string
+          role: string
+          stakeholder_id: string
+          start_date: string | null
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          project_id: string
+          role: string
+          stakeholder_id: string
+          start_date?: string | null
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          project_id?: string
+          role?: string
+          stakeholder_id?: string
+          start_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholder_project_roles_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stakeholder_project_roles_stakeholder_id_fkey"
+            columns: ["stakeholder_id"]
+            isOneToOne: false
+            referencedRelation: "stakeholders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stakeholders: {
+        Row: {
+          abn: string | null
+          category: Database["public"]["Enums"]["stakeholder_category"]
+          company_id: string
+          compliance_expiry_date: string | null
+          compliance_status:
+            | Database["public"]["Enums"]["compliance_status"]
+            | null
+          created_at: string
+          created_by: string | null
+          display_name: string
+          id: string
+          notes: string | null
+          primary_contact_name: string | null
+          primary_email: string | null
+          primary_phone: string | null
+          status: Database["public"]["Enums"]["stakeholder_status"]
+          tags: string[] | null
+          trade_industry: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          abn?: string | null
+          category: Database["public"]["Enums"]["stakeholder_category"]
+          company_id: string
+          compliance_expiry_date?: string | null
+          compliance_status?:
+            | Database["public"]["Enums"]["compliance_status"]
+            | null
+          created_at?: string
+          created_by?: string | null
+          display_name: string
+          id?: string
+          notes?: string | null
+          primary_contact_name?: string | null
+          primary_email?: string | null
+          primary_phone?: string | null
+          status?: Database["public"]["Enums"]["stakeholder_status"]
+          tags?: string[] | null
+          trade_industry?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          abn?: string | null
+          category?: Database["public"]["Enums"]["stakeholder_category"]
+          company_id?: string
+          compliance_expiry_date?: string | null
+          compliance_status?:
+            | Database["public"]["Enums"]["compliance_status"]
+            | null
+          created_at?: string
+          created_by?: string | null
+          display_name?: string
+          id?: string
+          notes?: string | null
+          primary_contact_name?: string | null
+          primary_email?: string | null
+          primary_phone?: string | null
+          status?: Database["public"]["Enums"]["stakeholder_status"]
+          tags?: string[] | null
+          trade_industry?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           created_at: string
@@ -5643,6 +5951,7 @@ export type Database = {
         | "paid"
         | "void"
       business_type: "sole_trader" | "partnership" | "company" | "trust"
+      compliance_status: "valid" | "expired" | "expiring"
       file_kind: "invoice_pdf" | "receipt" | "bill_pdf" | "other"
       invoice_status:
         | "draft"
@@ -5653,6 +5962,13 @@ export type Database = {
         | "void"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
       payment_method: "bank_transfer" | "check" | "cash" | "card" | "other"
+      stakeholder_category:
+        | "client"
+        | "trade"
+        | "subcontractor"
+        | "supplier"
+        | "consultant"
+      stakeholder_status: "active" | "inactive" | "pending"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5800,10 +6116,19 @@ export const Constants = {
         "void",
       ],
       business_type: ["sole_trader", "partnership", "company", "trust"],
+      compliance_status: ["valid", "expired", "expiring"],
       file_kind: ["invoice_pdf", "receipt", "bill_pdf", "other"],
       invoice_status: ["draft", "sent", "part_paid", "paid", "overdue", "void"],
       member_role: ["project_admin", "editor", "viewer", "guest"],
       payment_method: ["bank_transfer", "check", "cash", "card", "other"],
+      stakeholder_category: [
+        "client",
+        "trade",
+        "subcontractor",
+        "supplier",
+        "consultant",
+      ],
+      stakeholder_status: ["active", "inactive", "pending"],
     },
   },
 } as const
