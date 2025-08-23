@@ -90,13 +90,23 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
   const fetchStakeholders = async () => {
     try {
       setLoading(true);
+      
+      if (!currentCompany?.id) {
+        console.error('No current company found');
+        setStakeholders([]);
+        return;
+      }
+
+      console.log('🔍 Fetching stakeholders for company:', currentCompany.id);
+
+      // First get stakeholders with optional project roles count
       let query = supabase
         .from('stakeholders')
         .select(`
           *,
-          stakeholder_project_roles!inner(count)
+          stakeholder_project_roles(count)
         `)
-        .eq('company_id', currentCompany?.id);
+        .eq('company_id', currentCompany.id);
 
       if (selectedCategory) {
         query = query.eq('category', selectedCategory as 'client' | 'trade' | 'subcontractor' | 'supplier' | 'consultant');
@@ -112,14 +122,21 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Stakeholders query error:', error);
+        throw error;
+      }
+
+      console.log('📊 Raw stakeholders fetched:', data?.length || 0);
+      console.log('📝 Stakeholders data:', data);
 
       // Process the data to include active projects count
       const processedData = data?.map(stakeholder => ({
         ...stakeholder,
-        active_projects_count: stakeholder.stakeholder_project_roles?.length || 0,
+        active_projects_count: stakeholder.stakeholder_project_roles?.[0]?.count || 0,
       })) || [];
 
+      console.log('✅ Processed stakeholders:', processedData);
       setStakeholders(processedData);
     } catch (error) {
       console.error('Error fetching stakeholders:', error);
