@@ -358,9 +358,27 @@ export function useVoiceChat() {
     
     try {
       console.log('Starting continuous voice listening...');
+      console.log('Mobile detection:', /iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+      console.log('Navigator permissions available:', !!navigator.permissions);
+      console.log('MediaDevices available:', !!navigator.mediaDevices);
       
       // Request microphone access if not already available
       if (!audioStreamRef.current) {
+        // Check microphone permission first (mobile specific)
+        if (navigator.permissions) {
+          try {
+            const permission = await navigator.permissions.query({name: 'microphone' as PermissionName});
+            console.log('Microphone permission status:', permission.state);
+            
+            if (permission.state === 'denied') {
+              throw new Error('Microphone permission denied. Please enable microphone access in your browser settings.');
+            }
+          } catch (permError) {
+            console.warn('Could not check microphone permission:', permError);
+          }
+        }
+
+        console.log('Requesting microphone access...');
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             sampleRate: 24000,
@@ -370,6 +388,7 @@ export function useVoiceChat() {
             autoGainControl: true
           }
         });
+        console.log('Microphone access granted');
         audioStreamRef.current = stream;
         await setupAudioAnalysis();
       }
