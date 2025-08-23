@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { FileText, MoreHorizontal, Eye, DollarSign, ChevronDown, ChevronRight, Plus } from 'lucide-react';
+import { FileText, MoreHorizontal, Eye, DollarSign, ChevronDown, ChevronRight, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Contract {
@@ -230,6 +230,63 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
     }
   };
 
+  const handleDeleteContract = async (contractId: string, contractName: string) => {
+    // Show confirmation dialog
+    const isConfirmed = window.confirm(
+      `Are you sure you want to delete the contract "${contractName}"?\n\nThis will permanently remove:\n• The contract document\n• All related invoices\n• All associated data\n\nThis action cannot be undone.`
+    );
+
+    if (!isConfirmed) return;
+
+    try {
+      // First, delete all related invoices and their items
+      const contract = contracts.find(c => c.id === contractId);
+      if (contract?.invoices && contract.invoices.length > 0) {
+        // Delete invoice items for all invoices under this contract
+        for (const invoice of contract.invoices) {
+          const { error: itemsError } = await supabase
+            .from('invoice_items')
+            .delete()
+            .eq('invoice_id', invoice.id);
+
+          if (itemsError) {
+            console.error('Error deleting invoice items:', itemsError);
+          }
+        }
+
+        // Delete all invoices under this contract
+        const { error: invoicesError } = await supabase
+          .from('invoices')
+          .delete()
+          .eq('contract_id', contractId);
+
+        if (invoicesError) {
+          console.error('Error deleting invoices:', invoicesError);
+          toast.error('Failed to delete related invoices');
+          return;
+        }
+      }
+
+      // Delete the contract itself
+      const { error: contractError } = await supabase
+        .from('project_contracts')
+        .delete()
+        .eq('id', contractId);
+
+      if (contractError) {
+        console.error('Error deleting contract:', contractError);
+        toast.error('Failed to delete contract');
+        return;
+      }
+
+      toast.success(`Contract "${contractName}" deleted successfully`);
+      loadContracts(); // Reload contracts list
+    } catch (error) {
+      console.error('Error deleting contract:', error);
+      toast.error('Failed to delete contract. Please try again.');
+    }
+  };
+
   useEffect(() => {
     loadContracts();
   }, [projectId]);
@@ -335,6 +392,15 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
                           title="Create Invoice"
                         >
                           <Plus className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteContract(contract.id, contract.name)}
+                          className="h-6 w-6 p-0 hover:bg-destructive/20 text-destructive hover:text-destructive"
+                          title="Delete Contract"
+                        >
+                          <Trash2 className="h-3 w-3" />
                         </Button>
                       </div>
                     </td>
