@@ -113,10 +113,9 @@ export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ onSt
         const base64Image = reader.result as string;
         
         // Call edge function to extract text from image
-        const { data, error } = await supabase.functions.invoke('extract-contact-details', {
+        const { data, error } = await supabase.functions.invoke('extract-contact-ocr', {
           body: { 
-            image: base64Image,
-            extractType: 'contact_card' 
+            image: base64Image
           }
         });
 
@@ -126,18 +125,19 @@ export const AddStakeholderDialog: React.FC<AddStakeholderDialogProps> = ({ onSt
           return;
         }
 
-        if (data && data.extractedData) {
+        if (data && data.contactData) {
           // Populate form with extracted data
-          const extracted = data.extractedData;
+          const extracted = data.contactData;
           
           setFormData(prev => ({
             ...prev,
             display_name: extracted.name || prev.display_name,
             primary_email: extracted.email || prev.primary_email,
             primary_phone: extracted.phone || prev.primary_phone,
-            trade_industry: extracted.company || extracted.title || prev.trade_industry,
-            notes: extracted.address || extracted.website || prev.notes,
-            tags: [...prev.tags, ...((extracted.tags || []).filter((tag: string) => !prev.tags.includes(tag)))]
+            trade_industry: extracted.trade_industry || prev.trade_industry,
+            category: extracted.category || prev.category,
+            notes: extracted.notes || prev.notes,
+            tags: [...prev.tags, ...(extracted.tags ? [extracted.tags].flat() : [])]
           }));
           
           toast.success('Contact details extracted successfully!');
