@@ -416,7 +416,7 @@ export const ProjectCostPage = ({
                           className="flex items-center gap-2"
                         >
                           <Upload className="h-4 w-4" />
-                          Upload Invoice
+                          Upload Contract
                         </Button>
                         <Button 
                           onClick={() => setIsInvoiceDrawerOpen(true)}
