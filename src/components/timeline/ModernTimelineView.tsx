@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, BarChart3, List, Plus, Search, Filter, Calendar as CalendarIcon, Clock, User, AlertCircle } from 'lucide-react';
+import { useTimeTracking, TimeEntry, DEFAULT_CATEGORY_COLORS } from '@/hooks/useTimeTracking';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { format, isToday, isYesterday, isThisWeek, startOfWeek, endOfWeek, addDays } from 'date-fns';
 import { useScreenSize } from '@/hooks/use-mobile';
@@ -14,28 +14,6 @@ import { TimelineListView } from './TimelineListView';
 import { TimelineGanttView } from './TimelineGanttView';
 import { TimelineFilters } from './TimelineFilters';
 
-// Mock types for timeline entries
-interface TimeEntry {
-  id: string;
-  task_activity: string;
-  category: string;
-  project_name?: string;
-  start_time: string;
-  end_time?: string;
-  duration?: number;
-  status: 'running' | 'completed' | 'paused';
-}
-
-const DEFAULT_CATEGORY_COLORS: Record<string, string> = {
-  work: '217 33% 47%',
-  meeting: '142 76% 36%',
-  break: '47 96% 53%',
-  research: '262 83% 58%',
-  development: '221 83% 53%',
-  design: '340 82% 52%',
-  other: '215 28% 17%'
-};
-
 interface ModernTimelineViewProps {
   projectId: string;
   projectName: string;
@@ -43,6 +21,7 @@ interface ModernTimelineViewProps {
 }
 
 export const ModernTimelineView = ({ projectId, projectName, companyId }: ModernTimelineViewProps) => {
+  // Fixed: Removed dateRange functionality completely
   const [viewMode, setViewMode] = useState<'list' | 'gantt'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -51,10 +30,8 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
   const [groupBy, setGroupBy] = useState<'none' | 'category' | 'project' | 'date'>('date');
 
   const screenSize = useScreenSize();
+  const { timeEntries, loading, getDailyStats } = useTimeTracking();
   const { tasks, loading: tasksLoading, updateTask } = useCentralTasks(projectId, companyId || '');
-
-  // Mock time entries for now
-  const timeEntries: TimeEntry[] = [];
 
   // Sample tasks for development/testing
   const sampleTasks = [
@@ -219,9 +196,10 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
   const availableProjects = Array.from(new Set(timeEntries.map(entry => entry.project_name).filter(Boolean))) as string[];
 
   // Calculate stats
+  const stats = getDailyStats(filteredEntries);
   const totalDuration = filteredEntries.reduce((sum, entry) => sum + (entry.duration || 0), 0);
 
-  if (tasksLoading) {
+  if (loading || tasksLoading) {
     return (
       <div className="flex items-center justify-center p-12">
         <div className="flex flex-col items-center space-y-4">
@@ -276,7 +254,7 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
               </Select>
             </div>
 
-            {/* List/Gantt Toggle */}
+            {/* List/Gantt Toggle - Moved to top right */}
             <div className="flex items-center bg-muted/30 rounded-md p-1">
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}

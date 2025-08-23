@@ -4,20 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Clock, Play, Pause, MoreHorizontal, Calendar, User, Tag } from 'lucide-react';
+import { TimeEntry } from '@/hooks/useTimeTracking';
 import { cn } from '@/lib/utils';
-
-// Define TimeEntry type locally since we removed the hook
-interface TimeEntry {
-  id: string;
-  task_activity: string;
-  category: string;
-  project_name?: string;
-  start_time: string;
-  end_time?: string;
-  duration?: number;
-  status: 'running' | 'completed' | 'paused';
-}
-
 interface TimelineListViewProps {
   entries: TimeEntry[];
   categoryColors: Record<string, string>;
@@ -25,7 +13,6 @@ interface TimelineListViewProps {
   sortBy: 'date' | 'duration' | 'category' | 'project';
   screenSize: 'mobile' | 'tablet' | 'desktop';
 }
-
 export const TimelineListView = ({
   entries,
   categoryColors,
@@ -86,25 +73,21 @@ export const TimelineListView = ({
     });
     return groups;
   };
-
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   };
-
   const getStatusColor = (entry: TimeEntry) => {
     if (entry.status === 'running') return 'bg-green-100 text-green-800 border-green-200';
     if (entry.end_time) return 'bg-blue-100 text-blue-800 border-blue-200';
     return 'bg-gray-100 text-gray-800 border-gray-200';
   };
-
   const getStatusText = (entry: TimeEntry) => {
     if (entry.status === 'running') return 'Active';
     if (entry.end_time) return 'Completed';
     return 'Draft';
   };
-
   const groups = groupedEntries();
 
   return (
