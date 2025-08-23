@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AiChatSidebar } from '@/components/AiChatSidebar';
-import { VoiceSphere } from '@/components/VoiceSphere';
+
 import { VoiceInterface } from '@/components/VoiceInterface';
 import { useVoiceChat } from '@/hooks/useVoiceChat';
 
@@ -402,15 +402,18 @@ export const MenuBar = () => {
                 )}
               </>
             ) : (
-              /* AI Voice Sphere when no timer is active - smaller size */
-              <VoiceSphere
-                isActive={voiceState.isConnected || voiceState.isListening}
-                isSpeaking={voiceState.isSpeaking}
-                isListening={voiceState.isListening}
-                audioLevel={voiceState.audioLevel}
-                onClick={handleVoiceToggle}
-                className="w-10 h-10"
-              />
+              /* AI Voice placeholder when no timer is active */
+              <div className="flex items-center justify-center">
+                <Button
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleVoiceToggle}
+                  className="gap-2"
+                >
+                  <Mic className="w-4 h-4" />
+                  Voice Assistant
+                </Button>
+              </div>
             )}
           </div>
 
@@ -454,13 +457,13 @@ export const MenuBar = () => {
                 </button>
                 
                 {/* Voice Debug Icon */}
-                <div className="w-8 h-8">
-                  <VoiceSphere 
-                    onClick={() => setShowVoiceInterface(true)}
-                    isActive={showVoiceInterface}
-                    className="w-full h-full"
-                  />
-                </div>
+                <button 
+                  onClick={() => setShowVoiceInterface(true)} 
+                  className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground"
+                  title="Debug SkAi Voice"
+                >
+                  <Mic className="w-4 h-4" />
+                </button>
                 
                 {/* User Profile */}
                 <div className="relative" ref={profileDropdownRef}>

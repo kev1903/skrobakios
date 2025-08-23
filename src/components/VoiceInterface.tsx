@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Mic, MicOff, X, Volume2, VolumeX, Loader2, Settings, Hand } from 'lucide-react';
-import { VoiceSphere } from './VoiceSphere';
+
 import { VoiceDebugPanel } from './VoiceDebugPanel';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -125,11 +125,29 @@ export function VoiceInterface({
       <VoiceDebugPanel />
       {/* Enhanced AI Voice Sphere */}
       <div className="w-32 h-32 mb-6 relative" onClick={handleInterrupt} style={{ cursor: state.isSpeaking ? 'pointer' : 'default' }}>
-        <VoiceSphere 
-          isListening={state.isListening || state.isConnected} 
-          isSpeaking={state.isSpeaking}
-          audioLevel={state.audioLevel}
-        />
+        <div 
+          className={cn(
+            "w-full h-full rounded-full border-4 transition-all duration-300 flex items-center justify-center relative",
+            state.isConnected 
+              ? state.isSpeaking 
+                ? "border-green-500 bg-green-500/20 animate-pulse"
+                : state.isListening || state.isVoiceActivated 
+                  ? "border-blue-500 bg-blue-500/20"
+                  : "border-gray-300 bg-gray-300/20"
+              : "border-gray-400 bg-gray-400/10"
+          )}
+        >
+          <Mic className={cn(
+            "w-12 h-12 transition-colors",
+            state.isConnected 
+              ? state.isSpeaking 
+                ? "text-green-500"
+                : state.isListening || state.isVoiceActivated
+                  ? "text-blue-500"
+                  : "text-gray-500"
+              : "text-gray-400"
+          )} />
+        </div>
         
         {/* Enhanced audio level indicator with modern styling */}
         {state.isConnected && settings.enableVAD && (
