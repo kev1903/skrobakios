@@ -428,21 +428,14 @@ export const ProjectCostPage = ({
                       </div>
                     </div>
                      
-                     {/* Contracts Table */}
+                     {/* Contracts and Invoices Hierarchy */}
                      <ContractsTable
                        projectId={project.id}
                        formatCurrency={formatCurrency}
                        formatDate={formatDate}
                      />
 
-                     {/* Income Table */}
-                     <IncomeTable
-                       projectId={project.id}
-                       statusFilter={incomeStatusFilter}
-                       formatCurrency={formatCurrency}
-                       formatDate={formatDate}
-                       refreshTrigger={refreshTrigger}
-                     />
+                     {/* Note: Invoices are now shown under their parent contracts above */}
                   </div>
                 </TabsContent>
 

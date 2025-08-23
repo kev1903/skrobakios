@@ -1784,6 +1784,7 @@ export type Database = {
         Row: {
           client_email: string | null
           client_name: string
+          contract_id: string | null
           created_at: string
           created_by: string | null
           due_date: string
@@ -1792,6 +1793,7 @@ export type Database = {
           notes: string | null
           number: string
           paid_to_date: number
+          progress_percentage: number | null
           project_id: string
           status: Database["public"]["Enums"]["invoice_status"]
           subtotal: number
@@ -1802,6 +1804,7 @@ export type Database = {
         Insert: {
           client_email?: string | null
           client_name: string
+          contract_id?: string | null
           created_at?: string
           created_by?: string | null
           due_date: string
@@ -1810,6 +1813,7 @@ export type Database = {
           notes?: string | null
           number: string
           paid_to_date?: number
+          progress_percentage?: number | null
           project_id: string
           status?: Database["public"]["Enums"]["invoice_status"]
           subtotal?: number
@@ -1820,6 +1824,7 @@ export type Database = {
         Update: {
           client_email?: string | null
           client_name?: string
+          contract_id?: string | null
           created_at?: string
           created_by?: string | null
           due_date?: string
@@ -1828,6 +1833,7 @@ export type Database = {
           notes?: string | null
           number?: string
           paid_to_date?: number
+          progress_percentage?: number | null
           project_id?: string
           status?: Database["public"]["Enums"]["invoice_status"]
           subtotal?: number
@@ -1836,6 +1842,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "invoices_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "project_contracts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "invoices_project_id_fkey"
             columns: ["project_id"]
