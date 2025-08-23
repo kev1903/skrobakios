@@ -249,32 +249,16 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         )}
       </header>
 
-      {/* Slide Navigation - Hidden on mobile */}
-      <div className="hidden sm:flex fixed right-4 lg:right-6 top-1/2 transform -translate-y-1/2 z-40 flex-col gap-3">
+      {/* Vertical Navigation Dots - Right Side (All Screens) */}
+      <div className="fixed right-3 sm:right-4 lg:right-6 top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-1.5 sm:gap-2 bg-brand-white/80 backdrop-blur-sm rounded-full py-2 sm:py-3 px-1.5 sm:px-2">
         {slides.map((slide, index) => (
           <button
             key={slide.id}
             onClick={() => goToSlide(index)}
-            className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
+            className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
               currentSlide === index 
                 ? 'bg-brand-charcoal scale-125' 
                 : 'bg-brand-gray/30 hover:bg-brand-charcoal/50'
-            }`}
-            title={slide.title}
-          />
-        ))}
-      </div>
-
-      {/* Mobile Slide Indicator */}
-      <div className="sm:hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40 flex gap-2 bg-brand-white/80 backdrop-blur-sm rounded-full px-4 py-2">
-        {slides.map((slide, index) => (
-          <button
-            key={slide.id}
-            onClick={() => goToSlide(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              currentSlide === index 
-                ? 'bg-brand-charcoal' 
-                : 'bg-brand-gray/40'
             }`}
             title={slide.title}
           />
