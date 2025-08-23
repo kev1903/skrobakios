@@ -1,0 +1,33 @@
+{
+  "name": "SkrobakiOS - Professional Project Management",
+  "short_name": "SkrobakiOS",
+  "description": "Professional project management and stakeholder collaboration platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a", 
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    {
+      "src": "/lovable-uploads/ded9cc75-51f2-4d9d-8886-68c58deec480.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/lovable-uploads/ded9cc75-51f2-4d9d-8886-68c58deec480.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/lovable-uploads/ded9cc75-51f2-4d9d-8886-68c58deec480.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ]
+}
