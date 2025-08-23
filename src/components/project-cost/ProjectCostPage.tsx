@@ -30,11 +30,13 @@ import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader
 import { AIPromptSettings } from './AIPromptSettings';
 import { AwaitingPaymentsTable } from '../project-finance/awaiting-payments/AwaitingPaymentsTable';
 import { IncomeTable } from './IncomeTable';
+import { ContractsTable } from './ContractsTable';
 
 interface ProjectCostPageProps {
   project: Project;
   onNavigate: (page: string) => void;
 }
+
 export const ProjectCostPage = ({
   project,
   onNavigate
@@ -138,6 +140,7 @@ export const ProjectCostPage = ({
     loadIncomeData();
     loadExpenseData();
   }, [project.id]);
+
   const getVarianceStatus = (variance: number) => {
     if (variance > 0) return {
       text: 'Under Budget',
@@ -155,18 +158,26 @@ export const ProjectCostPage = ({
       icon: BarChart3
     };
   };
+
   const varianceStatus = getVarianceStatus(costSummary.variance);
   const VarianceIcon = varianceStatus.icon;
-  return <div className="h-screen flex bg-background">
+
+  return (
+    <div className="h-screen flex bg-background">
       {/* Fixed Project Sidebar */}
       <div className="fixed left-0 top-0 h-full w-48 z-40">
-        <ProjectSidebar project={project} onNavigate={onNavigate} getStatusColor={getStatusColor} getStatusText={getStatusText} activeSection="cost" />
+        <ProjectSidebar 
+          project={project} 
+          onNavigate={onNavigate} 
+          getStatusColor={getStatusColor} 
+          getStatusText={getStatusText} 
+          activeSection="cost" 
+        />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
         <div className="p-6 min-h-full">
-
           {/* Summary Cards - Dynamic based on active tab */}
           <div className="mb-3 bg-card border rounded-lg p-2">
             <div className="grid grid-cols-4 gap-2">
@@ -261,49 +272,53 @@ export const ProjectCostPage = ({
               {/* Tab Header */}
               <div className="bg-muted/30 border-b px-6 py-3">
                 <div className="flex items-center justify-between">
-                  {/* Contract Amount Header */}
-                  <div className="flex items-center gap-3">
-                    <DollarSign className="h-5 w-5 text-primary" />
-                    <div>
-                      <span className="text-sm text-muted-foreground">Contract Amount:</span>
-                      <span className="ml-2 text-lg font-semibold text-foreground">
-                        {project.contract_price ? formatCurrency(parseFloat(project.contract_price.replace(/[$,]/g, '') || '0')) : 'Not set'}
-                      </span>
+                  {/* Left side - Tab dropdown and Contract Amount */}
+                  <div className="flex items-center gap-6">
+                    {/* Tab Dropdown Menu */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className="bg-background/80 backdrop-blur-sm border-border/50 hover:bg-accent/50 transition-all duration-200"
+                        >
+                          {getCurrentTabLabel()}
+                          <ChevronDown className="ml-2 h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-48 bg-background border border-border shadow-lg z-50">
+                        {tabOptions.map((option) => {
+                          const IconComponent = option.icon;
+                          return (
+                            <DropdownMenuItem
+                              key={option.value}
+                              onClick={() => setActiveTab(option.value)}
+                              className={`flex items-center gap-2 cursor-pointer ${
+                                activeTab === option.value 
+                                  ? 'bg-accent text-accent-foreground' 
+                                  : 'hover:bg-accent/50'
+                              }`}
+                            >
+                              <IconComponent className="h-4 w-4" />
+                              {option.label}
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Contract Amount Header */}
+                    <div className="flex items-center gap-3">
+                      <DollarSign className="h-5 w-5 text-primary" />
+                      <div>
+                        <span className="text-sm text-muted-foreground">Contract Amount:</span>
+                        <span className="ml-2 text-lg font-semibold text-foreground">
+                          {project.contract_price ? formatCurrency(parseFloat(project.contract_price.replace(/[$,]/g, '') || '0')) : 'Not set'}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  {/* Dropdown Menu in Top Right */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        className="bg-background/80 backdrop-blur-sm border-border/50 hover:bg-accent/50 transition-all duration-200"
-                      >
-                        {getCurrentTabLabel()}
-                        <ChevronDown className="ml-2 h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-background border border-border shadow-lg">
-                      {tabOptions.map((option) => {
-                        const IconComponent = option.icon;
-                        return (
-                          <DropdownMenuItem
-                            key={option.value}
-                            onClick={() => setActiveTab(option.value)}
-                            className={`flex items-center gap-2 cursor-pointer ${
-                              activeTab === option.value 
-                                ? 'bg-accent text-accent-foreground' 
-                                : 'hover:bg-accent/50'
-                            }`}
-                          >
-                            <IconComponent className="h-4 w-4" />
-                            {option.label}
-                          </DropdownMenuItem>
-                        );
-                      })}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  
-                  {/* Tab-specific controls */}
+
+                  {/* Right side - Status filter and buttons */}
                   <div className="flex items-center gap-4">
                     {activeTab === 'income' && (
                       <>
@@ -412,17 +427,25 @@ export const ProjectCostPage = ({
                         </Button>
                       </div>
                     </div>
-                    
-                    {/* Income Table */}
-                    <IncomeTable
-                      projectId={project.id}
-                      statusFilter={incomeStatusFilter}
-                      formatCurrency={formatCurrency}
-                      formatDate={formatDate}
-                      refreshTrigger={refreshTrigger}
-                    />
+                     
+                     {/* Contracts Table */}
+                     <ContractsTable
+                       projectId={project.id}
+                       formatCurrency={formatCurrency}
+                       formatDate={formatDate}
+                     />
+
+                     {/* Income Table */}
+                     <IncomeTable
+                       projectId={project.id}
+                       statusFilter={incomeStatusFilter}
+                       formatCurrency={formatCurrency}
+                       formatDate={formatDate}
+                       refreshTrigger={refreshTrigger}
+                     />
                   </div>
                 </TabsContent>
+
                 <TabsContent value="expense" className="mt-0">
                   {expenseStatusFilter === 'inbox' ? (
                     <ExpensesModule 
@@ -448,27 +471,6 @@ export const ProjectCostPage = ({
                         </div>
                         <p className="text-foreground">No paid invoices.</p>
                         <p className="text-sm mt-2 text-muted-foreground">Completed payments will appear here.</p>
-                      </div>
-                      <div className="w-full">
-                        <table className="w-full border-collapse">
-                          <thead>
-                            <tr className="border-b bg-muted/50">
-                              <th className="text-left p-2 font-medium w-12 text-xs">
-                                <input type="checkbox" className="rounded" />
-                              </th>
-                              <th className="text-left p-2 font-medium w-16 text-foreground text-xs">View</th>
-                              <th className="text-left p-2 font-medium text-foreground text-xs">From</th>
-                              <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Reference</th>
-                              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Date ↓</th>
-                              <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Due date</th>
-                              <th className="text-left p-2 font-medium w-24 text-foreground text-xs">Amount</th>
-                              <th className="text-left p-2 font-medium w-12 text-xs"></th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {/* Empty table body - will be populated when data exists */}
-                          </tbody>
-                        </table>
                       </div>
                     </div>
                   ) : (
@@ -530,5 +532,6 @@ export const ProjectCostPage = ({
         isOpen={isAISettingsOpen}
         onClose={() => setIsAISettingsOpen(false)}
       />
-    </div>;
+    </div>
+  );
 };
