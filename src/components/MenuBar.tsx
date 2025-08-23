@@ -402,17 +402,8 @@ export const MenuBar = () => {
                 )}
               </>
             ) : (
-              /* AI Voice placeholder when no timer is active */
-              <div className="flex items-center justify-center">
-                <Button
-                  variant="ghost" 
-                  size="sm"
-                  onClick={handleVoiceToggle}
-                  className="gap-2"
-                >
-                  <Mic className="w-4 h-4" />
-                  Voice Assistant
-                </Button>
+              <div className="flex items-center justify-center text-muted-foreground">
+                No active timer
               </div>
             )}
           </div>
