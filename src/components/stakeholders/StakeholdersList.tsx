@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useScreenSize } from '@/hooks/use-mobile';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -72,6 +73,8 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
   onStakeholderSelect,
 }) => {
   const { currentCompany } = useCompany();
+  const screenSize = useScreenSize();
+  const isMobile = screenSize === 'mobile';
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -257,17 +260,17 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
   };
 
   return (
-    <div className="space-y-4 p-6">
+    <div className={`space-y-4 ${isMobile ? 'p-4' : 'p-6'}`}>
       {/* Compact Header */}
-      <div className="flex items-center justify-between">
+      <div className={`${isMobile ? 'block space-y-3' : 'flex items-center justify-between'}`}>
         <div className="flex items-center gap-3">
           <Users className="h-5 w-5 text-slate-600" />
           <div>
-            <h1 className="text-xl font-semibold text-slate-900">
+            <h1 className={`${isMobile ? 'text-lg' : 'text-xl'} font-semibold text-slate-900`}>
               Stakeholders
               {selectedCategory && <span className="text-slate-500 font-normal"> • {selectedCategory}</span>}
             </h1>
-            <div className="flex items-center gap-4 mt-1 text-sm text-slate-600">
+            <div className={`flex items-center ${isMobile ? 'gap-2 flex-wrap' : 'gap-4'} mt-1 text-sm text-slate-600`}>
               <span>{stakeholders.filter(s => s.compliance_status === 'valid').length} Compliant</span>
               <span>•</span>
               <span>{stakeholders.filter(s => s.status === 'active').length} Active</span>
@@ -277,34 +280,37 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5">
-            <FileText className="h-4 w-4" />
-            Export
-          </Button>
+        <div className={`flex items-center gap-2 ${isMobile ? 'justify-end' : ''}`}>
+          {!isMobile && (
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <FileText className="h-4 w-4" />
+              Export
+            </Button>
+          )}
           <AddStakeholderDialog onStakeholderAdded={fetchStakeholders} />
         </div>
       </div>
 
       {/* Compact Search and Filters */}
-      <div className="flex gap-3">
+      <div className={`${isMobile ? 'space-y-3' : 'flex gap-3'}`}>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search stakeholders by name, email, or tags..."
+            placeholder={isMobile ? "Search stakeholders..." : "Search stakeholders by name, email, or tags..."}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 h-9"
           />
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2 min-w-[120px]">
-              <Filter className="h-4 w-4" />
-              {selectedCategory ? selectedCategory : 'All Categories'}
-            </Button>
-          </DropdownMenuTrigger>
+        <div className={`${isMobile ? 'flex gap-2 overflow-x-auto' : 'flex gap-3'}`}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className={`gap-2 ${isMobile ? 'min-w-[100px] text-xs' : 'min-w-[120px]'}`}>
+                <Filter className="h-4 w-4" />
+                {isMobile ? 'Category' : (selectedCategory ? selectedCategory : 'All Categories')}
+              </Button>
+            </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuCheckboxItem
               checked={selectedCategory === ''}
@@ -325,13 +331,13 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2 min-w-[100px]">
-              <Filter className="h-4 w-4" />
-              Tags {selectedTags.length > 0 && `(${selectedTags.length})`}
-            </Button>
-          </DropdownMenuTrigger>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className={`gap-2 ${isMobile ? 'min-w-[80px] text-xs' : 'min-w-[100px]'}`}>
+                <Filter className="h-4 w-4" />
+                {isMobile ? 'Tags' : `Tags ${selectedTags.length > 0 ? `(${selectedTags.length})` : ''}`}
+              </Button>
+            </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56 max-h-64 overflow-y-auto">
             <DropdownMenuCheckboxItem
               checked={selectedTags.length === 0}
@@ -358,13 +364,13 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {selectedStakeholders.length > 0 && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                Actions ({selectedStakeholders.length})
-              </Button>
-            </DropdownMenuTrigger>
+          {selectedStakeholders.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className={isMobile ? 'text-xs' : ''}>
+                  {isMobile ? `(${selectedStakeholders.length})` : `Actions (${selectedStakeholders.length})`}
+                </Button>
+              </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => handleBulkAction('activate')}>
                 Mark as Active
@@ -377,12 +383,13 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
                 Remove Selected
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+            </DropdownMenu>
+          )}
+        </div>
       </div>
 
       {/* Quick Tag Filters */}
-      {popularTags.length > 0 && (
+      {!isMobile && popularTags.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm text-slate-500">Quick filters:</span>
           {popularTags.map((tag) => (
@@ -436,46 +443,170 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
         </div>
       )}
 
-      {/* Compact Table */}
-      <div className="border rounded-lg bg-white">
-        <div className="flex items-center justify-between px-4 py-2 border-b bg-slate-50">
-          <span className="text-sm font-medium">
-            {filteredStakeholders.length} Stakeholders
-          </span>
-          {selectedStakeholders.length > 0 && (
-            <span className="text-xs text-slate-500">
-              {selectedStakeholders.length} selected
+      {/* Mobile/Desktop Layout */}
+      {isMobile ? (
+        /* Mobile Card Layout */
+        <div className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-sm font-medium">
+              {filteredStakeholders.length} Stakeholders
             </span>
+            {selectedStakeholders.length > 0 && (
+              <span className="text-xs text-slate-500">
+                {selectedStakeholders.length} selected
+              </span>
+            )}
+          </div>
+          
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm text-slate-500">Loading...</span>
+              </div>
+            </div>
+          ) : filteredStakeholders.length === 0 ? (
+            <div className="text-center py-8 px-4 border rounded-lg bg-slate-50">
+              <Users className="mx-auto h-8 w-8 text-slate-400 mb-2" />
+              <p className="text-sm text-slate-500">No stakeholders found</p>
+              <p className="text-xs text-slate-400 mt-1">Try adjusting your filters or search terms</p>
+            </div>
+          ) : (
+            filteredStakeholders.map((stakeholder) => (
+              <div
+                key={stakeholder.id}
+                className="border rounded-lg bg-white p-4 space-y-3 cursor-pointer hover:bg-slate-50 transition-colors"
+                onClick={() => onStakeholderSelect(stakeholder.id)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <input
+                      type="checkbox"
+                      className="rounded border-slate-300"
+                      checked={selectedStakeholders.includes(stakeholder.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedStakeholders([...selectedStakeholders, stakeholder.id]);
+                        } else {
+                          setSelectedStakeholders(selectedStakeholders.filter(id => id !== stakeholder.id));
+                        }
+                      }}
+                    />
+                    {renderAvatar(stakeholder.display_name, stakeholder.category)}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-slate-900 truncate">{stakeholder.display_name}</div>
+                      <div className="text-xs text-slate-500 capitalize">{stakeholder.category}</div>
+                    </div>
+                  </div>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onStakeholderSelect(stakeholder.id)}>
+                        View Details
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <div className="text-xs text-slate-500 mb-1">Contact</div>
+                    <div className="space-y-1">
+                      {stakeholder.primary_email && (
+                        <div className="flex items-center gap-1 text-xs">
+                          <Mail className="h-3 w-3 text-slate-400" />
+                          <span className="truncate">{stakeholder.primary_email}</span>
+                        </div>
+                      )}
+                      {stakeholder.primary_phone && (
+                        <div className="flex items-center gap-1 text-xs">
+                          <Phone className="h-3 w-3 text-slate-400" />
+                          <span>{stakeholder.primary_phone}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="text-xs text-slate-500 mb-1">Status</div>
+                    <div className="space-y-2">
+                      {getStatusBadge(stakeholder.status)}
+                      {getComplianceBadge(stakeholder.compliance_status)}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <span className="text-xs text-slate-500">
+                    {stakeholder.active_projects_count || 0} active projects
+                  </span>
+                  
+                  {stakeholder.tags && stakeholder.tags.length > 0 && (
+                    <div className="flex gap-1 flex-wrap">
+                      {stakeholder.tags.slice(0, 2).map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs px-2 py-0.5">
+                          {typeof tag === 'string' ? tag : ''}
+                        </Badge>
+                      ))}
+                      {stakeholder.tags.length > 2 && (
+                        <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                          +{stakeholder.tags.length - 2}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
           )}
         </div>
-        
-        <Table>
-          <TableHeader>
-            <TableRow className="border-b">
-              <TableHead className="w-8">
-                <input
-                  type="checkbox"
-                  className="rounded border-slate-300"
-                  checked={selectedStakeholders.length === filteredStakeholders.length && filteredStakeholders.length > 0}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedStakeholders(filteredStakeholders.map(s => s.id));
-                    } else {
-                      setSelectedStakeholders([]);
-                    }
-                  }}
-                />
-              </TableHead>
-              <TableHead className="text-xs font-medium text-slate-600">Company</TableHead>
-              <TableHead className="text-xs font-medium text-slate-600">Category</TableHead>
-              <TableHead className="text-xs font-medium text-slate-600">Contact</TableHead>
-              <TableHead className="text-xs font-medium text-slate-600 text-center w-16">Projects</TableHead>
-              <TableHead className="text-xs font-medium text-slate-600">Compliance</TableHead>
-              <TableHead className="text-xs font-medium text-slate-600">Status</TableHead>
-              <TableHead className="w-8"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      ) : (
+        /* Desktop Table Layout */
+        <div className="border rounded-lg bg-white">
+          <div className="flex items-center justify-between px-4 py-2 border-b bg-slate-50">
+            <span className="text-sm font-medium">
+              {filteredStakeholders.length} Stakeholders
+            </span>
+            {selectedStakeholders.length > 0 && (
+              <span className="text-xs text-slate-500">
+                {selectedStakeholders.length} selected
+              </span>
+            )}
+          </div>
+          
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b">
+                <TableHead className="w-8">
+                  <input
+                    type="checkbox"
+                    className="rounded border-slate-300"
+                    checked={selectedStakeholders.length === filteredStakeholders.length && filteredStakeholders.length > 0}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedStakeholders(filteredStakeholders.map(s => s.id));
+                      } else {
+                        setSelectedStakeholders([]);
+                      }
+                    }}
+                  />
+                </TableHead>
+                <TableHead className="text-xs font-medium text-slate-600">Company</TableHead>
+                <TableHead className="text-xs font-medium text-slate-600">Category</TableHead>
+                <TableHead className="text-xs font-medium text-slate-600">Contact</TableHead>
+                <TableHead className="text-xs font-medium text-slate-600 text-center w-16">Projects</TableHead>
+                <TableHead className="text-xs font-medium text-slate-600">Compliance</TableHead>
+                <TableHead className="text-xs font-medium text-slate-600">Status</TableHead>
+                <TableHead className="w-8"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={8} className="text-center py-8">
@@ -485,122 +616,96 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
                   </div>
                 </TableCell>
               </TableRow>
-            ) : filteredStakeholders.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
-                  <div className="flex flex-col items-center gap-2">
-                    <Users className="w-8 h-8 text-slate-400" />
-                    <p className="text-sm text-slate-500">
-                      {searchTerm ? 'No stakeholders found' : 'No stakeholders yet'}
-                    </p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredStakeholders.map((stakeholder) => (
-                <TableRow
-                  key={stakeholder.id}
-                  className="hover:bg-slate-50 cursor-pointer"
-                  onClick={() => onStakeholderSelect(stakeholder.id)}
-                >
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      className="rounded border-slate-300"
-                      checked={selectedStakeholders.includes(stakeholder.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedStakeholders([...selectedStakeholders, stakeholder.id]);
-                        } else {
-                          setSelectedStakeholders(selectedStakeholders.filter(id => id !== stakeholder.id));
-                        }
-                      }}
-                    />
-                  </TableCell>
-                  
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      {renderAvatar(stakeholder.display_name, stakeholder.category)}
-                      <div>
-                        <p className="font-medium text-sm">{stakeholder.display_name}</p>
-                        {stakeholder.tags && Array.isArray(stakeholder.tags) && stakeholder.tags.length > 0 && (
-                          <div className="flex gap-1 mt-1">
-                            {stakeholder.tags.filter(tag => tag && typeof tag === 'string').slice(0, 2).map(tag => (
-                              <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0">
-                                {tag}
-                              </Badge>
-                            ))}
-                            {stakeholder.tags.filter(tag => tag && typeof tag === 'string').length > 2 && (
-                              <span className="text-xs text-slate-500">+{stakeholder.tags.filter(tag => tag && typeof tag === 'string').length - 2}</span>
-                            )}
-                          </div>
-                        )}
-                      </div>
+              ) : filteredStakeholders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-8">
+                    <div className="flex flex-col items-center gap-2">
+                      <Users className="h-8 w-8 text-slate-400" />
+                      <span className="text-sm text-slate-500">No stakeholders found</span>
+                      <span className="text-xs text-slate-400">Try adjusting your filters or search terms</span>
                     </div>
-                  </TableCell>
-
-                  <TableCell>
-                    <Badge variant="outline" className="capitalize text-xs">
-                      {stakeholder.category}
-                    </Badge>
-                    {stakeholder.trade_industry && (
-                      <p className="text-xs text-slate-500 mt-1">{stakeholder.trade_industry}</p>
-                    )}
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="space-y-1">
-                      {stakeholder.primary_contact_name && (
-                        <p className="text-sm font-medium">{stakeholder.primary_contact_name}</p>
-                      )}
-                      {stakeholder.primary_email && (
-                        <div className="flex items-center gap-1">
-                          <Mail className="w-3 h-3 text-slate-400" />
-                          <span className="text-xs text-slate-600">{stakeholder.primary_email}</span>
-                        </div>
-                      )}
-                      {stakeholder.primary_phone && (
-                        <div className="flex items-center gap-1">
-                          <Phone className="w-3 h-3 text-slate-400" />
-                          <span className="text-xs text-slate-600">{stakeholder.primary_phone}</span>
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-
-                  <TableCell className="text-center">
-                    <span className="text-sm font-medium">{stakeholder.active_projects_count || 0}</span>
-                  </TableCell>
-
-                  <TableCell>
-                    {getComplianceBadge(stakeholder.compliance_status)}
-                  </TableCell>
-
-                  <TableCell>
-                    {getStatusBadge(stakeholder.status)}
-                  </TableCell>
-
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ) : (
+                filteredStakeholders.map((stakeholder) => (
+                  <TableRow
+                    key={stakeholder.id}
+                    className="cursor-pointer hover:bg-slate-50 transition-colors group"
+                    onClick={() => onStakeholderSelect(stakeholder.id)}
+                  >
+                    <TableCell>
+                      <input
+                        type="checkbox"
+                        className="rounded border-slate-300"
+                        checked={selectedStakeholders.includes(stakeholder.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedStakeholders([...selectedStakeholders, stakeholder.id]);
+                          } else {
+                            setSelectedStakeholders(selectedStakeholders.filter(id => id !== stakeholder.id));
+                          }
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {renderAvatar(stakeholder.display_name, stakeholder.category)}
+                        <span className="font-medium text-slate-900 text-sm">{stakeholder.display_name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs capitalize bg-slate-50 text-slate-700 border-slate-200">
+                        {stakeholder.category}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        {stakeholder.primary_email && (
+                          <div className="flex items-center gap-1 text-xs text-slate-600">
+                            <Mail className="h-3 w-3 text-slate-400" />
+                            <span className="truncate max-w-[200px]">{stakeholder.primary_email}</span>
+                          </div>
+                        )}
+                        {stakeholder.primary_phone && (
+                          <div className="flex items-center gap-1 text-xs text-slate-600">
+                            <Phone className="h-3 w-3 text-slate-400" />
+                            <span>{stakeholder.primary_phone}</span>
+                          </div>
+                        )}
+                        {!stakeholder.primary_email && !stakeholder.primary_phone && (
+                          <span className="text-xs text-slate-400">No contact info</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                        {stakeholder.active_projects_count || 0}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{getComplianceBadge(stakeholder.compliance_status)}</TableCell>
+                    <TableCell>{getStatusBadge(stakeholder.status)}</TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => onStakeholderSelect(stakeholder.id)}>
+                            View Details
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 };
