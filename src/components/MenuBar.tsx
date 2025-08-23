@@ -454,13 +454,13 @@ export const MenuBar = () => {
                 </button>
                 
                 {/* Voice Debug Icon */}
-                <button 
-                  onClick={() => setShowVoiceInterface(true)} 
-                  className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground"
-                  title="Debug SkAi Voice"
-                >
-                  <Mic className="w-4 h-4" />
-                </button>
+                <div className="w-8 h-8">
+                  <VoiceSphere 
+                    onClick={() => setShowVoiceInterface(true)}
+                    isActive={showVoiceInterface}
+                    className="w-full h-full"
+                  />
+                </div>
                 
                 {/* User Profile */}
                 <div className="relative" ref={profileDropdownRef}>
