@@ -155,6 +155,33 @@ export function useVoiceChat() {
     console.log('Stopped current audio playback for interruption');
   }, [updateState]);
 
+  // Instant speech using browser's speech synthesis
+  const speakInstantly = useCallback((text: string) => {
+    return new Promise<void>((resolve) => {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        utterance.volume = 0.8;
+        
+        utterance.onend = () => {
+          updateState({ isSpeaking: false });
+          resolve();
+        };
+        
+        utterance.onerror = () => {
+          updateState({ isSpeaking: false });
+          resolve();
+        };
+        
+        updateState({ isSpeaking: true });
+        speechSynthesis.speak(utterance);
+      } else {
+        resolve();
+      }
+    });
+  }, [updateState]);
+
   const speakText = useCallback(async (text: string) => {
     try {
       console.log('Converting text to speech:', text);
@@ -500,118 +527,54 @@ export function useVoiceChat() {
         listeningMode: mode 
       });
       
-      // Create a local function to handle text-to-speech to avoid dependency issues
-      const handleSpeech = async (text: string) => {
-        try {
-          console.log('Converting text to speech:', text);
-          
-          // Use our text-to-speech edge function
-          const ttsResult = await invokeEdge('text-to-speech', {
-            text: text,
-            voice: 'alloy'
-          });
-
-          if (!ttsResult?.audioContent) {
-            throw new Error('No audio content received from TTS');
-          }
-
-          // Convert base64 to blob and play
-          const binaryString = atob(ttsResult.audioContent);
-          const bytes = new Uint8Array(binaryString.length);
-          for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-          }
-          
-          const audioBlob = new Blob([bytes], { type: 'audio/mp3' });
-          const audioUrl = URL.createObjectURL(audioBlob);
-          const audio = new Audio(audioUrl);
-          
-          // Store reference for potential interruption
-          currentAudioRef.current = audio;
-          
-          audio.onended = () => {
-            URL.revokeObjectURL(audioUrl);
-            updateState({ isSpeaking: false });
-            currentAudioRef.current = null;
-            console.log('AI finished speaking, continuing to listen...');
-          };
-
-          audio.onerror = () => {
-            URL.revokeObjectURL(audioUrl);
-            currentAudioRef.current = null;
-            throw new Error('Audio playback failed');
-          };
-
-          await audio.play();
-          
-        } catch (error) {
-          console.error('Error in text-to-speech:', error);
-          
-          // Fallback: Use browser's speech synthesis
-          if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
-            utterance.pitch = 1;
-            utterance.volume = 0.8;
-            
-            utterance.onend = () => {
-              updateState({ isSpeaking: false });
-              console.log('Browser speech finished, continuing to listen...');
-            };
-            
-            speechSynthesis.speak(utterance);
-          } else {
-            updateState({ isSpeaking: false });
-            toast.error('Text-to-speech not available');
-          }
-        }
-      };
+      // Get user profile to personalize greeting
+      const { data: { user } } = await supabase.auth.getUser();
+      let userName = 'there'; // default fallback
       
-      // Trigger SkAi greeting
-      console.log('Triggering SkAi greeting...');
-      updateState({ isSpeaking: true });
-      
-      try {
-        // Get user profile to personalize greeting
-        const { data: { user } } = await supabase.auth.getUser();
-        let userName = 'there'; // default fallback
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('user_id', user.id)
+          .single();
         
-        if (user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('first_name, last_name')
-            .eq('user_id', user.id)
-            .single();
-          
-          if (profile?.first_name) {
-            userName = profile.first_name;
-          } else if (profile?.last_name) {
-            userName = profile.last_name;
-          } else if (user.email) {
-            // Extract name from email if no profile name available
-            userName = user.email.split('@')[0];
-          }
+        if (profile?.first_name) {
+          userName = profile.first_name;
+        } else if (profile?.last_name) {
+          userName = profile.last_name;
+        } else if (user.email) {
+          // Extract name from email if no profile name available
+          userName = user.email.split('@')[0];
         }
-
-        const greetingResponse = await invokeEdge('ai-chat', {
-          message: `Hey ${userName}! I just activated voice chat. Please respond with "Hey ${userName}, how can I help?" and be ready to assist.`,
-          conversationHistory: []
-        });
-
-        const greetingText = greetingResponse?.response;
-        
-        if (greetingText) {
-          console.log('SkAi greeting:', greetingText);
-          await handleSpeech(greetingText);
-        } else {
-          // Fallback greeting if AI doesn't respond
-          await handleSpeech(`Hey ${userName}, how can I help?`);
-        }
-      } catch (greetingError) {
-        console.error('Failed to get SkAi greeting:', greetingError);
-        // Fallback greeting
-        await handleSpeech('Hey there, how can I help?');
       }
+
+      // Provide instant greeting using browser speech synthesis
+      const instantGreeting = `Hey ${userName}, how can I help?`;
+      console.log('Providing instant greeting:', instantGreeting);
+      await speakInstantly(instantGreeting);
+      
+      // Start warming up AI and TTS services in the background
+      console.log('Warming up AI services in background...');
+      invokeEdge('ai-chat', {
+        message: `System warmup for ${userName}. Respond with just "Ready" to confirm services are active.`,
+        conversationHistory: []
+      }).then((response) => {
+        console.log('AI service warmed up:', response?.response);
+        
+        // Pre-cache a TTS response for faster subsequent responses
+        if (response?.response) {
+          invokeEdge('text-to-speech', {
+            text: 'Ready',
+            voice: 'alloy'
+          }).then(() => {
+            console.log('TTS service warmed up and cached');
+          }).catch((error) => {
+            console.log('TTS warmup failed:', error);
+          });
+        }
+      }).catch((error) => {
+        console.log('AI warmup failed:', error);
+      });
       
       if (mode === 'continuous') {
         await startContinuousListening();
@@ -628,7 +591,7 @@ export function useVoiceChat() {
       console.error('Failed to initialize voice chat:', error);
       toast.error('Voice chat initialization failed');
     }
-  }, [startContinuousListening, updateState]);
+  }, [startContinuousListening, updateState, speakInstantly]);
 
   const disconnect = useCallback(() => {
     console.log('Disconnecting voice chat...');
