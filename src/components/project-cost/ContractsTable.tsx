@@ -133,28 +133,30 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
 
   return (
     <div className="space-y-6">
-      {/* Summary Card */}
-      <div className="bg-card border rounded-lg p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <DollarSign className="h-5 w-5 text-primary" />
-          <h3 className="text-lg font-semibold">Contract Summary</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center p-4 bg-muted/30 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-1">Total Contracts</p>
-            <p className="text-2xl font-bold text-foreground">{contracts.length}</p>
-          </div>
-          <div className="text-center p-4 bg-muted/30 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-1">Total Contract Value</p>
-            <p className="text-2xl font-bold text-foreground">{formatCurrency(totalContractAmount)}</p>
-          </div>
-          <div className="text-center p-4 bg-muted/30 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-1">Active Contracts</p>
-            <p className="text-2xl font-bold text-foreground">
-              {contracts.filter(c => c.status === 'active').length}
-            </p>
-          </div>
-        </div>
+      {/* Summary Table */}
+      <div className="bg-card border rounded-lg overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-muted/50 border-b">
+              <th className="text-left px-4 py-2 text-sm font-medium text-muted-foreground">Metric</th>
+              <th className="text-right px-4 py-2 text-sm font-medium text-muted-foreground">Value</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            <tr className="hover:bg-muted/20">
+              <td className="px-4 py-2 text-sm text-foreground">Total Contracts</td>
+              <td className="px-4 py-2 text-sm text-right font-semibold text-foreground">{contracts.length}</td>
+            </tr>
+            <tr className="hover:bg-muted/20">
+              <td className="px-4 py-2 text-sm text-foreground">Total Contract Value</td>
+              <td className="px-4 py-2 text-sm text-right font-semibold text-foreground">{formatCurrency(totalContractAmount)}</td>
+            </tr>
+            <tr className="hover:bg-muted/20">
+              <td className="px-4 py-2 text-sm text-foreground">Active Contracts</td>
+              <td className="px-4 py-2 text-sm text-right font-semibold text-foreground">{contracts.filter(c => c.status === 'active').length}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       {/* Contracts Table */}
