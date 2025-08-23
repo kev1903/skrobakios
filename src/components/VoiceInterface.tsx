@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Mic, MicOff, X, Volume2, VolumeX, Loader2, Settings, Hand } from 'lucide-react';
 import { VoiceSphere } from './VoiceSphere';
+import { VoiceDebugPanel } from './VoiceDebugPanel';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useVoiceChat } from '@/hooks/useVoiceChat';
@@ -121,6 +122,7 @@ export function VoiceInterface({
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-4">
+      <VoiceDebugPanel />
       {/* Enhanced AI Voice Sphere */}
       <div className="w-32 h-32 mb-6 relative" onClick={handleInterrupt} style={{ cursor: state.isSpeaking ? 'pointer' : 'default' }}>
         <VoiceSphere 

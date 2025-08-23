@@ -251,11 +251,11 @@ export function useVoiceChat() {
   const processAudioChunks = useCallback(async () => {
     try {
       updateState({ isProcessing: true, isListening: false });
-      console.log('Processing audio chunks...');
+      console.log('🎤 Processing audio chunks...');
 
       // If AI is speaking, interrupt it
       if (state.isSpeaking) {
-        console.log('Interrupting AI speech...');
+        console.log('⛔ Interrupting AI speech...');
         stopCurrentAudio();
       }
 
@@ -265,10 +265,12 @@ export function useVoiceChat() {
       // Enhanced audio filtering
       const minSize = settings.enableVAD ? 5000 : 1000;
       if (audioBlob.size < minSize) {
-        console.log(`Audio too short (${audioBlob.size} bytes), skipping...`);
+        console.log(`❌ Audio too short (${audioBlob.size} bytes), skipping...`);
         updateState({ isProcessing: false });
         return;
       }
+      
+      console.log(`✅ Audio size: ${audioBlob.size} bytes - proceeding with transcription`);
       
       // Convert to base64
       const base64Audio = await new Promise<string>((resolve, reject) => {
@@ -282,18 +284,20 @@ export function useVoiceChat() {
         reader.readAsDataURL(audioBlob);
       });
 
-      console.log('Sending audio to voice-transcribe function...');
+      console.log('📤 Sending audio to voice-transcribe function...');
 
       // Transcribe speech to text
       const transcriptionResult = await invokeEdge('voice-transcribe', {
         audio: base64Audio
       });
 
+      console.log('📥 Transcription result:', transcriptionResult);
+
       let transcribedText = transcriptionResult?.text?.trim();
       
       // Additional client-side filtering for safety
       if (transcribedText && /[^\x00-\x7F]/.test(transcribedText)) {
-        console.warn('Client-side: Filtering non-English text from transcription');
+        console.warn('⚠️ Client-side: Filtering non-English text from transcription');
         transcribedText = transcribedText.replace(/[^\x00-\x7F]/g, ' ').replace(/\s+/g, ' ').trim();
       }
       
@@ -301,18 +305,18 @@ export function useVoiceChat() {
       transcribedText = filterMediaPhrases(transcribedText);
       
       if (!transcribedText || transcribedText.length < 2) {
-        console.log('No meaningful speech detected after filtering, continuing to listen...');
+        console.log('❌ No meaningful speech detected after filtering, continuing to listen...');
         updateState({ isProcessing: false });
         return;
       }
 
-      console.log('Transcribed text:', transcribedText);
+      console.log('✅ Final transcribed text:', transcribedText);
       toast.success('Speech recognized', {
         description: `"${transcribedText}"`
       });
 
       // Send to SkAi for processing
-      console.log('Sending to SkAi...');
+      console.log('🤖 Sending to SkAi for processing...');
       updateState({ isSpeaking: true });
 
       const aiResponse = await invokeEdge('ai-chat', {
@@ -320,23 +324,28 @@ export function useVoiceChat() {
         conversationHistory: []
       });
 
-      const aiText = aiResponse?.response;
+      console.log('🤖 SkAi raw response:', aiResponse);
+
+      const aiText = aiResponse?.response || aiResponse?.message;
       
       if (!aiText) {
-        toast.error('No response from SkAi');
+        console.error('❌ No response from SkAi - raw response:', aiResponse);
+        toast.error('No response from SkAi', {
+          description: 'Please try again or check connection'
+        });
         updateState({ isProcessing: false, isSpeaking: false });
         return;
       }
 
-      console.log('SkAi response:', aiText);
+      console.log('✅ SkAi response text:', aiText);
 
       // Convert AI response to speech
       await speakText(aiText);
 
     } catch (error) {
-      console.error('Error processing audio:', error);
+      console.error('❌ Error processing audio:', error);
       toast.error('Voice processing failed', {
-        description: 'Please try again.'
+        description: error instanceof Error ? error.message : 'Please try again.'
       });
     } finally {
       updateState({ isProcessing: false });
