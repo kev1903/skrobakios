@@ -38,6 +38,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
 import { toast } from 'sonner';
+import { AddStakeholderDialog } from '@/components/stakeholders/AddStakeholderDialog';
 
 interface Stakeholder {
   id: string;
@@ -281,10 +282,7 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
             <FileText className="h-4 w-4" />
             Export
           </Button>
-          <Button size="sm" className="gap-1.5">
-            <Plus className="h-4 w-4" />
-            Add Stakeholder
-          </Button>
+          <AddStakeholderDialog onStakeholderAdded={fetchStakeholders} />
         </div>
       </div>
 
