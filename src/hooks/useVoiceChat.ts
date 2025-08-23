@@ -551,7 +551,8 @@ export function useVoiceChat() {
       // Provide instant greeting using browser speech synthesis
       const instantGreeting = `Hey ${userName}, how can I help?`;
       console.log('Providing instant greeting:', instantGreeting);
-      await speakInstantly(instantGreeting);
+      // Fire-and-forget so we don't block initialization
+      speakInstantly(instantGreeting).catch(() => {});
       
       // Start warming up AI and TTS services in the background
       console.log('Warming up AI services in background...');
