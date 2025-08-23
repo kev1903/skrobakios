@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut, MessageCircle } from 'lucide-react';
+import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut, MessageCircle, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -453,6 +453,15 @@ export const MenuBar = () => {
                   <MessageCircle className="w-4 h-4" />
                 </button>
                 
+                {/* Voice Debug Icon */}
+                <button 
+                  onClick={() => setShowVoiceInterface(true)} 
+                  className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground"
+                  title="Debug SkAi Voice"
+                >
+                  <Mic className="w-4 h-4" />
+                </button>
+                
                 {/* User Profile */}
                 <div className="relative" ref={profileDropdownRef}>
                   <div 
@@ -730,6 +739,18 @@ export const MenuBar = () => {
             onToggleCollapse={() => {}}
             onNavigate={() => {}}
             fullScreen={true}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Voice Interface Modal with Debug Panel */}
+      <Dialog open={showVoiceInterface} onOpenChange={setShowVoiceInterface}>
+        <DialogContent className="max-w-lg h-[80vh] p-4 overflow-hidden">
+          <DialogTitle className="sr-only">SkAi Voice Interface</DialogTitle>
+          <VoiceInterface
+            isActive={showVoiceInterface}
+            onMessage={handleVoiceMessage}
+            onEnd={() => setShowVoiceInterface(false)}
           />
         </DialogContent>
       </Dialog>
