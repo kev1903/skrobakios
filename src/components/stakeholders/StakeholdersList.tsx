@@ -78,6 +78,7 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
   const [statusFilter, setStatusFilter] = useState<string[]>(['active']);
   const [complianceFilter, setComplianceFilter] = useState<string[]>([]);
   const [selectedStakeholders, setSelectedStakeholders] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (currentCompany) {
@@ -145,15 +146,35 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
   };
 
   const filteredStakeholders = stakeholders.filter(stakeholder => {
-    if (!searchTerm) return true;
-    
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      stakeholder.display_name.toLowerCase().includes(searchLower) ||
-      stakeholder.primary_email?.toLowerCase().includes(searchLower) ||
-      stakeholder.tags.some(tag => tag.toLowerCase().includes(searchLower))
-    );
+    // Search term filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = (
+        stakeholder.display_name.toLowerCase().includes(searchLower) ||
+        stakeholder.primary_email?.toLowerCase().includes(searchLower) ||
+        stakeholder.tags.some(tag => tag.toLowerCase().includes(searchLower))
+      );
+      if (!matchesSearch) return false;
+    }
+
+    // Tag filter
+    if (selectedTags.length > 0) {
+      const hasMatchingTag = selectedTags.some(selectedTag => 
+        stakeholder.tags.some(tag => tag.toLowerCase() === selectedTag.toLowerCase())
+      );
+      if (!hasMatchingTag) return false;
+    }
+
+    return true;
   });
+
+  // Get unique tags from all stakeholders for tag filtering
+  const allTags = [...new Set(stakeholders.flatMap(s => s.tags))].sort();
+  const popularTags = allTags.slice(0, 8); // Show first 8 most common tags
+
+  const clearTag = (tagToRemove: string) => {
+    setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
+  };
 
   const handleBulkAction = async (action: string) => {
     if (selectedStakeholders.length === 0) {
@@ -301,6 +322,39 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2 min-w-[100px]">
+              <Filter className="h-4 w-4" />
+              Tags {selectedTags.length > 0 && `(${selectedTags.length})`}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56 max-h-64 overflow-y-auto">
+            <DropdownMenuCheckboxItem
+              checked={selectedTags.length === 0}
+              onCheckedChange={(checked) => checked && setSelectedTags([])}
+            >
+              All Tags
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuSeparator />
+            {allTags.map((tag) => (
+              <DropdownMenuCheckboxItem
+                key={tag}
+                checked={selectedTags.includes(tag)}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setSelectedTags([...selectedTags, tag]);
+                  } else {
+                    setSelectedTags(selectedTags.filter(t => t !== tag));
+                  }
+                }}
+              >
+                {tag}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         {selectedStakeholders.length > 0 && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -323,6 +377,61 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
           </DropdownMenu>
         )}
       </div>
+
+      {/* Quick Tag Filters */}
+      {popularTags.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm text-slate-500">Quick filters:</span>
+          {popularTags.map((tag) => (
+            <Badge
+              key={tag}
+              variant={selectedTags.includes(tag) ? "default" : "secondary"}
+              className="cursor-pointer text-xs hover:bg-primary/80 transition-colors"
+              onClick={() => {
+                if (selectedTags.includes(tag)) {
+                  clearTag(tag);
+                } else {
+                  setSelectedTags([...selectedTags, tag]);
+                }
+              }}
+            >
+              {tag}
+            </Badge>
+          ))}
+          {selectedTags.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-xs text-slate-500 hover:text-slate-700"
+              onClick={() => setSelectedTags([])}
+            >
+              Clear all
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Selected Tags Display */}
+      {selectedTags.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm text-slate-600">Filtered by:</span>
+          {selectedTags.map((tag) => (
+            <Badge
+              key={tag}
+              variant="default"
+              className="text-xs gap-1"
+            >
+              {tag}
+              <button
+                className="ml-1 hover:bg-primary-foreground rounded-full p-0.5"
+                onClick={() => clearTag(tag)}
+              >
+                ×
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
 
       {/* Compact Table */}
       <div className="border rounded-lg bg-white">
