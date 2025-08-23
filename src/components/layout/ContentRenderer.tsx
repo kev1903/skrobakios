@@ -45,3 +45,4 @@ const ContentRenderer: React.FC<ContentRendererProps> = ({ currentPage }) => {
 };
 
 export default ContentRenderer;
+export { ContentRenderer };
