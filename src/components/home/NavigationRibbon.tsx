@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database, CheckSquare } from 'lucide-react';
+import { Briefcase, Calendar, DollarSign, TrendingUp, Map, HelpCircle, Shield, Home, Settings, File, Mail, Database, CheckSquare, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SidebarContextSwitcher } from '@/components/SidebarContextSwitcher';
 import { useCompany } from '@/contexts/CompanyContext';
@@ -40,6 +40,7 @@ export const NavigationRibbon = ({
     { id: "projects", label: "Projects", icon: Briefcase },
     { id: "sales", label: "Sales", icon: TrendingUp },
     { id: "finance", label: "Finance", icon: DollarSign },
+    { id: "stakeholders", label: "Stakeholders", icon: Users },
   ];
 
   // Business navigation items mapped to their required subscription features
