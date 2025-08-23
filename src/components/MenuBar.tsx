@@ -23,23 +23,49 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AiChatSidebar } from '@/components/AiChatSidebar';
-
 import { VoiceInterface } from '@/components/VoiceInterface';
 import { useVoiceChat } from '@/hooks/useVoiceChat';
-
 export const MenuBar = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const { activeTimer, stopTimer, pauseTimer, resumeTimer, startTimer, categories, addCategory, settings, loading } = useTimeTracking();
-  const { getProjects } = useProjects();
-  const { userProfile } = useUser();
-  const { unreadCount } = useNotifications();
-  const { isAuthenticated, signOut } = useAuth();
-  const { currentCompany } = useCompany();
-  const { activeContext, setActiveContext } = useAppContext();
-  const { toggleSidebar } = useGlobalSidebar();
+  const {
+    toast
+  } = useToast();
+  const {
+    activeTimer,
+    stopTimer,
+    pauseTimer,
+    resumeTimer,
+    startTimer,
+    categories,
+    addCategory,
+    settings,
+    loading
+  } = useTimeTracking();
+  const {
+    getProjects
+  } = useProjects();
+  const {
+    userProfile
+  } = useUser();
+  const {
+    unreadCount
+  } = useNotifications();
+  const {
+    isAuthenticated,
+    signOut
+  } = useAuth();
+  const {
+    currentCompany
+  } = useCompany();
+  const {
+    activeContext,
+    setActiveContext
+  } = useAppContext();
+  const {
+    toggleSidebar
+  } = useGlobalSidebar();
   const barRef = useRef<HTMLDivElement>(null);
-  
+
   // Initialize voice chat functionality
   const {
     state: voiceState,
@@ -49,10 +75,9 @@ export const MenuBar = () => {
     stopPushToTalk,
     disconnect: disconnectVoice
   } = useVoiceChat();
-  
   const [currentDuration, setCurrentDuration] = useState(0);
   const isPaused = activeTimer?.status === 'paused';
-  
+
   // Timer creation form state
   const [isFormExpanded, setIsFormExpanded] = useState(false);
   const [taskActivity, setTaskActivity] = useState('');
@@ -60,9 +85,12 @@ export const MenuBar = () => {
   const [selectedProject, setSelectedProject] = useState('');
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [projectOpen, setProjectOpen] = useState(false);
-  const [projects, setProjects] = useState<Array<{id: string, name: string}>>([]);
+  const [projects, setProjects] = useState<Array<{
+    id: string;
+    name: string;
+  }>>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
-  
+
   // Header icons state
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showAiChat, setShowAiChat] = useState(false);
@@ -77,7 +105,6 @@ export const MenuBar = () => {
         setShowProfileDropdown(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -90,14 +117,16 @@ export const MenuBar = () => {
       setLoadingProjects(true);
       try {
         const projectList = await getProjects();
-        setProjects(projectList.map(p => ({ id: p.id, name: p.name })));
+        setProjects(projectList.map(p => ({
+          id: p.id,
+          name: p.name
+        })));
       } catch (error) {
         console.error('Error loading projects:', error);
       } finally {
         setLoadingProjects(false);
       }
     };
-
     loadProjects();
   }, [getProjects]);
 
@@ -119,7 +148,6 @@ export const MenuBar = () => {
         }
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activeTimer, taskActivity, isFormExpanded]);
@@ -129,7 +157,6 @@ export const MenuBar = () => {
     console.log('TimerTopBar activeTimer state:', activeTimer);
     console.log('TimerTopBar rendering, activeTimer exists:', !!activeTimer);
   }, [activeTimer]);
-
   useEffect(() => {
     if (!activeTimer) return;
 
@@ -141,7 +168,6 @@ export const MenuBar = () => {
         setCurrentDuration(Math.floor((now - startTime) / 1000));
       }
     }, 1000);
-
     return () => clearInterval(interval);
   }, [activeTimer, isPaused]);
 
@@ -153,18 +179,15 @@ export const MenuBar = () => {
       setCurrentDuration(Math.floor((now - startTime) / 1000));
     }
   }, [activeTimer]);
-
   const formatDuration = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
+    const minutes = Math.floor(seconds % 3600 / 60);
     const secs = seconds % 60;
-
     if (hours > 0) {
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
-
   const handlePauseResume = () => {
     if (isPaused) {
       resumeTimer();
@@ -172,24 +195,22 @@ export const MenuBar = () => {
       pauseTimer();
     }
   };
-
   const handleStartTimer = async () => {
     if (!taskActivity.trim()) {
       toast({
         title: "Task Required",
         description: "Please enter a task description before starting the timer.",
-        variant: "destructive",
+        variant: "destructive"
       });
       setIsFormExpanded(true); // Ensure form is visible
       return;
     }
-
     try {
       const projectName = selectedProject && selectedProject !== 'none' ? projects.find(p => p.id === selectedProject)?.name : undefined;
       await startTimer(taskActivity, selectedCategory || undefined, projectName);
       toast({
         title: "Timer Started",
-        description: `Started tracking "${taskActivity}"`,
+        description: `Started tracking "${taskActivity}"`
       });
       setIsFormExpanded(false); // Collapse form after starting
     } catch (error) {
@@ -197,17 +218,16 @@ export const MenuBar = () => {
       toast({
         title: "Error",
         description: "Failed to start timer. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleStopTimer = async () => {
     try {
       await stopTimer();
       toast({
         title: "Timer Stopped",
-        description: `Time entry saved: ${formatDuration(currentDuration)}`,
+        description: `Time entry saved: ${formatDuration(currentDuration)}`
       });
       // Clear form after successful stop
       setTaskActivity('');
@@ -219,28 +239,26 @@ export const MenuBar = () => {
       toast({
         title: "Error",
         description: "Failed to stop timer. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleLogout = async () => {
     try {
       await signOut(); // This will redirect to landing page automatically
       toast({
         title: "Success",
-        description: "Successfully logged out",
+        description: "Successfully logged out"
       });
     } catch (error) {
       console.error('Logout error:', error);
       toast({
         title: "Error",
         description: "An unexpected error occurred during logout",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleVoiceToggle = async () => {
     try {
       if (voiceState.isListening) {
@@ -257,16 +275,14 @@ export const MenuBar = () => {
       toast({
         title: "Voice Error",
         description: "Failed to start voice interface. Please check microphone permissions.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleVoiceMessage = (message: string) => {
     // Voice message received - could be forwarded to AI chat if needed
     console.log('Voice message received:', message);
   };
-
   const handleVoiceEnd = () => {
     setShowAiChat(false);
     setIsVoiceSpeaking(false);
@@ -284,22 +300,17 @@ export const MenuBar = () => {
     } else {
       // Show business name for company context
       // Check if company name looks like an auto-generated default
-      const isDefaultCompanyName = currentCompany?.name && (
-        currentCompany.name.includes('@') || 
-        currentCompany.name.endsWith('\'s Business') ||
-        currentCompany.name.endsWith('\'s Company')
-      );
-      
+      const isDefaultCompanyName = currentCompany?.name && (currentCompany.name.includes('@') || currentCompany.name.endsWith('\'s Business') || currentCompany.name.endsWith('\'s Company'));
+
       // If we have a real company name (not auto-generated), show it
       if (currentCompany?.name && !isDefaultCompanyName) {
         return currentCompany.name;
       }
-      
+
       // Fallback to user's name or default for company context
       if (userProfile.firstName || userProfile.lastName) {
         return `${userProfile.firstName} ${userProfile.lastName}`.trim();
       }
-      
       return userProfile.email || "SKROBAKI";
     }
   };
@@ -323,101 +334,55 @@ export const MenuBar = () => {
   }, [isFormExpanded, activeTimer]);
 
   // Always render the top bar, but show different content based on timer state
-  return (
-    <>
+  return <>
       <div ref={barRef} className="fixed top-0 left-0 right-0 z-[11000] backdrop-blur-xl bg-background/80 border-b border-border shadow-lg">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Left side - Menu and Company Logo */}
           <div className="flex items-center space-x-4">
             {/* Hamburger Menu Icon */}
-            <button 
-              onClick={toggleSidebar}
-              className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground"
-              aria-label="Toggle main navigation sidebar"
-            >
+            <button onClick={toggleSidebar} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" aria-label="Toggle main navigation sidebar">
               <Menu className="w-4 h-4" />
             </button>
             
             {/* Company Logo */}
             <div className="flex items-center space-x-2">
-            <div 
-                className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity duration-200"
-                onClick={() => {
-                  if (activeContext === 'company') {
-                    // Navigate to business homepage with map
-                    navigate('/?page=home');
-                  } else {
-                    // Navigate to personal profile with map
-                    navigate('/?page=profile');
-                  }
-                }}
-              >
+            <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity duration-200" onClick={() => {
+              if (activeContext === 'company') {
+                // Navigate to business homepage with map
+                navigate('/?page=home');
+              } else {
+                // Navigate to personal profile with map
+                navigate('/?page=profile');
+              }
+            }}>
                 <span className="text-primary-foreground font-bold text-xs">
                   {getCompanyDisplayText().charAt(0).toUpperCase()}
                 </span>
               </div>
-              <h1 
-                className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent event bubbling
-                  if (activeContext === 'company') {
-                    // Navigate to business homepage with map
-                    navigate('/?page=home');
-                  } else {
-                    // Navigate to personal profile with map
-                    navigate('/?page=profile');
-                  }
-                }}
-              >
+              <h1 className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors" onClick={e => {
+              e.stopPropagation(); // Prevent event bubbling
+              if (activeContext === 'company') {
+                // Navigate to business homepage with map
+                navigate('/?page=home');
+              } else {
+                // Navigate to personal profile with map
+                navigate('/?page=profile');
+              }
+            }}>
                 {getCompanyDisplayText()}
               </h1>
             </div>
           </div>
 
           {/* Center - Timer info or Voice Button */}
-          <div className="flex items-center space-x-4">
-            {activeTimer ? (
-              <>
-                <div className="flex items-center space-x-2">
-                  <div className={`w-3 h-3 rounded-full ${isPaused ? 'bg-orange-500' : 'bg-green-500'} animate-pulse`} />
-                  <span className="text-2xl font-mono font-semibold text-foreground">
-                    {formatDuration(currentDuration)}
-                  </span>
-                </div>
-                
-                <div className="text-sm text-muted-foreground">
-                  {activeTimer.task_activity || 'No description'}
-                </div>
-                
-                {activeTimer.category && (
-                  <span className="px-2 py-1 text-xs bg-muted text-foreground rounded-md border border-border">
-                    {activeTimer.category}
-                  </span>
-                )}
-                
-                {activeTimer.project_name && (
-                  <span className="px-2 py-1 text-xs bg-muted text-foreground rounded-md border border-border">
-                    {activeTimer.project_name}
-                  </span>
-                )}
-              </>
-            ) : (
-              <div className="flex items-center justify-center text-muted-foreground">
-                No active timer
-              </div>
-            )}
-          </div>
+          
 
           {/* Right side - Navigation icons and actions */}
           <div className="flex items-center space-x-3">
             {/* Navigation Icons */}
-            {isAuthenticated ? (
-              <>
+            {isAuthenticated ? <>
                 {/* Tasks Icon */}
-                <Link 
-                  to="/tasks"
-                  className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground"
-                >
+                <Link to="/tasks" className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground">
                   <ClipboardList className="w-4 h-4" />
                 </Link>
                 
@@ -431,86 +396,50 @@ export const MenuBar = () => {
                 </NotificationDropdown>
                 
                 {/* Inbox Icon */}
-                <button 
-                  onClick={() => navigate('/?page=inbox')} 
-                  className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground"
-                >
+                <button onClick={() => navigate('/?page=inbox')} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground">
                   <Inbox className="w-4 h-4" />
                 </button>
                 
                 {/* AI Chat Icon */}
-                <button 
-                  onClick={() => setShowAiChat(true)} 
-                  className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground"
-                  title="Open AI Assistant"
-                >
+                <button onClick={() => setShowAiChat(true)} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" title="Open AI Assistant">
                   <MessageCircle className="w-4 h-4" />
                 </button>
                 
                 {/* Voice Debug Icon */}
-                <button 
-                  onClick={() => setShowVoiceInterface(true)} 
-                  className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground"
-                  title="Debug SkAi Voice"
-                >
+                <button onClick={() => setShowVoiceInterface(true)} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" title="Debug SkAi Voice">
                   <Mic className="w-4 h-4" />
                 </button>
                 
                 {/* User Profile */}
                 <div className="relative" ref={profileDropdownRef}>
-                  <div 
-                    className="flex items-center gap-2 px-2 py-1 bg-muted/50 backdrop-blur-sm rounded-full border border-border cursor-pointer hover:bg-muted transition-colors duration-200"
-                    onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-                  >
+                  <div className="flex items-center gap-2 px-2 py-1 bg-muted/50 backdrop-blur-sm rounded-full border border-border cursor-pointer hover:bg-muted transition-colors duration-200" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>
                     <Avatar className="w-6 h-6">
-                      <AvatarImage 
-                        src={userProfile.avatarUrl || undefined} 
-                        alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()}
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
+                      <AvatarImage src={userProfile.avatarUrl || undefined} alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()} onError={e => {
+                    e.currentTarget.style.display = 'none';
+                  }} />
                       <AvatarFallback className="bg-muted text-foreground text-xs">
-                        {userProfile?.firstName && userProfile?.lastName 
-                          ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
-                          : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || 'U'
-                        }
+                        {userProfile?.firstName && userProfile?.lastName ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase() : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-sm font-medium text-foreground max-w-24 truncate">
-                      {userProfile?.firstName && userProfile?.lastName 
-                        ? `${userProfile.firstName} ${userProfile.lastName}`.trim()
-                        : userProfile?.firstName || userProfile?.email?.split('@')[0] || 'User'
-                      }
+                      {userProfile?.firstName && userProfile?.lastName ? `${userProfile.firstName} ${userProfile.lastName}`.trim() : userProfile?.firstName || userProfile?.email?.split('@')[0] || 'User'}
                     </span>
                     <ChevronDown className="w-3 h-3 text-muted-foreground" />
                   </div>
                   
                   {/* Profile Dropdown */}
-                  {showProfileDropdown && (
-                    <div 
-                      className="absolute right-0 top-full mt-2 w-48 bg-card/95 backdrop-blur-sm rounded-lg border border-border shadow-lg z-40"
-                    >
+                  {showProfileDropdown && <div className="absolute right-0 top-full mt-2 w-48 bg-card/95 backdrop-blur-sm rounded-lg border border-border shadow-lg z-40">
                       <div className="p-3 border-b border-border">
                         <div className="flex items-center gap-3">
                           <Avatar className="w-8 h-8">
-                            <AvatarImage 
-                              src={userProfile.avatarUrl || undefined} 
-                              alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()}
-                            />
+                            <AvatarImage src={userProfile.avatarUrl || undefined} alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()} />
                             <AvatarFallback className="bg-primary/20 text-primary text-xs">
-                              {userProfile?.firstName && userProfile?.lastName 
-                                ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
-                                : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || 'U'
-                              }
+                              {userProfile?.firstName && userProfile?.lastName ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase() : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || 'U'}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-foreground truncate">
-                              {userProfile?.firstName && userProfile?.lastName 
-                                ? `${userProfile.firstName} ${userProfile.lastName}`
-                                : userProfile?.email || 'User'
-                              }
+                              {userProfile?.firstName && userProfile?.lastName ? `${userProfile.firstName} ${userProfile.lastName}` : userProfile?.email || 'User'}
                             </p>
                             <p className="text-xs text-muted-foreground truncate">
                               {userProfile?.email || ''}
@@ -520,83 +449,43 @@ export const MenuBar = () => {
                       </div>
                       
                       <div className="py-2">
-                        <button 
-                          onClick={handleLogout}
-                          className="w-full flex items-center gap-3 px-3 py-2 text-left text-sm text-foreground hover:bg-background/20 transition-colors duration-200"
-                        >
+                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 text-left text-sm text-foreground hover:bg-background/20 transition-colors duration-200">
                           <LogOut className="w-4 h-4" />
                           <span>Log out</span>
                         </button>
                       </div>
-                    </div>
-                  )}
+                    </div>}
                 </div>
-              </>
-            ) : (
-              /* Sign In Button for unauthenticated users */
-              <button 
-                onClick={() => window.location.href = '/?page=auth'} 
-                className="flex items-center gap-2 px-4 py-2 bg-primary/20 backdrop-blur-sm rounded-lg border border-primary/30 text-primary hover:bg-primary/30 transition-colors duration-200"
-              >
+              </> : (/* Sign In Button for unauthenticated users */
+          <button onClick={() => window.location.href = '/?page=auth'} className="flex items-center gap-2 px-4 py-2 bg-primary/20 backdrop-blur-sm rounded-lg border border-primary/30 text-primary hover:bg-primary/30 transition-colors duration-200">
                 <LogIn className="w-4 h-4" />
                 <span className="text-sm font-medium">Sign In</span>
-              </button>
-            )}
+              </button>)}
 
             {/* Timer Control Buttons */}
-            {activeTimer ? (
-              <div className="flex items-center space-x-2 pl-2 border-l border-border">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handlePauseResume}
-                  className="h-8 w-8 p-0"
-                >
-                  {isPaused ? (
-                    <Play className="h-4 w-4" />
-                  ) : (
-                    <ArrowLeftRight className="h-4 w-4" />
-                  )}
+            {activeTimer ? <div className="flex items-center space-x-2 pl-2 border-l border-border">
+                <Button variant="ghost" size="sm" onClick={handlePauseResume} className="h-8 w-8 p-0">
+                  {isPaused ? <Play className="h-4 w-4" /> : <ArrowLeftRight className="h-4 w-4" />}
                 </Button>
                 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleStopTimer}
-                  className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                >
+                <Button variant="ghost" size="sm" onClick={handleStopTimer} className="h-8 w-8 p-0 text-destructive hover:text-destructive">
                   <Square className="h-4 w-4" />
                 </Button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2 pl-2 border-l border-border">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsFormExpanded(!isFormExpanded)}
-                  className="gap-2"
-                >
+              </div> : <div className="flex items-center space-x-2 pl-2 border-l border-border">
+                <Button variant="outline" size="sm" onClick={() => setIsFormExpanded(!isFormExpanded)} className="gap-2">
                   <Play className="h-4 w-4" />
                   <ChevronDown className={cn("h-3 w-3 transition-transform", isFormExpanded && "rotate-180")} />
                 </Button>
-              </div>
-            )}
+              </div>}
           </div>
         </div>
 
         {/* Expandable Timer Creation Form */}
-        {isFormExpanded && !activeTimer && (
-          <div className="border-t border-border bg-card/98 backdrop-blur-sm">
+        {isFormExpanded && !activeTimer && <div className="border-t border-border bg-card/98 backdrop-blur-sm">
             <div className="px-6 py-4 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">Start New Timer</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsFormExpanded(false)}
-                  className="h-6 w-6 p-0"
-                  title="Collapse"
-                >
+                <Button variant="ghost" size="sm" onClick={() => setIsFormExpanded(false)} className="h-6 w-6 p-0" title="Collapse">
                   <X className="w-3 h-3" />
                 </Button>
               </div>
@@ -605,17 +494,11 @@ export const MenuBar = () => {
                 {/* Task Description */}
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Task Description</label>
-                  <Input
-                    placeholder="What are you working on?"
-                    value={taskActivity}
-                    onChange={(e) => setTaskActivity(e.target.value)}
-                    className="mt-1 h-8"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleStartTimer();
-                      }
-                    }}
-                  />
+                  <Input placeholder="What are you working on?" value={taskActivity} onChange={e => setTaskActivity(e.target.value)} className="mt-1 h-8" onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  handleStartTimer();
+                }
+              }} />
                 </div>
 
                 {/* Category */}
@@ -623,12 +506,7 @@ export const MenuBar = () => {
                   <label className="text-xs font-medium text-muted-foreground">Category</label>
                   <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={categoryOpen}
-                        className="mt-1 w-full h-8 justify-between text-left overflow-hidden"
-                      >
+                      <Button variant="outline" role="combobox" aria-expanded={categoryOpen} className="mt-1 w-full h-8 justify-between text-left overflow-hidden">
                         <span className="truncate flex-1 min-w-0 text-xs">
                           {selectedCategory || "Select category..."}
                         </span>
@@ -637,48 +515,29 @@ export const MenuBar = () => {
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0 bg-popover border border-border shadow-lg z-50">
                       <Command>
-                        <CommandInput 
-                          placeholder="Search or type new category..." 
-                          value={selectedCategory}
-                          onValueChange={setSelectedCategory}
-                        />
+                        <CommandInput placeholder="Search or type new category..." value={selectedCategory} onValueChange={setSelectedCategory} />
                         <CommandList>
                           <CommandEmpty>
                             <div className="p-2">
-                              <Button 
-                                variant="ghost" 
-                                className="w-full justify-start text-xs"
-                                onClick={async () => {
-                                  if (selectedCategory && !categories.includes(selectedCategory)) {
-                                    await addCategory(selectedCategory);
-                                  }
-                                  setCategoryOpen(false);
-                                }}
-                              >
+                              <Button variant="ghost" className="w-full justify-start text-xs" onClick={async () => {
+                            if (selectedCategory && !categories.includes(selectedCategory)) {
+                              await addCategory(selectedCategory);
+                            }
+                            setCategoryOpen(false);
+                          }}>
                                 <Check className="mr-2 h-3 w-3" />
                                 Add "{selectedCategory}"
                               </Button>
                             </div>
                           </CommandEmpty>
                           <CommandGroup>
-                            {categories.map((category) => (
-                              <CommandItem
-                                key={category}
-                                value={category}
-                                onSelect={(currentValue) => {
-                                  setSelectedCategory(currentValue === selectedCategory ? "" : currentValue);
-                                  setCategoryOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-3 w-3",
-                                    selectedCategory === category ? "opacity-100" : "opacity-0"
-                                  )}
-                                />
+                            {categories.map(category => <CommandItem key={category} value={category} onSelect={currentValue => {
+                          setSelectedCategory(currentValue === selectedCategory ? "" : currentValue);
+                          setCategoryOpen(false);
+                        }}>
+                                <Check className={cn("mr-2 h-3 w-3", selectedCategory === category ? "opacity-100" : "opacity-0")} />
                                 {category}
-                              </CommandItem>
-                            ))}
+                              </CommandItem>)}
                           </CommandGroup>
                         </CommandList>
                       </Command>
@@ -695,11 +554,9 @@ export const MenuBar = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">No project</SelectItem>
-                      {projects.map((project) => (
-                        <SelectItem key={project.id} value={project.id}>
+                      {projects.map(project => <SelectItem key={project.id} value={project.id}>
                           {project.name}
-                        </SelectItem>
-                      ))}
+                        </SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
@@ -709,31 +566,20 @@ export const MenuBar = () => {
                 <div className="text-xs text-muted-foreground">
                   Press Ctrl+Enter to start • Ctrl+Space to toggle
                 </div>
-                <Button
-                  onClick={handleStartTimer}
-                  disabled={!taskActivity.trim()}
-                  size="sm"
-                  className="gap-1"
-                >
+                <Button onClick={handleStartTimer} disabled={!taskActivity.trim()} size="sm" className="gap-1">
                   <Play className="w-3 h-3" />
                   Start Timer
                 </Button>
               </div>
             </div>
-          </div>
-        )}
+          </div>}
       </div>
       
       {/* AI Chat Modal */}
       <Dialog open={showAiChat} onOpenChange={setShowAiChat}>
         <DialogContent className="max-w-2xl h-[80vh] p-0 overflow-hidden">
           <DialogTitle className="sr-only">AI Assistant</DialogTitle>
-          <AiChatSidebar 
-            isCollapsed={false} 
-            onToggleCollapse={() => {}}
-            onNavigate={() => {}}
-            fullScreen={true}
-          />
+          <AiChatSidebar isCollapsed={false} onToggleCollapse={() => {}} onNavigate={() => {}} fullScreen={true} />
         </DialogContent>
       </Dialog>
 
@@ -741,13 +587,8 @@ export const MenuBar = () => {
       <Dialog open={showVoiceInterface} onOpenChange={setShowVoiceInterface}>
         <DialogContent className="max-w-lg h-[80vh] p-4 overflow-hidden">
           <DialogTitle className="sr-only">SkAi Voice Interface</DialogTitle>
-          <VoiceInterface
-            isActive={showVoiceInterface}
-            onMessage={handleVoiceMessage}
-            onEnd={() => setShowVoiceInterface(false)}
-          />
+          <VoiceInterface isActive={showVoiceInterface} onMessage={handleVoiceMessage} onEnd={() => setShowVoiceInterface(false)} />
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>;
 };
