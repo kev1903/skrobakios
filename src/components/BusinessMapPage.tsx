@@ -1001,7 +1001,7 @@ export const BusinessMapPage = ({
       </div>
 
       {/* Main Canvas */}
-      <div className="flex-1 relative min-h-0">
+      <div className="flex-1 relative min-h-0 mobile-full-height">
         <ReactFlow 
           nodes={nodes} 
           edges={edges} 
@@ -1010,7 +1010,7 @@ export const BusinessMapPage = ({
           onConnect={onConnect} 
           nodeTypes={nodeTypes} 
           fitView 
-          className="bg-background h-full" 
+          className="bg-background h-full w-full" 
           nodesDraggable={!isMapLocked} 
           nodesConnectable={!isMapLocked} 
           elementsSelectable={!isMapLocked} 
@@ -1024,35 +1024,73 @@ export const BusinessMapPage = ({
           defaultViewport={{
             x: 0,
             y: 0,
-            zoom: 0.7
+            zoom: window.innerWidth < 768 ? 0.5 : 0.7 // Smaller zoom for mobile
           }}
         >
-          <Controls className="bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg" showZoom={true} showFitView={true} showInteractive={true} />
-          <MiniMap className="bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg" nodeColor={node => {
-            if (node.id === 'company-center') return 'hsl(var(--primary))';
-            return 'hsl(var(--muted))';
-          }} nodeStrokeWidth={2} zoomable pannable />
+          <Controls 
+            className="bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg" 
+            showZoom={true} 
+            showFitView={true} 
+            showInteractive={true}
+            style={{
+              // Mobile-friendly positioning
+              bottom: window.innerWidth < 768 ? '80px' : '10px'
+            }}
+          />
+          <MiniMap 
+            className="bg-card/90 backdrop-blur-sm border border-border rounded-lg shadow-lg" 
+            nodeColor={node => {
+              if (node.id === 'company-center') return 'hsl(var(--primary))';
+              return 'hsl(var(--muted))';
+            }} 
+            nodeStrokeWidth={2} 
+            zoomable 
+            pannable
+            style={{
+              // Hide minimap on very small screens to save space
+              display: window.innerWidth < 480 ? 'none' : 'block',
+              width: window.innerWidth < 768 ? '80px' : '120px',
+              height: window.innerWidth < 768 ? '60px' : '80px'
+            }}
+          />
           <Background variant={BackgroundVariant.Dots} gap={30} size={1} className="text-muted-foreground/10" />
         </ReactFlow>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - Mobile Responsive */}
         <div className="absolute top-4 right-4 flex gap-2">
-          <Button variant="outline" size="sm" className="bg-card/90 backdrop-blur-sm">
+          <Button 
+            variant="outline" 
+            size={window.innerWidth < 768 ? "sm" : "default"} 
+            className="bg-card/90 backdrop-blur-sm hidden sm:flex"
+          >
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
-          <Button variant="outline" size="sm" className="bg-card/90 backdrop-blur-sm">
+          <Button 
+            variant="outline" 
+            size={window.innerWidth < 768 ? "sm" : "default"} 
+            className="bg-card/90 backdrop-blur-sm hidden sm:flex"
+          >
             <Settings className="w-4 h-4 mr-2" />
             Settings
           </Button>
+          {/* Mobile-only compact buttons */}
+          <div className="flex sm:hidden gap-1">
+            <Button variant="outline" size="sm" className="bg-card/90 backdrop-blur-sm p-2">
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" size="sm" className="bg-card/90 backdrop-blur-sm p-2">
+              <Settings className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
-        {/* Connection Status Panel */}
+        {/* Connection Status Panel - Mobile Responsive */}
         {interactionState.connectionMode && (
-          <div className="absolute bottom-6 right-6 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-4 max-w-sm">
+          <div className="absolute bottom-20 sm:bottom-6 right-4 sm:right-6 bg-card/95 backdrop-blur-sm border border-border rounded-lg shadow-lg p-3 sm:p-4 max-w-xs sm:max-w-sm">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-              <h3 className="font-semibold text-sm">Connection Mode Active</h3>
+              <h3 className="font-semibold text-xs sm:text-sm">Connection Mode Active</h3>
             </div>
             <p className="text-xs text-muted-foreground mb-3">
               Click on any module to create a dynamic connection to Skrobaki
@@ -1061,7 +1099,7 @@ export const BusinessMapPage = ({
               ...prev,
               connectionMode: false,
               selectedNodes: []
-            }))} className="w-full">
+            }))} className="w-full text-xs">
               Exit Connection Mode
             </Button>
           </div>
