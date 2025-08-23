@@ -5280,6 +5280,25 @@ export type Database = {
           masked_phone: string
         }[]
       }
+      get_masked_lead_data: {
+        Args: { lead_id: string }
+        Returns: {
+          company: string
+          company_id: string
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          description: string
+          id: string
+          location: string
+          priority: string
+          project_address: string
+          source: string
+          stage: string
+          value: number
+          website: string
+        }[]
+      }
       get_public_profile_safe: {
         Args: { profile_user_id: string }
         Returns: {
