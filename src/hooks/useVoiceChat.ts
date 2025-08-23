@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { invokeEdge } from '@/lib/invokeEdge';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export interface VoiceChatState {
@@ -571,8 +572,29 @@ export function useVoiceChat() {
       updateState({ isSpeaking: true });
       
       try {
+        // Get user profile to personalize greeting
+        const { data: { user } } = await supabase.auth.getUser();
+        let userName = 'there'; // default fallback
+        
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('user_id', user.id)
+            .single();
+          
+          if (profile?.first_name) {
+            userName = profile.first_name;
+          } else if (profile?.last_name) {
+            userName = profile.last_name;
+          } else if (user.email) {
+            // Extract name from email if no profile name available
+            userName = user.email.split('@')[0];
+          }
+        }
+
         const greetingResponse = await invokeEdge('ai-chat', {
-          message: 'Hello! I just activated voice chat. Please greet me warmly and let me know you\'re ready to help.',
+          message: `Hey ${userName}! I just activated voice chat. Please respond with "Hey ${userName}, how can I help?" and be ready to assist.`,
           conversationHistory: []
         });
 
@@ -583,12 +605,12 @@ export function useVoiceChat() {
           await handleSpeech(greetingText);
         } else {
           // Fallback greeting if AI doesn't respond
-          await handleSpeech('Hello! SkAi is ready to help you. How can I assist you today?');
+          await handleSpeech(`Hey ${userName}, how can I help?`);
         }
       } catch (greetingError) {
         console.error('Failed to get SkAi greeting:', greetingError);
         // Fallback greeting
-        await handleSpeech('Hello! SkAi voice interface is now active. How can I help you?');
+        await handleSpeech('Hey there, how can I help?');
       }
       
       if (mode === 'continuous') {
