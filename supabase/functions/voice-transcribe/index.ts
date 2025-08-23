@@ -52,8 +52,8 @@ serve(async (req) => {
 
     // Prepare form data with proper audio format and STRICT English-only settings
     const formData = new FormData()
-    const blob = new Blob([binaryAudio], { type: 'audio/wav' })
-    formData.append('file', blob, 'audio.wav')
+    const blob = new Blob([binaryAudio], { type: 'audio/webm' })
+    formData.append('file', blob, 'audio.webm')
     formData.append('model', 'whisper-1')
     formData.append('language', 'en')  // Force English language detection
     formData.append('prompt', 'This is English speech. Transcribe only in English language. Do not use Korean, Chinese, Japanese or any other language.')  // Add prompt to guide transcription
