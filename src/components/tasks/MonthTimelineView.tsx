@@ -8,12 +8,14 @@ interface MonthTimelineViewProps {
   currentDate?: Date;
   tasks?: Task[];
   onTaskUpdate?: (taskId: string, updates: Partial<Task>) => Promise<void>;
+  onDayClick?: (day: any) => void;
 }
 
 export const MonthTimelineView = ({ 
   currentDate = new Date(),
   tasks = [],
-  onTaskUpdate 
+  onTaskUpdate,
+  onDayClick
 }: MonthTimelineViewProps) => {
   const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const monthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);

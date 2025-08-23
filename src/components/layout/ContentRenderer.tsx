@@ -8,12 +8,23 @@ import TimeSheetPage from '@/pages/TimeSheetPage';
 import LeadsPage from '@/pages/LeadsPage';
 import ProfilePage from '@/pages/ProfilePage';
 import CompanySettingsPage from '@/pages/CompanySettingsPage';
+import { Project } from '@/hooks/useProjects';
 
 interface ContentRendererProps {
   currentPage: string;
+  onNavigate?: (page: string) => void;
+  onSelectProject?: (projectId: string) => void;
+  selectedProject?: string | null;
+  currentProject?: Project | null;
 }
 
-const ContentRenderer: React.FC<ContentRendererProps> = ({ currentPage }) => {
+const ContentRenderer: React.FC<ContentRendererProps> = ({ 
+  currentPage,
+  onNavigate,
+  onSelectProject,
+  selectedProject,
+  currentProject
+}) => {
   const renderContent = () => {
     switch (currentPage) {
       case 'home':
