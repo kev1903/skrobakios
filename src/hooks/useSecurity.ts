@@ -345,6 +345,217 @@ export const useSecurity = () => {
     }
   };
 
+  // Voice Chat Security Functions
+  const createVoiceSession = async (): Promise<string | null> => {
+    try {
+      if (!user?.id) return null;
+
+      const { data, error } = await supabase
+        .from('voice_chat_sessions')
+        .insert({
+          user_id: user.id,
+          session_start: new Date().toISOString(),
+          total_requests: 0,
+          total_duration_seconds: 0
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      logSecurityEvent('voice_session_created', 'voice_chat_sessions', data.id, {
+        user_id: user.id,
+        session_id: data.id
+      });
+
+      return data.id;
+    } catch (error) {
+      console.error('Failed to create voice session:', error);
+      return null;
+    }
+  };
+
+  const endVoiceSession = async (sessionId: string): Promise<void> => {
+    try {
+      if (!user?.id) return;
+
+      const { error } = await supabase
+        .from('voice_chat_sessions')
+        .update({
+          session_end: new Date().toISOString()
+        })
+        .eq('id', sessionId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      logSecurityEvent('voice_session_ended', 'voice_chat_sessions', sessionId, {
+        user_id: user.id,
+        session_id: sessionId
+      });
+    } catch (error) {
+      console.error('Failed to end voice session:', error);
+    }
+  };
+
+  const checkVoiceSessionLimits = async (sessionId: string): Promise<{ 
+    withinLimits: boolean; 
+    reason?: string; 
+  }> => {
+    try {
+      if (!user?.id) return { withinLimits: false, reason: 'User not authenticated' };
+
+      const { data: session, error } = await supabase
+        .from('voice_chat_sessions')
+        .select('*')
+        .eq('id', sessionId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (error || !session) {
+        return { withinLimits: false, reason: 'Session not found' };
+      }
+
+      // Check request limits
+      if (session.total_requests >= session.max_requests_per_session) {
+        return { withinLimits: false, reason: 'Request limit exceeded' };
+      }
+
+      // Check duration limits
+      const sessionStartTime = new Date(session.session_start).getTime();
+      const currentTime = new Date().getTime();
+      const sessionDurationMinutes = (currentTime - sessionStartTime) / (1000 * 60);
+
+      if (sessionDurationMinutes > session.max_duration_minutes) {
+        return { withinLimits: false, reason: 'Session duration limit exceeded' };
+      }
+
+      return { withinLimits: true };
+    } catch (error) {
+      console.error('Failed to check voice session limits:', error);
+      return { withinLimits: false, reason: 'Failed to check limits' };
+    }
+  };
+
+  const incrementVoiceRequests = async (sessionId: string): Promise<void> => {
+    try {
+      if (!user?.id) return;
+
+      // Get current request count and increment it
+      const { data: session, error: selectError } = await supabase
+        .from('voice_chat_sessions')
+        .select('total_requests')
+        .eq('id', sessionId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (selectError || !session) {
+        console.error('Failed to get current request count:', selectError);
+        return;
+      }
+
+      const { error } = await supabase
+        .from('voice_chat_sessions')
+        .update({
+          total_requests: (session.total_requests || 0) + 1
+        })
+        .eq('id', sessionId)
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Failed to increment voice requests:', error);
+      }
+    } catch (error) {
+      console.error('Failed to increment voice requests:', error);
+    }
+  };
+
+  const validateVoiceInput = (input: string): {
+    isValid: boolean;
+    sanitized: string;
+    securityIssues: string[];
+  } => {
+    const securityIssues: string[] = [];
+    let sanitized = input.trim();
+
+    // Check for prompt injection patterns
+    const promptInjectionPatterns = [
+      /ignore\s+(previous|above|all)\s+(instructions?|prompts?)/i,
+      /forget\s+(everything|all|previous)/i,
+      /act\s+as\s+(?!.*voice|.*assistant)/i,
+      /you\s+are\s+now\s+a/i,
+      /pretend\s+to\s+be/i,
+      /roleplay\s+as/i,
+      /<\s*script/i,
+      /javascript:/i,
+      /data:/i
+    ];
+
+    for (const pattern of promptInjectionPatterns) {
+      if (pattern.test(sanitized)) {
+        securityIssues.push('Potential prompt injection detected');
+        break;
+      }
+    }
+
+    // Check input length
+    if (sanitized.length > 2000) {
+      securityIssues.push('Input too long');
+      sanitized = sanitized.substring(0, 2000);
+    }
+
+    // Remove potentially dangerous characters
+    sanitized = sanitized.replace(/[<>'"]/g, '');
+
+    return {
+      isValid: securityIssues.length === 0,
+      sanitized,
+      securityIssues
+    };
+  };
+
+  // Check daily voice usage limits
+  const checkDailyVoiceUsage = async (): Promise<{
+    withinLimits: boolean;
+    todayUsageMinutes: number;
+    dailyLimitMinutes: number;
+  }> => {
+    try {
+      if (!user?.id) {
+        return { withinLimits: false, todayUsageMinutes: 0, dailyLimitMinutes: 60 };
+      }
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const { data: sessions, error } = await supabase
+        .from('voice_chat_sessions')
+        .select('total_duration_seconds')
+        .eq('user_id', user.id)
+        .gte('session_start', today.toISOString())
+        .lt('session_start', tomorrow.toISOString());
+
+      if (error) throw error;
+
+      const todayUsageSeconds = sessions?.reduce((sum, session) => 
+        sum + (session.total_duration_seconds || 0), 0) || 0;
+      
+      const todayUsageMinutes = Math.round(todayUsageSeconds / 60);
+      const dailyLimitMinutes = 60; // 1 hour daily limit
+
+      return {
+        withinLimits: todayUsageMinutes < dailyLimitMinutes,
+        todayUsageMinutes,
+        dailyLimitMinutes
+      };
+    } catch (error) {
+      console.error('Failed to check daily voice usage:', error);
+      return { withinLimits: true, todayUsageMinutes: 0, dailyLimitMinutes: 60 };
+    }
+  };
+
   // Auto-refresh security status every 5 minutes for superadmins
   useEffect(() => {
     if (!user) return;
@@ -376,6 +587,14 @@ export const useSecurity = () => {
     securityAlerts,
     addSecurityAlert,
     clearSecurityAlerts: () => setSecurityAlerts([]),
+    
+    // Voice Chat Security
+    createVoiceSession,
+    endVoiceSession,
+    checkVoiceSessionLimits,
+    incrementVoiceRequests,
+    validateVoiceInput,
+    checkDailyVoiceUsage,
     
     // Xero-specific security (legacy)
     validateXeroTokenSecurity,

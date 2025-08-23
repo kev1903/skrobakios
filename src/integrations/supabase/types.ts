@@ -3514,6 +3514,39 @@ export type Database = {
           },
         ]
       }
+      security_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          metadata: Json | null
+          severity: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          metadata?: Json | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       security_rate_limits: {
         Row: {
           action_type: string
@@ -4687,6 +4720,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      voice_chat_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          max_duration_minutes: number | null
+          max_requests_per_session: number | null
+          session_end: string | null
+          session_start: string
+          total_duration_seconds: number | null
+          total_requests: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_duration_minutes?: number | null
+          max_requests_per_session?: number | null
+          session_end?: string | null
+          session_start?: string
+          total_duration_seconds?: number | null
+          total_requests?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_duration_minutes?: number | null
+          max_requests_per_session?: number | null
+          session_end?: string | null
+          session_start?: string
+          total_duration_seconds?: number | null
+          total_requests?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       wbs_items: {
         Row: {
