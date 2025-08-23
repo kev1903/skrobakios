@@ -49,7 +49,7 @@ interface Stakeholder {
   primary_phone?: string;
   status: 'active' | 'inactive' | 'pending';
   compliance_status: 'valid' | 'expired' | 'expiring';
-  tags: string[];
+  tags?: string[] | null;
   active_projects_count?: number;
 }
 
@@ -150,9 +150,10 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch = (
-        stakeholder.display_name.toLowerCase().includes(searchLower) ||
+        stakeholder.display_name?.toLowerCase().includes(searchLower) ||
         stakeholder.primary_email?.toLowerCase().includes(searchLower) ||
-        stakeholder.tags.some(tag => tag.toLowerCase().includes(searchLower))
+        (stakeholder.tags && Array.isArray(stakeholder.tags) && 
+         stakeholder.tags.some(tag => tag && typeof tag === 'string' && tag.toLowerCase().includes(searchLower)))
       );
       if (!matchesSearch) return false;
     }
@@ -160,7 +161,8 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
     // Tag filter
     if (selectedTags.length > 0) {
       const hasMatchingTag = selectedTags.some(selectedTag => 
-        stakeholder.tags.some(tag => tag.toLowerCase() === selectedTag.toLowerCase())
+        stakeholder.tags && Array.isArray(stakeholder.tags) && 
+        stakeholder.tags.some(tag => tag && typeof tag === 'string' && tag.toLowerCase() === selectedTag.toLowerCase())
       );
       if (!hasMatchingTag) return false;
     }
@@ -168,8 +170,11 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
     return true;
   });
 
-  // Get unique tags from all stakeholders for tag filtering
-  const allTags = [...new Set(stakeholders.flatMap(s => s.tags))].sort();
+  // Get unique tags from all stakeholders for tag filtering - with null safety
+  const allTags = [...new Set(
+    stakeholders
+      .flatMap(s => s.tags && Array.isArray(s.tags) ? s.tags.filter(tag => tag && typeof tag === 'string') : [])
+  )].sort();
   const popularTags = allTags.slice(0, 8); // Show first 8 most common tags
 
   const clearTag = (tagToRemove: string) => {
@@ -520,15 +525,15 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
                       {renderAvatar(stakeholder.display_name, stakeholder.category)}
                       <div>
                         <p className="font-medium text-sm">{stakeholder.display_name}</p>
-                        {stakeholder.tags.length > 0 && (
+                        {stakeholder.tags && Array.isArray(stakeholder.tags) && stakeholder.tags.length > 0 && (
                           <div className="flex gap-1 mt-1">
-                            {stakeholder.tags.slice(0, 2).map(tag => (
+                            {stakeholder.tags.filter(tag => tag && typeof tag === 'string').slice(0, 2).map(tag => (
                               <Badge key={tag} variant="secondary" className="text-xs px-1.5 py-0">
                                 {tag}
                               </Badge>
                             ))}
-                            {stakeholder.tags.length > 2 && (
-                              <span className="text-xs text-slate-500">+{stakeholder.tags.length - 2}</span>
+                            {stakeholder.tags.filter(tag => tag && typeof tag === 'string').length > 2 && (
+                              <span className="text-xs text-slate-500">+{stakeholder.tags.filter(tag => tag && typeof tag === 'string').length - 2}</span>
                             )}
                           </div>
                         )}
