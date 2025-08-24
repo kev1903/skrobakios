@@ -238,191 +238,197 @@ export const InvoiceDrawer = ({ isOpen, onClose, invoice, projectId, onSaved }: 
 
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent className="w-full max-w-4xl overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>{invoice ? 'Edit Invoice' : 'Create New Invoice'}</SheetTitle>
-          <SheetDescription>
-            {invoice ? 'Update invoice details and line items' : 'Add invoice details and line items'}
-          </SheetDescription>
-        </SheetHeader>
-
-        <div className="space-y-6 py-6">
-          {/* Client Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Client Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="client_name">Client Name *</Label>
-                  <Input
-                    id="client_name"
-                    value={formData.client_name}
-                    onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-                    placeholder="Enter client name"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="client_email">Client Email</Label>
-                  <Input
-                    id="client_email"
-                    type="email"
-                    value={formData.client_email}
-                    onChange={(e) => setFormData({ ...formData, client_email: e.target.value })}
-                    placeholder="Enter client email"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="issue_date">Issue Date *</Label>
-                  <Input
-                    id="issue_date"
-                    type="date"
-                    value={formData.issue_date}
-                    onChange={(e) => setFormData({ ...formData, issue_date: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="due_date">Due Date *</Label>
-                  <Input
-                    id="due_date"
-                    type="date"
-                    value={formData.due_date}
-                    onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="tax">Tax Rate (%)</Label>
-                  <Input
-                    id="tax"
-                    type="number"
-                    value={formData.tax}
-                    onChange={(e) => setFormData({ ...formData, tax: parseFloat(e.target.value) || 0 })}
-                    placeholder="Enter tax rate"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Additional notes or terms"
-                  rows={3}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Line Items */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Line Items</CardTitle>
-                <Button onClick={addItem} variant="outline" size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Item
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {items.map((item, index) => (
-                  <div key={index} className="grid grid-cols-12 gap-2 items-end">
-                    <div className="col-span-4">
-                      <Label htmlFor={`desc-${index}`}>Description</Label>
+      <SheetContent className="w-full h-full max-w-none overflow-y-auto p-0">
+        <div className="h-full flex flex-col">
+          <div className="p-6 border-b">
+            <SheetHeader>
+              <SheetTitle>{invoice ? 'Edit Invoice' : 'Create New Invoice'}</SheetTitle>
+              <SheetDescription>
+                {invoice ? 'Update invoice details and line items' : 'Add invoice details and line items'}
+              </SheetDescription>
+            </SheetHeader>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="space-y-6">
+              {/* Client Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Client Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="client_name">Client Name *</Label>
                       <Input
-                        id={`desc-${index}`}
-                        value={item.description}
-                        onChange={(e) => updateItem(index, 'description', e.target.value)}
-                        placeholder="Item description"
+                        id="client_name"
+                        value={formData.client_name}
+                        onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
+                        placeholder="Enter client name"
+                        required
                       />
                     </div>
-                    <div className="col-span-2">
-                      <Label htmlFor={`wbs-${index}`}>WBS Code</Label>
+                    <div>
+                      <Label htmlFor="client_email">Client Email</Label>
                       <Input
-                        id={`wbs-${index}`}
-                        value={item.wbs_code}
-                        onChange={(e) => updateItem(index, 'wbs_code', e.target.value)}
-                        placeholder="WBS code"
+                        id="client_email"
+                        type="email"
+                        value={formData.client_email}
+                        onChange={(e) => setFormData({ ...formData, client_email: e.target.value })}
+                        placeholder="Enter client email"
                       />
-                    </div>
-                    <div className="col-span-1">
-                      <Label htmlFor={`qty-${index}`}>Qty</Label>
-                      <Input
-                        id={`qty-${index}`}
-                        type="number"
-                        value={item.qty}
-                        onChange={(e) => updateItem(index, 'qty', parseFloat(e.target.value) || 0)}
-                        min="0"
-                        step="0.01"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <Label htmlFor={`rate-${index}`}>Rate</Label>
-                      <Input
-                        id={`rate-${index}`}
-                        type="number"
-                        value={item.rate}
-                        onChange={(e) => updateItem(index, 'rate', parseFloat(e.target.value) || 0)}
-                        min="0"
-                        step="0.01"
-                      />
-                    </div>
-                    <div className="col-span-2">
-                      <Label>Amount</Label>
-                      <Input
-                        value={item.amount.toFixed(2)}
-                        readOnly
-                        className="bg-muted"
-                      />
-                    </div>
-                    <div className="col-span-1">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeItem(index)}
-                        disabled={items.length === 1}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                   </div>
-                ))}
-              </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="issue_date">Issue Date *</Label>
+                      <Input
+                        id="issue_date"
+                        type="date"
+                        value={formData.issue_date}
+                        onChange={(e) => setFormData({ ...formData, issue_date: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="due_date">Due Date *</Label>
+                      <Input
+                        id="due_date"
+                        type="date"
+                        value={formData.due_date}
+                        onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="tax">Tax Rate (%)</Label>
+                      <Input
+                        id="tax"
+                        type="number"
+                        value={formData.tax}
+                        onChange={(e) => setFormData({ ...formData, tax: parseFloat(e.target.value) || 0 })}
+                        placeholder="Enter tax rate"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
+                      id="notes"
+                      value={formData.notes}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      placeholder="Additional notes or terms"
+                      rows={3}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
 
-              {/* Totals */}
-              <div className="mt-6 space-y-2 border-t pt-4">
-                <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span className="font-medium">${calculateSubtotal().toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Tax ({formData.tax}%):</span>
-                  <span className="font-medium">${calculateTaxAmount().toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-lg font-bold border-t pt-2">
-                  <span>Total:</span>
-                  <span>${calculateTotal().toFixed(2)}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              {/* Line Items */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>Line Items</CardTitle>
+                    <Button onClick={addItem} variant="outline" size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Item
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {items.map((item, index) => (
+                      <div key={index} className="grid grid-cols-12 gap-2 items-end">
+                        <div className="col-span-4">
+                          <Label htmlFor={`desc-${index}`}>Description</Label>
+                          <Input
+                            id={`desc-${index}`}
+                            value={item.description}
+                            onChange={(e) => updateItem(index, 'description', e.target.value)}
+                            placeholder="Item description"
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <Label htmlFor={`wbs-${index}`}>WBS Code</Label>
+                          <Input
+                            id={`wbs-${index}`}
+                            value={item.wbs_code}
+                            onChange={(e) => updateItem(index, 'wbs_code', e.target.value)}
+                            placeholder="WBS code"
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          <Label htmlFor={`qty-${index}`}>Qty</Label>
+                          <Input
+                            id={`qty-${index}`}
+                            type="number"
+                            value={item.qty}
+                            onChange={(e) => updateItem(index, 'qty', parseFloat(e.target.value) || 0)}
+                            min="0"
+                            step="0.01"
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <Label htmlFor={`rate-${index}`}>Rate</Label>
+                          <Input
+                            id={`rate-${index}`}
+                            type="number"
+                            value={item.rate}
+                            onChange={(e) => updateItem(index, 'rate', parseFloat(e.target.value) || 0)}
+                            min="0"
+                            step="0.01"
+                          />
+                        </div>
+                        <div className="col-span-2">
+                          <Label>Amount</Label>
+                          <Input
+                            value={item.amount.toFixed(2)}
+                            readOnly
+                            className="bg-muted"
+                          />
+                        </div>
+                        <div className="col-span-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removeItem(index)}
+                            disabled={items.length === 1}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-          {/* Actions */}
-          <div className="flex justify-between">
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={loading || !formData.client_name || !formData.issue_date || !formData.due_date}>
-              {loading ? 'Saving...' : invoice ? 'Update Invoice' : 'Create Invoice'}
-            </Button>
+                  {/* Totals */}
+                  <div className="mt-6 space-y-2 border-t pt-4">
+                    <div className="flex justify-between">
+                      <span>Subtotal:</span>
+                      <span className="font-medium">${calculateSubtotal().toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Tax ({formData.tax}%):</span>
+                      <span className="font-medium">${calculateTaxAmount().toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-lg font-bold border-t pt-2">
+                      <span>Total:</span>
+                      <span>${calculateTotal().toFixed(2)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Actions */}
+              <div className="flex justify-between">
+                <Button variant="outline" onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button onClick={handleSave} disabled={loading || !formData.client_name || !formData.issue_date || !formData.due_date}>
+                  {loading ? 'Saving...' : invoice ? 'Update Invoice' : 'Create Invoice'}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </SheetContent>
