@@ -44,6 +44,7 @@ import { PublicDirectory } from "./components/public/PublicDirectory";
 import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
 import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
+import { InvoiceFormPage } from "./components/invoices/InvoiceFormPage";
 import { MenuBar } from "./components/MenuBar";
 import PDFExtractionDocs from "./pages/PDFExtractionDocs";
 
@@ -337,6 +338,7 @@ const AppContent = () => {
         } />
         <Route path="/invoices" element={<InvoicesPageWrapper />} />
         <Route path="/invoice-details/:invoiceId" element={<InvoiceDetailsPage />} />
+        <Route path="/invoice/create" element={<InvoiceFormPage />} />
         
 <Route path="/estimates" element={<EstimatesPageWrapper />} />
 <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />

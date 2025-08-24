@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ export const ProjectCostPage = ({
   project,
   onNavigate
 }: ProjectCostPageProps) => {
+  const navigate = useNavigate();
   const { userProfile } = useUser();
   
   // Read tab from URL parameters
@@ -419,7 +421,7 @@ export const ProjectCostPage = ({
                           Upload Contract
                         </Button>
                         <Button 
-                          onClick={() => setIsInvoiceDrawerOpen(true)}
+                          onClick={() => navigate(`/invoice/create?projectId=${project.id}`)}
                           className="flex items-center gap-2"
                         >
                           <Plus className="h-4 w-4" />

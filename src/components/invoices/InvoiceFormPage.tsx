@@ -1,0 +1,395 @@
+import React, { useState, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { ArrowLeft, Plus, Trash2, Download, Send } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+interface InvoiceItem {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+  gst: number;
+  amount: number;
+}
+
+export const InvoiceFormPage = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const projectId = searchParams.get('projectId');
+  const { toast } = useToast();
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const [invoiceData, setInvoiceData] = useState({
+    invoiceNumber: `INV-${Date.now()}`,
+    invoiceDate: new Date().toISOString().split('T')[0],
+    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    reference: '',
+    clientName: '',
+    clientAddress: '',
+    abn: ''
+  });
+
+  const [items, setItems] = useState<InvoiceItem[]>([
+    { description: '', quantity: 1, unitPrice: 0, gst: 10, amount: 0 }
+  ]);
+
+  const [paymentTerms, setPaymentTerms] = useState(
+    "This is a payment claim under the Building and Construction Industry Security of Payment Act 2002. Delay in payment of this invoice by the due date will incur an interest fee charged at 4.50% per month."
+  );
+
+  const calculateItemAmount = (quantity: number, unitPrice: number) => {
+    return quantity * unitPrice;
+  };
+
+  const calculateSubtotal = () => {
+    return items.reduce((sum, item) => sum + item.amount, 0);
+  };
+
+  const calculateTotalGST = () => {
+    return items.reduce((sum, item) => sum + (item.amount * item.gst / 100), 0);
+  };
+
+  const calculateTotal = () => {
+    return calculateSubtotal() + calculateTotalGST();
+  };
+
+  const updateItem = (index: number, field: keyof InvoiceItem, value: string | number) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    
+    if (field === 'quantity' || field === 'unitPrice') {
+      newItems[index].amount = calculateItemAmount(newItems[index].quantity, newItems[index].unitPrice);
+    }
+    
+    setItems(newItems);
+  };
+
+  const addItem = () => {
+    setItems([...items, { description: '', quantity: 1, unitPrice: 0, gst: 10, amount: 0 }]);
+  };
+
+  const removeItem = (index: number) => {
+    if (items.length > 1) {
+      setItems(items.filter((_, i) => i !== index));
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleSend = () => {
+    toast({
+      title: "Invoice Sent",
+      description: "Invoice has been sent to the client successfully.",
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header - No Print */}
+      <div className="print:hidden bg-background border-b p-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate(`/?page=project-cost&projectId=${projectId}`)}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Project
+            </Button>
+            <h1 className="text-2xl font-semibold">Create Invoice</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handlePrint}>
+              <Download className="h-4 w-4 mr-2" />
+              Download PDF
+            </Button>
+            <Button onClick={handleSend}>
+              <Send className="h-4 w-4 mr-2" />
+              Send Invoice
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Invoice Content */}
+      <div ref={printRef} className="max-w-4xl mx-auto p-8 bg-white print:p-0 print:max-w-none">
+        {/* Company Header */}
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <div className="text-2xl font-bold text-primary mb-2">SKROBAKI</div>
+            <div className="text-sm text-muted-foreground">
+              Unit A11/2A Westall Rd,<br />
+              Clayton VIC 3168
+            </div>
+          </div>
+          <div className="text-right">
+            <h1 className="text-3xl font-bold mb-4">TAX INVOICE</h1>
+            <div className="space-y-1 text-sm">
+              <div><strong>Invoice Date:</strong> {invoiceData.invoiceDate}</div>
+              <div><strong>Invoice Number:</strong> {invoiceData.invoiceNumber}</div>
+              <div><strong>Reference:</strong> {invoiceData.reference}</div>
+              <div><strong>ABN:</strong> {invoiceData.abn}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Edit Mode - Client Details */}
+        <div className="print:hidden mb-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Invoice Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="invoiceNumber">Invoice Number</Label>
+                  <Input
+                    id="invoiceNumber"
+                    value={invoiceData.invoiceNumber}
+                    onChange={(e) => setInvoiceData({...invoiceData, invoiceNumber: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="invoiceDate">Invoice Date</Label>
+                  <Input
+                    id="invoiceDate"
+                    type="date"
+                    value={invoiceData.invoiceDate}
+                    onChange={(e) => setInvoiceData({...invoiceData, invoiceDate: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="dueDate">Due Date</Label>
+                  <Input
+                    id="dueDate"
+                    type="date"
+                    value={invoiceData.dueDate}
+                    onChange={(e) => setInvoiceData({...invoiceData, dueDate: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="reference">Reference</Label>
+                  <Input
+                    id="reference"
+                    value={invoiceData.reference}
+                    onChange={(e) => setInvoiceData({...invoiceData, reference: e.target.value})}
+                    placeholder="Base Stage | SX_2503 - 5 Thanet St, Malvern VIC 3144"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="clientName">Client Name</Label>
+                  <Input
+                    id="clientName"
+                    value={invoiceData.clientName}
+                    onChange={(e) => setInvoiceData({...invoiceData, clientName: e.target.value})}
+                    placeholder="Ben Holt & Jacqui Junkeer"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="abn">ABN</Label>
+                  <Input
+                    id="abn"
+                    value={invoiceData.abn}
+                    onChange={(e) => setInvoiceData({...invoiceData, abn: e.target.value})}
+                    placeholder="49 032 355 809"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="clientAddress">Client Address</Label>
+                <Textarea
+                  id="clientAddress"
+                  value={invoiceData.clientAddress}
+                  onChange={(e) => setInvoiceData({...invoiceData, clientAddress: e.target.value})}
+                  placeholder="5 Thanet St&#10;MALVERN VIC 3144&#10;AUSTRALIA"
+                  rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Print Mode - Client Details */}
+        <div className="hidden print:block mb-8">
+          <div className="text-sm">
+            <div className="font-semibold">{invoiceData.clientName}</div>
+            <div className="whitespace-pre-line">{invoiceData.clientAddress}</div>
+          </div>
+        </div>
+
+        {/* Line Items Table */}
+        <div className="mb-8">
+          <div className="print:hidden mb-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Invoice Items</h3>
+              <Button onClick={addItem} variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Item
+              </Button>
+            </div>
+          </div>
+
+          <div className="border rounded-lg overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-muted">
+                <tr>
+                  <th className="text-left p-3 font-semibold">Description</th>
+                  <th className="text-center p-3 font-semibold w-20">Quantity</th>
+                  <th className="text-right p-3 font-semibold w-24">Unit Price</th>
+                  <th className="text-center p-3 font-semibold w-16">GST</th>
+                  <th className="text-right p-3 font-semibold w-24">Amount AUD</th>
+                  <th className="print:hidden w-12"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="p-3">
+                      <Input
+                        value={item.description}
+                        onChange={(e) => updateItem(index, 'description', e.target.value)}
+                        placeholder="Stage 5: Start of Base Stage - 10% ($7,000)"
+                        className="print:hidden"
+                      />
+                      <div className="hidden print:block">{item.description}</div>
+                    </td>
+                    <td className="p-3 text-center">
+                      <Input
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
+                        className="print:hidden text-center w-16"
+                        min="0"
+                        step="0.01"
+                      />
+                      <div className="hidden print:block">{item.quantity}</div>
+                    </td>
+                    <td className="p-3 text-right">
+                      <Input
+                        type="number"
+                        value={item.unitPrice}
+                        onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                        className="print:hidden text-right w-20"
+                        min="0"
+                        step="0.01"
+                      />
+                      <div className="hidden print:block">${item.unitPrice.toFixed(2)}</div>
+                    </td>
+                    <td className="p-3 text-center">
+                      <Input
+                        type="number"
+                        value={item.gst}
+                        onChange={(e) => updateItem(index, 'gst', parseFloat(e.target.value) || 0)}
+                        className="print:hidden text-center w-16"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                      />
+                      <div className="hidden print:block">{item.gst}%</div>
+                    </td>
+                    <td className="p-3 text-right font-medium">
+                      ${item.amount.toFixed(2)}
+                    </td>
+                    <td className="p-3 print:hidden">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeItem(index)}
+                        disabled={items.length === 1}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Totals */}
+        <div className="flex justify-end mb-8">
+          <div className="w-64 space-y-2">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>${calculateSubtotal().toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Total GST 10%</span>
+              <span>${calculateTotalGST().toFixed(2)}</span>
+            </div>
+            <Separator />
+            <div className="flex justify-between font-bold text-lg">
+              <span>Invoice Total AUD</span>
+              <span>${calculateTotal().toFixed(2)}</span>
+            </div>
+            <div className="bg-primary/10 p-2 rounded">
+              <div className="flex justify-between font-bold">
+                <span>Amount Due AUD</span>
+                <span>${calculateTotal().toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Due Date */}
+        <div className="mb-6">
+          <div className="text-sm">
+            <strong>Due Date:</strong> {invoiceData.dueDate}
+          </div>
+        </div>
+
+        {/* Account Details */}
+        <div className="mb-6">
+          <div className="text-sm space-y-1">
+            <div><strong>Account :</strong> Skrobaki Pty Ltd</div>
+            <div><strong>BSB :</strong> 063-121</div>
+            <div><strong>Account :</strong> 1129 4008</div>
+            <div><strong>Reference:</strong> Add invoice number as reference. Email remittance to <a href="mailto:accounts@skrobaki.com" className="text-primary">accounts@skrobaki.com</a></div>
+          </div>
+        </div>
+
+        {/* Terms */}
+        <div className="mb-8">
+          <h4 className="font-semibold mb-2">Terms</h4>
+          <Textarea
+            value={paymentTerms}
+            onChange={(e) => setPaymentTerms(e.target.value)}
+            className="print:hidden text-sm"
+            rows={3}
+          />
+          <div className="hidden print:block text-sm">{paymentTerms}</div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center text-xs text-muted-foreground border-t pt-4">
+          <div>Unit A11/2A Westall Rd, Clayton VIC 3168 | www.skrobaki.com | 0423 117 480</div>
+        </div>
+      </div>
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            .print\\:block, .print\\:block * {
+              visibility: visible;
+            }
+            .print\\:hidden {
+              display: none !important;
+            }
+          }
+        `
+      }} />
+    </div>
+  );
+};
