@@ -98,6 +98,7 @@ export const InvoiceFormPage = () => {
     const fetchContractPayments = async () => {
       if (!invoiceData.contractId) {
         setSelectedContractPayments([]);
+        setInvoiceData(prev => ({ ...prev, reference: '' }));
         return;
       }
       
@@ -117,6 +118,14 @@ export const InvoiceFormPage = () => {
       ];
       
       setSelectedContractPayments(mockPayments);
+      
+      // Automatically set the first payment stage as default reference
+      if (mockPayments.length > 0 && !invoiceData.reference) {
+        const defaultPayment = mockPayments[0];
+        const referenceValue = `${defaultPayment.stage} - ${defaultPayment.description}`;
+        setInvoiceData(prev => ({ ...prev, reference: referenceValue }));
+      }
+      
       console.log('Payment structure set:', mockPayments);
     };
 
