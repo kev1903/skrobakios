@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Plus, Trash2, Download, Send, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -31,8 +32,10 @@ export const InvoiceFormPage = () => {
     reference: '',
     clientName: '',
     clientAddress: '',
-    abn: ''
+    contractId: ''
   });
+
+  const [contracts, setContracts] = useState<Array<{id: string, contract_number: string, title: string}>>([]);
 
   const [items, setItems] = useState<InvoiceItem[]>([
     { description: '', quantity: 1, unitPrice: 0, gst: 10, amount: 0 }
@@ -41,6 +44,27 @@ export const InvoiceFormPage = () => {
   const [paymentTerms, setPaymentTerms] = useState(
     "This is a payment claim under the Building and Construction Industry Security of Payment Act 2002. Delay in payment of this invoice by the due date will incur an interest fee charged at 4.50% per month."
   );
+
+  // Fetch contracts for the project
+  useEffect(() => {
+    const fetchContracts = async () => {
+      if (!projectId) return;
+      
+      try {
+        // Mock contracts for now - in real implementation, this would fetch from project_contracts
+        const mockContracts = [
+          { id: '1', contract_number: 'CT-2024-001', title: 'Main Construction Contract' },
+          { id: '2', contract_number: 'CT-2024-002', title: 'Electrical Works Contract' },
+          { id: '3', contract_number: 'CT-2024-003', title: 'Plumbing Contract' }
+        ];
+        setContracts(mockContracts);
+      } catch (error) {
+        console.error('Error fetching contracts:', error);
+      }
+    };
+
+    fetchContracts();
+  }, [projectId]);
 
   const calculateItemAmount = (quantity: number, unitPrice: number) => {
     return quantity * unitPrice;
@@ -174,10 +198,10 @@ export const InvoiceFormPage = () => {
                   </div>
                 </div>
               </div>
-              
-              <div className="text-xs text-gray-600">
-                <div className="font-semibold">ABN: {invoiceData.abn || "49 032 355 809"}</div>
-              </div>
+               
+               <div className="text-xs text-gray-600">
+                 <div className="font-semibold">ABN: 49 032 355 809</div>
+               </div>
             </div>
             
             {/* Right Column - Invoice Details */}
@@ -266,8 +290,8 @@ export const InvoiceFormPage = () => {
                 </div>
               </div>
 
-              {/* Row 2: Client Details */}
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              {/* Row 2: Client Details and Contract */}
+              <div className="grid grid-cols-3 gap-4 mb-4">
                 <div>
                   <Label htmlFor="clientName" className="text-sm font-medium text-gray-700">Client Name</Label>
                   <Input
@@ -287,6 +311,24 @@ export const InvoiceFormPage = () => {
                     placeholder="Base Stage | SX_2503 - 5 Thanet St, Malvern VIC 3144"
                     className="mt-1 text-sm"
                   />
+                </div>
+                <div>
+                  <Label htmlFor="contract" className="text-sm font-medium text-gray-700">Contract</Label>
+                  <Select 
+                    value={invoiceData.contractId} 
+                    onValueChange={(value) => setInvoiceData({...invoiceData, contractId: value})}
+                  >
+                    <SelectTrigger className="mt-1 text-sm">
+                      <SelectValue placeholder="Select a contract" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {contracts.map((contract) => (
+                        <SelectItem key={contract.id} value={contract.id}>
+                          {contract.contract_number} - {contract.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
