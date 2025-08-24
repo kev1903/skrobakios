@@ -1,5 +1,5 @@
 
-import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Boxes, FileText, DollarSign, Users, FileSignature, ClipboardCheck, ShoppingCart, PieChart, ListTodo, CalendarDays, UsersRound, ScrollText, Package, Coins, FileCheck, ShieldCheck } from "lucide-react";
+import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Boxes, FileText, DollarSign, Users, FileSignature, ClipboardCheck, ShoppingCart, LayoutDashboard, Square, CalendarRange, User, File, ShoppingBag, CreditCard, Shield, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
@@ -21,55 +21,55 @@ const ALL_PROJECT_NAV_ITEMS = [{
   id: 'dashboard',
   key: 'dashboard',
   label: 'Dashboard',
-  icon: PieChart,
+  icon: LayoutDashboard,
   page: 'project-detail'
 }, {
   id: 'tasks',
   key: 'tasks',
   label: 'Tasks',
-  icon: ListTodo,
+  icon: Square,
   page: 'project-tasks'
 }, {
   id: 'timeline',
   key: 'timeline',
   label: 'Timeline',
-  icon: CalendarDays,
+  icon: CalendarRange,
   page: 'project-timeline'
 }, {
   id: 'team',
   key: 'team',
   label: 'Team',
-  icon: UsersRound,
+  icon: User,
   page: 'project-team'
 }, {
   id: 'specification',
   key: 'specification',
   label: 'Specification',
-  icon: ScrollText,
+  icon: File,
   page: 'project-specification'
 }, {
   id: 'procurement',
   key: 'procurement',
   label: 'Procurement',
-  icon: Package,
+  icon: ShoppingBag,
   page: 'project-procurement'
 }, {
   id: 'cost',
   key: 'cost',
   label: 'Cost',
-  icon: Coins,
+  icon: CreditCard,
   page: 'project-cost'
 }, {
   id: 'contracts',
   key: 'contracts',
   label: 'Contracts',
-  icon: FileCheck,
+  icon: FileText,
   page: 'project-contracts'
 }, {
   id: 'qaqc',
   key: 'qaqc',
   label: 'QA/QC',
-  icon: ShieldCheck,
+  icon: Shield,
   page: 'project-qaqc'
 }];
 
