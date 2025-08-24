@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Building, FolderTree, Save, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useDigitalObjectsContext } from "@/contexts/DigitalObjectsContext";
+// removed unused DigitalObjectsContext hook to avoid provider requirement
 
 interface XeroInvoice {
   id: string;
@@ -70,7 +70,7 @@ export const InvoiceDetailsPage = () => {
   const [accounts, setAccounts] = useState<XeroAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [existingAllocation, setExistingAllocation] = useState<InvoiceAllocation | null>(null);
-  const { getDigitalObjectsByProject } = useDigitalObjectsContext();
+  const [projectDigitalObjects, setProjectDigitalObjects] = useState<DigitalObject[]>([]);
   
   // Allocation states
   const [selectedAccount, setSelectedAccount] = useState<string>("");
@@ -128,8 +128,28 @@ export const InvoiceDetailsPage = () => {
     }
   };
 
-  // Get project-specific digital objects
-  const projectDigitalObjects = selectedProject ? getDigitalObjectsByProject(selectedProject) : [];
+  // Load digital objects for selected or existing allocation project
+  useEffect(() => {
+    const targetProjectId = selectedProject || existingAllocation?.project_id || "";
+    if (!targetProjectId) {
+      setProjectDigitalObjects([]);
+      return;
+    }
+    const load = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('digital_objects')
+          .select('*')
+          .eq('project_id', targetProjectId)
+          .order('created_at', { ascending: true });
+        if (error) throw error;
+        setProjectDigitalObjects((data as unknown as DigitalObject[]) || []);
+      } catch (err) {
+        console.error('Error fetching digital objects:', err);
+      }
+    };
+    load();
+  }, [selectedProject, existingAllocation?.project_id]);
 
   const fetchAccounts = async () => {
     try {
