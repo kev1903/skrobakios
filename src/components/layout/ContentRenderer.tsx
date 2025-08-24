@@ -81,6 +81,7 @@ import { IssueReportEditPage } from "@/pages/qaqc/IssueReportEditPage";
 import { CreateIssuePage } from "@/pages/qaqc/CreateIssuePage";
 import { IssueEditPage } from "@/pages/qaqc/IssueEditPage";
 import { StakeholdersPage } from "@/pages/StakeholdersPage";
+import { ProjectProcurementPage } from "@/pages/ProjectProcurementPage";
 
 
 interface ContentRendererProps {
@@ -400,6 +401,12 @@ export const ContentRenderer = ({
           <RFIDetailPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
+    case "project-procurement":
+      return currentProject ? (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <ProjectProcurementPage />
+        </SubscriptionProtectedRoute>
+      ) : renderProjectNotFound();
     case "bim":
       return currentProject ? (
           <div className="p-8">
