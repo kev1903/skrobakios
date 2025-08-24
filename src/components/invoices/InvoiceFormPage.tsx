@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -196,17 +196,15 @@ export const InvoiceFormPage = () => {
           <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
-              onClick={() => {
-                const params = new URLSearchParams();
-                params.set('page', 'project-cost');
-                if (projectId) params.set('projectId', projectId);
-                params.set('tab', 'income');
-                navigate({ pathname: '/', search: `?${params.toString()}` });
-              }}
+              asChild
               className="flex items-center gap-2 border-gray-300 hover:bg-gray-50 bg-white"
             >
-              <ArrowLeft className="h-4 w-4" />
-              Back to Income
+              <Link to={`/?page=project-cost${projectId ? `&projectId=${projectId}` : ''}&tab=income`}>
+                <span className="inline-flex items-center gap-2">
+                  <ArrowLeft className="h-4 w-4" />
+                  Back to Income
+                </span>
+              </Link>
             </Button>
             <h1 className="text-2xl font-semibold text-gray-900">Create Invoice</h1>
           </div>
