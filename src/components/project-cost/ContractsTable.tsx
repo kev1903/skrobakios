@@ -564,7 +564,7 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
                           <DollarSign className="h-3 w-3 text-muted-foreground" />
                           <span 
                             className="font-medium text-primary hover:text-primary/80 cursor-pointer underline"
-                            onClick={() => navigate(`/invoice-details/${invoice.id}`)}
+                            onClick={() => navigate(`/invoice/create?projectId=${projectId}`)}
                           >
                             {invoice.number}
                           </span>
