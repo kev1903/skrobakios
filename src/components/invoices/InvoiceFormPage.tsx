@@ -101,18 +101,18 @@ export const InvoiceFormPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header - Always Visible */}
-      <div className="bg-background border-b p-4 print:hidden">
+      <div className="bg-white border-b border-gray-200 p-4 print:hidden shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
               onClick={() => navigate(`/?page=income&projectId=${projectId}`)}
-              className="flex items-center gap-2 border-gray-300 hover:bg-gray-50"
+              className="flex items-center gap-2 border-gray-300 hover:bg-gray-50 bg-white"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Income
             </Button>
-            <h1 className="text-2xl font-semibold">Create Invoice</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">Create Invoice</h1>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={handlePrint}>
