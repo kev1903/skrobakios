@@ -121,56 +121,89 @@ export const InvoiceFormPage = () => {
 
       {/* Invoice Content */}
       <div ref={printRef} className="max-w-6xl mx-auto p-8 bg-white print:p-0 print:max-w-none">
-        {/* Header Section - 3 Columns */}
-        <div className="grid grid-cols-3 gap-8 mb-8">
-          {/* Left Column - TAX INVOICE and Client Details */}
-          <div className="flex flex-col">
-            <h1 className="text-4xl font-bold text-black mb-6">TAX INVOICE</h1>
+        {/* Professional Header Section */}
+        <div className="border-b-2 border-gray-200 pb-8 mb-8">
+          <div className="grid grid-cols-3 gap-12 items-start">
+            {/* Left Column - TAX INVOICE and Billing To */}
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-5xl font-bold text-black tracking-wide mb-2">TAX INVOICE</h1>
+                <div className="h-1 w-24 bg-blue-600"></div>
+              </div>
+              
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Bill To</h3>
+                <div className="text-base text-black space-y-1">
+                  <div className="font-semibold text-lg">{invoiceData.clientName || "Client Name"}</div>
+                  <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                    {invoiceData.clientAddress || "Client Address\nCity, State, Postcode\nCountry"}
+                  </div>
+                </div>
+              </div>
+            </div>
             
-            {/* Client Details - Always Visible */}
-            <div className="text-sm text-black space-y-1">
-              <div className="font-semibold">{invoiceData.clientName || "Client Name"}</div>
-              <div className="whitespace-pre-line">{invoiceData.clientAddress || "Client Address"}</div>
+            {/* Middle Column - Company Logo and Details */}
+            <div className="text-center space-y-4">
+              <div>
+                <img 
+                  src="/lovable-uploads/356fa289-0bf1-4952-820e-c823e9acf316.png" 
+                  alt="SKROBAKI" 
+                  className="h-20 mx-auto mb-3"
+                />
+                <div className="text-base text-black font-medium">
+                  <div className="text-xl font-bold mb-1">SKROBAKI Pty Ltd</div>
+                  <div className="text-sm text-gray-600 leading-relaxed">
+                    Unit A11/2A Westall Rd<br />
+                    Clayton VIC 3168<br />
+                    Australia
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-sm text-gray-600">
+                <div className="font-semibold">ABN: {invoiceData.abn || "49 032 355 809"}</div>
+              </div>
             </div>
-          </div>
-          
-          {/* Middle Column - SKROBAKI Logo and Company Details */}
-          <div className="text-center">
-            <div className="mb-4">
-              <img 
-                src="/lovable-uploads/356fa289-0bf1-4952-820e-c823e9acf316.png" 
-                alt="SKROBAKI" 
-                className="h-16 mx-auto mb-2"
-              />
-              <div className="text-sm text-black">
-                SKROBAKI Pty Ltd<br />
-                Unit A11/2A Westall Rd,<br />
-                Clayton VIC 3168
-              </div>
-            </div>
-          </div>
-          
-          {/* Right Column - Invoice Details */}
-          <div className="text-right">
-            <div className="space-y-3 text-sm text-black">
-              <div>
-                <div className="font-semibold">Invoice Date</div>
-                <div>{new Date(invoiceData.invoiceDate).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
-              </div>
-              
-              <div>
-                <div className="font-semibold">Invoice Number</div>
-                <div>{invoiceData.invoiceNumber} | {invoiceData.reference}</div>
-              </div>
-              
-              <div>
-                <div className="font-semibold">Reference</div>
-                <div>{invoiceData.reference}</div>
-              </div>
-              
-              <div>
-                <div className="font-semibold">ABN</div>
-                <div>{invoiceData.abn}</div>
+            
+            {/* Right Column - Invoice Details */}
+            <div className="space-y-6">
+              <div className="bg-gray-50 p-6 rounded-lg border">
+                <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">Invoice Details</h3>
+                <div className="space-y-4 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-gray-700">Invoice Number:</span>
+                    <span className="font-bold text-black">{invoiceData.invoiceNumber}</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-gray-700">Invoice Date:</span>
+                    <span className="font-semibold text-black">
+                      {new Date(invoiceData.invoiceDate).toLocaleDateString('en-AU', { 
+                        day: '2-digit', 
+                        month: 'short', 
+                        year: 'numeric' 
+                      })}
+                    </span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium text-gray-700">Due Date:</span>
+                    <span className="font-semibold text-black">
+                      {new Date(invoiceData.dueDate).toLocaleDateString('en-AU', { 
+                        day: '2-digit', 
+                        month: 'short', 
+                        year: 'numeric' 
+                      })}
+                    </span>
+                  </div>
+                  
+                  {invoiceData.reference && (
+                    <div className="pt-2 border-t border-gray-200">
+                      <div className="font-medium text-gray-700 mb-1">Reference:</div>
+                      <div className="text-xs text-gray-600 break-words">{invoiceData.reference}</div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
