@@ -120,12 +120,12 @@ export const InvoiceFormPage = () => {
       </div>
 
       {/* Invoice Content */}
-      <div ref={printRef} className="max-w-4xl mx-auto p-8 bg-white print:p-0 print:max-w-none">
-        {/* Header Section */}
-        <div className="flex justify-between items-start mb-8">
-          {/* Left Side - TAX INVOICE */}
-          <div className="flex-1">
-            <h1 className="text-4xl font-bold text-black mb-8">TAX INVOICE</h1>
+      <div ref={printRef} className="max-w-6xl mx-auto p-8 bg-white print:p-0 print:max-w-none">
+        {/* Header Section - 3 Columns */}
+        <div className="grid grid-cols-3 gap-8 mb-8">
+          {/* Left Column - TAX INVOICE and Client Details */}
+          <div className="flex flex-col">
+            <h1 className="text-4xl font-bold text-black mb-6">TAX INVOICE</h1>
             
             {/* Client Details - Print Mode */}
             <div className="hidden print:block">
@@ -136,13 +136,13 @@ export const InvoiceFormPage = () => {
             </div>
           </div>
           
-          {/* Right Side - Logo and Company Details */}
-          <div className="text-right">
+          {/* Middle Column - SKROBAKI Logo and Company Details */}
+          <div className="text-center">
             <div className="mb-4">
               <img 
                 src="/lovable-uploads/356fa289-0bf1-4952-820e-c823e9acf316.png" 
                 alt="SKROBAKI" 
-                className="h-16 ml-auto mb-2"
+                className="h-16 mx-auto mb-2"
               />
               <div className="text-sm text-black">
                 SKROBAKI Pty Ltd<br />
@@ -150,20 +150,30 @@ export const InvoiceFormPage = () => {
                 Clayton VIC 3168
               </div>
             </div>
-            
-            {/* Invoice Details */}
-            <div className="space-y-1 text-sm text-black">
-              <div><strong>Invoice Date</strong></div>
-              <div className="mb-2">{new Date(invoiceData.invoiceDate).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+          </div>
+          
+          {/* Right Column - Invoice Details */}
+          <div className="text-right">
+            <div className="space-y-3 text-sm text-black">
+              <div>
+                <div className="font-semibold">Invoice Date</div>
+                <div>{new Date(invoiceData.invoiceDate).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+              </div>
               
-              <div><strong>Invoice Number</strong></div>
-              <div className="mb-2">{invoiceData.invoiceNumber} | {invoiceData.reference}</div>
+              <div>
+                <div className="font-semibold">Invoice Number</div>
+                <div>{invoiceData.invoiceNumber} | {invoiceData.reference}</div>
+              </div>
               
-              <div><strong>Reference</strong></div>
-              <div className="mb-2">{invoiceData.reference}</div>
+              <div>
+                <div className="font-semibold">Reference</div>
+                <div>{invoiceData.reference}</div>
+              </div>
               
-              <div><strong>ABN</strong></div>
-              <div>{invoiceData.abn}</div>
+              <div>
+                <div className="font-semibold">ABN</div>
+                <div>{invoiceData.abn}</div>
+              </div>
             </div>
           </div>
         </div>
