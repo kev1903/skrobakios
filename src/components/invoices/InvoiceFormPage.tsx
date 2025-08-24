@@ -121,22 +121,49 @@ export const InvoiceFormPage = () => {
 
       {/* Invoice Content */}
       <div ref={printRef} className="max-w-4xl mx-auto p-8 bg-white print:p-0 print:max-w-none">
-        {/* Company Header */}
+        {/* Header Section */}
         <div className="flex justify-between items-start mb-8">
-          <div>
-            <div className="text-2xl font-bold text-primary mb-2">SKROBAKI</div>
-            <div className="text-sm text-muted-foreground">
-              Unit A11/2A Westall Rd,<br />
-              Clayton VIC 3168
+          {/* Left Side - TAX INVOICE */}
+          <div className="flex-1">
+            <h1 className="text-4xl font-bold text-black mb-8">TAX INVOICE</h1>
+            
+            {/* Client Details - Print Mode */}
+            <div className="hidden print:block">
+              <div className="text-sm text-black space-y-1">
+                <div className="font-semibold">{invoiceData.clientName}</div>
+                <div className="whitespace-pre-line">{invoiceData.clientAddress}</div>
+              </div>
             </div>
           </div>
+          
+          {/* Right Side - Logo and Company Details */}
           <div className="text-right">
-            <h1 className="text-3xl font-bold mb-4">TAX INVOICE</h1>
-            <div className="space-y-1 text-sm">
-              <div><strong>Invoice Date:</strong> {invoiceData.invoiceDate}</div>
-              <div><strong>Invoice Number:</strong> {invoiceData.invoiceNumber}</div>
-              <div><strong>Reference:</strong> {invoiceData.reference}</div>
-              <div><strong>ABN:</strong> {invoiceData.abn}</div>
+            <div className="mb-4">
+              <img 
+                src="/lovable-uploads/356fa289-0bf1-4952-820e-c823e9acf316.png" 
+                alt="SKROBAKI" 
+                className="h-16 ml-auto mb-2"
+              />
+              <div className="text-sm text-black">
+                SKROBAKI Pty Ltd<br />
+                Unit A11/2A Westall Rd,<br />
+                Clayton VIC 3168
+              </div>
+            </div>
+            
+            {/* Invoice Details */}
+            <div className="space-y-1 text-sm text-black">
+              <div><strong>Invoice Date</strong></div>
+              <div className="mb-2">{new Date(invoiceData.invoiceDate).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+              
+              <div><strong>Invoice Number</strong></div>
+              <div className="mb-2">{invoiceData.invoiceNumber} | {invoiceData.reference}</div>
+              
+              <div><strong>Reference</strong></div>
+              <div className="mb-2">{invoiceData.reference}</div>
+              
+              <div><strong>ABN</strong></div>
+              <div>{invoiceData.abn}</div>
             </div>
           </div>
         </div>
@@ -217,13 +244,6 @@ export const InvoiceFormPage = () => {
           </Card>
         </div>
 
-        {/* Print Mode - Client Details */}
-        <div className="hidden print:block mb-8">
-          <div className="text-sm">
-            <div className="font-semibold">{invoiceData.clientName}</div>
-            <div className="whitespace-pre-line">{invoiceData.clientAddress}</div>
-          </div>
-        </div>
 
         {/* Line Items Table */}
         <div className="mb-8">
@@ -237,104 +257,104 @@ export const InvoiceFormPage = () => {
             </div>
           </div>
 
-          <div className="border rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="bg-muted">
-                <tr>
-                  <th className="text-left p-3 font-semibold">Description</th>
-                  <th className="text-center p-3 font-semibold w-20">Quantity</th>
-                  <th className="text-right p-3 font-semibold w-24">Unit Price</th>
-                  <th className="text-center p-3 font-semibold w-16">GST</th>
-                  <th className="text-right p-3 font-semibold w-24">Amount AUD</th>
-                  <th className="print:hidden w-12"></th>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="text-left p-2 font-semibold border-b border-gray-300">Description</th>
+                <th className="text-center p-2 font-semibold w-20 border-b border-gray-300">Quantity</th>
+                <th className="text-right p-2 font-semibold w-24 border-b border-gray-300">Unit Price</th>
+                <th className="text-center p-2 font-semibold w-16 border-b border-gray-300">GST</th>
+                <th className="text-right p-2 font-semibold w-28 border-b border-gray-300">Amount AUD</th>
+                <th className="print:hidden w-12 border-b border-gray-300"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, index) => (
+                <tr key={index} className="border-b border-gray-200">
+                  <td className="p-2 align-top">
+                    <Textarea
+                      value={item.description}
+                      onChange={(e) => updateItem(index, 'description', e.target.value)}
+                      placeholder="Stage 5: Start of Base Stage - 10% ($7,000)"
+                      className="print:hidden border-none resize-none min-h-[60px]"
+                      rows={3}
+                    />
+                    <div className="hidden print:block text-sm whitespace-pre-wrap">{item.description}</div>
+                  </td>
+                  <td className="p-2 text-center align-top">
+                    <Input
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
+                      className="print:hidden text-center w-16 border-none"
+                      min="0"
+                      step="0.01"
+                    />
+                    <div className="hidden print:block text-sm">{item.quantity}</div>
+                  </td>
+                  <td className="p-2 text-right align-top">
+                    <Input
+                      type="number"
+                      value={item.unitPrice}
+                      onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                      className="print:hidden text-right w-20 border-none"
+                      min="0"
+                      step="0.01"
+                    />
+                    <div className="hidden print:block text-sm">{item.unitPrice.toLocaleString('en-AU', { style: 'currency', currency: 'AUD' }).replace('$', '')}</div>
+                  </td>
+                  <td className="p-2 text-center align-top">
+                    <Input
+                      type="number"
+                      value={item.gst}
+                      onChange={(e) => updateItem(index, 'gst', parseFloat(e.target.value) || 0)}
+                      className="print:hidden text-center w-16 border-none"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                    />
+                    <div className="hidden print:block text-sm">{item.gst}%</div>
+                  </td>
+                  <td className="p-2 text-right font-medium align-top">
+                    <div className="text-sm">{item.amount.toFixed(2)}</div>
+                  </td>
+                  <td className="p-2 print:hidden align-top">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeItem(index)}
+                      disabled={items.length === 1}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {items.map((item, index) => (
-                  <tr key={index} className="border-t">
-                    <td className="p-3">
-                      <Input
-                        value={item.description}
-                        onChange={(e) => updateItem(index, 'description', e.target.value)}
-                        placeholder="Stage 5: Start of Base Stage - 10% ($7,000)"
-                        className="print:hidden"
-                      />
-                      <div className="hidden print:block">{item.description}</div>
-                    </td>
-                    <td className="p-3 text-center">
-                      <Input
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
-                        className="print:hidden text-center w-16"
-                        min="0"
-                        step="0.01"
-                      />
-                      <div className="hidden print:block">{item.quantity}</div>
-                    </td>
-                    <td className="p-3 text-right">
-                      <Input
-                        type="number"
-                        value={item.unitPrice}
-                        onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
-                        className="print:hidden text-right w-20"
-                        min="0"
-                        step="0.01"
-                      />
-                      <div className="hidden print:block">${item.unitPrice.toFixed(2)}</div>
-                    </td>
-                    <td className="p-3 text-center">
-                      <Input
-                        type="number"
-                        value={item.gst}
-                        onChange={(e) => updateItem(index, 'gst', parseFloat(e.target.value) || 0)}
-                        className="print:hidden text-center w-16"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                      />
-                      <div className="hidden print:block">{item.gst}%</div>
-                    </td>
-                    <td className="p-3 text-right font-medium">
-                      ${item.amount.toFixed(2)}
-                    </td>
-                    <td className="p-3 print:hidden">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeItem(index)}
-                        disabled={items.length === 1}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
 
-        {/* Totals */}
+        {/* Totals - Exactly matching reference format */}
         <div className="flex justify-end mb-8">
-          <div className="w-64 space-y-2">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span>${calculateSubtotal().toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Total GST 10%</span>
-              <span>${calculateTotalGST().toFixed(2)}</span>
-            </div>
-            <Separator />
-            <div className="flex justify-between font-bold text-lg">
-              <span>Invoice Total AUD</span>
-              <span>${calculateTotal().toFixed(2)}</span>
-            </div>
-            <div className="bg-primary/10 p-2 rounded">
-              <div className="flex justify-between font-bold">
-                <span>Amount Due AUD</span>
-                <span>${calculateTotal().toFixed(2)}</span>
+          <div className="w-80 text-sm">
+            <div className="space-y-1">
+              <div className="flex justify-between py-1">
+                <span>Subtotal</span>
+                <span className="text-right">{calculateSubtotal().toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span>Total GST 10%</span>
+                <span className="text-right">{calculateTotalGST().toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between py-1 font-bold border-t border-gray-300 pt-2">
+                <span>Invoice Total AUD</span>
+                <span className="text-right">{calculateTotal().toFixed(2)}</span>
+              </div>
+              <div className="bg-blue-100 border border-blue-200 p-2 mt-2">
+                <div className="flex justify-between font-bold">
+                  <span>Amount Due AUD</span>
+                  <span className="text-right">{calculateTotal().toFixed(2)}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -343,7 +363,7 @@ export const InvoiceFormPage = () => {
         {/* Due Date */}
         <div className="mb-6">
           <div className="text-sm">
-            <strong>Due Date:</strong> {invoiceData.dueDate}
+            <strong>Due Date: </strong>{new Date(invoiceData.dueDate).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' })}
           </div>
         </div>
 
