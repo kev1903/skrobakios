@@ -143,6 +143,66 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  // Extract payment stages from a contract's parsed data
+  const extractPaymentStages = (contract: Contract) => {
+    const stages: { stage: string; description: string; percentage: number; amount: number }[] = [];
+    const data = contract.contract_data || {};
+
+    // Most structured: payment_tables
+    if (Array.isArray(data.payment_tables) && data.payment_tables.length > 0) {
+      data.payment_tables.forEach((table: any) => {
+        (table.rows || []).forEach((row: any) => {
+          const pct = parseFloat((row.percentage || row.percent || '0').toString().replace('%','')) || 0;
+          const amt = parseFloat((row.amount || '0').toString().replace(/[^0-9.-]+/g, '')) || 0;
+          stages.push({
+            stage: row.stage || row.stage_name || 'Stage',
+            description: row.description || row.work_involved || 'Payment Stage',
+            percentage: pct,
+            amount: amt,
+          });
+        });
+      });
+    } else if (Array.isArray(data.stage_payments) && data.stage_payments.length > 0) {
+      data.stage_payments.forEach((row: any) => {
+        const pct = parseFloat((row.percentage || '0').toString().replace('%','')) || 0;
+        const amt = parseFloat((row.amount || '0').toString().replace(/[^0-9.-]+/g, '')) || 0;
+        stages.push({
+          stage: row.stage || 'Stage',
+          description: row.description || 'Payment Stage',
+          percentage: pct,
+          amount: amt,
+        });
+      });
+    } else if (Array.isArray(data.progress_payments) && data.progress_payments.length > 0) {
+      data.progress_payments.forEach((row: any) => {
+        const pct = parseFloat((row.percentage || '0').toString().replace('%','')) || 0;
+        const amt = parseFloat((row.amount || '0').toString().replace(/[^0-9.-]+/g, '')) || 0;
+        stages.push({
+          stage: row.stage || row.milestone || 'Stage',
+          description: row.description || row.milestone || 'Payment Stage',
+          percentage: pct,
+          amount: amt,
+        });
+      });
+    }
+
+    // Fallback if nothing parsed: derive from contract amount
+    if (stages.length === 0) {
+      const contractAmount = parseContractAmount(contract.contract_data, contract.contract_amount);
+      const defaults = [
+        { stage: 'Deposit', description: 'Contract Stage', percentage: 5 },
+        { stage: 'Stage 1', description: 'Start of Base Stage', percentage: 10 },
+        { stage: 'Stage 2', description: 'Start of Frame Stage', percentage: 20 },
+        { stage: 'Stage 3', description: 'Start of Lockup Stage', percentage: 20 },
+        { stage: 'Stage 4', description: 'Start of Fixing Stage', percentage: 25 },
+        { stage: 'Stage 5', description: 'Start of Final Stage', percentage: 10 },
+        { stage: 'Stage 6', description: 'Handover & Closeout', percentage: 10 },
+      ];
+      return defaults.map(d => ({ ...d, amount: Math.round((contractAmount * d.percentage) / 100) }));
+    }
+
+    return stages;
+  };
   const totalContractAmount = contracts.reduce((sum, contract) => {
     return sum + parseContractAmount(contract.contract_data, contract.contract_amount);
   }, 0);
@@ -549,15 +609,43 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
                     </tr>
                   ))}
 
-                  {/* Show "No invoices" when contract is expanded but has no invoices */}
+                  {/* Show payment structure rows when no invoices exist */}
                   {expandedContracts.has(contract.id) && (!contract.invoices || contract.invoices.length === 0) && (
-                    <tr className="bg-muted/10">
-                      <td className="px-4 py-2"></td>
-                      <td colSpan={6} className="px-4 py-4 text-sm text-muted-foreground text-center italic pl-8">
-                        No invoices created yet. Click the + button to create the first invoice for this contract.
-                      </td>
-                    </tr>
+                    <>
+                      {extractPaymentStages(contract).map((stage, idx) => (
+                        <tr key={`stage-${idx}`} className="bg-muted/5 hover:bg-muted/20">
+                          <td className="px-4 py-2"></td>
+                          <td className="px-4 py-2 text-sm text-foreground pl-8">
+                            <div className="flex items-center gap-2">
+                              <DollarSign className="h-3 w-3 text-muted-foreground" />
+                              <span className="font-medium">{stage.stage}</span>
+                              <span className="text-muted-foreground">- {stage.description}</span>
+                              {stage.percentage > 0 && (
+                                <span className="text-xs bg-primary/10 text-primary px-1 rounded">{stage.percentage}%</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 py-2 text-sm text-right font-medium text-foreground">{formatCurrency(stage.amount || 0)}</td>
+                          <td className="px-4 py-2 text-sm text-muted-foreground">-</td>
+                          <td className="px-4 py-2 text-sm text-muted-foreground">-</td>
+                          <td className="px-4 py-2 text-center">
+                            <Badge variant="outline" className="text-xs">Planned</Badge>
+                          </td>
+                          <td className="px-4 py-2 text-center">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-auto px-2 hover:bg-accent"
+                              onClick={() => createInvoicesForPaymentStructure(contract.id)}
+                            >
+                              Generate
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </>
                   )}
+
                 </React.Fragment>
               ))}
             </tbody>
