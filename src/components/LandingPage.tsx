@@ -249,20 +249,20 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         )}
       </header>
 
-      {/* Vertical Navigation Dots - Right Side (All Screens) */}
-      <div className="fixed right-1 sm:right-3 lg:right-4 top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-0.5 sm:gap-1.5 bg-brand-white/20 sm:bg-brand-white/60 backdrop-blur-sm rounded-full py-0.5 sm:py-1 px-0.5 sm:px-1">
+      {/* Vertical Navigation Dots - Hidden on Mobile */}
+      <div className="hidden sm:fixed sm:right-3 lg:right-4 sm:top-1/2 sm:transform sm:-translate-y-1/2 sm:z-40 sm:flex sm:flex-col sm:gap-1.5 sm:bg-brand-white/60 sm:backdrop-blur-sm sm:rounded-full sm:py-1 sm:px-1">
         {slides.map((slide, index) => (
           <button
             key={slide.id}
             onClick={() => goToSlide(index)}
             aria-label={`Go to ${slide.title}`}
-            className="group m-0 border-0 bg-transparent cursor-pointer touch-manipulation inline-flex items-center justify-center size-3 sm:size-6"
+            className="group p-1 m-0 border-0 bg-transparent cursor-pointer"
           >
             <span
-              className={`block w-0.5 h-0.5 sm:w-2 sm:h-2 rounded-full transition-transform duration-300 ${
+              className={`block w-2 h-2 rounded-full transition-transform duration-300 ${
                 currentSlide === index 
-                  ? 'bg-brand-charcoal scale-125 sm:scale-110' 
-                  : 'bg-brand-gray/30 sm:bg-brand-gray/40 group-hover:bg-brand-charcoal/60'
+                  ? 'bg-brand-charcoal scale-110' 
+                  : 'bg-brand-gray/40 group-hover:bg-brand-charcoal/60'
               }`}
             />
           </button>
