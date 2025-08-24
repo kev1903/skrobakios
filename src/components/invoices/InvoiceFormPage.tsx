@@ -115,6 +115,13 @@ export const InvoiceFormPage = () => {
             <h1 className="text-2xl font-semibold text-gray-900">Create Invoice</h1>
           </div>
           <div className="flex items-center gap-2">
+            <Button 
+              onClick={handleSave}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Save className="h-4 w-4" />
+              Save
+            </Button>
             <Button variant="outline" onClick={handlePrint}>
               <Download className="h-4 w-4 mr-2" />
               Download PDF
