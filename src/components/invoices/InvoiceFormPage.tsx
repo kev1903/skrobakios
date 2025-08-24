@@ -98,7 +98,7 @@ export const InvoiceFormPage = () => {
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
-              onClick={() => navigate(`/?page=project-cost&projectId=${projectId}`)}
+              onClick={() => navigate(`/?page=income&projectId=${projectId}`)}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
