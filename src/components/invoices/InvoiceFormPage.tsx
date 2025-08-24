@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Plus, Trash2, Download, Send } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Download, Send, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface InvoiceItem {
@@ -81,6 +81,13 @@ export const InvoiceFormPage = () => {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleSave = () => {
+    toast({
+      title: "Invoice Saved",
+      description: "Invoice has been saved successfully.",
+    });
   };
 
   const handleSend = () => {
@@ -205,6 +212,40 @@ export const InvoiceFormPage = () => {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Invoice Tools - Right Side Floating */}
+        <div className="print:hidden fixed right-8 top-32 z-10 space-y-3">
+          <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-4">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">Invoice Tools</h4>
+            <div className="space-y-2">
+              <Button 
+                onClick={handleSave}
+                className="w-full flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                size="sm"
+              >
+                <Save className="h-4 w-4" />
+                SAVE
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handlePrint}
+                className="w-full flex items-center gap-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                size="sm"
+              >
+                <Download className="h-4 w-4" />
+                EXPORT
+              </Button>
+              <Button 
+                onClick={handleSend}
+                className="w-full flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                size="sm"
+              >
+                <Send className="h-4 w-4" />
+                SEND
+              </Button>
             </div>
           </div>
         </div>
