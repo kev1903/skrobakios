@@ -496,6 +496,98 @@ export type Database = {
         }
         Relationships: []
       }
+      commitments: {
+        Row: {
+          attachments: Json | null
+          commitment_number: string
+          commitment_status: string
+          created_at: string
+          end_date: string | null
+          gst: number | null
+          id: string
+          project_id: string
+          quote_id: string
+          retention_percent: number | null
+          rfq_id: string
+          start_date: string | null
+          terms: string | null
+          type: string
+          updated_at: string
+          value_ex_gst: number | null
+          value_inc_gst: number | null
+          vendor_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          commitment_number: string
+          commitment_status?: string
+          created_at?: string
+          end_date?: string | null
+          gst?: number | null
+          id?: string
+          project_id: string
+          quote_id: string
+          retention_percent?: number | null
+          rfq_id: string
+          start_date?: string | null
+          terms?: string | null
+          type?: string
+          updated_at?: string
+          value_ex_gst?: number | null
+          value_inc_gst?: number | null
+          vendor_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          commitment_number?: string
+          commitment_status?: string
+          created_at?: string
+          end_date?: string | null
+          gst?: number | null
+          id?: string
+          project_id?: string
+          quote_id?: string
+          retention_percent?: number | null
+          rfq_id?: string
+          start_date?: string | null
+          terms?: string | null
+          type?: string
+          updated_at?: string
+          value_ex_gst?: number | null
+          value_inc_gst?: number | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commitments_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commitments_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commitments_rfq_id_fkey"
+            columns: ["rfq_id"]
+            isOneToOne: false
+            referencedRelation: "rfqs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commitments_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           abn: string | null
@@ -758,6 +850,63 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_docs: {
+        Row: {
+          commitment_id: string | null
+          created_at: string
+          doc_type: string
+          expiry_date: string | null
+          file_url: string | null
+          id: string
+          issue_date: string | null
+          reference_no: string | null
+          status: string
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          commitment_id?: string | null
+          created_at?: string
+          doc_type: string
+          expiry_date?: string | null
+          file_url?: string | null
+          id?: string
+          issue_date?: string | null
+          reference_no?: string | null
+          status?: string
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          commitment_id?: string | null
+          created_at?: string
+          doc_type?: string
+          expiry_date?: string | null
+          file_url?: string | null
+          id?: string
+          issue_date?: string | null
+          reference_no?: string | null
+          status?: string
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_docs_commitment_id_fkey"
+            columns: ["commitment_id"]
+            isOneToOne: false
+            referencedRelation: "commitments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_docs_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
         ]
@@ -2446,6 +2595,60 @@ export type Database = {
           },
         ]
       }
+      procurement_approvals: {
+        Row: {
+          approval_date: string | null
+          approval_status: string
+          approved_value: number | null
+          approvers: Json | null
+          created_at: string
+          id: string
+          justification_notes: string | null
+          recommended_quote_id: string
+          rfq_id: string
+          updated_at: string
+        }
+        Insert: {
+          approval_date?: string | null
+          approval_status?: string
+          approved_value?: number | null
+          approvers?: Json | null
+          created_at?: string
+          id?: string
+          justification_notes?: string | null
+          recommended_quote_id: string
+          rfq_id: string
+          updated_at?: string
+        }
+        Update: {
+          approval_date?: string | null
+          approval_status?: string
+          approved_value?: number | null
+          approvers?: Json | null
+          created_at?: string
+          id?: string
+          justification_notes?: string | null
+          recommended_quote_id?: string
+          rfq_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "approvals_quote_id_fkey"
+            columns: ["recommended_quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "approvals_rfq_id_fkey"
+            columns: ["rfq_id"]
+            isOneToOne: false
+            referencedRelation: "rfqs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_activated: boolean | null
@@ -3402,6 +3605,84 @@ export type Database = {
         }
         Relationships: []
       }
+      quotes: {
+        Row: {
+          attachments: Json | null
+          created_at: string
+          evaluation_score: number | null
+          gst: number | null
+          id: string
+          inclusions_exclusions: string | null
+          is_compliant: boolean | null
+          lead_time_days: number | null
+          quote_amount_ex_gst: number | null
+          quote_amount_inc_gst: number | null
+          quote_ref: string | null
+          rank: number | null
+          rfq_id: string
+          scope_coverage_percent: number | null
+          status: string
+          updated_at: string
+          validity_date: string | null
+          vendor_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string
+          evaluation_score?: number | null
+          gst?: number | null
+          id?: string
+          inclusions_exclusions?: string | null
+          is_compliant?: boolean | null
+          lead_time_days?: number | null
+          quote_amount_ex_gst?: number | null
+          quote_amount_inc_gst?: number | null
+          quote_ref?: string | null
+          rank?: number | null
+          rfq_id: string
+          scope_coverage_percent?: number | null
+          status?: string
+          updated_at?: string
+          validity_date?: string | null
+          vendor_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string
+          evaluation_score?: number | null
+          gst?: number | null
+          id?: string
+          inclusions_exclusions?: string | null
+          is_compliant?: boolean | null
+          lead_time_days?: number | null
+          quote_amount_ex_gst?: number | null
+          quote_amount_inc_gst?: number | null
+          quote_ref?: string | null
+          rank?: number | null
+          rfq_id?: string
+          scope_coverage_percent?: number | null
+          status?: string
+          updated_at?: string
+          validity_date?: string | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotes_rfq_id_fkey"
+            columns: ["rfq_id"]
+            isOneToOne: false
+            referencedRelation: "rfqs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotes_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           created_at: string | null
@@ -3553,6 +3834,62 @@ export type Database = {
             columns: ["report_id"]
             isOneToOne: false
             referencedRelation: "rfi_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rfqs: {
+        Row: {
+          attachments: Json | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          due_date: string | null
+          id: string
+          project_id: string
+          rfq_number: string
+          scope_summary: string | null
+          status: string
+          trade_category: string
+          updated_at: string
+          work_package: string
+        }
+        Insert: {
+          attachments?: Json | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          id?: string
+          project_id: string
+          rfq_number: string
+          scope_summary?: string | null
+          status?: string
+          trade_category: string
+          updated_at?: string
+          work_package: string
+        }
+        Update: {
+          attachments?: Json | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          due_date?: string | null
+          id?: string
+          project_id?: string
+          rfq_number?: string
+          scope_summary?: string | null
+          status?: string
+          trade_category?: string
+          updated_at?: string
+          work_package?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rfqs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -5072,6 +5409,48 @@ export type Database = {
           },
         ]
       }
+      vendors: {
+        Row: {
+          company_id: string
+          compliance_rating: string | null
+          contact_person: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          phone: string | null
+          trade_category: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          compliance_rating?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          phone?: string | null
+          trade_category: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          compliance_rating?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          phone?: string | null
+          trade_category?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       voice_chat_sessions: {
         Row: {
           created_at: string
@@ -5532,6 +5911,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      generate_commitment_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_contract_number: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -5554,6 +5937,10 @@ export type Database = {
       }
       generate_rfi_number: {
         Args: { project_id_param: string }
+        Returns: string
+      }
+      generate_rfq_number: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       generate_slug: {
