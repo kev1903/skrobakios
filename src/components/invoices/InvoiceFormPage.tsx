@@ -83,6 +83,7 @@ export const InvoiceFormPage = () => {
     window.print();
   };
 
+  // Handler for saving invoice
   const handleSave = () => {
     toast({
       title: "Invoice Saved",
