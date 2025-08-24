@@ -264,16 +264,6 @@ export const InvoiceFormPage = () => {
                     className="mt-1 text-sm"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="abn" className="text-sm font-medium text-gray-700">ABN</Label>
-                  <Input
-                    id="abn"
-                    value={invoiceData.abn}
-                    onChange={(e) => setInvoiceData({...invoiceData, abn: e.target.value})}
-                    placeholder="49 032 355 809"
-                    className="mt-1 text-sm"
-                  />
-                </div>
               </div>
 
               {/* Row 2: Client Details */}
