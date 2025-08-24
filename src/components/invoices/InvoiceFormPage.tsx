@@ -196,7 +196,14 @@ export const InvoiceFormPage = () => {
           <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
-              onClick={() => navigate(`/?page=project-cost&projectId=${projectId}&tab=income`)}
+              onClick={() => {
+                const params = new URLSearchParams();
+                const inner = `project-cost?projectId=${projectId ?? ''}&tab=income`;
+                params.set('page', inner); // encoded automatically in search string
+                if (projectId) params.set('projectId', projectId);
+                params.set('tab', 'income');
+                navigate({ pathname: '/', search: `?${params.toString()}` });
+              }}
               className="flex items-center gap-2 border-gray-300 hover:bg-gray-50 bg-white"
             >
               <ArrowLeft className="h-4 w-4" />
