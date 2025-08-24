@@ -230,6 +230,93 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
     }
   };
 
+  const createInvoicesForPaymentStructure = async (contractId: string) => {
+    try {
+      const contract = contracts.find(c => c.id === contractId);
+      if (!contract) return;
+
+      // Extract payment structure from contract data
+      let paymentStages = [];
+      
+      // Check different payment structure sources
+      if (contract.contract_data?.payment_tables?.length > 0) {
+        // Use payment tables (most structured)
+        contract.contract_data.payment_tables.forEach((table: any) => {
+          if (table.rows) {
+            paymentStages.push(...table.rows.map((row: any) => ({
+              stage: row.stage || row.description || 'Stage',
+              description: row.description || row.stage || 'Payment Stage',
+              percentage: parseFloat(row.percentage || row.percent || '0'),
+              amount: parseFloat(row.amount?.replace(/[^0-9.-]+/g, '') || '0')
+            })));
+          }
+        });
+      } else if (contract.contract_data?.stage_payments?.length > 0) {
+        // Use stage payments
+        paymentStages = contract.contract_data.stage_payments.map((stage: any) => ({
+          stage: stage.stage || 'Stage',
+          description: stage.description || 'Payment Stage',
+          percentage: parseFloat(stage.percentage || '0'),
+          amount: parseFloat(stage.amount?.replace(/[^0-9.-]+/g, '') || '0')
+        }));
+      } else if (contract.contract_data?.progress_payments?.length > 0) {
+        // Use progress payments
+        paymentStages = contract.contract_data.progress_payments.map((payment: any) => ({
+          stage: payment.stage || payment.milestone || 'Stage',
+          description: payment.description || payment.milestone || 'Payment Stage',
+          percentage: parseFloat(payment.percentage || '0'),
+          amount: parseFloat(payment.amount?.replace(/[^0-9.-]+/g, '') || '0')
+        }));
+      }
+
+      // Fallback to default payment structure if none found
+      if (paymentStages.length === 0) {
+        const contractAmount = parseContractAmount(contract.contract_data, contract.contract_amount);
+        paymentStages = [
+          { stage: "Deposit", description: "Contract Stage", percentage: 5, amount: contractAmount * 0.05 },
+          { stage: "Stage 1", description: "Start of Base Stage", percentage: 10, amount: contractAmount * 0.10 },
+          { stage: "Stage 2", description: "Start of Frame Stage", percentage: 20, amount: contractAmount * 0.20 },
+          { stage: "Stage 3", description: "Start of Lockup Stage", percentage: 20, amount: contractAmount * 0.20 },
+          { stage: "Stage 4", description: "Start of Fixing Stage", percentage: 25, amount: contractAmount * 0.25 },
+          { stage: "Stage 5", description: "Start of Final Stage", percentage: 10, amount: contractAmount * 0.10 },
+          { stage: "Stage 6", description: "Handover & Closeout", percentage: 10, amount: contractAmount * 0.10 }
+        ];
+      }
+
+      // Create invoices for each payment stage
+      const invoicesToCreate = paymentStages.map((stage, index) => ({
+        project_id: projectId,
+        contract_id: contractId,
+        number: `INV-${contract.name.substring(0, 2).toUpperCase()}T-${String(index + 1).padStart(3, '0')}`,
+        client_name: contract.contract_data?.client_name || 'Client 0',
+        issue_date: new Date().toISOString().split('T')[0],
+        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        status: 'draft' as const,
+        total: stage.amount || 0,
+        progress_percentage: stage.percentage || 0,
+        notes: `${stage.stage}: ${stage.description} - ${stage.percentage}%`
+      }));
+
+      // Insert invoices one by one to avoid batch insertion type issues
+      for (const invoiceData of invoicesToCreate) {
+        const { error: insertError } = await supabase
+          .from('invoices')
+          .insert(invoiceData);
+
+        if (insertError) {
+          console.error('Error creating invoice:', insertError);
+          throw insertError;
+        }
+      }
+
+      toast.success(`Created ${invoicesToCreate.length} invoices based on payment structure`);
+      loadContracts(); // Reload to show new invoices
+    } catch (error) {
+      console.error('Error creating invoices for payment structure:', error);
+      toast.error('Failed to create invoices for payment structure');
+    }
+  };
+
   const handleDeleteContract = async (contractId: string, contractName: string) => {
     // Show confirmation dialog
     const isConfirmed = window.confirm(
@@ -387,9 +474,9 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleCreateInvoice(contract.id)}
+                          onClick={() => createInvoicesForPaymentStructure(contract.id)}
                           className="h-6 w-6 p-0 hover:bg-accent text-primary"
-                          title="Create Invoice"
+                          title="Create Payment Structure Invoices"
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
