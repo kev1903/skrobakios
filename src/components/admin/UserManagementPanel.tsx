@@ -14,12 +14,6 @@ import { UserPlus, Edit, Trash2, Shield, Users, AlertCircle, RefreshCw, Eye, Eye
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-interface Company {
-  id: string;
-  name: string;
-  slug: string;
-}
-
 interface User {
   id: string;
   email: string;
@@ -34,7 +28,7 @@ interface User {
 
 export const UserManagementPanel: React.FC = () => {
   const navigate = useNavigate();
-  const [companies, setCompanies] = useState<Company[]>([]);
+  
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
@@ -53,7 +47,6 @@ export const UserManagementPanel: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
-    fetchCompanies();
   }, []);
 
   const fetchUsers = async () => {
@@ -94,35 +87,6 @@ export const UserManagementPanel: React.FC = () => {
     }
   };
 
-  const fetchCompanies = async () => {
-    try {
-      const { data: companiesData, error } = await supabase
-        .from('companies')
-        .select('id, name, slug')
-        .eq('public_page', true)
-        .order('name', { ascending: true });
-
-      if (error) throw error;
-
-      // Remove duplicates based on company name
-      const uniqueCompanies = (companiesData || []).reduce((acc: Company[], current) => {
-        const existingCompany = acc.find(company => company.name === current.name);
-        if (!existingCompany) {
-          acc.push(current);
-        }
-        return acc;
-      }, []);
-
-      setCompanies(uniqueCompanies);
-    } catch (error) {
-      console.error('Error fetching companies:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch companies",
-        variant: "destructive",
-      });
-    }
-  };
 
   const generatePassword = () => {
     const length = 12;
@@ -541,21 +505,6 @@ export const UserManagementPanel: React.FC = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       Leave blank to keep current password
                     </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="editCompany">Company</Label>
-                    <Select value={company} onValueChange={setCompany}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select company" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {companies.map((comp) => (
-                          <SelectItem key={comp.id} value={comp.name}>
-                            {comp.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   </div>
                   <div>
                     <Label htmlFor="editRole">Role</Label>
