@@ -256,7 +256,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             key={slide.id}
             onClick={() => goToSlide(index)}
             aria-label={`Go to ${slide.title}`}
-            className="group p-0 sm:p-1 m-0 border-0 bg-transparent cursor-pointer touch-manipulation"
+            className="group m-0 border-0 bg-transparent cursor-pointer touch-manipulation inline-flex items-center justify-center size-3 sm:size-6"
           >
             <span
               className={`block w-0.5 h-0.5 sm:w-2 sm:h-2 rounded-full transition-transform duration-300 ${
