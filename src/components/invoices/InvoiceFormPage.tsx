@@ -404,13 +404,41 @@ export const InvoiceFormPage = () => {
                     
                     <div>
                       <Label htmlFor="reference" className="text-sm font-medium text-gray-700">Reference</Label>
-                      <Input
-                        id="reference"
-                        value={invoiceData.reference}
-                        onChange={(e) => setInvoiceData({...invoiceData, reference: e.target.value})}
-                        placeholder="Base Stage | SX_2503 - 5 Thanet St, Malvern VIC 3144"
-                        className="mt-1 text-sm"
-                      />
+                      <Select 
+                        value={invoiceData.reference} 
+                        onValueChange={(value) => setInvoiceData({...invoiceData, reference: value})}
+                      >
+                        <SelectTrigger className="mt-1 text-sm">
+                          <SelectValue placeholder="Select payment stage reference" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white z-50">
+                          {selectedContractPayments.map((payment, index) => (
+                            <SelectItem 
+                              key={index} 
+                              value={`${payment.stage} | ${payment.description} - ${payment.percentage}% ($${payment.amount.toLocaleString('en-AU')})`}
+                              className="hover:bg-gray-100"
+                            >
+                              <div className="flex flex-col">
+                                <span className="font-medium">{payment.stage} - {payment.description}</span>
+                                <span className="text-xs text-gray-500">{payment.percentage}% • $${payment.amount.toLocaleString('en-AU')}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="custom" className="hover:bg-gray-100">
+                            <span className="text-gray-600 italic">Enter custom reference...</span>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
+                      {/* Show text input when custom is selected */}
+                      {invoiceData.reference === 'custom' && (
+                        <Input
+                          value=""
+                          onChange={(e) => setInvoiceData({...invoiceData, reference: e.target.value})}
+                          placeholder="Enter custom reference"
+                          className="mt-2 text-sm"
+                        />
+                      )}
                     </div>
 
                     {/* Payment Structure Table */}
