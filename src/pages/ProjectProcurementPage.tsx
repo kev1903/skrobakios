@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -50,7 +50,9 @@ interface Project {
 }
 
 export const ProjectProcurementPage = () => {
-  const { projectId } = useParams<{ projectId: string }>();
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
+  const [searchParams] = useSearchParams();
+  const resolvedProjectId = routeProjectId || searchParams.get('projectId') || '';
   const { currentCompany } = useCompany();
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState<Project | null>(null);
@@ -60,20 +62,20 @@ export const ProjectProcurementPage = () => {
   const [showVendorForm, setShowVendorForm] = useState(false);
 
   useEffect(() => {
-    if (projectId && currentCompany) {
+    if (resolvedProjectId && currentCompany) {
       fetchProjectData();
       fetchRFQs();
     }
-  }, [projectId, currentCompany]);
+  }, [resolvedProjectId, currentCompany]);
 
   const fetchProjectData = async () => {
-    if (!projectId || !currentCompany) return;
+    if (!resolvedProjectId || !currentCompany) return;
 
     try {
       const { data: projectData, error: projectError } = await supabase
         .from('projects')
         .select('id, name, project_id')
-        .eq('id', projectId)
+        .eq('id', resolvedProjectId)
         .eq('company_id', currentCompany.id)
         .single();
 
@@ -91,14 +93,14 @@ export const ProjectProcurementPage = () => {
   };
 
   const fetchRFQs = async () => {
-    if (!projectId || !currentCompany) return;
+    if (!resolvedProjectId || !currentCompany) return;
 
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('rfqs')
         .select('*')
-        .eq('project_id', projectId)
+        .eq('project_id', resolvedProjectId)
         .eq('company_id', currentCompany.id)
         .order('created_at', { ascending: false });
 
@@ -229,7 +231,7 @@ export const ProjectProcurementPage = () => {
 
           <TabsContent value="matrix" className="space-y-6">
             <QuoteMatrix 
-              projectId={projectId!} 
+              projectId={resolvedProjectId} 
               rfqs={rfqs} 
               onRFQUpdate={fetchRFQs}
             />
@@ -237,21 +239,21 @@ export const ProjectProcurementPage = () => {
 
           <TabsContent value="evaluation" className="space-y-6">
             <EvaluationDashboard 
-              projectId={projectId!} 
+              projectId={resolvedProjectId} 
               rfqs={rfqs}
             />
           </TabsContent>
 
           <TabsContent value="approvals" className="space-y-6">
             <ApprovalQueue 
-              projectId={projectId!} 
+              projectId={resolvedProjectId} 
               rfqs={rfqs}
             />
           </TabsContent>
 
           <TabsContent value="commitments" className="space-y-6">
             <CommitmentsRegister 
-              projectId={projectId!}
+              projectId={resolvedProjectId}
             />
           </TabsContent>
         </Tabs>
@@ -260,7 +262,7 @@ export const ProjectProcurementPage = () => {
       {/* RFQ Form Modal */}
       {showRFQForm && (
         <RFQForm 
-          projectId={projectId!}
+          projectId={resolvedProjectId}
           companyId={currentCompany!.id}
           onSuccess={handleRFQCreated}
           onCancel={() => setShowRFQForm(false)}
