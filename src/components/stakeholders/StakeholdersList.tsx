@@ -34,7 +34,9 @@ import {
   AlertTriangle,
   Mail,
   Phone,
-  FileText
+  FileText,
+  Download,
+  Upload
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
@@ -83,6 +85,7 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
   const [complianceFilter, setComplianceFilter] = useState<string[]>([]);
   const [selectedStakeholders, setSelectedStakeholders] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showImportDialog, setShowImportDialog] = useState(false);
 
   useEffect(() => {
     if (currentCompany) {
@@ -185,6 +188,132 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
     setSelectedTags(selectedTags.filter(tag => tag !== tagToRemove));
   };
 
+  const handleExport = () => {
+    try {
+      // Prepare data for export
+      const exportData = stakeholders.map(stakeholder => ({
+        display_name: stakeholder.display_name,
+        category: stakeholder.category,
+        trade_industry: stakeholder.trade_industry || '',
+        primary_contact_name: stakeholder.primary_contact_name || '',
+        primary_email: stakeholder.primary_email || '',
+        primary_phone: stakeholder.primary_phone || '',
+        status: stakeholder.status,
+        compliance_status: stakeholder.compliance_status,
+        tags: stakeholder.tags ? stakeholder.tags.join(', ') : '',
+      }));
+
+      // Create CSV content
+      const headers = [
+        'Display Name',
+        'Category', 
+        'Trade/Industry',
+        'Primary Contact Name',
+        'Primary Email',
+        'Primary Phone',
+        'Status',
+        'Compliance Status',
+        'Tags'
+      ];
+      
+      const csvContent = [
+        headers.join(','),
+        ...exportData.map(row => 
+          Object.values(row).map(value => 
+            typeof value === 'string' && value.includes(',') 
+              ? `"${value.replace(/"/g, '""')}"` 
+              : value || ''
+          ).join(',')
+        )
+      ].join('\n');
+
+      // Create and download file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `stakeholders_${currentCompany?.name || 'export'}_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Stakeholders exported successfully');
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export stakeholders');
+    }
+  };
+
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !currentCompany?.id) return;
+
+    try {
+      const text = await file.text();
+      const lines = text.split('\n');
+      
+      if (lines.length < 2) {
+        toast.error('Invalid CSV file format');
+        return;
+      }
+
+      // Skip header row and parse data
+      const stakeholdersToImport = [];
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        const values = line.split(',').map(value => 
+          value.replace(/^"(.*)"$/, '$1').replace(/""/g, '"').trim()
+        );
+
+        if (values.length >= 6) {
+          stakeholdersToImport.push({
+            company_id: currentCompany.id,
+            display_name: values[0] || `Imported Stakeholder ${i}`,
+            category: values[1] || 'client',
+            trade_industry: values[2] || null,
+            primary_contact_name: values[3] || null,
+            primary_email: values[4] || null,
+            primary_phone: values[5] || null,
+            status: values[6] || 'active',
+            compliance_status: values[7] || 'valid',
+            tags: values[8] ? values[8].split(', ').filter(tag => tag.trim()) : null,
+          });
+        }
+      }
+
+      if (stakeholdersToImport.length === 0) {
+        toast.error('No valid stakeholder data found in file');
+        return;
+      }
+
+      // Import stakeholders
+      const { error } = await supabase
+        .from('stakeholders')
+        .insert(stakeholdersToImport);
+
+      if (error) {
+        console.error('Import error:', error);
+        toast.error('Failed to import stakeholders');
+        return;
+      }
+
+      toast.success(`Successfully imported ${stakeholdersToImport.length} stakeholders`);
+      fetchStakeholders();
+      
+    } catch (error) {
+      console.error('File processing error:', error);
+      toast.error('Error processing import file');
+    }
+
+    // Reset input
+    event.target.value = '';
+  };
+
   const handleBulkAction = async (action: string) => {
     if (selectedStakeholders.length === 0) {
       toast.error('Please select stakeholders first');
@@ -282,10 +411,27 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
         
         <div className={`flex items-center gap-2 ${isMobile ? 'justify-end' : ''}`}>
           {!isMobile && (
-            <Button variant="outline" size="sm" className="gap-1.5">
-              <FileText className="h-4 w-4" />
-              Export
-            </Button>
+            <div className="flex items-center gap-2">
+              <input
+                type="file"
+                accept=".csv"
+                onChange={handleImport}
+                className="hidden"
+                id="import-csv"
+              />
+              <label htmlFor="import-csv">
+                <Button variant="outline" size="sm" className="gap-1.5" asChild>
+                  <span className="cursor-pointer">
+                    <Upload className="h-4 w-4" />
+                    Import
+                  </span>
+                </Button>
+              </label>
+              <Button variant="outline" size="sm" className="gap-1.5" onClick={handleExport}>
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+            </div>
           )}
           <AddStakeholderDialog onStakeholderAdded={fetchStakeholders} />
         </div>
