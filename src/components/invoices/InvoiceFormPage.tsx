@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Plus, Trash2, Download, Send, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface InvoiceItem {
   description: string;
@@ -35,7 +36,7 @@ export const InvoiceFormPage = () => {
     contractId: ''
   });
 
-  const [contracts, setContracts] = useState<Array<{id: string, contract_number: string, title: string}>>([]);
+  const [contracts, setContracts] = useState<Array<{id: string, name: string}>>([]);
 
   const [items, setItems] = useState<InvoiceItem[]>([
     { description: '', quantity: 1, unitPrice: 0, gst: 10, amount: 0 }
@@ -51,20 +52,35 @@ export const InvoiceFormPage = () => {
       if (!projectId) return;
       
       try {
-        // Mock contracts for now - in real implementation, this would fetch from project_contracts
-        const mockContracts = [
-          { id: '1', contract_number: 'CT-2024-001', title: 'Main Construction Contract' },
-          { id: '2', contract_number: 'CT-2024-002', title: 'Electrical Works Contract' },
-          { id: '3', contract_number: 'CT-2024-003', title: 'Plumbing Contract' }
-        ];
-        setContracts(mockContracts);
+        const { data: contractsData, error } = await supabase
+          .from('project_contracts')
+          .select('id, name')
+          .eq('project_id', projectId)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching contracts:', error);
+          toast({
+            title: "Error",
+            description: "Failed to fetch contracts for this project.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setContracts(contractsData || []);
       } catch (error) {
         console.error('Error fetching contracts:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch contracts for this project.",
+          variant: "destructive",
+        });
       }
     };
 
     fetchContracts();
-  }, [projectId]);
+  }, [projectId, toast]);
 
   const calculateItemAmount = (quantity: number, unitPrice: number) => {
     return quantity * unitPrice;
@@ -324,7 +340,7 @@ export const InvoiceFormPage = () => {
                     <SelectContent>
                       {contracts.map((contract) => (
                         <SelectItem key={contract.id} value={contract.id}>
-                          {contract.contract_number} - {contract.title}
+                          {contract.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
