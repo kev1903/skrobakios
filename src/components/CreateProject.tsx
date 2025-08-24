@@ -271,9 +271,11 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                     onChange={(e) => setSelectedStatus(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="pending">Pending</option>
-                    <option value="running">Running</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="running">In Progress</option>
+                    <option value="pending">On Hold</option>
                     <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
                   </select>
                 </div>
 

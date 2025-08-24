@@ -5,7 +5,11 @@ export const getStatusColor = (status: string) => {
     case "running":
       return "bg-blue-500/20 text-blue-700 border-blue-500/30";
     case "pending":
-      return "bg-red-500/20 text-red-700 border-red-500/30";
+      return "bg-orange-500/20 text-orange-700 border-orange-500/30";
+    case "upcoming":
+      return "bg-yellow-500/20 text-yellow-700 border-yellow-500/30";
+    case "cancelled":
+      return "bg-gray-500/20 text-gray-700 border-gray-500/30";
     default:
       return "bg-gray-500/20 text-gray-700 border-gray-500/30";
   }
@@ -18,7 +22,11 @@ export const getStatusText = (status: string) => {
     case "running":
       return "In Progress";
     case "pending":
-      return "Pending";
+      return "On Hold";
+    case "upcoming":
+      return "Upcoming";
+    case "cancelled":
+      return "Cancelled";
     default:
       return status;
   }
