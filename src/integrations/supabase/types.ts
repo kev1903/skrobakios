@@ -5834,6 +5834,10 @@ export type Database = {
         Args: { project_id_param: string }
         Returns: boolean
       }
+      can_access_stakeholder_contacts: {
+        Args: { target_stakeholder_id: string }
+        Returns: boolean
+      }
       can_manage_company: {
         Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
@@ -5844,6 +5848,10 @@ export type Database = {
       }
       can_manage_project_secure: {
         Args: { target_project_id: string; target_user_id: string }
+        Returns: boolean
+      }
+      can_manage_stakeholder_contacts: {
+        Args: { target_stakeholder_id: string }
         Returns: boolean
       }
       can_manage_user: {
