@@ -24,7 +24,7 @@ interface ProjectTasksPageProps {
 
 const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("tasks");
+  const [activeTab, setActiveTab] = useState("list");
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
@@ -591,105 +591,94 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
 
   const renderActiveView = () => {
     switch (activeTab) {
-      case "tasks":
-        return (
-          <EnhancedTaskView
-            projectId={project.id}
-            viewMode={viewMode}
-            selectedTaskIds={selectedTaskIds}
-            onTaskSelectionChange={setSelectedTaskIds}
-            isAddTaskDialogOpen={isAddTaskDialogOpen}
-            onCloseAddTaskDialog={() => setIsAddTaskDialogOpen(false)}
-          />
-        );
+      case "list":
+        return <EnhancedTaskView 
+          projectId={project.id} 
+          viewMode={viewMode}
+          selectedTaskIds={selectedTaskIds}
+          onTaskSelectionChange={setSelectedTaskIds}
+          isAddTaskDialogOpen={isAddTaskDialogOpen}
+          onCloseAddTaskDialog={() => setIsAddTaskDialogOpen(false)}
+        />;
       case "board":
-        return (
-          <TaskBoardView 
-            projectId={project.id}
-          />
-        );
+        return <TaskBoardView projectId={project.id} />;
+      case "timeline":
+        return <div className="p-8 text-center text-slate-600">Timeline view has been removed</div>;
       case "overview":
         return (
-          <EnhancedTaskView
-            projectId={project.id}
-            viewMode={viewMode}
-            selectedTaskIds={selectedTaskIds}
-            onTaskSelectionChange={setSelectedTaskIds}
-            isAddTaskDialogOpen={isAddTaskDialogOpen}
-            onCloseAddTaskDialog={() => setIsAddTaskDialogOpen(false)}
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">Recent Tasks</h3>
+              <TaskListView 
+                projectId={project.id} 
+                viewMode={viewMode}
+                selectedTaskIds={selectedTaskIds}
+                onTaskSelectionChange={setSelectedTaskIds}
+              />
+            </div>
+          </div>
         );
       case "team":
         return (
-          <EnhancedTaskView
-            projectId={project.id}
-            viewMode={viewMode}
-            selectedTaskIds={selectedTaskIds}
-            onTaskSelectionChange={setSelectedTaskIds}
-            isAddTaskDialogOpen={isAddTaskDialogOpen}
-            onCloseAddTaskDialog={() => setIsAddTaskDialogOpen(false)}
-          />
+          <div className="glass-card p-8">
+            <h3 className="text-lg font-semibold mb-4 text-slate-800">Team Workload</h3>
+            <p className="text-slate-700">Team workload analytics and capacity planning will be displayed here.</p>
+          </div>
         );
       case "insights":
         return (
-          <EnhancedTaskView
-            projectId={project.id}
-            viewMode={viewMode}
-            selectedTaskIds={selectedTaskIds}
-            onTaskSelectionChange={setSelectedTaskIds}
-            isAddTaskDialogOpen={isAddTaskDialogOpen}
-            onCloseAddTaskDialog={() => setIsAddTaskDialogOpen(false)}
-          />
+          <div className="glass-card p-8">
+            <h3 className="text-lg font-semibold mb-4 text-slate-800">Project Insights</h3>
+            <p className="text-slate-700">Project insights and performance metrics will be displayed here.</p>
+          </div>
         );
       default:
         return (
-          <TaskListView 
-            projectId={project.id}
-            viewMode={viewMode}
-            selectedTaskIds={selectedTaskIds}
-            onTaskSelectionChange={setSelectedTaskIds}
-          />
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center glass-card p-8">
+              <p className="text-slate-800 text-lg">Coming Soon</p>
+              <p className="text-slate-600 text-sm mt-2">
+                {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} view is under development
+              </p>
+            </div>
+          </div>
         );
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-background via-background/95 to-background/90">
-      <ProjectSidebar 
-        project={project} 
+    <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50">
+      {/* Project Sidebar */}
+      <ProjectSidebar
+        project={project}
         onNavigate={onNavigate}
         getStatusColor={getStatusColor}
         getStatusText={getStatusText}
         activeSection="tasks"
       />
-      
-      <div className="flex-1 flex flex-col">
-        <TaskPageHeader 
-          project={project}
-        />
-        
-        <div className="flex-1 p-4 md:p-6 lg:p-8 space-y-6">
-          <div className="glass-card p-6 rounded-2xl">
-            <TaskSearchAndActions
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              onAddTask={handleAddTask}
-              onExport={handleExport}
-              selectedTasks={selectedTasks}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-            />
-          </div>
+
+      {/* Main Content */}
+      <div className="flex-1 ml-48 bg-white/90 backdrop-blur-sm border-l border-gray-200/30 h-full overflow-y-auto">
+        <div className="p-8">
+          <TaskPageHeader project={project} />
           
-          <div className="glass-card rounded-2xl overflow-hidden">
-            <TaskTabNavigation 
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-            />
-            
-            <div className="p-6">
-              {renderActiveView()}
-            </div>
+          <TaskSearchAndActions
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            selectedTasks={selectedTasks}
+            onAddTask={handleAddTask}
+            onExport={handleExport}
+          />
+
+          <TaskTabNavigation
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+
+          <div>
+            {renderActiveView()}
           </div>
         </div>
       </div>
