@@ -9,6 +9,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
 import { toast } from 'sonner';
 import { PageShell } from '@/components/layout/PageShell';
+import { ProjectSidebar } from '@/components/ProjectSidebar';
+import { getStatusColor, getStatusText } from '@/components/tasks/utils/taskUtils';
+import { Project } from '@/hooks/useProjects';
 import { QuoteMatrix } from '@/components/procurement/QuoteMatrix';
 import { EvaluationDashboard } from '@/components/procurement/EvaluationDashboard';
 import { ApprovalQueue } from '@/components/procurement/ApprovalQueue';
@@ -43,12 +46,6 @@ interface RFQ {
   created_at: string;
 }
 
-interface Project {
-  id: string;
-  name: string;
-  project_id: string;
-}
-
 export const ProjectProcurementPage = () => {
   const { projectId: routeProjectId } = useParams<{ projectId: string }>();
   const [searchParams] = useSearchParams();
@@ -60,6 +57,22 @@ export const ProjectProcurementPage = () => {
   const [activeTab, setActiveTab] = useState('matrix');
   const [showRFQForm, setShowRFQForm] = useState(false);
   const [showVendorForm, setShowVendorForm] = useState(false);
+
+  // Navigation handler for ProjectSidebar
+  const handleNavigate = (page: string) => {
+    if (page.includes('?')) {
+      const [pageName, queryString] = page.split('?');
+      const params = new URLSearchParams(queryString);
+      const projectIdFromUrl = params.get('projectId');
+      if (projectIdFromUrl) {
+        window.location.href = `/?page=${pageName}&projectId=${projectIdFromUrl}`;
+      } else {
+        window.location.href = `/?page=${pageName}&projectId=${resolvedProjectId}`;
+      }
+    } else {
+      window.location.href = `/?page=${page}&projectId=${resolvedProjectId}`;
+    }
+  };
 
   useEffect(() => {
     if (resolvedProjectId && currentCompany) {
@@ -74,7 +87,7 @@ export const ProjectProcurementPage = () => {
     try {
       const { data: projectData, error: projectError } = await supabase
         .from('projects')
-        .select('id, name, project_id')
+        .select('id, name, project_id, company_id, status, created_at, updated_at')
         .eq('id', resolvedProjectId)
         .eq('company_id', currentCompany.id)
         .single();
@@ -135,128 +148,140 @@ export const ProjectProcurementPage = () => {
 
   if (loading) {
     return (
-      <PageShell>
-        <div className="container mx-auto px-6 py-8">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-muted rounded w-64"></div>
+      <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-pulse space-y-6 w-full max-w-md">
+            <div className="h-8 bg-muted rounded w-64 mx-auto"></div>
             <div className="h-32 bg-muted rounded"></div>
             <div className="h-96 bg-muted rounded"></div>
           </div>
         </div>
-      </PageShell>
+      </div>
     );
   }
 
   if (!project) {
     return (
-      <PageShell>
-        <div className="container mx-auto px-6 py-8">
+      <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-foreground">Project not found</h1>
             <p className="text-muted-foreground mt-2">The requested project could not be loaded.</p>
           </div>
         </div>
-      </PageShell>
+      </div>
     );
   }
 
   return (
-    <PageShell>
-      <div className="container mx-auto px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Procurement</h1>
-            <p className="text-muted-foreground mt-2">
-              {project.name} ({project.project_id})
-            </p>
+    <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Project Sidebar */}
+      <ProjectSidebar
+        project={project}
+        onNavigate={handleNavigate}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
+        activeSection="procurement"
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 ml-48 bg-white/90 backdrop-blur-sm border-l border-gray-200/30 h-full overflow-y-auto">
+        <div className="p-8">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Procurement</h1>
+              <p className="text-muted-foreground mt-2">
+                {project.name} ({project.project_id})
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button 
+                onClick={() => setShowVendorForm(true)}
+                variant="outline"
+                size="sm"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Vendor
+              </Button>
+              <Button 
+                onClick={() => setShowRFQForm(true)}
+                size="sm"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Create RFQ
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-3">
-            <Button 
-              onClick={() => setShowVendorForm(true)}
-              variant="outline"
-              size="sm"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Vendor
-            </Button>
-            <Button 
-              onClick={() => setShowRFQForm(true)}
-              size="sm"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Create RFQ
-            </Button>
+
+          {/* Status Overview */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+            {PROCUREMENT_STATUSES.slice(0, 10).map((status) => {
+              const count = getRFQCountByStatus(status.key);
+              const StatusIcon = status.icon;
+              return (
+                <Card key={status.key} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <StatusIcon className="w-4 h-4" />
+                      <span className="text-2xl font-bold">{count}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{status.label}</p>
+                    <Badge variant="secondary" className={`${status.color} mt-2`}>
+                      {status.key}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
+
+          {/* Main Content Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+              <TabsTrigger value="matrix" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Quote Matrix
+              </TabsTrigger>
+              <TabsTrigger value="evaluation" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Evaluation
+              </TabsTrigger>
+              <TabsTrigger value="approvals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Approvals
+              </TabsTrigger>
+              <TabsTrigger value="commitments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Commitments
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="matrix" className="space-y-6">
+              <QuoteMatrix 
+                projectId={resolvedProjectId} 
+                rfqs={rfqs} 
+                onRFQUpdate={fetchRFQs}
+              />
+            </TabsContent>
+
+            <TabsContent value="evaluation" className="space-y-6">
+              <EvaluationDashboard 
+                projectId={resolvedProjectId} 
+                rfqs={rfqs}
+              />
+            </TabsContent>
+
+            <TabsContent value="approvals" className="space-y-6">
+              <ApprovalQueue 
+                projectId={resolvedProjectId} 
+                rfqs={rfqs}
+              />
+            </TabsContent>
+
+            <TabsContent value="commitments" className="space-y-6">
+              <CommitmentsRegister 
+                projectId={resolvedProjectId}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
-
-        {/* Status Overview */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-          {PROCUREMENT_STATUSES.slice(0, 10).map((status) => {
-            const count = getRFQCountByStatus(status.key);
-            const StatusIcon = status.icon;
-            return (
-              <Card key={status.key} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <StatusIcon className="w-4 h-4" />
-                    <span className="text-2xl font-bold">{count}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{status.label}</p>
-                  <Badge variant="secondary" className={`${status.color} mt-2`}>
-                    {status.key}
-                  </Badge>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
-            <TabsTrigger value="matrix" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Quote Matrix
-            </TabsTrigger>
-            <TabsTrigger value="evaluation" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Evaluation
-            </TabsTrigger>
-            <TabsTrigger value="approvals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Approvals
-            </TabsTrigger>
-            <TabsTrigger value="commitments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              Commitments
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="matrix" className="space-y-6">
-            <QuoteMatrix 
-              projectId={resolvedProjectId} 
-              rfqs={rfqs} 
-              onRFQUpdate={fetchRFQs}
-            />
-          </TabsContent>
-
-          <TabsContent value="evaluation" className="space-y-6">
-            <EvaluationDashboard 
-              projectId={resolvedProjectId} 
-              rfqs={rfqs}
-            />
-          </TabsContent>
-
-          <TabsContent value="approvals" className="space-y-6">
-            <ApprovalQueue 
-              projectId={resolvedProjectId} 
-              rfqs={rfqs}
-            />
-          </TabsContent>
-
-          <TabsContent value="commitments" className="space-y-6">
-            <CommitmentsRegister 
-              projectId={resolvedProjectId}
-            />
-          </TabsContent>
-        </Tabs>
       </div>
 
       {/* RFQ Form Modal */}
@@ -276,6 +301,6 @@ export const ProjectProcurementPage = () => {
           onClose={() => setShowVendorForm(false)}
         />
       )}
-    </PageShell>
+    </div>
   );
 };
