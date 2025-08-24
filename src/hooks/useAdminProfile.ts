@@ -8,7 +8,6 @@ interface ProfileData {
   email: string;
   phone: string;
   job_title: string;
-  company: string;
   location: string;
   bio: string;
   avatar_url: string;
@@ -48,7 +47,6 @@ export const useAdminProfile = () => {
           email: data.email || '',
           phone: data.phone || '',
           job_title: data.job_title || '',
-          company: data.company || '',
           location: data.location || '',
           bio: data.bio || '',
           avatar_url: data.avatar_url || '',
@@ -95,7 +93,6 @@ export const useAdminProfile = () => {
             email: profileData.email,
             phone: profileData.phone,
             job_title: profileData.job_title,
-            company: profileData.company,
             location: profileData.location,
             bio: profileData.bio,
             avatar_url: profileData.avatar_url,
@@ -116,7 +113,6 @@ export const useAdminProfile = () => {
             email: profileData.email,
             phone: profileData.phone,
             job_title: profileData.job_title,
-            company: profileData.company,
             location: profileData.location,
             bio: profileData.bio,
             avatar_url: profileData.avatar_url,

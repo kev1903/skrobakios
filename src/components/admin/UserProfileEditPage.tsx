@@ -42,7 +42,6 @@ export const UserProfileEditPage = () => {
     email: '',
     phone: '',
     job_title: '',
-    company: '',
     location: '',
     bio: '',
     avatar_url: '',
@@ -93,7 +92,6 @@ export const UserProfileEditPage = () => {
         email: user.email || '',
         phone: user.phone || '',
         job_title: '',
-        company: user.company || '',
         location: '',
         bio: '',
         avatar_url: user.avatar_url || '',
@@ -541,23 +539,13 @@ export const UserProfileEditPage = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="job_title">Job Title</Label>
-                      <Input
-                        id="job_title"
-                        value={profileData.job_title}
-                        onChange={(e) => handleInputChange('job_title', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="company">Company</Label>
-                      <Input
-                        id="company"
-                        value={profileData.company}
-                        onChange={(e) => handleInputChange('company', e.target.value)}
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="job_title">Job Title</Label>
+                    <Input
+                      id="job_title"
+                      value={profileData.job_title}
+                      onChange={(e) => handleInputChange('job_title', e.target.value)}
+                    />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
