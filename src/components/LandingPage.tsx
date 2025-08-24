@@ -250,15 +250,15 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </header>
 
       {/* Vertical Navigation Dots - Right Side (All Screens) */}
-      <div className="fixed right-3 sm:right-4 lg:right-6 top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-1.5 sm:gap-2 bg-brand-white/80 backdrop-blur-sm rounded-full py-2 sm:py-3 px-1.5 sm:px-2">
+      <div className="fixed right-2 sm:right-3 lg:right-4 top-1/2 transform -translate-y-1/2 z-40 flex flex-col gap-1 sm:gap-1.5 bg-brand-white/70 backdrop-blur-sm rounded-full py-1.5 sm:py-2 px-1 sm:px-1.5">
         {slides.map((slide, index) => (
           <button
             key={slide.id}
             onClick={() => goToSlide(index)}
-            className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
+            className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full transition-all duration-300 ${
               currentSlide === index 
-                ? 'bg-brand-charcoal scale-125' 
-                : 'bg-brand-gray/30 hover:bg-brand-charcoal/50'
+                ? 'bg-brand-charcoal scale-110' 
+                : 'bg-brand-gray/40 hover:bg-brand-charcoal/60'
             }`}
             title={slide.title}
           />
