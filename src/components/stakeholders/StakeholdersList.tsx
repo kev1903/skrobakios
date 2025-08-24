@@ -262,8 +262,33 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
         return;
       }
 
+      // Fetch existing stakeholders for comparison
+      const { data: existingStakeholders, error: fetchError } = await supabase
+        .from('stakeholders')
+        .select('display_name, primary_email, primary_phone')
+        .eq('company_id', currentCompany.id);
+
+      if (fetchError) {
+        console.error('Error fetching existing stakeholders:', fetchError);
+        toast.error('Failed to check for existing stakeholders');
+        return;
+      }
+
+      // Create lookup sets for duplicate checking
+      const existingNames = new Set(
+        existingStakeholders?.map(s => s.display_name.toLowerCase().trim()) || []
+      );
+      const existingEmails = new Set(
+        existingStakeholders?.map(s => s.primary_email?.toLowerCase().trim()).filter(Boolean) || []
+      );
+      const existingPhones = new Set(
+        existingStakeholders?.map(s => s.primary_phone?.trim()).filter(Boolean) || []
+      );
+
       // Skip header row and parse data
       const stakeholdersToImport = [];
+      const duplicatesSkipped = [];
+      
       for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
@@ -273,23 +298,50 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
         );
 
         if (values.length >= 6) {
+          const displayName = values[0] || `Imported Stakeholder ${i}`;
+          const email = values[4] || null;
+          const phone = values[5] || null;
+
+          // Check for duplicates
+          const isDuplicate = 
+            existingNames.has(displayName.toLowerCase().trim()) ||
+            (email && existingEmails.has(email.toLowerCase().trim())) ||
+            (phone && existingPhones.has(phone.trim()));
+
+          if (isDuplicate) {
+            duplicatesSkipped.push({
+              name: displayName,
+              reason: 'Duplicate found - name, email, or phone already exists'
+            });
+            continue;
+          }
+
           stakeholdersToImport.push({
             company_id: currentCompany.id,
-            display_name: values[0] || `Imported Stakeholder ${i}`,
+            display_name: displayName,
             category: values[1] || 'client',
             trade_industry: values[2] || null,
             primary_contact_name: values[3] || null,
-            primary_email: values[4] || null,
-            primary_phone: values[5] || null,
+            primary_email: email,
+            primary_phone: phone,
             status: values[6] || 'active',
             compliance_status: values[7] || 'valid',
             tags: values[8] ? values[8].split(', ').filter(tag => tag.trim()) : null,
           });
+
+          // Add to existing sets to prevent duplicates within the import file itself
+          existingNames.add(displayName.toLowerCase().trim());
+          if (email) existingEmails.add(email.toLowerCase().trim());
+          if (phone) existingPhones.add(phone.trim());
         }
       }
 
       if (stakeholdersToImport.length === 0) {
-        toast.error('No valid stakeholder data found in file');
+        if (duplicatesSkipped.length > 0) {
+          toast.error(`No new stakeholders to import. ${duplicatesSkipped.length} duplicates were skipped.`);
+        } else {
+          toast.error('No valid stakeholder data found in file');
+        }
         return;
       }
 
@@ -304,7 +356,13 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
         return;
       }
 
-      toast.success(`Successfully imported ${stakeholdersToImport.length} stakeholders`);
+      // Show success message with summary
+      let successMessage = `Successfully imported ${stakeholdersToImport.length} stakeholders`;
+      if (duplicatesSkipped.length > 0) {
+        successMessage += `. ${duplicatesSkipped.length} duplicates were skipped`;
+      }
+      
+      toast.success(successMessage);
       fetchStakeholders();
       
     } catch (error) {
