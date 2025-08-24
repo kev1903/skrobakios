@@ -127,12 +127,10 @@ export const InvoiceFormPage = () => {
           <div className="flex flex-col">
             <h1 className="text-4xl font-bold text-black mb-6">TAX INVOICE</h1>
             
-            {/* Client Details - Print Mode */}
-            <div className="hidden print:block">
-              <div className="text-sm text-black space-y-1">
-                <div className="font-semibold">{invoiceData.clientName}</div>
-                <div className="whitespace-pre-line">{invoiceData.clientAddress}</div>
-              </div>
+            {/* Client Details - Always Visible */}
+            <div className="text-sm text-black space-y-1">
+              <div className="font-semibold">{invoiceData.clientName || "Client Name"}</div>
+              <div className="whitespace-pre-line">{invoiceData.clientAddress || "Client Address"}</div>
             </div>
           </div>
           
