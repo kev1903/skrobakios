@@ -92,9 +92,9 @@ export const InvoiceFormPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header - No Print */}
-      <div className="print:hidden bg-background border-b p-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      {/* Header - Always Visible */}
+      <div className="bg-background border-b p-4 print:hidden">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
@@ -102,7 +102,7 @@ export const InvoiceFormPage = () => {
               className="flex items-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Project
+              Back to Income
             </Button>
             <h1 className="text-2xl font-semibold">Create Invoice</h1>
           </div>
@@ -120,22 +120,22 @@ export const InvoiceFormPage = () => {
       </div>
 
       {/* Invoice Content */}
-      <div ref={printRef} className="max-w-6xl mx-auto p-8 bg-white print:p-0 print:max-w-none">
-        {/* Professional Header Section */}
-        <div className="border-b-2 border-gray-200 pb-8 mb-8">
-          <div className="grid grid-cols-3 gap-12 items-start">
+      <div ref={printRef} className="max-w-6xl mx-auto p-6 bg-white print:p-0 print:max-w-none">
+        {/* Compact Professional Header Section */}
+        <div className="border-b border-gray-200 pb-6 mb-6">
+          <div className="grid grid-cols-3 gap-8 items-start">
             {/* Left Column - TAX INVOICE and Billing To */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <h1 className="text-5xl font-bold text-black tracking-wide mb-2">TAX INVOICE</h1>
-                <div className="h-1 w-24 bg-blue-600"></div>
+                <h1 className="text-3xl font-bold text-black tracking-wide mb-1">TAX INVOICE</h1>
+                <div className="h-0.5 w-20 bg-blue-600"></div>
               </div>
               
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Bill To</h3>
-                <div className="text-base text-black space-y-1">
-                  <div className="font-semibold text-lg">{invoiceData.clientName || "Client Name"}</div>
-                  <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Bill To</h3>
+                <div className="text-sm text-black space-y-1">
+                  <div className="font-semibold">{invoiceData.clientName || "Client Name"}</div>
+                  <div className="text-gray-700 text-xs leading-relaxed whitespace-pre-line">
                     {invoiceData.clientAddress || "Client Address\nCity, State, Postcode\nCountry"}
                   </div>
                 </div>
@@ -143,16 +143,16 @@ export const InvoiceFormPage = () => {
             </div>
             
             {/* Middle Column - Company Logo and Details */}
-            <div className="text-center space-y-4">
+            <div className="text-center space-y-3">
               <div>
                 <img 
                   src="/lovable-uploads/356fa289-0bf1-4952-820e-c823e9acf316.png" 
                   alt="SKROBAKI" 
-                  className="h-20 mx-auto mb-3"
+                  className="h-12 mx-auto mb-2"
                 />
-                <div className="text-base text-black font-medium">
-                  <div className="text-xl font-bold mb-1">SKROBAKI Pty Ltd</div>
-                  <div className="text-sm text-gray-600 leading-relaxed">
+                <div className="text-sm text-black">
+                  <div className="font-bold mb-1">SKROBAKI Pty Ltd</div>
+                  <div className="text-xs text-gray-600 leading-tight">
                     Unit A11/2A Westall Rd<br />
                     Clayton VIC 3168<br />
                     Australia
@@ -160,16 +160,16 @@ export const InvoiceFormPage = () => {
                 </div>
               </div>
               
-              <div className="text-sm text-gray-600">
+              <div className="text-xs text-gray-600">
                 <div className="font-semibold">ABN: {invoiceData.abn || "49 032 355 809"}</div>
               </div>
             </div>
             
             {/* Right Column - Invoice Details */}
-            <div className="space-y-6">
-              <div className="bg-gray-50 p-6 rounded-lg border">
-                <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-4">Invoice Details</h3>
-                <div className="space-y-4 text-sm">
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-4 rounded border">
+                <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Invoice Details</h3>
+                <div className="space-y-2 text-xs">
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-gray-700">Invoice Number:</span>
                     <span className="font-bold text-black">{invoiceData.invoiceNumber}</span>
