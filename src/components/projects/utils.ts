@@ -3,7 +3,7 @@ export const getStatusColor = (status: string) => {
     case "completed":
       return "bg-green-500/20 text-green-700 border-green-500/30";
     case "running":
-      return "bg-orange-500/20 text-orange-700 border-orange-500/30";
+      return "bg-blue-500/20 text-blue-700 border-blue-500/30";
     case "pending":
       return "bg-red-500/20 text-red-700 border-red-500/30";
     default:
