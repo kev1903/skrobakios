@@ -75,6 +75,7 @@ export const InvoiceFormPage = () => {
         }
 
         setContracts(contractsData || []);
+        console.log('Contracts fetched:', contractsData);
       } catch (error) {
         console.error('Error fetching contracts:', error);
         toast({
@@ -96,6 +97,8 @@ export const InvoiceFormPage = () => {
         return;
       }
       
+      console.log('Fetching payment structure for contract:', invoiceData.contractId);
+      
       // Mock payment structure data - replace with actual fetch from contract
       // In a real implementation, this would fetch from a contract_payments table
       // or extract from a JSON field in the project_contracts table
@@ -110,6 +113,7 @@ export const InvoiceFormPage = () => {
       ];
       
       setSelectedContractPayments(mockPayments);
+      console.log('Payment structure set:', mockPayments);
     };
 
     fetchContractPayments();
@@ -406,7 +410,7 @@ export const InvoiceFormPage = () => {
                     </div>
 
                     {/* Payment Structure Table */}
-                    {selectedContractPayments.length > 0 && (
+                    {invoiceData.contractId && (
                       <div>
                         <Label className="text-sm font-medium text-gray-700 mb-3 block">Payment Structure</Label>
                         <div className="border border-gray-200 rounded-md overflow-hidden">
