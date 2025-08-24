@@ -8,6 +8,7 @@ import { Plus, Package, FileText, CheckSquare, Truck, ShoppingBag } from 'lucide
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
 import { toast } from 'sonner';
+import { PageShell } from '@/components/layout/PageShell';
 import { QuoteMatrix } from '@/components/procurement/QuoteMatrix';
 import { EvaluationDashboard } from '@/components/procurement/EvaluationDashboard';
 import { ApprovalQueue } from '@/components/procurement/ApprovalQueue';
@@ -132,7 +133,7 @@ export const ProjectProcurementPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <PageShell>
         <div className="container mx-auto px-6 py-8">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-muted rounded w-64"></div>
@@ -140,25 +141,25 @@ export const ProjectProcurementPage = () => {
             <div className="h-96 bg-muted rounded"></div>
           </div>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-background">
+      <PageShell>
         <div className="container mx-auto px-6 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-foreground">Project not found</h1>
             <p className="text-muted-foreground mt-2">The requested project could not be loaded.</p>
           </div>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <PageShell>
       <div className="container mx-auto px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -273,6 +274,6 @@ export const ProjectProcurementPage = () => {
           onClose={() => setShowVendorForm(false)}
         />
       )}
-    </div>
+    </PageShell>
   );
 };
