@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -75,6 +76,7 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedContracts, setExpandedContracts] = useState<Set<string>>(new Set());
+  const navigate = useNavigate();
 
   const loadContracts = async () => {
     try {
@@ -560,7 +562,12 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
                       <td className="px-4 py-2 text-sm text-foreground pl-8">
                         <div className="flex items-center gap-2">
                           <DollarSign className="h-3 w-3 text-muted-foreground" />
-                          <span className="font-medium">{invoice.number}</span>
+                          <span 
+                            className="font-medium text-primary hover:text-primary/80 cursor-pointer underline"
+                            onClick={() => navigate(`/?page=invoice-form&invoiceId=${invoice.id}&projectId=${projectId}`)}
+                          >
+                            {invoice.number}
+                          </span>
                           <span className="text-muted-foreground">- {invoice.client_name}</span>
                           {invoice.progress_percentage && invoice.progress_percentage > 0 && (
                             <span className="text-xs bg-primary/10 text-primary px-1 rounded">
