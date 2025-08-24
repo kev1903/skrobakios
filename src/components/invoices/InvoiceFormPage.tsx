@@ -105,9 +105,9 @@ export const InvoiceFormPage = () => {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               onClick={() => navigate(`/?page=income&projectId=${projectId}`)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 border-gray-300 hover:bg-gray-50"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Income
