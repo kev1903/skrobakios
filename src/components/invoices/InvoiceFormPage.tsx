@@ -99,7 +99,7 @@ export const InvoiceFormPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-16">
       {/* Header - Always Visible */}
       <div className="bg-white border-b border-gray-200 p-4 print:hidden shadow-sm">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
