@@ -37,6 +37,12 @@ export const InvoiceFormPage = () => {
   });
 
   const [contracts, setContracts] = useState<Array<{id: string, name: string}>>([]);
+  const [selectedContractPayments, setSelectedContractPayments] = useState<Array<{
+    stage: string;
+    description: string;
+    percentage: number;
+    amount: number;
+  }>>([]);
 
   const [items, setItems] = useState<InvoiceItem[]>([
     { description: '', quantity: 1, unitPrice: 0, gst: 10, amount: 0 }
@@ -81,6 +87,33 @@ export const InvoiceFormPage = () => {
 
     fetchContracts();
   }, [projectId, toast]);
+
+  // Fetch contract payment structure when contract is selected
+  useEffect(() => {
+    const fetchContractPayments = async () => {
+      if (!invoiceData.contractId) {
+        setSelectedContractPayments([]);
+        return;
+      }
+      
+      // Mock payment structure data - replace with actual fetch from contract
+      // In a real implementation, this would fetch from a contract_payments table
+      // or extract from a JSON field in the project_contracts table
+      const mockPayments = [
+        { stage: "Deposit", description: "Contract Stage", percentage: 5, amount: 3500 },
+        { stage: "Stage 5", description: "Start of Base Stage", percentage: 10, amount: 7000 },
+        { stage: "Stage 5", description: "Start of Frame Stage", percentage: 20, amount: 14000 },
+        { stage: "Stage 5", description: "Start of Lockup Stage", percentage: 20, amount: 14000 },
+        { stage: "Stage 5", description: "Start of Fixing Stage", percentage: 25, amount: 17500 },
+        { stage: "Stage 6", description: "Start of Final Stage", percentage: 10, amount: 7000 },
+        { stage: "Stage 6", description: "Handover & Closeout", percentage: 10, amount: 7000 }
+      ];
+      
+      setSelectedContractPayments(mockPayments);
+    };
+
+    fetchContractPayments();
+  }, [invoiceData.contractId]);
 
   const calculateItemAmount = (quantity: number, unitPrice: number) => {
     return quantity * unitPrice;
@@ -371,6 +404,37 @@ export const InvoiceFormPage = () => {
                         className="mt-1 text-sm"
                       />
                     </div>
+
+                    {/* Payment Structure Table */}
+                    {selectedContractPayments.length > 0 && (
+                      <div>
+                        <Label className="text-sm font-medium text-gray-700 mb-3 block">Payment Structure</Label>
+                        <div className="border border-gray-200 rounded-md overflow-hidden">
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr className="bg-gray-50 border-b border-gray-200">
+                                <th className="text-left p-2 font-medium text-gray-700">STAGES</th>
+                                <th className="text-left p-2 font-medium text-gray-700">DESCRIPTION</th>
+                                <th className="text-center p-2 font-medium text-gray-700">%</th>
+                                <th className="text-right p-2 font-medium text-gray-700">AMOUNT (AUD)</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {selectedContractPayments.map((payment, index) => (
+                                <tr key={index} className="border-b border-gray-100 hover:bg-gray-25">
+                                  <td className="p-2 text-gray-700 font-medium">{payment.stage}</td>
+                                  <td className="p-2 text-gray-600">{payment.description}</td>
+                                  <td className="p-2 text-center text-gray-700">{payment.percentage}</td>
+                                  <td className="p-2 text-right text-gray-700 font-medium">
+                                    ${payment.amount.toLocaleString('en-AU')}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
