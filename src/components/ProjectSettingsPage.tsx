@@ -141,8 +141,8 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
         title: "Project Deleted",
         description: "The project has been permanently deleted.",
       });
-      // Navigate back to dashboard after deletion
-      onNavigate("dashboard");
+      // Navigate back to projects list after deletion
+      onNavigate("projects");
     } else {
       toast({
         title: "Delete Failed",
