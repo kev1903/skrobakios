@@ -209,80 +209,95 @@ export const InvoiceFormPage = () => {
           </div>
         </div>
 
-        {/* Edit Mode - Client Details */}
+        {/* Compact Invoice Details Form */}
         <div className="print:hidden mb-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Invoice Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="px-6 py-4 border-b border-gray-100">
+              <h3 className="text-lg font-semibold text-gray-900">Invoice Details</h3>
+            </div>
+            
+            <div className="p-6">
+              {/* Row 1: Invoice Core Details */}
+              <div className="grid grid-cols-4 gap-4 mb-4">
                 <div>
-                  <Label htmlFor="invoiceNumber">Invoice Number</Label>
+                  <Label htmlFor="invoiceNumber" className="text-sm font-medium text-gray-700">Invoice Number</Label>
                   <Input
                     id="invoiceNumber"
                     value={invoiceData.invoiceNumber}
                     onChange={(e) => setInvoiceData({...invoiceData, invoiceNumber: e.target.value})}
+                    className="mt-1 text-sm"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="invoiceDate">Invoice Date</Label>
+                  <Label htmlFor="invoiceDate" className="text-sm font-medium text-gray-700">Invoice Date</Label>
                   <Input
                     id="invoiceDate"
                     type="date"
                     value={invoiceData.invoiceDate}
                     onChange={(e) => setInvoiceData({...invoiceData, invoiceDate: e.target.value})}
+                    className="mt-1 text-sm"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="dueDate">Due Date</Label>
+                  <Label htmlFor="dueDate" className="text-sm font-medium text-gray-700">Due Date</Label>
                   <Input
                     id="dueDate"
                     type="date"
                     value={invoiceData.dueDate}
                     onChange={(e) => setInvoiceData({...invoiceData, dueDate: e.target.value})}
+                    className="mt-1 text-sm"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="reference">Reference</Label>
-                  <Input
-                    id="reference"
-                    value={invoiceData.reference}
-                    onChange={(e) => setInvoiceData({...invoiceData, reference: e.target.value})}
-                    placeholder="Base Stage | SX_2503 - 5 Thanet St, Malvern VIC 3144"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="clientName">Client Name</Label>
-                  <Input
-                    id="clientName"
-                    value={invoiceData.clientName}
-                    onChange={(e) => setInvoiceData({...invoiceData, clientName: e.target.value})}
-                    placeholder="Ben Holt & Jacqui Junkeer"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="abn">ABN</Label>
+                  <Label htmlFor="abn" className="text-sm font-medium text-gray-700">ABN</Label>
                   <Input
                     id="abn"
                     value={invoiceData.abn}
                     onChange={(e) => setInvoiceData({...invoiceData, abn: e.target.value})}
                     placeholder="49 032 355 809"
+                    className="mt-1 text-sm"
                   />
                 </div>
               </div>
+
+              {/* Row 2: Client Details */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <Label htmlFor="clientName" className="text-sm font-medium text-gray-700">Client Name</Label>
+                  <Input
+                    id="clientName"
+                    value={invoiceData.clientName}
+                    onChange={(e) => setInvoiceData({...invoiceData, clientName: e.target.value})}
+                    placeholder="Ben Holt & Jacqui Junkeer"
+                    className="mt-1 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="reference" className="text-sm font-medium text-gray-700">Reference</Label>
+                  <Input
+                    id="reference"
+                    value={invoiceData.reference}
+                    onChange={(e) => setInvoiceData({...invoiceData, reference: e.target.value})}
+                    placeholder="Base Stage | SX_2503 - 5 Thanet St, Malvern VIC 3144"
+                    className="mt-1 text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Row 3: Client Address */}
               <div>
-                <Label htmlFor="clientAddress">Client Address</Label>
+                <Label htmlFor="clientAddress" className="text-sm font-medium text-gray-700">Client Address</Label>
                 <Textarea
                   id="clientAddress"
                   value={invoiceData.clientAddress}
                   onChange={(e) => setInvoiceData({...invoiceData, clientAddress: e.target.value})}
                   placeholder="5 Thanet St&#10;MALVERN VIC 3144&#10;AUSTRALIA"
-                  rows={3}
+                  rows={2}
+                  className="mt-1 text-sm resize-none"
                 />
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
 
