@@ -1,5 +1,5 @@
 
-import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Boxes, FileText, DollarSign, Users, FileSignature, ClipboardCheck } from "lucide-react";
+import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Boxes, FileText, DollarSign, Users, FileSignature, ClipboardCheck, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
@@ -47,6 +47,12 @@ const ALL_PROJECT_NAV_ITEMS = [{
   label: 'Specification',
   icon: FileText,
   page: 'project-specification'
+}, {
+  id: 'procurement',
+  key: 'procurement',
+  label: 'Procurement',
+  icon: ShoppingCart,
+  page: 'project-procurement'
 }, {
   id: 'cost',
   key: 'cost',
