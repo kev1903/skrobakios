@@ -60,6 +60,12 @@ export const ProjectProcurementPage = () => {
 
   // Navigation handler for ProjectSidebar
   const handleNavigate = (page: string) => {
+    if (page === 'projects') {
+      // Navigate to projects list without projectId
+      window.location.href = '/?page=projects';
+      return;
+    }
+    
     if (page.includes('?')) {
       const [pageName, queryString] = page.split('?');
       const params = new URLSearchParams(queryString);
