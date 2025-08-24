@@ -28,7 +28,7 @@ export const MobileProjectList = ({ onNavigate, onSelectProject }: MobileProject
   // Calculate project statistics
   const projectStats = {
     total: projects.length,
-    active: projects.filter(p => p.status === 'in_progress').length,
+    active: projects.filter(p => p.status === 'running').length,
     completed: projects.filter(p => p.status === 'completed').length,
     pending: projects.filter(p => p.status === 'pending').length,
   };
@@ -43,7 +43,7 @@ export const MobileProjectList = ({ onNavigate, onSelectProject }: MobileProject
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-700 border-green-200';
-      case 'in_progress': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'running': return 'bg-orange-100 text-orange-700 border-orange-200';
       case 'pending': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
@@ -52,7 +52,7 @@ export const MobileProjectList = ({ onNavigate, onSelectProject }: MobileProject
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'completed': return 'Completed';
-      case 'in_progress': return 'In Progress';
+      case 'running': return 'In Progress';
       case 'pending': return 'Pending';
       default: return status;
     }

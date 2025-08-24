@@ -46,7 +46,7 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
   // Calculate project statistics
   const projectStats = {
     total: projects.length,
-    active: projects.filter(p => p.status === 'in_progress').length,
+    active: projects.filter(p => p.status === 'running').length,
     completed: projects.filter(p => p.status === 'completed').length,
     pending: projects.filter(p => p.status === 'pending').length,
   };
