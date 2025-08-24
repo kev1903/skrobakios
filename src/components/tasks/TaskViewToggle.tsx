@@ -9,12 +9,12 @@ interface TaskViewToggleProps {
 
 export const TaskViewToggle = ({ viewMode, onViewModeChange }: TaskViewToggleProps) => {
   return (
-    <div className="flex items-center backdrop-blur-xl bg-card border border-border rounded-lg">
+    <div className="flex items-center glass rounded-xl p-1">
       <Button
         variant={viewMode === "list" ? "default" : "ghost"}
         size="sm"
         onClick={() => onViewModeChange("list")}
-        className="text-foreground hover:bg-muted/50"
+        className="text-foreground hover:bg-accent/50 transition-all duration-200"
       >
         <LayoutList className="w-4 h-4 mr-2" />
         List
@@ -23,7 +23,7 @@ export const TaskViewToggle = ({ viewMode, onViewModeChange }: TaskViewTogglePro
         variant={viewMode === "grid" ? "default" : "ghost"}
         size="sm"
         onClick={() => onViewModeChange("grid")}
-        className="text-foreground hover:bg-muted/50"
+        className="text-foreground hover:bg-accent/50 transition-all duration-200"
       >
         <Grid2x2 className="w-4 h-4 mr-2" />
         Grid
