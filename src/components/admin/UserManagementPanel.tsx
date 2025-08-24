@@ -252,11 +252,6 @@ export const UserManagementPanel: React.FC = () => {
 
       if (error) throw error;
 
-      // Update user role if changed
-      if (role !== selectedUser.role) {
-        await updateUserRole(selectedUser.id, role);
-      }
-
       // Update password if provided
       if (password.trim()) {
         const { data: { session } } = await supabase.auth.getSession();
@@ -505,20 +500,6 @@ export const UserManagementPanel: React.FC = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       Leave blank to keep current password
                     </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="editRole">Role</Label>
-                    <Select value={role} onValueChange={(value: any) => setRole(value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="user">User</SelectItem>
-                        <SelectItem value="project_admin">Project Admin</SelectItem>
-                        <SelectItem value="business_admin">Business Admin</SelectItem>
-                        <SelectItem value="superadmin">Super Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                   <div className="flex gap-2">
                     <Button 
