@@ -25,7 +25,7 @@ export const InvoiceFormPage = () => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const [invoiceData, setInvoiceData] = useState({
-    invoiceNumber: `INV-${Date.now()}`,
+    invoiceNumber: `INV-0300`,
     invoiceDate: new Date().toISOString().split('T')[0],
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     reference: '',
