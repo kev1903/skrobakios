@@ -76,6 +76,10 @@ export const InvoiceFormPage = () => {
 
         setContracts(contractsData || []);
         console.log('Contracts fetched:', contractsData);
+        // Auto-select first contract for convenience
+        if ((!invoiceData.contractId || invoiceData.contractId === '') && contractsData && contractsData.length > 0) {
+          setInvoiceData((prev) => ({ ...prev, contractId: contractsData[0].id }));
+        }
       } catch (error) {
         console.error('Error fetching contracts:', error);
         toast({
