@@ -198,8 +198,7 @@ export const InvoiceFormPage = () => {
               variant="outline" 
               onClick={() => {
                 const params = new URLSearchParams();
-                const inner = `project-cost?projectId=${projectId ?? ''}&tab=income`;
-                params.set('page', inner); // encoded automatically in search string
+                params.set('page', 'project-cost');
                 if (projectId) params.set('projectId', projectId);
                 params.set('tab', 'income');
                 navigate({ pathname: '/', search: `?${params.toString()}` });
