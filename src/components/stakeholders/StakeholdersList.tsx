@@ -190,27 +190,29 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
 
   const handleExport = () => {
     try {
-      // Prepare data for export
-      const exportData = stakeholders.map(stakeholder => ({
+      // Filter to only include clients
+      const clientStakeholders = stakeholders.filter(stakeholder => stakeholder.category === 'client');
+      
+      if (clientStakeholders.length === 0) {
+        toast.error('No clients found to export');
+        return;
+      }
+
+      // Prepare data for export - excluding sensitive contact details
+      const exportData = clientStakeholders.map(stakeholder => ({
         display_name: stakeholder.display_name,
         category: stakeholder.category,
         trade_industry: stakeholder.trade_industry || '',
-        primary_contact_name: stakeholder.primary_contact_name || '',
-        primary_email: stakeholder.primary_email || '',
-        primary_phone: stakeholder.primary_phone || '',
         status: stakeholder.status,
         compliance_status: stakeholder.compliance_status,
         tags: stakeholder.tags ? stakeholder.tags.join(', ') : '',
       }));
 
-      // Create CSV content
+      // Create CSV content - no sensitive contact information
       const headers = [
         'Display Name',
         'Category', 
         'Trade/Industry',
-        'Primary Contact Name',
-        'Primary Email',
-        'Primary Phone',
         'Status',
         'Compliance Status',
         'Tags'
@@ -233,17 +235,17 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
       const url = URL.createObjectURL(blob);
       
       link.setAttribute('href', url);
-      link.setAttribute('download', `stakeholders_${currentCompany?.name || 'export'}_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `clients_${currentCompany?.name || 'export'}_${new Date().toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
-      toast.success('Stakeholders exported successfully');
+      toast.success(`${clientStakeholders.length} clients exported successfully (contact details excluded)`);
     } catch (error) {
       console.error('Export error:', error);
-      toast.error('Failed to export stakeholders');
+      toast.error('Failed to export clients');
     }
   };
 
