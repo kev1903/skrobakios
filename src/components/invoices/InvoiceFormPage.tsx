@@ -224,39 +224,6 @@ export const InvoiceFormPage = () => {
           </div>
         </div>
 
-        {/* Invoice Tools - Right Side Floating */}
-        <div className="print:hidden fixed right-4 top-40 z-10">
-          <div className="bg-white border border-gray-200 rounded-md shadow-md p-2">
-            <h4 className="text-xs font-medium text-gray-600 mb-2">Invoice Tools</h4>
-            <div className="space-y-1">
-              <Button 
-                onClick={handleSave}
-                className="w-full flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white text-xs py-1 px-2 h-7"
-                size="sm"
-              >
-                <Save className="h-3 w-3" />
-                SAVE
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={handlePrint}
-                className="w-full flex items-center gap-1 border-blue-600 text-blue-600 hover:bg-blue-50 text-xs py-1 px-2 h-7"
-                size="sm"
-              >
-                <Download className="h-3 w-3" />
-                EXPORT
-              </Button>
-              <Button 
-                onClick={handleSend}
-                className="w-full flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 px-2 h-7"
-                size="sm"
-              >
-                <Send className="h-3 w-3" />
-                SEND
-              </Button>
-            </div>
-          </div>
-        </div>
 
         {/* Compact Invoice Details Form */}
         <div className="print:hidden mb-6">
