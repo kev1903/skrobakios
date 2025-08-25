@@ -143,22 +143,22 @@ export const MobileProjectList = ({ onNavigate, onSelectProject }: MobileProject
                   onClick={() => handleProjectClick(project.id)}
                 >
                   <div className="flex-1 min-w-0 space-y-2">
-                    <div className="flex items-center">
+                    <div>
+                      <h3 className="font-medium text-foreground leading-tight mb-2">
+                        {project.name}
+                      </h3>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
                       <Badge 
                         variant="secondary" 
                         className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusColor(project.status)}`}
                       >
                         {getStatusLabel(project.status)}
                       </Badge>
-                    </div>
-                    
-                    <div className="space-y-1">
                       <p className="text-sm text-muted-foreground font-mono">
                         #{project.id.slice(-6).toUpperCase()}
                       </p>
-                      <h3 className="font-medium text-foreground leading-tight">
-                        {project.name}
-                      </h3>
                     </div>
                   </div>
                   
