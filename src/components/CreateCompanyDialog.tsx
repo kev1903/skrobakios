@@ -88,6 +88,45 @@ export const CreateCompanyDialog = ({ open, onOpenChange }: CreateCompanyDialogP
 
       if (memberError) throw memberError;
 
+      // Get all superadmins and add them to the company
+      const { data: superAdmins, error: superAdminError } = await supabase
+        .from('user_roles')
+        .select(`
+          user_id,
+          profiles!inner(
+            user_id,
+            first_name,
+            last_name,
+            email
+          )
+        `)
+        .eq('role', 'superadmin');
+
+      if (superAdminError) {
+        console.error('Error fetching superadmins:', superAdminError);
+      } else if (superAdmins && superAdmins.length > 0) {
+        // Add all superadmins as owners to the company (excluding current user to avoid duplicates)
+        const superAdminMembers = superAdmins
+          .filter(admin => admin.user_id !== user.id)
+          .map(admin => ({
+            company_id: company.id,
+            user_id: admin.user_id,
+            role: 'owner',
+            status: 'active',
+          }));
+
+        if (superAdminMembers.length > 0) {
+          const { error: superAdminMemberError } = await supabase
+            .from('company_members')
+            .insert(superAdminMembers);
+
+          if (superAdminMemberError) {
+            console.error('Error adding superadmins to company:', superAdminMemberError);
+            // Don't throw error here as the main company creation was successful
+          }
+        }
+      }
+
       await refreshCompanies();
       switchCompany(company.id);
 
