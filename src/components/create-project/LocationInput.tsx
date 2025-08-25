@@ -41,7 +41,7 @@ export const LocationInput = ({
     }
 
     try {
-      const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=pk.eyJ1IjoidGlubHlkZXNpZ24iLCJhIjoiY20xcTd1aTJxMDQ4YjJrb21pZDNydDE1eSJ9.L3OLHaUxvKyJ9W7WfFfwzw&types=address,poi&limit=5`);
+      const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=pk.eyJ1Ijoia2V2aW4xOTAzMTk5NCIsImEiOiJjbWNvdTU0aXcxOWxrMmtvamd0NjB6ajhjIn0.3mYQ3SZE_DQ0Qiz8t_IA6w&country=AU&limit=5&autocomplete=true`);
       
       if (!response.ok) {
         console.error('Mapbox geocoding error:', response.status);
@@ -96,7 +96,7 @@ export const LocationInput = ({
     try {
       // If we don't have coordinates yet, geocode the current value
       if (!selectedCoordinates) {
-        const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=pk.eyJ1IjoidGlubHlkZXNpZ24iLCJhIjoiY20xcTd1aTJxMDQ4YjJrb21pZDNydDE1eSJ9.L3OLHaUxvKyJ9W7WfFfwzw&types=address,poi&limit=1`);
+        const response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?access_token=pk.eyJ1Ijoia2V2aW4xOTAzMTk5NCIsImEiOiJjbWNvdTU0aXcxOWxrMmtvamd0NjB6ajhjIn0.3mYQ3SZE_DQ0Qiz8t_IA6w&country=AU&limit=5&autocomplete=true`);
         
         if (response.ok) {
           const data = await response.json();
