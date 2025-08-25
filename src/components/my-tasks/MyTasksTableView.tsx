@@ -87,10 +87,15 @@ export const MyTasksTableView = ({
                  </div>
                </TableCell>
                <TableCell className="py-1">
-                 <Badge 
-                   variant="outline" 
-                   className={task.taskType === 'Issue' ? 'border-red-200 bg-red-50 text-red-700' : 'border-blue-200 bg-blue-50 text-blue-700'}
-                 >
+                  <Badge 
+                    variant="outline" 
+                    className={
+                      task.taskType === 'Task' ? 'border-blue-200 bg-blue-50 text-blue-700' :
+                      task.taskType === 'Bug' ? 'border-red-200 bg-red-50 text-red-700' :
+                      task.taskType === 'Feature' ? 'border-purple-200 bg-purple-50 text-purple-700' :
+                      'border-gray-200 bg-gray-50 text-gray-700'
+                    }
+                  >
                    {task.taskType}
                  </Badge>
                </TableCell>

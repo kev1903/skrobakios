@@ -158,7 +158,7 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
       const newTaskData = {
         project_id: projectId,
         taskName: taskName.trim(),
-        taskType: taskType as 'Task' | 'Issue',
+        taskType: taskType as 'Task' | 'Bug' | 'Feature',
         priority: 'Medium' as const,
         assignedTo: assignedTo || { name: '', avatar: '', userId: '' },
         dueDate: null, // New tasks go to backlog by default
@@ -248,7 +248,8 @@ export const AddTaskDialog = ({ isOpen, onClose, status, projectId }: AddTaskDia
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Task">Task</SelectItem>
-                <SelectItem value="Issue">Issue</SelectItem>
+                <SelectItem value="Bug">Bug</SelectItem>
+                <SelectItem value="Feature">Feature</SelectItem>
               </SelectContent>
             </Select>
           </div>

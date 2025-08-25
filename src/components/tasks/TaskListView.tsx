@@ -47,7 +47,7 @@ export const TaskListView = ({
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const [localAddTaskDialogOpen, setLocalAddTaskDialogOpen] = useState(false);
-  const [taskTypeFilter, setTaskTypeFilter] = useState<'All' | 'Task' | 'Issue'>('All');
+  const [taskTypeFilter, setTaskTypeFilter] = useState<'All' | 'Task' | 'Bug' | 'Feature'>('All');
   const isMobile = useIsMobile();
 
   // Filter tasks based on project and task type
@@ -406,7 +406,7 @@ export const TaskListView = ({
         <Filter className="w-4 h-4 text-muted-foreground" />
         <span className="text-sm font-medium text-foreground">Filter by Type:</span>
         <div className="flex gap-1">
-          {(['All', 'Task', 'Issue'] as const).map((type) => (
+          {(['All', 'Task', 'Bug', 'Feature'] as const).map((type) => (
             <Button
               key={type}
               variant={taskTypeFilter === type ? "default" : "outline"}
@@ -426,7 +426,9 @@ export const TaskListView = ({
                 >
                   {type === 'Task' 
                     ? tasks.filter(t => (!projectId || t.project_id === projectId) && t.taskType === 'Task').length
-                    : tasks.filter(t => (!projectId || t.project_id === projectId) && t.taskType === 'Issue').length
+                    : type === 'Bug'
+                    ? tasks.filter(t => (!projectId || t.project_id === projectId) && t.taskType === 'Bug').length
+                    : tasks.filter(t => (!projectId || t.project_id === projectId) && t.taskType === 'Feature').length
                   }
                 </Badge>
               )}

@@ -457,7 +457,7 @@ const TasksPage = () => {
                             <p className="text-xs text-muted-foreground font-medium truncate font-inter">
                               {task.projectName || 'No Project'}
                             </p>
-                            <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 font-inter", task.taskType === 'Task' ? 'bg-green-100 text-green-700 border border-green-200' : task.taskType === 'Issue' ? 'bg-orange-100 text-orange-700 border border-orange-200' : task.taskType === 'Bug' ? 'bg-red-100 text-red-700 border border-red-200' : task.taskType === 'Feature' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-muted text-muted-foreground border border-border')}>
+                            <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 font-inter", task.taskType === 'Task' ? 'bg-green-100 text-green-700 border border-green-200' : task.taskType === 'Bug' ? 'bg-red-100 text-red-700 border border-red-200' : task.taskType === 'Feature' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-muted text-muted-foreground border border-border')}>
                               {task.taskType}
                             </span>
                             <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-blue-100 text-blue-700 border border-blue-200 font-inter">

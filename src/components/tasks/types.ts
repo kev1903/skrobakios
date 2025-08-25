@@ -19,7 +19,7 @@ export interface Task {
   projectName?: string;
   taskName: string;
   task_number?: string;
-  taskType: 'Task' | 'Issue' | 'Bug' | 'Feature';
+  taskType: 'Task' | 'Bug' | 'Feature';
   priority: 'High' | 'Medium' | 'Low';
   assignedTo: { name: string; avatar: string; userId?: string };
   dueDate: string; // Now stores full datetime with timezone

@@ -91,7 +91,6 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
       let matchesTypeFilter = false;
       if (selectedFilter === 'all') matchesTypeFilter = true;
       if (selectedFilter === 'tasks') matchesTypeFilter = task.taskType === 'Task';
-      if (selectedFilter === 'issues') matchesTypeFilter = task.taskType === 'Issue';
       if (selectedFilter === 'bugs') matchesTypeFilter = task.taskType === 'Bug';
       if (selectedFilter === 'features') matchesTypeFilter = task.taskType === 'Feature';
       
@@ -333,8 +332,9 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
                           </p>
                           <div className="flex gap-2 flex-wrap">
                             <Badge variant="outline" className={`text-xs ${
-                              task.taskType === 'Issue' ? 'bg-red-50 text-red-700 border-red-200' :
                               task.taskType === 'Task' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                              task.taskType === 'Bug' ? 'bg-red-50 text-red-700 border-red-200' :
+                              task.taskType === 'Feature' ? 'bg-purple-50 text-purple-700 border-purple-200' :
                               'bg-gray-50 text-gray-700 border-gray-200'
                             }`}>
                               {task.taskType}
