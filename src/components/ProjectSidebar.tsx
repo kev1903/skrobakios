@@ -111,7 +111,7 @@ export const ProjectSidebar = ({
   const contentClasses = {
     mobile: "flex flex-col h-full px-0 py-0",
     tablet: "flex flex-col h-full px-0 py-0",
-    desktop: "flex flex-col h-full pt-16"
+    desktop: "flex flex-col h-full px-0 py-0"
   };
 
   return (
