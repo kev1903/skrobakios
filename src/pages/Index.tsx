@@ -17,7 +17,7 @@ import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { MobileViewToggle } from "@/components/mobile/MobileViewToggle";
+import { MobileBottomBar } from "@/components/MobileBottomBar";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -167,7 +167,7 @@ const Index = () => {
             <MobileHeader onNavigate={handleNavigate} />
             
             {/* Main content area pinned between header and bottom toggle */}
-            <div className="absolute left-0 right-0 top-16 bottom-16 z-10">
+            <div className="absolute left-0 right-0 top-16 bottom-20 z-10">
               {mobileView === 'chat' ? (
                 // AI Chat view on mobile - Show full screen chat modal in menu bar instead
                 <div className="w-full h-full flex items-center justify-center">
@@ -192,11 +192,8 @@ const Index = () => {
 
             </div>
             
-            {/* Mobile toggle at bottom (fixed) */}
-            <MobileViewToggle 
-              activeView={mobileView}
-              onViewChange={setMobileView}
-            />
+            {/* Mobile bottom navigation bar */}
+            <MobileBottomBar onNavigate={handleNavigate} />
           </div>
         ) : (
           // Home and all other pages get layout with sidebar (desktop/tablet)
