@@ -161,13 +161,15 @@ const Index = () => {
             </div>
           </div>
         ) : isMobile ? (
-          // Mobile layout with toggle between chat and app
-          <div className="relative h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+          // Mobile layout with bottom navigation bar
+          <div className="flex flex-col h-screen min-h-0 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
             {/* Mobile header (fixed) */}
-            <MobileHeader onNavigate={handleNavigate} />
+            <div className="flex-shrink-0">
+              <MobileHeader onNavigate={handleNavigate} />
+            </div>
             
-            {/* Main content area pinned between header and bottom toggle */}
-            <div className="absolute left-0 right-0 top-16 bottom-20 z-10">
+            {/* Main content area - fills remaining space */}
+            <div className="flex-1 min-h-0 overflow-hidden">
               {mobileView === 'chat' ? (
                 // AI Chat view on mobile - Show full screen chat modal in menu bar instead
                 <div className="w-full h-full flex items-center justify-center">
@@ -175,7 +177,7 @@ const Index = () => {
                 </div>
               ) : (
                 // App view on mobile
-                <div className="w-full h-full overflow-hidden">
+                <div className="w-full h-full">
                   <PageLayout currentPage={currentPage} onNavigate={handleNavigate} disableSpacing>
                     <div className="w-full h-full">
                       <ContentRenderer 
@@ -189,11 +191,12 @@ const Index = () => {
                   </PageLayout>
                 </div>
               )}
-
             </div>
             
-            {/* Mobile bottom navigation bar */}
-            <MobileBottomBar onNavigate={handleNavigate} />
+            {/* Mobile bottom navigation bar (fixed) */}
+            <div className="flex-shrink-0">
+              <MobileBottomBar onNavigate={handleNavigate} />
+            </div>
           </div>
         ) : (
           // Home and all other pages get layout with sidebar (desktop/tablet)
