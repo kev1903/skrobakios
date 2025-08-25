@@ -47,7 +47,7 @@ export const MobileBottomBar = ({ onNavigate }: MobileBottomBarProps) => {
 
   // Responsive sizing
   const buttonHeight = isMobileSmall ? 'h-12' : 'h-14';
-  const iconSize = isMobileSmall ? 'w-5 h-5' : 'w-6 h-6';
+  const iconSize = isMobileSmall ? 'w-4 h-4' : 'w-5 h-5';
   const textSize = isMobileSmall ? 'text-xs' : 'text-sm';
   const barHeight = isMobileSmall ? 'h-16' : 'h-18';
   const bottomPadding = 'pb-safe'; // Safe area padding for devices with home indicator
@@ -79,7 +79,7 @@ export const MobileBottomBar = ({ onNavigate }: MobileBottomBarProps) => {
       bottomPadding,
       'mobile-safe-area'
     )}>
-      <div className="flex items-center justify-around h-full px-2">
+      <div className="flex items-center justify-center h-full px-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.page);
@@ -89,24 +89,27 @@ export const MobileBottomBar = ({ onNavigate }: MobileBottomBarProps) => {
               key={item.id}
               onClick={() => handleNavigation(item.page)}
               className={cn(
-                'flex flex-col items-center justify-center flex-1',
+                'flex flex-col items-center justify-center flex-1 min-w-0',
                 buttonHeight,
-                'rounded-lg transition-all duration-200',
-                'touch-manipulation',
+                'rounded-xl transition-all duration-200 mx-1',
+                'touch-manipulation relative',
                 active 
                   ? 'text-primary bg-primary/10' 
                   : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
               )}
               aria-label={item.label}
             >
-              <Icon className={cn(iconSize, 'mb-1')} />
-              <span className={cn(
-                textSize, 
-                'font-medium truncate max-w-full',
-                active ? 'text-primary' : 'text-inherit'
-              )}>
-                {item.label}
-              </span>
+              <div className="flex flex-col items-center justify-center gap-1">
+                <Icon className={cn(iconSize, 'shrink-0')} />
+                <span className={cn(
+                  textSize, 
+                  'font-medium leading-tight text-center px-1',
+                  'whitespace-nowrap overflow-hidden text-ellipsis max-w-full',
+                  active ? 'text-primary' : 'text-inherit'
+                )}>
+                  {item.label}
+                </span>
+              </div>
             </button>
           );
         })}
