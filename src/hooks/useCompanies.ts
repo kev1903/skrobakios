@@ -29,7 +29,7 @@ export const useCompanies = () => {
           company_id,
           role,
           status,
-          companies (
+          companies!company_members_company_id_fkey (
             id,
             name,
             slug,
