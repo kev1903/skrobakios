@@ -406,10 +406,12 @@ const barRef = useRef<HTMLDivElement>(null);
                   </button>
                 )}
                 
-                {/* AI Chat Icon */}
-                <button onClick={() => setShowAiChat(true)} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" title="Open AI Assistant">
-                  <MessageCircle className="w-4 h-4" />
-                </button>
+                {/* AI Chat Icon - hidden on mobile */}
+                {!isMobile && (
+                  <button onClick={() => setShowAiChat(true)} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" title="Open AI Assistant">
+                    <MessageCircle className="w-4 h-4" />
+                  </button>
+                )}
                 
                 {/* Voice Debug Icon */}
                 <button onClick={() => setShowVoiceInterface(true)} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" title="Debug SkAi Voice">
