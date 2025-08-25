@@ -398,7 +398,7 @@ export const TimelineView = ({ projectId, projectName, companyId }: TimelineView
     );
   }
 
-  if (screenSize === 'mobile') {
+  if (screenSize === 'mobile' || screenSize === 'mobile-small') {
     return (
       <div className="space-y-4">
         {/* Mobile Header */}

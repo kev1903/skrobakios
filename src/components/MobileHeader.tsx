@@ -6,6 +6,7 @@ import { useCompany } from '@/contexts/CompanyContext';
 import { useAppContext } from '@/contexts/AppContextProvider';
 import { useGlobalSidebar } from '@/contexts/GlobalSidebarContext';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useScreenSize, useIsMobileSmall, useViewportDimensions } from '@/hooks/use-mobile';
 import { User, Menu, ClipboardList, Bell, Inbox } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -24,6 +25,9 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
   const { activeContext } = useAppContext();
   const { isOpen, toggleSidebar } = useGlobalSidebar();
   const { unreadCount } = useNotifications();
+  const screenSize = useScreenSize();
+  const isMobileSmall = useIsMobileSmall();
+  const { width } = useViewportDimensions();
 
   // Get the user's display name from the database profile
   const getUserDisplayName = () => {
@@ -78,9 +82,15 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
     return userProfile.jobTitle || '';
   };
 
+  // Responsive header height and padding
+  const headerHeight = isMobileSmall ? 'h-14' : 'h-16';
+  const headerPadding = isMobileSmall ? 'px-3' : width < 375 ? 'px-2' : 'px-4';
+  const iconSize = isMobileSmall ? 'w-3 h-3' : 'w-4 h-4';
+  const buttonSize = isMobileSmall ? 'w-7 h-7' : 'w-8 h-8';
+
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 flex items-center justify-between px-4 bg-background/90 backdrop-blur-sm border-b border-border/50 shadow-sm md:hidden z-30">
-      <div className="flex items-center space-x-3">
+    <header className={`fixed top-0 left-0 right-0 ${headerHeight} flex items-center justify-between ${headerPadding} bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm md:hidden z-30 mobile-safe-area`}>
+      <div className={`flex items-center ${isMobileSmall ? 'space-x-2' : 'space-x-3'}`}>
         <button 
           onClick={(e) => {
             e.preventDefault();
@@ -88,56 +98,62 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
             console.log('Hamburger clicked - toggling mobile sidebar');
             toggleSidebar();
           }}
-          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
+          className={`${buttonSize} bg-muted/50 backdrop-blur-sm rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 touch-manipulation`}
           aria-label="Toggle sidebar"
           style={{ position: 'relative', zIndex: 9999 }}
         >
-          <Menu className="w-4 h-4 text-slate-700" />
+          <Menu className={`${iconSize} text-foreground`} />
         </button>
-        <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-gradient-to-br from-slate-600 to-blue-700 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xs font-poppins">
+        <div className={`flex items-center ${isMobileSmall ? 'space-x-1.5' : 'space-x-2'}`}>
+          <div className={`${isMobileSmall ? 'w-5 h-5' : 'w-6 h-6'} bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center`}>
+            <span className={`text-primary-foreground font-bold ${isMobileSmall ? 'text-xs' : 'text-xs'}`}>
               {getCompanyDisplayText().charAt(0).toUpperCase()}
             </span>
           </div>
-          <h1 className="text-sm font-bold bg-gradient-to-r from-slate-800 to-blue-600 bg-clip-text text-transparent heading-modern">
-            {getCompanyDisplayText()}
-          </h1>
+          {width > 320 && (
+            <h1 className={`${isMobileSmall ? 'text-xs' : 'text-sm'} font-bold text-foreground truncate max-w-[120px]`}>
+              {getCompanyDisplayText()}
+            </h1>
+          )}
         </div>
       </div>
       
       {/* Navigation Icons */}
-      <div className="flex items-center space-x-3">
-        {/* Tasks Icon */}
-        <button 
-          onClick={() => onNavigate('my-tasks')}
-          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
-          aria-label="My Tasks"
-        >
-          <ClipboardList className="w-4 h-4 text-slate-700" />
-        </button>
+      <div className={`flex items-center ${isMobileSmall ? 'space-x-1.5' : 'space-x-2'}`}>
+        {/* Tasks Icon - Only show on wider screens */}
+        {width > 360 && (
+          <button 
+            onClick={() => onNavigate('my-tasks')}
+            className={`${buttonSize} bg-muted/50 backdrop-blur-sm rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 touch-manipulation`}
+            aria-label="My Tasks"
+          >
+            <ClipboardList className={`${iconSize} text-foreground`} />
+          </button>
+        )}
         
         {/* Notifications */}
         <NotificationDropdown>
           <NotificationBadge count={unreadCount}>
-            <button className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200">
-              <Bell className="w-4 h-4 text-slate-700" />
+            <button className={`${buttonSize} bg-muted/50 backdrop-blur-sm rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 touch-manipulation`}>
+              <Bell className={`${iconSize} text-foreground`} />
             </button>
           </NotificationBadge>
         </NotificationDropdown>
         
-        {/* Inbox Icon */}
-        <button 
-          onClick={() => onNavigate('inbox')}
-          className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 flex items-center justify-center hover:bg-white/30 transition-colors duration-200"
-          aria-label="Inbox"
-        >
-          <Inbox className="w-4 h-4 text-slate-700" />
-        </button>
+        {/* Inbox Icon - Only show on wider screens */}
+        {width > 390 && (
+          <button 
+            onClick={() => onNavigate('inbox')}
+            className={`${buttonSize} bg-muted/50 backdrop-blur-sm rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 touch-manipulation`}
+            aria-label="Inbox"
+          >
+            <Inbox className={`${iconSize} text-foreground`} />
+          </button>
+        )}
         
-        {/* User Profile */}
-        <div className="flex items-center space-x-2 px-2 py-1 rounded-lg bg-white/10">
-          <Avatar className="w-6 h-6">
+        {/* User Profile - Compact on small screens */}
+        <div className={`flex items-center ${isMobileSmall ? 'space-x-1' : 'space-x-2'} ${isMobileSmall ? 'px-1.5 py-0.5' : 'px-2 py-1'} rounded-lg bg-muted/30`}>
+          <Avatar className={`${isMobileSmall ? 'w-5 h-5' : 'w-6 h-6'}`}>
             <AvatarImage 
               src={userProfile.avatarUrl || undefined} 
               alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()}
@@ -145,23 +161,25 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
                 e.currentTarget.style.display = 'none';
               }}
             />
-            <AvatarFallback className="bg-gradient-to-br from-slate-600 to-blue-700 text-white text-xs">
+            <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xs">
               {userProfile?.firstName && userProfile?.lastName 
                 ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase()
-                : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || <User className="w-3 h-3" />
+                : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || <User className={`${isMobileSmall ? 'w-2.5 h-2.5' : 'w-3 h-3'}`} />
               }
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col items-start">
-            <span className="text-xs font-medium text-slate-800 font-poppins">
-              {getUserDisplayName()}
-            </span>
-            {getUserRole() && (
-              <span className="text-xs text-slate-500 font-inter">
-                {getUserRole()}
+          {width > 320 && !isMobileSmall && (
+            <div className="flex flex-col items-start">
+              <span className="text-xs font-medium text-foreground truncate max-w-[80px]">
+                {getUserDisplayName()}
               </span>
-            )}
-          </div>
+              {getUserRole() && width > 380 && (
+                <span className="text-xs text-muted-foreground truncate max-w-[80px]">
+                  {getUserRole()}
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </header>

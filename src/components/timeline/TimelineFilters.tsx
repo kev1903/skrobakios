@@ -18,7 +18,7 @@ interface TimelineFiltersProps {
   onSortByChange: (sort: 'date' | 'duration' | 'category' | 'project') => void;
   groupBy: 'none' | 'category' | 'project' | 'date';
   onGroupByChange: (group: 'none' | 'category' | 'project' | 'date') => void;
-  screenSize: 'mobile' | 'tablet' | 'desktop';
+  screenSize: 'mobile-small' | 'mobile' | 'tablet' | 'desktop';
 }
 
 export const TimelineFilters = ({
@@ -63,7 +63,7 @@ export const TimelineFilters = ({
 
   const hasActiveFilters = selectedCategories.length > 0 || selectedProjects.length > 0 || dateRange !== 'week';
 
-  if (screenSize === 'mobile') {
+  if (screenSize === 'mobile' || screenSize === 'mobile-small') {
     return (
       <div className="space-y-4">
         {/* Date Range - Mobile */}

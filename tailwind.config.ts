@@ -14,9 +14,21 @@ export default {
 		container: {
 			center: true,
 			padding: '2rem',
-			screens: {
-				'2xl': '1400px'
-			}
+		screens: {
+			'xs': '375px',
+			'sm': '480px',
+			'md': '768px',
+			'lg': '1024px',
+			'xl': '1280px',
+			'2xl': '1400px',
+			// Mobile-specific breakpoints
+			'mobile-sm': { 'max': '479px' },
+			'mobile': { 'max': '767px' },
+			'tablet': { 'min': '768px', 'max': '1023px' },
+			// Height-based breakpoints for mobile
+			'mobile-h-sm': { 'raw': '(max-height: 700px)' },
+			'mobile-landscape': { 'raw': '(max-height: 500px) and (orientation: landscape)' }
+		}
 		},
 		extend: {
 			fontFamily: {

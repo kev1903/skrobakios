@@ -564,7 +564,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
   );
 
   // Mobile layout with drawer
-  if (screenSize === 'mobile') {
+  if (screenSize === 'mobile' || screenSize === 'mobile-small') {
     return (
       <div className={`${fullHeightClasses} flex flex-col backdrop-blur-xl bg-black/20 overflow-x-hidden`}>
         {/* Mobile Header */}

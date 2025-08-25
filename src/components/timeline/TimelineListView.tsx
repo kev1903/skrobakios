@@ -11,7 +11,7 @@ interface TimelineListViewProps {
   categoryColors: Record<string, string>;
   groupBy: 'none' | 'category' | 'project' | 'date';
   sortBy: 'date' | 'duration' | 'category' | 'project';
-  screenSize: 'mobile' | 'tablet' | 'desktop';
+  screenSize: 'mobile-small' | 'mobile' | 'tablet' | 'desktop';
 }
 export const TimelineListView = ({
   entries,

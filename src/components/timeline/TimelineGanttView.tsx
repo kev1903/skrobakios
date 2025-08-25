@@ -56,7 +56,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 interface TimelineGanttViewProps {
   tasks: CentralTask[];
   onTaskUpdate?: (taskId: string, updates: Partial<CentralTask>) => void;
-  screenSize: 'mobile' | 'tablet' | 'desktop';
+  screenSize: 'mobile-small' | 'mobile' | 'tablet' | 'desktop';
 }
 
 type TimeScale = 'days' | 'weeks' | 'months';
@@ -111,7 +111,7 @@ export const TimelineGanttView = ({
 
   // Enhanced time scale configuration
   const getTimeScaleConfig = () => {
-    const baseWidth = screenSize === 'mobile' ? 30 : screenSize === 'tablet' ? 40 : 50;
+    const baseWidth = (screenSize === 'mobile' || screenSize === 'mobile-small') ? 30 : screenSize === 'tablet' ? 40 : 50;
     const scaledWidth = baseWidth * zoom;
     
     switch (timeScale) {

@@ -14,7 +14,7 @@ interface TimelineStatsProps {
     entryCount: number;
     topTasks: { task: string; minutes: number }[];
   };
-  screenSize: 'mobile' | 'tablet' | 'desktop';
+  screenSize: 'mobile-small' | 'mobile' | 'tablet' | 'desktop';
 }
 
 export const TimelineStats = ({ totalEntries, totalDuration, stats, screenSize }: TimelineStatsProps) => {
@@ -35,7 +35,7 @@ export const TimelineStats = ({ totalEntries, totalDuration, stats, screenSize }
     return 'text-red-600 bg-red-100';
   };
 
-  if (screenSize === 'mobile') {
+  if (screenSize === 'mobile' || screenSize === 'mobile-small') {
     return (
       <div className="grid grid-cols-2 gap-3">
         <Card className="backdrop-blur-xl bg-white/40 border-white/20">

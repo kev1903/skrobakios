@@ -76,7 +76,7 @@ export const StakeholdersList: React.FC<StakeholdersListProps> = ({
 }) => {
   const { currentCompany } = useCompany();
   const screenSize = useScreenSize();
-  const isMobile = screenSize === 'mobile';
+  const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
   const [stakeholders, setStakeholders] = useState<Stakeholder[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

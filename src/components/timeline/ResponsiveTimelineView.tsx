@@ -18,7 +18,7 @@ export const ResponsiveTimelineView = ({
 
   return (
     <div className={`${
-      screenSize === 'mobile' 
+      screenSize === 'mobile' || screenSize === 'mobile-small'
         ? 'space-y-4' 
         : screenSize === 'tablet' 
         ? 'space-y-5' 
