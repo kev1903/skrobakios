@@ -64,7 +64,7 @@ export const MobileProjectList = ({ onNavigate, onSelectProject }: MobileProject
   return (
     <div className="min-h-screen bg-muted/20">
       {/* Clean Header */}
-      <div className="bg-background border-b border-border px-4 py-6">
+      <div className="bg-background border-b border-border px-4 py-6 pt-20">
         <div className="flex items-center justify-between mb-4">
           <Button 
             variant="ghost" 
