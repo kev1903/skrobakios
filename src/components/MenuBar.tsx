@@ -420,7 +420,7 @@ const barRef = useRef<HTMLDivElement>(null);
                 
                 {/* User Profile */}
                 <div className="relative" ref={profileDropdownRef}>
-                  <div className="flex items-center gap-2 px-2 py-1 bg-muted/50 backdrop-blur-sm rounded-full border border-border cursor-pointer hover:bg-muted transition-colors duration-200" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>
+                  <div className="flex items-center justify-center w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-full border border-border cursor-pointer hover:bg-muted transition-colors duration-200" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>
                     <Avatar className="w-6 h-6">
                       <AvatarImage src={userProfile.avatarUrl || undefined} alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()} onError={e => {
                     e.currentTarget.style.display = 'none';
@@ -429,10 +429,6 @@ const barRef = useRef<HTMLDivElement>(null);
                         {userProfile?.firstName && userProfile?.lastName ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase() : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="text-sm font-medium text-foreground max-w-24 truncate">
-                      {userProfile?.firstName && userProfile?.lastName ? `${userProfile.firstName} ${userProfile.lastName}`.trim() : userProfile?.firstName || userProfile?.email?.split('@')[0] || 'User'}
-                    </span>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </div>
                   
                   {/* Profile Dropdown */}
