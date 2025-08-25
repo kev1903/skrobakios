@@ -34,19 +34,25 @@ export const useProjectState = () => {
   useEffect(() => {
     const fetchCurrentProject = async () => {
       if (selectedProject) {
+        console.log('🔍 Fetching project with ID:', selectedProject);
         try {
           // Use getProject for individual project fetching which checks cache first
           const project = await getProject(selectedProject);
+          console.log('🔍 getProject result:', project);
           if (project) {
+            console.log('✅ Project found:', project.name);
             setCurrentProject(project);
           } else {
+            console.log('❌ Project not found with getProject, trying getProjects fallback');
             // Fallback to fetching all projects if individual fetch fails
             const projects = await getProjects();
+            console.log('🔍 Available projects:', projects.length, projects.map(p => ({ id: p.id, name: p.name })));
             const foundProject = projects.find(p => p.id === selectedProject);
+            console.log('🔍 Found project in list:', foundProject ? foundProject.name : 'Not found');
             setCurrentProject(foundProject || null);
           }
         } catch (error) {
-          console.error('Error fetching projects:', error);
+          console.error('❌ Error fetching projects:', error);
           setCurrentProject(null);
         }
       }
