@@ -197,121 +197,119 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
   }, [project.id]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20">
-      <div className="flex h-screen max-h-screen overflow-hidden">
-        <ProjectSidebar
-          project={project}
-          onNavigate={onNavigate}
-          getStatusColor={getStatusColor}
-          getStatusText={getStatusText}
-          activeSection="settings"
-        />
-        
-        {/* Main Content - Single scroll container */}
-        <div className="flex-1 flex flex-col min-w-0 ml-48">
-          {/* Header - Fixed */}
-          <div className="flex-shrink-0 backdrop-blur-xl bg-card/95 border-b border-border shadow-sm z-10">
-            <div className="px-8 py-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-6">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onNavigate('individual-project-dashboard')}
-                    className="flex items-center space-x-2 text-muted-foreground hover:text-primary hover:bg-accent transition-all duration-200"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    <span className="font-medium">Back</span>
-                  </Button>
-                  <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                      Project Settings
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">Manage your project configuration and details</p>
-                  </div>
+    <div className="flex min-h-full">
+      <ProjectSidebar
+        project={project}
+        onNavigate={onNavigate}
+        getStatusColor={getStatusColor}
+        getStatusText={getStatusText}
+        activeSection="settings"
+      />
+      
+      {/* Main Content - relies on parent layout for scrolling */}
+      <div className="flex-1 flex flex-col min-w-0 ml-48">
+        {/* Header */}
+        <div className="flex-shrink-0 backdrop-blur-xl bg-card/95 border-b border-border shadow-sm z-10">
+          <div className="px-8 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-6">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onNavigate('individual-project-dashboard')}
+                  className="flex items-center space-x-2 text-muted-foreground hover:text-primary hover:bg-accent transition-all duration-200"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="font-medium">Back</span>
+                </Button>
+                <div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                    Project Settings
+                  </h1>
+                  <p className="text-sm text-muted-foreground mt-1">Manage your project configuration and details</p>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Scrollable Content */}
-          <div className="flex-1 overflow-auto">
-            <div className="max-w-4xl mx-auto p-8 space-y-8">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="grid w-full grid-cols-1 lg:grid-cols-4 backdrop-blur-sm bg-card/95 border border-border">
-                  <TabsTrigger value="general" className="flex items-center space-x-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    <Settings className="w-4 h-4" />
-                    <span className="hidden sm:inline">General</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="integration" className="flex items-center space-x-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    <Settings className="w-4 h-4" />
-                    <span className="hidden sm:inline">Integration</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="timeline" className="flex items-center space-x-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    <Settings className="w-4 h-4" />
-                    <span className="hidden sm:inline">Timeline</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="danger" className="flex items-center space-x-2 data-[state=active]:bg-destructive data-[state=active]:text-destructive-foreground">
-                    <Settings className="w-4 h-4" />
-                    <span className="hidden sm:inline">Danger Zone</span>
-                  </TabsTrigger>
-                </TabsList>
+        {/* Content */}
+        <div className="flex-1">
+          <div className="max-w-4xl mx-auto p-8 space-y-8">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <TabsList className="grid w-full grid-cols-1 lg:grid-cols-4 backdrop-blur-sm bg-card/95 border border-border">
+                <TabsTrigger value="general" className="flex items-center space-x-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">General</span>
+                </TabsTrigger>
+                <TabsTrigger value="integration" className="flex items-center space-x-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Integration</span>
+                </TabsTrigger>
+                <TabsTrigger value="timeline" className="flex items-center space-x-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Timeline</span>
+                </TabsTrigger>
+                <TabsTrigger value="danger" className="flex items-center space-x-2 data-[state=active]:bg-destructive data-[state=active]:text-destructive-foreground">
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Danger Zone</span>
+                </TabsTrigger>
+              </TabsList>
 
-                <div className="space-y-6">
-                  <TabsContent value="general" className="space-y-6 mt-0">
-                    <ProjectBannerCard 
-                      formData={formData}
-                      onInputChange={handleInputChange}
-                    />
-                    <ProjectInformationCard 
-                      formData={formData}
-                      onInputChange={handleInputChange}
-                    />
-                    <ProjectOverviewCard 
-                      project={project}
-                      formData={formData}
-                      onInputChange={handleInputChange}
-                      getStatusColor={getStatusColor}
-                      getStatusText={getStatusText}
-                    />
-                  </TabsContent>
+              <div className="space-y-6">
+                <TabsContent value="general" className="space-y-6 mt-0">
+                  <ProjectBannerCard 
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                  <ProjectInformationCard 
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                  <ProjectOverviewCard 
+                    project={project}
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                    getStatusColor={getStatusColor}
+                    getStatusText={getStatusText}
+                  />
+                </TabsContent>
 
-                  <TabsContent value="integration" className="space-y-6 mt-0">
-                    <SharePointIntegrationCard 
-                      formData={formData}
-                      onInputChange={handleInputChange}
-                    />
-                  </TabsContent>
+                <TabsContent value="integration" className="space-y-6 mt-0">
+                  <SharePointIntegrationCard 
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                </TabsContent>
 
-                  <TabsContent value="timeline" className="space-y-6 mt-0">
-                    <TimelineStatusCard 
-                      formData={formData}
-                      onInputChange={handleInputChange}
-                    />
-                  </TabsContent>
+                <TabsContent value="timeline" className="space-y-6 mt-0">
+                  <TimelineStatusCard 
+                    formData={formData}
+                    onInputChange={handleInputChange}
+                  />
+                </TabsContent>
 
-                  <TabsContent value="danger" className="space-y-6 mt-0">
-                    <DangerZoneCard 
-                      project={project}
-                      onDeleteProject={handleDeleteProject}
-                      loading={loading}
-                    />
-                  </TabsContent>
-                </div>
+                <TabsContent value="danger" className="space-y-6 mt-0">
+                  <DangerZoneCard 
+                    project={project}
+                    onDeleteProject={handleDeleteProject}
+                    loading={loading}
+                  />
+                </TabsContent>
+              </div>
 
-                {/* Save Button */}
-                <div className="mt-8 flex justify-end">
-                  <Button 
-                    onClick={handleSave} 
-                    disabled={loading}
-                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
-                  >
-                    <Save className="w-4 h-4" />
-                    {loading ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                </div>
-              </Tabs>
-            </div>
+              {/* Save Button */}
+              <div className="mt-8 flex justify-end">
+                <Button 
+                  onClick={handleSave} 
+                  disabled={loading}
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  <Save className="w-4 h-4" />
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
+            </Tabs>
           </div>
         </div>
       </div>
