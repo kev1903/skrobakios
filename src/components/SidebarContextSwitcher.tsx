@@ -30,9 +30,12 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
 
   // Get display names
   const getUserName = () => {
-    return `${userProfile.firstName} ${userProfile.lastName}`.trim() || 
-           userProfile.email?.split('@')[0] || 
-           'Personal';
+    if (!userProfile) return 'Personal';
+    
+    const name = `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim();
+    if (name) return name;
+    
+    return userProfile.email?.split('@')[0] || 'Personal';
   };
 
   const getBusinessName = () => {
@@ -49,6 +52,7 @@ export const SidebarContextSwitcher = ({ onNavigate, isCollapsed = false }: Side
   };
 
   // Filter out auto-generated company names for display purposes
+  // Also show inactive companies so users can see all their businesses
   const realBusinesses = companies.filter(company => {
     const isDefaultCompanyName = company.name && (
       company.name.includes('@') || 
