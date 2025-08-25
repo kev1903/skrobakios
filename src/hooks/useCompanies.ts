@@ -29,7 +29,7 @@ export const useCompanies = () => {
           company_id,
           role,
           status,
-          companies:company_id (
+          companies (
             id,
             name,
             slug,
