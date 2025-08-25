@@ -35,11 +35,27 @@ export const useProfile = () => {
         return;
       }
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // Fetch profile and company data in parallel for better performance
+      const [
+        { data, error },
+        { data: activeCompany, error: companyError }
+      ] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle(),
+        supabase
+          .from('company_members')
+          .select(`
+            companies (
+              name
+            )
+          `)
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .maybeSingle()
+      ]);
 
       if (error) {
         console.error('Error fetching profile:', error);
@@ -51,18 +67,11 @@ export const useProfile = () => {
         return;
       }
 
+      if (companyError) {
+        console.warn('Error fetching active company:', companyError);
+      }
+
       if (data) {
-        // Get current active company to sync with profile
-        const { data: activeCompany } = await supabase
-          .from('company_members')
-          .select(`
-            companies (
-              name
-            )
-          `)
-          .eq('user_id', user.id)
-          .eq('status', 'active')
-          .maybeSingle();
 
         const currentCompanyName = activeCompany?.companies?.name || data.company || '';
 
@@ -93,17 +102,7 @@ export const useProfile = () => {
         }
       } else {
         // No profile found - create a minimal default profile for this user
-        const { data: activeCompany } = await supabase
-          .from('company_members')
-          .select(`
-            companies (
-              name
-            )
-          `)
-          .eq('user_id', user.id)
-          .eq('status', 'active')
-          .maybeSingle();
-
+        // We already have the activeCompany data from the parallel fetch above
         const defaultCompanyName = activeCompany?.companies?.name 
           || (user.user_metadata as any)?.company 
           || '';

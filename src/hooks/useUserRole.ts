@@ -22,21 +22,20 @@ export const useUserRole = () => {
       try {
         console.log('Fetching user roles for user:', user.id);
         
-        // Use the secure function instead of direct table query to avoid recursion
-        const { data: hasSuper, error: superError } = await supabase
-          .rpc('has_role_secure', { _user_id: user.id, _role: 'superadmin' });
-          
-        const { data: hasBusiness, error: businessError } = await supabase
-          .rpc('has_role_secure', { _user_id: user.id, _role: 'business_admin' });
-          
-        const { data: hasProject, error: projectError } = await supabase
-          .rpc('has_role_secure', { _user_id: user.id, _role: 'project_admin' });
-          
-        const { data: hasUser, error: userError } = await supabase
-          .rpc('has_role_secure', { _user_id: user.id, _role: 'user' });
-          
-        const { data: hasClient, error: clientError } = await supabase
-          .rpc('has_role_secure', { _user_id: user.id, _role: 'client' });
+        // Batch all role checks in parallel instead of sequential calls
+        const [
+          { data: hasSuper, error: superError },
+          { data: hasBusiness, error: businessError },
+          { data: hasProject, error: projectError },
+          { data: hasUser, error: userError },
+          { data: hasClient, error: clientError }
+        ] = await Promise.all([
+          supabase.rpc('has_role_secure', { _user_id: user.id, _role: 'superadmin' }),
+          supabase.rpc('has_role_secure', { _user_id: user.id, _role: 'business_admin' }),
+          supabase.rpc('has_role_secure', { _user_id: user.id, _role: 'project_admin' }),
+          supabase.rpc('has_role_secure', { _user_id: user.id, _role: 'user' }),
+          supabase.rpc('has_role_secure', { _user_id: user.id, _role: 'client' })
+        ]);
 
         if (superError || businessError || projectError || userError || clientError) {
           console.error('Error checking user roles:', { superError, businessError, projectError, userError, clientError });
@@ -79,7 +78,7 @@ export const useUserRole = () => {
     };
 
     fetchUserRoles();
-  }, [user?.id]); // Changed from [user] to [user?.id] to prevent infinite loops
+  }, [user?.id]);
 
   const hasRole = (requiredRole: UserRole): boolean => {
     if (!role) return false;

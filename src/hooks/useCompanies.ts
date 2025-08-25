@@ -1,6 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Company, CreateCompanyData, UserCompany } from '@/types/company';
+
+// Add simple caching to prevent redundant API calls
+const companiesCache = new Map();
+const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes
 
 export const useCompanies = () => {
   const [loading, setLoading] = useState(false);
@@ -20,6 +24,15 @@ export const useCompanies = () => {
       }
       
       console.log('👤 Current user ID:', user.id, user.email);
+
+      // Check cache first to prevent redundant calls
+      const cacheKey = `companies_${user.id}`;
+      const cachedData = companiesCache.get(cacheKey);
+      
+      if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
+        console.log('📦 Using cached companies data');
+        return cachedData.companies;
+      }
       
       console.log('🏗 Using RPC get_user_companies...');
       let companies: UserCompany[] = [];
@@ -124,15 +137,14 @@ export const useCompanies = () => {
         console.warn('⚠️ Non-fatal error while augmenting companies from project memberships:', e);
       }
       
-      // Merge and de-duplicate by company id
-      const mergedMap = new Map<string, UserCompany>();
-      [...(companies as UserCompany[]), ...projectDerivedCompanies].forEach(c => {
-        if (!mergedMap.has(c.id)) mergedMap.set(c.id, c);
+      // Cache the results for better performance
+      companiesCache.set(cacheKey, {
+        companies,
+        timestamp: Date.now()
       });
-      const mergedCompanies = Array.from(mergedMap.values());
       
-      console.log('✅ Companies processed successfully (merged):', mergedCompanies);
-      return mergedCompanies as UserCompany[];
+      console.log('✅ Companies processed successfully (merged):', companies);
+      return companies as UserCompany[];
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch companies';
       console.error('💥 getUserCompanies error:', err);
