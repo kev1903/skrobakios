@@ -3,6 +3,7 @@ import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { ModernGanttChart, ModernGanttTask } from '@/components/timeline/ModernGanttChart';
 import { useScreenSize } from "@/hooks/use-mobile";
+import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Menu, X, Calendar, Plus, Filter, Download, BarChart3, List } from "lucide-react";
@@ -16,6 +17,7 @@ interface ProjectTimelinePageProps {
 
 export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePageProps) => {
   const screenSize = useScreenSize();
+  const { fullHeightClasses } = useMenuBarSpacing('project-timeline');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedView, setSelectedView] = useState<'gantt' | 'calendar'>('gantt');
 
@@ -564,7 +566,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
   // Mobile layout with drawer
   if (screenSize === 'mobile') {
     return (
-      <div className="h-screen flex flex-col backdrop-blur-xl bg-black/20 overflow-x-hidden">
+      <div className={`${fullHeightClasses} flex flex-col backdrop-blur-xl bg-black/20 overflow-x-hidden`}>
         {/* Mobile Header */}
         <div className="flex-shrink-0 h-16 px-4 flex items-center justify-between backdrop-blur-xl bg-white/10 border-b border-white/10">
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -606,7 +608,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
   // Tablet layout with collapsible sidebar
   if (screenSize === 'tablet') {
     return (
-      <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+      <div className={`${fullHeightClasses} flex backdrop-blur-xl bg-black/20 border border-white/10`}>
         {/* Tablet Sidebar - Collapsible */}
         <div className={`transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-16'} flex-shrink-0`}>
           <div className="relative h-full">
@@ -636,9 +638,9 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
     );
   }
 
-  // Desktop layout (unchanged)
+  // Desktop layout to match TasksPage
   return (
-    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+    <div className={`${fullHeightClasses} flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50`}>
       {/* Desktop Sidebar */}
       <ProjectSidebar 
         project={project} 
@@ -649,7 +651,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
       />
 
       {/* Desktop Content */}
-      <div className="flex-1 ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10 animate-fade-in h-full overflow-hidden">
+      <div className="flex-1 ml-48 bg-white/90 backdrop-blur-sm border-l border-gray-200/30 h-full overflow-y-auto">
         {renderMainContent()}
       </div>
     </div>
