@@ -24,6 +24,7 @@ interface VictoriaProjectMapProps {
 const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-full h-full" }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [mapboxToken, setMapboxToken] = useState<string>('');
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,9 +79,20 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
     fetchProjects();
   }, [currentCompany]);
 
+  // Clear existing markers
+  const clearMarkers = () => {
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+  };
+
   // Geocode addresses and add markers
   const addProjectMarkers = async () => {
     if (!map.current || projects.length === 0) return;
+
+    console.log('🗺️ Adding markers for projects:', projects.length);
+    
+    // Clear existing markers first
+    clearMarkers();
 
     const bounds = new mapboxgl.LngLatBounds();
     let markersAdded = 0;
@@ -89,6 +101,8 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
       if (!project.location) continue;
 
       try {
+        console.log('🌍 Geocoding project:', project.name, 'at location:', project.location);
+        
         // Use Nominatim for free geocoding
         const response = await fetch(
           `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
@@ -100,6 +114,7 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
         if (data && data.length > 0) {
           const lat = parseFloat(data[0].lat);
           const lon = parseFloat(data[0].lon);
+          console.log('✅ Geocoded successfully:', project.name, 'to', lat, lon);
 
           // Create custom marker element
           const markerEl = document.createElement('div');
@@ -178,25 +193,33 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
           }).setHTML(popupContent);
 
           // Add marker to map
-          new mapboxgl.Marker(markerEl)
+          const marker = new mapboxgl.Marker(markerEl)
             .setLngLat([lon, lat])
             .setPopup(popup)
             .addTo(map.current);
 
+          // Store marker reference for cleanup
+          markersRef.current.push(marker);
+
           bounds.extend([lon, lat]);
           markersAdded++;
+        } else {
+          console.warn('❌ No geocoding results for:', project.location);
         }
       } catch (error) {
-        console.warn(`Failed to geocode location: ${project.location}`, error);
+        console.error('❌ Failed to geocode location:', project.location, error);
       }
     }
 
     // Fit map to show all markers
     if (markersAdded > 0) {
+      console.log('🎯 Fitting map bounds for', markersAdded, 'markers');
       map.current.fitBounds(bounds, {
         padding: { top: 50, bottom: 50, left: 50, right: 50 },
         maxZoom: 15
       });
+    } else {
+      console.warn('⚠️ No markers were added to the map');
     }
   };
 
@@ -226,14 +249,26 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
     );
 
     map.current.on('load', () => {
-      addProjectMarkers();
+      console.log('🗺️ Map loaded, ready for markers');
+      if (projects.length > 0) {
+        addProjectMarkers();
+      }
     });
 
     // Cleanup
     return () => {
+      clearMarkers();
       map.current?.remove();
     };
-  }, [mapboxToken, projects]);
+  }, [mapboxToken]);
+
+  // Add markers when projects change
+  useEffect(() => {
+    if (map.current && projects.length > 0) {
+      console.log('📍 Projects updated, adding markers...');
+      addProjectMarkers();
+    }
+  }, [projects]);
 
   if (loading) {
     return (
