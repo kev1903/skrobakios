@@ -2,6 +2,7 @@ import React from 'react';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { ResponsiveSidebar } from './ResponsiveSidebar';
 import { MobileHeader } from './MobileHeader';
+import { MobileBottomBar } from './MobileBottomBar';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AppSidebarProps {
@@ -29,11 +30,16 @@ export const AppSidebar = ({
         <div className="flex flex-1 min-h-0 w-full">
           <ResponsiveSidebar currentPage={currentPage} onNavigate={onNavigate} />
           
-          {/* Content area for children */}
-          <main className="flex-1 min-h-0">
+          {/* Content area for children - with bottom padding on mobile for bottom bar */}
+          <main className={`flex-1 min-h-0 ${isMobile ? 'pb-20' : ''}`}>
             {children}
           </main>
         </div>
+        
+        {/* Mobile Bottom Navigation Bar */}
+        {isMobile && (
+          <MobileBottomBar onNavigate={onNavigate} />
+        )}
       </div>
     </SidebarProvider>
   );
