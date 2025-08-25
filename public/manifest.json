@@ -10,13 +10,13 @@
   "categories": ["productivity", "business", "utilities"],
   "icons": [
     {
-      "src": "/lovable-uploads/app-logo-with-padding.png",
+      "src": "/lovable-uploads/0ceb0932-a777-40b1-b073-5b39cbbe207a.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/lovable-uploads/app-logo-with-padding.png", 
+      "src": "/lovable-uploads/0ceb0932-a777-40b1-b073-5b39cbbe207a.png", 
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -24,7 +24,7 @@
   ],
   "screenshots": [
     {
-      "src": "/lovable-uploads/app-logo-with-padding.png",
+      "src": "/lovable-uploads/0ceb0932-a777-40b1-b073-5b39cbbe207a.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide"
