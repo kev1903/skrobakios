@@ -25,6 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { AiChatSidebar } from '@/components/AiChatSidebar';
 import { VoiceInterface } from '@/components/VoiceInterface';
 import { useVoiceChat } from '@/hooks/useVoiceChat';
+import { useIsMobile } from '@/hooks/use-mobile';
 export const MenuBar = () => {
   const navigate = useNavigate();
   const {
@@ -64,7 +65,8 @@ export const MenuBar = () => {
   const {
     toggleSidebar
   } = useGlobalSidebar();
-  const barRef = useRef<HTMLDivElement>(null);
+const barRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   // Initialize voice chat functionality
   const {
@@ -381,10 +383,12 @@ export const MenuBar = () => {
           <div className="flex items-center space-x-3">
             {/* Navigation Icons */}
             {isAuthenticated ? <>
-                {/* Tasks Icon */}
-                <Link to="/tasks" className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground">
-                  <ClipboardList className="w-4 h-4" />
-                </Link>
+                {/* Tasks Icon - hidden on mobile */}
+                {!isMobile && (
+                  <Link to="/tasks" className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground">
+                    <ClipboardList className="w-4 h-4" />
+                  </Link>
+                )}
                 
                 {/* Notifications */}
                 <NotificationDropdown>
@@ -395,10 +399,12 @@ export const MenuBar = () => {
                   </NotificationBadge>
                 </NotificationDropdown>
                 
-                {/* Inbox Icon */}
-                <button onClick={() => navigate('/?page=inbox')} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground">
-                  <Inbox className="w-4 h-4" />
-                </button>
+                {/* Inbox Icon - hidden on mobile */}
+                {!isMobile && (
+                  <button onClick={() => navigate('/?page=inbox')} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground">
+                    <Inbox className="w-4 h-4" />
+                  </button>
+                )}
                 
                 {/* AI Chat Icon */}
                 <button onClick={() => setShowAiChat(true)} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" title="Open AI Assistant">
