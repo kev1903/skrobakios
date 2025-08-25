@@ -63,6 +63,10 @@ export const MobileBottomBar = ({ onNavigate }: MobileBottomBarProps) => {
   };
 
   const isActive = (page: string) => {
+    // Handle special case where home page should show tasks as active by default
+    if (currentPage === 'home' && page === 'my-tasks') {
+      return true;
+    }
     return currentPage === page;
   };
 
