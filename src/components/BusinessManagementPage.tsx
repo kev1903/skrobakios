@@ -37,8 +37,15 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
         setLoading(true);
         const userCompanies = await getUserCompanies();
         
+        // Filter out auto-generated personal companies (email@domain.com's Company pattern)
+        const businessCompanies = userCompanies.filter(uc => {
+          // Exclude companies that match the auto-generated pattern: email@domain.com's Company
+          const isPersonalCompany = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'s Company$/i.test(uc.name);
+          return !isPersonalCompany;
+        });
+        
         // Convert UserCompany to Company format for the table
-        const companyData: Company[] = userCompanies.map(uc => ({
+        const companyData: Company[] = businessCompanies.map(uc => ({
           id: uc.id,
           name: uc.name,
           slug: uc.slug,
