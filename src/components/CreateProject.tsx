@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { useProjects } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
+import { LocationInput } from "@/components/create-project/LocationInput";
 
 interface CreateProjectProps {
   onNavigate: (page: string) => void;
@@ -28,10 +29,17 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
   const [selectedStatus, setSelectedStatus] = useState("pending");
   const [selectedPriority, setSelectedPriority] = useState("");
   const [location, setLocation] = useState("");
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | undefined>();
 
   const { createProject, loading } = useProjects();
   const { toast } = useToast();
   const { navigateBack } = useNavigationWithHistory({ onNavigate, currentPage: 'create-project' });
+
+  const generateProjectId = () => {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000);
+    return `PRJ-${timestamp}-${random}`;
+  };
 
   const handleSave = async () => {
     if (!projectName.trim()) {
@@ -45,8 +53,11 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
 
     console.log("Saving project...");
     
+    // Generate unique project_id if not provided
+    const finalProjectId = projectId.trim() || generateProjectId();
+    
     const projectData = {
-      project_id: projectId,
+      project_id: finalProjectId,
       name: projectName,
       description: description || undefined,
       contract_price: contractPrice || undefined,
@@ -55,6 +66,9 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
       status: selectedStatus,
       priority: selectedPriority || undefined,
       location: location || undefined,
+      latitude: coordinates?.lat ?? null,
+      longitude: coordinates?.lng ?? null,
+      geocoded_at: coordinates ? new Date().toISOString() : null,
     };
 
     const result = await createProject(projectData);
@@ -171,18 +185,15 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                 </div>
 
                 {/* Location */}
-                <div>
-                  <Label htmlFor="location" className="text-sm font-medium text-foreground mb-2 block heading-modern">
-                    Location
-                  </Label>
-                  <Input
-                    id="location"
-                    placeholder="Enter Location..."
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
+                <LocationInput
+                  value={location}
+                  onChange={(address, coords) => {
+                    setLocation(address);
+                    setCoordinates(coords);
+                  }}
+                  placeholder="Enter project address..."
+                  label="Location"
+                />
 
                 {/* Start Date */}
                 <div>
