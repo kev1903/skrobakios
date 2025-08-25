@@ -10,6 +10,7 @@ import { Company } from '@/types/company';
 import { BusinessesTable } from '@/components/companies/BusinessesTable';
 import { BusinessEditDialog } from '@/components/companies/BusinessEditDialog';
 import { useToast } from '@/hooks/use-toast';
+import { useCompany } from '@/contexts/CompanyContext';
 
 interface BusinessManagementPageProps {
   onNavigate?: (page: string) => void;
@@ -24,59 +25,51 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const { getUserCompanies, updateCompany } = useCompanies();
+  const { updateCompany } = useCompanies();
   const { isSuperAdmin, isPlatformAdmin } = useUserRole();
   const { toast } = useToast();
   const navigate = useNavigate();
 
   const canManageCompanies = isSuperAdmin() || isPlatformAdmin();
 
-  useEffect(() => {
-    const fetchCompanies = async () => {
-      try {
-        setLoading(true);
-        const userCompanies = await getUserCompanies({ bypassCache: true });
-        
-        // Filter out auto-generated personal companies (email@domain.com's Company pattern)
-        const businessCompanies = userCompanies.filter(uc => {
-          // Exclude companies that match the auto-generated pattern: email@domain.com's Company
-          const isPersonalCompany = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'s Company$/i.test(uc.name);
-          return !isPersonalCompany;
-        });
-        
-        // Convert UserCompany to Company format for the table
-        const companyData: Company[] = businessCompanies.map(uc => ({
-          id: uc.id,
-          name: uc.name,
-          slug: uc.slug,
-          logo_url: uc.logo_url,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          // Add default values for missing fields
-          website: '',
-          address: '',
-          phone: '',
-          abn: '',
-          slogan: '',
-          created_by: ''
-        }));
-        
-        setCompanies(companyData);
-        setFilteredCompanies(companyData);
-      } catch (error) {
-        console.error('Error fetching companies:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load companies",
-          variant: "destructive"
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { companies: userCompaniesCtx, loading: companyLoading } = useCompany();
 
-    fetchCompanies();
-  }, [getUserCompanies, toast]);
+  useEffect(() => {
+    setLoading(companyLoading);
+    try {
+      // Filter out auto-generated personal companies (email@domain.com's Company pattern)
+      const businessCompanies = userCompaniesCtx.filter(uc => {
+        const isPersonalCompany = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'s Company$/i.test(uc.name);
+        return !isPersonalCompany;
+      });
+
+      // Convert UserCompany to Company format for the table
+      const companyData: Company[] = businessCompanies.map(uc => ({
+        id: uc.id,
+        name: uc.name,
+        slug: uc.slug,
+        logo_url: uc.logo_url,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        website: '',
+        address: '',
+        phone: '',
+        abn: '',
+        slogan: '',
+        created_by: ''
+      }));
+
+      setCompanies(companyData);
+      setFilteredCompanies(companyData);
+    } catch (error) {
+      console.error('Error processing companies:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load companies',
+        variant: 'destructive'
+      });
+    }
+  }, [userCompaniesCtx, companyLoading, toast]);
 
   // Filter companies based on search term
   useEffect(() => {
