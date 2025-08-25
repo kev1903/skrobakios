@@ -28,7 +28,7 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
     description: project.description || "",
     location: project.location || "",
     contract_price: project.contract_price || "",
-    coordinates: undefined as { lat: number; lng: number } | undefined,
+    coordinates: (project.latitude != null && project.longitude != null) ? { lat: project.latitude, lng: project.longitude } : undefined as { lat: number; lng: number } | undefined,
     priority: project.priority || "Medium",
     status: project.status,
     start_date: project.start_date || "",
@@ -92,6 +92,9 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
       status: formData.status,
       start_date: formData.start_date || null,
       deadline: formData.deadline || null,
+      latitude: formData.coordinates?.lat ?? null,
+      longitude: formData.coordinates?.lng ?? null,
+      geocoded_at: formData.coordinates ? new Date().toISOString() : null,
     };
 
     // Update project in the database

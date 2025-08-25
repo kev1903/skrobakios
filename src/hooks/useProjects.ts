@@ -14,6 +14,9 @@ export interface Project {
   status: string;
   priority?: string;
   location?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  geocoded_at?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -15,6 +15,9 @@ interface Project {
   start_date?: string;
   deadline?: string;
   priority?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  geocoded_at?: string | null;
 }
 
 interface VictoriaProjectMapProps {
@@ -101,21 +104,27 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
       if (!project.location) continue;
 
       try {
-        console.log('🌍 Geocoding project:', project.name, 'at location:', project.location);
-        
-        // Use Nominatim for free geocoding
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-            project.location + ', Victoria, Australia'
-          )}&limit=1&countrycodes=au`
-        );
-        const data = await response.json();
+        let lat: number | null = project.latitude ?? null;
+        let lon: number | null = project.longitude ?? null;
 
-        if (data && data.length > 0) {
-          const lat = parseFloat(data[0].lat);
-          const lon = parseFloat(data[0].lon);
-          console.log('✅ Geocoded successfully:', project.name, 'to', lat, lon);
+        if (lat == null || lon == null) {
+          console.log('🌍 Geocoding project:', project.name, 'at location:', project.location);
+          // Use Nominatim for free geocoding as fallback when no stored coords
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+              project.location + ', Victoria, Australia'
+            )}&limit=1&countrycodes=au`
+          );
+          const data = await response.json();
 
+          if (data && data.length > 0) {
+            lat = parseFloat(data[0].lat);
+            lon = parseFloat(data[0].lon);
+            console.log('✅ Geocoded successfully:', project.name, 'to', lat, lon);
+          }
+        }
+
+        if (lat != null && lon != null) {
           // Create custom marker element
           const markerEl = document.createElement('div');
           markerEl.className = 'project-marker';
