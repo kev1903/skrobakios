@@ -54,10 +54,10 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
   // Initialize edit mode data
   React.useEffect(() => {
     if (editMode && existingContract) {
-      setExtractedData(existingContract.contract_data);
+      setExtractedData(existingContract.contract_data || {});
       setShowPreview(true);
     } else if (!editMode) {
-      setExtractedData(null);
+      setExtractedData({});
       setShowPreview(false);
       setFormData({ file: null });
     }
@@ -345,7 +345,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                     {editMode ? (
                       <Input
                         value={extractedData?.customer_name || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...prev, customer_name: e.target.value }))}
+                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_name: e.target.value }))}
                         className="h-8 text-sm"
                         placeholder="Customer name"
                       />
@@ -358,7 +358,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                     {editMode ? (
                       <Input
                         value={extractedData?.customer_email || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...prev, customer_email: e.target.value }))}
+                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_email: e.target.value }))}
                         className="h-8 text-sm"
                         placeholder="customer@email.com"
                         type="email"
@@ -372,7 +372,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                     {editMode ? (
                       <Input
                         value={extractedData?.customer_phone || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...prev, customer_phone: e.target.value }))}
+                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_phone: e.target.value }))}
                         className="h-8 text-sm"
                         placeholder="Phone number"
                       />
@@ -385,7 +385,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                     {editMode ? (
                       <Textarea
                         value={extractedData?.customer_address || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...prev, customer_address: e.target.value }))}
+                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_address: e.target.value }))}
                         className="min-h-[60px] text-sm"
                         placeholder="Customer address"
                       />
@@ -404,7 +404,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                     {editMode ? (
                       <Input
                         value={extractedData?.contract_value || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...prev, contract_value: e.target.value }))}
+                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), contract_value: e.target.value }))}
                         className="h-8 text-sm font-medium text-green-600"
                         placeholder="$0.00"
                       />
@@ -417,7 +417,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                     {editMode ? (
                       <Input
                         value={extractedData?.contract_date || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...prev, contract_date: e.target.value }))}
+                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), contract_date: e.target.value }))}
                         className="h-8 text-sm"
                         placeholder="YYYY-MM-DD"
                         type="date"
@@ -431,7 +431,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                     {editMode ? (
                       <Input
                         value={extractedData?.start_date || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...prev, start_date: e.target.value }))}
+                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), start_date: e.target.value }))}
                         className="h-8 text-sm"
                         placeholder="YYYY-MM-DD"
                         type="date"
@@ -445,7 +445,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                     {editMode ? (
                       <Input
                         value={extractedData?.end_date || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...prev, end_date: e.target.value }))}
+                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), end_date: e.target.value }))}
                         className="h-8 text-sm"
                         placeholder="YYYY-MM-DD"
                         type="date"
@@ -463,7 +463,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                   {editMode ? (
                     <Textarea
                       value={extractedData?.scope_of_work || ''}
-                      onChange={(e) => setExtractedData(prev => ({ ...prev, scope_of_work: e.target.value }))}
+                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), scope_of_work: e.target.value }))}
                       className="min-h-[100px] text-sm"
                       placeholder="Describe the scope of work..."
                     />
@@ -479,7 +479,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                   {editMode ? (
                     <Textarea
                       value={extractedData?.payment_terms || ''}
-                      onChange={(e) => setExtractedData(prev => ({ ...prev, payment_terms: e.target.value }))}
+                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), payment_terms: e.target.value }))}
                       className="min-h-[80px] text-sm"
                       placeholder="Describe the payment terms..."
                     />
