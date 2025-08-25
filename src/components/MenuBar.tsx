@@ -424,7 +424,7 @@ export const MenuBar = () => {
                     <span className="text-sm font-medium text-foreground max-w-24 truncate">
                       {userProfile?.firstName && userProfile?.lastName ? `${userProfile.firstName} ${userProfile.lastName}`.trim() : userProfile?.firstName || userProfile?.email?.split('@')[0] || 'User'}
                     </span>
-                    <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </div>
                   
                   {/* Profile Dropdown */}
@@ -465,16 +465,16 @@ export const MenuBar = () => {
             {/* Timer Control Buttons */}
             {activeTimer ? <div className="flex items-center space-x-2 pl-2 border-l border-border">
                 <Button variant="ghost" size="sm" onClick={handlePauseResume} className="h-8 w-8 p-0">
-                  {isPaused ? <Play className="h-4 w-4" /> : <ArrowLeftRight className="h-4 w-4" />}
+                  {isPaused ? <Play className="w-4 h-4" /> : <ArrowLeftRight className="w-4 h-4" />}
                 </Button>
                 
                 <Button variant="ghost" size="sm" onClick={handleStopTimer} className="h-8 w-8 p-0 text-destructive hover:text-destructive">
-                  <Square className="h-4 w-4" />
+                  <Square className="w-4 h-4" />
                 </Button>
               </div> : <div className="flex items-center space-x-2 pl-2 border-l border-border">
                 <Button variant="outline" size="sm" onClick={() => setIsFormExpanded(!isFormExpanded)} className="gap-2">
-                  <Play className="h-4 w-4" />
-                  <ChevronDown className={cn("h-3 w-3 transition-transform", isFormExpanded && "rotate-180")} />
+                  <Play className="w-4 h-4" />
+                  <ChevronDown className={cn("w-4 h-4 transition-transform", isFormExpanded && "rotate-180")} />
                 </Button>
               </div>}
           </div>
@@ -486,7 +486,7 @@ export const MenuBar = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-foreground">Start New Timer</span>
                 <Button variant="ghost" size="sm" onClick={() => setIsFormExpanded(false)} className="h-6 w-6 p-0" title="Collapse">
-                  <X className="w-3 h-3" />
+                  <X className="w-4 h-4" />
                 </Button>
               </div>
 
@@ -510,7 +510,7 @@ export const MenuBar = () => {
                         <span className="truncate flex-1 min-w-0 text-xs">
                           {selectedCategory || "Select category..."}
                         </span>
-                        <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                        <ChevronsUpDown className="ml-2 w-4 h-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-full p-0 bg-popover border border-border shadow-lg z-50">
@@ -525,7 +525,7 @@ export const MenuBar = () => {
                             }
                             setCategoryOpen(false);
                           }}>
-                                <Check className="mr-2 h-3 w-3" />
+                                <Check className="mr-2 w-4 h-4" />
                                 Add "{selectedCategory}"
                               </Button>
                             </div>
@@ -535,7 +535,7 @@ export const MenuBar = () => {
                           setSelectedCategory(currentValue === selectedCategory ? "" : currentValue);
                           setCategoryOpen(false);
                         }}>
-                                <Check className={cn("mr-2 h-3 w-3", selectedCategory === category ? "opacity-100" : "opacity-0")} />
+                                <Check className={cn("mr-2 w-4 h-4", selectedCategory === category ? "opacity-100" : "opacity-0")} />
                                 {category}
                               </CommandItem>)}
                           </CommandGroup>
@@ -567,7 +567,7 @@ export const MenuBar = () => {
                   Press Ctrl+Enter to start • Ctrl+Space to toggle
                 </div>
                 <Button onClick={handleStartTimer} disabled={!taskActivity.trim()} size="sm" className="gap-1">
-                  <Play className="w-3 h-3" />
+                  <Play className="w-4 h-4" />
                   Start Timer
                 </Button>
               </div>
