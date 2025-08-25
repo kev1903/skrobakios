@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ProfileData {
   first_name: string;
@@ -25,15 +26,17 @@ export const useProfile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
 
   const fetchProfile = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      // Use the user from auth context instead of calling getUser again
       if (!user) {
         setLoading(false);
         return;
       }
+
+      console.log('🔄 Fetching profile for user:', user.email);
 
       // Fetch profile and company data in parallel for better performance
       const [
@@ -72,6 +75,7 @@ export const useProfile = () => {
       }
 
       if (data) {
+        console.log('✅ Profile data loaded:', data.first_name, data.last_name);
 
         const currentCompanyName = activeCompany?.companies?.name || data.company || '';
 
@@ -158,8 +162,7 @@ export const useProfile = () => {
 
   const saveProfile = async (profileData: ProfileData) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      // Use the user from auth context instead of calling getUser again
       if (!user) {
         toast({
           title: "Error",
@@ -252,8 +255,16 @@ export const useProfile = () => {
   };
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
+    // Only fetch profile when auth is ready and we have a user
+    if (!authLoading && user) {
+      console.log('👤 Auth ready, fetching profile...');
+      fetchProfile();
+    } else if (!authLoading && !user) {
+      // Auth is ready but no user - clear profile and stop loading
+      setProfile(null);
+      setLoading(false);
+    }
+  }, [user, authLoading]); // Depend on user and authLoading state
 
   return {
     profile,
