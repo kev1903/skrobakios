@@ -120,16 +120,7 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
       
       {/* Navigation Icons */}
       <div className={`flex items-center ${isMobileSmall ? 'space-x-1.5' : 'space-x-2'}`}>
-        {/* Tasks Icon - Only show on wider screens */}
-        {width > 360 && (
-          <button 
-            onClick={() => onNavigate('my-tasks')}
-            className={`${buttonSize} bg-muted/50 backdrop-blur-sm rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 touch-manipulation`}
-            aria-label="My Tasks"
-          >
-            <ClipboardList className={`${iconSize} text-foreground`} />
-          </button>
-        )}
+        {/* Tasks Icon - Hidden per user request */}
         
         {/* Notifications */}
         <NotificationDropdown>
@@ -140,16 +131,7 @@ export const MobileHeader = ({ onNavigate }: MobileHeaderProps) => {
           </NotificationBadge>
         </NotificationDropdown>
         
-        {/* Inbox Icon - Only show on wider screens */}
-        {width > 390 && (
-          <button 
-            onClick={() => onNavigate('inbox')}
-            className={`${buttonSize} bg-muted/50 backdrop-blur-sm rounded-lg border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 touch-manipulation`}
-            aria-label="Inbox"
-          >
-            <Inbox className={`${iconSize} text-foreground`} />
-          </button>
-        )}
+        {/* Inbox Icon - Hidden per user request */}
         
         {/* User Profile - Compact on small screens */}
         <div className={`flex items-center ${isMobileSmall ? 'space-x-1' : 'space-x-2'} ${isMobileSmall ? 'px-1.5 py-0.5' : 'px-2 py-1'} rounded-lg bg-muted/30`}>
