@@ -360,14 +360,14 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     const tableMargin = 20;
     const tableWidth = pageWidth - (2 * tableMargin);
     
-    // Column positions and widths
+    // Column positions and widths - # column first, then Preview column, all center aligned
     const columns = [
-      { header: 'Preview', x: tableMargin, width: tableWidth * 0.12, align: 'center' as const },
-      { header: '#', x: tableMargin + (tableWidth * 0.12), width: tableWidth * 0.08, align: 'left' as const },
-      { header: 'Issue Title', x: tableMargin + (tableWidth * 0.2), width: tableWidth * 0.35, align: 'left' as const },
-      { header: 'Category', x: tableMargin + (tableWidth * 0.55), width: tableWidth * 0.15, align: 'left' as const },
+      { header: '#', x: tableMargin, width: tableWidth * 0.08, align: 'center' as const },
+      { header: 'Preview', x: tableMargin + (tableWidth * 0.08), width: tableWidth * 0.12, align: 'center' as const },
+      { header: 'Issue Title', x: tableMargin + (tableWidth * 0.2), width: tableWidth * 0.35, align: 'center' as const },
+      { header: 'Category', x: tableMargin + (tableWidth * 0.55), width: tableWidth * 0.15, align: 'center' as const },
       { header: 'Status', x: tableMargin + (tableWidth * 0.7), width: tableWidth * 0.12, align: 'center' as const },
-      { header: 'Location', x: tableMargin + (tableWidth * 0.82), width: tableWidth * 0.18, align: 'left' as const }
+      { header: 'Location', x: tableMargin + (tableWidth * 0.82), width: tableWidth * 0.18, align: 'center' as const }
     ];
     
     // Draw table headers with background
@@ -431,8 +431,8 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         pdf.rect(20, yPosition - 5, pageWidth - 40, rowHeight, 'F');
       }
       
-      // Load and draw attachment preview
-      const previewX = columns[0].x + (columns[0].width - previewSize) / 2;
+      // Load and draw attachment preview (now in column 1 instead of 0)
+      const previewX = columns[1].x + (columns[1].width - previewSize) / 2;
       const previewY = yPosition - 2;
       
       if (issue.attachments && issue.attachments.length > 0) {
@@ -493,9 +493,9 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       const location = issue.location?.length > 20 ? issue.location.substring(0, 20) + '...' : issue.location || 'N/A';
       
       const textY = yPosition + 15; // Center text vertically in row
-      pdf.text(issueNumber, columns[1].x, textY);
-      pdf.text(issueTitle, columns[2].x, textY);
-      pdf.text(category, columns[3].x, textY);
+      pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
+      pdf.text(issueTitle, columns[2].x + columns[2].width/2, textY, { align: 'center' });
+      pdf.text(category, columns[3].x + columns[3].width/2, textY, { align: 'center' });
       
       // Status with color coding
       const statusColor = issue.status === 'closed' ? [22, 163, 74] :
@@ -506,7 +506,7 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       
       // Reset text color for location
       pdf.setTextColor(0, 0, 0);
-      pdf.text(location, columns[5].x, textY);
+      pdf.text(location, columns[5].x + columns[5].width/2, textY, { align: 'center' });
       
       // Draw subtle row separator
       pdf.setDrawColor(240, 240, 240);
