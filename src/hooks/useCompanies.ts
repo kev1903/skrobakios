@@ -21,40 +21,55 @@ export const useCompanies = () => {
       
       console.log('👤 Current user ID:', user.id, user.email);
       
-      console.log('🔍 Fetching user companies directly...');
-      
-      const { data, error: fetchError } = await supabase
-        .from('company_members')
-        .select(`
-          company_id,
-          role,
-          status,
-          companies!company_members_company_id_fkey (
-            id,
-            name,
-            slug,
-            logo_url,
-            business_type
-          )
-        `)
-        .eq('user_id', user.id);
+      console.log('🏗 Using RPC get_user_companies...');
+      let companies: UserCompany[] = [];
+      const { data: rpcData, error: rpcError } = await supabase
+        .rpc('get_user_companies', { target_user_id: user.id });
+      console.log('📞 RPC Response:', { data: rpcData, error: rpcError });
 
-      console.log('📞 Direct Query Response:', { data, error: fetchError });
+      if (!rpcError && rpcData) {
+        companies = (rpcData as any[]).map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          slug: item.slug,
+          logo_url: item.logo_url,
+          role: item.role,
+          status: item.status,
+        }));
+      } else {
+        console.warn('⚠️ RPC failed or returned no data, falling back to direct query', rpcError);
+        const { data, error: fetchError } = await supabase
+          .from('company_members')
+          .select(`
+            company_id,
+            role,
+            status,
+            companies!company_members_company_id_fkey (
+              id,
+              name,
+              slug,
+              logo_url,
+              business_type
+            )
+          `)
+          .eq('user_id', user.id);
 
-      if (fetchError) {
-        console.error('❌ Query Error:', fetchError);
-        throw fetchError;
+        console.log('📞 Direct Query Response:', { data, error: fetchError });
+
+        if (fetchError) {
+          console.error('❌ Query Error:', fetchError);
+          throw fetchError;
+        }
+        
+        companies = (data || []).map((item: any) => ({
+          id: item.company_id,
+          name: item.companies?.name || 'Unknown',
+          slug: item.companies?.slug || '',
+          logo_url: item.companies?.logo_url,
+          role: item.role,
+          status: item.status,
+        }));
       }
-      
-      const companies = data?.map(item => ({
-        id: item.company_id,
-        name: (item.companies as any)?.name || 'Unknown',
-        slug: (item.companies as any)?.slug || '',
-        logo_url: (item.companies as any)?.logo_url,
-        role: item.role,
-        status: item.status,
-        business_type: (item.companies as any)?.business_type
-      })) || [];
       
       // Also include companies where the user is an active project member
       let projectDerivedCompanies: UserCompany[] = [];
