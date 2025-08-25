@@ -119,10 +119,28 @@ export const InvoiceFormPage = () => {
       
       setSelectedContractPayments(mockPayments);
       
-      // Automatically set the first payment stage as default reference
+      // Automatically set the current progress payment as default reference
       if (mockPayments.length > 0 && !invoiceData.reference) {
-        const defaultPayment = mockPayments[0];
-        const referenceValue = `${defaultPayment.stage} - ${defaultPayment.description}`;
+        // Find the current progress payment - this would typically come from project progress data
+        // For now, we'll use a simple logic to determine current stage based on payment sequence
+        // In a real implementation, you'd fetch the project progress from the database
+        
+        // Mock current progress - this should come from actual project data
+        const currentProgressPercentage = 45; // Example: 45% complete
+        let currentPayment = mockPayments[0]; // Default to first
+        
+        // Find the appropriate payment stage based on progress
+        let cumulativePercentage = 0;
+        for (const payment of mockPayments) {
+          cumulativePercentage += payment.percentage;
+          if (currentProgressPercentage <= cumulativePercentage) {
+            currentPayment = payment;
+            break;
+          }
+          currentPayment = payment; // Keep updating to find the latest applicable stage
+        }
+        
+        const referenceValue = `${currentPayment.stage} | ${currentPayment.description} - ${currentPayment.percentage}% ($${currentPayment.amount.toLocaleString('en-AU')})`;
         setInvoiceData(prev => ({ ...prev, reference: referenceValue }));
       }
       
