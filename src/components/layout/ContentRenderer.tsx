@@ -82,6 +82,7 @@ import { CreateIssuePage } from "@/pages/qaqc/CreateIssuePage";
 import { IssueEditPage } from "@/pages/qaqc/IssueEditPage";
 import { StakeholdersPage } from "@/pages/StakeholdersPage";
 import { ProjectProcurementPage } from "@/pages/ProjectProcurementPage";
+import { AiChatSidebar } from "@/components/AiChatSidebar";
 
 
 interface ContentRendererProps {
@@ -473,6 +474,17 @@ export const ContentRenderer = ({
       // User management removed - redirect to home  
       onNavigate("home");
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+    case "ai-chat":
+      return (
+        <div className="h-full w-full">
+          <AiChatSidebar 
+            isCollapsed={false} 
+            onToggleCollapse={() => {}} 
+            onNavigate={onNavigate} 
+            fullScreen={true} 
+          />
+        </div>
+      );
     case "inbox":
     case "asset":
     case "schedules":
