@@ -33,6 +33,7 @@ import { Search, RefreshCw, MoreHorizontal, Building2, Trash2, Crown, Shield, Us
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useCompany } from '@/contexts/CompanyContext';
 import { toast } from '@/hooks/use-toast';
 
 interface CompanyMember {
@@ -68,6 +69,7 @@ export const EnhancedCompanyUserManagement = ({
 }: EnhancedCompanyUserManagementProps) => {
   const { user } = useAuth();
   const { isSuperAdmin } = useUserRole();
+  const { refreshCompanies } = useCompany();
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -300,6 +302,9 @@ export const EnhancedCompanyUserManagement = ({
         title: "User Added",
         description: `${userName} has been added to the company as ${selectedRole}`,
       });
+
+      // Refresh the company context so the Business Swapper updates for all users
+      await refreshCompanies();
 
       setAddUserDialogOpen(false);
       setUserSearchTerm('');
