@@ -15,7 +15,15 @@ interface TaskProviderProps {
 export const TaskProvider = ({ children }: TaskProviderProps) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
-  const { userProfile } = useUser();
+  
+  // Make useUser call conditional to prevent context errors during initialization
+  let userProfile = null;
+  try {
+    const userContext = useUser();
+    userProfile = userContext?.userProfile;
+  } catch (error) {
+    console.warn('UserProvider not available yet in TaskProvider');
+  }
 
   const loadTasksForProject = async (projectId: string) => {
     // Prevent multiple concurrent requests
