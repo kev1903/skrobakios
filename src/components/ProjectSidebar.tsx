@@ -103,15 +103,15 @@ export const ProjectSidebar = ({
 
   // Responsive classes based on screen size - Exact match to Project Tasks page
   const sidebarClasses = {
-    mobile: "w-full h-full bg-white border-r border-gray-200",
-    tablet: "w-full h-full bg-white border-r border-gray-200", 
-    desktop: "fixed left-0 top-0 w-48 h-full bg-white border-r border-gray-200 z-50"
+    mobile: "w-full h-screen bg-white border-r border-gray-200",
+    tablet: "w-full h-screen bg-white border-r border-gray-200", 
+    desktop: "fixed left-0 top-0 w-48 h-screen bg-white border-r border-gray-200 z-50"
   };
 
   const contentClasses = {
-    mobile: "flex flex-col h-full px-0 py-0",
-    tablet: "flex flex-col h-full px-0 py-0",
-    desktop: "flex flex-col h-full px-0 py-0"
+    mobile: "flex flex-col h-screen px-0 py-0",
+    tablet: "flex flex-col h-screen px-0 py-0",
+    desktop: "flex flex-col h-screen px-0 py-0"
   };
 
   return (
@@ -140,7 +140,7 @@ export const ProjectSidebar = ({
         </div>
 
         {/* Project Navigation Items */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           <div className="px-4 py-4">
             <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
               Project Navigation
@@ -176,7 +176,7 @@ export const ProjectSidebar = ({
         </div>
 
         {/* Project Settings */}
-        <div className="border-t border-gray-200 px-4 py-4">
+        <div className="flex-shrink-0 border-t border-gray-200 px-4 py-4">
           <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
             Project Settings
           </div>
