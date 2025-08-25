@@ -35,8 +35,15 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       
       setCompanies(userCompanies);
       
-      // Find the first active company or default to first company
-      let activeCompany = userCompanies.find(c => c.status === 'active');
+      // Find the current company if it exists and is still active, otherwise find first active company
+      let activeCompany = currentCompany 
+        ? userCompanies.find(c => c.id === currentCompany.id && c.status === 'active')
+        : null;
+      
+      // If current company not found or not active, find the first active company
+      if (!activeCompany) {
+        activeCompany = userCompanies.find(c => c.status === 'active');
+      }
       
       // If no active company found but we have companies, activate the first one
       if (!activeCompany && userCompanies.length > 0) {
@@ -82,7 +89,7 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
         }
       }
     }
-  }, [getUserCompanies]);
+  }, [getUserCompanies, currentCompany]);
 
   const switchCompany = async (companyId: string) => {
     const company = companies.find(c => c.id === companyId);
@@ -109,14 +116,22 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
         }
 
         console.log('✅ Successfully switched to company:', company.name);
-        setCurrentCompany(company);
+        
+        // Update the company to show active status
+        const updatedCompany = { ...company, status: 'active' as const };
+        setCurrentCompany(updatedCompany);
         localStorage.setItem('currentCompanyId', companyId);
         
         // Clear cache to force fresh data fetch
         localStorage.removeItem('projects_cache');
         
-        // Refresh companies to get updated status
-        await refreshCompanies();
+        // Update companies list with new statuses but don't call refreshCompanies 
+        // to avoid overriding the user's selection
+        const updatedCompanies = companies.map(c => ({
+          ...c,
+          status: c.id === companyId ? 'active' as const : 'inactive' as const
+        }));
+        setCompanies(updatedCompanies);
         
         // Emit company changed event for other contexts
         window.dispatchEvent(new CustomEvent('companyChanged', { 
