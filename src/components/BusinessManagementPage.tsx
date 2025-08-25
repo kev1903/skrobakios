@@ -35,7 +35,7 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
     const fetchCompanies = async () => {
       try {
         setLoading(true);
-        const userCompanies = await getUserCompanies();
+        const userCompanies = await getUserCompanies({ bypassCache: true });
         
         // Filter out auto-generated personal companies (email@domain.com's Company pattern)
         const businessCompanies = userCompanies.filter(uc => {

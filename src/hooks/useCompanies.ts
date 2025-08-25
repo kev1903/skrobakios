@@ -10,7 +10,7 @@ export const useCompanies = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getUserCompanies = useCallback(async (): Promise<UserCompany[]> => {
+  const getUserCompanies = useCallback(async (opts?: { bypassCache?: boolean }): Promise<UserCompany[]> => {
     setLoading(true);
     setError(null);
     
@@ -29,7 +29,7 @@ export const useCompanies = () => {
       const cacheKey = `companies_${user.id}`;
       const cachedData = companiesCache.get(cacheKey);
       
-      if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
+      if (!opts?.bypassCache && cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
         console.log('📦 Using cached companies data');
         return cachedData.companies;
       }
