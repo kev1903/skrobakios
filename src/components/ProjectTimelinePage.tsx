@@ -522,14 +522,14 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
 
   // Render the main content
   const renderMainContent = () => (
-    <div className="flex-1 bg-white">
+    <div className="flex-1 bg-white flex flex-col overflow-hidden">
       {renderHeaderControls()}
       
-      <div className="p-4 overflow-x-hidden w-full">
+      <div className="flex-1 p-4 overflow-hidden w-full">
         {selectedView === 'gantt' ? (
-          <div className="w-full overflow-hidden">{/* Prevent any overflow */}
-            <Card className="shadow-lg w-full">
-              <CardContent className="p-0 overflow-hidden">
+          <div className="w-full h-full overflow-hidden">{/* Prevent any overflow */}
+            <Card className="shadow-lg w-full h-full">
+              <CardContent className="p-0 overflow-hidden h-full">
           <ModernGanttChart 
             tasks={tasks} 
             onTaskUpdate={handleTaskUpdate}
@@ -541,15 +541,15 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
             </Card>
           </div>
         ) : (
-          <Card className="shadow-lg">
+          <Card className="shadow-lg h-full">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="w-5 h-5" />
                 Calendar View
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-gray-500">
+            <CardContent className="flex-1 flex items-center justify-center">
+              <div className="text-center text-gray-500">
                 <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Calendar view coming soon!</p>
                 <p className="text-sm mt-2">Switch to Gantt view to see the timeline.</p>
@@ -596,7 +596,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
         </div>
 
         {/* Mobile Content */}
-        <div className="flex-1 backdrop-blur-xl bg-white/95 h-full overflow-y-auto">
+        <div className="flex-1 backdrop-blur-xl bg-white/95 h-full overflow-hidden">
           {renderMainContent()}
         </div>
       </div>
@@ -629,7 +629,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
         </div>
 
         {/* Tablet Content */}
-        <div className="flex-1 backdrop-blur-xl bg-white/95 border-l border-white/10 h-full overflow-y-auto">
+        <div className="flex-1 backdrop-blur-xl bg-white/95 border-l border-white/10 h-full overflow-hidden">
           {renderMainContent()}
         </div>
       </div>
@@ -649,7 +649,7 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
       />
 
       {/* Desktop Content */}
-      <div className="flex-1 ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10 animate-fade-in h-full overflow-y-auto">
+      <div className="flex-1 ml-48 backdrop-blur-xl bg-white/95 border-l border-white/10 animate-fade-in h-full overflow-hidden">
         {renderMainContent()}
       </div>
     </div>

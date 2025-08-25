@@ -925,15 +925,15 @@ export const ModernGanttChart = ({
       />
       
       {/* Gantt Chart */}
-      <div className="bg-white rounded-lg overflow-hidden w-full max-w-full">
-        <div className="flex">
+      <div className="bg-white rounded-lg overflow-hidden w-full max-w-full h-full flex flex-col">
+        <div className="flex flex-1 overflow-hidden">
           {/* Task List */}
           <div 
-            className="border-r border-gray-200 bg-white relative flex flex-col"
+            className="border-r border-gray-200 bg-white relative flex flex-col overflow-hidden"
             style={{ width: taskListWidth }}
           >
             {/* Task List Header */}
-            <div className="bg-white flex flex-col" style={{ height: '60px' }}>
+            <div className="bg-white flex flex-col flex-shrink-0" style={{ height: '60px' }}>
               {/* Tab Section */}
               <div className="flex h-8 flex-shrink-0 bg-gray-50">
                 <div className="flex">
@@ -963,7 +963,7 @@ export const ModernGanttChart = ({
             {/* Task List Items */}
           <div 
             ref={taskListBodyRef}
-            className="max-h-[600px] overflow-auto"
+            className="flex-1 overflow-auto"
           >
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="task-list">
@@ -1272,7 +1272,6 @@ export const ModernGanttChart = ({
           <div 
             ref={ganttScrollBodyRef}
             className="flex-1 overflow-auto gantt-body-scroll bg-white"
-            style={{ maxHeight: '600px' }}
           >
             <div 
               className="relative" 
