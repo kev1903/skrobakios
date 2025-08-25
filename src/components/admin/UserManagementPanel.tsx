@@ -143,7 +143,12 @@ export const UserManagementPanel: React.FC = () => {
       }
 
       if (!data || !data.success) {
-        throw new Error(data?.error || 'User creation failed');
+        const errorMsg = data?.error || 'User creation failed';
+        // If it's an existing email error, suggest refreshing the user list
+        if (data?.code === 'email_exists' || errorMsg.includes('already exists')) {
+          throw new Error(`${errorMsg}. If you recently deleted this user, please wait a moment and try again, or refresh the page.`);
+        }
+        throw new Error(errorMsg);
       }
 
       toast({
@@ -216,7 +221,11 @@ export const UserManagementPanel: React.FC = () => {
       if (!data?.success) throw new Error(data?.error || 'Failed to delete user');
 
       toast({ title: 'Success', description: 'User deleted successfully' });
-      fetchUsers();
+      
+      // Wait a moment for deletion to propagate, then refresh
+      setTimeout(() => {
+        fetchUsers();
+      }, 1000);
     } catch (error: any) {
       console.error('Error deleting user:', error);
       toast({
@@ -314,7 +323,7 @@ export const UserManagementPanel: React.FC = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
@@ -324,13 +333,23 @@ export const UserManagementPanel: React.FC = () => {
                 Create and manage user accounts with role-based access control
               </p>
             </div>
-            <Dialog open={isCreateUserOpen} onOpenChange={setIsCreateUserOpen}>
-              <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
-                  <UserPlus className="h-4 w-4" />
-                  Create User
-                </Button>
-              </DialogTrigger>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={fetchUsers}
+                className="flex items-center gap-2"
+                disabled={loading}
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Dialog open={isCreateUserOpen} onOpenChange={setIsCreateUserOpen}>
+                <DialogTrigger asChild>
+                  <Button className="flex items-center gap-2">
+                    <UserPlus className="h-4 w-4" />
+                    Create User
+                  </Button>
+                </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>Create New User</DialogTitle>
@@ -522,6 +541,7 @@ export const UserManagementPanel: React.FC = () => {
                 </div>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
