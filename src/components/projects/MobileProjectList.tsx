@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, CheckCircle2, Clock, AlertTriangle, Building2, MoreHorizontal } from "lucide-react";
+import { ArrowLeft, Plus, MoreHorizontal } from "lucide-react";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { ProjectLoadingState } from "./ProjectLoadingState";
 import { ProjectEmptyState } from "./ProjectEmptyState";
@@ -63,15 +62,15 @@ export const MobileProjectList = ({ onNavigate, onSelectProject }: MobileProject
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted/20">
       {/* Clean Header */}
-      <div className="bg-white border-b border-gray-100 px-4 py-6">
+      <div className="bg-background border-b border-border px-4 py-6">
         <div className="flex items-center justify-between mb-4">
           <Button 
             variant="ghost" 
             size="sm"
             onClick={() => onNavigate("home")}
-            className="text-gray-600 hover:text-gray-800 p-0"
+            className="text-muted-foreground hover:text-foreground p-0"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
@@ -80,11 +79,11 @@ export const MobileProjectList = ({ onNavigate, onSelectProject }: MobileProject
         
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Project List</h1>
-            <p className="text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-foreground mb-1">Project List</h1>
+            <p className="text-sm text-muted-foreground">
               Manage and oversee all your projects
             </p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-muted-foreground/70 mt-1">
               {new Date().toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
@@ -95,7 +94,7 @@ export const MobileProjectList = ({ onNavigate, onSelectProject }: MobileProject
           </div>
           
           <Button 
-            className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
             onClick={() => onNavigate('create-project')}
             size="sm"
           >
@@ -108,76 +107,71 @@ export const MobileProjectList = ({ onNavigate, onSelectProject }: MobileProject
       {/* Minimal Stats Grid */}
       <div className="px-4 py-6">
         <div className="grid grid-cols-4 gap-3 mb-6">
-          <div className="bg-white rounded-lg p-3 text-center border border-gray-100">
-            <div className="text-lg font-bold text-gray-900">{projectStats.total}</div>
-            <div className="text-xs text-gray-500 mt-1">Total Projects</div>
+          <div className="bg-background rounded-lg p-3 text-center border border-border">
+            <div className="text-lg font-bold text-foreground">{projectStats.total}</div>
+            <div className="text-xs text-muted-foreground mt-1">Total Projects</div>
           </div>
           
-          <div className="bg-white rounded-lg p-3 text-center border border-gray-100">
+          <div className="bg-background rounded-lg p-3 text-center border border-border">
             <div className="text-lg font-bold text-orange-600">{projectStats.active}</div>
-            <div className="text-xs text-gray-500 mt-1">In Progress</div>
+            <div className="text-xs text-muted-foreground mt-1">In Progress</div>
           </div>
           
-          <div className="bg-white rounded-lg p-3 text-center border border-gray-100">
+          <div className="bg-background rounded-lg p-3 text-center border border-border">
             <div className="text-lg font-bold text-green-600">{projectStats.completed}</div>
-            <div className="text-xs text-gray-500 mt-1">Completed</div>
+            <div className="text-xs text-muted-foreground mt-1">Completed</div>
           </div>
           
-          <div className="bg-white rounded-lg p-3 text-center border border-gray-100">
+          <div className="bg-background rounded-lg p-3 text-center border border-border">
             <div className="text-lg font-bold text-yellow-600">{projectStats.pending}</div>
-            <div className="text-xs text-gray-500 mt-1">Pending</div>
+            <div className="text-xs text-muted-foreground mt-1">Pending</div>
           </div>
         </div>
 
-        {/* Clean Project List */}
-        <div className="space-y-3">
+        {/* Simple Project List */}
+        <div className="bg-background rounded-lg">
           {projects.length === 0 ? (
-            <div className="bg-white rounded-lg p-6">
+            <div className="p-6">
               <ProjectEmptyState onNavigate={onNavigate} />
             </div>
           ) : (
-            projects.map((project) => (
-              <Card 
-                key={project.id} 
-                className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200"
-                onClick={() => handleProjectClick(project.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Badge 
-                          variant="secondary" 
-                          className={`text-xs px-2 py-1 rounded-full ${getStatusColor(project.status)}`}
-                        >
-                          {getStatusLabel(project.status)}
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex items-center space-x-2 mb-1">
-                        <span className="text-xs font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded">
-                          #{project.id.slice(-6).toUpperCase()}
-                        </span>
-                      </div>
-                      
-                      <h3 className="font-medium text-gray-900 text-sm leading-tight mb-2 truncate">
-                        {project.name}
-                      </h3>
-                      
-                      {project.description && (
-                        <p className="text-xs text-gray-500 line-clamp-2">
-                          {project.description}
-                        </p>
-                      )}
+            <div className="divide-y divide-border">
+              {projects.map((project) => (
+                <div 
+                  key={project.id}
+                  className="flex items-center justify-between p-4 hover:bg-accent/50 active:bg-accent transition-colors cursor-pointer"
+                  onClick={() => handleProjectClick(project.id)}
+                >
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex items-center">
+                      <Badge 
+                        variant="secondary" 
+                        className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusColor(project.status)}`}
+                      >
+                        {getStatusLabel(project.status)}
+                      </Badge>
                     </div>
                     
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground font-mono">
+                        #{project.id.slice(-6).toUpperCase()}
+                      </p>
+                      <h3 className="font-medium text-foreground leading-tight">
+                        {project.name}
+                      </h3>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))
+                  
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground flex-shrink-0 ml-2"
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
