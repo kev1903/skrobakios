@@ -342,19 +342,56 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-xs text-muted-foreground">Customer Name</Label>
-                    <p className="font-medium">{extractedData?.customer_name || 'Not found'}</p>
+                    {editMode ? (
+                      <Input
+                        value={extractedData?.customer_name || ''}
+                        onChange={(e) => setExtractedData(prev => ({ ...prev, customer_name: e.target.value }))}
+                        className="h-8 text-sm"
+                        placeholder="Customer name"
+                      />
+                    ) : (
+                      <p className="font-medium">{extractedData?.customer_name || 'Not found'}</p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Email</Label>
-                    <p className="text-sm">{extractedData?.customer_email || 'Not found'}</p>
+                    {editMode ? (
+                      <Input
+                        value={extractedData?.customer_email || ''}
+                        onChange={(e) => setExtractedData(prev => ({ ...prev, customer_email: e.target.value }))}
+                        className="h-8 text-sm"
+                        placeholder="customer@email.com"
+                        type="email"
+                      />
+                    ) : (
+                      <p className="text-sm">{extractedData?.customer_email || 'Not found'}</p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Phone</Label>
-                    <p className="text-sm">{extractedData?.customer_phone || 'Not found'}</p>
+                    {editMode ? (
+                      <Input
+                        value={extractedData?.customer_phone || ''}
+                        onChange={(e) => setExtractedData(prev => ({ ...prev, customer_phone: e.target.value }))}
+                        className="h-8 text-sm"
+                        placeholder="Phone number"
+                      />
+                    ) : (
+                      <p className="text-sm">{extractedData?.customer_phone || 'Not found'}</p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Address</Label>
-                    <p className="text-sm">{extractedData?.customer_address || 'Not found'}</p>
+                    {editMode ? (
+                      <Textarea
+                        value={extractedData?.customer_address || ''}
+                        onChange={(e) => setExtractedData(prev => ({ ...prev, customer_address: e.target.value }))}
+                        className="min-h-[60px] text-sm"
+                        placeholder="Customer address"
+                      />
+                    ) : (
+                      <p className="text-sm">{extractedData?.customer_address || 'Not found'}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -364,34 +401,91 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-xs text-muted-foreground">Contract Value</Label>
-                    <p className="font-medium text-lg text-green-600">{extractedData?.contract_value || 'Not found'}</p>
+                    {editMode ? (
+                      <Input
+                        value={extractedData?.contract_value || ''}
+                        onChange={(e) => setExtractedData(prev => ({ ...prev, contract_value: e.target.value }))}
+                        className="h-8 text-sm font-medium text-green-600"
+                        placeholder="$0.00"
+                      />
+                    ) : (
+                      <p className="font-medium text-lg text-green-600">{extractedData?.contract_value || 'Not found'}</p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Contract Date</Label>
-                    <p className="text-sm">{extractedData?.contract_date || 'Not found'}</p>
+                    {editMode ? (
+                      <Input
+                        value={extractedData?.contract_date || ''}
+                        onChange={(e) => setExtractedData(prev => ({ ...prev, contract_date: e.target.value }))}
+                        className="h-8 text-sm"
+                        placeholder="YYYY-MM-DD"
+                        type="date"
+                      />
+                    ) : (
+                      <p className="text-sm">{extractedData?.contract_date || 'Not found'}</p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Start Date</Label>
-                    <p className="text-sm">{extractedData?.start_date || 'Not found'}</p>
+                    {editMode ? (
+                      <Input
+                        value={extractedData?.start_date || ''}
+                        onChange={(e) => setExtractedData(prev => ({ ...prev, start_date: e.target.value }))}
+                        className="h-8 text-sm"
+                        placeholder="YYYY-MM-DD"
+                        type="date"
+                      />
+                    ) : (
+                      <p className="text-sm">{extractedData?.start_date || 'Not found'}</p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">End Date</Label>
-                    <p className="text-sm">{extractedData?.end_date || 'Not found'}</p>
+                    {editMode ? (
+                      <Input
+                        value={extractedData?.end_date || ''}
+                        onChange={(e) => setExtractedData(prev => ({ ...prev, end_date: e.target.value }))}
+                        className="h-8 text-sm"
+                        placeholder="YYYY-MM-DD"
+                        type="date"
+                      />
+                    ) : (
+                      <p className="text-sm">{extractedData?.end_date || 'Not found'}</p>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {extractedData?.scope_of_work && (
+              {(extractedData?.scope_of_work || editMode) && (
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <h3 className="font-semibold text-sm mb-2 text-muted-foreground">SCOPE OF WORK</h3>
-                  <p className="text-sm">{extractedData.scope_of_work}</p>
+                  {editMode ? (
+                    <Textarea
+                      value={extractedData?.scope_of_work || ''}
+                      onChange={(e) => setExtractedData(prev => ({ ...prev, scope_of_work: e.target.value }))}
+                      className="min-h-[100px] text-sm"
+                      placeholder="Describe the scope of work..."
+                    />
+                  ) : (
+                    <p className="text-sm">{extractedData.scope_of_work}</p>
+                  )}
                 </div>
               )}
 
-              {extractedData?.payment_terms && (
+              {(extractedData?.payment_terms || editMode) && (
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <h3 className="font-semibold text-sm mb-2 text-muted-foreground">PAYMENT TERMS</h3>
-                  <p className="text-sm">{extractedData.payment_terms}</p>
+                  {editMode ? (
+                    <Textarea
+                      value={extractedData?.payment_terms || ''}
+                      onChange={(e) => setExtractedData(prev => ({ ...prev, payment_terms: e.target.value }))}
+                      className="min-h-[80px] text-sm"
+                      placeholder="Describe the payment terms..."
+                    />
+                  ) : (
+                    <p className="text-sm">{extractedData.payment_terms}</p>
+                  )}
                 </div>
               )}
 
