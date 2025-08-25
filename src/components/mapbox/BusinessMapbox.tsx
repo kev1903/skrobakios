@@ -184,28 +184,30 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
       antialias: true
     });
 
-    // Add navigation controls
-    map.current.addControl(
-      new mapboxgl.NavigationControl({
-        visualizePitch: true,
-      }),
-      'top-right'
-    );
+    // Add navigation controls (hidden on mobile)
+    if (window.innerWidth >= 768) {
+      map.current.addControl(
+        new mapboxgl.NavigationControl({
+          visualizePitch: true,
+        }),
+        'top-right'
+      );
 
-    // Add geolocate control
-    map.current.addControl(
-      new mapboxgl.GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true
-        },
-        trackUserLocation: true,
-        showUserHeading: true
-      }),
-      'top-right'
-    );
+      // Add geolocate control
+      map.current.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true
+          },
+          trackUserLocation: true,
+          showUserHeading: true
+        }),
+        'top-right'
+      );
 
-    // Add fullscreen control
-    map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+      // Add fullscreen control
+      map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
+    }
 
     // Add 3D buildings layer
     map.current.on('style.load', () => {

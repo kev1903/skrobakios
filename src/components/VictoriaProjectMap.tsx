@@ -245,17 +245,19 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
       zoom: 8
     });
 
-    // Add navigation controls
-    map.current.addControl(
-      new mapboxgl.NavigationControl(),
-      'top-right'
-    );
+    // Add navigation controls (hidden on mobile)
+    if (window.innerWidth >= 768) {
+      map.current.addControl(
+        new mapboxgl.NavigationControl(),
+        'top-right'
+      );
 
-    // Add fullscreen control
-    map.current.addControl(
-      new mapboxgl.FullscreenControl(),
-      'top-right'
-    );
+      // Add fullscreen control
+      map.current.addControl(
+        new mapboxgl.FullscreenControl(),
+        'top-right'
+      );
+    }
 
     map.current.on('load', () => {
       console.log('🗺️ Map loaded, ready for markers');

@@ -45,13 +45,15 @@ const MapComponent: React.FC<MapComponentProps> = ({ className = "w-full h-full"
       pitch: 45,
     });
 
-    // Add navigation controls
-    map.current.addControl(
-      new mapboxgl.NavigationControl({
-        visualizePitch: true,
-      }),
-      'top-right'
-    );
+    // Add navigation controls (hidden on mobile)
+    if (window.innerWidth >= 768) {
+      map.current.addControl(
+        new mapboxgl.NavigationControl({
+          visualizePitch: true,
+        }),
+        'top-right'
+      );
+    }
 
     // Disable scroll zoom for smoother experience
     map.current.scrollZoom.disable();
