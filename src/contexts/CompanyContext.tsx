@@ -125,12 +125,11 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
         // Clear cache to force fresh data fetch
         localStorage.removeItem('projects_cache');
         
-        // Update companies list with new statuses but don't call refreshCompanies 
-        // to avoid overriding the user's selection
-        const updatedCompanies = companies.map(c => ({
-          ...c,
-          status: c.id === companyId ? 'active' as const : 'inactive' as const
-        }));
+        // Update companies list with the selected company as active
+        // Note: Don't deactivate other companies - user can have multiple active memberships
+        const updatedCompanies = companies.map(c => 
+          c.id === companyId ? { ...c, status: 'active' as const } : c
+        );
         setCompanies(updatedCompanies);
         
         // Emit company changed event for other contexts
