@@ -154,24 +154,20 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
     };
   }, [navigate]);
 
-  // Initialize map
+  // Initialize map only once when token and container are available
   useEffect(() => {
-    console.log('🗺️ Map initialization:', { 
+    console.log('🗺️ Map initialization check:', { 
       hasContainer: !!mapContainer.current, 
-      hasToken: !!mapboxToken, 
-      projectsLength: projects.length,
-      projects: projects.map(p => p.name) 
+      hasToken: !!mapboxToken,
+      hasMap: !!map.current
     });
     
-    if (!mapContainer.current || !mapboxToken) {
-      console.log('❌ Missing requirements for map initialization');
+    if (!mapContainer.current || !mapboxToken || map.current) {
+      console.log('❌ Skipping map initialization - requirements not met or map already exists');
       return;
     }
 
-    // Clear existing markers
-    markersRef.current.forEach(marker => marker.remove());
-    markersRef.current = [];
-
+    console.log('✅ Initializing new map instance');
     mapboxgl.accessToken = mapboxToken;
     
     map.current = new mapboxgl.Map({
@@ -211,12 +207,14 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
 
     // Add 3D buildings layer
     map.current.on('style.load', () => {
-      const layers = map.current?.getStyle().layers;
+      if (!map.current) return;
+      
+      const layers = map.current.getStyle().layers;
       const labelLayerId = layers?.find(
         (layer) => layer.type === 'symbol' && layer.layout?.['text-field']
       )?.id;
 
-      map.current?.addLayer(
+      map.current.addLayer(
         {
           id: 'add-3d-buildings',
           source: 'composite',
@@ -251,8 +249,28 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
       );
     });
 
-    // Add project markers with PRECISE coordinates
-    console.log(`🎯 Creating markers for ${projects.length} projects`);
+    return () => {
+      console.log('🧹 Cleaning up map instance');
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, [mapboxToken]); // Only depend on mapboxToken, not projects
+
+  // Separate effect for updating markers when projects change
+  useEffect(() => {
+    if (!map.current || !projects.length) {
+      console.log('🚫 Skipping marker update - no map or projects');
+      return;
+    }
+
+    console.log(`🎯 Updating markers for ${projects.length} projects`);
+    
+    // Clear existing markers
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+
     let displayedCount = 0;
     projects.forEach((project, index) => {
       // Treat all projects as having valid coordinates for consistent blue markers
@@ -410,13 +428,11 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
     });
 
     return () => {
-      // Clean up markers
+      // Clean up markers when projects change
       markersRef.current.forEach(marker => marker.remove());
       markersRef.current = [];
-      // Clean up map
-      map.current?.remove();
     };
-  }, [mapboxToken, projects]);
+  }, [projects]); // Only update markers when projects change
 
   if (loading) {
     return (
