@@ -30,7 +30,7 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       // Add a small delay to ensure auth is fully ready
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      const userCompanies = await getUserCompanies();
+      const userCompanies = await getUserCompanies({ bypassCache: true });
       console.log('📊 Fetched user companies:', userCompanies);
       
       setCompanies(userCompanies);
