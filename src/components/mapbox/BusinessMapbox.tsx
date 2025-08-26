@@ -63,8 +63,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   useEffect(() => {
     const fetchCurrentBusinessProjects = async () => {
       if (!currentCompany) {
-        console.log('⏳ No current company yet, waiting...');
-        setProjects([]);
+        console.log('⏳ No current company yet, keeping existing markers...');
         return;
       }
 
@@ -77,28 +76,16 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         // Fetch projects for current company only - respecting RLS and business context
         const { data, error } = await supabase
           .from('projects')
-          .select(`
-            id, 
-            name, 
-            location, 
-            latitude, 
-            longitude, 
-            status,
-            company_id,
-            companies!inner(name)
-          `)
+          .select('id,name,location,latitude,longitude,status,company_id')
           .eq('company_id', currentCompany.id)
           .order('created_at', { ascending: false });
         
         if (error) throw error;
         
-        // Transform the data to include company info
-        const projectsWithCompanyInfo = data?.map(project => ({
-          ...project,
-          company_name: project.companies?.name || 'Unknown Company'
-        })) || [];
-        
-        console.log(`📍 Loaded ${projectsWithCompanyInfo.length} projects for ${currentCompany.name}`);
+        const projectsWithCompanyInfo = (data || []).map(p => ({
+          ...p,
+          company_name: currentCompany.name
+        }));
         console.log('🏢 Projects distribution:', projectsWithCompanyInfo.reduce((acc, p) => {
           acc[p.company_name] = (acc[p.company_name] || 0) + 1;
           return acc;
@@ -292,23 +279,22 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
       }
       
       // Create enhanced marker with consistent primary color
-      const markerColor = 'hsl(var(--primary))';
+      const markerColor = 'hsl(var(--primary, 221 83% 53%))';
 
       // Create enhanced marker with precise positioning
       const markerEl = document.createElement('div');
       markerEl.className = 'custom-marker';
       markerEl.style.cssText = `
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         background: ${markerColor};
-        border: 3px solid hsl(var(--background));
+        border: 2px solid hsl(var(--background, 0 0% 100%));
         border-radius: 50%;
         cursor: pointer;
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 4px 12px hsl(var(--primary, 221 83% 53%) / 0.35);
         display: flex;
         align-items: center;
         justify-content: center;
-        transform: translate(-50%, -50%);
         transition: none;
         pointer-events: auto;
       `;
