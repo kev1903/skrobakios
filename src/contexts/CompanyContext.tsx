@@ -35,12 +35,15 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       
       setCompanies(userCompanies);
       
+      // Get saved company ID to maintain selection
+      const savedCompanyId = localStorage.getItem('currentCompanyId');
+      
       // Find the current company if it exists and is still active, otherwise find first active company
-      let activeCompany = currentCompany 
-        ? userCompanies.find(c => c.id === currentCompany.id && c.status === 'active')
+      let activeCompany = savedCompanyId 
+        ? userCompanies.find(c => c.id === savedCompanyId && c.status === 'active')
         : null;
       
-      // If current company not found or not active, find the first active company
+      // If saved company not found or not active, find the first active company
       if (!activeCompany) {
         activeCompany = userCompanies.find(c => c.status === 'active');
       }
@@ -69,8 +72,14 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       
       if (activeCompany) {
         console.log('🎯 Setting active company:', activeCompany.name, activeCompany.status);
-        setCurrentCompany(activeCompany);
-        localStorage.setItem('currentCompanyId', activeCompany.id);
+        setCurrentCompany(prevCompany => {
+          // Only update if the company actually changed to prevent unnecessary re-renders
+          if (prevCompany?.id !== activeCompany.id) {
+            localStorage.setItem('currentCompanyId', activeCompany.id);
+            return activeCompany;
+          }
+          return prevCompany;
+        });
       } else {
         console.log('⚠️ No companies found');
         setCurrentCompany(null);
@@ -83,13 +92,13 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       const savedCompanyId = localStorage.getItem('currentCompanyId');
       if (savedCompanyId && companies.length > 0) {
         const fallbackCompany = companies.find(c => c.id === savedCompanyId);
-        if (fallbackCompany && !currentCompany) {
+        if (fallbackCompany) {
           console.log('Using fallback company:', fallbackCompany.name);
           setCurrentCompany(fallbackCompany);
         }
       }
     }
-  }, [getUserCompanies, currentCompany]);
+  }, [getUserCompanies, user?.id]);
 
   const switchCompany = async (companyId: string) => {
     const company = companies.find(c => c.id === companyId);
@@ -156,7 +165,7 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Load companies and restore selected company from localStorage
     const loadCompanies = async () => {
-      if (!isAuthenticated || !user) {
+      if (!isAuthenticated || !user?.id) {
         console.log('🚫 Not authenticated or no user, skipping company load');
         return;
       }
@@ -165,7 +174,7 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
       
       // Try loading companies with retry mechanism
       let retryCount = 0;
-      const maxRetries = 3;
+      const maxRetries = 2; // Reduced retries to prevent excessive calls
       
       while (retryCount < maxRetries) {
         try {
@@ -177,23 +186,18 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
           
           if (retryCount < maxRetries) {
             // Wait longer for each retry
-            await new Promise(resolve => setTimeout(resolve, 500 * retryCount));
+            await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
           } else {
             console.error('💥 Failed to load companies after all retries');
-            
-            // As a last resort, try to refresh the page after a short delay
-            // This can help resolve auth context issues
-            setTimeout(() => {
-              console.log('🔄 Refreshing page due to persistent company loading issues...');
-              window.location.reload();
-            }, 2000);
           }
         }
       }
     };
 
-    loadCompanies();
-  }, [isAuthenticated, user, refreshCompanies]);
+    // Debounce the loading to prevent rapid successive calls
+    const timeoutId = setTimeout(loadCompanies, 100);
+    return () => clearTimeout(timeoutId);
+  }, [isAuthenticated, user?.id]);
 
   // Update current company when companies list changes
   useEffect(() => {
