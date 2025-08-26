@@ -68,14 +68,12 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         return;
       }
 
-      setLoading(true);
+      
       
       try {
         console.log(`🔄 Company switched to: ${currentCompany.name} (${currentCompany.id}) - Refreshing map data`);
         
-        // Clear existing projects to force map refresh
-        setProjects([]);
-        
+        // Keep existing markers while fetching to avoid blinking
         // Fetch projects for current company only - respecting RLS and business context
         const { data, error } = await supabase
           .from('projects')
@@ -115,7 +113,6 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         console.error('Error fetching business projects:', error);
         setProjects([]);
       } finally {
-        setLoading(false);
       }
     };
 
