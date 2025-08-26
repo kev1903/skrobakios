@@ -44,7 +44,7 @@ const ALL_PROJECT_NAV_ITEMS = [{
 }, {
   id: 'specification',
   key: 'specification',
-  label: 'Specification',
+  label: 'Scope',
   icon: File,
   page: 'project-specification'
 }, {
