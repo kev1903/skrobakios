@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 import { useCompany } from '@/contexts/CompanyContext';
+import { useProjects as useProjectsHook } from '@/hooks/useProjects';
 
 interface Project {
   id: string;
@@ -97,7 +98,18 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
 
           if (error) throw error;
 
-          const projectsWithCompanyInfo = (data || []).map(p => ({
+          let rows = data || [];
+          if (!rows.length) {
+            console.log('🧯 No projects for resolved company yet, falling back to RLS fetch to ensure pins render');
+            const { data: allData, error: allErr } = await supabase
+              .from('projects')
+              .select('id,name,location,latitude,longitude,status,company_id')
+              .order('created_at', { ascending: false });
+            if (allErr) throw allErr;
+            rows = allData || [];
+          }
+
+          const projectsWithCompanyInfo = rows.map(p => ({
             ...p,
             company_name: resolvedCompanyName || 'Current Company'
           }));
