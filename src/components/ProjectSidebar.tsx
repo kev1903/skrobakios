@@ -141,7 +141,7 @@ export const ProjectSidebar = ({
             variant="ghost"
             size="sm"
             onClick={() => onNavigate('projects')}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-slate-600 hover:bg-gray-50 transition-colors text-left justify-start text-sm"
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-slate-600 hover:bg-gray-50 transition-colors text-left justify-start text-xs"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Projects</span>
@@ -170,7 +170,7 @@ export const ProjectSidebar = ({
                       <button 
                         key={item.id} 
                         onClick={() => handleNavigate(item.page)} 
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-xs ${
                           activeSection === item.id 
                             ? 'bg-blue-50 text-blue-700 font-medium' 
                             : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
@@ -193,7 +193,7 @@ export const ProjectSidebar = ({
                       <button 
                         key={item.id} 
                         onClick={() => handleNavigate(item.page)} 
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-xs ${
                           activeSection === item.id 
                             ? 'bg-blue-50 text-blue-700 font-medium' 
                             : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
@@ -216,7 +216,7 @@ export const ProjectSidebar = ({
                       <button 
                         key={item.id} 
                         onClick={() => handleNavigate(item.page)} 
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-xs ${
                           activeSection === item.id 
                             ? 'bg-blue-50 text-blue-700 font-medium' 
                             : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
@@ -239,7 +239,7 @@ export const ProjectSidebar = ({
                       <button 
                         key={item.id} 
                         onClick={() => handleNavigate(item.page)} 
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-xs ${
                           activeSection === item.id 
                             ? 'bg-blue-50 text-blue-700 font-medium' 
                             : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
@@ -264,14 +264,14 @@ export const ProjectSidebar = ({
           <div className="space-y-0.5">
             <button 
               onClick={() => handleNavigate('project-settings')} 
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-600 hover:bg-gray-50 hover:text-slate-700 transition-colors text-left text-sm"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-600 hover:bg-gray-50 hover:text-slate-700 transition-colors text-left text-xs"
             >
               <Settings className="w-4 h-4" />
               <span>Settings</span>
             </button>
             <button 
               onClick={() => handleNavigate('support')} 
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-600 hover:bg-gray-50 hover:text-slate-700 transition-colors text-left text-sm"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-600 hover:bg-gray-50 hover:text-slate-700 transition-colors text-left text-xs"
             >
               <HelpCircle className="w-4 h-4" />
               <span>Help</span>
