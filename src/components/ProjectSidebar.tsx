@@ -118,11 +118,10 @@ export const ProjectSidebar = ({
   };
 
   const contentClasses = {
-    mobile: "flex flex-col h-screen px-0 py-0",
-    tablet: "flex flex-col h-screen px-0 py-0",
-    desktop: "flex flex-col h-screen px-0 py-0"
+    mobile: "flex flex-col h-screen px-0 py-0 pt-12",
+    tablet: "flex flex-col h-screen px-0 py-0 pt-12",
+    desktop: "flex flex-col h-screen px-0 py-0 pt-12"
   };
-
   return (
     <div className={`${sidebarClasses[screenSize]} transition-all duration-300`}>
       <div className={contentClasses[screenSize]}>
