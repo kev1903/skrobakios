@@ -448,14 +448,19 @@ export type Database = {
       calendar_integrations: {
         Row: {
           access_token: string
+          access_token_encrypted: string | null
           calendar_id: string | null
           calendar_name: string | null
           created_at: string | null
+          encryption_algorithm: string | null
+          encryption_key_id: string | null
           id: string
+          key_version: number | null
           last_sync_at: string | null
           provider: string
           provider_user_id: string
           refresh_token: string | null
+          refresh_token_encrypted: string | null
           sync_enabled: boolean | null
           sync_frequency_minutes: number | null
           token_expires_at: string | null
@@ -464,14 +469,19 @@ export type Database = {
         }
         Insert: {
           access_token: string
+          access_token_encrypted?: string | null
           calendar_id?: string | null
           calendar_name?: string | null
           created_at?: string | null
+          encryption_algorithm?: string | null
+          encryption_key_id?: string | null
           id?: string
+          key_version?: number | null
           last_sync_at?: string | null
           provider: string
           provider_user_id: string
           refresh_token?: string | null
+          refresh_token_encrypted?: string | null
           sync_enabled?: boolean | null
           sync_frequency_minutes?: number | null
           token_expires_at?: string | null
@@ -480,14 +490,19 @@ export type Database = {
         }
         Update: {
           access_token?: string
+          access_token_encrypted?: string | null
           calendar_id?: string | null
           calendar_name?: string | null
           created_at?: string | null
+          encryption_algorithm?: string | null
+          encryption_key_id?: string | null
           id?: string
+          key_version?: number | null
           last_sync_at?: string | null
           provider?: string
           provider_user_id?: string
           refresh_token?: string | null
+          refresh_token_encrypted?: string | null
           sync_enabled?: boolean | null
           sync_frequency_minutes?: number | null
           token_expires_at?: string | null
@@ -5959,6 +5974,14 @@ export type Database = {
         Args: { project_id_param: string }
         Returns: string
       }
+      get_calendar_tokens: {
+        Args: { integration_id: string }
+        Returns: {
+          access_token: string
+          refresh_token: string
+          token_expires_at: string
+        }[]
+      }
       get_current_business_context: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -6300,6 +6323,15 @@ export type Database = {
       track_first_login: {
         Args: { target_user_id: string }
         Returns: undefined
+      }
+      update_calendar_tokens: {
+        Args: {
+          integration_id: string
+          new_access_token: string
+          new_expires_at?: string
+          new_refresh_token?: string
+        }
+        Returns: boolean
       }
       use_access_token: {
         Args: { token_value: string }

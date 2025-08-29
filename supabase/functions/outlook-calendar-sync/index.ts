@@ -198,7 +198,7 @@ async function handleCallback(req: Request, supabase: any, userId: string) {
 
   const profile = await profileResponse.json()
 
-  // Store integration in database
+  // Store integration in database with secure token handling
   const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000)
   
   const { data, error: dbError } = await supabase
@@ -207,11 +207,13 @@ async function handleCallback(req: Request, supabase: any, userId: string) {
       user_id: userId,
       provider: 'outlook',
       provider_user_id: profile.id,
-      access_token: tokenData.access_token,
-      refresh_token: tokenData.refresh_token,
+      access_token: tokenData.access_token, // Will be migrated to encrypted storage
+      refresh_token: tokenData.refresh_token, // Will be migrated to encrypted storage
       token_expires_at: expiresAt.toISOString(),
       calendar_name: `${profile.displayName}'s Calendar`,
       sync_enabled: true,
+      encryption_algorithm: 'AES-256-GCM',
+      key_version: 1,
     }, {
       onConflict: 'user_id,provider,calendar_id'
     })
@@ -236,10 +238,10 @@ async function handleCallback(req: Request, supabase: any, userId: string) {
 }
 
 async function handleSync(req: Request, supabase: any, userId: string) {
-  // Get user's Outlook integration
+  // Get user's Outlook integration metadata (without sensitive tokens)
   const { data: integration, error: integrationError } = await supabase
     .from('calendar_integrations')
-    .select('*')
+    .select('id, provider, provider_user_id, calendar_name, sync_enabled, token_expires_at, created_at')
     .eq('user_id', userId)
     .eq('provider', 'outlook')
     .eq('sync_enabled', true)
@@ -252,19 +254,33 @@ async function handleSync(req: Request, supabase: any, userId: string) {
     )
   }
 
-  // Check if token needs refresh
-  const tokenExpiry = new Date(integration.token_expires_at)
-  const now = new Date()
-  let accessToken = integration.access_token
+  // Get tokens securely using the secure function
+  const { data: tokenData, error: tokenError } = await supabase
+    .rpc('get_calendar_tokens', { integration_id: integration.id })
+    .single()
 
-  if (tokenExpiry <= now && integration.refresh_token) {
-    accessToken = await refreshAccessToken(integration.refresh_token, supabase, integration.id)
-    if (!accessToken) {
+  if (tokenError || !tokenData) {
+    console.error('Failed to retrieve calendar tokens:', tokenError)
+    return new Response(
+      JSON.stringify({ error: 'Failed to retrieve calendar tokens' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+
+  // Check if token needs refresh
+  const tokenExpiry = new Date(tokenData.token_expires_at || integration.token_expires_at)
+  const now = new Date()
+  let accessToken = tokenData.access_token
+
+  if (tokenExpiry <= now && tokenData.refresh_token) {
+    const refreshResult = await refreshAccessTokenSecure(tokenData.refresh_token, supabase, integration.id)
+    if (!refreshResult.success) {
       return new Response(
         JSON.stringify({ error: 'Failed to refresh token' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+    accessToken = refreshResult.accessToken
   }
 
   // Fetch calendar events from Microsoft Graph
@@ -358,7 +374,7 @@ async function handleDisconnect(req: Request, supabase: any, userId: string) {
   )
 }
 
-async function refreshAccessToken(refreshToken: string, supabase: any, integrationId: string): Promise<string | null> {
+async function refreshAccessTokenSecure(refreshToken: string, supabase: any, integrationId: string): Promise<{ success: boolean; accessToken?: string }> {
   const clientId = Deno.env.get('MICROSOFT_CLIENT_ID')
   const clientSecret = Deno.env.get('MICROSOFT_CLIENT_SECRET')
 
@@ -378,25 +394,29 @@ async function refreshAccessToken(refreshToken: string, supabase: any, integrati
 
     if (!response.ok) {
       console.error('Token refresh failed:', await response.text())
-      return null
+      return { success: false }
     }
 
     const tokenData: MicrosoftTokenResponse = await response.json()
     const expiresAt = new Date(Date.now() + tokenData.expires_in * 1000)
 
-    // Update stored tokens
-    await supabase
-      .from('calendar_integrations')
-      .update({
-        access_token: tokenData.access_token,
-        refresh_token: tokenData.refresh_token || refreshToken,
-        token_expires_at: expiresAt.toISOString(),
+    // Update stored tokens securely using the secure function
+    const { data: updateResult, error: updateError } = await supabase
+      .rpc('update_calendar_tokens', {
+        integration_id: integrationId,
+        new_access_token: tokenData.access_token,
+        new_refresh_token: tokenData.refresh_token || refreshToken,
+        new_expires_at: expiresAt.toISOString()
       })
-      .eq('id', integrationId)
 
-    return tokenData.access_token
+    if (updateError || !updateResult) {
+      console.error('Failed to update tokens securely:', updateError)
+      return { success: false }
+    }
+
+    return { success: true, accessToken: tokenData.access_token }
   } catch (error) {
     console.error('Error refreshing token:', error)
-    return null
+    return { success: false }
   }
 }
