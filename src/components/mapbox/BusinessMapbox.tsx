@@ -62,40 +62,60 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   // Fetch projects for current business context (auto-refreshes when company changes)
   useEffect(() => {
     const fetchCurrentBusinessProjects = async () => {
-      if (!currentCompany) {
-        console.log('⏳ No current company yet, keeping existing markers...');
-        return;
-      }
-
-      
-      
       try {
-        console.log(`🔄 Company switched to: ${currentCompany.name} (${currentCompany.id}) - Refreshing map data`);
-        
-        // Keep existing markers while fetching to avoid blinking
-        // Fetch projects for current company only - respecting RLS and business context
-        const { data, error } = await supabase
-          .from('projects')
-          .select('id,name,location,latitude,longitude,status,company_id')
-          .eq('company_id', currentCompany.id)
-          .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        
-        const projectsWithCompanyInfo = (data || []).map(p => ({
-          ...p,
-          company_name: currentCompany.name
-        }));
-        console.log('🏢 Projects distribution:', projectsWithCompanyInfo.reduce((acc, p) => {
-          acc[p.company_name] = (acc[p.company_name] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>));
-        
-        const geocodedCount = projectsWithCompanyInfo.filter(p => p.latitude && p.longitude).length;
-        console.log(`✅ ${geocodedCount} projects have coordinates, ${projectsWithCompanyInfo.length - geocodedCount} using fallback`);
-        
-        setProjects(projectsWithCompanyInfo);
-        
+        // Resolve a company context even if CompanyContext hasn't populated yet
+        let resolvedCompanyId: string | null = currentCompany?.id || null;
+        let resolvedCompanyName: string | null = currentCompany?.name || null;
+
+        if (!resolvedCompanyId) {
+          // Try localStorage first (set by CompanyContext)
+          const savedCompanyId = localStorage.getItem('currentCompanyId');
+          if (savedCompanyId) {
+            resolvedCompanyId = savedCompanyId;
+            console.log(`🧭 Using saved company from localStorage: ${savedCompanyId}`);
+          }
+        }
+
+        if (!resolvedCompanyId) {
+          // Fallback to RPC which returns the first active company for the user
+          const { data: rpcCompanyId, error: rpcErr } = await supabase.rpc('get_user_current_company_id');
+          if (rpcErr) {
+            console.warn('RPC get_user_current_company_id failed, will fetch with RLS fallback:', rpcErr.message);
+          } else if (rpcCompanyId) {
+            resolvedCompanyId = rpcCompanyId as string;
+            console.log(`🧭 Using company from RPC: ${resolvedCompanyId}`);
+          }
+        }
+
+        if (resolvedCompanyId) {
+          console.log(`🔄 Company context: ${resolvedCompanyName || 'Unknown'} (${resolvedCompanyId}) - Fetching projects`);
+          const { data, error } = await supabase
+            .from('projects')
+            .select('id,name,location,latitude,longitude,status,company_id')
+            .eq('company_id', resolvedCompanyId)
+            .order('created_at', { ascending: false });
+
+          if (error) throw error;
+
+          const projectsWithCompanyInfo = (data || []).map(p => ({
+            ...p,
+            company_name: resolvedCompanyName || 'Current Company'
+          }));
+
+          const geocodedCount = projectsWithCompanyInfo.filter(p => p.latitude && p.longitude).length;
+          console.log(`✅ ${geocodedCount} projects have coordinates, ${projectsWithCompanyInfo.length - geocodedCount} using fallback`);
+          setProjects(projectsWithCompanyInfo);
+        } else {
+          // Final fallback: rely on RLS to only return accessible projects
+          console.log('🪢 No company resolved yet — fetching accessible projects via RLS');
+          const { data, error } = await supabase
+            .from('projects')
+            .select('id,name,location,latitude,longitude,status,company_id')
+            .order('created_at', { ascending: false });
+          if (error) throw error;
+
+          setProjects((data || []).map(p => ({ ...p, company_name: 'Accessible Company' })));
+        }
       } catch (error) {
         console.error('Error fetching business projects:', error);
         setProjects([]);
