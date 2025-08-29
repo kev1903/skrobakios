@@ -16,8 +16,8 @@ interface ProjectSidebarProps {
   activeSection?: string;
 }
 
-// Define all available project navigation modules
-const ALL_PROJECT_NAV_ITEMS = [{
+// Define project navigation sections and modules
+const CORE_MODULES = [{
   id: 'dashboard',
   key: 'dashboard',
   label: 'Dashboard',
@@ -41,7 +41,9 @@ const ALL_PROJECT_NAV_ITEMS = [{
   label: 'Team',
   icon: User,
   page: 'project-team'
-}, {
+}];
+
+const DELIVERY_SUPPORT = [{
   id: 'specification',
   key: 'specification',
   label: 'Scope',
@@ -65,13 +67,18 @@ const ALL_PROJECT_NAV_ITEMS = [{
   label: 'Contracts',
   icon: FileText,
   page: 'project-contracts'
-}, {
+}];
+
+const ADVANCED = [{
   id: 'qaqc',
   key: 'qaqc',
   label: 'QA/QC',
   icon: Shield,
   page: 'project-qaqc'
 }];
+
+// Combined list for backward compatibility
+const ALL_PROJECT_NAV_ITEMS = [...CORE_MODULES, ...DELIVERY_SUPPORT, ...ADVANCED];
 
 export const ProjectSidebar = ({
   project,
@@ -141,10 +148,7 @@ export const ProjectSidebar = ({
 
         {/* Project Navigation Items */}
         <div className="flex-1 min-h-0 overflow-y-auto">
-          <div className="px-4 py-4">
-            <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
-              Project Navigation
-            </div>
+          <div className="px-4 py-4 space-y-6">
             
             {!hasProjectManagement && (
               <div className="text-slate-500 text-sm py-4">
@@ -152,26 +156,78 @@ export const ProjectSidebar = ({
               </div>
             )}
             
-            {enabledProjectNavItems.length === 0 && hasProjectManagement && (
-              <div className="text-slate-500 text-sm py-4">
-                No project modules available
-              </div>
+            {hasProjectManagement && (
+              <>
+                {/* Core Modules Section */}
+                <div>
+                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                    Core Modules
+                  </div>
+                  <div className="space-y-1">
+                    {CORE_MODULES.map(item => (
+                      <button 
+                        key={item.id} 
+                        onClick={() => handleNavigate(item.page)} 
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                          activeSection === item.id 
+                            ? 'bg-blue-50 text-blue-700 font-medium' 
+                            : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
+                        }`}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Delivery Support Section */}
+                <div>
+                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                    Delivery Support
+                  </div>
+                  <div className="space-y-1">
+                    {DELIVERY_SUPPORT.map(item => (
+                      <button 
+                        key={item.id} 
+                        onClick={() => handleNavigate(item.page)} 
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                          activeSection === item.id 
+                            ? 'bg-blue-50 text-blue-700 font-medium' 
+                            : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
+                        }`}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Advanced Section */}
+                <div>
+                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                    Advanced
+                  </div>
+                  <div className="space-y-1">
+                    {ADVANCED.map(item => (
+                      <button 
+                        key={item.id} 
+                        onClick={() => handleNavigate(item.page)} 
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                          activeSection === item.id 
+                            ? 'bg-blue-50 text-blue-700 font-medium' 
+                            : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
+                        }`}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
             )}
-          
-            {enabledProjectNavItems.map(item => (
-              <button 
-                key={item.id} 
-                onClick={() => handleNavigate(item.page)} 
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
-                  activeSection === item.id 
-                    ? 'bg-blue-50 text-blue-700 font-medium' 
-                    : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
-                }`}
-              >
-                <item.icon className="w-4 h-4" />
-                <span>{item.label}</span>
-              </button>
-            ))}
           </div>
         </div>
 
