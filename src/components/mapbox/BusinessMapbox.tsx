@@ -31,6 +31,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   const [projects, setProjects] = useState<Project[]>([]);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mapReady, setMapReady] = useState(false);
   
   const navigate = useNavigate();
   
@@ -265,19 +266,26 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
       );
     });
 
+    // Signal readiness when map fully loads
+    map.current.on('load', () => {
+      console.log('✅ Mapbox map loaded');
+      setMapReady(true);
+    });
+
     return () => {
       console.log('🧹 Cleaning up map instance');
       if (map.current) {
         map.current.remove();
         map.current = null;
       }
+      setMapReady(false);
     };
   }, [mapboxToken]); // Only depend on mapboxToken, not projects
 
   // Separate effect for updating markers when projects change
   useEffect(() => {
-    if (!map.current || !projects.length) {
-      console.log('🚫 Skipping marker update - no map or projects');
+    if (!mapReady || !map.current || !projects.length) {
+      console.log('🚫 Skipping marker update - map not ready or no projects', { mapReady, mapExists: !!map.current, projects: projects.length });
       return;
     }
 
@@ -447,7 +455,7 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
       markersRef.current.forEach(marker => marker.remove());
       markersRef.current = [];
     };
-  }, [projects]); // Only update markers when projects change
+  }, [projects, mapReady]); // Update markers when projects or map readiness changes
 
   if (loading) {
     return (
