@@ -165,7 +165,7 @@ export const ProjectSidebar = ({
                   <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
                     Project Control
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     {PROJECT_CONTROL.map(item => (
                       <button 
                         key={item.id} 
@@ -188,7 +188,7 @@ export const ProjectSidebar = ({
                   <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
                     Core Modules
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     {CORE_MODULES.map(item => (
                       <button 
                         key={item.id} 
@@ -211,7 +211,7 @@ export const ProjectSidebar = ({
                   <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
                     Delivery Support
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     {DELIVERY_SUPPORT.map(item => (
                       <button 
                         key={item.id} 
@@ -234,7 +234,7 @@ export const ProjectSidebar = ({
                   <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
                     Advanced
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     {ADVANCED.map(item => (
                       <button 
                         key={item.id} 
@@ -261,7 +261,7 @@ export const ProjectSidebar = ({
           <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
             Project Settings
           </div>
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <button 
               onClick={() => handleNavigate('project-settings')} 
               className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-600 hover:bg-gray-50 hover:text-slate-700 transition-colors text-left text-sm"
