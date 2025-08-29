@@ -150,7 +150,7 @@ export const ProjectSidebar = ({
 
         {/* Project Navigation Items */}
         <div className="flex-1 min-h-0 overflow-y-auto">
-          <div className="px-4 py-4 space-y-6">
+          <div className="px-4 py-4">
             
             {!hasProjectManagement && (
               <div className="text-slate-500 text-sm py-4">
@@ -159,10 +159,11 @@ export const ProjectSidebar = ({
             )}
             
             {hasProjectManagement && (
-              <>
+              <div className="space-y-6">
                 {/* Project Control Section */}
-                <div>
-                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                <div className="bg-slate-50/50 rounded-lg p-4 border border-slate-100">
+                  <div className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                     Project Control
                   </div>
                   <div className="space-y-1">
@@ -170,10 +171,10 @@ export const ProjectSidebar = ({
                       <button 
                         key={item.id} 
                         onClick={() => handleNavigate(item.page)} 
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 text-left text-sm font-medium ${
                           activeSection === item.id 
-                            ? 'bg-blue-50 text-blue-700 font-medium' 
-                            : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
+                            ? 'bg-blue-600 text-white shadow-sm' 
+                            : 'text-slate-700 hover:bg-white hover:text-slate-900 hover:shadow-sm'
                         }`}
                       >
                         <item.icon className="w-4 h-4" />
@@ -184,8 +185,9 @@ export const ProjectSidebar = ({
                 </div>
 
                 {/* Core Modules Section */}
-                <div>
-                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                <div className="bg-emerald-50/50 rounded-lg p-4 border border-emerald-100">
+                  <div className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                     Core Modules
                   </div>
                   <div className="space-y-1">
@@ -193,10 +195,10 @@ export const ProjectSidebar = ({
                       <button 
                         key={item.id} 
                         onClick={() => handleNavigate(item.page)} 
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 text-left text-sm font-medium ${
                           activeSection === item.id 
-                            ? 'bg-blue-50 text-blue-700 font-medium' 
-                            : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
+                            ? 'bg-emerald-600 text-white shadow-sm' 
+                            : 'text-slate-700 hover:bg-white hover:text-slate-900 hover:shadow-sm'
                         }`}
                       >
                         <item.icon className="w-4 h-4" />
@@ -207,8 +209,9 @@ export const ProjectSidebar = ({
                 </div>
 
                 {/* Delivery Support Section */}
-                <div>
-                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                <div className="bg-amber-50/50 rounded-lg p-4 border border-amber-100">
+                  <div className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
                     Delivery Support
                   </div>
                   <div className="space-y-1">
@@ -216,10 +219,10 @@ export const ProjectSidebar = ({
                       <button 
                         key={item.id} 
                         onClick={() => handleNavigate(item.page)} 
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 text-left text-sm font-medium ${
                           activeSection === item.id 
-                            ? 'bg-blue-50 text-blue-700 font-medium' 
-                            : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
+                            ? 'bg-amber-600 text-white shadow-sm' 
+                            : 'text-slate-700 hover:bg-white hover:text-slate-900 hover:shadow-sm'
                         }`}
                       >
                         <item.icon className="w-4 h-4" />
@@ -230,8 +233,9 @@ export const ProjectSidebar = ({
                 </div>
 
                 {/* Advanced Section */}
-                <div>
-                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                <div className="bg-purple-50/50 rounded-lg p-4 border border-purple-100">
+                  <div className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                     Advanced
                   </div>
                   <div className="space-y-1">
@@ -239,10 +243,10 @@ export const ProjectSidebar = ({
                       <button 
                         key={item.id} 
                         onClick={() => handleNavigate(item.page)} 
-                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-md transition-all duration-200 text-left text-sm font-medium ${
                           activeSection === item.id 
-                            ? 'bg-blue-50 text-blue-700 font-medium' 
-                            : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
+                            ? 'bg-purple-600 text-white shadow-sm' 
+                            : 'text-slate-700 hover:bg-white hover:text-slate-900 hover:shadow-sm'
                         }`}
                       >
                         <item.icon className="w-4 h-4" />
@@ -251,7 +255,7 @@ export const ProjectSidebar = ({
                     ))}
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
