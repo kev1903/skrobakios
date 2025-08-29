@@ -26,6 +26,32 @@ const PROJECT_CONTROL = [{
 }];
 
 const CORE_MODULES = [{
+  id: 'specification',
+  key: 'specification',
+  label: 'Scope',
+  icon: File,
+  page: 'project-specification'
+}, {
+  id: 'schedule',
+  key: 'schedule',
+  label: 'Schedule',
+  icon: Calendar,
+  page: 'project-schedule'
+}, {
+  id: 'cost',
+  key: 'cost',
+  label: 'Cost',
+  icon: CreditCard,
+  page: 'project-cost'
+}, {
+  id: 'qaqc',
+  key: 'qaqc',
+  label: 'QA/QC',
+  icon: Shield,
+  page: 'project-qaqc'
+}];
+
+const DELIVERY_SUPPORT = [{
   id: 'tasks',
   key: 'tasks',
   label: 'Tasks',
@@ -43,26 +69,12 @@ const CORE_MODULES = [{
   label: 'Team',
   icon: User,
   page: 'project-team'
-}];
-
-const DELIVERY_SUPPORT = [{
-  id: 'specification',
-  key: 'specification',
-  label: 'Scope',
-  icon: File,
-  page: 'project-specification'
 }, {
   id: 'procurement',
   key: 'procurement',
   label: 'Procurement',
   icon: ShoppingBag,
   page: 'project-procurement'
-}, {
-  id: 'cost',
-  key: 'cost',
-  label: 'Cost',
-  icon: CreditCard,
-  page: 'project-cost'
 }, {
   id: 'contracts',
   key: 'contracts',
@@ -71,13 +83,9 @@ const DELIVERY_SUPPORT = [{
   page: 'project-contracts'
 }];
 
-const ADVANCED = [{
-  id: 'qaqc',
-  key: 'qaqc',
-  label: 'QA/QC',
-  icon: Shield,
-  page: 'project-qaqc'
-}];
+const ADVANCED = [
+  // Advanced modules can be added here as needed
+];
 
 // Combined list for backward compatibility
 const ALL_PROJECT_NAV_ITEMS = [...PROJECT_CONTROL, ...CORE_MODULES, ...DELIVERY_SUPPORT, ...ADVANCED];
