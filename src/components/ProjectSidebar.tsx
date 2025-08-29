@@ -126,15 +126,6 @@ export const ProjectSidebar = ({
   return (
     <div className={`${sidebarClasses[screenSize]} transition-all duration-300`}>
       <div className={contentClasses[screenSize]}>
-        {/* Project Info */}
-        <div className="flex-shrink-0 px-4 py-4 border-b border-gray-200">
-          <div className="text-slate-600 text-sm mb-1 truncate">{project.name}</div>
-          <div className="text-slate-400 text-xs mb-2">#{project.project_id}</div>
-          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
-            {getStatusText(project.status)}
-          </span>
-        </div>
-
         {/* Back Button */}
         <div className="flex-shrink-0 px-4 py-3 border-b border-gray-200">
           <Button
