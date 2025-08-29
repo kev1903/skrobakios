@@ -17,13 +17,15 @@ interface ProjectSidebarProps {
 }
 
 // Define project navigation sections and modules
-const CORE_MODULES = [{
+const PROJECT_CONTROL = [{
   id: 'dashboard',
   key: 'dashboard',
   label: 'Dashboard',
   icon: LayoutDashboard,
   page: 'project-detail'
-}, {
+}];
+
+const CORE_MODULES = [{
   id: 'tasks',
   key: 'tasks',
   label: 'Tasks',
@@ -78,7 +80,7 @@ const ADVANCED = [{
 }];
 
 // Combined list for backward compatibility
-const ALL_PROJECT_NAV_ITEMS = [...CORE_MODULES, ...DELIVERY_SUPPORT, ...ADVANCED];
+const ALL_PROJECT_NAV_ITEMS = [...PROJECT_CONTROL, ...CORE_MODULES, ...DELIVERY_SUPPORT, ...ADVANCED];
 
 export const ProjectSidebar = ({
   project,
@@ -158,6 +160,29 @@ export const ProjectSidebar = ({
             
             {hasProjectManagement && (
               <>
+                {/* Project Control Section */}
+                <div>
+                  <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                    Project Control
+                  </div>
+                  <div className="space-y-1">
+                    {PROJECT_CONTROL.map(item => (
+                      <button 
+                        key={item.id} 
+                        onClick={() => handleNavigate(item.page)} 
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-sm ${
+                          activeSection === item.id 
+                            ? 'bg-blue-50 text-blue-700 font-medium' 
+                            : 'text-slate-600 hover:bg-gray-50 hover:text-slate-700'
+                        }`}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Core Modules Section */}
                 <div>
                   <div className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
