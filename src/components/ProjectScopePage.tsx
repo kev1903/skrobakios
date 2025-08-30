@@ -276,8 +276,24 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         return prev.map(phase => 
           phase.id === id ? { ...phase, [field]: editValue } : phase
         );
+      } else if (type === 'component') {
+        return prev.map(phase => ({
+          ...phase,
+          components: phase.components.map(comp =>
+            comp.id === id ? { ...comp, [field]: editValue } : comp
+          )
+        }));
+      } else if (type === 'element') {
+        return prev.map(phase => ({
+          ...phase,
+          components: phase.components.map(comp => ({
+            ...comp,
+            elements: comp.elements.map(elem =>
+              elem.id === id ? { ...elem, [field]: editValue } : elem
+            )
+          }))
+        }));
       }
-      // Handle component and element editing if needed
       return prev;
     });
 
@@ -325,6 +341,44 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       inputRef.current.select();
     }
   }, [editingItem]);
+
+  // Reusable editable cell component
+  const EditableCell = ({ 
+    id, 
+    type, 
+    field, 
+    value, 
+    placeholder, 
+    className = "" 
+  }: { 
+    id: string; 
+    type: 'phase' | 'component' | 'element'; 
+    field: string; 
+    value: string; 
+    placeholder: string;
+    className?: string;
+  }) => {
+    const isEditing = editingItem?.id === id && editingItem?.field === field;
+    
+    return isEditing ? (
+      <Input
+        ref={inputRef}
+        value={editValue}
+        onChange={(e) => setEditValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={saveEdit}
+        className="border-none outline-none focus:outline-none focus:border-none ring-0 focus:ring-0 focus-visible:ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none bg-transparent p-0 m-0 rounded-none h-auto"
+        placeholder={placeholder}
+      />
+    ) : (
+      <span 
+        className={`cursor-pointer hover:bg-accent/20 px-1 py-0.5 rounded ${className}`}
+        onClick={() => handleEdit(id, type, field, value || '')}
+      >
+        {value || placeholder}
+      </span>
+    );
+  };
 
   const generateWBSNumber = (phaseIndex: number, componentIndex?: number, elementIndex?: number) => {
     const phaseNumber = phaseIndex + 1;
@@ -537,26 +591,25 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                   </div>
                                 </div>
                                 <div className="px-3 py-2 font-semibold text-foreground text-sm truncate">
-                                  {editingItem?.id === phase.id && editingItem?.field === 'name' ? (
-                                    <Input
-                                      ref={inputRef}
-                                      value={editValue}
-                                      onChange={(e) => setEditValue(e.target.value)}
-                                      onKeyDown={handleKeyDown}
-                                      onBlur={saveEdit}
-                                      className="h-6 text-sm font-semibold border-none outline-none focus:outline-none focus:border-none ring-0 focus:ring-0 focus-visible:ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none bg-transparent p-0 m-0 rounded-none"
-                                      placeholder="Enter phase name"
-                                    />
-                                  ) : (
-                                    <span 
-                                      className="cursor-pointer hover:bg-accent/20 px-1 py-0.5 rounded" 
-                                      onClick={() => handleEdit(phase.id, 'phase', 'name', phase.name)}
-                                    >
-                                      {phase.name || 'Untitled Phase'}
-                                    </span>
-                                  )}
+                                  <EditableCell
+                                    id={phase.id}
+                                    type="phase"
+                                    field="name"
+                                    value={phase.name}
+                                    placeholder="Untitled Phase"
+                                    className="font-semibold text-sm"
+                                  />
                                 </div>
-                                <div className="px-3 py-2 text-muted-foreground text-xs truncate">{phase.description}</div>
+                                <div className="px-3 py-2 text-muted-foreground text-xs truncate">
+                                  <EditableCell
+                                    id={phase.id}
+                                    type="phase"
+                                    field="description"
+                                    value={phase.description || ''}
+                                    placeholder="Add description..."
+                                    className="text-xs text-muted-foreground"
+                                  />
+                                </div>
                                 <div className="px-2 py-2"><Badge variant="outline" className={`${getStatusColor(phase.status)} text-xs px-2 py-0.5`}>{phase.status}</Badge></div>
                                 <div className="px-2 py-2">
                                   <div className="flex items-center gap-1">
@@ -653,8 +706,26 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 <div className="font-medium text-secondary text-xs truncate">{generateWBSNumber(phaseIndex, componentIndex)}</div>
                                               </div>
                                             </div>
-                                            <div className="px-3 py-1.5 font-medium text-foreground text-xs ml-4 truncate">{component.name}</div>
-                                            <div className="px-3 py-1.5 text-muted-foreground text-xs truncate">{component.description}</div>
+                                            <div className="px-3 py-1.5 font-medium text-foreground text-xs ml-4 truncate">
+                                              <EditableCell
+                                                id={component.id}
+                                                type="component"
+                                                field="name"
+                                                value={component.name}
+                                                placeholder="Untitled Component"
+                                                className="font-medium text-xs"
+                                              />
+                                            </div>
+                                            <div className="px-3 py-1.5 text-muted-foreground text-xs truncate">
+                                              <EditableCell
+                                                id={component.id}
+                                                type="component"
+                                                field="description"
+                                                value={component.description || ''}
+                                                placeholder="Add description..."
+                                                className="text-xs text-muted-foreground"
+                                              />
+                                            </div>
                                             <div className="px-2 py-1.5"><Badge variant="outline" className={`${getStatusColor(component.status)} text-xs px-1 py-0`}>{component.status}</Badge></div>
                                             <div className="px-2 py-1.5">
                                               <div className="flex items-center gap-1">
@@ -730,8 +801,26 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                           </div>
                                                         </div>
                                                         <div className="px-2 py-1 font-medium text-primary text-xs ml-6 truncate">{generateWBSNumber(phaseIndex, componentIndex, elementIndex)}</div>
-                                                        <div className="px-3 py-1 font-medium text-foreground text-xs ml-6 truncate">{element.name}</div>
-                                                        <div className="px-3 py-1 text-muted-foreground text-xs truncate">{element.description}</div>
+                                                        <div className="px-3 py-1 font-medium text-foreground text-xs ml-6 truncate">
+                                                          <EditableCell
+                                                            id={element.id}
+                                                            type="element"
+                                                            field="name"
+                                                            value={element.name}
+                                                            placeholder="Untitled Element"
+                                                            className="font-medium text-xs"
+                                                          />
+                                                        </div>
+                                                        <div className="px-3 py-1 text-muted-foreground text-xs truncate">
+                                                          <EditableCell
+                                                            id={element.id}
+                                                            type="element"
+                                                            field="description"
+                                                            value={element.description || ''}
+                                                            placeholder="Add description..."
+                                                            className="text-xs text-muted-foreground"
+                                                          />
+                                                        </div>
                                                         <div className="px-2 py-1"><Badge variant="outline" className={`${getStatusColor(element.status)} text-xs px-1 py-0`}>{element.status}</Badge></div>
                                                         <div className="px-2 py-1">
                                                           <div className="flex items-center gap-1">
@@ -741,8 +830,26 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             <span className="text-xs text-muted-foreground">{element.progress}%</span>
                                                           </div>
                                                         </div>
-                                                        <div className="px-2 py-1 text-muted-foreground text-xs truncate">{element.assignedTo}</div>
-                                                        <div className="px-2 py-1 text-muted-foreground text-xs truncate">{element.deliverable}</div>
+                                                        <div className="px-2 py-1 text-muted-foreground text-xs truncate">
+                                                          <EditableCell
+                                                            id={element.id}
+                                                            type="element"
+                                                            field="assignedTo"
+                                                            value={element.assignedTo || ''}
+                                                            placeholder="Assign to..."
+                                                            className="text-xs text-muted-foreground"
+                                                          />
+                                                        </div>
+                                                        <div className="px-2 py-1 text-muted-foreground text-xs truncate">
+                                                          <EditableCell
+                                                            id={element.id}
+                                                            type="element"
+                                                            field="deliverable"
+                                                            value={element.deliverable || ''}
+                                                            placeholder="Add deliverable..."
+                                                            className="text-xs text-muted-foreground"
+                                                          />
+                                                        </div>
                                                         <div className="px-2 py-1">
                                                           <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
