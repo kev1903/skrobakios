@@ -376,7 +376,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           </div>
 
           <div className="flex-1 px-6 py-4 bg-white">
-            <div className="rounded-lg border border-border bg-card shadow-sm">
+            <div className="rounded-lg border border-border bg-white shadow-sm">
               {/* Header */}
               <div
                 className="bg-muted/40 border-b border-border grid text-left text-xs font-medium text-muted-foreground uppercase tracking-wider"
