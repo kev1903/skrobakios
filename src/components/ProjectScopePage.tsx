@@ -544,7 +544,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                       onChange={(e) => setEditValue(e.target.value)}
                                       onKeyDown={handleKeyDown}
                                       onBlur={saveEdit}
-                                      className="h-6 text-sm font-semibold border-0 outline-none ring-0 focus:ring-0 focus:border-0 focus-visible:ring-0 shadow-none bg-transparent p-0 m-0"
+                                      className="h-6 text-sm font-semibold border-none outline-none focus:outline-none focus:border-none ring-0 focus:ring-0 focus-visible:ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none bg-transparent p-0 m-0 rounded-none"
                                       placeholder="Enter phase name"
                                     />
                                   ) : (
