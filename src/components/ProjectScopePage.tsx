@@ -344,12 +344,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                    <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
                                    <td className="px-3 py-2">
                                      <div className="flex items-center gap-1">
-                                       <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                         <Edit2 className="w-3 h-3" />
-                                       </Button>
-                                       <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                         <Trash2 className="w-3 h-3" />
-                                       </Button>
                                        <DropdownMenu>
                                          <DropdownMenuTrigger asChild>
                                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
@@ -402,20 +396,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                     </td>
                                     <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.assignedTo}</td>
                                     <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.deliverable}</td>
-                                     <td className="px-3 py-1.5">
-                                       <div className="flex items-center gap-1">
-                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                           <Edit2 className="w-3 h-3" />
-                                         </Button>
-                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                           <Trash2 className="w-3 h-3" />
-                                         </Button>
-                                         <DropdownMenu>
-                                           <DropdownMenuTrigger asChild>
-                                             <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                               <MoreHorizontal className="w-3 h-3" />
-                                             </Button>
-                                           </DropdownMenuTrigger>
+                                      <td className="px-3 py-1.5">
+                                        <div className="flex items-center gap-1">
+                                          <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                                <MoreHorizontal className="w-3 h-3" />
+                                              </Button>
+                                            </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                               <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, element.id)}>
                                                 <Copy className="w-3 h-3 mr-2" />
