@@ -83,6 +83,7 @@ import { IssueEditPage } from "@/pages/qaqc/IssueEditPage";
 import { StakeholdersPage } from "@/pages/StakeholdersPage";
 import { ProjectProcurementPage } from "@/pages/ProjectProcurementPage";
 import { AiChatSidebar } from "@/components/AiChatSidebar";
+import { ProjectScopePage } from "@/components/ProjectScopePage";
 
 
 interface ContentRendererProps {
@@ -400,6 +401,12 @@ export const ContentRenderer = ({
           <RFIDetailPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
+    case "project-specification":
+      return currentProject ? (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <ProjectScopePage project={currentProject} onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      ) : renderProjectNotFound();
     case "project-procurement":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
