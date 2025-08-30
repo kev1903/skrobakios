@@ -372,31 +372,42 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </thead>
                 <DragDropContext onDragEnd={onDragEnd}>
                   <Droppable droppableId="scope-phases" type="phase">
-                    {(provided) => (
+                    {(provided, snapshot) => (
                       <tbody 
                         {...provided.droppableProps}
                         ref={provided.innerRef}
-                        className="bg-card/50 divide-y divide-border"
+                        className={`bg-card/50 divide-y divide-border transition-colors duration-200 ${
+                          snapshot.isDraggingOver ? 'bg-primary/5' : ''
+                        }`}
                       >
                         {scopeData.map((phase, phaseIndex) => (
                           <Draggable key={phase.id} draggableId={phase.id} index={phaseIndex}>
                             {(provided, snapshot) => (
                               <React.Fragment>
-                                <tr 
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  className={`hover:bg-accent/20 bg-primary/5 border-l-2 border-l-primary transition-all duration-200 ${
-                                    snapshot.isDragging ? 'shadow-lg bg-card' : ''
-                                  }`}
-                                >
-                                  <td className="px-2 py-2">
-                                    <div 
-                                      {...provided.dragHandleProps}
-                                      className="cursor-grab hover:cursor-grabbing p-0.5 hover:bg-accent rounded transition-colors duration-200"
-                                    >
-                                      <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                    </div>
-                                  </td>
+                                 <tr 
+                                   ref={provided.innerRef}
+                                   {...provided.draggableProps}
+                                   className={`group hover:bg-accent/20 bg-primary/5 border-l-2 border-l-primary transition-all duration-200 ${
+                                     snapshot.isDragging ? 'shadow-xl bg-card border-primary scale-[1.02] z-50' : ''
+                                   }`}
+                                   style={{
+                                     ...provided.draggableProps.style,
+                                     ...(snapshot.isDragging && {
+                                       transform: `${provided.draggableProps.style?.transform} rotate(1deg)`,
+                                     }),
+                                   }}
+                                 >
+                                   <td className="px-2 py-2">
+                                     <div 
+                                       {...provided.dragHandleProps}
+                                       className={`cursor-grab active:cursor-grabbing p-1 hover:bg-primary/10 rounded transition-all duration-200 ${
+                                         snapshot.isDragging ? 'bg-primary/20 shadow-sm' : 'group-hover:bg-accent/50'
+                                       }`}
+                                       title="Drag to reorder phase"
+                                     >
+                                       <GripVertical className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors duration-200" />
+                                     </div>
+                                   </td>
                                   <td className="px-2 py-2">
                                     <div className="flex items-center">
                                       <button
@@ -476,21 +487,30 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                           <Draggable key={component.id} draggableId={component.id} index={componentIndex}>
                                             {(componentDragProvided, componentSnapshot) => (
                                               <React.Fragment>
-                                                <tr 
-                                                  ref={componentDragProvided.innerRef}
-                                                  {...componentDragProvided.draggableProps}
-                                                  className={`hover:bg-accent/10 bg-secondary/5 border-l-2 border-l-secondary transition-all duration-200 ${
-                                                    componentSnapshot.isDragging ? 'shadow-lg bg-card' : ''
-                                                  }`}
-                                                >
-                                                  <td className="px-2 py-1.5">
-                                                    <div 
-                                                      {...componentDragProvided.dragHandleProps}
-                                                      className="cursor-grab hover:cursor-grabbing p-0.5 hover:bg-accent rounded transition-colors duration-200 ml-2"
-                                                    >
-                                                      <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                                    </div>
-                                                  </td>
+                                                 <tr 
+                                                   ref={componentDragProvided.innerRef}
+                                                   {...componentDragProvided.draggableProps}
+                                                   className={`group hover:bg-accent/10 bg-secondary/5 border-l-2 border-l-secondary transition-all duration-200 ${
+                                                     componentSnapshot.isDragging ? 'shadow-xl bg-card border-secondary scale-[1.01] z-40' : ''
+                                                   }`}
+                                                   style={{
+                                                     ...componentDragProvided.draggableProps.style,
+                                                     ...(componentSnapshot.isDragging && {
+                                                       transform: `${componentDragProvided.draggableProps.style?.transform} rotate(0.5deg)`,
+                                                     }),
+                                                   }}
+                                                 >
+                                                   <td className="px-2 py-1.5">
+                                                     <div 
+                                                       {...componentDragProvided.dragHandleProps}
+                                                       className={`cursor-grab active:cursor-grabbing p-1 hover:bg-secondary/10 rounded transition-all duration-200 ml-2 ${
+                                                         componentSnapshot.isDragging ? 'bg-secondary/20 shadow-sm' : 'group-hover:bg-accent/50'
+                                                       }`}
+                                                       title="Drag to reorder component"
+                                                     >
+                                                       <GripVertical className="w-3 h-3 text-muted-foreground group-hover:text-secondary transition-colors duration-200" />
+                                                     </div>
+                                                   </td>
                                                   <td className="px-2 py-1.5">
                                                     <div className="flex items-center ml-3">
                                                       <button
@@ -569,16 +589,25 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                                <tr 
                                                                  ref={elementDragProvided.innerRef}
                                                                  {...elementDragProvided.draggableProps}
-                                                                 className={`hover:bg-accent/5 transition-colors duration-200 ${
-                                                                   elementSnapshot.isDragging ? 'shadow-lg bg-card' : ''
+                                                                 className={`group hover:bg-accent/5 transition-colors duration-200 ${
+                                                                   elementSnapshot.isDragging ? 'shadow-lg bg-card scale-[1.005] z-30' : ''
                                                                  }`}
+                                                                 style={{
+                                                                   ...elementDragProvided.draggableProps.style,
+                                                                   ...(elementSnapshot.isDragging && {
+                                                                     transform: `${elementDragProvided.draggableProps.style?.transform} rotate(0.2deg)`,
+                                                                   }),
+                                                                 }}
                                                                >
                                                                  <td className="px-2 py-1">
                                                                    <div 
                                                                      {...elementDragProvided.dragHandleProps}
-                                                                     className="cursor-grab hover:cursor-grabbing p-0.5 hover:bg-accent rounded transition-colors duration-200 ml-4"
+                                                                     className={`cursor-grab active:cursor-grabbing p-1 hover:bg-accent/20 rounded transition-all duration-200 ml-4 ${
+                                                                       elementSnapshot.isDragging ? 'bg-accent/30 shadow-sm' : 'group-hover:bg-accent/40'
+                                                                     }`}
+                                                                     title="Drag to reorder element"
                                                                    >
-                                                                     <GripVertical className="w-3 h-3 text-muted-foreground" />
+                                                                     <GripVertical className="w-3 h-3 text-muted-foreground group-hover:text-foreground transition-colors duration-200" />
                                                                    </div>
                                                                  </td>
                                                                   <td className="px-2 py-1">
@@ -639,9 +668,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             )}
                                                           </Draggable>
                                                         ))}
-                                                        <tr ref={elementProvided.innerRef} style={{ display: 'none' }}>
-                                                          <td colSpan={9}>{elementProvided.placeholder}</td>
-                                                        </tr>
+                                                         <tr ref={elementProvided.innerRef} className="h-0">
+                                                           <td colSpan={9} className="p-0">{elementProvided.placeholder}</td>
+                                                         </tr>
                                                       </React.Fragment>
                                                     )}
                                                   </Droppable>
@@ -650,9 +679,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                             )}
                                           </Draggable>
                                         ))}
-                                        <tr ref={componentProvided.innerRef} style={{ display: 'none' }}>
-                                          <td colSpan={9}>{componentProvided.placeholder}</td>
-                                        </tr>
+                                         <tr ref={componentProvided.innerRef} className="h-0">
+                                           <td colSpan={9} className="p-0">{componentProvided.placeholder}</td>
+                                         </tr>
                                       </React.Fragment>
                                     )}
                                   </Droppable>
