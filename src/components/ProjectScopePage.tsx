@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical } from 'lucide-react';
+import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { Project } from '@/hooks/useProjects';
 import { useScreenSize } from '@/hooks/use-mobile';
@@ -151,6 +158,23 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     );
   };
 
+  const handleContextMenuAction = (action: string, componentId: string, elementId?: string) => {
+    switch (action) {
+      case 'edit':
+        console.log('Edit', elementId || componentId);
+        // Add edit functionality here
+        break;
+      case 'duplicate':
+        console.log('Duplicate', elementId || componentId);
+        // Add duplicate functionality here
+        break;
+      case 'delete':
+        console.log('Delete', elementId || componentId);
+        // Add delete functionality here
+        break;
+    }
+  };
+
   const generateWBSNumber = (componentIndex: number, elementIndex?: number) => {
     const componentNumber = componentIndex + 1;
     if (elementIndex !== undefined) {
@@ -262,70 +286,99 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           <Draggable key={component.id} draggableId={component.id} index={index}>
                             {(provided, snapshot) => (
                               <React.Fragment>
-                                {/* Component Row */}
-                                <tr 
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  className={`hover:bg-accent/20 bg-primary/5 transition-colors duration-200 ${
-                                    snapshot.isDragging ? 'shadow-lg bg-card' : ''
-                                  }`}
-                                >
-                                  <td className="px-3 py-2">
-                                    <div 
-                                      {...provided.dragHandleProps}
-                                      className="cursor-grab hover:cursor-grabbing p-1 hover:bg-accent rounded transition-colors duration-200"
-                                    >
-                                      <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                    </div>
-                                  </td>
-                                  <td className="px-3 py-2">
-                                    <button
-                                      onClick={() => toggleComponent(component.id)}
-                                      className="p-1 hover:bg-accent rounded transition-colors duration-200"
-                                    >
-                                      {component.isExpanded ? (
-                                        <ChevronDown className="w-3 h-3 text-muted-foreground" />
-                                      ) : (
-                                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                                      )}
-                                    </button>
-                                  </td>
+                                 {/* Component Row */}
+                                 <tr 
+                                   ref={provided.innerRef}
+                                   {...provided.draggableProps}
+                                   className={`hover:bg-accent/20 bg-primary/5 transition-colors duration-200 ${
+                                     snapshot.isDragging ? 'shadow-lg bg-card' : ''
+                                   }`}
+                                   onContextMenu={(e) => {
+                                     e.preventDefault();
+                                     // Context menu will be handled by the dropdown
+                                   }}
+                                 >
                                    <td className="px-3 py-2">
-                                     <div className="font-medium text-primary text-sm font-inter">{generateWBSNumber(index)}</div>
+                                     <div 
+                                       {...provided.dragHandleProps}
+                                       className="cursor-grab hover:cursor-grabbing p-1 hover:bg-accent rounded transition-colors duration-200"
+                                     >
+                                       <GripVertical className="w-3 h-3 text-muted-foreground" />
+                                     </div>
                                    </td>
                                    <td className="px-3 py-2">
-                                     <div className="font-medium text-foreground text-sm font-inter">{component.name}</div>
+                                     <button
+                                       onClick={() => toggleComponent(component.id)}
+                                       className="p-1 hover:bg-accent rounded transition-colors duration-200"
+                                     >
+                                       {component.isExpanded ? (
+                                         <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                                       ) : (
+                                         <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                                       )}
+                                     </button>
                                    </td>
-                                  <td className="px-3 py-2 text-muted-foreground text-xs font-inter">{component.description}</td>
-                                  <td className="px-3 py-2">
-                                    <Badge variant="outline" className={`${getStatusColor(component.status)} text-xs font-inter`}>
-                                      {component.status}
-                                    </Badge>
-                                  </td>
-                                  <td className="px-3 py-2">
-                                    <div className="flex items-center gap-2">
-                                      <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
-                                        <div 
-                                          className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`}
-                                          style={{ width: `${component.progress}%` }}
-                                        />
-                                      </div>
-                                      <span className="text-xs text-muted-foreground font-inter">{component.progress}%</span>
-                                    </div>
-                                  </td>
-                                  <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
-                                  <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
-                                  <td className="px-3 py-2">
-                                    <div className="flex items-center gap-1">
-                                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                        <Edit2 className="w-3 h-3" />
-                                      </Button>
-                                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                        <Trash2 className="w-3 h-3" />
-                                      </Button>
-                                    </div>
-                                  </td>
-                                </tr>
+                                    <td className="px-3 py-2">
+                                      <div className="font-medium text-primary text-sm font-inter">{generateWBSNumber(index)}</div>
+                                    </td>
+                                    <td className="px-3 py-2">
+                                      <div className="font-medium text-foreground text-sm font-inter">{component.name}</div>
+                                    </td>
+                                   <td className="px-3 py-2 text-muted-foreground text-xs font-inter">{component.description}</td>
+                                   <td className="px-3 py-2">
+                                     <Badge variant="outline" className={`${getStatusColor(component.status)} text-xs font-inter`}>
+                                       {component.status}
+                                     </Badge>
+                                   </td>
+                                   <td className="px-3 py-2">
+                                     <div className="flex items-center gap-2">
+                                       <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                                         <div 
+                                           className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`}
+                                           style={{ width: `${component.progress}%` }}
+                                         />
+                                       </div>
+                                       <span className="text-xs text-muted-foreground font-inter">{component.progress}%</span>
+                                     </div>
+                                   </td>
+                                   <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
+                                   <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
+                                   <td className="px-3 py-2">
+                                     <div className="flex items-center gap-1">
+                                       <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                         <Edit2 className="w-3 h-3" />
+                                       </Button>
+                                       <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                         <Trash2 className="w-3 h-3" />
+                                       </Button>
+                                       <DropdownMenu>
+                                         <DropdownMenuTrigger asChild>
+                                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                             <MoreHorizontal className="w-3 h-3" />
+                                           </Button>
+                                         </DropdownMenuTrigger>
+                                         <DropdownMenuContent align="end">
+                                           <DropdownMenuItem onClick={() => handleContextMenuAction('edit', component.id)}>
+                                             <Edit2 className="w-3 h-3 mr-2" />
+                                             Edit
+                                           </DropdownMenuItem>
+                                           <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id)}>
+                                             <Copy className="w-3 h-3 mr-2" />
+                                             Duplicate
+                                           </DropdownMenuItem>
+                                           <DropdownMenuSeparator />
+                                           <DropdownMenuItem 
+                                             onClick={() => handleContextMenuAction('delete', component.id)}
+                                             className="text-destructive focus:text-destructive"
+                                           >
+                                             <Trash2 className="w-3 h-3 mr-2" />
+                                             Delete
+                                           </DropdownMenuItem>
+                                         </DropdownMenuContent>
+                                       </DropdownMenu>
+                                     </div>
+                                   </td>
+                                 </tr>
                                 
                                  {/* Element Rows */}
                                  {component.isExpanded && component.elements.map((element, elementIndex) => (
@@ -362,16 +415,41 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                     </td>
                                     <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.assignedTo}</td>
                                     <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.deliverable}</td>
-                                    <td className="px-3 py-1.5">
-                                      <div className="flex items-center gap-1">
-                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                          <Edit2 className="w-3 h-3" />
-                                        </Button>
-                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                          <Trash2 className="w-3 h-3" />
-                                        </Button>
-                                      </div>
-                                    </td>
+                                     <td className="px-3 py-1.5">
+                                       <div className="flex items-center gap-1">
+                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                           <Edit2 className="w-3 h-3" />
+                                         </Button>
+                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                           <Trash2 className="w-3 h-3" />
+                                         </Button>
+                                         <DropdownMenu>
+                                           <DropdownMenuTrigger asChild>
+                                             <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                               <MoreHorizontal className="w-3 h-3" />
+                                             </Button>
+                                           </DropdownMenuTrigger>
+                                           <DropdownMenuContent align="end">
+                                             <DropdownMenuItem onClick={() => handleContextMenuAction('edit', component.id, element.id)}>
+                                               <Edit2 className="w-3 h-3 mr-2" />
+                                               Edit
+                                             </DropdownMenuItem>
+                                             <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, element.id)}>
+                                               <Copy className="w-3 h-3 mr-2" />
+                                               Duplicate
+                                             </DropdownMenuItem>
+                                             <DropdownMenuSeparator />
+                                             <DropdownMenuItem 
+                                               onClick={() => handleContextMenuAction('delete', component.id, element.id)}
+                                               className="text-destructive focus:text-destructive"
+                                             >
+                                               <Trash2 className="w-3 h-3 mr-2" />
+                                               Delete
+                                             </DropdownMenuItem>
+                                           </DropdownMenuContent>
+                                         </DropdownMenu>
+                                       </div>
+                                     </td>
                                   </tr>
                                 ))}
                               </React.Fragment>
