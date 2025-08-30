@@ -354,8 +354,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             </div>
           </div>
 
-          <div className="flex-1 overflow-auto px-6 py-4">
-            <div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
+          <div className="flex-1 px-6 py-4">
+            <div className="rounded-lg border border-border bg-card shadow-sm">
               <table className="w-full table-fixed">
                 <thead className="bg-muted/40 border-b border-border">
                   <tr>
