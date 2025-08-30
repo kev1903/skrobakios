@@ -371,7 +371,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            onBlur={saveEdit}
             className="border-none outline-none focus:outline-none focus:border-none ring-0 focus:ring-0 focus-visible:ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none bg-transparent p-0 m-0 rounded-none h-auto w-full"
             placeholder={placeholder}
           />
