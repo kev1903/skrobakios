@@ -371,29 +371,36 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   </tr>
                 </thead>
                 <DragDropContext onDragEnd={onDragEnd}>
-                  <Droppable droppableId="scope-phases" type="phase">
-                    {(provided, snapshot) => (
-                      <tbody 
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className={`bg-card/50 divide-y divide-border transition-colors duration-200 ${
-                          snapshot.isDraggingOver ? 'bg-primary/5' : ''
-                        }`}
-                      >
-                        {scopeData.map((phase, phaseIndex) => (
-                          <Draggable key={phase.id} draggableId={phase.id} index={phaseIndex}>
-                            {(provided, snapshot) => (
-                              <React.Fragment>
-                                 <tr 
-                                   ref={provided.innerRef}
-                                   {...provided.draggableProps}
-                                   className={`group hover:bg-accent/20 bg-primary/5 border-l-2 border-l-primary transition-colors duration-200 ${
-                                     snapshot.isDragging ? 'shadow-xl bg-card border-primary z-50' : ''
-                                   }`}
-                                   style={{
-                                     ...provided.draggableProps.style
-                                   }}
-                                 >
+                      <Droppable droppableId="scope-phases" type="phase">
+                        {(provided, snapshot) => (
+                          <tbody 
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                            className={`bg-card/50 divide-y divide-border transition-colors duration-200 ${
+                              snapshot.isDraggingOver ? 'bg-primary/10 ring-2 ring-primary/20' : ''
+                            }`}
+                          >
+                            {scopeData.map((phase, phaseIndex) => (
+                              <Draggable key={phase.id} draggableId={phase.id} index={phaseIndex}>
+                                {(provided, snapshot) => (
+                                  <React.Fragment>
+                                     <tr 
+                                       ref={provided.innerRef}
+                                       {...provided.draggableProps}
+                                       className={`group hover:bg-accent/20 bg-primary/5 border-l-2 border-l-primary transition-colors duration-200 relative ${
+                                         snapshot.isDragging ? 'shadow-xl bg-card border-primary z-50' : ''
+                                       }`}
+                                       style={{
+                                         ...provided.draggableProps.style
+                                       }}
+                                     >
+                                       {/* Drop indicator line for phase reordering */}
+                                       {snapshot.isDragging && (
+                                         <>
+                                           <td colSpan={9} className="absolute -top-0.5 left-0 right-0 h-0.5 bg-primary opacity-0 transition-opacity duration-200 group-hover:opacity-100 pointer-events-none" />
+                                           <td colSpan={9} className="absolute -bottom-0.5 left-0 right-0 h-0.5 bg-primary opacity-0 transition-opacity duration-200 group-hover:opacity-100 pointer-events-none" />
+                                         </>
+                                       )}
                                    <td className="px-2 py-2">
                                      <div 
                                        {...provided.dragHandleProps}
@@ -478,8 +485,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
                                 {phase.isExpanded && (
                                   <Droppable droppableId={`components-${phase.id}`} type={`component-${phase.id}`}>
-                                    {(componentProvided) => (
-                                      <tr ref={componentProvided.innerRef} {...componentProvided.droppableProps} className="contents">
+                                    {(componentProvided, componentSnapshot) => (
+                                      <tr ref={componentProvided.innerRef} {...componentProvided.droppableProps} className={`contents ${componentSnapshot.isDraggingOver ? 'bg-secondary/10' : ''}`}>
                                         {phase.components.map((component, componentIndex) => (
                                           <Draggable key={component.id} draggableId={component.id} index={componentIndex}>
                                             {(componentDragProvided, componentSnapshot) => (
@@ -575,8 +582,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
                                                 {component.isExpanded && (
                                                   <Droppable droppableId={`elements-${phase.id}-${component.id}`} type={`element-${phase.id}-${component.id}`}>
-                                                    {(elementProvided) => (
-                                                      <tr ref={elementProvided.innerRef} {...elementProvided.droppableProps} className="contents">
+                                                    {(elementProvided, elementSnapshot) => (
+                                                      <tr ref={elementProvided.innerRef} {...elementProvided.droppableProps} className={`contents ${elementSnapshot.isDraggingOver ? 'bg-accent/20' : ''}`}>
                                                         {component.elements.map((element, elementIndex) => (
                                                           <Draggable key={element.id} draggableId={element.id} index={elementIndex}>
                                                             {(elementDragProvided, elementSnapshot) => (
