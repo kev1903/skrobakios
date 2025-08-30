@@ -347,7 +347,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       />
 
       <div className={contentClasses[screenSize]}>
-        <div className="flex flex-col h-full bg-background">
+        <div className="flex flex-col h-full bg-background overflow-auto">
           <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
             <div className="flex items-center justify-between">
               <div>
