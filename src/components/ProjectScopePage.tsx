@@ -365,21 +365,101 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     placeholder: string;
     className?: string;
   }) => {
-    const isEditing = editingItem?.id === id && editingItem?.field === field;
-    
+    const [isEditing, setIsEditing] = useState(false);
+    const [localValue, setLocalValue] = useState(value || "");
+    const localInputRef = useRef<HTMLInputElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
+    // keep local value in sync if the underlying value changes externally
+    useEffect(() => {
+      setLocalValue(value || "");
+    }, [value, id]);
+
+    useEffect(() => {
+      if (isEditing && localInputRef.current) {
+        localInputRef.current.focus();
+        localInputRef.current.select();
+      }
+    }, [isEditing]);
+
+    // Close on outside click while editing
+    useEffect(() => {
+      if (!isEditing) return;
+      const onMouseDown = (e: MouseEvent) => {
+        if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+          commitEdit();
+        }
+      };
+      document.addEventListener('mousedown', onMouseDown);
+      return () => document.removeEventListener('mousedown', onMouseDown);
+    }, [isEditing, localValue]);
+
+    const updateScopeField = (newVal: string) => {
+      setScopeData(prev => {
+        if (type === 'phase') {
+          return prev.map(phase => 
+            phase.id === id ? { ...phase, [field]: newVal } : phase
+          );
+        } else if (type === 'component') {
+          return prev.map(phase => ({
+            ...phase,
+            components: phase.components.map(comp =>
+              comp.id === id ? { ...comp, [field]: newVal } : comp
+            )
+          }));
+        } else {
+          return prev.map(phase => ({
+            ...phase,
+            components: phase.components.map(comp => ({
+              ...comp,
+              elements: comp.elements.map(elem =>
+                elem.id === id ? { ...elem, [field]: newVal } : elem
+              )
+            }))
+          }));
+        }
+      });
+    };
+
+    const commitEdit = async () => {
+      if (localValue !== (value || "")) {
+        updateScopeField(localValue);
+        await updateScopeToDatabase();
+      }
+      setIsEditing(false);
+    };
+
+    const cancelLocalEdit = () => {
+      setLocalValue(value || "");
+      setIsEditing(false);
+    };
+
+    const onKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        commitEdit();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        cancelLocalEdit();
+      }
+    };
+
     return (
       <div 
+        ref={wrapperRef}
         className={`w-full h-full flex items-center ${!isEditing ? 'cursor-pointer hover:bg-accent/20 rounded px-1' : ''}`}
-        onClick={() => !isEditing && handleEdit(id, type, field, value || '')}
+        onClick={() => !isEditing && setIsEditing(true)}
       >
         {isEditing ? (
           <Input
-            ref={inputRef}
-            value={editValue}
-            onChange={(e) => setEditValue(e.target.value)}
-            onKeyDown={handleKeyDown}
+            ref={localInputRef}
+            value={localValue}
+            onChange={(e) => setLocalValue(e.target.value)}
+            onKeyDown={onKeyDown}
+            onMouseDown={(e) => e.stopPropagation()}
             className="border-none outline-none focus:outline-none focus:border-none ring-0 focus:ring-0 focus-visible:ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none bg-transparent p-0 m-0 rounded-none h-auto w-full"
             placeholder={placeholder}
+            autoFocus
           />
         ) : (
           <span className={`truncate ${className}`}>
