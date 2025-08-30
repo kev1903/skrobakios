@@ -151,6 +151,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     );
   };
 
+  const generateWBSNumber = (componentIndex: number, elementIndex?: number) => {
+    const componentNumber = componentIndex + 1;
+    if (elementIndex !== undefined) {
+      return `${componentNumber}.${elementIndex + 1}`;
+    }
+    return componentNumber.toString();
+  };
+
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
@@ -232,6 +240,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   <tr>
                     <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-8 font-inter">Drag</th>
                     <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-8 font-inter"></th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-16 font-inter">WBS</th>
                     <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Name</th>
                     <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Description</th>
                     <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Status</th>
@@ -281,9 +290,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                       )}
                                     </button>
                                   </td>
-                                  <td className="px-3 py-2">
-                                    <div className="font-medium text-foreground text-sm font-inter">{component.name}</div>
-                                  </td>
+                                   <td className="px-3 py-2">
+                                     <div className="font-medium text-primary text-sm font-inter">{generateWBSNumber(index)}</div>
+                                   </td>
+                                   <td className="px-3 py-2">
+                                     <div className="font-medium text-foreground text-sm font-inter">{component.name}</div>
+                                   </td>
                                   <td className="px-3 py-2 text-muted-foreground text-xs font-inter">{component.description}</td>
                                   <td className="px-3 py-2">
                                     <Badge variant="outline" className={`${getStatusColor(component.status)} text-xs font-inter`}>
@@ -315,19 +327,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                   </td>
                                 </tr>
                                 
-                                {/* Element Rows */}
-                                {component.isExpanded && component.elements.map((element) => (
-                                  <tr key={element.id} className="hover:bg-accent/10 transition-colors duration-200">
-                                    <td className="px-3 py-1.5"></td>
-                                    <td className="px-3 py-1.5"></td>
-                                    <td className="px-3 py-1.5">
-                                      <div className="pl-4 text-foreground text-sm font-inter">
-                                        <div className="flex items-center gap-2">
-                                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                                          {element.name}
-                                        </div>
-                                      </div>
-                                    </td>
+                                 {/* Element Rows */}
+                                 {component.isExpanded && component.elements.map((element, elementIndex) => (
+                                   <tr key={element.id} className="hover:bg-accent/10 transition-colors duration-200">
+                                     <td className="px-3 py-1.5"></td>
+                                     <td className="px-3 py-1.5"></td>
+                                     <td className="px-3 py-1.5">
+                                       <div className="font-medium text-primary text-sm font-inter">{generateWBSNumber(index, elementIndex)}</div>
+                                     </td>
+                                     <td className="px-3 py-1.5">
+                                       <div className="pl-4 text-foreground text-sm font-inter">
+                                         <div className="flex items-center gap-2">
+                                           <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
+                                           {element.name}
+                                         </div>
+                                       </div>
+                                     </td>
                                     <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.description}</td>
                                     <td className="px-3 py-1.5">
                                       <Badge variant="outline" className={`${getStatusColor(element.status)} text-xs font-inter`}>
