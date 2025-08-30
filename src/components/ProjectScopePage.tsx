@@ -358,21 +358,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                            </Button>
                                          </DropdownMenuTrigger>
                                          <DropdownMenuContent align="end">
-                                           <DropdownMenuItem onClick={() => handleContextMenuAction('edit', component.id)}>
-                                             <Edit2 className="w-3 h-3 mr-2" />
-                                             Edit
-                                           </DropdownMenuItem>
                                            <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id)}>
                                              <Copy className="w-3 h-3 mr-2" />
                                              Duplicate
-                                           </DropdownMenuItem>
-                                           <DropdownMenuSeparator />
-                                           <DropdownMenuItem 
-                                             onClick={() => handleContextMenuAction('delete', component.id)}
-                                             className="text-destructive focus:text-destructive"
-                                           >
-                                             <Trash2 className="w-3 h-3 mr-2" />
-                                             Delete
                                            </DropdownMenuItem>
                                          </DropdownMenuContent>
                                        </DropdownMenu>
@@ -429,24 +417,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                <MoreHorizontal className="w-3 h-3" />
                                              </Button>
                                            </DropdownMenuTrigger>
-                                           <DropdownMenuContent align="end">
-                                             <DropdownMenuItem onClick={() => handleContextMenuAction('edit', component.id, element.id)}>
-                                               <Edit2 className="w-3 h-3 mr-2" />
-                                               Edit
-                                             </DropdownMenuItem>
-                                             <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, element.id)}>
-                                               <Copy className="w-3 h-3 mr-2" />
-                                               Duplicate
-                                             </DropdownMenuItem>
-                                             <DropdownMenuSeparator />
-                                             <DropdownMenuItem 
-                                               onClick={() => handleContextMenuAction('delete', component.id, element.id)}
-                                               className="text-destructive focus:text-destructive"
-                                             >
-                                               <Trash2 className="w-3 h-3 mr-2" />
-                                               Delete
-                                             </DropdownMenuItem>
-                                           </DropdownMenuContent>
+                                            <DropdownMenuContent align="end">
+                                              <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, element.id)}>
+                                                <Copy className="w-3 h-3 mr-2" />
+                                                Duplicate
+                                              </DropdownMenuItem>
+                                            </DropdownMenuContent>
                                          </DropdownMenu>
                                        </div>
                                      </td>
