@@ -325,9 +325,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const mainClasses = {
-    mobile: "flex flex-col h-screen pt-[var(--header-height,64px)]",
-    tablet: "flex flex-col h-screen pt-[var(--header-height,64px)]", 
-    desktop: "flex h-screen pt-[var(--header-height,64px)]"
+    mobile: "flex flex-col h-full",
+    tablet: "flex flex-col h-full", 
+    desktop: "flex h-full"
   };
 
   const contentClasses = {
