@@ -398,19 +398,19 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                     </div>
                                   </td>
                                   <td className="px-2 py-2">
-                                    <button
-                                      onClick={() => togglePhase(phase.id)}
-                                      className="p-0.5 hover:bg-accent rounded transition-colors duration-200"
-                                    >
-                                      {phase.isExpanded ? (
-                                        <ChevronDown className="w-3 h-3 text-muted-foreground" />
-                                      ) : (
-                                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                                      )}
-                                    </button>
-                                  </td>
-                                  <td className="px-3 py-2">
-                                    <div className="font-semibold text-primary text-sm truncate">{generateWBSNumber(phaseIndex)}</div>
+                                    <div className="flex items-center">
+                                      <button
+                                        onClick={() => togglePhase(phase.id)}
+                                        className="p-0.5 hover:bg-accent rounded transition-colors duration-200 mr-1"
+                                      >
+                                        {phase.isExpanded ? (
+                                          <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                                        ) : (
+                                          <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                                        )}
+                                      </button>
+                                      <div className="font-semibold text-primary text-sm truncate">{generateWBSNumber(phaseIndex)}</div>
+                                    </div>
                                   </td>
                                   <td className="px-3 py-2">
                                     <div className="font-semibold text-foreground text-sm truncate">{phase.name}</div>
@@ -492,20 +492,20 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                     </div>
                                                   </td>
                                                   <td className="px-2 py-1.5">
-                                                    <button
-                                                      onClick={() => toggleComponent(phase.id, component.id)}
-                                                      className="p-0.5 hover:bg-accent rounded transition-colors duration-200 ml-3"
-                                                    >
-                                                      {component.isExpanded ? (
-                                                        <ChevronDown className="w-2.5 h-2.5 text-muted-foreground" />
-                                                      ) : (
-                                                        <ChevronRight className="w-2.5 h-2.5 text-muted-foreground" />
-                                                      )}
-                                                    </button>
-                                                  </td>
-                                                  <td className="px-3 py-1.5">
-                                                    <div className="font-medium text-secondary text-xs ml-4 truncate">
-                                                      {generateWBSNumber(phaseIndex, componentIndex)}
+                                                    <div className="flex items-center ml-3">
+                                                      <button
+                                                        onClick={() => toggleComponent(phase.id, component.id)}
+                                                        className="p-0.5 hover:bg-accent rounded transition-colors duration-200 mr-1"
+                                                      >
+                                                        {component.isExpanded ? (
+                                                          <ChevronDown className="w-2.5 h-2.5 text-muted-foreground" />
+                                                        ) : (
+                                                          <ChevronRight className="w-2.5 h-2.5 text-muted-foreground" />
+                                                        )}
+                                                      </button>
+                                                      <div className="font-medium text-secondary text-xs truncate">
+                                                        {generateWBSNumber(phaseIndex, componentIndex)}
+                                                      </div>
                                                     </div>
                                                   </td>
                                                   <td className="px-3 py-1.5">
@@ -581,16 +581,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                                      <GripVertical className="w-3 h-3 text-muted-foreground" />
                                                                    </div>
                                                                  </td>
-                                                                 <td className="px-2 py-1"></td>
-                                                                 <td className="px-3 py-1">
-                                                                   <div className="font-medium text-primary text-xs ml-6 truncate">
-                                                                     {generateWBSNumber(phaseIndex, componentIndex, elementIndex)}
-                                                                   </div>
-                                                                 </td>
-                                                                 <td className="px-3 py-1">
-                                                                   <div className="font-medium text-foreground text-xs ml-6 truncate">{element.name}</div>
-                                                                 </td>
-                                                                 <td className="px-3 py-1 text-muted-foreground text-xs truncate">{element.description}</td>
+                                                                  <td className="px-2 py-1">
+                                                                    <div className="font-medium text-primary text-xs ml-6 truncate">
+                                                                      {generateWBSNumber(phaseIndex, componentIndex, elementIndex)}
+                                                                    </div>
+                                                                  </td>
+                                                                  <td className="px-3 py-1">
+                                                                    <div className="font-medium text-foreground text-xs ml-6 truncate">{element.name}</div>
+                                                                  </td>
+                                                                  <td className="px-3 py-1 text-muted-foreground text-xs truncate">{element.description}</td>
                                                                  <td className="px-2 py-1">
                                                                    <Badge variant="outline" className={`${getStatusColor(element.status)} text-xs px-1 py-0`}>
                                                                      {element.status}
