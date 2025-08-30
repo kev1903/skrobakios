@@ -795,7 +795,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 <GripVertical className="w-3 h-3 text-muted-foreground" />
                                               </div>
                                             </div>
-                                            <div className="px-2 py-1.5">
+                                             <div className="px-2 py-2">
                                               <div className="flex items-center ml-3">
                                                 <button onClick={() => toggleComponent(phase.id, component.id)} className="p-0.5 hover:bg-accent rounded transition-colors duration-200 mr-1" aria-label="Toggle component">
                                                   {component.isExpanded ? (
@@ -807,7 +807,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 <div className="font-medium text-secondary text-xs truncate">{generateWBSNumber(phaseIndex, componentIndex)}</div>
                                               </div>
                                             </div>
-                                            <div className="px-3 py-1.5 font-medium text-foreground text-xs ml-4 truncate">
+                                            <div className="px-3 py-2 font-medium text-foreground text-xs ml-4 truncate">
                                               <EditableCell
                                                 id={component.id}
                                                 type="component"
@@ -817,7 +817,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 className="font-medium text-xs"
                                               />
                                             </div>
-                                            <div className="px-3 py-1.5 text-muted-foreground text-xs truncate">
+                                            <div className="px-3 py-2 text-muted-foreground text-xs truncate">
                                               <EditableCell
                                                 id={component.id}
                                                 type="component"
@@ -827,8 +827,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 className="text-xs text-muted-foreground"
                                               />
                                             </div>
-                                            <div className="px-2 py-1.5"><Badge variant="outline" className={`${getStatusColor(component.status)} text-xs px-1 py-0`}>{component.status}</Badge></div>
-                                            <div className="px-2 py-1.5">
+                                            <div className="px-2 py-2"><Badge variant="outline" className={`${getStatusColor(component.status)} text-xs px-1 py-0`}>{component.status}</Badge></div>
+                                             <div className="px-2 py-2">
                                               <div className="flex items-center gap-1">
                                                 <div className="w-10 h-1 bg-muted rounded-full overflow-hidden">
                                                   <div className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`} style={{ width: `${component.progress}%` }} />
@@ -836,8 +836,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 <span className="text-xs text-muted-foreground">{component.progress}%</span>
                                               </div>
                                             </div>
-                                            <div className="px-2 py-1.5 text-muted-foreground text-xs truncate">-</div>
-                                            <div className="px-2 py-1.5 text-muted-foreground text-xs truncate">-</div>
+                                             <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
+                                            <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
                                             <div className="px-2 py-2 flex items-center justify-center">
                                               <div className="flex items-center gap-1">
                                                 <Button 
@@ -906,7 +906,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                           ...elementDragProvided.draggableProps.style,
                                                         }}
                                                       >
-                                                        <div className="px-2 py-1">
+                                                         <div className="px-2 py-2">
                                                           <div
                                                             {...elementDragProvided.dragHandleProps}
                                                             className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 ml-4 ${
@@ -917,8 +917,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             <GripVertical className="w-3 h-3 text-muted-foreground" />
                                                           </div>
                                                         </div>
-                                                        <div className="px-2 py-1 font-medium text-primary text-xs ml-6 truncate">{generateWBSNumber(phaseIndex, componentIndex, elementIndex)}</div>
-                                                        <div className="px-3 py-1 font-medium text-foreground text-xs ml-6 truncate">
+                                                        <div className="px-2 py-2 font-medium text-primary text-xs ml-6 truncate">{generateWBSNumber(phaseIndex, componentIndex, elementIndex)}</div>
+                                                        <div className="px-3 py-2 font-medium text-foreground text-xs ml-6 truncate">
                                                           <EditableCell
                                                             id={element.id}
                                                             type="element"
@@ -928,7 +928,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             className="font-medium text-xs"
                                                           />
                                                         </div>
-                                                        <div className="px-3 py-1 text-muted-foreground text-xs truncate">
+                                                        <div className="px-3 py-2 text-muted-foreground text-xs truncate">
                                                           <EditableCell
                                                             id={element.id}
                                                             type="element"
@@ -938,8 +938,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             className="text-xs text-muted-foreground"
                                                           />
                                                         </div>
-                                                        <div className="px-2 py-1"><Badge variant="outline" className={`${getStatusColor(element.status)} text-xs px-1 py-0`}>{element.status}</Badge></div>
-                                                        <div className="px-2 py-1">
+                                                        <div className="px-2 py-2"><Badge variant="outline" className={`${getStatusColor(element.status)} text-xs px-1 py-0`}>{element.status}</Badge></div>
+                                                         <div className="px-2 py-2">
                                                           <div className="flex items-center gap-1">
                                                             <div className="w-8 h-1 bg-muted rounded-full overflow-hidden">
                                                               <div className={`h-full transition-all duration-300 ${getProgressColor(element.progress)}`} style={{ width: `${element.progress}%` }} />
@@ -947,7 +947,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             <span className="text-xs text-muted-foreground">{element.progress}%</span>
                                                           </div>
                                                         </div>
-                                                        <div className="px-2 py-1 text-muted-foreground text-xs truncate">
+                                                         <div className="px-2 py-2 text-muted-foreground text-xs truncate">
                                                           <EditableCell
                                                             id={element.id}
                                                             type="element"
@@ -957,7 +957,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             className="text-xs text-muted-foreground"
                                                           />
                                                         </div>
-                                                        <div className="px-2 py-1 text-muted-foreground text-xs truncate">
+                                                        <div className="px-2 py-2 text-muted-foreground text-xs truncate">
                                                           <EditableCell
                                                             id={element.id}
                                                             type="element"
