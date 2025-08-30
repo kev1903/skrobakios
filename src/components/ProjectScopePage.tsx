@@ -310,9 +310,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const contentClasses = {
-    mobile: "flex-1 overflow-hidden",
-    tablet: "flex-1 overflow-hidden",
-    desktop: "flex-1 ml-48 overflow-hidden"
+    mobile: "flex-1",
+    tablet: "flex-1",
+    desktop: "flex-1 ml-48"
   };
 
   return (
