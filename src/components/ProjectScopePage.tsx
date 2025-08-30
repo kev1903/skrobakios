@@ -482,7 +482,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                 {phase.isExpanded && (
                                   <Droppable droppableId={`components-${phase.id}`} type={`component-${phase.id}`}>
                                     {(componentProvided) => (
-                                      <React.Fragment>
+                                      <tr ref={componentProvided.innerRef} {...componentProvided.droppableProps} className="contents">
                                         {phase.components.map((component, componentIndex) => (
                                           <Draggable key={component.id} draggableId={component.id} index={componentIndex}>
                                             {(componentDragProvided, componentSnapshot) => (
@@ -582,7 +582,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 {component.isExpanded && (
                                                   <Droppable droppableId={`elements-${phase.id}-${component.id}`} type={`element-${phase.id}-${component.id}`}>
                                                     {(elementProvided) => (
-                                                      <React.Fragment>
+                                                      <tr ref={elementProvided.innerRef} {...elementProvided.droppableProps} className="contents">
                                                         {component.elements.map((element, elementIndex) => (
                                                           <Draggable key={element.id} draggableId={element.id} index={elementIndex}>
                                                             {(elementDragProvided, elementSnapshot) => (
@@ -668,10 +668,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             )}
                                                           </Draggable>
                                                         ))}
-                                                         <tr ref={elementProvided.innerRef} className="h-0">
-                                                           <td colSpan={9} className="p-0">{elementProvided.placeholder}</td>
-                                                         </tr>
-                                                      </React.Fragment>
+                                                        {elementProvided.placeholder}
+                                                      </tr>
                                                     )}
                                                   </Droppable>
                                                 )}
@@ -679,10 +677,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                             )}
                                           </Draggable>
                                         ))}
-                                         <tr ref={componentProvided.innerRef} className="h-0">
-                                           <td colSpan={9} className="p-0">{componentProvided.placeholder}</td>
-                                         </tr>
-                                      </React.Fragment>
+                                        {componentProvided.placeholder}
+                                      </tr>
                                     )}
                                   </Droppable>
                                 )}
