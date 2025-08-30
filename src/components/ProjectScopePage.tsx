@@ -170,6 +170,7 @@ const sampleScopeData: ScopePhase[] = [
 export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps) => {
   const [scopeData, setScopeData] = useState<ScopePhase[]>(sampleScopeData);
   const screenSize = useScreenSize();
+  const [dragIndicator, setDragIndicator] = useState<{ type: string; droppableId: string; index: number } | null>(null);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -245,6 +246,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const onDragEnd = (result: DropResult) => {
+    // Clear indicator on drop
+    setDragIndicator(null);
     if (!result.destination) return;
 
     const { source, destination, type } = result;
@@ -285,6 +288,16 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         return phase;
       }));
     }
+  };
+
+  // Update drop indicator as user drags
+  const onDragUpdate = (update: any) => {
+    const { destination, type } = update;
+    if (!destination) {
+      setDragIndicator(null);
+      return;
+    }
+    setDragIndicator({ type, droppableId: destination.droppableId, index: destination.index });
   };
 
   const calculateOverallProgress = () => {
@@ -370,7 +383,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-20">Actions</th>
                   </tr>
                 </thead>
-                <DragDropContext onDragEnd={onDragEnd}>
+                <DragDropContext onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
                       <Droppable droppableId="scope-phases" type="phase">
                         {(provided, snapshot) => (
                           <tbody 
@@ -384,6 +397,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                               <Draggable key={phase.id} draggableId={phase.id} index={phaseIndex}>
                                 {(provided, snapshot) => (
                                   <React.Fragment>
+                                     {dragIndicator && dragIndicator.type === 'phase' && dragIndicator.index === phaseIndex && (
+                                       <tr className="pointer-events-none">
+                                         <td colSpan={9} className="py-0">
+                                           <div className="h-0.5 bg-primary/60 rounded-full" />
+                                         </td>
+                                       </tr>
+                                     )}
                                      <tr 
                                        ref={provided.innerRef}
                                        {...provided.draggableProps}
@@ -491,16 +511,23 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                           <Draggable key={component.id} draggableId={component.id} index={componentIndex}>
                                             {(componentDragProvided, componentSnapshot) => (
                                               <React.Fragment>
-                                                 <tr 
-                                                   ref={componentDragProvided.innerRef}
-                                                   {...componentDragProvided.draggableProps}
-                                                   className={`group hover:bg-accent/10 bg-secondary/5 border-l-2 border-l-secondary transition-colors duration-200 ${
-                                                     componentSnapshot.isDragging ? 'shadow-xl bg-card border-secondary z-40' : ''
-                                                   }`}
-                                                   style={{
-                                                     ...componentDragProvided.draggableProps.style
-                                                   }}
-                                                 >
+                                                   {dragIndicator && dragIndicator.type === `component-${phase.id}` && dragIndicator.droppableId === `components-${phase.id}` && dragIndicator.index === componentIndex && (
+                                                     <tr className="pointer-events-none">
+                                                       <td colSpan={9} className="py-0">
+                                                         <div className="h-0.5 bg-secondary/60 rounded-full" />
+                                                       </td>
+                                                     </tr>
+                                                   )}
+                                                   <tr 
+                                                     ref={componentDragProvided.innerRef}
+                                                     {...componentDragProvided.draggableProps}
+                                                     className={`group hover:bg-accent/10 bg-secondary/5 border-l-2 border-l-secondary transition-colors duration-200 ${
+                                                       componentSnapshot.isDragging ? 'shadow-xl bg-card border-secondary z-40' : ''
+                                                     }`}
+                                                     style={{
+                                                       ...componentDragProvided.draggableProps.style
+                                                     }}
+                                                   >
                                                    <td className="px-2 py-1.5">
                                                      <div 
                                                        {...componentDragProvided.dragHandleProps}
@@ -586,17 +613,25 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                       <tr ref={elementProvided.innerRef} {...elementProvided.droppableProps} className={`contents ${elementSnapshot.isDraggingOver ? 'bg-accent/20' : ''}`}>
                                                         {component.elements.map((element, elementIndex) => (
                                                           <Draggable key={element.id} draggableId={element.id} index={elementIndex}>
-                                                            {(elementDragProvided, elementSnapshot) => (
-                                                               <tr 
-                                                                 ref={elementDragProvided.innerRef}
-                                                                 {...elementDragProvided.draggableProps}
-                                                                 className={`group hover:bg-accent/5 transition-colors duration-200 ${
-                                                                   elementSnapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
-                                                                 }`}
-                                                                 style={{
-                                                                   ...elementDragProvided.draggableProps.style
-                                                                 }}
-                                                               >
+                                                             {(elementDragProvided, elementSnapshot) => (
+                                                                <React.Fragment>
+                                                                  {dragIndicator && dragIndicator.type === `element-${phase.id}-${component.id}` && dragIndicator.droppableId === `elements-${phase.id}-${component.id}` && dragIndicator.index === elementIndex && (
+                                                                    <tr className="pointer-events-none">
+                                                                      <td colSpan={9} className="py-0">
+                                                                        <div className="h-0.5 bg-accent/60 rounded-full" />
+                                                                      </td>
+                                                                    </tr>
+                                                                  )}
+                                                                  <tr 
+                                                                    ref={elementDragProvided.innerRef}
+                                                                    {...elementDragProvided.draggableProps}
+                                                                    className={`group hover:bg-accent/5 transition-colors duration-200 ${
+                                                                      elementSnapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
+                                                                    }`}
+                                                                    style={{
+                                                                      ...elementDragProvided.draggableProps.style
+                                                                    }}
+                                                                  >
                                                                  <td className="px-2 py-1">
                                                                    <div 
                                                                      {...elementDragProvided.dragHandleProps}
@@ -661,12 +696,16 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                                        </DropdownMenuItem>
                                                                      </DropdownMenuContent>
                                                                    </DropdownMenu>
-                                                                 </td>
-                                                               </tr>
+                                                                  </td>
+                                                                </tr>
+                                                              </React.Fragment>
                                                             )}
                                                           </Draggable>
                                                         ))}
-                                                        {elementProvided.placeholder}
+                                                         {dragIndicator && dragIndicator.type === `element-${phase.id}-${component.id}` && dragIndicator.droppableId === `elements-${phase.id}-${component.id}` && dragIndicator.index === component.elements.length && (
+                                                           <tr className="pointer-events-none"><td colSpan={9} className="py-0"><div className="h-0.5 bg-accent/60 rounded-full" /></td></tr>
+                                                         )}
+                                                         {elementProvided.placeholder}
                                                       </tr>
                                                     )}
                                                   </Droppable>
@@ -675,7 +714,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                             )}
                                           </Draggable>
                                         ))}
-                                        {componentProvided.placeholder}
+                                         {dragIndicator && dragIndicator.type === `component-${phase.id}` && dragIndicator.droppableId === `components-${phase.id}` && dragIndicator.index === phase.components.length && (
+                                           <tr className="pointer-events-none"><td colSpan={9} className="py-0"><div className="h-0.5 bg-secondary/60 rounded-full" /></td></tr>
+                                         )}
+                                         {componentProvided.placeholder}
                                       </tr>
                                     )}
                                   </Droppable>
@@ -683,9 +725,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                               </React.Fragment>
                             )}
                           </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </tbody>
+                         ))}
+                         {dragIndicator && dragIndicator.type === 'phase' && dragIndicator.index === scopeData.length && (
+                           <tr className="pointer-events-none"><td colSpan={9} className="py-0"><div className="h-0.5 bg-primary/60 rounded-full" /></td></tr>
+                         )}
+                         {provided.placeholder}
+                       </tbody>
                     )}
                   </Droppable>
                 </DragDropContext>
