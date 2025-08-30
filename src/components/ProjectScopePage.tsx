@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import {
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { Project } from '@/hooks/useProjects';
 import { useScreenSize } from '@/hooks/use-mobile';
+import { createPortal } from 'react-dom';
 
 interface ProjectScopePageProps {
   project: Project;
@@ -48,6 +49,13 @@ interface ScopeElement {
   deliverable?: string;
   assignedTo?: string;
 }
+
+// Portal wrapper to avoid transform/fixed offset issues during drag
+const DragPortalWrapper = ({ isDragging, children }: { isDragging: boolean; children: React.ReactNode }) => {
+  if (!isDragging) return <>{children}</>;
+  if (typeof document === 'undefined') return <>{children}</>;
+  return createPortal(children as any, document.body);
+};
 
 // Sample data
 const sampleScopeData: ScopePhase[] = [
@@ -404,6 +412,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
                           <Draggable draggableId={phase.id} index={phaseIndex}>
                             {(providedDraggable, snapshotDraggable) => (
+                              <DragPortalWrapper isDragging={snapshotDraggable.isDragging}>
                               <div
                                 ref={providedDraggable.innerRef}
                                 {...providedDraggable.draggableProps}
@@ -485,6 +494,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                   </DropdownMenu>
                                 </div>
                               </div>
+                              </DragPortalWrapper>
                             )}
                           </Draggable>
 
@@ -504,6 +514,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
                                       <Draggable draggableId={component.id} index={componentIndex}>
                                         {(componentDragProvided, componentSnapshot2) => (
+                                          <DragPortalWrapper isDragging={componentSnapshot2.isDragging}>
                                           <div
                                             ref={componentDragProvided.innerRef}
                                             {...componentDragProvided.draggableProps}
@@ -576,6 +587,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                               </DropdownMenu>
                                             </div>
                                           </div>
+                                          </DragPortalWrapper>
                                         )}
                                       </Draggable>
 
