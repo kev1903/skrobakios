@@ -387,14 +387,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                  <tr 
                                    ref={provided.innerRef}
                                    {...provided.draggableProps}
-                                   className={`group hover:bg-accent/20 bg-primary/5 border-l-2 border-l-primary transition-all duration-200 ${
-                                     snapshot.isDragging ? 'shadow-xl bg-card border-primary scale-[1.02] z-50' : ''
+                                   className={`group hover:bg-accent/20 bg-primary/5 border-l-2 border-l-primary transition-colors duration-200 ${
+                                     snapshot.isDragging ? 'shadow-xl bg-card border-primary z-50' : ''
                                    }`}
                                    style={{
-                                     ...provided.draggableProps.style,
-                                     ...(snapshot.isDragging && {
-                                       transform: `${provided.draggableProps.style?.transform} rotate(1deg)`,
-                                     }),
+                                     ...provided.draggableProps.style
                                    }}
                                  >
                                    <td className="px-2 py-2">
@@ -490,14 +487,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                  <tr 
                                                    ref={componentDragProvided.innerRef}
                                                    {...componentDragProvided.draggableProps}
-                                                   className={`group hover:bg-accent/10 bg-secondary/5 border-l-2 border-l-secondary transition-all duration-200 ${
-                                                     componentSnapshot.isDragging ? 'shadow-xl bg-card border-secondary scale-[1.01] z-40' : ''
+                                                   className={`group hover:bg-accent/10 bg-secondary/5 border-l-2 border-l-secondary transition-colors duration-200 ${
+                                                     componentSnapshot.isDragging ? 'shadow-xl bg-card border-secondary z-40' : ''
                                                    }`}
                                                    style={{
-                                                     ...componentDragProvided.draggableProps.style,
-                                                     ...(componentSnapshot.isDragging && {
-                                                       transform: `${componentDragProvided.draggableProps.style?.transform} rotate(0.5deg)`,
-                                                     }),
+                                                     ...componentDragProvided.draggableProps.style
                                                    }}
                                                  >
                                                    <td className="px-2 py-1.5">
@@ -590,13 +584,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                                  ref={elementDragProvided.innerRef}
                                                                  {...elementDragProvided.draggableProps}
                                                                  className={`group hover:bg-accent/5 transition-colors duration-200 ${
-                                                                   elementSnapshot.isDragging ? 'shadow-lg bg-card scale-[1.005] z-30' : ''
+                                                                   elementSnapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
                                                                  }`}
                                                                  style={{
-                                                                   ...elementDragProvided.draggableProps.style,
-                                                                   ...(elementSnapshot.isDragging && {
-                                                                     transform: `${elementDragProvided.draggableProps.style?.transform} rotate(0.2deg)`,
-                                                                   }),
+                                                                   ...elementDragProvided.draggableProps.style
                                                                  }}
                                                                >
                                                                  <td className="px-2 py-1">
