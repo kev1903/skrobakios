@@ -19,6 +19,16 @@ interface ProjectScopePageProps {
   onNavigate: (page: string) => void;
 }
 
+interface ScopePhase {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'Not Started' | 'In Progress' | 'Completed' | 'On Hold';
+  progress: number;
+  isExpanded: boolean;
+  components: ScopeComponent[];
+}
+
 interface ScopeComponent {
   id: string;
   name: string;
@@ -40,95 +50,125 @@ interface ScopeElement {
 }
 
 // Sample data
-const sampleScopeData: ScopeComponent[] = [
+const sampleScopeData: ScopePhase[] = [
   {
-    id: 'comp-1',
-    name: 'Site Preparation',
-    description: 'Initial site preparation and setup activities',
+    id: 'phase-1',
+    name: 'Planning & Design Phase',
+    description: 'Initial planning, design and preparation activities',
     status: 'In Progress',
-    progress: 65,
+    progress: 45,
     isExpanded: true,
-    elements: [
+    components: [
       {
-        id: 'elem-1-1',
-        name: 'Site Survey',
-        description: 'Conduct detailed site survey and measurements',
-        status: 'Completed',
-        progress: 100,
-        deliverable: 'Survey Report',
-        assignedTo: 'John Smith'
-      },
-      {
-        id: 'elem-1-2',
-        name: 'Soil Testing',
-        description: 'Perform geotechnical soil analysis',
+        id: 'comp-1-1',
+        name: 'Site Preparation',
+        description: 'Initial site preparation and setup activities',
         status: 'In Progress',
-        progress: 75,
-        deliverable: 'Soil Test Results',
-        assignedTo: 'Jane Doe'
+        progress: 65,
+        isExpanded: true,
+        elements: [
+          {
+            id: 'elem-1-1-1',
+            name: 'Site Survey',
+            description: 'Conduct detailed site survey and measurements',
+            status: 'Completed',
+            progress: 100,
+            deliverable: 'Survey Report',
+            assignedTo: 'John Smith'
+          },
+          {
+            id: 'elem-1-1-2',
+            name: 'Soil Testing',
+            description: 'Perform geotechnical soil analysis',
+            status: 'In Progress',
+            progress: 75,
+            deliverable: 'Soil Test Results',
+            assignedTo: 'Jane Doe'
+          }
+        ]
       },
       {
-        id: 'elem-1-3',
-        name: 'Clearing & Grading',
-        description: 'Clear vegetation and grade the site',
+        id: 'comp-1-2',
+        name: 'Design Development',
+        description: 'Architectural and engineering design',
         status: 'Not Started',
         progress: 0,
-        deliverable: 'Graded Site',
-        assignedTo: 'Mike Johnson'
+        isExpanded: false,
+        elements: [
+          {
+            id: 'elem-1-2-1',
+            name: 'Architectural Design',
+            description: 'Create detailed architectural drawings',
+            status: 'Not Started',
+            progress: 0,
+            deliverable: 'Architectural Plans',
+            assignedTo: 'Sarah Wilson'
+          }
+        ]
       }
     ]
   },
   {
-    id: 'comp-2',
-    name: 'Foundation Work',
-    description: 'Foundation design and construction',
+    id: 'phase-2',
+    name: 'Construction Phase',
+    description: 'Main construction and implementation activities',
     status: 'Not Started',
     progress: 0,
     isExpanded: false,
-    elements: [
+    components: [
       {
-        id: 'elem-2-1',
-        name: 'Foundation Design',
-        description: 'Structural foundation design and calculations',
+        id: 'comp-2-1',
+        name: 'Foundation Work',
+        description: 'Foundation design and construction',
         status: 'Not Started',
         progress: 0,
-        deliverable: 'Foundation Drawings',
-        assignedTo: 'Sarah Wilson'
+        isExpanded: false,
+        elements: [
+          {
+            id: 'elem-2-1-1',
+            name: 'Foundation Design',
+            description: 'Structural foundation design and calculations',
+            status: 'Not Started',
+            progress: 0,
+            deliverable: 'Foundation Drawings',
+            assignedTo: 'Tom Brown'
+          },
+          {
+            id: 'elem-2-1-2',
+            name: 'Excavation',
+            description: 'Excavate foundation areas',
+            status: 'Not Started',
+            progress: 0,
+            deliverable: 'Excavated Site',
+            assignedTo: 'Mike Johnson'
+          }
+        ]
       },
       {
-        id: 'elem-2-2',
-        name: 'Excavation',
-        description: 'Excavate foundation areas',
+        id: 'comp-2-2',
+        name: 'Structural Framework',
+        description: 'Main structural elements and framework',
         status: 'Not Started',
         progress: 0,
-        deliverable: 'Excavated Site',
-        assignedTo: 'Tom Brown'
-      }
-    ]
-  },
-  {
-    id: 'comp-3',
-    name: 'Structural Framework',
-    description: 'Main structural elements and framework',
-    status: 'Not Started',
-    progress: 0,
-    isExpanded: false,
-    elements: [
-      {
-        id: 'elem-3-1',
-        name: 'Steel Framework',
-        description: 'Install primary steel structural framework',
-        status: 'Not Started',
-        progress: 0,
-        deliverable: 'Steel Structure',
-        assignedTo: 'Alex Davis'
+        isExpanded: false,
+        elements: [
+          {
+            id: 'elem-2-2-1',
+            name: 'Steel Framework',
+            description: 'Install primary steel structural framework',
+            status: 'Not Started',
+            progress: 0,
+            deliverable: 'Steel Structure',
+            assignedTo: 'Alex Davis'
+          }
+        ]
       }
     ]
   }
 ];
 
 export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps) => {
-  const [scopeData, setScopeData] = useState<ScopeComponent[]>(sampleScopeData);
+  const [scopeData, setScopeData] = useState<ScopePhase[]>(sampleScopeData);
   const screenSize = useScreenSize();
 
   const getStatusColor = (status: string) => {
@@ -148,39 +188,60 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     return 'bg-success';
   };
 
-  const toggleComponent = (componentId: string) => {
+  const togglePhase = (phaseId: string) => {
     setScopeData(prev => 
-      prev.map(comp => 
-        comp.id === componentId 
-          ? { ...comp, isExpanded: !comp.isExpanded }
-          : comp
+      prev.map(phase => 
+        phase.id === phaseId 
+          ? { ...phase, isExpanded: !phase.isExpanded }
+          : phase
       )
     );
   };
 
-  const handleContextMenuAction = (action: string, componentId: string, elementId?: string) => {
+  const toggleComponent = (phaseId: string, componentId: string) => {
+    setScopeData(prev => 
+      prev.map(phase => 
+        phase.id === phaseId
+          ? {
+              ...phase,
+              components: phase.components.map(comp =>
+                comp.id === componentId
+                  ? { ...comp, isExpanded: !comp.isExpanded }
+                  : comp
+              )
+            }
+          : phase
+      )
+    );
+  };
+
+  const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element') => {
     switch (action) {
       case 'edit':
-        console.log('Edit', elementId || componentId);
+        console.log('Edit', type, itemId);
         // Add edit functionality here
         break;
       case 'duplicate':
-        console.log('Duplicate', elementId || componentId);
+        console.log('Duplicate', type, itemId);
         // Add duplicate functionality here
         break;
       case 'delete':
-        console.log('Delete', elementId || componentId);
+        console.log('Delete', type, itemId);
         // Add delete functionality here
         break;
     }
   };
 
-  const generateWBSNumber = (componentIndex: number, elementIndex?: number) => {
-    const componentNumber = componentIndex + 1;
-    if (elementIndex !== undefined) {
-      return `${componentNumber}.${elementIndex + 1}`;
+  const generateWBSNumber = (phaseIndex: number, componentIndex?: number, elementIndex?: number) => {
+    const phaseNumber = phaseIndex + 1;
+    if (componentIndex !== undefined) {
+      const componentNumber = componentIndex + 1;
+      if (elementIndex !== undefined) {
+        return `${phaseNumber}.${componentNumber}.${elementIndex + 1}`;
+      }
+      return `${phaseNumber}.${componentNumber}`;
     }
-    return componentNumber.toString();
+    return phaseNumber.toString();
   };
 
   const onDragEnd = (result: DropResult) => {
@@ -194,10 +255,18 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const calculateOverallProgress = () => {
-    const totalElements = scopeData.reduce((sum, comp) => sum + comp.elements.length, 0);
-    const totalProgress = scopeData.reduce((sum, comp) => 
-      sum + comp.elements.reduce((elemSum, elem) => elemSum + elem.progress, 0), 0
-    );
+    let totalElements = 0;
+    let totalProgress = 0;
+    
+    scopeData.forEach(phase => {
+      phase.components.forEach(component => {
+        totalElements += component.elements.length;
+        component.elements.forEach(element => {
+          totalProgress += element.progress;
+        });
+      });
+    });
+    
     return totalElements > 0 ? Math.round(totalProgress / totalElements) : 0;
   };
 
@@ -250,7 +319,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </div>
                 <Button size="sm" className="font-inter text-xs">
                   <Plus className="w-3 h-3 mr-1" />
-                  Add Component
+                  Add Phase
                 </Button>
               </div>
             </div>
@@ -274,129 +343,139 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   </tr>
                 </thead>
                 <DragDropContext onDragEnd={onDragEnd}>
-                  <Droppable droppableId="scope-components">
+                  <Droppable droppableId="scope-phases">
                     {(provided) => (
                       <tbody 
                         {...provided.droppableProps}
                         ref={provided.innerRef}
                         className="bg-card/50 divide-y divide-border"
                       >
-                        {scopeData.map((component, index) => (
-                          <Draggable key={component.id} draggableId={component.id} index={index}>
+                        {scopeData.map((phase, phaseIndex) => (
+                          <Draggable key={phase.id} draggableId={phase.id} index={phaseIndex}>
                             {(provided, snapshot) => (
                               <React.Fragment>
-                                 {/* Component Row */}
-                                 <tr 
-                                   ref={provided.innerRef}
-                                   {...provided.draggableProps}
-                                   className={`hover:bg-accent/20 bg-primary/5 transition-colors duration-200 ${
-                                     snapshot.isDragging ? 'shadow-lg bg-card' : ''
-                                   }`}
-                                   onContextMenu={(e) => {
-                                     e.preventDefault();
-                                     // Context menu will be handled by the dropdown
-                                   }}
-                                 >
-                                   <td className="px-3 py-2">
-                                     <div 
-                                       {...provided.dragHandleProps}
-                                       className="cursor-grab hover:cursor-grabbing p-1 hover:bg-accent rounded transition-colors duration-200"
-                                     >
-                                       <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                     </div>
-                                   </td>
-                                   <td className="px-3 py-2">
-                                     <button
-                                       onClick={() => toggleComponent(component.id)}
-                                       className="p-1 hover:bg-accent rounded transition-colors duration-200"
-                                     >
-                                       {component.isExpanded ? (
-                                         <ChevronDown className="w-3 h-3 text-muted-foreground" />
-                                       ) : (
-                                         <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                                       )}
-                                     </button>
-                                   </td>
-                                    <td className="px-3 py-2">
-                                      <div className="font-medium text-primary text-sm font-inter">{generateWBSNumber(index)}</div>
-                                    </td>
-                                    <td className="px-3 py-2">
-                                      <div className="font-medium text-foreground text-sm font-inter">{component.name}</div>
-                                    </td>
-                                   <td className="px-3 py-2 text-muted-foreground text-xs font-inter">{component.description}</td>
-                                   <td className="px-3 py-2">
-                                     <Badge variant="outline" className={`${getStatusColor(component.status)} text-xs font-inter`}>
-                                       {component.status}
-                                     </Badge>
-                                   </td>
-                                   <td className="px-3 py-2">
-                                     <div className="flex items-center gap-2">
-                                       <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
-                                         <div 
-                                           className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`}
-                                           style={{ width: `${component.progress}%` }}
-                                         />
-                                       </div>
-                                       <span className="text-xs text-muted-foreground font-inter">{component.progress}%</span>
-                                     </div>
-                                   </td>
-                                   <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
-                                   <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
-                                   <td className="px-3 py-2">
-                                     <div className="flex items-center gap-1">
-                                       <DropdownMenu>
-                                         <DropdownMenuTrigger asChild>
-                                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                             <MoreHorizontal className="w-3 h-3" />
-                                           </Button>
-                                         </DropdownMenuTrigger>
-                                         <DropdownMenuContent align="end">
-                                           <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id)}>
-                                             <Copy className="w-3 h-3 mr-2" />
-                                             Duplicate
-                                           </DropdownMenuItem>
-                                         </DropdownMenuContent>
-                                       </DropdownMenu>
-                                     </div>
-                                   </td>
-                                 </tr>
-                                
-                                 {/* Element Rows */}
-                                 {component.isExpanded && component.elements.map((element, elementIndex) => (
-                                   <tr key={element.id} className="hover:bg-accent/10 transition-colors duration-200">
-                                     <td className="px-3 py-1.5"></td>
-                                     <td className="px-3 py-1.5"></td>
-                                     <td className="px-3 py-1.5">
-                                       <div className="font-medium text-primary text-sm font-inter">{generateWBSNumber(index, elementIndex)}</div>
-                                     </td>
-                                     <td className="px-3 py-1.5">
-                                       <div className="pl-4 text-foreground text-sm font-inter">
-                                         <div className="flex items-center gap-2">
-                                           <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                                           {element.name}
-                                         </div>
-                                       </div>
-                                     </td>
-                                    <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.description}</td>
-                                    <td className="px-3 py-1.5">
-                                      <Badge variant="outline" className={`${getStatusColor(element.status)} text-xs font-inter`}>
-                                        {element.status}
-                                      </Badge>
-                                    </td>
-                                    <td className="px-3 py-1.5">
-                                      <div className="flex items-center gap-2">
-                                        <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
-                                          <div 
-                                            className={`h-full transition-all duration-300 ${getProgressColor(element.progress)}`}
-                                            style={{ width: `${element.progress}%` }}
-                                          />
-                                        </div>
-                                        <span className="text-xs text-muted-foreground font-inter">{element.progress}%</span>
+                                {/* Phase Row */}
+                                <tr 
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  className={`hover:bg-accent/20 bg-primary/10 border-l-4 border-l-primary transition-colors duration-200 ${
+                                    snapshot.isDragging ? 'shadow-lg bg-card' : ''
+                                  }`}
+                                >
+                                  <td className="px-3 py-3">
+                                    <div 
+                                      {...provided.dragHandleProps}
+                                      className="cursor-grab hover:cursor-grabbing p-1 hover:bg-accent rounded transition-colors duration-200"
+                                    >
+                                      <GripVertical className="w-3 h-3 text-muted-foreground" />
+                                    </div>
+                                  </td>
+                                  <td className="px-3 py-3">
+                                    <button
+                                      onClick={() => togglePhase(phase.id)}
+                                      className="p-1 hover:bg-accent rounded transition-colors duration-200"
+                                    >
+                                      {phase.isExpanded ? (
+                                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                                      ) : (
+                                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                                      )}
+                                    </button>
+                                  </td>
+                                  <td className="px-3 py-3">
+                                    <div className="font-bold text-primary text-base font-inter">{generateWBSNumber(phaseIndex)}</div>
+                                  </td>
+                                  <td className="px-3 py-3">
+                                    <div className="font-bold text-foreground text-base font-inter">{phase.name}</div>
+                                  </td>
+                                  <td className="px-3 py-3 text-muted-foreground text-sm font-inter">{phase.description}</td>
+                                  <td className="px-3 py-3">
+                                    <Badge variant="outline" className={`${getStatusColor(phase.status)} text-sm font-inter`}>
+                                      {phase.status}
+                                    </Badge>
+                                  </td>
+                                  <td className="px-3 py-3">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
+                                        <div 
+                                          className={`h-full transition-all duration-300 ${getProgressColor(phase.progress)}`}
+                                          style={{ width: `${phase.progress}%` }}
+                                        />
                                       </div>
-                                    </td>
-                                    <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.assignedTo}</td>
-                                    <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.deliverable}</td>
-                                      <td className="px-3 py-1.5">
+                                      <span className="text-sm text-muted-foreground font-inter font-medium">{phase.progress}%</span>
+                                    </div>
+                                  </td>
+                                  <td className="px-3 py-3 text-muted-foreground text-sm font-inter">-</td>
+                                  <td className="px-3 py-3 text-muted-foreground text-sm font-inter">-</td>
+                                  <td className="px-3 py-3">
+                                    <div className="flex items-center gap-1">
+                                      <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                                            <MoreHorizontal className="w-4 h-4" />
+                                          </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                          <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', phase.id, 'phase')}>
+                                            <Copy className="w-3 h-3 mr-2" />
+                                            Duplicate Phase
+                                          </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
+                                    </div>
+                                  </td>
+                                </tr>
+
+                                {/* Component Rows */}
+                                {phase.isExpanded && phase.components.map((component, componentIndex) => (
+                                  <React.Fragment key={component.id}>
+                                    <tr className="hover:bg-accent/15 bg-accent/5 transition-colors duration-200">
+                                      <td className="px-3 py-2"></td>
+                                      <td className="px-3 py-2">
+                                        <button
+                                          onClick={() => toggleComponent(phase.id, component.id)}
+                                          className="p-1 hover:bg-accent rounded transition-colors duration-200 ml-4"
+                                        >
+                                          {component.isExpanded ? (
+                                            <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                                          ) : (
+                                            <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                                          )}
+                                        </button>
+                                      </td>
+                                      <td className="px-3 py-2">
+                                        <div className="font-medium text-primary text-sm font-inter ml-4">
+                                          {generateWBSNumber(phaseIndex, componentIndex)}
+                                        </div>
+                                      </td>
+                                      <td className="px-3 py-2">
+                                        <div className="pl-6 text-foreground text-sm font-inter font-medium">
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-primary/60 rounded-full"></div>
+                                            {component.name}
+                                          </div>
+                                        </div>
+                                      </td>
+                                      <td className="px-3 py-2 text-muted-foreground text-xs font-inter">{component.description}</td>
+                                      <td className="px-3 py-2">
+                                        <Badge variant="outline" className={`${getStatusColor(component.status)} text-xs font-inter`}>
+                                          {component.status}
+                                        </Badge>
+                                      </td>
+                                      <td className="px-3 py-2">
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                                            <div 
+                                              className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`}
+                                              style={{ width: `${component.progress}%` }}
+                                            />
+                                          </div>
+                                          <span className="text-xs text-muted-foreground font-inter">{component.progress}%</span>
+                                        </div>
+                                      </td>
+                                      <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
+                                      <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
+                                      <td className="px-3 py-2">
                                         <div className="flex items-center gap-1">
                                           <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -405,15 +484,73 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                               </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                              <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, element.id)}>
+                                              <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, 'component')}>
                                                 <Copy className="w-3 h-3 mr-2" />
-                                                Duplicate
+                                                Duplicate Component
                                               </DropdownMenuItem>
                                             </DropdownMenuContent>
-                                         </DropdownMenu>
-                                       </div>
-                                     </td>
-                                  </tr>
+                                          </DropdownMenu>
+                                        </div>
+                                      </td>
+                                    </tr>
+
+                                    {/* Element Rows */}
+                                    {component.isExpanded && component.elements.map((element, elementIndex) => (
+                                      <tr key={element.id} className="hover:bg-accent/10 transition-colors duration-200">
+                                        <td className="px-3 py-1.5"></td>
+                                        <td className="px-3 py-1.5"></td>
+                                        <td className="px-3 py-1.5">
+                                          <div className="font-medium text-primary text-sm font-inter ml-8">
+                                            {generateWBSNumber(phaseIndex, componentIndex, elementIndex)}
+                                          </div>
+                                        </td>
+                                        <td className="px-3 py-1.5">
+                                          <div className="pl-12 text-foreground text-sm font-inter">
+                                            <div className="flex items-center gap-2">
+                                              <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
+                                              {element.name}
+                                            </div>
+                                          </div>
+                                        </td>
+                                        <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.description}</td>
+                                        <td className="px-3 py-1.5">
+                                          <Badge variant="outline" className={`${getStatusColor(element.status)} text-xs font-inter`}>
+                                            {element.status}
+                                          </Badge>
+                                        </td>
+                                        <td className="px-3 py-1.5">
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                                              <div 
+                                                className={`h-full transition-all duration-300 ${getProgressColor(element.progress)}`}
+                                                style={{ width: `${element.progress}%` }}
+                                              />
+                                            </div>
+                                            <span className="text-xs text-muted-foreground font-inter">{element.progress}%</span>
+                                          </div>
+                                        </td>
+                                        <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.assignedTo}</td>
+                                        <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.deliverable}</td>
+                                        <td className="px-3 py-1.5">
+                                          <div className="flex items-center gap-1">
+                                            <DropdownMenu>
+                                              <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                                  <MoreHorizontal className="w-3 h-3" />
+                                                </Button>
+                                              </DropdownMenuTrigger>
+                                              <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', element.id, 'element')}>
+                                                  <Copy className="w-3 h-3 mr-2" />
+                                                  Duplicate Element
+                                                </DropdownMenuItem>
+                                              </DropdownMenuContent>
+                                            </DropdownMenu>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    ))}
+                                  </React.Fragment>
                                 ))}
                               </React.Fragment>
                             )}
