@@ -367,19 +367,19 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
           {/* Scope Table */}
           <div className="flex-1 overflow-auto px-6 py-4">
-            <div className="glass-card border border-border overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-muted/30">
+            <div className="rounded-lg border border-border overflow-hidden bg-card shadow-sm">
+              <table className="w-full table-fixed">
+                <thead className="bg-muted/40 border-b border-border">
                   <tr>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-8 font-inter"></th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-16 font-inter">WBS</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Name</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Description</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Status</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Progress</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Assigned To</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Deliverable</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-20 font-inter">Actions</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-8"></th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-16">WBS</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-48">Name</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Status</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-20">Progress</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Assigned To</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Deliverable</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-16">Actions</th>
                   </tr>
                 </thead>
                 <DragDropContext onDragEnd={onDragEnd}>
@@ -394,76 +394,90 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           <Draggable key={phase.id} draggableId={phase.id} index={phaseIndex}>
                             {(provided, snapshot) => (
                               <React.Fragment>
-                                {/* Phase Row */}
-                                <tr 
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  className={`hover:bg-accent/20 bg-primary/10 border-l-4 border-l-primary transition-colors duration-200 ${
-                                    snapshot.isDragging ? 'shadow-lg bg-card' : ''
-                                  }`}
-                                >
-                                  <td className="px-3 py-3">
-                                    <div 
-                                      {...provided.dragHandleProps}
-                                      className="cursor-grab hover:cursor-grabbing p-1 hover:bg-accent rounded transition-colors duration-200"
-                                    >
-                                      <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                    </div>
-                                  </td>
-                                  <td className="px-3 py-3">
-                                    <button
-                                      onClick={() => togglePhase(phase.id)}
-                                      className="p-1 hover:bg-accent rounded transition-colors duration-200"
-                                    >
-                                      {phase.isExpanded ? (
-                                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                                      ) : (
-                                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                                      )}
-                                    </button>
-                                  </td>
-                                  <td className="px-3 py-3">
-                                    <div className="font-bold text-primary text-base font-inter">{generateWBSNumber(phaseIndex)}</div>
-                                  </td>
-                                  <td className="px-3 py-3">
-                                    <div className="font-bold text-foreground text-base font-inter">{phase.name}</div>
-                                  </td>
-                                  <td className="px-3 py-3 text-muted-foreground text-sm font-inter">{phase.description}</td>
-                                  <td className="px-3 py-3">
-                                    <Badge variant="outline" className={`${getStatusColor(phase.status)} text-sm font-inter`}>
-                                      {phase.status}
-                                    </Badge>
-                                  </td>
-                                  <td className="px-3 py-3">
-                                    <div className="flex items-center gap-2">
-                                      <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
-                                        <div 
-                                          className={`h-full transition-all duration-300 ${getProgressColor(phase.progress)}`}
-                                          style={{ width: `${phase.progress}%` }}
-                                        />
-                                      </div>
-                                      <span className="text-sm text-muted-foreground font-inter font-medium">{phase.progress}%</span>
-                                    </div>
-                                  </td>
-                                  <td className="px-3 py-3 text-muted-foreground text-sm font-inter">-</td>
-                                  <td className="px-3 py-3 text-muted-foreground text-sm font-inter">-</td>
-                                  <td className="px-3 py-3">
-                                    <div className="flex items-center gap-1">
+                                 {/* Phase Row */}
+                                 <tr 
+                                   ref={provided.innerRef}
+                                   {...provided.draggableProps}
+                                   className={`hover:bg-accent/20 bg-primary/5 border-l-2 border-l-primary transition-all duration-200 ${
+                                     snapshot.isDragging ? 'shadow-lg bg-card' : ''
+                                   }`}
+                                 >
+                                   <td className="px-2 py-2">
+                                     <div 
+                                       {...provided.dragHandleProps}
+                                       className="cursor-grab hover:cursor-grabbing p-0.5 hover:bg-accent rounded transition-colors duration-200"
+                                     >
+                                       <GripVertical className="w-3 h-3 text-muted-foreground" />
+                                     </div>
+                                   </td>
+                                   <td className="px-2 py-2">
+                                     <button
+                                       onClick={() => togglePhase(phase.id)}
+                                       className="p-0.5 hover:bg-accent rounded transition-colors duration-200"
+                                     >
+                                       {phase.isExpanded ? (
+                                         <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                                       ) : (
+                                         <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                                       )}
+                                     </button>
+                                   </td>
+                                   <td className="px-3 py-2">
+                                     <div className="font-semibold text-primary text-sm truncate">{generateWBSNumber(phaseIndex)}</div>
+                                   </td>
+                                   <td className="px-3 py-2">
+                                     <div className="font-semibold text-foreground text-sm truncate">{phase.name}</div>
+                                   </td>
+                                   <td className="px-3 py-2 text-muted-foreground text-xs truncate">{phase.description}</td>
+                                   <td className="px-2 py-2">
+                                     <Badge variant="outline" className={`${getStatusColor(phase.status)} text-xs px-2 py-0.5`}>
+                                       {phase.status}
+                                     </Badge>
+                                   </td>
+                                   <td className="px-2 py-2">
+                                     <div className="flex items-center gap-1">
+                                       <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                                         <div 
+                                           className={`h-full transition-all duration-300 ${getProgressColor(phase.progress)}`}
+                                           style={{ width: `${phase.progress}%` }}
+                                         />
+                                       </div>
+                                       <span className="text-xs text-muted-foreground font-medium">{phase.progress}%</span>
+                                     </div>
+                                   </td>
+                                    <td className="px-2 py-2 text-muted-foreground text-xs truncate">-</td>
+                                    <td className="px-2 py-2">
                                       <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
-                                            <MoreHorizontal className="w-4 h-4" />
+                                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
+                                            <MoreHorizontal className="h-3 w-3" />
                                           </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
+                                        <DropdownMenuContent align="end" className="w-48">
+                                          <DropdownMenuItem onClick={() => handleContextMenuAction('add-component', phase.id, 'phase')}>
+                                            <Plus className="w-3 h-3 mr-2" />
+                                            Add Component
+                                          </DropdownMenuItem>
+                                          <DropdownMenuSeparator />
+                                          <DropdownMenuItem onClick={() => handleContextMenuAction('edit', phase.id, 'phase')}>
+                                            <Edit2 className="w-3 h-3 mr-2" />
+                                            Edit
+                                          </DropdownMenuItem>
                                           <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', phase.id, 'phase')}>
                                             <Copy className="w-3 h-3 mr-2" />
-                                            Duplicate Phase
+                                            Duplicate
+                                          </DropdownMenuItem>
+                                          <DropdownMenuSeparator />
+                                          <DropdownMenuItem 
+                                            onClick={() => handleContextMenuAction('delete', phase.id, 'phase')}
+                                            className="text-destructive focus:text-destructive"
+                                          >
+                                            <Trash2 className="w-3 h-3 mr-2" />
+                                            Delete
                                           </DropdownMenuItem>
                                         </DropdownMenuContent>
                                       </DropdownMenu>
-                                    </div>
-                                  </td>
+                                    </td>
                                 </tr>
 
                                 {/* Component Rows */}
@@ -475,88 +489,98 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                           <Draggable key={component.id} draggableId={component.id} index={componentIndex}>
                                             {(componentDragProvided, componentSnapshot) => (
                                               <React.Fragment>
-                                                <tr 
-                                                  ref={componentDragProvided.innerRef}
-                                                  {...componentDragProvided.draggableProps}
-                                                  className={`hover:bg-accent/15 bg-accent/5 transition-colors duration-200 ${
-                                                    componentSnapshot.isDragging ? 'shadow-lg bg-card' : ''
-                                                  }`}
-                                                >
-                                                  <td className="px-3 py-2">
-                                                    <div 
-                                                      {...componentDragProvided.dragHandleProps}
-                                                      className="cursor-grab hover:cursor-grabbing p-1 hover:bg-accent rounded transition-colors duration-200 ml-2"
-                                                    >
-                                                      <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                                    </div>
-                                                  </td>
-                                                  <td className="px-3 py-2">
-                                                    <button
-                                                      onClick={() => toggleComponent(phase.id, component.id)}
-                                                      className="p-1 hover:bg-accent rounded transition-colors duration-200 ml-4"
-                                                    >
-                                                      {component.isExpanded ? (
-                                                        <ChevronDown className="w-3 h-3 text-muted-foreground" />
-                                                      ) : (
-                                                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                                                      )}
-                                                    </button>
-                                                  </td>
-                                                  <td className="px-3 py-2">
-                                                    <div className="font-medium text-primary text-sm font-inter ml-4">
-                                                      {generateWBSNumber(phaseIndex, componentIndex)}
-                                                    </div>
-                                                  </td>
-                                                  <td className="px-3 py-2">
-                                                    <div className="pl-6 text-foreground text-sm font-inter font-medium">
-                                                      <div className="flex items-center gap-2">
-                                                        <div className="w-2 h-2 bg-primary/60 rounded-full"></div>
-                                                        {component.name}
-                                                      </div>
-                                                    </div>
-                                                  </td>
-                                                  <td className="px-3 py-2 text-muted-foreground text-xs font-inter">{component.description}</td>
-                                                  <td className="px-3 py-2">
-                                                    <Badge variant="outline" className={`${getStatusColor(component.status)} text-xs font-inter`}>
-                                                      {component.status}
-                                                    </Badge>
-                                                  </td>
-                                                  <td className="px-3 py-2">
-                                                    <div className="flex items-center gap-2">
-                                                      <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
-                                                        <div 
-                                                          className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`}
-                                                          style={{ width: `${component.progress}%` }}
-                                                        />
-                                                      </div>
-                                                      <span className="text-xs text-muted-foreground font-inter">{component.progress}%</span>
-                                                    </div>
-                                                  </td>
-                                                  <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
-                                                  <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
-                                                  <td className="px-3 py-2">
-                                                    <div className="flex items-center gap-1">
-                                                      <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                                            <MoreHorizontal className="w-3 h-3" />
-                                                          </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                          <DropdownMenuItem onClick={() => handleContextMenuAction('add-component', phase.id, 'component')}>
-                                                            <Plus className="w-3 h-3 mr-2" />
-                                                            Add Component
-                                                          </DropdownMenuItem>
-                                                          <DropdownMenuSeparator />
-                                                          <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, 'component')}>
-                                                            <Copy className="w-3 h-3 mr-2" />
-                                                            Duplicate Component
-                                                          </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                      </DropdownMenu>
-                                                    </div>
-                                                  </td>
-                                                </tr>
+                                                 <tr 
+                                                   ref={componentDragProvided.innerRef}
+                                                   {...componentDragProvided.draggableProps}
+                                                   className={`hover:bg-accent/10 bg-accent/5 border-l border-l-accent/30 transition-colors duration-200 ${
+                                                     componentSnapshot.isDragging ? 'shadow-lg bg-card' : ''
+                                                   }`}
+                                                 >
+                                                   <td className="px-2 py-1.5">
+                                                     <div 
+                                                       {...componentDragProvided.dragHandleProps}
+                                                       className="cursor-grab hover:cursor-grabbing p-0.5 hover:bg-accent rounded transition-colors duration-200 ml-2"
+                                                     >
+                                                       <GripVertical className="w-3 h-3 text-muted-foreground" />
+                                                     </div>
+                                                   </td>
+                                                   <td className="px-2 py-1.5">
+                                                     <button
+                                                       onClick={() => toggleComponent(phase.id, component.id)}
+                                                       className="p-0.5 hover:bg-accent rounded transition-colors duration-200 ml-3"
+                                                     >
+                                                       {component.isExpanded ? (
+                                                         <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                                                       ) : (
+                                                         <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                                                       )}
+                                                     </button>
+                                                   </td>
+                                                   <td className="px-3 py-1.5">
+                                                     <div className="font-medium text-primary text-sm ml-3 truncate">
+                                                       {generateWBSNumber(phaseIndex, componentIndex)}
+                                                     </div>
+                                                   </td>
+                                                   <td className="px-3 py-1.5">
+                                                     <div className="pl-4 text-foreground text-sm font-medium truncate">
+                                                       <div className="flex items-center gap-2">
+                                                         <div className="w-1.5 h-1.5 bg-primary/60 rounded-full"></div>
+                                                         {component.name}
+                                                       </div>
+                                                     </div>
+                                                   </td>
+                                                   <td className="px-3 py-1.5 text-muted-foreground text-xs truncate">{component.description}</td>
+                                                   <td className="px-2 py-1.5">
+                                                     <Badge variant="outline" className={`${getStatusColor(component.status)} text-xs px-1.5 py-0.5`}>
+                                                       {component.status}
+                                                     </Badge>
+                                                   </td>
+                                                   <td className="px-2 py-1.5">
+                                                     <div className="flex items-center gap-1">
+                                                       <div className="w-10 h-1.5 bg-muted rounded-full overflow-hidden">
+                                                         <div 
+                                                           className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`}
+                                                           style={{ width: `${component.progress}%` }}
+                                                         />
+                                                       </div>
+                                                       <span className="text-xs text-muted-foreground">{component.progress}%</span>
+                                                     </div>
+                                                   </td>
+                                                   <td className="px-2 py-1.5 text-muted-foreground text-xs truncate">-</td>
+                                                   <td className="px-2 py-1.5 text-muted-foreground text-xs truncate">-</td>
+                                                   <td className="px-2 py-1.5">
+                                                     <DropdownMenu>
+                                                       <DropdownMenuTrigger asChild>
+                                                         <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-accent">
+                                                           <MoreHorizontal className="w-3 h-3" />
+                                                         </Button>
+                                                       </DropdownMenuTrigger>
+                                                       <DropdownMenuContent align="end" className="w-48">
+                                                         <DropdownMenuItem onClick={() => handleContextMenuAction('add-component', phase.id, 'component')}>
+                                                           <Plus className="w-3 h-3 mr-2" />
+                                                           Add Element
+                                                         </DropdownMenuItem>
+                                                         <DropdownMenuSeparator />
+                                                         <DropdownMenuItem onClick={() => handleContextMenuAction('edit', component.id, 'component')}>
+                                                           <Edit2 className="w-3 h-3 mr-2" />
+                                                           Edit
+                                                         </DropdownMenuItem>
+                                                         <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, 'component')}>
+                                                           <Copy className="w-3 h-3 mr-2" />
+                                                           Duplicate
+                                                         </DropdownMenuItem>
+                                                         <DropdownMenuSeparator />
+                                                         <DropdownMenuItem 
+                                                           onClick={() => handleContextMenuAction('delete', component.id, 'component')}
+                                                           className="text-destructive focus:text-destructive"
+                                                         >
+                                                           <Trash2 className="w-3 h-3 mr-2" />
+                                                           Delete
+                                                         </DropdownMenuItem>
+                                                       </DropdownMenuContent>
+                                                     </DropdownMenu>
+                                                   </td>
+                                                 </tr>
 
                                                 {/* Element Rows */}
                                                 {component.isExpanded && (
@@ -566,77 +590,82 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                         {component.elements.map((element, elementIndex) => (
                                                           <Draggable key={element.id} draggableId={element.id} index={elementIndex}>
                                                             {(elementDragProvided, elementSnapshot) => (
-                                                              <tr 
-                                                                ref={elementDragProvided.innerRef}
-                                                                {...elementDragProvided.draggableProps}
-                                                                className={`hover:bg-accent/10 transition-colors duration-200 ${
-                                                                  elementSnapshot.isDragging ? 'shadow-lg bg-card' : ''
-                                                                }`}
-                                                              >
-                                                                <td className="px-3 py-1.5">
-                                                                  <div 
-                                                                    {...elementDragProvided.dragHandleProps}
-                                                                    className="cursor-grab hover:cursor-grabbing p-1 hover:bg-accent rounded transition-colors duration-200 ml-4"
-                                                                  >
-                                                                    <GripVertical className="w-2 h-2 text-muted-foreground" />
-                                                                  </div>
-                                                                </td>
-                                                                <td className="px-3 py-1.5"></td>
-                                                                <td className="px-3 py-1.5">
-                                                                  <div className="font-medium text-primary text-sm font-inter ml-8">
-                                                                    {generateWBSNumber(phaseIndex, componentIndex, elementIndex)}
-                                                                  </div>
-                                                                </td>
-                                                                <td className="px-3 py-1.5">
-                                                                  <div className="pl-12 text-foreground text-sm font-inter">
-                                                                    <div className="flex items-center gap-2">
-                                                                      <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                                                                      {element.name}
-                                                                    </div>
-                                                                  </div>
-                                                                </td>
-                                                                <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.description}</td>
-                                                                <td className="px-3 py-1.5">
-                                                                  <Badge variant="outline" className={`${getStatusColor(element.status)} text-xs font-inter`}>
-                                                                    {element.status}
-                                                                  </Badge>
-                                                                </td>
-                                                                <td className="px-3 py-1.5">
-                                                                  <div className="flex items-center gap-2">
-                                                                    <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
-                                                                      <div 
-                                                                        className={`h-full transition-all duration-300 ${getProgressColor(element.progress)}`}
-                                                                        style={{ width: `${element.progress}%` }}
-                                                                      />
-                                                                    </div>
-                                                                    <span className="text-xs text-muted-foreground font-inter">{element.progress}%</span>
-                                                                  </div>
-                                                                </td>
-                                                                <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.assignedTo}</td>
-                                                                <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.deliverable}</td>
-                                                                <td className="px-3 py-1.5">
-                                                                  <div className="flex items-center gap-1">
-                                                                    <DropdownMenu>
-                                                                      <DropdownMenuTrigger asChild>
-                                                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                                                          <MoreHorizontal className="w-3 h-3" />
-                                                                        </Button>
-                                                                      </DropdownMenuTrigger>
-                                                                      <DropdownMenuContent align="end">
-                                                                        <DropdownMenuItem onClick={() => handleContextMenuAction('add-component', phase.id, 'component')}>
-                                                                          <Plus className="w-3 h-3 mr-2" />
-                                                                          Add Component
-                                                                        </DropdownMenuItem>
-                                                                        <DropdownMenuSeparator />
-                                                                        <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', element.id, 'element')}>
-                                                                          <Copy className="w-3 h-3 mr-2" />
-                                                                          Duplicate Element
-                                                                        </DropdownMenuItem>
-                                                                      </DropdownMenuContent>
-                                                                    </DropdownMenu>
-                                                                  </div>
-                                                                </td>
-                                                              </tr>
+                                                               <tr 
+                                                                 ref={elementDragProvided.innerRef}
+                                                                 {...elementDragProvided.draggableProps}
+                                                                 className={`hover:bg-accent/5 transition-colors duration-200 ${
+                                                                   elementSnapshot.isDragging ? 'shadow-lg bg-card' : ''
+                                                                 }`}
+                                                               >
+                                                                 <td className="px-2 py-1">
+                                                                   <div 
+                                                                     {...elementDragProvided.dragHandleProps}
+                                                                     className="cursor-grab hover:cursor-grabbing p-0.5 hover:bg-accent rounded transition-colors duration-200 ml-4"
+                                                                   >
+                                                                     <GripVertical className="w-2.5 h-2.5 text-muted-foreground" />
+                                                                   </div>
+                                                                 </td>
+                                                                 <td className="px-2 py-1"></td>
+                                                                 <td className="px-3 py-1">
+                                                                   <div className="font-medium text-primary text-xs ml-6 truncate">
+                                                                     {generateWBSNumber(phaseIndex, componentIndex, elementIndex)}
+                                                                   </div>
+                                                                 </td>
+                                                                 <td className="px-3 py-1">
+                                                                   <div className="pl-8 text-foreground text-xs truncate">
+                                                                     <div className="flex items-center gap-1.5">
+                                                                       <div className="w-1 h-1 bg-muted-foreground rounded-full"></div>
+                                                                       {element.name}
+                                                                     </div>
+                                                                   </div>
+                                                                 </td>
+                                                                 <td className="px-3 py-1 text-muted-foreground text-xs truncate">{element.description}</td>
+                                                                 <td className="px-2 py-1">
+                                                                   <Badge variant="outline" className={`${getStatusColor(element.status)} text-xs px-1 py-0`}>
+                                                                     {element.status}
+                                                                   </Badge>
+                                                                 </td>
+                                                                 <td className="px-2 py-1">
+                                                                   <div className="flex items-center gap-1">
+                                                                     <div className="w-8 h-1 bg-muted rounded-full overflow-hidden">
+                                                                       <div 
+                                                                         className={`h-full transition-all duration-300 ${getProgressColor(element.progress)}`}
+                                                                         style={{ width: `${element.progress}%` }}
+                                                                       />
+                                                                     </div>
+                                                                     <span className="text-xs text-muted-foreground">{element.progress}%</span>
+                                                                   </div>
+                                                                 </td>
+                                                                 <td className="px-2 py-1 text-muted-foreground text-xs truncate">{element.assignedTo}</td>
+                                                                 <td className="px-2 py-1 text-muted-foreground text-xs truncate">{element.deliverable}</td>
+                                                                 <td className="px-2 py-1">
+                                                                   <DropdownMenu>
+                                                                     <DropdownMenuTrigger asChild>
+                                                                       <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-accent">
+                                                                         <MoreHorizontal className="w-2.5 h-2.5" />
+                                                                       </Button>
+                                                                     </DropdownMenuTrigger>
+                                                                     <DropdownMenuContent align="end" className="w-40">
+                                                                       <DropdownMenuItem onClick={() => handleContextMenuAction('edit', element.id, 'element')}>
+                                                                         <Edit2 className="w-3 h-3 mr-2" />
+                                                                         Edit
+                                                                       </DropdownMenuItem>
+                                                                       <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', element.id, 'element')}>
+                                                                         <Copy className="w-3 h-3 mr-2" />
+                                                                         Duplicate
+                                                                       </DropdownMenuItem>
+                                                                       <DropdownMenuSeparator />
+                                                                       <DropdownMenuItem 
+                                                                         onClick={() => handleContextMenuAction('delete', element.id, 'element')}
+                                                                         className="text-destructive focus:text-destructive"
+                                                                       >
+                                                                         <Trash2 className="w-3 h-3 mr-2" />
+                                                                         Delete
+                                                                       </DropdownMenuItem>
+                                                                     </DropdownMenuContent>
+                                                                   </DropdownMenu>
+                                                                 </td>
+                                                               </tr>
                                                             )}
                                                           </Draggable>
                                                         ))}
