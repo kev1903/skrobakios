@@ -602,6 +602,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                   )}
                                                   <Draggable draggableId={element.id} index={elementIndex}>
                                                     {(elementDragProvided, elementSnapshot2) => (
+                                                      <DragPortalWrapper isDragging={elementSnapshot2.isDragging}>
                                                       <div
                                                         ref={elementDragProvided.innerRef}
                                                         {...elementDragProvided.draggableProps}
@@ -663,6 +664,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                           </DropdownMenu>
                                                         </div>
                                                       </div>
+                                                      </DragPortalWrapper>
                                                     )}
                                                   </Draggable>
                                                 </React.Fragment>
