@@ -360,23 +360,27 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   }) => {
     const isEditing = editingItem?.id === id && editingItem?.field === field;
     
-    return isEditing ? (
-      <Input
-        ref={inputRef}
-        value={editValue}
-        onChange={(e) => setEditValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={saveEdit}
-        className="border-none outline-none focus:outline-none focus:border-none ring-0 focus:ring-0 focus-visible:ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none bg-transparent p-0 m-0 rounded-none h-auto"
-        placeholder={placeholder}
-      />
-    ) : (
-      <span 
-        className={`cursor-pointer hover:bg-accent/20 px-1 py-0.5 rounded ${className}`}
-        onClick={() => handleEdit(id, type, field, value || '')}
+    return (
+      <div 
+        className={`w-full h-full flex items-center ${!isEditing ? 'cursor-pointer hover:bg-accent/20 rounded px-1' : ''}`}
+        onClick={() => !isEditing && handleEdit(id, type, field, value || '')}
       >
-        {value || placeholder}
-      </span>
+        {isEditing ? (
+          <Input
+            ref={inputRef}
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={saveEdit}
+            className="border-none outline-none focus:outline-none focus:border-none ring-0 focus:ring-0 focus-visible:ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none bg-transparent p-0 m-0 rounded-none h-auto w-full"
+            placeholder={placeholder}
+          />
+        ) : (
+          <span className={`truncate ${className}`}>
+            {value || placeholder}
+          </span>
+        )}
+      </div>
     );
   };
 
