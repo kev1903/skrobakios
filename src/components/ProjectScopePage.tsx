@@ -602,7 +602,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                                      {...elementDragProvided.dragHandleProps}
                                                                      className="cursor-grab hover:cursor-grabbing p-0.5 hover:bg-accent rounded transition-colors duration-200 ml-4"
                                                                    >
-                                                                     <GripVertical className="w-2.5 h-2.5 text-muted-foreground" />
+                                                                     <GripVertical className="w-3 h-3 text-muted-foreground" />
                                                                    </div>
                                                                  </td>
                                                                  <td className="px-2 py-1"></td>
