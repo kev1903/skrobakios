@@ -329,11 +329,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   };
 
-  const handleClickOutside = (e: React.MouseEvent) => {
-    if (editingItem && inputRef.current && !inputRef.current.contains(e.target as Node)) {
-      saveEdit();
-    }
-  };
 
   useEffect(() => {
     if (editingItem && inputRef.current) {
@@ -341,6 +336,18 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       inputRef.current.select();
     }
   }, [editingItem]);
+
+  // Close on outside click while editing
+  useEffect(() => {
+    if (!editingItem) return;
+    const onMouseDown = (e: MouseEvent) => {
+      if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
+        saveEdit();
+      }
+    };
+    document.addEventListener('mousedown', onMouseDown);
+    return () => document.removeEventListener('mousedown', onMouseDown);
+  }, [editingItem, editValue]);
 
   // Reusable editable cell component
   const EditableCell = ({ 
@@ -517,7 +524,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             </div>
           </div>
 
-          <div className="flex-1 px-6 py-4 bg-white" onClick={handleClickOutside}>
+          <div className="flex-1 px-6 py-4 bg-white">
             <div className="rounded-lg border border-border bg-white shadow-sm">
               {/* Header */}
               <div
