@@ -16,7 +16,7 @@ import { ProjectTimelinePage } from "@/components/ProjectTimelinePage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { PlatformSignupPage } from "@/components/auth/PlatformSignupPage";
-import { LandingPage } from "@/components/LandingPage";
+
 // UserProfile import removed
 import { SubscriptionProtectedRoute } from "@/components/auth/SubscriptionProtectedRoute";
 
@@ -107,7 +107,7 @@ export const ContentRenderer = ({
     </div>;
     
   // CRITICAL: Prevent authenticated users from accessing public pages
-  const publicPages = ['landing', 'auth', 'platform-signup'];
+  const publicPages = ['auth', 'platform-signup'];
   if (isAuthenticated && publicPages.includes(currentPage)) {
     console.log(`🚨 SECURITY: Authenticated user blocked from accessing public page: ${currentPage}`);
     onNavigate('profile');
@@ -117,8 +117,6 @@ export const ContentRenderer = ({
   }
     
   switch (currentPage) {
-    case "landing":
-      return <LandingPage onNavigate={onNavigate} />;
     case "auth":
       return <AuthPage onNavigate={onNavigate} />;
     case "platform-signup":
@@ -492,6 +490,6 @@ export const ContentRenderer = ({
       onNavigate("home");
       return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} />;
     default:
-      return <LandingPage onNavigate={onNavigate} />;
+      return <AuthPage onNavigate={onNavigate} />;
   }
 };

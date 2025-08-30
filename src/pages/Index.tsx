@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { LandingPage } from "@/components/LandingPage";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { ServicesPage } from "@/components/pages/ServicesPage";
 import { ProjectsPage } from "@/components/pages/ProjectsPage";
@@ -24,11 +23,11 @@ const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState(() => {
-    // Initialize based on current route - if we're on root path, show landing page
-    return window.location.pathname === "/" ? "landing" : "landing";
+    // Initialize based on current route - if we're on root path, show auth page
+    return window.location.pathname === "/" ? "auth" : "auth";
   });
   const [mobileView, setMobileView] = useState<'chat' | 'app'>('app');
-  const previousPageRef = useRef<string>("landing");
+  const previousPageRef = useRef<string>("auth");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
   const isMobile = useIsMobile();
   
@@ -79,10 +78,10 @@ const Index = () => {
     if (previousPage && previousPage !== currentPage) {
       setCurrentPage(previousPage);
       // Update the previous page reference to avoid going back and forth
-      previousPageRef.current = "landing";
+      previousPageRef.current = "auth";
     } else {
       // Fallback to a sensible default if no previous page exists
-      setCurrentPage("landing");
+      setCurrentPage("auth");
     }
   };
 
@@ -106,7 +105,7 @@ const Index = () => {
   // Redirect authenticated users away from public pages
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      const publicPages = ['landing', 'services', 'about', 'contact', 'signup'];
+      const publicPages = ['auth', 'services', 'about', 'contact', 'signup'];
       if (publicPages.includes(currentPage)) {
         console.log(`🔐 Authenticated user on public page ${currentPage}, redirecting to profile`);
         handleNavigate('profile');
@@ -116,10 +115,6 @@ const Index = () => {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'auth':
-        return <AuthPage onNavigate={handleNavigate} />;
-      case 'signup':
-        return <LandingPage onNavigate={handleNavigate} />;
       case 'services':
         return <ServicesPage onNavigate={handleNavigate} />;
       case 'projects':
@@ -128,14 +123,14 @@ const Index = () => {
         return <AboutPage onNavigate={handleNavigate} />;
       case 'contact':
         return <ContactPage onNavigate={handleNavigate} />;
-      case 'landing':
+      case 'auth':
       default:
-        return <LandingPage onNavigate={handleNavigate} />;
+        return <AuthPage onNavigate={handleNavigate} />;
     }
   };
 
   // Handle public pages vs protected pages
-  if (currentPage === 'landing' || currentPage === 'auth' || currentPage === 'signup' || 
+  if (currentPage === 'auth' || currentPage === 'signup' || 
       currentPage === 'services' || currentPage === 'about' || currentPage === 'contact') {
     return (
       <div className="w-full h-screen">
@@ -147,8 +142,8 @@ const Index = () => {
   return (
     <DigitalObjectsProvider>
       <TaskProvider>
-        {currentPage === "sales" || currentPage === "landing" || currentPage === "auth" ? (
-          // Sales CRM, Landing, and Auth take full screen - no main layout wrapper
+        {currentPage === "sales" || currentPage === "auth" ? (
+          // Sales CRM and Auth take full screen - no main layout wrapper
           <div className="flex h-screen min-h-0 overflow-hidden">
             <div className="flex-1 bg-background transition-all duration-300">
               <ContentRenderer 
