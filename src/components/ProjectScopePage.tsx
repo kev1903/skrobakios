@@ -217,6 +217,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element') => {
     switch (action) {
+      case 'add-component':
+        console.log('Add Component to phase', itemId);
+        // Add component functionality here
+        break;
       case 'edit':
         console.log('Edit', type, itemId);
         // Add edit functionality here
@@ -484,6 +488,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                               </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
+                                              <DropdownMenuItem onClick={() => handleContextMenuAction('add-component', phase.id, 'component')}>
+                                                <Plus className="w-3 h-3 mr-2" />
+                                                Add Component
+                                              </DropdownMenuItem>
+                                              <DropdownMenuSeparator />
                                               <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, 'component')}>
                                                 <Copy className="w-3 h-3 mr-2" />
                                                 Duplicate Component
@@ -539,12 +548,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                   <MoreHorizontal className="w-3 h-3" />
                                                 </Button>
                                               </DropdownMenuTrigger>
-                                              <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', element.id, 'element')}>
-                                                  <Copy className="w-3 h-3 mr-2" />
-                                                  Duplicate Element
-                                                </DropdownMenuItem>
-                                              </DropdownMenuContent>
+                                               <DropdownMenuContent align="end">
+                                                 <DropdownMenuItem onClick={() => handleContextMenuAction('add-component', phase.id, 'component')}>
+                                                   <Plus className="w-3 h-3 mr-2" />
+                                                   Add Component
+                                                 </DropdownMenuItem>
+                                                 <DropdownMenuSeparator />
+                                                 <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', element.id, 'element')}>
+                                                   <Copy className="w-3 h-3 mr-2" />
+                                                   Duplicate Element
+                                                 </DropdownMenuItem>
+                                               </DropdownMenuContent>
                                             </DropdownMenu>
                                           </div>
                                         </td>
