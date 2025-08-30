@@ -125,19 +125,19 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Completed': return 'bg-green-100 text-green-800';
-      case 'In Progress': return 'bg-blue-100 text-blue-800';
-      case 'On Hold': return 'bg-yellow-100 text-yellow-800';
-      case 'Not Started': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Completed': return 'bg-success/10 text-success border-success/20';
+      case 'In Progress': return 'bg-primary/10 text-primary border-primary/20';
+      case 'On Hold': return 'bg-warning/10 text-warning border-warning/20';
+      case 'Not Started': return 'bg-muted text-muted-foreground border-border';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
   const getProgressColor = (progress: number) => {
-    if (progress === 0) return 'bg-gray-200';
-    if (progress < 30) return 'bg-red-500';
-    if (progress < 70) return 'bg-yellow-500';
-    return 'bg-green-500';
+    if (progress === 0) return 'bg-muted';
+    if (progress < 30) return 'bg-destructive';
+    if (progress < 70) return 'bg-warning';
+    return 'bg-success';
   };
 
   const toggleComponent = (componentId: string) => {
@@ -184,29 +184,29 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
       {/* Main Content */}
       <div className={contentClasses[screenSize]}>
-        <div className="flex flex-col h-full bg-white">
+        <div className="flex flex-col h-full bg-background">
           {/* Header */}
-          <div className="flex-shrink-0 border-b border-gray-200 px-6 py-4">
+          <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-card/50 backdrop-blur-sm">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Project Scope</h1>
-                <p className="text-gray-600 mt-1">{project.name}</p>
+                <h1 className="text-2xl font-bold text-foreground font-inter">Project Scope</h1>
+                <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
               </div>
               <div className="flex items-center gap-4">
                 <div className="text-right">
-                  <div className="text-sm text-gray-500">Overall Progress</div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="text-xs text-muted-foreground font-inter">Overall Progress</div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
                       <div 
                         className={`h-full transition-all duration-300 ${getProgressColor(calculateOverallProgress())}`}
                         style={{ width: `${calculateOverallProgress()}%` }}
                       />
                     </div>
-                    <span className="text-sm font-medium">{calculateOverallProgress()}%</span>
+                    <span className="text-xs font-medium text-foreground font-inter">{calculateOverallProgress()}%</span>
                   </div>
                 </div>
-                <Button size="sm">
-                  <Plus className="w-4 h-4 mr-1" />
+                <Button size="sm" className="font-inter text-xs">
+                  <Plus className="w-3 h-3 mr-1" />
                   Add Component
                 </Button>
               </div>
@@ -215,65 +215,65 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
           {/* Scope Table */}
           <div className="flex-1 overflow-auto px-6 py-4">
-            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+            <div className="glass-card border border-border overflow-hidden">
               <table className="w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-muted/30">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8"></th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deliverable</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">Actions</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-8 font-inter"></th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Name</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Description</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Status</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Progress</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Assigned To</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Deliverable</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-20 font-inter">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-card/50 divide-y divide-border">
                   {scopeData.map((component) => (
                     <React.Fragment key={component.id}>
                       {/* Component Row */}
-                      <tr className="hover:bg-gray-50 bg-blue-50/30">
-                        <td className="px-4 py-4">
+                      <tr className="hover:bg-accent/20 bg-primary/5 transition-colors duration-200">
+                        <td className="px-3 py-2">
                           <button
                             onClick={() => toggleComponent(component.id)}
-                            className="p-1 hover:bg-gray-200 rounded"
+                            className="p-1 hover:bg-accent rounded transition-colors duration-200"
                           >
                             {component.isExpanded ? (
-                              <ChevronDown className="w-4 h-4 text-gray-600" />
+                              <ChevronDown className="w-3 h-3 text-muted-foreground" />
                             ) : (
-                              <ChevronRight className="w-4 h-4 text-gray-600" />
+                              <ChevronRight className="w-3 h-3 text-muted-foreground" />
                             )}
                           </button>
                         </td>
-                        <td className="px-4 py-4">
-                          <div className="font-semibold text-gray-900">{component.name}</div>
+                        <td className="px-3 py-2">
+                          <div className="font-medium text-foreground text-sm font-inter">{component.name}</div>
                         </td>
-                        <td className="px-4 py-4 text-gray-600">{component.description}</td>
-                        <td className="px-4 py-4">
-                          <Badge className={getStatusColor(component.status)}>
+                        <td className="px-3 py-2 text-muted-foreground text-xs font-inter">{component.description}</td>
+                        <td className="px-3 py-2">
+                          <Badge variant="outline" className={`${getStatusColor(component.status)} text-xs font-inter`}>
                             {component.status}
                           </Badge>
                         </td>
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-2">
                           <div className="flex items-center gap-2">
-                            <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
                               <div 
                                 className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`}
                                 style={{ width: `${component.progress}%` }}
                               />
                             </div>
-                            <span className="text-sm text-gray-600">{component.progress}%</span>
+                            <span className="text-xs text-muted-foreground font-inter">{component.progress}%</span>
                           </div>
                         </td>
-                        <td className="px-4 py-4 text-gray-600">-</td>
-                        <td className="px-4 py-4 text-gray-600">-</td>
-                        <td className="px-4 py-4">
+                        <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
+                        <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
+                        <td className="px-3 py-2">
                           <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                               <Edit2 className="w-3 h-3" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                               <Trash2 className="w-3 h-3" />
                             </Button>
                           </div>
@@ -282,41 +282,41 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       
                       {/* Element Rows */}
                       {component.isExpanded && component.elements.map((element) => (
-                        <tr key={element.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3"></td>
-                          <td className="px-4 py-3">
-                            <div className="pl-6 text-gray-900">
+                        <tr key={element.id} className="hover:bg-accent/10 transition-colors duration-200">
+                          <td className="px-3 py-1.5"></td>
+                          <td className="px-3 py-1.5">
+                            <div className="pl-4 text-foreground text-sm font-inter">
                               <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                                <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
                                 {element.name}
                               </div>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-gray-600 text-sm">{element.description}</td>
-                          <td className="px-4 py-3">
-                            <Badge className={getStatusColor(element.status)}>
+                          <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.description}</td>
+                          <td className="px-3 py-1.5">
+                            <Badge variant="outline" className={`${getStatusColor(element.status)} text-xs font-inter`}>
                               {element.status}
                             </Badge>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-3 py-1.5">
                             <div className="flex items-center gap-2">
-                              <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
                                 <div 
                                   className={`h-full transition-all duration-300 ${getProgressColor(element.progress)}`}
                                   style={{ width: `${element.progress}%` }}
                                 />
                               </div>
-                              <span className="text-sm text-gray-600">{element.progress}%</span>
+                              <span className="text-xs text-muted-foreground font-inter">{element.progress}%</span>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-gray-600 text-sm">{element.assignedTo}</td>
-                          <td className="px-4 py-3 text-gray-600 text-sm">{element.deliverable}</td>
-                          <td className="px-4 py-3">
+                          <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.assignedTo}</td>
+                          <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.deliverable}</td>
+                          <td className="px-3 py-1.5">
                             <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                                 <Edit2 className="w-3 h-3" />
                               </Button>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                                 <Trash2 className="w-3 h-3" />
                               </Button>
                             </div>
