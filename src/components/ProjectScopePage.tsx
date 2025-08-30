@@ -325,9 +325,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const mainClasses = {
-    mobile: "flex flex-col min-h-[calc(100vh-var(--header-height,64px))] mt-[var(--header-height,64px)]",
-    tablet: "flex flex-col min-h-[calc(100vh-var(--header-height,64px))] mt-[var(--header-height,64px)]", 
-    desktop: "flex min-h-[calc(100vh-var(--header-height,64px))] mt-[var(--header-height,64px)]"
+    mobile: "flex flex-col h-[calc(100vh-var(--header-height,64px))] mt-[var(--header-height,64px)]",
+    tablet: "flex flex-col h-[calc(100vh-var(--header-height,64px))] mt-[var(--header-height,64px)]", 
+    desktop: "flex h-[calc(100vh-var(--header-height,64px))] mt-[var(--header-height,64px)]"
   };
 
   const contentClasses = {
