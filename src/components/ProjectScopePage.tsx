@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Plus, Edit2, Trash2 } from 'lucide-react';
+import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical } from 'lucide-react';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
@@ -150,6 +151,16 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     );
   };
 
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const items = Array.from(scopeData);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setScopeData(items);
+  };
+
   const calculateOverallProgress = () => {
     const totalElements = scopeData.reduce((sum, comp) => sum + comp.elements.length, 0);
     const totalProgress = scopeData.reduce((sum, comp) => 
@@ -219,6 +230,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               <table className="w-full">
                 <thead className="bg-muted/30">
                   <tr>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-8 font-inter">Drag</th>
                     <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-8 font-inter"></th>
                     <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Name</th>
                     <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider font-inter">Description</th>
@@ -229,103 +241,133 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-20 font-inter">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-card/50 divide-y divide-border">
-                  {scopeData.map((component) => (
-                    <React.Fragment key={component.id}>
-                      {/* Component Row */}
-                      <tr className="hover:bg-accent/20 bg-primary/5 transition-colors duration-200">
-                        <td className="px-3 py-2">
-                          <button
-                            onClick={() => toggleComponent(component.id)}
-                            className="p-1 hover:bg-accent rounded transition-colors duration-200"
-                          >
-                            {component.isExpanded ? (
-                              <ChevronDown className="w-3 h-3 text-muted-foreground" />
-                            ) : (
-                              <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <Droppable droppableId="scope-components">
+                    {(provided) => (
+                      <tbody 
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="bg-card/50 divide-y divide-border"
+                      >
+                        {scopeData.map((component, index) => (
+                          <Draggable key={component.id} draggableId={component.id} index={index}>
+                            {(provided, snapshot) => (
+                              <React.Fragment>
+                                {/* Component Row */}
+                                <tr 
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  className={`hover:bg-accent/20 bg-primary/5 transition-colors duration-200 ${
+                                    snapshot.isDragging ? 'shadow-lg bg-card' : ''
+                                  }`}
+                                >
+                                  <td className="px-3 py-2">
+                                    <div 
+                                      {...provided.dragHandleProps}
+                                      className="cursor-grab hover:cursor-grabbing p-1 hover:bg-accent rounded transition-colors duration-200"
+                                    >
+                                      <GripVertical className="w-3 h-3 text-muted-foreground" />
+                                    </div>
+                                  </td>
+                                  <td className="px-3 py-2">
+                                    <button
+                                      onClick={() => toggleComponent(component.id)}
+                                      className="p-1 hover:bg-accent rounded transition-colors duration-200"
+                                    >
+                                      {component.isExpanded ? (
+                                        <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                                      ) : (
+                                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                                      )}
+                                    </button>
+                                  </td>
+                                  <td className="px-3 py-2">
+                                    <div className="font-medium text-foreground text-sm font-inter">{component.name}</div>
+                                  </td>
+                                  <td className="px-3 py-2 text-muted-foreground text-xs font-inter">{component.description}</td>
+                                  <td className="px-3 py-2">
+                                    <Badge variant="outline" className={`${getStatusColor(component.status)} text-xs font-inter`}>
+                                      {component.status}
+                                    </Badge>
+                                  </td>
+                                  <td className="px-3 py-2">
+                                    <div className="flex items-center gap-2">
+                                      <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                                        <div 
+                                          className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`}
+                                          style={{ width: `${component.progress}%` }}
+                                        />
+                                      </div>
+                                      <span className="text-xs text-muted-foreground font-inter">{component.progress}%</span>
+                                    </div>
+                                  </td>
+                                  <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
+                                  <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
+                                  <td className="px-3 py-2">
+                                    <div className="flex items-center gap-1">
+                                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                        <Edit2 className="w-3 h-3" />
+                                      </Button>
+                                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                        <Trash2 className="w-3 h-3" />
+                                      </Button>
+                                    </div>
+                                  </td>
+                                </tr>
+                                
+                                {/* Element Rows */}
+                                {component.isExpanded && component.elements.map((element) => (
+                                  <tr key={element.id} className="hover:bg-accent/10 transition-colors duration-200">
+                                    <td className="px-3 py-1.5"></td>
+                                    <td className="px-3 py-1.5"></td>
+                                    <td className="px-3 py-1.5">
+                                      <div className="pl-4 text-foreground text-sm font-inter">
+                                        <div className="flex items-center gap-2">
+                                          <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
+                                          {element.name}
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.description}</td>
+                                    <td className="px-3 py-1.5">
+                                      <Badge variant="outline" className={`${getStatusColor(element.status)} text-xs font-inter`}>
+                                        {element.status}
+                                      </Badge>
+                                    </td>
+                                    <td className="px-3 py-1.5">
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                                          <div 
+                                            className={`h-full transition-all duration-300 ${getProgressColor(element.progress)}`}
+                                            style={{ width: `${element.progress}%` }}
+                                          />
+                                        </div>
+                                        <span className="text-xs text-muted-foreground font-inter">{element.progress}%</span>
+                                      </div>
+                                    </td>
+                                    <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.assignedTo}</td>
+                                    <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.deliverable}</td>
+                                    <td className="px-3 py-1.5">
+                                      <div className="flex items-center gap-1">
+                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                          <Edit2 className="w-3 h-3" />
+                                        </Button>
+                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                                          <Trash2 className="w-3 h-3" />
+                                        </Button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </React.Fragment>
                             )}
-                          </button>
-                        </td>
-                        <td className="px-3 py-2">
-                          <div className="font-medium text-foreground text-sm font-inter">{component.name}</div>
-                        </td>
-                        <td className="px-3 py-2 text-muted-foreground text-xs font-inter">{component.description}</td>
-                        <td className="px-3 py-2">
-                          <Badge variant="outline" className={`${getStatusColor(component.status)} text-xs font-inter`}>
-                            {component.status}
-                          </Badge>
-                        </td>
-                        <td className="px-3 py-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`}
-                                style={{ width: `${component.progress}%` }}
-                              />
-                            </div>
-                            <span className="text-xs text-muted-foreground font-inter">{component.progress}%</span>
-                          </div>
-                        </td>
-                        <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
-                        <td className="px-3 py-2 text-muted-foreground text-xs font-inter">-</td>
-                        <td className="px-3 py-2">
-                          <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                              <Edit2 className="w-3 h-3" />
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                      
-                      {/* Element Rows */}
-                      {component.isExpanded && component.elements.map((element) => (
-                        <tr key={element.id} className="hover:bg-accent/10 transition-colors duration-200">
-                          <td className="px-3 py-1.5"></td>
-                          <td className="px-3 py-1.5">
-                            <div className="pl-4 text-foreground text-sm font-inter">
-                              <div className="flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 bg-muted-foreground rounded-full"></div>
-                                {element.name}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.description}</td>
-                          <td className="px-3 py-1.5">
-                            <Badge variant="outline" className={`${getStatusColor(element.status)} text-xs font-inter`}>
-                              {element.status}
-                            </Badge>
-                          </td>
-                          <td className="px-3 py-1.5">
-                            <div className="flex items-center gap-2">
-                              <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
-                                <div 
-                                  className={`h-full transition-all duration-300 ${getProgressColor(element.progress)}`}
-                                  style={{ width: `${element.progress}%` }}
-                                />
-                              </div>
-                              <span className="text-xs text-muted-foreground font-inter">{element.progress}%</span>
-                            </div>
-                          </td>
-                          <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.assignedTo}</td>
-                          <td className="px-3 py-1.5 text-muted-foreground text-xs font-inter">{element.deliverable}</td>
-                          <td className="px-3 py-1.5">
-                            <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                <Edit2 className="w-3 h-3" />
-                              </Button>
-                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                </tbody>
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </tbody>
+                    )}
+                  </Droppable>
+                </DragDropContext>
               </table>
             </div>
           </div>
