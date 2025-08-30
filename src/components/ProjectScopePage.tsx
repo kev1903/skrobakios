@@ -15,6 +15,8 @@ import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { Project } from '@/hooks/useProjects';
 import { useScreenSize } from '@/hooks/use-mobile';
 import { createPortal } from 'react-dom';
+import { useCompany } from '@/contexts/CompanyContext';
+import { WBSService } from '@/services/wbsService';
 
 interface ProjectScopePageProps {
   project: Project;
@@ -179,6 +181,7 @@ const sampleScopeData: ScopePhase[] = [
 export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps) => {
   const [scopeData, setScopeData] = useState<ScopePhase[]>(sampleScopeData);
   const screenSize = useScreenSize();
+  const { currentCompany } = useCompany();
   const [dragIndicator, setDragIndicator] = useState<{ type: string; droppableId: string; index: number } | null>(null);
   const [editingItem, setEditingItem] = useState<{ id: string; type: 'phase' | 'component' | 'element'; field: string } | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -245,20 +248,50 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   };
 
-  const addNewPhase = () => {
-    const newPhase: ScopePhase = {
-      id: `phase-${Date.now()}`,
-      name: '',
-      description: '',
-      status: 'Not Started',
-      progress: 0,
-      isExpanded: true,
-      components: []
-    };
-    
-    setScopeData(prev => [...prev, newPhase]);
-    setEditingItem({ id: newPhase.id, type: 'phase', field: 'name' });
-    setEditValue('');
+  const addNewPhase = async () => {
+    try {
+      if (!currentCompany?.id) {
+        console.error('No active company selected');
+        return;
+      }
+
+      const wbsId = `${scopeData.length + 1}.0`;
+
+      const inserted = await WBSService.createWBSItem({
+        company_id: currentCompany.id,
+        project_id: project.id,
+        parent_id: undefined,
+        wbs_id: wbsId,
+        title: 'Untitled Phase',
+        description: '',
+        assigned_to: undefined,
+        start_date: undefined,
+        end_date: undefined,
+        duration: 0,
+        budgeted_cost: undefined,
+        actual_cost: undefined,
+        progress: 0,
+        level: 1,
+        is_expanded: true,
+        linked_tasks: []
+      } as any);
+
+      const newPhase: ScopePhase = {
+        id: inserted.id,
+        name: '',
+        description: '',
+        status: 'Not Started',
+        progress: 0,
+        isExpanded: true,
+        components: []
+      };
+
+      setScopeData(prev => [...prev, newPhase]);
+      setEditingItem({ id: newPhase.id, type: 'phase', field: 'name' });
+      setEditValue('');
+    } catch (error) {
+      console.error('Error creating phase:', error);
+    }
   };
 
   const handleEdit = (id: string, type: 'phase' | 'component' | 'element', field: string, currentValue: string) => {
