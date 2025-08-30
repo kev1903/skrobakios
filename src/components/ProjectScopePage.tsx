@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -179,6 +180,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   const [scopeData, setScopeData] = useState<ScopePhase[]>(sampleScopeData);
   const screenSize = useScreenSize();
   const [dragIndicator, setDragIndicator] = useState<{ type: string; droppableId: string; index: number } | null>(null);
+  const [editingItem, setEditingItem] = useState<{ id: string; type: 'phase' | 'component' | 'element'; field: string } | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -240,6 +244,87 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         break;
     }
   };
+
+  const addNewPhase = () => {
+    const newPhase: ScopePhase = {
+      id: `phase-${Date.now()}`,
+      name: '',
+      description: '',
+      status: 'Not Started',
+      progress: 0,
+      isExpanded: true,
+      components: []
+    };
+    
+    setScopeData(prev => [...prev, newPhase]);
+    setEditingItem({ id: newPhase.id, type: 'phase', field: 'name' });
+    setEditValue('');
+  };
+
+  const handleEdit = (id: string, type: 'phase' | 'component' | 'element', field: string, currentValue: string) => {
+    setEditingItem({ id, type, field });
+    setEditValue(currentValue);
+  };
+
+  const saveEdit = async () => {
+    if (!editingItem) return;
+
+    const { id, type, field } = editingItem;
+    
+    setScopeData(prev => {
+      if (type === 'phase') {
+        return prev.map(phase => 
+          phase.id === id ? { ...phase, [field]: editValue } : phase
+        );
+      }
+      // Handle component and element editing if needed
+      return prev;
+    });
+
+    setEditingItem(null);
+    setEditValue('');
+    
+    // Update database
+    await updateScopeToDatabase();
+  };
+
+  const cancelEdit = () => {
+    setEditingItem(null);
+    setEditValue('');
+  };
+
+  const updateScopeToDatabase = async () => {
+    // Placeholder for database update - implement with your backend
+    try {
+      console.log('Updating scope to database:', scopeData);
+      // TODO: Implement actual database update
+    } catch (error) {
+      console.error('Failed to update scope:', error);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveEdit();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      cancelEdit();
+    }
+  };
+
+  const handleClickOutside = (e: React.MouseEvent) => {
+    if (editingItem && inputRef.current && !inputRef.current.contains(e.target as Node)) {
+      saveEdit();
+    }
+  };
+
+  useEffect(() => {
+    if (editingItem && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editingItem]);
 
   const generateWBSNumber = (phaseIndex: number, componentIndex?: number, elementIndex?: number) => {
     const phaseNumber = phaseIndex + 1;
@@ -367,7 +452,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     <span className="text-xs font-medium text-foreground font-inter">{calculateOverallProgress()}%</span>
                   </div>
                 </div>
-                <Button size="sm" className="font-inter text-xs">
+                <Button size="sm" className="font-inter text-xs" onClick={addNewPhase}>
                   <Plus className="w-3 h-3 mr-1" />
                   Add Phase
                 </Button>
@@ -375,7 +460,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             </div>
           </div>
 
-          <div className="flex-1 px-6 py-4 bg-white">
+          <div className="flex-1 px-6 py-4 bg-white" onClick={handleClickOutside}>
             <div className="rounded-lg border border-border bg-white shadow-sm">
               {/* Header */}
               <div
@@ -451,7 +536,26 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                     <div className="font-semibold text-primary text-sm truncate">{generateWBSNumber(phaseIndex)}</div>
                                   </div>
                                 </div>
-                                <div className="px-3 py-2 font-semibold text-foreground text-sm truncate">{phase.name}</div>
+                                <div className="px-3 py-2 font-semibold text-foreground text-sm truncate">
+                                  {editingItem?.id === phase.id && editingItem?.field === 'name' ? (
+                                    <Input
+                                      ref={inputRef}
+                                      value={editValue}
+                                      onChange={(e) => setEditValue(e.target.value)}
+                                      onKeyDown={handleKeyDown}
+                                      onBlur={saveEdit}
+                                      className="h-6 text-sm font-semibold border-0 p-0 focus-visible:ring-1 focus-visible:ring-primary"
+                                      placeholder="Enter phase name"
+                                    />
+                                  ) : (
+                                    <span 
+                                      className="cursor-pointer hover:bg-accent/20 px-1 py-0.5 rounded" 
+                                      onClick={() => handleEdit(phase.id, 'phase', 'name', phase.name)}
+                                    >
+                                      {phase.name || 'Untitled Phase'}
+                                    </span>
+                                  )}
+                                </div>
                                 <div className="px-3 py-2 text-muted-foreground text-xs truncate">{phase.description}</div>
                                 <div className="px-2 py-2"><Badge variant="outline" className={`${getStatusColor(phase.status)} text-xs px-2 py-0.5`}>{phase.status}</Badge></div>
                                 <div className="px-2 py-2">
