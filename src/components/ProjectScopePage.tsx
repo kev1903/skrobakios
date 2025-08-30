@@ -359,15 +359,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               <table className="w-full table-fixed">
                 <thead className="bg-muted/40 border-b border-border">
                   <tr>
-                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-8"></th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-10"></th>
                     <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-16">WBS</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-48">Name</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</th>
-                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Status</th>
-                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-20">Progress</th>
-                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Assigned To</th>
-                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Deliverable</th>
-                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-16">Actions</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-56">Name</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-80">Description</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-28">Status</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-24">Progress</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Assigned To</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-32">Deliverable</th>
+                    <th className="px-2 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-20">Actions</th>
                   </tr>
                 </thead>
                 <DragDropContext onDragEnd={onDragEnd}>
