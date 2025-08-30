@@ -712,33 +712,44 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                 <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
                                 <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
                                 <div className="px-2 py-2">
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
-                                        <MoreHorizontal className="w-3 h-3" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end" className="w-40">
-                                      <DropdownMenuItem onClick={() => handleContextMenuAction('add-component', phase.id, 'phase')}>
-                                        <Plus className="w-3 h-3 mr-2" />
-                                        Add Component
-                                      </DropdownMenuItem>
-                                      <DropdownMenuSeparator />
-                                      <DropdownMenuItem onClick={() => handleContextMenuAction('edit', phase.id, 'phase')}>
-                                        <Edit2 className="w-3 h-3 mr-2" />
-                                        Edit
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', phase.id, 'phase')}>
-                                        <Copy className="w-3 h-3 mr-2" />
-                                        Duplicate
-                                      </DropdownMenuItem>
-                                      <DropdownMenuSeparator />
-                                      <DropdownMenuItem onClick={() => handleContextMenuAction('delete', phase.id, 'phase')} className="text-destructive focus:text-destructive">
-                                        <Trash2 className="w-3 h-3 mr-2" />
-                                        Delete
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
+                                  <div className="flex items-center gap-1">
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="h-6 w-6 p-0 hover:bg-primary/10 text-primary hover:text-primary"
+                                      onClick={() => handleContextMenuAction('add-component', phase.id, 'phase')}
+                                      title="Add Component"
+                                    >
+                                      <Plus className="w-3 h-3" />
+                                    </Button>
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
+                                          <MoreHorizontal className="w-3 h-3" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end" className="w-40">
+                                        <DropdownMenuItem onClick={() => handleContextMenuAction('add-component', phase.id, 'phase')}>
+                                          <Plus className="w-3 h-3 mr-2" />
+                                          Add Component
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => handleContextMenuAction('edit', phase.id, 'phase')}>
+                                          <Edit2 className="w-3 h-3 mr-2" />
+                                          Edit
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', phase.id, 'phase')}>
+                                          <Copy className="w-3 h-3 mr-2" />
+                                          Duplicate
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => handleContextMenuAction('delete', phase.id, 'phase')} className="text-destructive focus:text-destructive">
+                                          <Trash2 className="w-3 h-3 mr-2" />
+                                          Delete
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </div>
                                 </div>
                               </div>
                               </DragPortalWrapper>
@@ -828,28 +839,44 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                             <div className="px-2 py-1.5 text-muted-foreground text-xs truncate">-</div>
                                             <div className="px-2 py-1.5 text-muted-foreground text-xs truncate">-</div>
                                             <div className="px-2 py-1.5">
-                                              <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                  <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-accent">
-                                                    <MoreHorizontal className="w-2.5 h-2.5" />
-                                                  </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="w-40">
-                                                  <DropdownMenuItem onClick={() => handleContextMenuAction('edit', component.id, 'component')}>
-                                                    <Edit2 className="w-3 h-3 mr-2" />
-                                                    Edit
-                                                  </DropdownMenuItem>
-                                                  <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, 'component')}>
-                                                    <Copy className="w-3 h-3 mr-2" />
-                                                    Duplicate
-                                                  </DropdownMenuItem>
-                                                  <DropdownMenuSeparator />
-                                                  <DropdownMenuItem onClick={() => handleContextMenuAction('delete', component.id, 'component')} className="text-destructive focus:text-destructive">
-                                                    <Trash2 className="w-3 h-3 mr-2" />
-                                                    Delete
-                                                  </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                              </DropdownMenu>
+                                              <div className="flex items-center gap-1">
+                                                <Button 
+                                                  variant="ghost" 
+                                                  size="sm" 
+                                                  className="h-5 w-5 p-0 hover:bg-secondary/10 text-secondary hover:text-secondary"
+                                                  onClick={() => handleContextMenuAction('add-element', component.id, 'component')}
+                                                  title="Add Element"
+                                                >
+                                                  <Plus className="w-2.5 h-2.5" />
+                                                </Button>
+                                                <DropdownMenu>
+                                                  <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="sm" className="h-5 w-5 p-0 hover:bg-accent">
+                                                      <MoreHorizontal className="w-2.5 h-2.5" />
+                                                    </Button>
+                                                  </DropdownMenuTrigger>
+                                                  <DropdownMenuContent align="end" className="w-40">
+                                                    <DropdownMenuItem onClick={() => handleContextMenuAction('add-element', component.id, 'component')}>
+                                                      <Plus className="w-3 h-3 mr-2" />
+                                                      Add Element
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem onClick={() => handleContextMenuAction('edit', component.id, 'component')}>
+                                                      <Edit2 className="w-3 h-3 mr-2" />
+                                                      Edit
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, 'component')}>
+                                                      <Copy className="w-3 h-3 mr-2" />
+                                                      Duplicate
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem onClick={() => handleContextMenuAction('delete', component.id, 'component')} className="text-destructive focus:text-destructive">
+                                                      <Trash2 className="w-3 h-3 mr-2" />
+                                                      Delete
+                                                    </DropdownMenuItem>
+                                                  </DropdownMenuContent>
+                                                </DropdownMenu>
+                                              </div>
                                             </div>
                                           </div>
                                           </DragPortalWrapper>
