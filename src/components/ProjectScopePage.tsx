@@ -253,11 +253,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   };
 
-  const toggleComponent = async (phaseId: string, componentId: string) => {
-    const component = wbsItems.find(item => item.id === componentId);
-    if (component) {
-      await updateWBSItem(componentId, { is_expanded: !component.is_expanded });
-    }
+  const toggleComponent = async (_phaseId: string, componentId: string, currentExpanded: boolean) => {
+    await updateWBSItem(componentId, { is_expanded: !currentExpanded });
   };
 
   const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element') => {
@@ -953,7 +950,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                              <div className="px-2 py-2">
                                                <div className="flex items-center ml-3">
                                                  <button 
-                                                   onClick={() => toggleComponent(phase.id, component.id)} 
+                                                   onClick={() => toggleComponent(phase.id, component.id, component.isExpanded)} 
                                                    className="p-1 hover:bg-blue-100 rounded transition-colors duration-200 mr-2 border border-transparent hover:border-blue-200" 
                                                    aria-label="Toggle component"
                                                    title={component.isExpanded ? "Collapse component" : "Expand component"}
