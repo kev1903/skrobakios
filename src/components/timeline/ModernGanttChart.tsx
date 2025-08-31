@@ -988,10 +988,17 @@ export const ModernGanttChart = ({
                 ref={provided.innerRef}
                 {...provided.draggableProps}
                 className={cn(
-                  "hover:bg-gray-50 transition-colors duration-200 cursor-pointer",
-                  task.isStage && "bg-blue-50/50",
-                  selectedTaskId === task.id && "bg-blue-100 border-l-4 border-blue-500",
-                  snapshot.isDragging && "shadow-lg bg-white border border-gray-300"
+                  "transition-colors duration-200 cursor-pointer",
+                  // Stage level (depth 0)
+                  task.depth === 0 && "bg-slate-200 border-l-4 border-l-slate-700 hover:bg-slate-300",
+                  // Component level (depth 1)  
+                  task.depth === 1 && "bg-slate-100 border-l-[3px] border-l-slate-500 hover:bg-slate-200",
+                  // Element level (depth 2)
+                  task.depth === 2 && "bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50",
+                  // Default for any other levels
+                  task.depth > 2 && "bg-white hover:bg-gray-50",
+                  selectedTaskId === task.id && "ring-2 ring-blue-500 ring-inset",
+                  snapshot.isDragging && "shadow-lg bg-white border border-gray-300 z-50"
                 )}
                 style={{ 
                   height: 40,
