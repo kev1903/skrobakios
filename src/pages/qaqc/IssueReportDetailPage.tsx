@@ -224,7 +224,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 mt-[var(--header-height,64px)]">
       <ProjectSidebar
         project={project}
         onNavigate={onNavigate}
@@ -233,7 +233,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
         activeSection="qaqc"
       />
 
-      <div className="flex-1 ml-48 p-6 pt-2 overflow-auto">
+      <div className="flex-1 ml-48 p-6 overflow-y-auto max-h-[calc(100vh-var(--header-height,64px))]">
         <div className="w-full">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
