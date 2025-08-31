@@ -84,6 +84,7 @@ import { StakeholdersPage } from "@/pages/StakeholdersPage";
 import { ProjectProcurementPage } from "@/pages/ProjectProcurementPage";
 import { AiChatSidebar } from "@/components/AiChatSidebar";
 import { ProjectScopePage } from "@/components/ProjectScopePage";
+import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
 
 
 interface ContentRendererProps {
@@ -185,6 +186,12 @@ export const ContentRenderer = ({
           <ProjectTimelinePage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
        ) : renderProjectNotFound();
+    case "project-schedule":
+      return currentProject ? (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <ProjectSchedulePage project={currentProject} onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      ) : renderProjectNotFound();
     case "project-team":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
