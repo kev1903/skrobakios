@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal } from 'lucide-react';
+import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal, ChevronsDown, ChevronsUp } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -255,6 +255,36 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   const toggleComponent = async (_phaseId: string, componentId: string, currentExpanded: boolean) => {
     await updateWBSItem(componentId, { is_expanded: !currentExpanded });
+  };
+
+  const expandAll = async () => {
+    // Expand all phases
+    for (const phase of scopeData) {
+      if (!phase.isExpanded) {
+        await updateWBSItem(phase.id, { is_expanded: true });
+      }
+      // Expand all components within each phase
+      for (const component of phase.components) {
+        if (!component.isExpanded) {
+          await updateWBSItem(component.id, { is_expanded: true });
+        }
+      }
+    }
+  };
+
+  const collapseAll = async () => {
+    // Collapse all phases and components
+    for (const phase of scopeData) {
+      if (phase.isExpanded) {
+        await updateWBSItem(phase.id, { is_expanded: false });
+      }
+      // Collapse all components within each phase
+      for (const component of phase.components) {
+        if (component.isExpanded) {
+          await updateWBSItem(component.id, { is_expanded: false });
+        }
+      }
+    }
   };
 
   const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element') => {
@@ -744,6 +774,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" className="font-inter text-xs" onClick={expandAll}>
+                    <ChevronsDown className="w-3 h-3 mr-1" />
+                    Expand All
+                  </Button>
+                  <Button size="sm" variant="outline" className="font-inter text-xs" onClick={collapseAll}>
+                    <ChevronsUp className="w-3 h-3 mr-1" />
+                    Collapse All
+                  </Button>
                   <Button size="sm" className="font-inter text-xs" onClick={addNewPhase}>
                     <Plus className="w-3 h-3 mr-1" />
                     Add Phase
