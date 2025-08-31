@@ -4,13 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle, ChevronDown, Settings, Upload, Plus } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle, Settings, Upload, Plus } from 'lucide-react';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { useProjectSettings } from '@/hooks/useProjectSettings';
 import { Project } from '@/hooks/useProjects';
@@ -66,11 +60,6 @@ export const ProjectCostPage = ({
     { value: 'analytics', label: 'Analytics', icon: BarChart3 },
     { value: 'cost-control', label: 'Cost Control', icon: AlertTriangle }
   ];
-
-  // Get current tab label function
-  const getCurrentTabLabel = () => {
-    return tabOptions.find(tab => tab.value === activeTab)?.label || 'Cost Control';
-  };
 
   // Get project-specific settings for consistent formatting
   const { settings, formatCurrency, formatDate, loading: settingsLoading } = useProjectSettings(
@@ -274,39 +263,24 @@ export const ProjectCostPage = ({
               {/* Tab Header */}
               <div className="bg-muted/30 border-b px-6 py-3">
                 <div className="flex items-center justify-between">
-                  {/* Left side - Tab dropdown and Contract Amount */}
+                  {/* Left side - Tab buttons and Contract Amount */}
                   <div className="flex items-center gap-6">
-                    {/* Tab Dropdown Menu */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          className="bg-background/80 backdrop-blur-sm border-border/50 hover:bg-accent/50 transition-all duration-200"
-                        >
-                          {getCurrentTabLabel()}
-                          <ChevronDown className="ml-2 h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="w-48 bg-background border border-border shadow-lg z-50">
-                        {tabOptions.map((option) => {
-                          const IconComponent = option.icon;
-                          return (
-                            <DropdownMenuItem
-                              key={option.value}
-                              onClick={() => setActiveTab(option.value)}
-                              className={`flex items-center gap-2 cursor-pointer ${
-                                activeTab === option.value 
-                                  ? 'bg-accent text-accent-foreground' 
-                                  : 'hover:bg-accent/50'
-                              }`}
-                            >
-                              <IconComponent className="h-4 w-4" />
-                              {option.label}
-                            </DropdownMenuItem>
-                          );
-                        })}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {/* Tab Buttons */}
+                    <TabsList className="grid w-full grid-cols-4 bg-muted/50">
+                      {tabOptions.map((option) => {
+                        const IconComponent = option.icon;
+                        return (
+                          <TabsTrigger 
+                            key={option.value} 
+                            value={option.value}
+                            className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground"
+                          >
+                            <IconComponent className="h-4 w-4" />
+                            <span className="hidden sm:inline">{option.label}</span>
+                          </TabsTrigger>
+                        );
+                      })}
+                    </TabsList>
 
                     {/* Contract Amount Header */}
                     <div className="flex items-center gap-3">
