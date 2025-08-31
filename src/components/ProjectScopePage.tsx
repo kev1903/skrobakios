@@ -650,8 +650,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     await saveScopeToDatabase();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+  const handleKeyDown = async (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && e.shiftKey && editingItem?.type === 'element') {
+      e.preventDefault();
+      await saveEdit();
+      
+      // Find the parent component of this element
+      const currentElement = wbsItems.find(item => item.id === editingItem.id);
+      if (currentElement?.parent_id) {
+        await addNewElement(currentElement.parent_id);
+      }
+    } else if (e.key === 'Enter') {
       e.preventDefault();
       saveEdit();
     } else if (e.key === 'Escape') {
