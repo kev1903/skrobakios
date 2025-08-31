@@ -253,6 +253,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   const addNewComponent = async (phaseId: string) => {
     try {
+      console.log('🔧 Starting addNewComponent for phase:', phaseId);
+      
       if (!currentCompany?.id) {
         console.error('No active company selected');
         return;
@@ -260,11 +262,18 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
       // Find the phase to get the proper WBS ID
       const phaseIndex = scopeData.findIndex(phase => phase.id === phaseId);
-      if (phaseIndex === -1) return;
+      console.log('📊 Found phase at index:', phaseIndex, 'for ID:', phaseId);
+      
+      if (phaseIndex === -1) {
+        console.error('Phase not found:', phaseId);
+        return;
+      }
 
       const phase = scopeData[phaseIndex];
       const componentCount = phase.components.length;
       const wbsId = `${phaseIndex + 1}.${componentCount + 1}`;
+      
+      console.log('🆔 Creating component with WBS ID:', wbsId);
 
       const inserted = await WBSService.createWBSItem({
         company_id: currentCompany.id,
@@ -291,6 +300,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         linked_tasks: []
       } as any);
 
+      console.log('✅ WBS item created:', inserted);
+
       const newComponent: ScopeComponent = {
         id: inserted.id,
         name: 'Untitled Component',
@@ -301,14 +312,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         elements: []
       };
 
-      setScopeData(prev => prev.map(phase => 
-        phase.id === phaseId 
-          ? { ...phase, components: [...phase.components, newComponent] }
-          : phase
-      ));
+      console.log('🔄 Updating state with new component:', newComponent);
+
+      setScopeData(prev => {
+        const updated = prev.map(phase => 
+          phase.id === phaseId 
+            ? { ...phase, components: [...phase.components, newComponent] }
+            : phase
+        );
+        console.log('📋 Updated scope data:', updated);
+        return updated;
+      });
+
+      console.log('🎉 Component added successfully');
 
     } catch (error) {
-      console.error('Error adding component:', error);
+      console.error('❌ Error adding component:', error);
     }
   };
 
