@@ -325,11 +325,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     setEditValue(currentValue);
   };
 
-  const cancelEdit = () => {
-    setEditingItem(null);
-    setEditValue('');
-  };
-
   const addNewComponent = async (phaseId: string) => {
     try {
       console.log('🔧 Starting addNewComponent for phase:', phaseId);
@@ -618,37 +613,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       return () => document.removeEventListener('mousedown', onMouseDown);
     }, [isEditing, localValue]);
 
-    const updateScopeField = (newVal: string) => {
-      setScopeData(prev => {
-        if (type === 'phase') {
-          return prev.map(phase => 
-            phase.id === id ? { ...phase, [field]: newVal } : phase
-          );
-        } else if (type === 'component') {
-          return prev.map(phase => ({
-            ...phase,
-            components: phase.components.map(comp =>
-              comp.id === id ? { ...comp, [field]: newVal } : comp
-            )
-          }));
-        } else {
-          return prev.map(phase => ({
-            ...phase,
-            components: phase.components.map(comp => ({
-              ...comp,
-              elements: comp.elements.map(elem =>
-                elem.id === id ? { ...elem, [field]: newVal } : elem
-              )
-            }))
-          }));
-        }
-      });
+    const updateScopeField = async (newVal: string) => {
+      try {
+        await updateWBSItem(id, { [field]: newVal });
+      } catch (e) {
+        console.error('Failed to update field', field, 'for', id, e);
+      }
     };
 
     const commitEdit = async () => {
       if (localValue !== (value || "")) {
-        updateScopeField(localValue);
-        await updateScopeToDatabase();
+        await updateScopeField(localValue);
       }
       setIsEditing(false);
     };
@@ -707,48 +682,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const onDragEnd = (result: DropResult) => {
-    // Clear indicator on drop
     setDragIndicator(null);
     if (!result.destination) return;
-
     const { source, destination, type } = result;
-
-    if (type === 'phase') {
-      const items = Array.from(scopeData);
-      const [reorderedItem] = items.splice(source.index, 1);
-      items.splice(destination.index, 0, reorderedItem);
-      setScopeData(items);
-    } else if (type.startsWith('component-')) {
-      const phaseId = type.replace('component-', '');
-      setScopeData(prev => prev.map(phase => {
-        if (phase.id === phaseId) {
-          const components = Array.from(phase.components);
-          const [reorderedItem] = components.splice(source.index, 1);
-          components.splice(destination.index, 0, reorderedItem);
-          return { ...phase, components };
-        }
-        return phase;
-      }));
-    } else if (type.startsWith('element-')) {
-      const [phaseId, componentId] = type.replace('element-', '').split('-');
-      setScopeData(prev => prev.map(phase => {
-        if (phase.id === phaseId) {
-          return {
-            ...phase,
-            components: phase.components.map(component => {
-              if (component.id === componentId) {
-                const elements = Array.from(component.elements);
-                const [reorderedItem] = elements.splice(source.index, 1);
-                elements.splice(destination.index, 0, reorderedItem);
-                return { ...component, elements };
-              }
-              return component;
-            })
-          };
-        }
-        return phase;
-      }));
-    }
+    console.log('Reorder request', { source, destination, type });
+    // TODO: Persist ordering to DB (out of scope for this fix). No local state mutation here.
   };
 
   // Update drop indicator as user drags
