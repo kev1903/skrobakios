@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { ModernGanttChart, ModernGanttTask } from '@/components/timeline/ModernGanttChart';
@@ -9,6 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { addDays } from 'date-fns';
+import { useWBS } from '@/hooks/useWBS';
+import { WBSItem } from '@/types/wbs';
 
 interface ProjectSchedulePageProps {
   project: Project;
@@ -20,250 +22,110 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   const { fullHeightClasses } = useMenuBarSpacing('project-schedule');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedView, setSelectedView] = useState<'gantt' | 'calendar'>('gantt');
+  
+  // Use WBS data from the scope table as the main repository
+  const { wbsItems, loading, updateWBSItem } = useWBS(project.id);
+  const [tasks, setTasks] = useState<ModernGanttTask[]>([]);
 
-  // Sample tasks based on construction project - WBS style with Stage/Component/Element hierarchy
-  const [tasks, setTasks] = useState<ModernGanttTask[]>([
-    // ============ STAGE 1: DESIGN & PLANNING ============
-    {
-      id: 'stage-1',
-      name: 'DESIGN & PLANNING PHASE',
-      startDate: addDays(new Date(), 0),
-      endDate: addDays(new Date(), 30),
-      progress: 65,
-      status: 'in-progress',
-      assignee: 'PM',
-      duration: '30 days',
-      category: 'Design',
-      isStage: true,
-      level: 0,
-      wbs: '1.0'
-    },
-    // Component 1.1
-    {
-      id: 'comp-1.1',
-      name: 'Roof Drainage Design',
-      startDate: addDays(new Date(), 1),
-      endDate: addDays(new Date(), 10),
-      progress: 80,
-      status: 'in-progress',
-      assignee: 'RD',
-      duration: '10 days',
-      category: 'Design',
-      parentId: 'stage-1',
-      level: 1,
-      wbs: '1.1'
-    },
-    // Elements under Component 1.1
-    {
-      id: 'elem-1.1.1',
-      name: 'Design Development',
-      startDate: addDays(new Date(), 1),
-      endDate: addDays(new Date(), 5),
-      progress: 100,
-      status: 'completed',
-      assignee: 'SM',
-      duration: '5 days',
-      category: 'Design',
-      parentId: 'comp-1.1',
-      level: 2,
-      wbs: '1.1.1'
-    },
-    {
-      id: 'elem-1.1.2',
-      name: 'Technical Documentation',
-      startDate: addDays(new Date(), 6),
-      endDate: addDays(new Date(), 10),
-      progress: 60,
-      status: 'in-progress',
-      assignee: 'TD',
-      duration: '5 days',
-      category: 'Design',
-      parentId: 'comp-1.1',
-      level: 2,
-      wbs: '1.1.2'
-    },
-    // Component 1.2
-    {
-      id: 'comp-1.2',
-      name: 'Site Preparation Planning',
-      startDate: addDays(new Date(), 11),
-      endDate: addDays(new Date(), 20),
-      progress: 40,
-      status: 'in-progress',
-      assignee: 'SP',
-      duration: '10 days',
-      category: 'Planning',
-      parentId: 'stage-1',
-      level: 1,
-      wbs: '1.2'
-    },
-    // Elements under Component 1.2
-    {
-      id: 'elem-1.2.1',
-      name: 'Site Survey',
-      startDate: addDays(new Date(), 11),
-      endDate: addDays(new Date(), 15),
-      progress: 70,
-      status: 'in-progress',
-      assignee: 'SS',
-      duration: '5 days',
-      category: 'Survey',
-      parentId: 'comp-1.2',
-      level: 2,
-      wbs: '1.2.1'
-    },
-    {
-      id: 'elem-1.2.2',
-      name: 'Permits & Approvals',
-      startDate: addDays(new Date(), 16),
-      endDate: addDays(new Date(), 20),
-      progress: 20,
-      status: 'in-progress',
-      assignee: 'PA',
-      duration: '5 days',
-      category: 'Legal',
-      parentId: 'comp-1.2',
-      level: 2,
-      wbs: '1.2.2'
-    },
+  // Convert WBS items to Gantt tasks
+  const convertWBSToTasks = (wbsItems: WBSItem[]): ModernGanttTask[] => {
+    return wbsItems.map(item => {
+      const getStatusFromWBS = (status?: string) => {
+        switch (status) {
+          case 'Completed': return 'completed';
+          case 'In Progress': return 'in-progress';
+          case 'On Hold': return 'delayed'; // Map 'On Hold' to 'delayed' since 'on-hold' isn't supported
+          case 'Delayed': return 'delayed';
+          default: return 'pending';
+        }
+      };
 
-    // ============ STAGE 2: CONSTRUCTION ============
-    {
-      id: 'stage-2',
-      name: 'CONSTRUCTION PHASE',
-      startDate: addDays(new Date(), 31),
-      endDate: addDays(new Date(), 80),
-      progress: 25,
-      status: 'pending',
-      assignee: 'CM',
-      duration: '50 days',
-      category: 'Construction',
-      isStage: true,
-      level: 0,
-      wbs: '2.0'
-    },
-    // Component 2.1
-    {
-      id: 'comp-2.1',
-      name: 'Foundation Work',
-      startDate: addDays(new Date(), 31),
-      endDate: addDays(new Date(), 40),
-      progress: 30,
-      status: 'in-progress',
-      assignee: 'FW',
-      duration: '10 days',
-      category: 'Foundation',
-      parentId: 'stage-2',
-      level: 1,
-      wbs: '2.1'
-    },
-    // Elements under Component 2.1
-    {
-      id: 'elem-2.1.1',
-      name: 'Excavation',
-      startDate: addDays(new Date(), 31),
-      endDate: addDays(new Date(), 35),
-      progress: 60,
-      status: 'in-progress',
-      assignee: 'EX',
-      duration: '5 days',
-      category: 'Excavation',
-      parentId: 'comp-2.1',
-      level: 2,
-      wbs: '2.1.1'
-    },
-    {
-      id: 'elem-2.1.2',
-      name: 'Concrete Pouring',
-      startDate: addDays(new Date(), 36),
-      endDate: addDays(new Date(), 40),
-      progress: 0,
-      status: 'pending',
-      assignee: 'CP',
-      duration: '5 days',
-      category: 'Concrete',
-      parentId: 'comp-2.1',
-      level: 2,
-      wbs: '2.1.2'
-    },
+      const getCategoryFromLevel = (level: number) => {
+        switch (level) {
+          case 0: return 'Stage';
+          case 1: return 'Component';
+          case 2: return 'Element';
+          default: return 'Task';
+        }
+      };
 
-    // ============ STAGE 3: QUALITY & COMPLETION ============
-    {
-      id: 'stage-3',
-      name: 'QUALITY & COMPLETION PHASE',
-      startDate: addDays(new Date(), 81),
-      endDate: addDays(new Date(), 95),
-      progress: 0,
-      status: 'pending',
-      assignee: 'QM',
-      duration: '15 days',
-      category: 'Quality',
-      isStage: true,
-      level: 0,
-      wbs: '3.0'
-    },
-    // Component 3.1
-    {
-      id: 'comp-3.1',
-      name: 'Final Inspections',
-      startDate: addDays(new Date(), 81),
-      endDate: addDays(new Date(), 88),
-      progress: 0,
-      status: 'pending',
-      assignee: 'FI',
-      duration: '8 days',
-      category: 'Inspection',
-      parentId: 'stage-3',
-      level: 1,
-      wbs: '3.1'
-    },
-    // Elements under Component 3.1
-    {
-      id: 'elem-3.1.1',
-      name: 'Structural Inspection',
-      startDate: addDays(new Date(), 81),
-      endDate: addDays(new Date(), 83),
-      progress: 0,
-      status: 'pending',
-      assignee: 'SI',
-      duration: '3 days',
-      category: 'Structural',
-      parentId: 'comp-3.1',
-      level: 2,
-      wbs: '3.1.1'
-    },
-    {
-      id: 'elem-3.1.2',
-      name: 'Safety Compliance Check',
-      startDate: addDays(new Date(), 84),
-      endDate: addDays(new Date(), 88),
-      progress: 0,
-      status: 'pending',
-      assignee: 'SC',
-      duration: '5 days',
-      category: 'Safety',
-      parentId: 'comp-3.1',
-      level: 2,
-      wbs: '3.1.2'
+      return {
+        id: item.id,
+        name: item.title,
+        startDate: item.start_date ? new Date(item.start_date) : addDays(new Date(), 0),
+        endDate: item.end_date ? new Date(item.end_date) : addDays(new Date(), item.duration || 7),
+        progress: item.progress || 0,
+        status: getStatusFromWBS(item.status),
+        assignee: item.assigned_to || 'Unassigned',
+        duration: `${item.duration || 0} days`,
+        category: getCategoryFromLevel(item.level),
+        isStage: item.level === 0,
+        level: item.level,
+        wbs: item.wbs_id,
+        parentId: item.parent_id || undefined
+      };
+    });
+  };
+
+  // Update tasks when WBS items change
+  useEffect(() => {
+    if (wbsItems && wbsItems.length > 0) {
+      const convertedTasks = convertWBSToTasks(wbsItems);
+      setTasks(convertedTasks);
     }
-  ]);
+  }, [wbsItems]);
 
-  const handleTaskUpdate = (taskId: string, updates: Partial<ModernGanttTask>) => {
+  const handleTaskUpdate = async (taskId: string, updates: Partial<ModernGanttTask>) => {
+    // Update local state immediately for responsiveness
     setTasks(prev => prev.map(task => 
       task.id === taskId ? { ...task, ...updates } : task
     ));
+
+    // Convert Gantt updates back to WBS format and update database
+    try {
+      const wbsUpdates: Partial<WBSItem> = {};
+      
+      if (updates.name) wbsUpdates.title = updates.name;
+      if (updates.progress !== undefined) wbsUpdates.progress = updates.progress;
+      if (updates.assignee) wbsUpdates.assigned_to = updates.assignee;
+      if (updates.startDate) wbsUpdates.start_date = updates.startDate.toISOString().split('T')[0];
+      if (updates.endDate) wbsUpdates.end_date = updates.endDate.toISOString().split('T')[0];
+      
+      if (updates.status) {
+        switch (updates.status) {
+          case 'completed': wbsUpdates.status = 'Completed'; break;
+          case 'in-progress': wbsUpdates.status = 'In Progress'; break;
+          case 'delayed': wbsUpdates.status = 'Delayed'; break;
+          default: wbsUpdates.status = 'Not Started'; break;
+        }
+      }
+
+      if (Object.keys(wbsUpdates).length > 0) {
+        await updateWBSItem(taskId, wbsUpdates);
+      }
+    } catch (error) {
+      console.error('Error updating WBS item:', error);
+      // Revert the local change if the update failed
+      setTasks(prev => convertWBSToTasks(wbsItems || []));
+    }
   };
 
   const handleTaskAdd = (newTask: Omit<ModernGanttTask, 'id'>) => {
+    // For now, just add to local state - in a full implementation,
+    // this would create a new WBS item in the database
     const id = `task-${Date.now()}`;
     setTasks(prev => [...prev, { ...newTask, id }]);
   };
 
   const handleTaskDelete = (taskId: string) => {
+    // For now, just remove from local state - in a full implementation,
+    // this would delete the WBS item from the database
     setTasks(prev => prev.filter(task => task.id !== taskId));
   };
 
   const handleTaskReorder = (reorderedTasks: ModernGanttTask[]) => {
+    // For now, just update local state - in a full implementation,
+    // this would update the sort order in the database
     setTasks(reorderedTasks);
   };
 
