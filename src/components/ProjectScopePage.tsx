@@ -1153,7 +1153,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                  className="font-medium text-xs"
                                />
                              </div>
-                             <div className="px-3 py-2 text-muted-foreground text-xs ml-8 truncate">
+                             <div className="px-3 py-2 text-muted-foreground text-xs truncate">
                                <EditableCell
                                  id={component.id}
                                  type="component"
@@ -1271,7 +1271,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                              className="font-medium text-xs text-muted-foreground"
                                                            />
                                                          </div>
-                                                         <div className="px-3 py-2 text-muted-foreground text-xs ml-12 truncate">
+                                                         <div className="px-3 py-2 text-muted-foreground text-xs truncate">
                                                            <EditableCell
                                                              id={element.id}
                                                              type="element"
@@ -1298,7 +1298,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                              />
                                                           </div>
                                                         </div>
-                                                          <div className="px-2 py-2 text-muted-foreground text-xs truncate ml-12">
+                                                          <div className="px-2 py-2 text-muted-foreground text-xs truncate">
                                                            <EditableCell
                                                              id={element.id}
                                                              type="element"
@@ -1308,7 +1308,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                              className="text-xs text-muted-foreground"
                                                            />
                                                          </div>
-                                                         <div className="px-2 py-2 text-muted-foreground text-xs truncate ml-12">
+                                                         <div className="px-2 py-2 text-muted-foreground text-xs truncate">
                                                            <EditableCell
                                                              id={element.id}
                                                              type="element"
