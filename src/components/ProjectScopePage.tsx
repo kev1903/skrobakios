@@ -761,7 +761,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               {/* Header */}
               <div
                 className="bg-muted/40 border-b border-border grid text-left text-xs font-medium text-muted-foreground uppercase tracking-wider"
-                style={{ gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px' }}
+                style={{ gridTemplateColumns: '32px 88px 280px 1fr 140px 120px 160px 160px 84px' }}
               >
                 <div className="px-2 py-2" />
                 <div className="px-2 py-2">WBS</div>
@@ -801,7 +801,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                    snapshotDraggable.isDragging ? 'shadow-xl bg-card border-slate-700 z-50' : ''
                                  }`}
                                 style={{
-                                  gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px',
+                                  gridTemplateColumns: '32px 88px 280px 1fr 140px 120px 160px 160px 84px',
                                   ...providedDraggable.draggableProps.style,
                                 }}
                               >
@@ -932,7 +932,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 componentSnapshot2.isDragging ? 'shadow-xl bg-card border-slate-500 z-40' : ''
                                               }`}
                                             style={{
-                                              gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px',
+                                              gridTemplateColumns: '32px 88px 280px 1fr 140px 120px 160px 160px 84px',
                                               ...componentDragProvided.draggableProps.style,
                                             }}
                                           >
@@ -948,7 +948,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                               </div>
                                             </div>
                                              <div className="px-2 py-2">
-                                               <div className="flex items-center ml-3">
+                                               <div className="flex items-center ml-1">
                                                  <button 
                                                    onClick={() => toggleComponent(phase.id, component.id, component.isExpanded)} 
                                                    className="p-1 hover:bg-blue-100 rounded transition-colors duration-200 mr-2 border border-transparent hover:border-blue-200" 
@@ -1059,7 +1059,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             elementSnapshot2.isDragging ? 'shadow-lg bg-card border-slate-400 z-30' : ''
                                                           }`}
                                                         style={{
-                                                          gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px',
+                                                          gridTemplateColumns: '32px 88px 280px 1fr 140px 120px 160px 160px 84px',
                                                           ...elementDragProvided.draggableProps.style,
                                                         }}
                                                       >
