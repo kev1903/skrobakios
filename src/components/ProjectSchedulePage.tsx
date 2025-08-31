@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
-import { ResponsiveTimelineView } from "@/components/timeline/ResponsiveTimelineView";
 import { useScreenSize } from "@/hooks/use-mobile";
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Menu, X, Calendar, Plus, Filter, Download, Clock } from "lucide-react";
+import { Menu, Plus, Filter, Download } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 interface ProjectSchedulePageProps {
@@ -132,65 +130,6 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
           </div>
         </div>
 
-        {/* Schedule Content */}
-        <div className="flex-1 px-6 py-4 bg-white">
-          <div className="space-y-6">
-            {/* Schedule Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Project Duration</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-gray-900">180 days</div>
-                  <p className="text-xs text-gray-500 mt-1">Planned timeline</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Tasks Completed</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-green-600">45/87</div>
-                  <p className="text-xs text-gray-500 mt-1">52% complete</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-600">Critical Path</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-orange-600">15 days</div>
-                  <p className="text-xs text-gray-500 mt-1">Behind schedule</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Timeline Component */}
-            <Card className="overflow-hidden">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold">Project Timeline</CardTitle>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Calendar View
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="p-0">
-                <ResponsiveTimelineView
-                  projectId={project.id}
-                  projectName={project.name}
-                  companyId={project.company_id}
-                />
-              </CardContent>
-            </Card>
-          </div>
-        </div>
       </main>
     </div>
   );
