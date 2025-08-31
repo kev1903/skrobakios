@@ -744,9 +744,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button onClick={saveScopeToDatabase} variant="outline" size="sm" className="font-inter text-xs">
-                    Save to Database
-                  </Button>
                   <Button size="sm" className="font-inter text-xs" onClick={addNewPhase}>
                     <Plus className="w-3 h-3 mr-1" />
                     Add Phase
