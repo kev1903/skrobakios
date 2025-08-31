@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { addDays } from 'date-fns';
 import { useWBS } from '@/hooks/useWBS';
 import { WBSItem } from '@/types/wbs';
+import { flattenWBSHierarchy } from '@/utils/wbsUtils';
 
 interface ProjectSchedulePageProps {
   project: Project;
@@ -70,7 +71,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   // Update tasks when WBS items change
   useEffect(() => {
     if (wbsItems && wbsItems.length > 0) {
-      const convertedTasks = convertWBSToTasks(wbsItems);
+      // Flatten the hierarchical structure to show all levels (Stages, Components, Elements)
+      const flattenedItems = flattenWBSHierarchy(wbsItems);
+      const convertedTasks = convertWBSToTasks(flattenedItems);
       setTasks(convertedTasks);
     }
   }, [wbsItems]);

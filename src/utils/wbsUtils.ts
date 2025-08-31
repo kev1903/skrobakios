@@ -115,3 +115,20 @@ export const removeItemRecursively = (items: WBSItem[], id: string): WBSItem[] =
     return true;
   });
 };
+
+// Flatten hierarchical WBS structure to include all levels (Stages, Components, Elements)
+export const flattenWBSHierarchy = (items: WBSItem[]): WBSItem[] => {
+  const flatItems: WBSItem[] = [];
+  
+  const flatten = (itemList: WBSItem[]) => {
+    itemList.forEach(item => {
+      flatItems.push(item);
+      if (item.children && item.children.length > 0) {
+        flatten(item.children);
+      }
+    });
+  };
+  
+  flatten(items);
+  return flatItems;
+};
