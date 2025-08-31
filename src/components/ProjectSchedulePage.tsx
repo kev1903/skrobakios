@@ -175,6 +175,34 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     }
   };
 
+  // Expand and collapse all functions
+  const handleExpandAll = () => {
+    // Find all tasks with children and expand them
+    const tasksWithChildren = new Set<string>();
+    const flatTasks = wbsItems ? flattenWBSHierarchy(wbsItems) : [];
+    
+    flatTasks.forEach(task => {
+      const hasChildren = flatTasks.some(t => t.parent_id === task.id);
+      if (hasChildren) {
+        tasksWithChildren.add(task.id);
+      }
+    });
+    
+    // Update the tasks state to mark them as expanded
+    setTasks(prev => prev.map(task => ({
+      ...task,
+      expanded: tasksWithChildren.has(task.id)
+    })));
+  };
+
+  const handleCollapseAll = () => {
+    // Collapse all tasks
+    setTasks(prev => prev.map(task => ({
+      ...task,
+      expanded: false
+    })));
+  };
+
   const handleTaskReorder = (reorderedTasks: ModernGanttTask[]) => {
     // For now, just update local state - in a full implementation,
     // this would update the sort order in the database
@@ -278,11 +306,23 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" className="font-inter text-xs h-7 w-7 sm:w-auto sm:h-auto p-1 sm:px-3 sm:py-2" title="Expand All">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="font-inter text-xs h-7 w-7 sm:w-auto sm:h-auto p-1 sm:px-3 sm:py-2" 
+                  title="Expand All"
+                  onClick={handleExpandAll}
+                >
                   <ChevronsDown className="w-3 h-3" />
                   <span className="hidden sm:inline ml-1">Expand</span>
                 </Button>
-                <Button size="sm" variant="outline" className="font-inter text-xs h-7 w-7 sm:w-auto sm:h-auto p-1 sm:px-3 sm:py-2" title="Collapse All">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="font-inter text-xs h-7 w-7 sm:w-auto sm:h-auto p-1 sm:px-3 sm:py-2" 
+                  title="Collapse All"
+                  onClick={handleCollapseAll}
+                >
                   <ChevronsUp className="w-3 h-3" />
                   <span className="hidden sm:inline ml-1">Collapse</span>
                 </Button>
@@ -307,6 +347,8 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                     onTaskAdd={handleTaskAdd}
                     onTaskDelete={handleTaskDelete}
                     onTaskReorder={handleTaskReorder}
+                    onExpandAll={handleExpandAll}
+                    onCollapseAll={handleCollapseAll}
                     hideToolbar
                     hideTabs
                   />

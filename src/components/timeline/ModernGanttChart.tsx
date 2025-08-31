@@ -39,6 +39,8 @@ interface ModernGanttChartProps {
   onTaskAdd?: (task: Omit<ModernGanttTask, 'id'>) => void;
   onTaskDelete?: (taskId: string) => void;
   onTaskReorder?: (reorderedTasks: ModernGanttTask[]) => void;
+  onExpandAll?: () => void;
+  onCollapseAll?: () => void;
   hideToolbar?: boolean;
   hideTabs?: boolean;
 }
@@ -49,6 +51,8 @@ export const ModernGanttChart = ({
   onTaskAdd,
   onTaskDelete,
   onTaskReorder,
+  onExpandAll,
+  onCollapseAll,
   hideToolbar = false,
   hideTabs = false,
 }: ModernGanttChartProps) => {
@@ -272,6 +276,27 @@ export const ModernGanttChart = ({
       newExpanded.add(taskId);
     }
     setExpandedSections(newExpanded);
+  };
+
+  // Expand all sections
+  const expandAll = () => {
+    const allParentTaskIds = new Set<string>();
+    tasks.forEach(task => {
+      if (task.parentId) return; // Skip child tasks
+      // Find all tasks that have children
+      const hasChildren = tasks.some(t => t.parentId === task.id);
+      if (hasChildren) {
+        allParentTaskIds.add(task.id);
+      }
+    });
+    setExpandedSections(allParentTaskIds);
+    if (onExpandAll) onExpandAll();
+  };
+
+  // Collapse all sections  
+  const collapseAll = () => {
+    setExpandedSections(new Set());
+    if (onCollapseAll) onCollapseAll();
   };
 
   // Helper functions for date and duration management
