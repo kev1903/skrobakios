@@ -4,6 +4,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautif
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -286,6 +287,35 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       }
     }
   };
+
+  const statusOptions = ['Not Started', 'In Progress', 'Completed', 'On Hold'] as const;
+
+  const StatusSelect = ({ 
+    value, 
+    onChange, 
+    className = "" 
+  }: { 
+    value: string; 
+    onChange: (value: string) => void;
+    className?: string;
+  }) => (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className={`h-6 text-xs border-0 bg-transparent hover:bg-accent/50 focus:ring-0 focus:ring-offset-0 ${className}`}>
+        <div className={`px-2 py-0.5 rounded-md text-xs ${getStatusColor(value)}`}>
+          <SelectValue />
+        </div>
+      </SelectTrigger>
+      <SelectContent className="min-w-32 bg-background border shadow-lg z-50">
+        {statusOptions.map((status) => (
+          <SelectItem key={status} value={status} className="text-xs">
+            <div className={`px-2 py-0.5 rounded-md ${getStatusColor(status)}`}>
+              {status}
+            </div>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
 
   const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element') => {
     switch (action) {
@@ -884,7 +914,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                     className="text-xs text-muted-foreground"
                                   />
                                 </div>
-                                <div className="px-2 py-2"><Badge variant="outline" className={`${getStatusColor(phase.status)} text-xs px-2 py-0.5`}>{phase.status}</Badge></div>
+                                <div className="px-2 py-2">
+                                  <StatusSelect 
+                                    value={phase.status} 
+                                    onChange={(newStatus) => updateWBSItem(phase.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
+                                  />
+                                </div>
                                 <div className="px-2 py-2">
                                   <div className="flex items-center gap-1">
                                     <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
@@ -1016,7 +1051,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 className="text-xs text-muted-foreground"
                                               />
                                             </div>
-                                            <div className="px-2 py-2"><Badge variant="outline" className={`${getStatusColor(component.status)} text-xs px-1 py-0`}>{component.status}</Badge></div>
+                                            <div className="px-2 py-2">
+                                              <StatusSelect 
+                                                value={component.status} 
+                                                onChange={(newStatus) => updateWBSItem(component.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
+                                              />
+                                            </div>
                                              <div className="px-2 py-2">
                                               <div className="flex items-center gap-1">
                                                 <div className="w-10 h-1 bg-muted rounded-full overflow-hidden">
@@ -1127,7 +1167,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             className="text-xs text-muted-foreground"
                                                           />
                                                         </div>
-                                                        <div className="px-2 py-2"><Badge variant="outline" className={`${getStatusColor(element.status)} text-xs px-1 py-0`}>{element.status}</Badge></div>
+                                                        <div className="px-2 py-2">
+                                                          <StatusSelect 
+                                                            value={element.status} 
+                                                            onChange={(newStatus) => updateWBSItem(element.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
+                                                          />
+                                                        </div>
                                                          <div className="px-2 py-2">
                                                           <div className="flex items-center gap-1">
                                                             <div className="w-8 h-1 bg-muted rounded-full overflow-hidden">
