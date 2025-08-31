@@ -28,6 +28,7 @@ export interface ModernGanttTask {
   category?: string;
   parentId?: string;
   isStage?: boolean;
+  level?: number; // 0 = Stage, 1 = Component, 2 = Element
   children?: ModernGanttTask[];
 }
 
@@ -955,16 +956,16 @@ export const ModernGanttChart = ({
               )}
               {/* Column Headers */}
                <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-                <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: '680px' }}>
-                  <div></div>
-                  <div className="text-center">#</div>
-                  <div className="text-left">Task name</div>
-                  <div className="text-left">Start</div>
-                  <div className="text-left">End</div>
-                  <div className="text-left">Duration</div>
-                  <div className="text-left">Predecessors</div>
-                  <div className="text-left">Status</div>
-                </div>
+                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: '20px 64px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: '680px' }}>
+                   <div></div>
+                   <div className="text-left">WBS</div>
+                   <div className="text-left">Name</div>
+                   <div className="text-left">Start</div>
+                   <div className="text-left">End</div>
+                   <div className="text-left">Duration</div>
+                   <div className="text-left">Predecessors</div>
+                   <div className="text-left">Status</div>
+                 </div>
               </div>
             </div>
 
@@ -1014,7 +1015,7 @@ export const ModernGanttChart = ({
                         {task.rowNumber}
                       </div>
                      
-                     {/* Task Title with hierarchy */}
+                     {/* Task Name with hierarchy */}
                      <div className="flex items-center gap-2 min-w-0">
                       <div style={{ paddingLeft: `${task.depth * 24}px` }} className="flex items-center gap-2 min-w-0 w-full">
                         {task.hasChildren && (

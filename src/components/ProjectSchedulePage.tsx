@@ -21,7 +21,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedView, setSelectedView] = useState<'gantt' | 'calendar'>('gantt');
 
-  // Sample tasks based on construction project - WBS style
+  // Sample tasks based on construction project - WBS style with Stage/Component/Element hierarchy
   const [tasks, setTasks] = useState<ModernGanttTask[]>([
     // ============ STAGE 1: DESIGN & PLANNING ============
     {
@@ -34,10 +34,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'PM',
       duration: '30 days',
       category: 'Design',
-      isStage: true
+      isStage: true,
+      level: 0,
+      wbs: '1.0'
     },
+    // Component 1.1
     {
-      id: 'parent-1.1',
+      id: 'comp-1.1',
       name: 'Roof Drainage Design',
       startDate: addDays(new Date(), 1),
       endDate: addDays(new Date(), 10),
@@ -46,10 +49,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'RD',
       duration: '10 days',
       category: 'Design',
-      parentId: 'stage-1'
+      parentId: 'stage-1',
+      level: 1,
+      wbs: '1.1'
     },
+    // Elements under Component 1.1
     {
-      id: 'child-1.1.1',
+      id: 'elem-1.1.1',
       name: 'Design Development',
       startDate: addDays(new Date(), 1),
       endDate: addDays(new Date(), 5),
@@ -58,10 +64,12 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'SM',
       duration: '5 days',
       category: 'Design',
-      parentId: 'parent-1.1'
+      parentId: 'comp-1.1',
+      level: 2,
+      wbs: '1.1.1'
     },
     {
-      id: 'child-1.1.2',
+      id: 'elem-1.1.2',
       name: 'Technical Documentation',
       startDate: addDays(new Date(), 6),
       endDate: addDays(new Date(), 10),
@@ -70,10 +78,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'TD',
       duration: '5 days',
       category: 'Design',
-      parentId: 'parent-1.1'
+      parentId: 'comp-1.1',
+      level: 2,
+      wbs: '1.1.2'
     },
+    // Component 1.2
     {
-      id: 'parent-1.2',
+      id: 'comp-1.2',
       name: 'Site Preparation Planning',
       startDate: addDays(new Date(), 11),
       endDate: addDays(new Date(), 20),
@@ -82,10 +93,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'SP',
       duration: '10 days',
       category: 'Planning',
-      parentId: 'stage-1'
+      parentId: 'stage-1',
+      level: 1,
+      wbs: '1.2'
     },
+    // Elements under Component 1.2
     {
-      id: 'child-1.2.1',
+      id: 'elem-1.2.1',
       name: 'Site Survey',
       startDate: addDays(new Date(), 11),
       endDate: addDays(new Date(), 15),
@@ -94,10 +108,12 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'SS',
       duration: '5 days',
       category: 'Survey',
-      parentId: 'parent-1.2'
+      parentId: 'comp-1.2',
+      level: 2,
+      wbs: '1.2.1'
     },
     {
-      id: 'child-1.2.2',
+      id: 'elem-1.2.2',
       name: 'Permits & Approvals',
       startDate: addDays(new Date(), 16),
       endDate: addDays(new Date(), 20),
@@ -106,7 +122,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'PA',
       duration: '5 days',
       category: 'Legal',
-      parentId: 'parent-1.2'
+      parentId: 'comp-1.2',
+      level: 2,
+      wbs: '1.2.2'
     },
 
     // ============ STAGE 2: CONSTRUCTION ============
@@ -120,10 +138,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'CM',
       duration: '50 days',
       category: 'Construction',
-      isStage: true
+      isStage: true,
+      level: 0,
+      wbs: '2.0'
     },
+    // Component 2.1
     {
-      id: 'parent-2.1',
+      id: 'comp-2.1',
       name: 'Foundation Work',
       startDate: addDays(new Date(), 31),
       endDate: addDays(new Date(), 40),
@@ -132,10 +153,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'FW',
       duration: '10 days',
       category: 'Foundation',
-      parentId: 'stage-2'
+      parentId: 'stage-2',
+      level: 1,
+      wbs: '2.1'
     },
+    // Elements under Component 2.1
     {
-      id: 'child-2.1.1',
+      id: 'elem-2.1.1',
       name: 'Excavation',
       startDate: addDays(new Date(), 31),
       endDate: addDays(new Date(), 35),
@@ -144,10 +168,12 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'EX',
       duration: '5 days',
       category: 'Excavation',
-      parentId: 'parent-2.1'
+      parentId: 'comp-2.1',
+      level: 2,
+      wbs: '2.1.1'
     },
     {
-      id: 'child-2.1.2',
+      id: 'elem-2.1.2',
       name: 'Concrete Pouring',
       startDate: addDays(new Date(), 36),
       endDate: addDays(new Date(), 40),
@@ -156,55 +182,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'CP',
       duration: '5 days',
       category: 'Concrete',
-      parentId: 'parent-2.1'
-    },
-    {
-      id: 'parent-2.2',
-      name: 'Timber Framing',
-      startDate: addDays(new Date(), 41),
-      endDate: addDays(new Date(), 60),
-      progress: 15,
-      status: 'pending',
-      assignee: 'TF',
-      duration: '20 days',
-      category: 'Framing',
-      parentId: 'stage-2'
-    },
-    {
-      id: 'child-2.2.1',
-      name: 'Frame Assembly',
-      startDate: addDays(new Date(), 41),
-      endDate: addDays(new Date(), 50),
-      progress: 25,
-      status: 'pending',
-      assignee: 'FA',
-      duration: '10 days',
-      category: 'Assembly',
-      parentId: 'parent-2.2'
-    },
-    {
-      id: 'child-2.2.2',
-      name: 'Timber Installation',
-      startDate: addDays(new Date(), 51),
-      endDate: addDays(new Date(), 55),
-      progress: 0,
-      status: 'pending',
-      assignee: 'TI',
-      duration: '5 days',
-      category: 'Installation',
-      parentId: 'parent-2.2'
-    },
-    {
-      id: 'child-2.2.3',
-      name: 'Finishing & Sanding',
-      startDate: addDays(new Date(), 56),
-      endDate: addDays(new Date(), 60),
-      progress: 0,
-      status: 'pending',
-      assignee: 'FS',
-      duration: '5 days',
-      category: 'Finishing',
-      parentId: 'parent-2.2'
+      parentId: 'comp-2.1',
+      level: 2,
+      wbs: '2.1.2'
     },
 
     // ============ STAGE 3: QUALITY & COMPLETION ============
@@ -218,10 +198,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'QM',
       duration: '15 days',
       category: 'Quality',
-      isStage: true
+      isStage: true,
+      level: 0,
+      wbs: '3.0'
     },
+    // Component 3.1
     {
-      id: 'parent-3.1',
+      id: 'comp-3.1',
       name: 'Final Inspections',
       startDate: addDays(new Date(), 81),
       endDate: addDays(new Date(), 88),
@@ -230,10 +213,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'FI',
       duration: '8 days',
       category: 'Inspection',
-      parentId: 'stage-3'
+      parentId: 'stage-3',
+      level: 1,
+      wbs: '3.1'
     },
+    // Elements under Component 3.1
     {
-      id: 'child-3.1.1',
+      id: 'elem-3.1.1',
       name: 'Structural Inspection',
       startDate: addDays(new Date(), 81),
       endDate: addDays(new Date(), 83),
@@ -242,10 +228,12 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'SI',
       duration: '3 days',
       category: 'Structural',
-      parentId: 'parent-3.1'
+      parentId: 'comp-3.1',
+      level: 2,
+      wbs: '3.1.1'
     },
     {
-      id: 'child-3.1.2',
+      id: 'elem-3.1.2',
       name: 'Safety Compliance Check',
       startDate: addDays(new Date(), 84),
       endDate: addDays(new Date(), 88),
@@ -254,7 +242,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       assignee: 'SC',
       duration: '5 days',
       category: 'Safety',
-      parentId: 'parent-3.1'
+      parentId: 'comp-3.1',
+      level: 2,
+      wbs: '3.1.2'
     }
   ]);
 
