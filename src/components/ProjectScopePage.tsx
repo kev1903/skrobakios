@@ -928,7 +928,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                            <div
                                              ref={componentDragProvided.innerRef}
                                              {...componentDragProvided.draggableProps}
-                                              className={`grid items-center bg-slate-100 border-l-3 border-l-slate-500 hover:bg-slate-150 ${
+                                              className={`grid items-center bg-slate-100 border-l-[3px] border-l-slate-500 hover:bg-slate-200 ${
                                                 componentSnapshot2.isDragging ? 'shadow-xl bg-card border-slate-500 z-40' : ''
                                               }`}
                                             style={{
