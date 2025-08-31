@@ -70,10 +70,15 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
 
   // Update tasks when WBS items change
   useEffect(() => {
+    console.log('📋 WBS items received:', wbsItems?.length || 0, 'items');
     if (wbsItems && wbsItems.length > 0) {
       // Flatten the hierarchical structure to show all levels (Stages, Components, Elements)
       const flattenedItems = flattenWBSHierarchy(wbsItems);
+      console.log('📊 Flattened items:', flattenedItems.length, 'total items');
+      flattenedItems.forEach(item => console.log(`  ${item.wbs_id}: ${item.title} (Level ${item.level})`));
+      
       const convertedTasks = convertWBSToTasks(flattenedItems);
+      console.log('🎯 Converted to', convertedTasks.length, 'Gantt tasks');
       setTasks(convertedTasks);
     }
   }, [wbsItems]);

@@ -6,6 +6,8 @@ import { createSampleWBSData } from '@/data/wbsSampleData';
 export class WBSService {
   // Load WBS items for a project
   static async loadWBSItems(projectId: string, companyId: string): Promise<WBSItem[]> {
+    console.log('🔍 Loading WBS items for project:', projectId);
+    
     const { data, error } = await supabase
       .from('wbs_items')
       .select('*')
@@ -15,13 +17,20 @@ export class WBSService {
 
     if (error) throw error;
 
+    console.log('📊 Raw WBS data from database:', data?.length || 0, 'items');
+    data?.forEach(item => console.log(`  ${item.wbs_id}: ${item.title} (Level ${item.level})`));
+
     // If no data exists, create sample data
     if (!data || data.length === 0) {
+      console.log('🏗️ No WBS data found, creating sample data...');
       const sampleData = await createSampleWBSData(projectId, companyId);
       return buildHierarchy(sampleData);
     }
 
-    return buildHierarchy(data);
+    // Build and return hierarchy
+    const hierarchyData = buildHierarchy(data);
+    console.log('🌳 Built hierarchy with', hierarchyData.length, 'root items');
+    return hierarchyData;
   }
 
   // Create a new WBS item
