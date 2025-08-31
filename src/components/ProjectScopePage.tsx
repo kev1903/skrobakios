@@ -17,6 +17,8 @@ import { useScreenSize } from '@/hooks/use-mobile';
 import { createPortal } from 'react-dom';
 import { useCompany } from '@/contexts/CompanyContext';
 import { WBSService } from '@/services/wbsService';
+import { useWBS } from '@/hooks/useWBS';
+import { toast } from 'sonner';
 
 interface ProjectScopePageProps {
   project: Project;
@@ -180,6 +182,7 @@ const sampleScopeData: ScopePhase[] = [
 
 export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps) => {
   const [scopeData, setScopeData] = useState<ScopePhase[]>(sampleScopeData);
+  const { wbsItems, loading, error, deleteWBSItem } = useWBS(project.id);
   const screenSize = useScreenSize();
   const { currentCompany } = useCompany();
   const [dragIndicator, setDragIndicator] = useState<{ type: string; droppableId: string; index: number } | null>(null);
@@ -231,7 +234,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     );
   };
 
-  const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element') => {
+  const handleContextMenuAction = async (action: string, itemId: string, type: 'phase' | 'component' | 'element') => {
     switch (action) {
       case 'add-component':
         console.log('Add Component to phase', itemId);
@@ -243,8 +246,48 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         console.log('Duplicate', type, itemId);
         break;
       case 'delete':
-        console.log('Delete', type, itemId);
+        await handleDelete(itemId, type);
         break;
+    }
+  };
+
+  const handleDelete = async (itemId: string, type: 'phase' | 'component' | 'element') => {
+    try {
+      // First, try to delete from database if this is a real WBS item
+      const wbsItem = wbsItems.find(item => item.id === itemId);
+      if (wbsItem) {
+        await deleteWBSItem(itemId);
+        toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`);
+        return;
+      }
+
+      // Fallback to local state deletion for sample data
+      setScopeData(prevData => {
+        const newData = [...prevData];
+        
+        if (type === 'phase') {
+          return newData.filter(phase => phase.id !== itemId);
+        } else if (type === 'component') {
+          return newData.map(phase => ({
+            ...phase,
+            components: phase.components.filter(component => component.id !== itemId)
+          }));
+        } else if (type === 'element') {
+          return newData.map(phase => ({
+            ...phase,
+            components: phase.components.map(component => ({
+              ...component,
+              elements: component.elements.filter(element => element.id !== itemId)
+            }))
+          }));
+        }
+        return newData;
+      });
+      
+      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`);
+    } catch (error) {
+      console.error('Failed to delete item:', error);
+      toast.error(`Failed to delete ${type}. Please try again.`);
     }
   };
 
