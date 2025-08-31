@@ -12,6 +12,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { Toolbar } from '@/components/ui/toolbar';
 import { useRowContextMenu } from '@/components/ui/row-context-menu';
+import { useScreenSize } from '@/hooks/use-mobile';
 import './GanttChart.css';
 
 export interface ModernGanttTask {
@@ -53,8 +54,16 @@ export const ModernGanttChart = ({
 }: ModernGanttChartProps) => {
   console.log('🚀 ModernGanttChart rendering with', tasks.length, 'tasks');
   
+  const screenSize = useScreenSize();
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-  const [taskListWidth, setTaskListWidth] = useState(384); // 96 * 4 = 384px (w-96)
+  const getInitialTaskListWidth = () => {
+    switch (screenSize) {
+      case 'mobile': return 280;
+      case 'tablet': return 320;
+      default: return 384;
+    }
+  };
+  const [taskListWidth, setTaskListWidth] = useState(getInitialTaskListWidth());
   const [isResizing, setIsResizing] = useState(false);
   const [openDatePickers, setOpenDatePickers] = useState<Set<string>>(new Set());
   const [editingDuration, setEditingDuration] = useState<Set<string>>(new Set());
@@ -748,10 +757,19 @@ export const ModernGanttChart = ({
 
   const formatProgress = (progress: number) => `${Math.round(progress)}%`;
 
-  // Calculate responsive timeline width based on available space
-  const maxAvailableWidth = typeof window !== 'undefined' ? window.innerWidth - taskListWidth - 100 : 1200;
-  const timelineWidth = Math.min(Math.max(currentDays.length * dayWidth, 1000), maxAvailableWidth);
-  console.log('📏 Timeline width:', timelineWidth, 'px');
+  // Calculate responsive timeline width based on available space and screen size
+  const getResponsiveTimelineWidth = () => {
+    if (typeof window === 'undefined') return 1200;
+    
+    const baseWidth = window.innerWidth - taskListWidth - 100;
+    const minTimelineWidth = screenSize === 'mobile' ? 600 : screenSize === 'tablet' ? 800 : 1000;
+    const maxTimelineWidth = screenSize === 'mobile' ? 1000 : screenSize === 'tablet' ? 1400 : 2000;
+    
+    return Math.min(Math.max(currentDays.length * dayWidth, minTimelineWidth), Math.min(baseWidth, maxTimelineWidth));
+  };
+  
+  const timelineWidth = getResponsiveTimelineWidth();
+  console.log('📏 Timeline width:', timelineWidth, 'px for', screenSize, 'screen');
 
   // Calculate task positions for dependency arrows
   const getTaskPositionForArrow = (taskId: string) => {
@@ -956,15 +974,15 @@ export const ModernGanttChart = ({
               )}
               {/* Column Headers */}
                <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: '20px 64px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: '680px' }}>
-                   <div></div>
-                   <div className="text-left">WBS</div>
-                   <div className="text-left">Name</div>
-                   <div className="text-left">Start</div>
-                   <div className="text-left">End</div>
-                   <div className="text-left">Duration</div>
-                   <div className="text-left">Predecessors</div>
-                   <div className="text-left">Status</div>
+                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-2 sm:gap-4 px-2 sm:px-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '16px 40px minmax(120px, 1fr) 60px 60px' : screenSize === 'tablet' ? '20px 50px minmax(160px, 1fr) 70px 70px 60px 60px' : '20px 64px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '320px' : screenSize === 'tablet' ? '500px' : '680px' }}>
+                    <div></div>
+                    <div className="text-left">WBS</div>
+                    <div className="text-left">Name</div>
+                    {screenSize !== 'mobile' && <div className="text-left">Start</div>}
+                    {screenSize !== 'mobile' && <div className="text-left">End</div>}
+                    {screenSize !== 'mobile' && <div className="text-left">Duration</div>}
+                    {screenSize === 'desktop' && <div className="text-left">Predecessors</div>}
+                    <div className="text-left">Status</div>
                  </div>
               </div>
             </div>
@@ -1007,8 +1025,8 @@ export const ModernGanttChart = ({
                 onClick={() => handleRowClick(task.id)}
                 onContextMenu={(e) => handleRowContextMenu(e, task.id)}
               >
-                 <div className="h-full flex items-center px-4">
-                   <div className="grid items-center w-full gap-4" style={{ gridTemplateColumns: '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: '680px' }}>
+                   <div className="h-full flex items-center px-2 sm:px-4">
+                    <div className="grid items-center w-full gap-2 sm:gap-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '16px 16px minmax(120px, 1fr) 60px 60px' : screenSize === 'tablet' ? '20px 16px minmax(160px, 1fr) 70px 70px 60px 60px' : '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '280px' : screenSize === 'tablet' ? '450px' : '680px' }}>
                       {/* Drag Handle */}
                       <div 
                         {...provided.dragHandleProps}
@@ -1023,8 +1041,8 @@ export const ModernGanttChart = ({
                        </div>
                      
                      {/* Task Name with hierarchy */}
-                     <div className="flex items-center gap-2 min-w-0">
-                      <div style={{ paddingLeft: `${task.depth * 24}px` }} className="flex items-center gap-2 min-w-0 w-full">
+                     <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                      <div style={{ paddingLeft: `${task.depth * (screenSize === 'mobile' ? 12 : 24)}px` }} className="flex items-center gap-1 sm:gap-2 min-w-0 w-full">
                         {task.hasChildren && (
                           <button
                             onClick={() => toggleSection(task.id)}
@@ -1067,144 +1085,155 @@ export const ModernGanttChart = ({
                       </div>
                     </div>
 
-                    {/* Start Date */}
-                    <div>
-                      <Popover 
-                        open={openDatePickers.has(`${task.id}-startDate`)} 
-                        onOpenChange={(open) => !open && setOpenDatePickers(prev => {
-                          const newSet = new Set(prev);
-                          newSet.delete(`${task.id}-startDate`);
-                          return newSet;
-                        })}
-                      >
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
-                            onClick={() => toggleDatePicker(task.id, 'startDate')}
-                          >
-                            {format(task.startDate, 'MMM d')}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={task.startDate}
-                            onSelect={(date) => date && handleDateChange(task.id, 'startDate', date)}
-                            className={cn("p-3 pointer-events-auto")}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
+                     {/* Start Date - Hide on mobile */}
+                     {screenSize !== 'mobile' && (
+                     <div>
+                       <Popover 
+                         open={openDatePickers.has(`${task.id}-startDate`)} 
+                         onOpenChange={(open) => !open && setOpenDatePickers(prev => {
+                           const newSet = new Set(prev);
+                           newSet.delete(`${task.id}-startDate`);
+                           return newSet;
+                         })}
+                       >
+                         <PopoverTrigger asChild>
+                           <Button
+                             variant="ghost"
+                             className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
+                             onClick={() => toggleDatePicker(task.id, 'startDate')}
+                           >
+                             {format(task.startDate, screenSize === 'tablet' ? 'M/d' : 'MMM d')}
+                           </Button>
+                         </PopoverTrigger>
+                         <PopoverContent className="w-auto p-0" align="start">
+                           <Calendar
+                             mode="single"
+                             selected={task.startDate}
+                             onSelect={(date) => date && handleDateChange(task.id, 'startDate', date)}
+                             className={cn("p-3 pointer-events-auto")}
+                             initialFocus
+                           />
+                         </PopoverContent>
+                       </Popover>
+                     </div>
+                     )}
 
-                    {/* End Date */}
-                    <div>
-                      <Popover 
-                        open={openDatePickers.has(`${task.id}-endDate`)} 
-                        onOpenChange={(open) => !open && setOpenDatePickers(prev => {
-                          const newSet = new Set(prev);
-                          newSet.delete(`${task.id}-endDate`);
-                          return newSet;
-                        })}
-                      >
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
-                            onClick={() => toggleDatePicker(task.id, 'endDate')}
-                          >
-                            {format(task.endDate, 'MMM d')}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={task.endDate}
-                            onSelect={(date) => date && handleDateChange(task.id, 'endDate', date)}
-                            className={cn("p-3 pointer-events-auto")}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
+                     {/* End Date - Hide on mobile */}
+                     {screenSize !== 'mobile' && (
+                     <div>
+                       <Popover 
+                         open={openDatePickers.has(`${task.id}-endDate`)} 
+                         onOpenChange={(open) => !open && setOpenDatePickers(prev => {
+                           const newSet = new Set(prev);
+                           newSet.delete(`${task.id}-endDate`);
+                           return newSet;
+                         })}
+                       >
+                         <PopoverTrigger asChild>
+                           <Button
+                             variant="ghost"
+                             className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
+                             onClick={() => toggleDatePicker(task.id, 'endDate')}
+                           >
+                             {format(task.endDate, screenSize === 'tablet' ? 'M/d' : 'MMM d')}
+                           </Button>
+                         </PopoverTrigger>
+                         <PopoverContent className="w-auto p-0" align="start">
+                           <Calendar
+                             mode="single"
+                             selected={task.endDate}
+                             onSelect={(date) => date && handleDateChange(task.id, 'endDate', date)}
+                             className={cn("p-3 pointer-events-auto")}
+                             initialFocus
+                           />
+                         </PopoverContent>
+                       </Popover>
+                     </div>
+                     )}
 
-                    {/* Duration */}
-                    <div>
-                      {editingDuration.has(task.id) ? (
-                        <Input
-                          value={durationInputs[task.id] || ''}
-                          onChange={(e) => setDurationInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
-                          onBlur={() => finishDurationEdit(task.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              finishDurationEdit(task.id);
-                            } else if (e.key === 'Escape') {
-                              setEditingDuration(prev => {
-                                const newSet = new Set(prev);
-                                newSet.delete(task.id);
-                                return newSet;
-                              });
-                              setDurationInputs(prev => {
-                                const newInputs = { ...prev };
-                                delete newInputs[task.id];
-                                return newInputs;
-                              });
-                            }
-                          }}
-                          className="text-sm h-6 px-1 w-full"
-                          placeholder="e.g. 5 days"
-                          autoFocus
-                        />
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          className="text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100 w-full justify-start"
-                          onClick={() => startDurationEdit(task.id)}
-                        >
-                          {task.duration}
-                        </Button>
-                      )}
-                    </div>
+                     {/* Duration - Show on tablet and desktop */}
+                     {screenSize !== 'mobile' && (
+                     <div>
+                       {editingDuration.has(task.id) ? (
+                         <Input
+                           value={durationInputs[task.id] || ''}
+                           onChange={(e) => setDurationInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
+                           onBlur={() => finishDurationEdit(task.id)}
+                           onKeyDown={(e) => {
+                             if (e.key === 'Enter') {
+                               finishDurationEdit(task.id);
+                             } else if (e.key === 'Escape') {
+                               setEditingDuration(prev => {
+                                 const newSet = new Set(prev);
+                                 newSet.delete(task.id);
+                                 return newSet;
+                               });
+                               setDurationInputs(prev => {
+                                 const newInputs = { ...prev };
+                                 delete newInputs[task.id];
+                                 return newInputs;
+                               });
+                             }
+                           }}
+                           className="text-xs sm:text-sm h-6 px-1 w-full"
+                           placeholder="e.g. 5d"
+                           autoFocus
+                         />
+                       ) : (
+                         <Button
+                           variant="ghost"
+                           className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100 w-full justify-start"
+                           onClick={() => startDurationEdit(task.id)}
+                         >
+                           {screenSize === 'tablet' ? task.duration.replace(' days', 'd').replace(' day', 'd') : task.duration}
+                         </Button>
+                       )}
+                     </div>
+                     )}
 
-                    {/* Predecessors */}
-                    <div>
-                      {editingPredecessors.has(task.id) ? (
-                        <Input
-                          value={predecessorInputs[task.id] || ''}
-                          onChange={(e) => setPredecessorInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
-                          onBlur={() => finishPredecessorEdit(task.id)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              finishPredecessorEdit(task.id);
-                            } else if (e.key === 'Escape') {
-                              cancelPredecessorEdit(task.id);
-                            }
-                          }}
-                          className="text-sm h-6 px-1 w-full"
-                          placeholder="e.g. 1, 3"
-                          autoFocus
-                        />
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          className="text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100 w-full justify-start"
-                          onClick={() => startPredecessorEdit(task.id)}
-                        >
-                          {task.predecessors && task.predecessors.length > 0 
-                            ? task.predecessors.join(', ') 
-                            : '-'
-                          }
-                        </Button>
-                      )}
-                    </div>
+                     {/* Predecessors - Show only on desktop */}
+                     {screenSize === 'desktop' && (
+                     <div>
+                       {editingPredecessors.has(task.id) ? (
+                         <Input
+                           value={predecessorInputs[task.id] || ''}
+                           onChange={(e) => setPredecessorInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
+                           onBlur={() => finishPredecessorEdit(task.id)}
+                           onKeyDown={(e) => {
+                             if (e.key === 'Enter') {
+                               finishPredecessorEdit(task.id);
+                             } else if (e.key === 'Escape') {
+                               cancelPredecessorEdit(task.id);
+                             }
+                           }}
+                           className="text-xs sm:text-sm h-6 px-1 w-full"
+                           placeholder="e.g. 1, 3"
+                           autoFocus
+                         />
+                       ) : (
+                         <Button
+                           variant="ghost"
+                           className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100 w-full justify-start"
+                           onClick={() => startPredecessorEdit(task.id)}
+                         >
+                           {task.predecessors && task.predecessors.length > 0 
+                             ? task.predecessors.join(', ') 
+                             : '-'
+                           }
+                         </Button>
+                       )}
+                     </div>
+                     )}
 
-                    {/* Status */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-600 capitalize">
-                        {task.status.replace('-', ' ')}
-                      </span>
-                    </div>
+                     {/* Status - Show on all screen sizes */}
+                     <div className="flex items-center gap-2">
+                       <span className="text-xs sm:text-sm text-gray-600 capitalize">
+                         {screenSize === 'mobile' ? 
+                           task.status.replace('in-progress', 'IP').replace('completed', 'Done').replace('pending', 'Pending').replace('delayed', 'Delayed') :
+                           task.status.replace('-', ' ')
+                         }
+                       </span>
+                     </div>
                   </div>
                 </div>
               </div>

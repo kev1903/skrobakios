@@ -223,10 +223,10 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
 
       {/* Main Content Area */}
       <main className={mainContentClasses[screenSize]}>
-        {/* Header Banner - Match Scope page */}
-        <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+        {/* Header Banner - Responsive */}
+        <div className="flex-shrink-0 border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-white backdrop-blur-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {/* Mobile Menu Button */}
               {(screenSize === 'mobile' || screenSize === 'tablet') && (
                 <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -259,16 +259,16 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
               )}
 
               <div>
-                <h1 className="text-2xl font-bold text-foreground font-inter">Project Schedule</h1>
-                <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground font-inter">Project Schedule</h1>
+                <p className="text-muted-foreground mt-1 text-xs sm:text-sm font-inter">{project.name}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="text-xs text-muted-foreground font-inter">Schedule Progress</div>
-                <div className="flex items-center gap-2 mt-1">
-                  <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+              <div className="w-full sm:w-auto">
+                <div className="text-xs text-muted-foreground font-inter mb-1">Schedule Progress</div>
+                <div className="flex items-center gap-2">
+                  <div className="w-20 sm:w-24 h-1.5 bg-muted rounded-full overflow-hidden">
                     <div 
                       className="h-full transition-all duration-300 bg-green-500"
                       style={{ width: "52%" }}
@@ -278,14 +278,17 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" className="font-inter text-xs" title="Expand All">
+                <Button size="sm" variant="outline" className="font-inter text-xs h-7 w-7 sm:w-auto sm:h-auto p-1 sm:px-3 sm:py-2" title="Expand All">
                   <ChevronsDown className="w-3 h-3" />
+                  <span className="hidden sm:inline ml-1">Expand</span>
                 </Button>
-                <Button size="sm" variant="outline" className="font-inter text-xs" title="Collapse All">
+                <Button size="sm" variant="outline" className="font-inter text-xs h-7 w-7 sm:w-auto sm:h-auto p-1 sm:px-3 sm:py-2" title="Collapse All">
                   <ChevronsUp className="w-3 h-3" />
+                  <span className="hidden sm:inline ml-1">Collapse</span>
                 </Button>
-                <Button size="sm" className="font-inter text-xs" title="Add Task">
+                <Button size="sm" className="font-inter text-xs h-7 w-7 sm:w-auto sm:h-auto p-1 sm:px-3 sm:py-2" title="Add Task">
                   <Plus className="w-3 h-3" />
+                  <span className="hidden sm:inline ml-1">Add</span>
                 </Button>
               </div>
             </div>
