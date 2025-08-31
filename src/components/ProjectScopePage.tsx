@@ -17,6 +17,7 @@ import { useScreenSize } from '@/hooks/use-mobile';
 import { createPortal } from 'react-dom';
 import { useCompany } from '@/contexts/CompanyContext';
 import { WBSService } from '@/services/wbsService';
+import { useWBS } from '@/hooks/useWBS';
 
 interface ProjectScopePageProps {
   project: Project;
@@ -179,13 +180,53 @@ const sampleScopeData: ScopePhase[] = [
 ];
 
 export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps) => {
-  const [scopeData, setScopeData] = useState<ScopePhase[]>([]);
   const screenSize = useScreenSize();
   const { currentCompany } = useCompany();
   const [dragIndicator, setDragIndicator] = useState<{ type: string; droppableId: string; index: number } | null>(null);
   const [editingItem, setEditingItem] = useState<{ id: string; type: 'phase' | 'component' | 'element'; field: string } | null>(null);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Use WBS hook for database operations
+  const { 
+    wbsItems, 
+    loading, 
+    error, 
+    createWBSItem, 
+    updateWBSItem, 
+    deleteWBSItem 
+  } = useWBS(project.id);
+
+  // Convert WBS items to scope data structure
+  const scopeData: ScopePhase[] = wbsItems
+    .filter(item => item.level === 1) // Get only top-level phases
+    .map(phase => ({
+      id: phase.id,
+      name: phase.title,
+      description: phase.description || '',
+      status: (phase.status as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold') || 'Not Started',
+      progress: phase.progress || 0,
+      isExpanded: phase.is_expanded,
+      components: phase.children
+        ?.filter(child => child.level === 2)
+        .map(component => ({
+          id: component.id,
+          name: component.title,
+          description: component.description || '',
+          status: (component.status as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold') || 'Not Started',
+          progress: component.progress || 0,
+          isExpanded: component.is_expanded,
+          elements: component.children
+            ?.filter(child => child.level === 3)
+            .map(element => ({
+              id: element.id,
+              name: element.title,
+              description: element.description || '',
+              status: (element.status as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold') || 'Not Started',
+              progress: element.progress || 0
+            })) || []
+        })) || []
+    }));
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -204,31 +245,18 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     return 'bg-success';
   };
 
-  const togglePhase = (phaseId: string) => {
-    setScopeData(prev => 
-      prev.map(phase => 
-        phase.id === phaseId 
-          ? { ...phase, isExpanded: !phase.isExpanded }
-          : phase
-      )
-    );
+  const togglePhase = async (phaseId: string) => {
+    const phase = wbsItems.find(item => item.id === phaseId);
+    if (phase) {
+      await updateWBSItem(phaseId, { is_expanded: !phase.is_expanded });
+    }
   };
 
-  const toggleComponent = (phaseId: string, componentId: string) => {
-    setScopeData(prev => 
-      prev.map(phase => 
-        phase.id === phaseId
-          ? {
-              ...phase,
-              components: phase.components.map(comp =>
-                comp.id === componentId
-                  ? { ...comp, isExpanded: !comp.isExpanded }
-                  : comp
-              )
-            }
-          : phase
-      )
-    );
+  const toggleComponent = async (phaseId: string, componentId: string) => {
+    const component = wbsItems.find(item => item.id === componentId);
+    if (component) {
+      await updateWBSItem(componentId, { is_expanded: !component.is_expanded });
+    }
   };
 
   const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element') => {
@@ -237,18 +265,69 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         addNewComponent(itemId);
         break;
       case 'add-element':
-        console.log('Add Element to component', itemId);
+        addNewElement(itemId);
         break;
       case 'edit':
-        console.log('Edit', type, itemId);
+        const item = wbsItems.find(i => i.id === itemId);
+        if (item) {
+          setEditingItem({ id: itemId, type, field: 'title' });
+          setEditValue(item.title);
+        }
         break;
       case 'duplicate':
         console.log('Duplicate', type, itemId);
         break;
       case 'delete':
-        console.log('Delete', type, itemId);
+        deleteWBSItem(itemId);
         break;
     }
+  };
+
+  const addNewElement = async (componentId: string) => {
+    try {
+      if (!currentCompany?.id) {
+        console.error('No active company selected');
+        return;
+      }
+
+      const component = wbsItems.find(item => item.id === componentId);
+      if (!component) return;
+
+      const elementCount = component.children?.filter(child => child.level === 3).length || 0;
+      const wbsId = `${component.wbs_id}.${elementCount + 1}`;
+
+      await createWBSItem({
+        company_id: currentCompany.id,
+        project_id: project.id,
+        parent_id: componentId,
+        wbs_id: wbsId,
+        title: 'Untitled Element',
+        description: '',
+        level: 3,
+        category: 'Element',
+        is_expanded: true,
+        progress: 0,
+        status: 'Not Started',
+        health: 'Good',
+        progress_status: 'On Track',
+        at_risk: false,
+        priority: 'Medium',
+        linked_tasks: []
+      });
+    } catch (error) {
+      console.error('Error adding element:', error);
+    }
+  };
+
+  // Remove drag and drop and editing functions that use setScopeData
+  const handleEdit = (id: string, type: 'phase' | 'component' | 'element', field: string, currentValue: string) => {
+    setEditingItem({ id, type, field });
+    setEditValue(currentValue);
+  };
+
+  const cancelEdit = () => {
+    setEditingItem(null);
+    setEditValue('');
   };
 
   const addNewComponent = async (phaseId: string) => {
@@ -275,7 +354,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       
       console.log('🆔 Creating component with WBS ID:', wbsId);
 
-      const inserted = await WBSService.createWBSItem({
+      await createWBSItem({
         company_id: currentCompany.id,
         project_id: project.id,
         parent_id: phaseId,
@@ -298,30 +377,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         priority: 'Medium',
         is_expanded: true,
         linked_tasks: []
-      } as any);
-
-      console.log('✅ WBS item created:', inserted);
-
-      const newComponent: ScopeComponent = {
-        id: inserted.id,
-        name: 'Untitled Component',
-        description: '',
-        status: 'Not Started',
-        progress: 0,
-        isExpanded: true,
-        elements: []
-      };
-
-      console.log('🔄 Updating state with new component:', newComponent);
-
-      setScopeData(prev => {
-        const updated = prev.map(phase => 
-          phase.id === phaseId 
-            ? { ...phase, components: [...phase.components, newComponent] }
-            : phase
-        );
-        console.log('📋 Updated scope data:', updated);
-        return updated;
       });
 
       console.log('🎉 Component added successfully');
@@ -340,7 +395,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
       const wbsId = `${scopeData.length + 1}.0`;
 
-      const inserted = await WBSService.createWBSItem({
+      const inserted = await createWBSItem({
         company_id: currentCompany.id,
         project_id: project.id,
         parent_id: undefined,
@@ -354,70 +409,41 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         budgeted_cost: undefined,
         actual_cost: undefined,
         progress: 0,
+        status: 'Not Started',
+        health: 'Good',
+        progress_status: 'On Track',
+        at_risk: false,
         level: 1,
+        category: 'Stage',
+        priority: 'Medium',
         is_expanded: true,
         linked_tasks: []
-      } as any);
+      });
 
-      const newPhase: ScopePhase = {
-        id: inserted.id,
-        name: '',
-        description: '',
-        status: 'Not Started',
-        progress: 0,
-        isExpanded: true,
-        components: []
-      };
-
-      setScopeData(prev => [...prev, newPhase]);
-      setEditingItem({ id: newPhase.id, type: 'phase', field: 'name' });
-      setEditValue('');
+      // Set editing mode for the new phase
+      if (inserted) {
+        setEditingItem({ id: inserted.id, type: 'phase', field: 'title' });
+        setEditValue('');
+      }
     } catch (error) {
       console.error('Error creating phase:', error);
     }
   };
 
-  const handleEdit = (id: string, type: 'phase' | 'component' | 'element', field: string, currentValue: string) => {
-    setEditingItem({ id, type, field });
-    setEditValue(currentValue);
-  };
-
   const saveEdit = async () => {
     if (!editingItem) return;
 
-    const { id, type, field } = editingItem;
+    const { id, field } = editingItem;
     
-    setScopeData(prev => {
-      if (type === 'phase') {
-        return prev.map(phase => 
-          phase.id === id ? { ...phase, [field]: editValue } : phase
-        );
-      } else if (type === 'component') {
-        return prev.map(phase => ({
-          ...phase,
-          components: phase.components.map(comp =>
-            comp.id === id ? { ...comp, [field]: editValue } : comp
-          )
-        }));
-      } else if (type === 'element') {
-        return prev.map(phase => ({
-          ...phase,
-          components: phase.components.map(comp => ({
-            ...comp,
-            elements: comp.elements.map(elem =>
-              elem.id === id ? { ...elem, [field]: editValue } : elem
-            )
-          }))
-        }));
-      }
-      return prev;
-    });
-
-    setEditingItem(null);
-    setEditValue('');
-    
-    // Update database
-    await updateScopeToDatabase();
+    try {
+      // Update the database directly
+      await updateWBSItem(id, { [field]: editValue });
+      
+      setEditingItem(null);
+      setEditValue('');
+    } catch (error) {
+      console.error('Error saving edit:', error);
+    }
   };
 
   const cancelEdit = () => {
