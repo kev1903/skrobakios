@@ -774,17 +774,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline" className="font-inter text-xs" onClick={expandAll}>
-                    <ChevronsDown className="w-3 h-3 mr-1" />
-                    Expand All
+                  <Button size="sm" variant="outline" className="font-inter text-xs" onClick={expandAll} title="Expand All">
+                    <ChevronsDown className="w-3 h-3" />
                   </Button>
-                  <Button size="sm" variant="outline" className="font-inter text-xs" onClick={collapseAll}>
-                    <ChevronsUp className="w-3 h-3 mr-1" />
-                    Collapse All
+                  <Button size="sm" variant="outline" className="font-inter text-xs" onClick={collapseAll} title="Collapse All">
+                    <ChevronsUp className="w-3 h-3" />
                   </Button>
-                  <Button size="sm" className="font-inter text-xs" onClick={addNewPhase}>
-                    <Plus className="w-3 h-3 mr-1" />
-                    Add Phase
+                  <Button size="sm" className="font-inter text-xs" onClick={addNewPhase} title="Add Phase">
+                    <Plus className="w-3 h-3" />
                   </Button>
                 </div>
               </div>
