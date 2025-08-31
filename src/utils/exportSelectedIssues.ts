@@ -132,21 +132,29 @@ export const exportSelectedIssuesToPDF = async (
 
     if (projectError) throw projectError;
 
-    // Fetch only selected issues with attachments and user profiles
+    // Fetch only selected issues
     const { data: issues, error: issuesError } = await supabase
       .from('issues')
-      .select(`
-        *,
-        profiles!issues_created_by_fkey (
-          first_name, last_name, professional_title
-        )
-      `)
+      .select('*')
       .in('id', selectedIssueIds)
       .order('created_at', { ascending: true });
 
     if (issuesError) throw issuesError;
 
     const typedIssues = (issues || []) as unknown as IssueData[];
+
+    // Build profile map by user_id for created_by
+    const userIds = Array.from(new Set(typedIssues.map(i => i.created_by).filter(Boolean)));
+    const profileMap = new Map<string, { first_name?: string; last_name?: string; professional_title?: string }>();
+    if (userIds.length > 0) {
+      const { data: profileRows } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, professional_title')
+        .in('user_id', userIds as string[]);
+      (profileRows as any[] | null)?.forEach((p: any) => {
+        profileMap.set(p.user_id, { first_name: p.first_name, last_name: p.last_name, professional_title: p.professional_title });
+      });
+    }
 
     // Create PDF
     const pdf = new jsPDF({
@@ -422,9 +430,8 @@ export const exportSelectedIssuesToPDF = async (
       const issueNumber = issue.auto_number?.toString() || `${i + 1}`;
       const issueTitle = issue.title.length > 45 ? issue.title.substring(0, 45) + '...' : issue.title;
       const category = issue.category || 'N/A';
-      const createdByName = issue.profiles ? 
-        `${issue.profiles.first_name || ''} ${issue.profiles.last_name || ''}`.trim() || 'Unknown User' : 
-        'Unknown User';
+      const createdByProfile = profileMap.get(issue.created_by);
+      const createdByName = createdByProfile ? `${createdByProfile.first_name || ''} ${createdByProfile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
       
       const textY = yPosition + 15;
       pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
@@ -649,10 +656,9 @@ export const exportSelectedIssuesToPDF = async (
       detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      const createdByName = issue.profiles ? 
-        `${issue.profiles.first_name || ''} ${issue.profiles.last_name || ''}`.trim() || 'Unknown User' : 
-        'Unknown User';
-      pdf.text(createdByName, detailsX, detailsY);
+      const createdByProfile2 = profileMap.get(issue.created_by);
+      const createdByName2 = createdByProfile2 ? `${createdByProfile2.first_name || ''} ${createdByProfile2.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
+      pdf.text(createdByName2, detailsX, detailsY);
       detailsY += 5;
       
       // Created date
