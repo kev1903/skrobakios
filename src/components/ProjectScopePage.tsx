@@ -1118,7 +1118,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                             <div className="px-2 py-2">
                                               <div
                                                 {...componentDragProvided.dragHandleProps}
-                                                className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 ml-2 ${
+                                                className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 ml-4 ${
                                                   componentSnapshot2.isDragging ? 'bg-secondary/20 shadow-sm' : 'hover:bg-secondary/10'
                                                 }`}
                                                 title="Drag to reorder component"
@@ -1126,43 +1126,43 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 <GripVertical className="w-3 h-3 text-muted-foreground" />
                                               </div>
                                             </div>
-                                             <div className="px-2 py-2">
-                                               <div className="flex items-center ml-1">
-                                                 <button 
-                                                   onClick={() => toggleComponent(phase.id, component.id, component.isExpanded)} 
-                                                   className="p-1 hover:bg-blue-100 rounded transition-colors duration-200 mr-2 border border-transparent hover:border-blue-200" 
-                                                   aria-label="Toggle component"
-                                                   title={component.isExpanded ? "Collapse component" : "Expand component"}
-                                                 >
-                                                   {component.isExpanded ? (
-                                                     <ChevronDown className="w-3 h-3 text-blue-600" />
-                                                   ) : (
-                                                     <ChevronRight className="w-3 h-3 text-blue-600" />
-                                                   )}
-                                                 </button>
-                                                 <div className="font-medium text-blue-600 text-xs truncate">{generateWBSNumber(phaseIndex, componentIndex)}</div>
-                                               </div>
-                                            </div>
-                                            <div className="px-3 py-2 font-medium text-foreground text-xs ml-4 truncate">
-                                              <EditableCell
-                                                id={component.id}
-                                                type="component"
-                                                field="name"
-                                                value={component.name}
-                                                placeholder="Untitled Component"
-                                                className="font-medium text-xs"
-                                              />
-                                            </div>
-                                            <div className="px-3 py-2 text-muted-foreground text-xs truncate">
-                                              <EditableCell
-                                                id={component.id}
-                                                type="component"
-                                                field="description"
-                                                value={component.description || ''}
-                                                placeholder="Add description..."
-                                                className="text-xs text-muted-foreground"
-                                              />
-                                            </div>
+                                              <div className="px-2 py-2">
+                                                <div className="flex items-center ml-4">
+                                                  <button 
+                                                    onClick={() => toggleComponent(phase.id, component.id, component.isExpanded)} 
+                                                    className="p-1 hover:bg-blue-100 rounded transition-colors duration-200 mr-2 border border-transparent hover:border-blue-200" 
+                                                    aria-label="Toggle component"
+                                                    title={component.isExpanded ? "Collapse component" : "Expand component"}
+                                                  >
+                                                    {component.isExpanded ? (
+                                                      <ChevronDown className="w-3 h-3 text-blue-600" />
+                                                    ) : (
+                                                      <ChevronRight className="w-3 h-3 text-blue-600" />
+                                                    )}
+                                                  </button>
+                                                  <div className="font-medium text-blue-600 text-xs truncate">{generateWBSNumber(phaseIndex, componentIndex)}</div>
+                                                </div>
+                                             </div>
+                             <div className="px-3 py-2 font-medium text-foreground text-xs ml-8 truncate">
+                               <EditableCell
+                                 id={component.id}
+                                 type="component"
+                                 field="name"
+                                 value={component.name}
+                                 placeholder="Untitled Component"
+                                 className="font-medium text-xs"
+                               />
+                             </div>
+                             <div className="px-3 py-2 text-muted-foreground text-xs ml-8 truncate">
+                               <EditableCell
+                                 id={component.id}
+                                 type="component"
+                                 field="description"
+                                 value={component.description || ''}
+                                 placeholder="Add description..."
+                                 className="text-xs text-muted-foreground"
+                               />
+                             </div>
                                             <div className="px-2 py-2">
                                               <StatusSelect 
                                                 value={component.status} 
@@ -1251,36 +1251,36 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                       >
                                                          <div className="px-2 py-2">
                                                           <div
-                                                            {...elementDragProvided.dragHandleProps}
-                                                            className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 ml-4 ${
-                                                              elementSnapshot2.isDragging ? 'bg-accent/30 shadow-sm' : 'hover:bg-accent/20'
-                                                            }`}
-                                                            title="Drag to reorder element"
-                                                          >
-                                                            <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                                          </div>
+                                                             {...elementDragProvided.dragHandleProps}
+                                                             className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 ml-8 ${
+                                                               elementSnapshot2.isDragging ? 'bg-accent/30 shadow-sm' : 'hover:bg-accent/20'
+                                                             }`}
+                                                             title="Drag to reorder element"
+                                                           >
+                                                             <GripVertical className="w-3 h-3 text-muted-foreground" />
+                                                           </div>
                                                         </div>
-                                                        <div className="px-2 py-2 font-medium text-slate-600 text-xs ml-6 truncate">{generateWBSNumber(phaseIndex, componentIndex, elementIndex)}</div>
-                                                        <div className="px-3 py-2 font-medium text-foreground text-xs ml-6 min-h-[2rem] flex items-center">
-                                                          <EditableCell
-                                                            id={element.id}
-                                                            type="element"
-                                                            field="name"
-                                                            value={element.name}
-                                                            placeholder="Untitled Element"
-                                                            className="font-medium text-xs"
-                                                          />
-                                                        </div>
-                                                        <div className="px-3 py-2 text-muted-foreground text-xs truncate">
-                                                          <EditableCell
-                                                            id={element.id}
-                                                            type="element"
-                                                            field="description"
-                                                            value={element.description || ''}
-                                                            placeholder="Add description..."
-                                                            className="text-xs text-muted-foreground"
-                                                          />
-                                                        </div>
+                                                        <div className="px-2 py-2 font-medium text-slate-600 text-xs ml-12 truncate">{generateWBSNumber(phaseIndex, componentIndex, elementIndex)}</div>
+                                                         <div className="px-3 py-2 font-medium text-foreground text-xs ml-12 min-h-[2rem] flex items-center">
+                                                           <EditableCell
+                                                             id={element.id}
+                                                             type="element"
+                                                             field="name"
+                                                             value={element.name}
+                                                             placeholder="Untitled Element"
+                                                             className="font-medium text-xs"
+                                                           />
+                                                         </div>
+                                                         <div className="px-3 py-2 text-muted-foreground text-xs ml-12 truncate">
+                                                           <EditableCell
+                                                             id={element.id}
+                                                             type="element"
+                                                             field="description"
+                                                             value={element.description || ''}
+                                                             placeholder="Add description..."
+                                                             className="text-xs text-muted-foreground"
+                                                           />
+                                                         </div>
                                                         <div className="px-2 py-2">
                                                           <StatusSelect 
                                                             value={element.status} 
@@ -1298,26 +1298,26 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                              />
                                                           </div>
                                                         </div>
-                                                         <div className="px-2 py-2 text-muted-foreground text-xs truncate">
-                                                          <EditableCell
-                                                            id={element.id}
-                                                            type="element"
-                                                            field="assignedTo"
-                                                            value={element.assignedTo || ''}
-                                                            placeholder="Assign to..."
-                                                            className="text-xs text-muted-foreground"
-                                                          />
-                                                        </div>
-                                                        <div className="px-2 py-2 text-muted-foreground text-xs truncate">
-                                                          <EditableCell
-                                                            id={element.id}
-                                                            type="element"
-                                                            field="deliverable"
-                                                            value={element.deliverable || ''}
-                                                            placeholder="Add deliverable..."
-                                                            className="text-xs text-muted-foreground"
-                                                          />
-                                                        </div>
+                                                          <div className="px-2 py-2 text-muted-foreground text-xs truncate ml-12">
+                                                           <EditableCell
+                                                             id={element.id}
+                                                             type="element"
+                                                             field="assignedTo"
+                                                             value={element.assignedTo || ''}
+                                                             placeholder="Assign to..."
+                                                             className="text-xs text-muted-foreground"
+                                                           />
+                                                         </div>
+                                                         <div className="px-2 py-2 text-muted-foreground text-xs truncate ml-12">
+                                                           <EditableCell
+                                                             id={element.id}
+                                                             type="element"
+                                                             field="deliverable"
+                                                             value={element.deliverable || ''}
+                                                             placeholder="Add deliverable..."
+                                                             className="text-xs text-muted-foreground"
+                                                           />
+                                                         </div>
                                                         <div className="px-2 py-2 flex items-center justify-center">
                                                           <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
