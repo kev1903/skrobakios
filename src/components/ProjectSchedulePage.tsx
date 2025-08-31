@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { ModernGanttChart, ModernGanttTask } from '@/components/timeline/ModernGanttChart';
@@ -6,7 +6,7 @@ import { useScreenSize } from "@/hooks/use-mobile";
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from '@/components/ui/card';
-import { Menu, Plus, Filter, Download, BarChart3, Calendar } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { addDays } from 'date-fns';
 
@@ -277,19 +277,6 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     setTasks(reorderedTasks);
   };
 
-  const projectStats = useMemo(() => {
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter(task => task.status === 'completed').length;
-    const inProgressTasks = tasks.filter(task => task.status === 'in-progress').length;
-    const avgProgress = tasks.reduce((sum, task) => sum + task.progress, 0) / totalTasks;
-    
-    return {
-      totalTasks,
-      completedTasks,
-      inProgressTasks,
-      avgProgress: Math.round(avgProgress)
-    };
-  }, [tasks]);
 
   // Responsive classes based on screen size
   const containerClasses = {
@@ -402,6 +389,8 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                     onTaskAdd={handleTaskAdd}
                     onTaskDelete={handleTaskDelete}
                     onTaskReorder={handleTaskReorder}
+                    hideToolbar
+                    hideTabs
                   />
                 </CardContent>
               </Card>

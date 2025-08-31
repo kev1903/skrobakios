@@ -37,6 +37,8 @@ interface ModernGanttChartProps {
   onTaskAdd?: (task: Omit<ModernGanttTask, 'id'>) => void;
   onTaskDelete?: (taskId: string) => void;
   onTaskReorder?: (reorderedTasks: ModernGanttTask[]) => void;
+  hideToolbar?: boolean;
+  hideTabs?: boolean;
 }
 
 export const ModernGanttChart = ({
@@ -44,7 +46,9 @@ export const ModernGanttChart = ({
   onTaskUpdate,
   onTaskAdd,
   onTaskDelete,
-  onTaskReorder
+  onTaskReorder,
+  hideToolbar = false,
+  hideTabs = false,
 }: ModernGanttChartProps) => {
   console.log('🚀 ModernGanttChart rendering with', tasks.length, 'tasks');
   
@@ -908,21 +912,23 @@ export const ModernGanttChart = ({
     <>
     <div className="space-y-4">
       {/* Toolbar */}
-      <Toolbar 
-        className="w-fit"
-        onBaselineClick={() => console.log('Baselines clicked')}
-        onFilterClick={() => console.log('Filter clicked')}
-        onSettingsClick={() => console.log('Settings clicked')}
-        onExpandClick={() => console.log('Expand clicked')}
-        onChartClick={() => console.log('Chart clicked')}
-        onCalendarClick={() => console.log('Calendar clicked')}
-        onUsersClick={() => console.log('Users clicked')}
-        onMoreClick={() => console.log('More clicked')}
-        onIndentClick={handleIndent}
-        onOutdentClick={handleOutdent}
-        onAddTaskClick={handleAddTask}
-        onAddStageClick={handleAddStage}
-      />
+      {!hideToolbar && (
+        <Toolbar 
+          className="w-fit"
+          onBaselineClick={() => console.log('Baselines clicked')}
+          onFilterClick={() => console.log('Filter clicked')}
+          onSettingsClick={() => console.log('Settings clicked')}
+          onExpandClick={() => console.log('Expand clicked')}
+          onChartClick={() => console.log('Chart clicked')}
+          onCalendarClick={() => console.log('Calendar clicked')}
+          onUsersClick={() => console.log('Users clicked')}
+          onMoreClick={() => console.log('More clicked')}
+          onIndentClick={handleIndent}
+          onOutdentClick={handleOutdent}
+          onAddTaskClick={handleAddTask}
+          onAddStageClick={handleAddStage}
+        />
+      )}
       
       {/* Gantt Chart */}
       <div className="bg-white rounded-lg overflow-hidden w-full max-w-full h-full flex flex-col">
@@ -933,18 +939,20 @@ export const ModernGanttChart = ({
             style={{ width: taskListWidth }}
           >
             {/* Task List Header */}
-            <div className="bg-white flex flex-col flex-shrink-0" style={{ height: '60px' }}>
+            <div className="bg-white flex flex-col flex-shrink-0" style={{ height: hideTabs ? '32px' : '60px' }}>
               {/* Tab Section */}
-              <div className="flex h-8 flex-shrink-0 bg-gray-50">
-                <div className="flex">
-                  <div className="px-4 py-1 text-sm font-medium text-blue-600 bg-white cursor-pointer flex items-center gap-2">
-                    Gantt
-                  </div>
-                  <div className="px-4 py-1 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer transition-colors duration-200 flex items-center gap-2">
-                    List
+              {!hideTabs && (
+                <div className="flex h-8 flex-shrink-0 bg-gray-50">
+                  <div className="flex">
+                    <div className="px-4 py-1 text-sm font-medium text-blue-600 bg-white cursor-pointer flex items-center gap-2">
+                      Gantt
+                    </div>
+                    <div className="px-4 py-1 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer transition-colors duration-200 flex items-center gap-2">
+                      List
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
               {/* Column Headers */}
                <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-4 px-4" style={{ gridTemplateColumns: '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: '680px' }}>
