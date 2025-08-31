@@ -120,6 +120,70 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
   const handleBack = () => onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
   const handleAddIssue = () => onNavigate(`qaqc-issue-create?projectId=${projectId}&reportId=${reportId}`);
 
+  const handleBulkAction = async (action: string, selectedIds: string[]) => {
+    try {
+      switch (action) {
+        case 'resolve':
+          // Update selected issues status to resolved
+          for (const id of selectedIds) {
+            await supabase
+              .from('issues')
+              .update({ status: 'resolved' })
+              .eq('id', id);
+          }
+          toast({
+            title: "Issues Updated",
+            description: `${selectedIds.length} issue${selectedIds.length > 1 ? 's' : ''} marked as resolved.`,
+          });
+          break;
+          
+        case 'archive':
+          // Update selected issues status to closed
+          for (const id of selectedIds) {
+            await supabase
+              .from('issues')
+              .update({ status: 'closed' })
+              .eq('id', id);
+          }
+          toast({
+            title: "Issues Archived",
+            description: `${selectedIds.length} issue${selectedIds.length > 1 ? 's' : ''} archived.`,
+          });
+          break;
+          
+        case 'delete':
+          // Delete selected issues
+          await supabase
+            .from('issues')
+            .delete()
+            .in('id', selectedIds);
+          toast({
+            title: "Issues Deleted",
+            description: `${selectedIds.length} issue${selectedIds.length > 1 ? 's' : ''} deleted.`,
+          });
+          break;
+          
+        case 'export':
+          // Export selected issues (placeholder)
+          toast({
+            title: "Export Started",
+            description: `Exporting ${selectedIds.length} issue${selectedIds.length > 1 ? 's' : ''}.`,
+          });
+          break;
+      }
+      
+      // Refresh the issues list
+      refreshIssues();
+    } catch (error) {
+      console.error('Bulk action error:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while performing the bulk action.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleExportPDF = async (id: string, type: string) => {
     if (type === 'issueReport' && projectId) {
       try {
@@ -234,6 +298,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
               onDelete={handleDelete}
               onRefresh={refreshIssues}
               onExportPDF={handleExportPDF}
+              onBulkAction={handleBulkAction}
             />
           </div>
         </div>
