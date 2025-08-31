@@ -198,9 +198,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     generateWBSId,
   } = useWBS(project.id);
 
-  // Convert WBS items to scope data structure
+  // Convert WBS items to scope data structure (roots are X.0 which we treat as level 0)
   const scopeData: ScopePhase[] = wbsItems
-    .filter(item => item.level === 1) // Get only top-level phases
+    .filter(item => item.wbs_id?.endsWith('.0') || item.level === 0 || item.parent_id == null)
     .map(phase => ({
       id: phase.id,
       name: phase.title,
@@ -209,7 +209,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       progress: phase.progress || 0,
       isExpanded: phase.is_expanded,
       components: phase.children
-        ?.filter(child => child.level === 2)
+        ?.filter(child => child.level === 1 || (child.wbs_id && !child.wbs_id.endsWith('.0') && child.wbs_id.split('.').length === 2))
         .map(component => ({
           id: component.id,
           name: component.title,
@@ -218,7 +218,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           progress: component.progress || 0,
           isExpanded: component.is_expanded,
           elements: component.children
-            ?.filter(child => child.level === 3)
+            ?.filter(child => child.level === 2 || (child.wbs_id && child.wbs_id.split('.').length === 3))
             .map(element => ({
               id: element.id,
               name: element.title,
