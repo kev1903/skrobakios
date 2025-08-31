@@ -136,6 +136,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       />
       
       <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border bg-card">
           <div>
             <h1 className="text-2xl font-bold">Project Scope</h1>
@@ -143,221 +144,240 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           </div>
         </div>
 
-        <div className="bg-muted/30 border-b border-border sticky top-0 z-10">
-          <div className="grid grid-cols-12 gap-4 p-4 text-sm font-medium text-muted-foreground">
-            <div className="col-span-1">WBS</div>
-            <div className="col-span-3">NAME</div>
-            <div className="col-span-3">DESCRIPTION</div>
-            <div className="col-span-1">STATUS</div>
-            <div className="col-span-1">PROGRESS</div>
-            <div className="col-span-2">ASSIGNED TO</div>
-            <div className="col-span-1">ACTIONS</div>
+        {/* Content Area */}
+        <div className="flex-1 overflow-auto">
+          {/* Table Header - Sticky */}
+          <div className="bg-muted/30 border-b border-border sticky top-0 z-10">
+            <div className="px-6 py-3">
+              <div className="grid grid-cols-12 gap-4 text-sm font-medium text-muted-foreground">
+                <div className="col-span-2">WBS</div>
+                <div className="col-span-3">NAME</div>
+                <div className="col-span-3">DESCRIPTION</div>
+                <div className="col-span-1">STATUS</div>
+                <div className="col-span-2">PROGRESS</div>
+                <div className="col-span-1">ACTIONS</div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div className="flex-1 overflow-auto p-4">
-          <div className="space-y-2">
-            {stages.map((stage) => (
-              <div key={stage.id}>
-                <div className="grid grid-cols-12 gap-4 p-3 bg-card border border-border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="col-span-1 flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => updateWBSItem(stage.id, { is_expanded: !stage.is_expanded })}
-                      className="p-1 h-6 w-6"
-                    >
-                      {stage.is_expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                    </Button>
-                    <span className="text-sm font-medium">{stage.wbs_id}</span>
-                  </div>
-                  
-                  <div className="col-span-3">
-                    <span className="text-sm font-medium">{stage.title || 'Untitled Stage'}</span>
-                  </div>
-                  
-                  <div className="col-span-3">
-                    <span className="text-sm text-muted-foreground">{stage.description || '-'}</span>
-                  </div>
-                  
-                  <div className="col-span-1">
-                    <Badge className={getStatusColor(stage.status)}>{stage.status || 'Not Started'}</Badge>
-                  </div>
-                  
-                  <div className="col-span-1 flex items-center gap-2">
-                    <span className="text-sm">{stage.progress || 0}%</span>
-                    <div className="w-12 h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full ${getProgressColor(stage.progress)} transition-all duration-300`}
-                        style={{ width: `${stage.progress || 0}%` }}
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="col-span-2">
-                    <span className="text-sm text-muted-foreground">{stage.assigned_to || '-'}</span>
-                  </div>
-                  
-                  <div className="col-span-1">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleContextMenuAction('edit', stage.id, 'Stage')}>
-                          <Edit2 className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem 
-                          onClick={() => handleContextMenuAction('delete', stage.id, 'Stage')}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+          {/* Table Content */}
+          <div className="px-6 py-4">
+            {stages.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="mb-4">
+                  <span className="text-6xl">📋</span>
                 </div>
-
-                {stage.is_expanded && stage.children && stage.children.length > 0 && (
-                  <div className="ml-8 mt-2 space-y-2">
-                    {stage.children.map((component) => (
-                      <div key={component.id}>
-                        <div className="grid grid-cols-12 gap-4 p-3 bg-muted/50 border border-border rounded-lg hover:bg-muted transition-colors">
-                          <div className="col-span-1 flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => updateWBSItem(component.id, { is_expanded: !component.is_expanded })}
-                              className="p-1 h-5 w-5"
-                            >
-                              {component.is_expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-                            </Button>
-                            <span className="text-sm">{component.wbs_id}</span>
-                          </div>
-                          
-                          <div className="col-span-3">
-                            <span className="text-sm">{component.title || 'Untitled Component'}</span>
-                          </div>
-                          
-                          <div className="col-span-3">
-                            <span className="text-sm text-muted-foreground">{component.description || '-'}</span>
-                          </div>
-                          
-                          <div className="col-span-1">
-                            <Badge className={getStatusColor(component.status)}>{component.status || 'Not Started'}</Badge>
-                          </div>
-                          
-                          <div className="col-span-1 flex items-center gap-2">
-                            <span className="text-sm">{component.progress || 0}%</span>
-                            <div className="w-12 h-2 bg-muted rounded-full overflow-hidden">
-                              <div 
-                                className={`h-full ${getProgressColor(component.progress)} transition-all duration-300`}
-                                style={{ width: `${component.progress || 0}%` }}
-                              />
-                            </div>
-                          </div>
-                          
-                          <div className="col-span-2">
-                            <span className="text-sm text-muted-foreground">{component.assigned_to || '-'}</span>
-                          </div>
-                          
-                          <div className="col-span-1">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleContextMenuAction('edit', component.id, 'Component')}>
-                                  <Edit2 className="h-4 w-4 mr-2" />
-                                  Edit
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem 
-                                  onClick={() => handleContextMenuAction('delete', component.id, 'Component')}
-                                  className="text-destructive"
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                <h3 className="text-lg font-medium mb-2">No project scope defined</h3>
+                <p className="text-muted-foreground mb-6">
+                  Start by creating your first project stage to organize your work breakdown structure.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {stages.map((stage) => (
+                  <div key={stage.id} className="space-y-2">
+                    {/* Stage Row */}
+                    <div className="grid grid-cols-12 gap-4 p-4 bg-card border border-border rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="col-span-2 flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => updateWBSItem(stage.id, { is_expanded: !stage.is_expanded })}
+                          className="p-1 h-6 w-6"
+                        >
+                          {stage.is_expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </Button>
+                        <span className="text-sm font-medium">{stage.wbs_id}</span>
+                      </div>
+                      
+                      <div className="col-span-3">
+                        <span className="text-sm font-medium">{stage.title || 'Untitled Stage'}</span>
+                      </div>
+                      
+                      <div className="col-span-3">
+                        <span className="text-sm text-muted-foreground">{stage.description || '-'}</span>
+                      </div>
+                      
+                      <div className="col-span-1">
+                        <Badge className={getStatusColor(stage.status)}>{stage.status || 'Not Started'}</Badge>
+                      </div>
+                      
+                      <div className="col-span-2 flex items-center gap-2">
+                        <span className="text-sm">{stage.progress || 0}%</span>
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden max-w-[80px]">
+                          <div 
+                            className={`h-full ${getProgressColor(stage.progress)} transition-all duration-300`}
+                            style={{ width: `${stage.progress || 0}%` }}
+                          />
                         </div>
-
-                        {component.is_expanded && component.children && component.children.length > 0 && (
-                          <div className="ml-8 mt-2 space-y-1">
-                            {component.children.map((element) => (
-                              <div key={element.id} className="grid grid-cols-12 gap-4 p-3 bg-background border border-border rounded-lg hover:bg-muted/30 transition-colors">
-                                <div className="col-span-1 flex items-center">
-                                  <span className="text-sm">{element.wbs_id}</span>
-                                </div>
-                                
-                                <div className="col-span-3">
-                                  <span className="text-sm">{element.title || 'Untitled Element'}</span>
-                                </div>
-                                
-                                <div className="col-span-3">
-                                  <span className="text-sm text-muted-foreground">{element.description || '-'}</span>
-                                </div>
-                                
-                                <div className="col-span-1">
-                                  <Badge className={getStatusColor(element.status)}>{element.status || 'Not Started'}</Badge>
-                                </div>
-                                
-                                <div className="col-span-1 flex items-center gap-2">
-                                  <span className="text-sm">{element.progress || 0}%</span>
-                                  <div className="w-12 h-2 bg-muted rounded-full overflow-hidden">
-                                    <div 
-                                      className={`h-full ${getProgressColor(element.progress)} transition-all duration-300`}
-                                      style={{ width: `${element.progress || 0}%` }}
-                                    />
-                                  </div>
-                                </div>
-                                
-                                <div className="col-span-2">
-                                  <span className="text-sm text-muted-foreground">{element.assigned_to || '-'}</span>
-                                </div>
-                                
-                                <div className="col-span-1">
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button variant="ghost" size="sm">
-                                        <MoreHorizontal className="h-4 w-4" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuItem onClick={() => handleContextMenuAction('edit', element.id, 'Element')}>
-                                        <Edit2 className="h-4 w-4 mr-2" />
-                                        Edit
-                                      </DropdownMenuItem>
-                                      <DropdownMenuSeparator />
-                                      <DropdownMenuItem 
-                                        onClick={() => handleContextMenuAction('delete', element.id, 'Element')}
-                                        className="text-destructive"
-                                      >
-                                        <Trash2 className="h-4 w-4 mr-2" />
-                                        Delete
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                        {stage.assigned_to && (
+                          <span className="text-xs text-muted-foreground">{stage.assigned_to}</span>
                         )}
                       </div>
-                    ))}
+                      
+                      <div className="col-span-1">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleContextMenuAction('edit', stage.id, 'Stage')}>
+                              <Edit2 className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              onClick={() => handleContextMenuAction('delete', stage.id, 'Stage')}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+
+                    {/* Components */}
+                    {stage.is_expanded && stage.children && stage.children.length > 0 && (
+                      <div className="ml-8 space-y-2">
+                        {stage.children.map((component) => (
+                          <div key={component.id} className="space-y-2">
+                            {/* Component Row */}
+                            <div className="grid grid-cols-12 gap-4 p-3 bg-muted/30 border border-border rounded-lg hover:bg-muted/50 transition-colors">
+                              <div className="col-span-2 flex items-center gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => updateWBSItem(component.id, { is_expanded: !component.is_expanded })}
+                                  className="p-1 h-5 w-5"
+                                >
+                                  {component.is_expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                                </Button>
+                                <span className="text-sm">{component.wbs_id}</span>
+                              </div>
+                              
+                              <div className="col-span-3">
+                                <span className="text-sm">{component.title || 'Untitled Component'}</span>
+                              </div>
+                              
+                              <div className="col-span-3">
+                                <span className="text-sm text-muted-foreground">{component.description || '-'}</span>
+                              </div>
+                              
+                              <div className="col-span-1">
+                                <Badge className={getStatusColor(component.status)}>{component.status || 'Not Started'}</Badge>
+                              </div>
+                              
+                              <div className="col-span-2 flex items-center gap-2">
+                                <span className="text-sm">{component.progress || 0}%</span>
+                                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden max-w-[80px]">
+                                  <div 
+                                    className={`h-full ${getProgressColor(component.progress)} transition-all duration-300`}
+                                    style={{ width: `${component.progress || 0}%` }}
+                                  />
+                                </div>
+                                {component.assigned_to && (
+                                  <span className="text-xs text-muted-foreground">{component.assigned_to}</span>
+                                )}
+                              </div>
+                              
+                              <div className="col-span-1">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm">
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => handleContextMenuAction('edit', component.id, 'Component')}>
+                                      <Edit2 className="h-4 w-4 mr-2" />
+                                      Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem 
+                                      onClick={() => handleContextMenuAction('delete', component.id, 'Component')}
+                                      className="text-destructive"
+                                    >
+                                      <Trash2 className="h-4 w-4 mr-2" />
+                                      Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </div>
+
+                            {/* Elements */}
+                            {component.is_expanded && component.children && component.children.length > 0 && (
+                              <div className="ml-8 space-y-1">
+                                {component.children.map((element) => (
+                                  <div key={element.id} className="grid grid-cols-12 gap-4 p-3 bg-background border border-border rounded-lg hover:bg-muted/20 transition-colors">
+                                    <div className="col-span-2 flex items-center">
+                                      <span className="text-sm">{element.wbs_id}</span>
+                                    </div>
+                                    
+                                    <div className="col-span-3">
+                                      <span className="text-sm">{element.title || 'Untitled Element'}</span>
+                                    </div>
+                                    
+                                    <div className="col-span-3">
+                                      <span className="text-sm text-muted-foreground">{element.description || '-'}</span>
+                                    </div>
+                                    
+                                    <div className="col-span-1">
+                                      <Badge className={getStatusColor(element.status)}>{element.status || 'Not Started'}</Badge>
+                                    </div>
+                                    
+                                    <div className="col-span-2 flex items-center gap-2">
+                                      <span className="text-sm">{element.progress || 0}%</span>
+                                      <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden max-w-[80px]">
+                                        <div 
+                                          className={`h-full ${getProgressColor(element.progress)} transition-all duration-300`}
+                                          style={{ width: `${element.progress || 0}%` }}
+                                        />
+                                      </div>
+                                      {element.assigned_to && (
+                                        <span className="text-xs text-muted-foreground">{element.assigned_to}</span>
+                                      )}
+                                    </div>
+                                    
+                                    <div className="col-span-1">
+                                      <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <Button variant="ghost" size="sm">
+                                            <MoreHorizontal className="h-4 w-4" />
+                                          </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                          <DropdownMenuItem onClick={() => handleContextMenuAction('edit', element.id, 'Element')}>
+                                            <Edit2 className="h-4 w-4 mr-2" />
+                                            Edit
+                                          </DropdownMenuItem>
+                                          <DropdownMenuSeparator />
+                                          <DropdownMenuItem 
+                                            onClick={() => handleContextMenuAction('delete', element.id, 'Element')}
+                                            className="text-destructive"
+                                          >
+                                            <Trash2 className="h-4 w-4 mr-2" />
+                                            Delete
+                                          </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
