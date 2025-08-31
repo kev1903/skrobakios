@@ -139,7 +139,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
           style={{ paddingLeft: `${item.level * 24 + 12}px` }}
         >
           {/* WBS ID & Expand/Collapse */}
-          <div className="col-span-1 flex items-center space-x-2">
+          <div className="col-span-2 flex items-center space-x-2">
             {hasChildren && (
               <button
                 onClick={() => toggleExpanded(item.id)}
@@ -267,7 +267,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
           </div>
 
           {/* Actions */}
-          <div className="col-span-2 flex items-center space-x-1">
+          <div className="col-span-1 flex items-center space-x-1">
             {isEditing ? (
               <>
                 <Button
@@ -406,7 +406,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
       {/* WBS Table Header */}
       <div className="bg-gray-100 border-b border-gray-200 sticky top-0 z-10">
         <div className="grid grid-cols-12 gap-2 p-3 text-sm font-medium text-gray-700">
-          <div className="col-span-1">WBS ID</div>
+          <div className="col-span-2">WBS ID</div>
           <div className="col-span-2">Title</div>
           <div className="col-span-1">Assigned To</div>
           <div className="col-span-1">Start Date</div>
@@ -415,7 +415,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
           <div className="col-span-1">Budget</div>
           <div className="col-span-1">Actual</div>
           <div className="col-span-1">Progress</div>
-          <div className="col-span-2">Actions</div>
+          <div className="col-span-1">Actions</div>
         </div>
         </div>
 
