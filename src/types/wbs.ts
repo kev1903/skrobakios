@@ -18,6 +18,7 @@ export interface WBSItem {
   progress_status?: 'On Track' | 'Behind' | 'Ahead' | 'Blocked'; // Progress status
   at_risk?: boolean; // At Risk flag
   level: number;
+  category?: 'Stage' | 'Component' | 'Element'; // Single source categorization
   is_expanded: boolean;
   linked_tasks: string[];
   children: WBSItem[];

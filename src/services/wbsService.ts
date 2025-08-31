@@ -51,7 +51,13 @@ export class WBSService {
         budgeted_cost: itemData.budgeted_cost,
         actual_cost: itemData.actual_cost,
         progress: itemData.progress,
+        status: itemData.status,
+        health: itemData.health,
+        progress_status: itemData.progress_status,
+        at_risk: itemData.at_risk,
         level: itemData.level,
+        category: itemData.category,
+        priority: itemData.priority,
         is_expanded: itemData.is_expanded,
         linked_tasks: itemData.linked_tasks
       })

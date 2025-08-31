@@ -5509,20 +5509,26 @@ export type Database = {
         Row: {
           actual_cost: number | null
           assigned_to: string | null
+          at_risk: boolean | null
           budgeted_cost: number | null
+          category: string | null
           company_id: string
           created_at: string
           description: string | null
           duration: number | null
           end_date: string | null
+          health: string | null
           id: string
           is_expanded: boolean | null
           level: number | null
           linked_tasks: Json | null
           parent_id: string | null
+          priority: string | null
           progress: number | null
+          progress_status: string | null
           project_id: string
           start_date: string | null
+          status: string | null
           title: string
           updated_at: string
           wbs_id: string
@@ -5530,20 +5536,26 @@ export type Database = {
         Insert: {
           actual_cost?: number | null
           assigned_to?: string | null
+          at_risk?: boolean | null
           budgeted_cost?: number | null
+          category?: string | null
           company_id: string
           created_at?: string
           description?: string | null
           duration?: number | null
           end_date?: string | null
+          health?: string | null
           id?: string
           is_expanded?: boolean | null
           level?: number | null
           linked_tasks?: Json | null
           parent_id?: string | null
+          priority?: string | null
           progress?: number | null
+          progress_status?: string | null
           project_id: string
           start_date?: string | null
+          status?: string | null
           title: string
           updated_at?: string
           wbs_id: string
@@ -5551,20 +5563,26 @@ export type Database = {
         Update: {
           actual_cost?: number | null
           assigned_to?: string | null
+          at_risk?: boolean | null
           budgeted_cost?: number | null
+          category?: string | null
           company_id?: string
           created_at?: string
           description?: string | null
           duration?: number | null
           end_date?: string | null
+          health?: string | null
           id?: string
           is_expanded?: boolean | null
           level?: number | null
           linked_tasks?: Json | null
           parent_id?: string | null
+          priority?: string | null
           progress?: number | null
+          progress_status?: string | null
           project_id?: string
           start_date?: string | null
+          status?: string | null
           title?: string
           updated_at?: string
           wbs_id?: string
@@ -5838,7 +5856,38 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      project_scope_view: {
+        Row: {
+          actual_cost: number | null
+          assigned_to: string | null
+          at_risk: boolean | null
+          budgeted_cost: number | null
+          category: string | null
+          company_id: string | null
+          created_at: string | null
+          depth: number | null
+          description: string | null
+          duration: number | null
+          end_date: string | null
+          health: string | null
+          id: string | null
+          is_expanded: boolean | null
+          level: number | null
+          linked_tasks: Json | null
+          parent_id: string | null
+          path: string[] | null
+          priority: string | null
+          progress: number | null
+          progress_status: string | null
+          project_id: string | null
+          start_date: string | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          wbs_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accept_project_invitation: {
@@ -6066,6 +6115,38 @@ export type Database = {
           stage: string
           value: number
           website: string
+        }[]
+      }
+      get_project_scope: {
+        Args: { target_project_id: string }
+        Returns: {
+          actual_cost: number
+          assigned_to: string
+          at_risk: boolean
+          budgeted_cost: number
+          category: string
+          company_id: string
+          created_at: string
+          depth: number
+          description: string
+          duration: number
+          end_date: string
+          health: string
+          id: string
+          is_expanded: boolean
+          level: number
+          linked_tasks: Json
+          parent_id: string
+          path: string[]
+          priority: string
+          progress: number
+          progress_status: string
+          project_id: string
+          start_date: string
+          status: string
+          title: string
+          updated_at: string
+          wbs_id: string
         }[]
       }
       get_public_profile_safe: {
