@@ -341,9 +341,6 @@ export const ProjectCostPage = ({
                               Paid
                             </Button>
                           </div>
-                          <div className="text-sm text-muted-foreground bg-muted/30 px-3 py-2 rounded-lg">
-                            {expenseData.totalItems || 0} items | {formatCurrency(expenseData.totalBills || 0)}
-                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <Button 
