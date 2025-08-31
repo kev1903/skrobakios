@@ -1073,7 +1073,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                           </div>
                                                         </div>
                                                         <div className="px-2 py-2 font-medium text-primary text-xs ml-6 truncate">{generateWBSNumber(phaseIndex, componentIndex, elementIndex)}</div>
-                                                        <div className="px-3 py-2 font-medium text-foreground text-xs ml-6 truncate">
+                                                        <div className="px-3 py-2 font-medium text-foreground text-xs ml-6 min-h-[2rem] flex items-center">
                                                           <EditableCell
                                                             id={element.id}
                                                             type="element"
