@@ -1268,7 +1268,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                              field="name"
                                                              value={element.name}
                                                              placeholder="Untitled Element"
-                                                             className="font-medium text-xs"
+                                                             className="font-medium text-xs text-muted-foreground"
                                                            />
                                                          </div>
                                                          <div className="px-3 py-2 text-muted-foreground text-xs ml-12 truncate">
