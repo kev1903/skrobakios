@@ -1010,10 +1010,10 @@ export const ModernGanttChart = ({
                         <GripVertical className="w-3 h-3 text-gray-400" />
                       </div>
                       
-                      {/* WBS ID */}
-                      <div className="text-center text-sm text-gray-600 font-mono">
-                        {task.wbs || task.rowNumber}
-                      </div>
+                       {/* WBS ID */}
+                       <div className="text-sm text-gray-600 font-mono" style={{ paddingLeft: `${task.depth * 24}px` }}>
+                         {task.wbs || task.rowNumber}
+                       </div>
                      
                      {/* Task Name with hierarchy */}
                      <div className="flex items-center gap-2 min-w-0">
