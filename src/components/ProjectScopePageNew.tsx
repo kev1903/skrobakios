@@ -157,9 +157,32 @@ export const ProjectScopePageNew = ({ project, onNavigate }: ProjectScopePageNew
                   value={editValue}
                   onChange={(e) => setEditValue(e.target.value)}
                   onBlur={saveEdit}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') saveEdit();
-                    if (e.key === 'Escape') cancelEdit();
+                  onKeyDown={async (e) => {
+                    if (e.key === 'Enter' && e.shiftKey) {
+                      e.preventDefault();
+                      await saveEdit();
+                      // Find parent component to add new element
+                      const findParentComponent = (items: WBSItem[], elementId: string): WBSItem | null => {
+                        for (const item of items) {
+                          if (item.children.some(child => child.id === elementId)) {
+                            return item;
+                          }
+                          for (const child of item.children) {
+                            const found = findParentComponent([child], elementId);
+                            if (found) return found;
+                          }
+                        }
+                        return null;
+                      };
+                      const parentComponent = findParentComponent(wbsItems, element.id);
+                      if (parentComponent) {
+                        await addNewElement(parentComponent);
+                      }
+                    } else if (e.key === 'Enter') {
+                      saveEdit();
+                    } else if (e.key === 'Escape') {
+                      cancelEdit();
+                    }
                   }}
                   className="text-sm font-medium"
                   autoFocus
