@@ -797,9 +797,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                               <div
                                 ref={providedDraggable.innerRef}
                                 {...providedDraggable.draggableProps}
-                                className={`grid items-center relative bg-primary/5 border-l-2 border-l-primary hover:bg-accent/20 ${
-                                  snapshotDraggable.isDragging ? 'shadow-xl bg-card border-primary z-50' : ''
-                                }`}
+                                 className={`grid items-center relative bg-slate-100 border-l-4 border-l-slate-600 hover:bg-slate-200 ${
+                                   snapshotDraggable.isDragging ? 'shadow-xl bg-card border-slate-600 z-50' : ''
+                                 }`}
                                 style={{
                                   gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px',
                                   ...providedDraggable.draggableProps.style,
@@ -928,9 +928,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                            <div
                                              ref={componentDragProvided.innerRef}
                                              {...componentDragProvided.draggableProps}
-                                             className={`grid items-center bg-blue-50/80 border-l-4 border-l-blue-400 border-b border-b-blue-200/50 hover:bg-blue-100/80 ${
-                                               componentSnapshot2.isDragging ? 'shadow-xl bg-card border-blue-400 z-40' : ''
-                                             }`}
+                                              className={`grid items-center bg-slate-50 border-l-3 border-l-slate-400 hover:bg-slate-100 ${
+                                                componentSnapshot2.isDragging ? 'shadow-xl bg-card border-slate-400 z-40' : ''
+                                              }`}
                                             style={{
                                               gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px',
                                               ...componentDragProvided.draggableProps.style,
@@ -1055,9 +1055,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                        <div
                                                          ref={elementDragProvided.innerRef}
                                                          {...elementDragProvided.draggableProps}
-                                                         className={`grid items-center bg-slate-50/60 border-l-2 border-l-slate-300 hover:bg-slate-100/70 ${
-                                                           elementSnapshot2.isDragging ? 'shadow-lg bg-card border-slate-400 z-30' : ''
-                                                         }`}
+                                                          className={`grid items-center bg-white border-l-2 border-l-slate-200 hover:bg-slate-50/30 ${
+                                                            elementSnapshot2.isDragging ? 'shadow-lg bg-card border-slate-300 z-30' : ''
+                                                          }`}
                                                         style={{
                                                           gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px',
                                                           ...elementDragProvided.draggableProps.style,
