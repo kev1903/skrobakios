@@ -7,11 +7,13 @@ import { Badge } from '@/components/ui/badge';
 import { Save, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { CentralTask, TaskUpdate } from '@/services/centralTaskService';
 import { WBSItem } from '@/types/wbs';
+
 interface TaskCostTableProps {
   tasks: CentralTask[];
   onUpdateTask: (taskId: string, updates: TaskUpdate) => Promise<void>;
   wbsItems: WBSItem[];
 }
+
 export const TaskCostTable = ({
   tasks,
   onUpdateTask,
@@ -21,7 +23,7 @@ export const TaskCostTable = ({
   const [editValue, setEditValue] = useState<string>('');
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
 
-  // Group WBS items by level 0 (stages) and match with tasks
+  // Group WBS items by stage (level 0 items)
   const groupedWBSData = wbsItems.reduce((acc, item) => {
     if (item.level === 0) { // Stage level
       const stageName = item.title || 'No Stage';
@@ -29,7 +31,7 @@ export const TaskCostTable = ({
         acc[stageName] = {
           stage: item,
           components: [],
-          tasks: []
+          elements: []
         };
       }
     } else if (item.level === 1) { // Component level
@@ -37,35 +39,32 @@ export const TaskCostTable = ({
       const stageName = parentStage?.title || 'No Stage';
       if (!acc[stageName]) {
         acc[stageName] = {
-          stage: parentStage || { title: stageName } as WBSItem,
+          stage: parentStage || { title: stageName, wbs_id: '', id: '' } as WBSItem,
           components: [],
-          tasks: []
+          elements: []
         };
       }
       acc[stageName].components.push(item);
-      
-      // Find matching tasks for this component
-      const matchingTasks = tasks.filter(task => task.name === item.title || task.name.includes(item.title));
-      acc[stageName].tasks.push(...matchingTasks);
+    } else if (item.level === 2) { // Element level
+      const parentComponent = wbsItems.find(wbs => wbs.id === item.parent_id);
+      const grandParentStage = parentComponent ? wbsItems.find(wbs => wbs.id === parentComponent.parent_id) : null;
+      const stageName = grandParentStage?.title || 'No Stage';
+      if (!acc[stageName]) {
+        acc[stageName] = {
+          stage: grandParentStage || { title: stageName, wbs_id: '', id: '' } as WBSItem,
+          components: [],
+          elements: []
+        };
+      }
+      acc[stageName].elements.push({
+        ...item,
+        parentComponent: parentComponent
+      });
     }
     return acc;
-  }, {} as Record<string, { stage: WBSItem; components: WBSItem[]; tasks: CentralTask[] }>);
+  }, {} as Record<string, { stage: WBSItem; components: WBSItem[]; elements: (WBSItem & { parentComponent?: WBSItem })[] }>);
 
-  // If no WBS items, fall back to grouping tasks by stage
-  const fallbackGroupedTasks = tasks.reduce((acc, task) => {
-    const stage = task.stage || 'No Stage';
-    if (!acc[stage]) {
-      acc[stage] = {
-        stage: { title: stage, wbs_id: '', id: '' } as WBSItem,
-        components: [],
-        tasks: []
-      };
-    }
-    acc[stage].tasks.push(task);
-    return acc;
-  }, {} as Record<string, { stage: WBSItem; components: WBSItem[]; tasks: CentralTask[] }>);
-
-  const groupedData = Object.keys(groupedWBSData).length > 0 ? groupedWBSData : fallbackGroupedTasks;
+  const groupedData = Object.keys(groupedWBSData).length > 0 ? groupedWBSData : {};
 
   const toggleStage = (stage: string) => {
     const newExpanded = new Set(expandedStages);
@@ -77,8 +76,8 @@ export const TaskCostTable = ({
     setExpandedStages(newExpanded);
   };
 
-  const handleCellClick = (taskId: string, field: string, currentValue: any) => {
-    setEditingCell({ taskId, field });
+  const handleCellClick = (itemId: string, field: string, currentValue: any) => {
+    setEditingCell({ taskId: itemId, field });
     setEditValue(currentValue?.toString() || '');
   };
 
@@ -86,18 +85,29 @@ export const TaskCostTable = ({
     if (!editingCell) return;
     
     try {
-      const updates: TaskUpdate = {};
+      // For WBS items, we need to update the WBS database
+      const updates: any = {};
       if (editingCell.field === 'budgeted_cost') {
         updates.budgeted_cost = parseFloat(editValue) || 0;
       } else if (editingCell.field === 'actual_cost') {
         updates.actual_cost = parseFloat(editValue) || 0;
       }
       
-      await onUpdateTask(editingCell.taskId, updates);
+      // Find the WBS item to update
+      const wbsItem = wbsItems.find(item => item.id === editingCell.taskId);
+      if (wbsItem) {
+        // Update WBS item in database (you'll need to add this to your WBS service)
+        console.log('Would update WBS item:', editingCell.taskId, updates);
+        // TODO: Add WBS update function when available
+      } else {
+        // Fall back to task update for any actual tasks
+        await onUpdateTask(editingCell.taskId, updates);
+      }
+      
       setEditingCell(null);
       setEditValue('');
     } catch (error) {
-      console.error('Failed to update task:', error);
+      console.error('Failed to update item:', error);
     }
   };
 
@@ -113,24 +123,13 @@ export const TaskCostTable = ({
       handleCellCancel();
     }
   };
+  
   const formatCurrency = (amount: number) => {
     return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
-  const getVarianceColor = (budgeted: number, actual: number) => {
-    const variance = budgeted - actual;
-    if (variance > 0) return 'text-green-600';
-    if (variance < 0) return 'text-red-600';
-  return 'text-muted-foreground';
-  };
 
-  // Extract numeric stage prefix (e.g., '4.0' from '4.0 PRELIMINARY')
-  const extractStageNumber = (label: string): string => {
-    if (!label) return '';
-    const match = label.trim().match(/^([0-9]+(?:\.[0-9]+)*)/);
-    return match ? match[1] : '';
-  };
-
-  return <div className="bg-card border rounded-xl overflow-hidden">
+  return (
+    <div className="bg-card border rounded-xl overflow-hidden">
       {/* Table Header */}
       <div className="bg-muted/30 border-b px-6 py-3">
         <div className="flex items-center justify-end">
@@ -194,7 +193,7 @@ export const TaskCostTable = ({
 
           {/* Table Body */}
           <tbody className="bg-white/5">
-            {tasks.length === 0 ? (
+            {Object.keys(groupedData).length === 0 ? (
               <tr>
                 <td colSpan={9} className="px-2 py-6 text-center text-muted-foreground">
                   <div className="flex flex-col items-center">
@@ -207,11 +206,15 @@ export const TaskCostTable = ({
               </tr>
             ) : (
               Object.entries(groupedData)
-                .sort(([stageA], [stageB]) => stageA.localeCompare(stageB)) // Sort stages in ascending order
+                .sort(([stageA], [stageB]) => stageA.localeCompare(stageB))
                 .map(([stageName, stageData]) => {
                 const isExpanded = expandedStages.has(stageName);
-                const stageTotal = stageData.tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0);
-                const stageActualTotal = stageData.tasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0);
+                
+                // Calculate totals from components and elements
+                const stageTotal = stageData.components.reduce((sum, comp) => sum + (comp.budgeted_cost || 0), 0) +
+                                 stageData.elements.reduce((sum, elem) => sum + (elem.budgeted_cost || 0), 0);
+                const stageActualTotal = stageData.components.reduce((sum, comp) => sum + (comp.actual_cost || 0), 0) +
+                                       stageData.elements.reduce((sum, elem) => sum + (elem.actual_cost || 0), 0);
 
                 return (
                   <React.Fragment key={stageName}>
@@ -227,7 +230,7 @@ export const TaskCostTable = ({
                           ) : (
                             <ChevronRight className="w-3 h-3 mr-1" />
                           )}
-                          {stageData.stage.wbs_id || extractStageNumber(stageName) || stageData.tasks.length}
+                          {stageData.stage.wbs_id || '1'}
                         </div>
                       </td>
                       <td colSpan={2} className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
@@ -251,109 +254,196 @@ export const TaskCostTable = ({
                       </td>
                     </tr>
 
-                    {/* Child Task Rows */}
-                    {isExpanded && stageData.tasks.map((task, taskIndex) => {
-                      const budgeted = task.budgeted_cost || 0;
-                      const actual = task.actual_cost || 0;
-                      const isEditingBudgeted = editingCell?.taskId === task.id && editingCell?.field === 'budgeted_cost';
-                      const isEditingActual = editingCell?.taskId === task.id && editingCell?.field === 'actual_cost';
-                      
-                      return (
-                        <tr key={task.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors group">
-                          {/* WBS Code */}
-                          <td className="px-4 py-1 text-xs text-gray-600 border-r border-gray-100">
-                            {/* Show WBS ID from matching component or generate from stage */}
-                            {(() => {
-                              const matchingComponent = stageData.components.find(comp => 
-                                task.name === comp.title || task.name.includes(comp.title)
-                              );
-                              return matchingComponent?.wbs_id || `${stageData.stage.wbs_id || (taskIndex + 1)}.${taskIndex + 1}`;
-                            })()}
-                          </td>
+                    {/* Component and Element Rows */}
+                    {isExpanded && (
+                      <>
+                        {/* Components */}
+                        {stageData.components.map((component, compIndex) => {
+                          const budgeted = component.budgeted_cost || 0;
+                          const actual = component.actual_cost || 0;
+                          const isEditingBudgeted = editingCell?.taskId === component.id && editingCell?.field === 'budgeted_cost';
+                          const isEditingActual = editingCell?.taskId === component.id && editingCell?.field === 'actual_cost';
+                          
+                          return (
+                            <tr key={component.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors group">
+                              {/* WBS Code */}
+                              <td className="px-4 py-1 text-xs text-gray-600 border-r border-gray-100">
+                                {component.wbs_id}
+                              </td>
 
-                          {/* WBS Name - Show component name or task name */}
-                          <td className="px-2 py-1 border-r border-gray-100 text-xs text-gray-600">
-                            {(() => {
-                              const matchingComponent = stageData.components.find(comp => 
-                                task.name === comp.title || task.name.includes(comp.title)
-                              );
-                              return matchingComponent?.title || '';
-                            })()}
-                          </td>
+                              {/* WBS Name */}
+                              <td className="px-2 py-1 border-r border-gray-100 text-xs text-gray-600">
+                                {component.title}
+                              </td>
 
-                          {/* Activities (Task Name) */}
-                          <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 max-w-xs">
-                            <div className="truncate" title={task.name}>
-                              {task.name}
-                            </div>
-                          </td>
+                              {/* Activities */}
+                              <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 max-w-xs">
+                                <div className="truncate" title={component.description}>
+                                  {component.description || '-'}
+                                </div>
+                              </td>
 
-                          {/* Cost Estimate */}
-                          <td 
-                            className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
-                            onClick={() => handleCellClick(task.id, 'budgeted_cost', budgeted)}
-                          >
-                            {isEditingBudgeted ? (
-                              <div className="flex items-center space-x-1">
-                                <Input 
-                                  type="number" 
-                                  value={editValue} 
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  onKeyDown={handleKeyDown}
-                                  onBlur={handleCellSave}
-                                  className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
-                                  autoFocus
-                                />
-                              </div>
-                            ) : (
-                              <span className="text-xs">{formatCurrency(budgeted)}</span>
-                            )}
-                          </td>
+                              {/* Cost Estimate */}
+                              <td 
+                                className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
+                                onClick={() => handleCellClick(component.id, 'budgeted_cost', budgeted)}
+                              >
+                                {isEditingBudgeted ? (
+                                  <div className="flex items-center space-x-1">
+                                    <Input 
+                                      type="number" 
+                                      value={editValue} 
+                                      onChange={(e) => setEditValue(e.target.value)}
+                                      onKeyDown={handleKeyDown}
+                                      onBlur={handleCellSave}
+                                      className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
+                                      autoFocus
+                                    />
+                                  </div>
+                                ) : (
+                                  <span className="text-xs">{formatCurrency(budgeted)}</span>
+                                )}
+                              </td>
 
-                          {/* Notes */}
-                          <td className="px-2 py-1 text-xs text-gray-500 border-r border-gray-100">
-                            {task.description || '-'}
-                          </td>
+                              {/* Notes */}
+                              <td className="px-2 py-1 text-xs text-gray-500 border-r border-gray-100">
+                                {component.description || '-'}
+                              </td>
 
-                          {/* Project Budget */}
-                          <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
-                            <span className="text-xs">{formatCurrency(budgeted)}</span>
-                          </td>
+                              {/* Project Budget */}
+                              <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
+                                <span className="text-xs">{formatCurrency(budgeted)}</span>
+                              </td>
 
-                          {/* Cost Committed */}
-                          <td 
-                            className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
-                            onClick={() => handleCellClick(task.id, 'actual_cost', actual)}
-                          >
-                            {isEditingActual ? (
-                              <div className="flex items-center space-x-1">
-                                <Input 
-                                  type="number" 
-                                  value={editValue} 
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  onKeyDown={handleKeyDown}
-                                  onBlur={handleCellSave}
-                                  className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
-                                  autoFocus
-                                />
-                              </div>
-                            ) : (
-                              <span className="text-xs">{formatCurrency(actual)}</span>
-                            )}
-                          </td>
+                              {/* Cost Committed */}
+                              <td 
+                                className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
+                                onClick={() => handleCellClick(component.id, 'actual_cost', actual)}
+                              >
+                                {isEditingActual ? (
+                                  <div className="flex items-center space-x-1">
+                                    <Input 
+                                      type="number" 
+                                      value={editValue} 
+                                      onChange={(e) => setEditValue(e.target.value)}
+                                      onKeyDown={handleKeyDown}
+                                      onBlur={handleCellSave}
+                                      className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
+                                      autoFocus
+                                    />
+                                  </div>
+                                ) : (
+                                  <span className="text-xs">{formatCurrency(actual)}</span>
+                                )}
+                              </td>
 
-                          {/* Paid to Date */}
-                          <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
-                            <span className="text-xs">$0.00</span>
-                          </td>
+                              {/* Paid to Date */}
+                              <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
+                                <span className="text-xs">$0.00</span>
+                              </td>
 
-                          {/* Cost */}
-                          <td className="px-2 py-1 text-xs text-gray-900 text-right">
-                            <span className="text-xs">{formatCurrency(budgeted)}</span>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                              {/* Cost */}
+                              <td className="px-2 py-1 text-xs text-gray-900 text-right">
+                                <span className="text-xs">{formatCurrency(budgeted)}</span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+
+                        {/* Elements */}
+                        {stageData.elements.map((element, elemIndex) => {
+                          const budgeted = element.budgeted_cost || 0;
+                          const actual = element.actual_cost || 0;
+                          const isEditingBudgeted = editingCell?.taskId === element.id && editingCell?.field === 'budgeted_cost';
+                          const isEditingActual = editingCell?.taskId === element.id && editingCell?.field === 'actual_cost';
+                          
+                          return (
+                            <tr key={element.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors group bg-gray-25">
+                              {/* WBS Code */}
+                              <td className="px-6 py-1 text-xs text-gray-500 border-r border-gray-100">
+                                {element.wbs_id}
+                              </td>
+
+                              {/* WBS Name */}
+                              <td className="px-2 py-1 border-r border-gray-100 text-xs text-gray-500">
+                                {element.parentComponent?.title}
+                              </td>
+
+                              {/* Activities */}
+                              <td className="px-4 py-1 text-xs text-gray-800 border-r border-gray-100 max-w-xs">
+                                <div className="truncate" title={element.title}>
+                                  {element.title}
+                                </div>
+                              </td>
+
+                              {/* Cost Estimate */}
+                              <td 
+                                className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
+                                onClick={() => handleCellClick(element.id, 'budgeted_cost', budgeted)}
+                              >
+                                {isEditingBudgeted ? (
+                                  <div className="flex items-center space-x-1">
+                                    <Input 
+                                      type="number" 
+                                      value={editValue} 
+                                      onChange={(e) => setEditValue(e.target.value)}
+                                      onKeyDown={handleKeyDown}
+                                      onBlur={handleCellSave}
+                                      className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
+                                      autoFocus
+                                    />
+                                  </div>
+                                ) : (
+                                  <span className="text-xs">{formatCurrency(budgeted)}</span>
+                                )}
+                              </td>
+
+                              {/* Notes */}
+                              <td className="px-2 py-1 text-xs text-gray-500 border-r border-gray-100">
+                                {element.description || '-'}
+                              </td>
+
+                              {/* Project Budget */}
+                              <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
+                                <span className="text-xs">{formatCurrency(budgeted)}</span>
+                              </td>
+
+                              {/* Cost Committed */}
+                              <td 
+                                className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
+                                onClick={() => handleCellClick(element.id, 'actual_cost', actual)}
+                              >
+                                {isEditingActual ? (
+                                  <div className="flex items-center space-x-1">
+                                    <Input 
+                                      type="number" 
+                                      value={editValue} 
+                                      onChange={(e) => setEditValue(e.target.value)}
+                                      onKeyDown={handleKeyDown}
+                                      onBlur={handleCellSave}
+                                      className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
+                                      autoFocus
+                                    />
+                                  </div>
+                                ) : (
+                                  <span className="text-xs">{formatCurrency(actual)}</span>
+                                )}
+                              </td>
+
+                              {/* Paid to Date */}
+                              <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
+                                <span className="text-xs">$0.00</span>
+                              </td>
+
+                              {/* Cost */}
+                              <td className="px-2 py-1 text-xs text-gray-900 text-right">
+                                <span className="text-xs">{formatCurrency(budgeted)}</span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </>
+                    )}
                   </React.Fragment>
                 );
               })
@@ -368,18 +458,18 @@ export const TaskCostTable = ({
               </td>
               <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200 text-right">
                 <span className="text-xs">
-                  {formatCurrency(tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0))}
+                  {formatCurrency(wbsItems.reduce((sum, item) => sum + (item.budgeted_cost || 0), 0))}
                 </span>
               </td>
               <td className="border-r border-gray-200"></td>
               <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200 text-right">
                 <span className="text-xs">
-                  {formatCurrency(tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0))}
+                  {formatCurrency(wbsItems.reduce((sum, item) => sum + (item.budgeted_cost || 0), 0))}
                 </span>
               </td>
               <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200 text-right">
                 <span className="text-xs">
-                  {formatCurrency(tasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0))}
+                  {formatCurrency(wbsItems.reduce((sum, item) => sum + (item.actual_cost || 0), 0))}
                 </span>
               </td>
               <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200 text-right">
@@ -387,12 +477,13 @@ export const TaskCostTable = ({
               </td>
               <td className="px-2 py-1 text-xs font-bold text-gray-900 text-right">
                 <span className="text-xs">
-                  {formatCurrency(tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0))}
+                  {formatCurrency(wbsItems.reduce((sum, item) => sum + (item.budgeted_cost || 0), 0))}
                 </span>
               </td>
             </tr>
           </tfoot>
         </table>
       </div>
-    </div>;
+    </div>
+  );
 };
