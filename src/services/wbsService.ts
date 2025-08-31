@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { WBSItem, WBSItemInput } from '@/types/wbs';
 import { buildHierarchy } from '@/utils/wbsUtils';
-import { createSampleWBSData } from '@/data/wbsSampleData';
+
 
 export class WBSService {
   // Load WBS items for a project
@@ -20,11 +20,10 @@ export class WBSService {
     console.log('📊 Raw WBS data from database:', data?.length || 0, 'items');
     data?.forEach(item => console.log(`  ${item.wbs_id}: ${item.title} (Level ${item.level})`));
 
-    // If no data exists, create sample data
+    // If no data exists, return empty array (no auto-sample)
     if (!data || data.length === 0) {
-      console.log('🏗️ No WBS data found, creating sample data...');
-      const sampleData = await createSampleWBSData(projectId, companyId);
-      return buildHierarchy(sampleData);
+      console.log('🏗️ No WBS data found. Returning empty dataset.');
+      return [];
     }
 
     // Build and return hierarchy

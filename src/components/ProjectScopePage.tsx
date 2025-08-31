@@ -179,7 +179,7 @@ const sampleScopeData: ScopePhase[] = [
 ];
 
 export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps) => {
-  const [scopeData, setScopeData] = useState<ScopePhase[]>(sampleScopeData);
+  const [scopeData, setScopeData] = useState<ScopePhase[]>([]);
   const screenSize = useScreenSize();
   const { currentCompany } = useCompany();
   const [dragIndicator, setDragIndicator] = useState<{ type: string; droppableId: string; index: number } | null>(null);
