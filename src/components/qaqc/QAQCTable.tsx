@@ -21,6 +21,8 @@ interface QAQCTableProps {
   onRefresh?: () => void;
   onExportPDF?: (id: string, type: string) => void;
   onBulkAction?: (action: string, selectedIds: string[]) => void;
+  selectedItems?: string[];
+  setSelectedItems?: (items: string[]) => void;
 }
 
 const getStatusColor = (status: string, type: string) => {
@@ -80,28 +82,33 @@ const getSeverityColor = (severity: string) => {
   return severityMap[severity] || 'bg-gray-100 text-gray-800';
 };
 
-export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefresh, onExportPDF, onBulkAction }: QAQCTableProps) => {
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+export const QAQCTable = ({ 
+  data, 
+  type, 
+  isLoading, 
+  onNavigate, 
+  onDelete, 
+  onRefresh, 
+  onExportPDF, 
+  onBulkAction, 
+  selectedItems = [], 
+  setSelectedItems 
+}: QAQCTableProps) => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedItems(data.map(item => item.id));
+      setSelectedItems?.(data.map(item => item.id));
     } else {
-      setSelectedItems([]);
+      setSelectedItems?.([]);
     }
   };
 
   const handleSelectItem = (itemId: string, checked: boolean) => {
     if (checked) {
-      setSelectedItems(prev => [...prev, itemId]);
+      setSelectedItems?.([...selectedItems, itemId]);
     } else {
-      setSelectedItems(prev => prev.filter(id => id !== itemId));
+      setSelectedItems?.(selectedItems.filter(id => id !== itemId));
     }
-  };
-
-  const handleBulkAction = (action: string) => {
-    onBulkAction?.(action, selectedItems);
-    setSelectedItems([]);
   };
   if (isLoading) {
     return (
@@ -591,73 +598,13 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
   };
 
   return (
-    <div className="space-y-4">
-      {/* Bulk Actions Toolbar */}
-      {selectedItems.length > 0 && type === 'issues' && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <span className="text-sm font-medium text-blue-900">
-              {selectedItems.length} issue{selectedItems.length > 1 ? 's' : ''} selected
-            </span>
-            <div className="flex items-center space-x-2">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkAction('resolve')}
-                className="text-green-700 border-green-300 hover:bg-green-50"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Mark Resolved
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkAction('archive')}
-                className="text-gray-700 border-gray-300 hover:bg-gray-50"
-              >
-                <Archive className="w-4 h-4 mr-2" />
-                Archive
-              </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onBulkAction?.('export', selectedItems)}
-                  className="text-blue-700 border-blue-300 hover:bg-blue-50"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Export
-                </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkAction('delete')}
-                className="text-red-700 border-red-300 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
-              </Button>
-            </div>
-          </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setSelectedItems([])}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            Clear Selection
-          </Button>
-        </div>
-      )}
-
-      {/* Table */}
-      <div className="border rounded-lg">
-        <Table>
-          {renderColumns()}
-          <TableBody>
-            {data.map(renderRow)}
-          </TableBody>
-        </Table>
-      </div>
+    <div className="border rounded-lg">
+      <Table>
+        {renderColumns()}
+        <TableBody>
+          {data.map(renderRow)}
+        </TableBody>
+      </Table>
     </div>
   );
 };

@@ -5,7 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { QAQCTable } from '@/components/qaqc/QAQCTable';
-import { Plus, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { Plus, ArrowLeft, AlertTriangle, CheckCircle, Archive, Download, Trash2 } from 'lucide-react';
 import { useIssueReport } from '@/hooks/useQAQCData';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +25,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
   const { data: report } = useIssueReport(reportId || '');
   const [issues, setIssues] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -288,6 +289,63 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
                 </span>
               </div>
             </div>
+
+            {/* Bulk Actions - Show when items are selected */}
+            {selectedItems.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-border">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-blue-900">
+                    {selectedItems.length} issue{selectedItems.length > 1 ? 's' : ''} selected
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleBulkAction('resolve', selectedItems)}
+                      className="text-green-700 border-green-300 hover:bg-green-50"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Mark Resolved
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleBulkAction('archive', selectedItems)}
+                      className="text-gray-700 border-gray-300 hover:bg-gray-50"
+                    >
+                      <Archive className="w-4 h-4 mr-2" />
+                      Archive
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleBulkAction('export', selectedItems)}
+                      className="text-blue-700 border-blue-300 hover:bg-blue-50"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Export
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleBulkAction('delete', selectedItems)}
+                      className="text-red-700 border-red-300 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setSelectedItems([])}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      Clear Selection
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
             
           </div>
 
@@ -301,6 +359,8 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
               onRefresh={refreshIssues}
               onExportPDF={handleExportPDF}
               onBulkAction={handleBulkAction}
+              selectedItems={selectedItems}
+              setSelectedItems={setSelectedItems}
             />
           </div>
         </div>
