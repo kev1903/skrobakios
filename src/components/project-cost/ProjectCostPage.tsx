@@ -17,6 +17,7 @@ import { CostByStageChart } from './CostByStageChart';
 import { TaskCostTable } from './TaskCostTable';
 import { CostAnalytics } from './CostAnalytics';
 import { StageManagement } from './StageManagement';
+import { useWBS } from '@/hooks/useWBS';
 
 import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
 import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
@@ -83,6 +84,9 @@ export const ProjectCostPage = ({
     loadTasks
   } = useCentralTasks(project.id, project.company_id || 'demo-company');
   const costSummary = getCostSummary();
+
+  // Use WBS data from scope database
+  const { wbsItems } = useWBS(project.id);
 
   // Load income data
   const loadIncomeData = async () => {
@@ -484,7 +488,7 @@ export const ProjectCostPage = ({
                 </TabsContent>
                 
                 <TabsContent value="cost-control" className="mt-0">
-                  <TaskCostTable tasks={tasks} onUpdateTask={updateTask} />
+                  <TaskCostTable tasks={tasks} onUpdateTask={updateTask} wbsItems={wbsItems} />
                 </TabsContent>
               </div>
             </Tabs>

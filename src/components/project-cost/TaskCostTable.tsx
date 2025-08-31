@@ -6,27 +6,66 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Save, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { CentralTask, TaskUpdate } from '@/services/centralTaskService';
+import { WBSItem } from '@/types/wbs';
 interface TaskCostTableProps {
   tasks: CentralTask[];
   onUpdateTask: (taskId: string, updates: TaskUpdate) => Promise<void>;
+  wbsItems: WBSItem[];
 }
 export const TaskCostTable = ({
   tasks,
-  onUpdateTask
+  onUpdateTask,
+  wbsItems = []
 }: TaskCostTableProps) => {
   const [editingCell, setEditingCell] = useState<{ taskId: string; field: string } | null>(null);
   const [editValue, setEditValue] = useState<string>('');
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
 
-  // Group tasks by stage
-  const groupedTasks = tasks.reduce((acc, task) => {
+  // Group WBS items by level 0 (stages) and match with tasks
+  const groupedWBSData = wbsItems.reduce((acc, item) => {
+    if (item.level === 0) { // Stage level
+      const stageName = item.title || 'No Stage';
+      if (!acc[stageName]) {
+        acc[stageName] = {
+          stage: item,
+          components: [],
+          tasks: []
+        };
+      }
+    } else if (item.level === 1) { // Component level
+      const parentStage = wbsItems.find(wbs => wbs.id === item.parent_id);
+      const stageName = parentStage?.title || 'No Stage';
+      if (!acc[stageName]) {
+        acc[stageName] = {
+          stage: parentStage || { title: stageName } as WBSItem,
+          components: [],
+          tasks: []
+        };
+      }
+      acc[stageName].components.push(item);
+      
+      // Find matching tasks for this component
+      const matchingTasks = tasks.filter(task => task.name === item.title || task.name.includes(item.title));
+      acc[stageName].tasks.push(...matchingTasks);
+    }
+    return acc;
+  }, {} as Record<string, { stage: WBSItem; components: WBSItem[]; tasks: CentralTask[] }>);
+
+  // If no WBS items, fall back to grouping tasks by stage
+  const fallbackGroupedTasks = tasks.reduce((acc, task) => {
     const stage = task.stage || 'No Stage';
     if (!acc[stage]) {
-      acc[stage] = [];
+      acc[stage] = {
+        stage: { title: stage, wbs_id: '', id: '' } as WBSItem,
+        components: [],
+        tasks: []
+      };
     }
-    acc[stage].push(task);
+    acc[stage].tasks.push(task);
     return acc;
-  }, {} as Record<string, CentralTask[]>);
+  }, {} as Record<string, { stage: WBSItem; components: WBSItem[]; tasks: CentralTask[] }>);
+
+  const groupedData = Object.keys(groupedWBSData).length > 0 ? groupedWBSData : fallbackGroupedTasks;
 
   const toggleStage = (stage: string) => {
     const newExpanded = new Set(expandedStages);
@@ -167,19 +206,19 @@ export const TaskCostTable = ({
                 </td>
               </tr>
             ) : (
-              Object.entries(groupedTasks)
+              Object.entries(groupedData)
                 .sort(([stageA], [stageB]) => stageA.localeCompare(stageB)) // Sort stages in ascending order
-                .map(([stage, stageTasks]) => {
-                const isExpanded = expandedStages.has(stage);
-                const stageTotal = stageTasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0);
-                const stageActualTotal = stageTasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0);
+                .map(([stageName, stageData]) => {
+                const isExpanded = expandedStages.has(stageName);
+                const stageTotal = stageData.tasks.reduce((sum, task) => sum + (task.budgeted_cost || 0), 0);
+                const stageActualTotal = stageData.tasks.reduce((sum, task) => sum + (task.actual_cost || 0), 0);
 
                 return (
-                  <React.Fragment key={stage}>
+                  <React.Fragment key={stageName}>
                     {/* Stage Parent Row */}
                     <tr 
                       className="bg-gray-100 border-b border-gray-200 hover:bg-gray-150 cursor-pointer transition-colors"
-                      onClick={() => toggleStage(stage)}
+                      onClick={() => toggleStage(stageName)}
                     >
                       <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
                         <div className="flex items-center">
@@ -188,11 +227,11 @@ export const TaskCostTable = ({
                           ) : (
                             <ChevronRight className="w-3 h-3 mr-1" />
                           )}
-                          {extractStageNumber(stage) || stageTasks.length}
+                          {stageData.stage.wbs_id || extractStageNumber(stageName) || stageData.tasks.length}
                         </div>
                       </td>
                       <td colSpan={2} className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
-                        {stage}
+                        {stageData.stage.title || stageName}
                       </td>
                       <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
                         {formatCurrency(stageTotal)}
@@ -213,7 +252,7 @@ export const TaskCostTable = ({
                     </tr>
 
                     {/* Child Task Rows */}
-                    {isExpanded && stageTasks.map((task, taskIndex) => {
+                    {isExpanded && stageData.tasks.map((task, taskIndex) => {
                       const budgeted = task.budgeted_cost || 0;
                       const actual = task.actual_cost || 0;
                       const isEditingBudgeted = editingCell?.taskId === task.id && editingCell?.field === 'budgeted_cost';
@@ -221,13 +260,25 @@ export const TaskCostTable = ({
                       
                       return (
                         <tr key={task.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors group">
-                          {/* No. */}
+                          {/* WBS Code */}
                           <td className="px-4 py-1 text-xs text-gray-600 border-r border-gray-100">
-                            {extractStageNumber(stage) ? `${extractStageNumber(stage)}.${taskIndex + 1}` : taskIndex + 1}
+                            {/* Show WBS ID from matching component or generate from stage */}
+                            {(() => {
+                              const matchingComponent = stageData.components.find(comp => 
+                                task.name === comp.title || task.name.includes(comp.title)
+                              );
+                              return matchingComponent?.wbs_id || `${stageData.stage.wbs_id || (taskIndex + 1)}.${taskIndex + 1}`;
+                            })()}
                           </td>
 
-                          {/* Stage - Empty for child rows */}
-                          <td className="px-2 py-1 border-r border-gray-100">
+                          {/* WBS Name - Show component name or task name */}
+                          <td className="px-2 py-1 border-r border-gray-100 text-xs text-gray-600">
+                            {(() => {
+                              const matchingComponent = stageData.components.find(comp => 
+                                task.name === comp.title || task.name.includes(comp.title)
+                              );
+                              return matchingComponent?.title || '';
+                            })()}
                           </td>
 
                           {/* Activities (Task Name) */}
