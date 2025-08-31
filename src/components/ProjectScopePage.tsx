@@ -295,6 +295,63 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     { value: 'On Hold', label: 'On Hold', short: 'Hold', color: 'bg-amber-500' }
   ] as const;
 
+  const ProgressInput = ({ 
+    value, 
+    onChange, 
+    className = "" 
+  }: { 
+    value: number; 
+    onChange: (value: number) => void;
+    className?: string;
+  }) => {
+    const [isEditing, setIsEditing] = useState(false);
+    const [inputValue, setInputValue] = useState(value.toString());
+
+    const handleSave = () => {
+      const numValue = Math.max(0, Math.min(100, parseInt(inputValue) || 0));
+      onChange(numValue);
+      setIsEditing(false);
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handleSave();
+      } else if (e.key === 'Escape') {
+        setInputValue(value.toString());
+        setIsEditing(false);
+      }
+    };
+
+    if (isEditing) {
+      return (
+        <Input
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={handleKeyDown}
+          className={`w-8 h-4 text-xs p-0 text-center border-0 bg-transparent focus:bg-white focus:border focus:ring-1 ${className}`}
+          autoFocus
+          type="number"
+          min="0"
+          max="100"
+        />
+      );
+    }
+
+    return (
+      <span 
+        className={`text-xs text-muted-foreground font-medium cursor-pointer hover:bg-accent/20 rounded px-1 ${className}`}
+        onClick={() => {
+          setInputValue(value.toString());
+          setIsEditing(true);
+        }}
+        title="Click to edit progress"
+      >
+        {value}%
+      </span>
+    );
+  };
+
   const StatusSelect = ({ 
     value, 
     onChange, 
@@ -938,7 +995,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                     <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
                                       <div className={`h-full transition-all duration-300 ${getProgressColor(phase.progress)}`} style={{ width: `${phase.progress}%` }} />
                                     </div>
-                                    <span className="text-xs text-muted-foreground font-medium">{phase.progress}%</span>
+                                     <ProgressInput 
+                                       value={phase.progress} 
+                                       onChange={(newProgress) => updateWBSItem(phase.id, { progress: newProgress })}
+                                     />
                                   </div>
                                 </div>
                                 <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
@@ -1075,7 +1135,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 <div className="w-10 h-1 bg-muted rounded-full overflow-hidden">
                                                   <div className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`} style={{ width: `${component.progress}%` }} />
                                                 </div>
-                                                <span className="text-xs text-muted-foreground">{component.progress}%</span>
+                                                 <ProgressInput 
+                                                   value={component.progress} 
+                                                   onChange={(newProgress) => updateWBSItem(component.id, { progress: newProgress })}
+                                                 />
                                               </div>
                                             </div>
                                              <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
@@ -1191,7 +1254,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             <div className="w-8 h-1 bg-muted rounded-full overflow-hidden">
                                                               <div className={`h-full transition-all duration-300 ${getProgressColor(element.progress)}`} style={{ width: `${element.progress}%` }} />
                                                             </div>
-                                                            <span className="text-xs text-muted-foreground">{element.progress}%</span>
+                                                             <ProgressInput 
+                                                               value={element.progress} 
+                                                               onChange={(newProgress) => updateWBSItem(element.id, { progress: newProgress })}
+                                                             />
                                                           </div>
                                                         </div>
                                                          <div className="px-2 py-2 text-muted-foreground text-xs truncate">
