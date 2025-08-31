@@ -386,20 +386,6 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   <span className="text-xs font-medium text-foreground font-inter">52%</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="hidden sm:flex font-inter text-xs">
-                  <Filter className="w-3 h-3 mr-1" />
-                  Filter
-                </Button>
-                <Button variant="outline" size="sm" className="hidden sm:flex font-inter text-xs">
-                  <Download className="w-3 h-3 mr-1" />
-                  Export
-                </Button>
-                <Button size="sm" className="font-inter text-xs">
-                  <Plus className="w-3 h-3 mr-1" />
-                  Add Task
-                </Button>
-              </div>
             </div>
           </div>
         </div>
