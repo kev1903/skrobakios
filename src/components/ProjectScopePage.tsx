@@ -817,7 +817,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                               ...componentDragProvided.draggableProps.style,
                                             }}
                                           >
-                                            <div className="px-2 py-1.5">
+                                            <div className="px-2 py-2">
                                               <div
                                                 {...componentDragProvided.dragHandleProps}
                                                 className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 ml-2 ${
