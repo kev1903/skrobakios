@@ -144,29 +144,19 @@ export const TaskCostTable = ({
           <thead className="bg-white/20 border-b border-white/20">
             <tr>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
-              minWidth: '60px'
+              minWidth: '80px'
             }}>
-                No.
-              </th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
-              minWidth: '120px'
-            }}>
-                Stage
+                WBS
               </th>
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
               minWidth: '200px'
             }}>
-                Activities
+                Name
               </th>
               <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
               minWidth: '120px'
             }}>
                 Cost Estimate
-              </th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
-              minWidth: '150px'
-            }}>
-                Notes
               </th>
               <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
               minWidth: '120px'
@@ -195,7 +185,7 @@ export const TaskCostTable = ({
           <tbody className="bg-white/5">
             {Object.keys(groupedData).length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-2 py-6 text-center text-muted-foreground">
+                <td colSpan={7} className="px-2 py-6 text-center text-muted-foreground">
                   <div className="flex flex-col items-center">
                     <p className="text-xs mb-2">No cost items found</p>
                     <Button size="sm" variant="outline" className="text-xs bg-white/20 border-white/30 text-foreground hover:bg-white/30">
@@ -233,13 +223,12 @@ export const TaskCostTable = ({
                           {stageData.stage.wbs_id || '1'}
                         </div>
                       </td>
-                      <td colSpan={2} className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
                         {stageData.stage.title || stageName}
                       </td>
                       <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
                         {formatCurrency(stageTotal)}
                       </td>
-                      <td className="px-2 py-2 border-r border-gray-200"></td>
                       <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
                         {formatCurrency(stageTotal)}
                       </td>
@@ -271,16 +260,9 @@ export const TaskCostTable = ({
                                 {component.wbs_id}
                               </td>
 
-                              {/* WBS Name */}
+                              {/* Name */}
                               <td className="px-2 py-1 border-r border-gray-100 text-xs text-gray-600">
                                 {component.title}
-                              </td>
-
-                              {/* Activities */}
-                              <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 max-w-xs">
-                                <div className="truncate" title={component.description}>
-                                  {component.description || '-'}
-                                </div>
                               </td>
 
                               {/* Cost Estimate */}
@@ -303,11 +285,6 @@ export const TaskCostTable = ({
                                 ) : (
                                   <span className="text-xs">{formatCurrency(budgeted)}</span>
                                 )}
-                              </td>
-
-                              {/* Notes */}
-                              <td className="px-2 py-1 text-xs text-gray-500 border-r border-gray-100">
-                                {component.description || '-'}
                               </td>
 
                               {/* Project Budget */}
@@ -364,12 +341,7 @@ export const TaskCostTable = ({
                                 {element.wbs_id}
                               </td>
 
-                              {/* WBS Name */}
-                              <td className="px-2 py-1 border-r border-gray-100 text-xs text-gray-500">
-                                {element.parentComponent?.title}
-                              </td>
-
-                              {/* Activities */}
+                              {/* Name */}
                               <td className="px-4 py-1 text-xs text-gray-800 border-r border-gray-100 max-w-xs">
                                 <div className="truncate" title={element.title}>
                                   {element.title}
@@ -396,11 +368,6 @@ export const TaskCostTable = ({
                                 ) : (
                                   <span className="text-xs">{formatCurrency(budgeted)}</span>
                                 )}
-                              </td>
-
-                              {/* Notes */}
-                              <td className="px-2 py-1 text-xs text-gray-500 border-r border-gray-100">
-                                {element.description || '-'}
                               </td>
 
                               {/* Project Budget */}
@@ -453,7 +420,7 @@ export const TaskCostTable = ({
           {/* Table Footer with Totals */}
           <tfoot className="bg-gray-50 border-t-2 border-gray-200">
             <tr>
-              <td colSpan={3} className="px-2 py-1 text-xs font-medium text-gray-700 border-r border-gray-200">
+              <td colSpan={2} className="px-2 py-1 text-xs font-medium text-gray-700 border-r border-gray-200">
                 Total
               </td>
               <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200 text-right">
@@ -461,7 +428,6 @@ export const TaskCostTable = ({
                   {formatCurrency(wbsItems.reduce((sum, item) => sum + (item.budgeted_cost || 0), 0))}
                 </span>
               </td>
-              <td className="border-r border-gray-200"></td>
               <td className="px-2 py-1 text-xs font-bold text-gray-900 border-r border-gray-200 text-right">
                 <span className="text-xs">
                   {formatCurrency(wbsItems.reduce((sum, item) => sum + (item.budgeted_cost || 0), 0))}
