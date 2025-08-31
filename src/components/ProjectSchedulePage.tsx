@@ -6,7 +6,7 @@ import { useScreenSize } from "@/hooks/use-mobile";
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from '@/components/ui/card';
-import { Menu } from "lucide-react";
+import { Menu, ChevronsDown, ChevronsUp, Plus } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { addDays } from 'date-fns';
 import { useWBS } from '@/hooks/useWBS';
@@ -276,6 +276,17 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                   </div>
                   <span className="text-xs font-medium text-foreground font-inter">52%</span>
                 </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="sm" variant="outline" className="font-inter text-xs" title="Expand All">
+                  <ChevronsDown className="w-3 h-3" />
+                </Button>
+                <Button size="sm" variant="outline" className="font-inter text-xs" title="Collapse All">
+                  <ChevronsUp className="w-3 h-3" />
+                </Button>
+                <Button size="sm" className="font-inter text-xs" title="Add Task">
+                  <Plus className="w-3 h-3" />
+                </Button>
               </div>
             </div>
           </div>
