@@ -21,17 +21,36 @@ export const findWBSItem = (items: WBSItem[], id: string): WBSItem | null => {
 
 // Generate WBS ID for new items
 export const generateWBSId = (parentId?: string, wbsItems: WBSItem[] = []): string => {
+  // Helper to get all items in flat form
+  const toFlat = (items: WBSItem[]): WBSItem[] => {
+    const out: WBSItem[] = [];
+    const walk = (list: WBSItem[]) => {
+      list.forEach(i => {
+        out.push(i);
+        if (i.children?.length) walk(i.children);
+      });
+    };
+    walk(items);
+    return out;
+  };
+
+  const flat = toFlat(wbsItems);
+
   if (!parentId) {
-    // Top level item
-    const topLevelCount = wbsItems.length;
-    return `${topLevelCount + 1}.0`;
+    // Create a top-level item → find existing top-level indexes and increment
+    const rootItems = flat.filter(i => i.parent_id == null || i.level === 0 || (i.wbs_id && i.wbs_id.endsWith('.0')));
+    const maxTopIndex = rootItems
+      .map(i => parseInt((i.wbs_id || '0.0').split('.')[0], 10))
+      .filter(n => !isNaN(n))
+      .reduce((max, n) => Math.max(max, n), 0);
+    return `${maxTopIndex + 1}.0`;
   }
 
   // Find parent to get its WBS ID
   const findParent = (items: WBSItem[]): WBSItem | null => {
     for (const item of items) {
       if (item.id === parentId) return item;
-      const found = findParent(item.children);
+      const found = findParent(item.children || []);
       if (found) return found;
     }
     return null;
@@ -39,57 +58,125 @@ export const generateWBSId = (parentId?: string, wbsItems: WBSItem[] = []): stri
 
   const parent = findParent(wbsItems);
   if (parent) {
-    const childCount = parent.children.length;
-    return `${parent.wbs_id.replace('.0', '')}.${childCount + 1}`;
+    const existingChildren = flat.filter(i => i.parent_id === parent.id || (i.wbs_id?.startsWith(parent.wbs_id.replace('.0', '') + '.') && (i.wbs_id?.split('.').length || 0) === (parent.wbs_id.split('.').length + 1)));
+    const nextIndex = existingChildren.length + 1;
+    const parentBase = parent.wbs_id.endsWith('.0') ? parent.wbs_id.slice(0, -2) : parent.wbs_id;
+    return `${parentBase}.${nextIndex}`;
   }
 
   return '1.0';
 };
 
-// Transform flat database data into hierarchical structure
+// Transform flat database data into hierarchical structure (robust to bad parent_id/level)
 export const buildHierarchy = (flatData: any[]): WBSItem[] => {
-  const itemsMap = new Map<string, WBSItem>();
-  const rootItems: WBSItem[] = [];
+  // Build canonical items and deduplicate by wbs_id
+  const byWbsId = new Map<string, WBSItem>();
 
-  // First pass: create all items
-  flatData.forEach(item => {
-    const wbsItem: WBSItem = {
-      id: item.id,
-      company_id: item.company_id,
-      project_id: item.project_id,
-      parent_id: item.parent_id,
-      wbs_id: item.wbs_id,
-      title: item.title,
-      description: item.description,
-      assigned_to: item.assigned_to,
-      start_date: item.start_date,
-      end_date: item.end_date,
-      duration: item.duration || 0,
-      budgeted_cost: item.budgeted_cost ? Number(item.budgeted_cost) : undefined,
-      actual_cost: item.actual_cost ? Number(item.actual_cost) : undefined,
-      progress: item.progress || 0,
-      level: item.level,
-      is_expanded: item.is_expanded,
-      linked_tasks: Array.isArray(item.linked_tasks) ? (item.linked_tasks as string[]) : [],
-      children: [],
-      created_at: item.created_at,
-      updated_at: item.updated_at
-    };
-    
-    itemsMap.set(item.id, wbsItem);
+  const toItem = (row: any): WBSItem => ({
+    id: row.id,
+    company_id: row.company_id,
+    project_id: row.project_id,
+    parent_id: row.parent_id,
+    wbs_id: row.wbs_id,
+    title: row.title,
+    description: row.description,
+    assigned_to: row.assigned_to,
+    start_date: row.start_date,
+    end_date: row.end_date,
+    duration: row.duration || 0,
+    budgeted_cost: row.budgeted_cost ? Number(row.budgeted_cost) : undefined,
+    actual_cost: row.actual_cost ? Number(row.actual_cost) : undefined,
+    progress: row.progress || 0,
+    level: row.level,
+    is_expanded: row.is_expanded,
+    linked_tasks: Array.isArray(row.linked_tasks) ? (row.linked_tasks as string[]) : [],
+    children: [],
+    created_at: row.created_at,
+    updated_at: row.updated_at
   });
 
-  // Second pass: build hierarchy
-  itemsMap.forEach(item => {
-    if (item.parent_id && itemsMap.has(item.parent_id)) {
-      const parent = itemsMap.get(item.parent_id)!;
-      parent.children.push(item);
+  const expectedLevel = (wbsId: string) => {
+    const parts = (wbsId || '').split('.');
+    if (parts.length === 2 && parts[1] === '0') return 0; // X.0 → level 0 (Stage)
+    return Math.max(0, parts.length - 1);
+  };
+
+  for (const row of flatData) {
+    const wbsId: string = row.wbs_id;
+    const candidate = toItem(row);
+    candidate.level = candidate.level ?? expectedLevel(wbsId);
+
+    if (!byWbsId.has(wbsId)) {
+      byWbsId.set(wbsId, candidate);
     } else {
-      rootItems.push(item);
+      const current = byWbsId.get(wbsId)!;
+      const exp = expectedLevel(wbsId);
+      const currentScore = Math.abs((current.level ?? exp) - exp);
+      const candScore = Math.abs((candidate.level ?? exp) - exp);
+      if (candScore < currentScore) {
+        byWbsId.set(wbsId, candidate);
+      } else if (candScore === currentScore) {
+        // Prefer most recently updated
+        if (new Date(candidate.updated_at || 0) > new Date(current.updated_at || 0)) {
+          byWbsId.set(wbsId, candidate);
+        }
+      }
     }
-  });
+  }
 
-  return rootItems;
+  // Link by WBS path regardless of parent_id stored
+  const roots: WBSItem[] = [];
+  const getParentWbs = (wbsId: string): string | null => {
+    const parts = wbsId.split('.');
+    if (parts.length <= 2 && parts[1] === '0') return null; // X.0 is root
+    if (parts.length === 2) return `${parts[0]}.0`;
+    if (parts.length > 2) return `${parts[0]}.${parts[1]}`;
+    return null;
+  };
+
+  // Ensure deterministic order
+  const sortByWbs = (a: WBSItem, b: WBSItem) => {
+    const pa = a.wbs_id.split('.').map(n => parseInt(n, 10));
+    const pb = b.wbs_id.split('.').map(n => parseInt(n, 10));
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+      const da = pa[i] ?? 0;
+      const db = pb[i] ?? 0;
+      if (da !== db) return da - db;
+    }
+    return 0;
+  };
+
+  // Prepare all items
+  const all = Array.from(byWbsId.values()).sort(sortByWbs);
+  const byId = new Map<string, WBSItem>(all.map(i => [i.id!, i]));
+
+  // Link children
+  for (const item of all) {
+    const parentWbs = getParentWbs(item.wbs_id);
+    if (!parentWbs) {
+      item.level = expectedLevel(item.wbs_id);
+      roots.push(item);
+      continue;
+    }
+    const parent = byWbsId.get(parentWbs);
+    if (parent) {
+      item.level = expectedLevel(item.wbs_id);
+      parent.children!.push(item);
+    } else {
+      // No parent found, treat as root to avoid data loss
+      item.level = expectedLevel(item.wbs_id);
+      roots.push(item);
+    }
+  }
+
+  // Sort children at every level
+  const sortTree = (nodes: WBSItem[]) => {
+    nodes.sort(sortByWbs);
+    nodes.forEach(n => n.children && sortTree(n.children));
+  };
+  sortTree(roots);
+
+  return roots;
 };
 
 // Update items recursively in a hierarchical structure
