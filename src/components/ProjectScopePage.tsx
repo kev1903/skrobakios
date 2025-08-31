@@ -931,10 +931,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           <div className="flex-1 px-6 py-4 bg-white">
             <div className="rounded-lg border border-border bg-white shadow-sm">
               {/* Header */}
-              <div
-                className="bg-muted/40 border-b border-border grid text-left text-xs font-medium text-muted-foreground uppercase tracking-wider"
-                style={{ gridTemplateColumns: '32px 88px 280px 1fr 140px 120px 160px 160px 84px' }}
-              >
+               <div
+                 className="bg-muted/40 border-b border-border grid text-left text-xs font-medium text-muted-foreground uppercase tracking-wider"
+                 style={{ gridTemplateColumns: '32px 120px 280px 1fr 140px 120px 160px 160px 84px' }}
+               >
                 <div className="px-2 py-2" />
                 <div className="px-2 py-2">WBS</div>
                 <div className="px-3 py-2">Name</div>
@@ -972,10 +972,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                  className={`grid items-center relative bg-slate-200 border-l-4 border-l-slate-700 hover:bg-slate-300 ${
                                    snapshotDraggable.isDragging ? 'shadow-xl bg-card border-slate-700 z-50' : ''
                                  }`}
-                                style={{
-                                  gridTemplateColumns: '32px 88px 280px 1fr 140px 120px 160px 160px 84px',
-                                  ...providedDraggable.draggableProps.style,
-                                }}
+                                 style={{
+                                   gridTemplateColumns: '32px 120px 280px 1fr 140px 120px 160px 160px 84px',
+                                   ...providedDraggable.draggableProps.style,
+                                 }}
                               >
                                 <div className="px-2 py-2">
                                   <div
@@ -1110,10 +1110,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                               className={`grid items-center bg-slate-100 border-l-[3px] border-l-slate-500 hover:bg-slate-200 ${
                                                 componentSnapshot2.isDragging ? 'shadow-xl bg-card border-slate-500 z-40' : ''
                                               }`}
-                                            style={{
-                                              gridTemplateColumns: '32px 88px 280px 1fr 140px 120px 160px 160px 84px',
-                                              ...componentDragProvided.draggableProps.style,
-                                            }}
+                                             style={{
+                                               gridTemplateColumns: '32px 120px 280px 1fr 140px 120px 160px 160px 84px',
+                                               ...componentDragProvided.draggableProps.style,
+                                             }}
                                           >
                                             <div className="px-2 py-2">
                                               <div
@@ -1244,10 +1244,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                           className={`grid items-center bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50 ${
                                                             elementSnapshot2.isDragging ? 'shadow-lg bg-card border-slate-400 z-30' : ''
                                                           }`}
-                                                        style={{
-                                                          gridTemplateColumns: '32px 88px 280px 1fr 140px 120px 160px 160px 84px',
-                                                          ...elementDragProvided.draggableProps.style,
-                                                        }}
+                                                         style={{
+                                                           gridTemplateColumns: '32px 120px 280px 1fr 140px 120px 160px 160px 84px',
+                                                           ...elementDragProvided.draggableProps.style,
+                                                         }}
                                                       >
                                                          <div className="px-2 py-2">
                                                           <div
