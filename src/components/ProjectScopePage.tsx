@@ -342,14 +342,96 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     setEditValue('');
   };
 
-  const updateScopeToDatabase = async () => {
-    // Placeholder for database update - implement with your backend
-    try {
-      console.log('Updating scope to database:', scopeData);
-      // TODO: Implement actual database update
-    } catch (error) {
-      console.error('Failed to update scope:', error);
+  const saveScopeToDatabase = async () => {
+    if (!currentCompany?.id) {
+      console.error('No active company selected');
+      return;
     }
+
+    try {
+      console.log('Saving scope to database:', scopeData);
+      
+      // Flatten the scope data into WBS items
+      const wbsItems = [];
+      
+      for (let phaseIndex = 0; phaseIndex < scopeData.length; phaseIndex++) {
+        const phase = scopeData[phaseIndex];
+        const phaseWbsId = `${phaseIndex + 1}.0`;
+        
+        // Add the phase
+        wbsItems.push({
+          company_id: currentCompany.id,
+          project_id: project.id,
+          parent_id: null,
+          wbs_id: phaseWbsId,
+          title: phase.name || 'Untitled Phase',
+          description: phase.description || '',
+          status: phase.status,
+          progress: phase.progress,
+          level: 1,
+          category: 'Stage',
+          is_expanded: phase.isExpanded,
+          linked_tasks: []
+        });
+        
+        // Add components for this phase
+        for (let compIndex = 0; compIndex < phase.components.length; compIndex++) {
+          const component = phase.components[compIndex];
+          const componentWbsId = `${phaseIndex + 1}.${compIndex + 1}`;
+          
+          wbsItems.push({
+            company_id: currentCompany.id,
+            project_id: project.id,
+            parent_id: null, // Will be set to phase ID after creation
+            wbs_id: componentWbsId,
+            title: component.name || 'Untitled Component',
+            description: component.description || '',
+            status: component.status,
+            progress: component.progress,
+            level: 2,
+            category: 'Component',
+            is_expanded: component.isExpanded,
+            linked_tasks: []
+          });
+          
+          // Add elements for this component
+          for (let elemIndex = 0; elemIndex < component.elements.length; elemIndex++) {
+            const element = component.elements[elemIndex];
+            const elementWbsId = `${phaseIndex + 1}.${compIndex + 1}.${elemIndex + 1}`;
+            
+            wbsItems.push({
+              company_id: currentCompany.id,
+              project_id: project.id,
+              parent_id: null, // Will be set to component ID after creation
+              wbs_id: elementWbsId,
+              title: element.name || 'Untitled Element',
+              description: element.description || '',
+              status: element.status,
+              progress: element.progress,
+              assigned_to: element.assignedTo,
+              level: 3,
+              category: 'Element',
+              is_expanded: true,
+              linked_tasks: []
+            });
+          }
+        }
+      }
+      
+      // Save all items to database
+      for (const item of wbsItems) {
+        await WBSService.createWBSItem(item);
+      }
+      
+      console.log(`Successfully saved ${wbsItems.length} scope items to database`);
+    } catch (error) {
+      console.error('Failed to save scope to database:', error);
+    }
+  };
+
+  const updateScopeToDatabase = async () => {
+    // For now, just save the scope data
+    await saveScopeToDatabase();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -629,10 +711,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     <span className="text-xs font-medium text-foreground font-inter">{calculateOverallProgress()}%</span>
                   </div>
                 </div>
-                <Button size="sm" className="font-inter text-xs" onClick={addNewPhase}>
-                  <Plus className="w-3 h-3 mr-1" />
-                  Add Phase
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button onClick={saveScopeToDatabase} variant="outline" size="sm" className="font-inter text-xs">
+                    Save to Database
+                  </Button>
+                  <Button size="sm" className="font-inter text-xs" onClick={addNewPhase}>
+                    <Plus className="w-3 h-3 mr-1" />
+                    Add Phase
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
