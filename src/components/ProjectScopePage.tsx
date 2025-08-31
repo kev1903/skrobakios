@@ -234,7 +234,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element') => {
     switch (action) {
       case 'add-component':
-        console.log('Add Component to phase', itemId);
+        addNewComponent(itemId);
+        break;
+      case 'add-element':
+        console.log('Add Element to component', itemId);
         break;
       case 'edit':
         console.log('Edit', type, itemId);
@@ -245,6 +248,67 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       case 'delete':
         console.log('Delete', type, itemId);
         break;
+    }
+  };
+
+  const addNewComponent = async (phaseId: string) => {
+    try {
+      if (!currentCompany?.id) {
+        console.error('No active company selected');
+        return;
+      }
+
+      // Find the phase to get the proper WBS ID
+      const phaseIndex = scopeData.findIndex(phase => phase.id === phaseId);
+      if (phaseIndex === -1) return;
+
+      const phase = scopeData[phaseIndex];
+      const componentCount = phase.components.length;
+      const wbsId = `${phaseIndex + 1}.${componentCount + 1}`;
+
+      const inserted = await WBSService.createWBSItem({
+        company_id: currentCompany.id,
+        project_id: project.id,
+        parent_id: phaseId,
+        wbs_id: wbsId,
+        title: 'Untitled Component',
+        description: '',
+        assigned_to: undefined,
+        start_date: undefined,
+        end_date: undefined,
+        duration: 0,
+        budgeted_cost: undefined,
+        actual_cost: undefined,
+        progress: 0,
+        status: 'Not Started',
+        health: 'Good',
+        progress_status: 'On Track',
+        at_risk: false,
+        level: 2,
+        category: 'Component',
+        priority: 'Medium',
+        is_expanded: true,
+        linked_tasks: []
+      } as any);
+
+      const newComponent: ScopeComponent = {
+        id: inserted.id,
+        name: 'Untitled Component',
+        description: '',
+        status: 'Not Started',
+        progress: 0,
+        isExpanded: true,
+        elements: []
+      };
+
+      setScopeData(prev => prev.map(phase => 
+        phase.id === phaseId 
+          ? { ...phase, components: [...phase.components, newComponent] }
+          : phase
+      ));
+
+    } catch (error) {
+      console.error('Error adding component:', error);
     }
   };
 
