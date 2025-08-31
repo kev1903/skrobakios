@@ -253,37 +253,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   const handleDelete = async (itemId: string, type: 'phase' | 'component' | 'element') => {
     try {
-      // First, try to delete from database if this is a real WBS item
-      const wbsItem = wbsItems.find(item => item.id === itemId);
-      if (wbsItem) {
-        await deleteWBSItem(itemId);
-        toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`);
-        return;
-      }
-
-      // Fallback to local state deletion for sample data
-      setScopeData(prevData => {
-        const newData = [...prevData];
-        
-        if (type === 'phase') {
-          return newData.filter(phase => phase.id !== itemId);
-        } else if (type === 'component') {
-          return newData.map(phase => ({
-            ...phase,
-            components: phase.components.filter(component => component.id !== itemId)
-          }));
-        } else if (type === 'element') {
-          return newData.map(phase => ({
-            ...phase,
-            components: phase.components.map(component => ({
-              ...component,
-              elements: component.elements.filter(element => element.id !== itemId)
-            }))
-          }));
-        }
-        return newData;
-      });
-      
+      // Delete from database immediately
+      await deleteWBSItem(itemId);
       toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully`);
     } catch (error) {
       console.error('Failed to delete item:', error);
