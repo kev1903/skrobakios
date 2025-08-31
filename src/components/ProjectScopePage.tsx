@@ -600,9 +600,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
     const updateScopeField = async (newVal: string) => {
       try {
-        await updateWBSItem(id, { [field]: newVal });
+        // Map UI field names to database field names
+        const dbField = field === 'name' ? 'title' : field;
+        await updateWBSItem(id, { [dbField]: newVal });
+        console.log('✅ Updated', dbField, 'to:', newVal, 'for item:', id);
       } catch (e) {
-        console.error('Failed to update field', field, 'for', id, e);
+        console.error('❌ Failed to update field', field, 'for', id, e);
       }
     };
 
