@@ -928,12 +928,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                       <Draggable draggableId={component.id} index={componentIndex}>
                                         {(componentDragProvided, componentSnapshot2) => (
                                           <DragPortalWrapper isDragging={componentSnapshot2.isDragging}>
-                                          <div
-                                            ref={componentDragProvided.innerRef}
-                                            {...componentDragProvided.draggableProps}
-                                            className={`grid items-center bg-secondary/5 border-l-2 border-l-secondary hover:bg-accent/10 ${
-                                              componentSnapshot2.isDragging ? 'shadow-xl bg-card border-secondary z-40' : ''
-                                            }`}
+                                           <div
+                                             ref={componentDragProvided.innerRef}
+                                             {...componentDragProvided.draggableProps}
+                                             className={`grid items-center bg-blue-50/80 border-l-4 border-l-blue-400 border-b border-b-blue-200/50 hover:bg-blue-100/80 ${
+                                               componentSnapshot2.isDragging ? 'shadow-xl bg-card border-blue-400 z-40' : ''
+                                             }`}
                                             style={{
                                               gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px',
                                               ...componentDragProvided.draggableProps.style,
@@ -959,7 +959,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                     <ChevronRight className="w-2.5 h-2.5 text-muted-foreground" />
                                                   )}
                                                 </button>
-                                                <div className="font-medium text-secondary text-xs truncate">{generateWBSNumber(phaseIndex, componentIndex)}</div>
+                                                <div className="font-medium text-blue-600 text-xs truncate">{generateWBSNumber(phaseIndex, componentIndex)}</div>
                                               </div>
                                             </div>
                                             <div className="px-3 py-2 font-medium text-foreground text-xs ml-4 truncate">
@@ -998,7 +998,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 <Button 
                                                   variant="ghost" 
                                                   size="sm" 
-                                                  className="h-6 w-6 p-0 hover:bg-secondary/10 text-secondary hover:text-secondary"
+                                                  className="h-6 w-6 p-0 hover:bg-blue-100 text-blue-600 hover:text-blue-700"
                                                   onClick={() => handleContextMenuAction('add-element', component.id, 'component')}
                                                   title="Add Element"
                                                 >
@@ -1050,12 +1050,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                   <Draggable draggableId={element.id} index={elementIndex}>
                                                     {(elementDragProvided, elementSnapshot2) => (
                                                       <DragPortalWrapper isDragging={elementSnapshot2.isDragging}>
-                                                      <div
-                                                        ref={elementDragProvided.innerRef}
-                                                        {...elementDragProvided.draggableProps}
-                                                        className={`grid items-center hover:bg-accent/5 ${
-                                                          elementSnapshot2.isDragging ? 'shadow-lg bg-card z-30' : ''
-                                                        }`}
+                                                       <div
+                                                         ref={elementDragProvided.innerRef}
+                                                         {...elementDragProvided.draggableProps}
+                                                         className={`grid items-center bg-slate-50/60 border-l-2 border-l-slate-300 hover:bg-slate-100/70 ${
+                                                           elementSnapshot2.isDragging ? 'shadow-lg bg-card border-slate-400 z-30' : ''
+                                                         }`}
                                                         style={{
                                                           gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px',
                                                           ...elementDragProvided.draggableProps.style,
@@ -1072,7 +1072,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                             <GripVertical className="w-3 h-3 text-muted-foreground" />
                                                           </div>
                                                         </div>
-                                                        <div className="px-2 py-2 font-medium text-primary text-xs ml-6 truncate">{generateWBSNumber(phaseIndex, componentIndex, elementIndex)}</div>
+                                                        <div className="px-2 py-2 font-medium text-slate-600 text-xs ml-6 truncate">{generateWBSNumber(phaseIndex, componentIndex, elementIndex)}</div>
                                                         <div className="px-3 py-2 font-medium text-foreground text-xs ml-6 min-h-[2rem] flex items-center">
                                                           <EditableCell
                                                             id={element.id}
