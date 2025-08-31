@@ -797,8 +797,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                               <div
                                 ref={providedDraggable.innerRef}
                                 {...providedDraggable.draggableProps}
-                                 className={`grid items-center relative bg-slate-100 border-l-4 border-l-slate-600 hover:bg-slate-200 ${
-                                   snapshotDraggable.isDragging ? 'shadow-xl bg-card border-slate-600 z-50' : ''
+                                 className={`grid items-center relative bg-slate-200 border-l-4 border-l-slate-700 hover:bg-slate-300 ${
+                                   snapshotDraggable.isDragging ? 'shadow-xl bg-card border-slate-700 z-50' : ''
                                  }`}
                                 style={{
                                   gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px',
@@ -928,8 +928,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                            <div
                                              ref={componentDragProvided.innerRef}
                                              {...componentDragProvided.draggableProps}
-                                              className={`grid items-center bg-slate-50 border-l-3 border-l-slate-400 hover:bg-slate-100 ${
-                                                componentSnapshot2.isDragging ? 'shadow-xl bg-card border-slate-400 z-40' : ''
+                                              className={`grid items-center bg-slate-100 border-l-3 border-l-slate-500 hover:bg-slate-150 ${
+                                                componentSnapshot2.isDragging ? 'shadow-xl bg-card border-slate-500 z-40' : ''
                                               }`}
                                             style={{
                                               gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px',
@@ -1055,8 +1055,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                        <div
                                                          ref={elementDragProvided.innerRef}
                                                          {...elementDragProvided.draggableProps}
-                                                          className={`grid items-center bg-white border-l-2 border-l-slate-200 hover:bg-slate-50/30 ${
-                                                            elementSnapshot2.isDragging ? 'shadow-lg bg-card border-slate-300 z-30' : ''
+                                                          className={`grid items-center bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50 ${
+                                                            elementSnapshot2.isDragging ? 'shadow-lg bg-card border-slate-400 z-30' : ''
                                                           }`}
                                                         style={{
                                                           gridTemplateColumns: '32px 64px 280px 1fr 140px 120px 160px 160px 84px',
