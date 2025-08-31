@@ -23,46 +23,25 @@ export const TaskCostTable = ({
   const [editValue, setEditValue] = useState<string>('');
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
 
-  // Group WBS items by stage (level 0 items)
-  const groupedWBSData = wbsItems.reduce((acc, item) => {
-    if (item.level === 0) { // Stage level
-      const stageName = item.title || 'No Stage';
-      if (!acc[stageName]) {
-        acc[stageName] = {
-          stage: item,
-          components: [],
-          elements: []
-        };
-      }
-    } else if (item.level === 1) { // Component level
-      const parentStage = wbsItems.find(wbs => wbs.id === item.parent_id);
-      const stageName = parentStage?.title || 'No Stage';
-      if (!acc[stageName]) {
-        acc[stageName] = {
-          stage: parentStage || { title: stageName, wbs_id: '', id: '' } as WBSItem,
-          components: [],
-          elements: []
-        };
-      }
-      acc[stageName].components.push(item);
-    } else if (item.level === 2) { // Element level
-      const parentComponent = wbsItems.find(wbs => wbs.id === item.parent_id);
-      const grandParentStage = parentComponent ? wbsItems.find(wbs => wbs.id === parentComponent.parent_id) : null;
-      const stageName = grandParentStage?.title || 'No Stage';
-      if (!acc[stageName]) {
-        acc[stageName] = {
-          stage: grandParentStage || { title: stageName, wbs_id: '', id: '' } as WBSItem,
-          components: [],
-          elements: []
-        };
-      }
-      acc[stageName].elements.push({
-        ...item,
-        parentComponent: parentComponent
-      });
-    }
+  // Group WBS items by stage using the hierarchical structure (roots are stages)
+  const groupedWBSData = (wbsItems || []).reduce((acc, stage) => {
+    const isStage = stage.level === 0 || (stage.wbs_id?.endsWith('.0'));
+    if (!isStage) return acc;
+
+    const key = stage.id || stage.wbs_id || stage.title || Math.random().toString();
+    const components = Array.isArray(stage.children) ? stage.children : [];
+    const elements = components.flatMap((comp) => 
+      Array.isArray(comp.children) ? comp.children.map(el => ({ ...el, parentComponent: comp })) : []
+    );
+
+    acc[key] = {
+      id: key,
+      stage,
+      components,
+      elements
+    };
     return acc;
-  }, {} as Record<string, { stage: WBSItem; components: WBSItem[]; elements: (WBSItem & { parentComponent?: WBSItem })[] }>);
+  }, {} as Record<string, { id: string; stage: WBSItem; components: WBSItem[]; elements: (WBSItem & { parentComponent?: WBSItem })[] }>);
 
   const groupedData = Object.keys(groupedWBSData).length > 0 ? groupedWBSData : {};
 
@@ -159,7 +138,7 @@ export const TaskCostTable = ({
               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
               minWidth: '200px'
             }}>
-                Name
+                NAME
               </th>
               <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
               minWidth: '120px'
@@ -203,23 +182,25 @@ export const TaskCostTable = ({
                 </td>
               </tr>
             ) : (
-              Object.entries(groupedData)
-                .sort(([stageA], [stageB]) => stageA.localeCompare(stageB))
-                .map(([stageName, stageData]) => {
-                const isExpanded = expandedStages.has(stageName);
-                
-                // Calculate totals from components and elements
-                const stageTotal = stageData.components.reduce((sum, comp) => sum + (comp.budgeted_cost || 0), 0) +
-                                 stageData.elements.reduce((sum, elem) => sum + (elem.budgeted_cost || 0), 0);
-                const stageActualTotal = stageData.components.reduce((sum, comp) => sum + (comp.actual_cost || 0), 0) +
-                                       stageData.elements.reduce((sum, elem) => sum + (elem.actual_cost || 0), 0);
+              Object.values(groupedData)
+                .sort((a, b) => (a.stage.wbs_id || '').localeCompare(b.stage.wbs_id || ''))
+                .flatMap((stageData) => {
+                  const stageKey = stageData.id;
+                  const isExpanded = expandedStages.has(stageKey);
+                  
+                  // Calculate totals from components and elements
+                  const stageTotal = stageData.components.reduce((sum, comp) => sum + (comp.budgeted_cost || 0), 0) +
+                                     stageData.elements.reduce((sum, elem) => sum + (elem.budgeted_cost || 0), 0);
+                  const stageActualTotal = stageData.components.reduce((sum, comp) => sum + (comp.actual_cost || 0), 0) +
+                                           stageData.elements.reduce((sum, elem) => sum + (elem.actual_cost || 0), 0);
 
-                return (
-                  <React.Fragment key={stageName}>
-                    {/* Stage Parent Row */}
+                  const rows: JSX.Element[] = [];
+
+                  rows.push(
                     <tr 
+                      key={`stage-${stageKey}`}
                       className="bg-gray-100 border-b border-gray-200 hover:bg-gray-200 cursor-pointer transition-colors"
-                      onClick={() => toggleStage(stageName)}
+                      onClick={() => toggleStage(stageKey)}
                     >
                       <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200">
                         <div className="flex items-center">
@@ -233,7 +214,7 @@ export const TaskCostTable = ({
                       </td>
                       <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200">
                         <div className="flex items-center">
-                          <span>{stageData.stage.title || stageName}</span>
+                          <span>{stageData.stage.title || 'Stage'}</span>
                           <span className="ml-2 px-2 py-1 bg-gray-200 rounded text-xs text-gray-600">
                             {stageData.components.length + stageData.elements.length} items
                           </span>
@@ -255,184 +236,182 @@ export const TaskCostTable = ({
                         {formatCurrency(stageTotal)}
                       </td>
                     </tr>
+                  );
 
-                    {/* Component and Element Rows */}
-                    {isExpanded && (
-                      <>
-                        {/* Components */}
-                        {stageData.components.map((component, compIndex) => {
-                          const budgeted = component.budgeted_cost || 0;
-                          const actual = component.actual_cost || 0;
-                          const isEditingBudgeted = editingCell?.taskId === component.id && editingCell?.field === 'budgeted_cost';
-                          const isEditingActual = editingCell?.taskId === component.id && editingCell?.field === 'actual_cost';
-                          
-                          return (
-                            <tr key={component.id} className="border-b border-gray-100 hover:bg-blue-50/30 transition-colors group bg-blue-50/10">
-                              {/* WBS Code */}
-                              <td className="px-6 py-2 text-xs text-gray-700 border-r border-gray-100 font-mono">
-                                {component.wbs_id}
-                              </td>
+                  if (isExpanded) {
+                    // Components
+                    stageData.components.forEach((component) => {
+                      const budgeted = component.budgeted_cost || 0;
+                      const actual = component.actual_cost || 0;
+                      const isEditingBudgeted = editingCell?.taskId === component.id && editingCell?.field === 'budgeted_cost';
+                      const isEditingActual = editingCell?.taskId === component.id && editingCell?.field === 'actual_cost';
 
-                              {/* Name */}
-                              <td className="px-4 py-2 border-r border-gray-100 text-xs text-gray-800 font-medium">
-                                <div className="flex items-center">
-                                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
-                                  {component.title}
-                                </div>
-                              </td>
+                      rows.push(
+                        <tr key={`component-${component.id}`} className="border-b border-gray-100 hover:bg-blue-50/30 transition-colors group bg-blue-50/10">
+                          {/* WBS Code */}
+                          <td className="px-6 py-2 text-xs text-gray-700 border-r border-gray-100 font-mono">
+                            {component.wbs_id}
+                          </td>
 
-                              {/* Cost Estimate */}
-                              <td 
-                                className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors"
-                                onClick={() => handleCellClick(component.id, 'budgeted_cost', budgeted)}
-                              >
-                                {isEditingBudgeted ? (
-                                  <div className="flex items-center space-x-1">
-                                    <Input 
-                                      type="number" 
-                                      value={editValue} 
-                                      onChange={(e) => setEditValue(e.target.value)}
-                                      onKeyDown={handleKeyDown}
-                                      onBlur={handleCellSave}
-                                      className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
-                                      autoFocus
-                                    />
-                                  </div>
-                                ) : (
-                                  <span className="text-xs font-medium">{formatCurrency(budgeted)}</span>
-                                )}
-                              </td>
+                          {/* Name */}
+                          <td className="px-4 py-2 border-r border-gray-100 text-xs text-gray-800 font-medium">
+                            <div className="flex items-center">
+                              <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                              {component.title}
+                            </div>
+                          </td>
 
-                              {/* Project Budget */}
-                              <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 text-right">
-                                <span className="text-xs">{formatCurrency(budgeted)}</span>
-                              </td>
+                          {/* Cost Estimate */}
+                          <td 
+                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors"
+                            onClick={() => handleCellClick(component.id, 'budgeted_cost', budgeted)}
+                          >
+                            {isEditingBudgeted ? (
+                              <div className="flex items-center space-x-1">
+                                <Input 
+                                  type="number" 
+                                  value={editValue} 
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onKeyDown={handleKeyDown}
+                                  onBlur={handleCellSave}
+                                  className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
+                                  autoFocus
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-xs font-medium">{formatCurrency(budgeted)}</span>
+                            )}
+                          </td>
 
-                              {/* Cost Committed */}
-                              <td 
-                                className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors"
-                                onClick={() => handleCellClick(component.id, 'actual_cost', actual)}
-                              >
-                                {isEditingActual ? (
-                                  <div className="flex items-center space-x-1">
-                                    <Input 
-                                      type="number" 
-                                      value={editValue} 
-                                      onChange={(e) => setEditValue(e.target.value)}
-                                      onKeyDown={handleKeyDown}
-                                      onBlur={handleCellSave}
-                                      className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
-                                      autoFocus
-                                    />
-                                  </div>
-                                ) : (
-                                  <span className="text-xs font-medium">{formatCurrency(actual)}</span>
-                                )}
-                              </td>
+                          {/* Project Budget */}
+                          <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 text-right">
+                            <span className="text-xs">{formatCurrency(budgeted)}</span>
+                          </td>
 
-                              {/* Paid to Date */}
-                              <td className="px-3 py-2 text-xs text-gray-600 border-r border-gray-100 text-right">
-                                <span className="text-xs">$0.00</span>
-                              </td>
+                          {/* Cost Committed */}
+                          <td 
+                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors"
+                            onClick={() => handleCellClick(component.id, 'actual_cost', actual)}
+                          >
+                            {isEditingActual ? (
+                              <div className="flex items-center space-x-1">
+                                <Input 
+                                  type="number" 
+                                  value={editValue} 
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onKeyDown={handleKeyDown}
+                                  onBlur={handleCellSave}
+                                  className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
+                                  autoFocus
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-xs font-medium">{formatCurrency(actual)}</span>
+                            )}
+                          </td>
 
-                              {/* Cost */}
-                              <td className="px-3 py-2 text-xs text-gray-900 text-right">
-                                <span className="text-xs font-medium">{formatCurrency(budgeted)}</span>
-                              </td>
-                            </tr>
-                          );
-                        })}
+                          {/* Paid to Date */}
+                          <td className="px-3 py-2 text-xs text-gray-600 border-r border-gray-100 text-right">
+                            <span className="text-xs">$0.00</span>
+                          </td>
 
-                        {/* Elements */}
-                        {stageData.elements.map((element, elemIndex) => {
-                          const budgeted = element.budgeted_cost || 0;
-                          const actual = element.actual_cost || 0;
-                          const isEditingBudgeted = editingCell?.taskId === element.id && editingCell?.field === 'budgeted_cost';
-                          const isEditingActual = editingCell?.taskId === element.id && editingCell?.field === 'actual_cost';
-                          
-                          return (
-                            <tr key={element.id} className="border-b border-gray-100 hover:bg-green-50/30 transition-colors group bg-green-50/10">
-                              {/* WBS Code */}
-                              <td className="px-8 py-2 text-xs text-gray-600 border-r border-gray-100 font-mono">
-                                {element.wbs_id}
-                              </td>
+                          {/* Cost */}
+                          <td className="px-3 py-2 text-xs text-gray-900 text-right">
+                            <span className="text-xs font-medium">{formatCurrency(budgeted)}</span>
+                          </td>
+                        </tr>
+                      );
+                    });
 
-                              {/* Name */}
-                              <td className="px-6 py-2 text-xs text-gray-700 border-r border-gray-100 max-w-xs">
-                                <div className="flex items-center">
-                                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2"></div>
-                                  <div className="truncate" title={element.title}>
-                                    {element.title}
-                                  </div>
-                                </div>
-                              </td>
+                    // Elements
+                    stageData.elements.forEach((element) => {
+                      const budgeted = element.budgeted_cost || 0;
+                      const actual = element.actual_cost || 0;
+                      const isEditingBudgeted = editingCell?.taskId === element.id && editingCell?.field === 'budgeted_cost';
+                      const isEditingActual = editingCell?.taskId === element.id && editingCell?.field === 'actual_cost';
 
-                              {/* Cost Estimate */}
-                              <td 
-                                className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors"
-                                onClick={() => handleCellClick(element.id, 'budgeted_cost', budgeted)}
-                              >
-                                {isEditingBudgeted ? (
-                                  <div className="flex items-center space-x-1">
-                                    <Input 
-                                      type="number" 
-                                      value={editValue} 
-                                      onChange={(e) => setEditValue(e.target.value)}
-                                      onKeyDown={handleKeyDown}
-                                      onBlur={handleCellSave}
-                                      className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
-                                      autoFocus
-                                    />
-                                  </div>
-                                ) : (
-                                  <span className="text-xs">{formatCurrency(budgeted)}</span>
-                                )}
-                              </td>
+                      rows.push(
+                        <tr key={`element-${element.id}`} className="border-b border-gray-100 hover:bg-green-50/30 transition-colors group bg-green-50/10">
+                          {/* WBS Code */}
+                          <td className="px-8 py-2 text-xs text-gray-600 border-r border-gray-100 font-mono">
+                            {element.wbs_id}
+                          </td>
 
-                              {/* Project Budget */}
-                              <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 text-right">
-                                <span className="text-xs">{formatCurrency(budgeted)}</span>
-                              </td>
+                          {/* Name */}
+                          <td className="px-6 py-2 text-xs text-gray-700 border-r border-gray-100 max-w-xs">
+                            <div className="flex items-center">
+                              <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2"></div>
+                              <div className="truncate" title={element.title}>
+                                {element.title}
+                              </div>
+                            </div>
+                          </td>
 
-                              {/* Cost Committed */}
-                              <td 
-                                className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors"
-                                onClick={() => handleCellClick(element.id, 'actual_cost', actual)}
-                              >
-                                {isEditingActual ? (
-                                  <div className="flex items-center space-x-1">
-                                    <Input 
-                                      type="number" 
-                                      value={editValue} 
-                                      onChange={(e) => setEditValue(e.target.value)}
-                                      onKeyDown={handleKeyDown}
-                                      onBlur={handleCellSave}
-                                      className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
-                                      autoFocus
-                                    />
-                                  </div>
-                                ) : (
-                                  <span className="text-xs">{formatCurrency(actual)}</span>
-                                )}
-                              </td>
+                          {/* Cost Estimate */}
+                          <td 
+                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors"
+                            onClick={() => handleCellClick(element.id, 'budgeted_cost', budgeted)}
+                          >
+                            {isEditingBudgeted ? (
+                              <div className="flex items-center space-x-1">
+                                <Input 
+                                  type="number" 
+                                  value={editValue} 
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onKeyDown={handleKeyDown}
+                                  onBlur={handleCellSave}
+                                  className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
+                                  autoFocus
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-xs">{formatCurrency(budgeted)}</span>
+                            )}
+                          </td>
 
-                              {/* Paid to Date */}
-                              <td className="px-3 py-2 text-xs text-gray-600 border-r border-gray-100 text-right">
-                                <span className="text-xs">$0.00</span>
-                              </td>
+                          {/* Project Budget */}
+                          <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 text-right">
+                            <span className="text-xs">{formatCurrency(budgeted)}</span>
+                          </td>
 
-                              {/* Cost */}
-                              <td className="px-3 py-2 text-xs text-gray-900 text-right">
-                                <span className="text-xs">{formatCurrency(budgeted)}</span>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </>
-                    )}
-                  </React.Fragment>
-                );
-              })
+                          {/* Cost Committed */}
+                          <td 
+                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors"
+                            onClick={() => handleCellClick(element.id, 'actual_cost', actual)}
+                          >
+                            {isEditingActual ? (
+                              <div className="flex items-center space-x-1">
+                                <Input 
+                                  type="number" 
+                                  value={editValue} 
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onKeyDown={handleKeyDown}
+                                  onBlur={handleCellSave}
+                                  className="w-full text-xs border-blue-300 rounded h-6 px-1 text-right"
+                                  autoFocus
+                                />
+                              </div>
+                            ) : (
+                              <span className="text-xs">{formatCurrency(actual)}</span>
+                            )}
+                          </td>
+
+                          {/* Paid to Date */}
+                          <td className="px-3 py-2 text-xs text-gray-600 border-r border-gray-100 text-right">
+                            <span className="text-xs">$0.00</span>
+                          </td>
+
+                          {/* Cost */}
+                          <td className="px-3 py-2 text-xs text-gray-900 text-right">
+                            <span className="text-xs">{formatCurrency(budgeted)}</span>
+                          </td>
+                        </tr>
+                      );
+                    });
+                  }
+
+                  return rows;
+                })
             )}
           </tbody>
 
