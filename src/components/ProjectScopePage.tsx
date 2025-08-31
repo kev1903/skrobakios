@@ -23,7 +23,7 @@ interface ProjectScopePageProps {
 }
 
 export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps) => {
-  const { wbsItems, loading, error, deleteWBSItem, updateWBSItem } = useWBS(project.id);
+  const { wbsItems, loading, error, deleteWBSItem, updateWBSItem, loadWBSItems } = useWBS(project.id);
   const screenSize = useScreenSize();
   const [editingItem, setEditingItem] = useState<{ id: string; field: string } | null>(null);
   const [editValue, setEditValue] = useState('');
