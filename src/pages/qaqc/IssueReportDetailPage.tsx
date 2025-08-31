@@ -288,11 +288,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
                 </span>
               </div>
             </div>
-            {report?.description && (
-              <div className="mt-2 pt-2 border-t border-border">
-                <p className="text-sm text-muted-foreground">{report.description}</p>
-              </div>
-            )}
+            
           </div>
 
           <div className="bg-white rounded-lg shadow">
