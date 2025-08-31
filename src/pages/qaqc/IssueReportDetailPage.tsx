@@ -28,6 +28,9 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const { toast } = useToast();
 
+  // Debug logging
+  console.log('Current selectedItems state:', selectedItems);
+
   useEffect(() => {
     if (projectId) {
       getProject(projectId).then(setProject).catch(console.error);

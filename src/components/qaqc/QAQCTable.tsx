@@ -96,6 +96,7 @@ export const QAQCTable = ({
 }: QAQCTableProps) => {
 
   const handleSelectAll = (checked: boolean) => {
+    console.log('handleSelectAll called:', checked, 'data length:', data.length);
     if (checked) {
       setSelectedItems?.(data.map(item => item.id));
     } else {
@@ -104,6 +105,7 @@ export const QAQCTable = ({
   };
 
   const handleSelectItem = (itemId: string, checked: boolean) => {
+    console.log('handleSelectItem called:', itemId, checked, 'current selectedItems:', selectedItems);
     if (checked) {
       setSelectedItems?.([...selectedItems, itemId]);
     } else {
