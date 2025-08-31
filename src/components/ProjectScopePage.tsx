@@ -757,8 +757,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       setIsEditing(false);
     };
 
-    const onKeyDown = (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
+    const onKeyDown = async (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && e.shiftKey && type === 'element') {
+        e.preventDefault();
+        await commitEdit();
+        const currentElement = wbsItems.find(item => item.id === id);
+        if (currentElement?.parent_id) {
+          await addNewElement(currentElement.parent_id);
+        }
+      } else if (e.key === 'Enter') {
         e.preventDefault();
         commitEdit();
       } else if (e.key === 'Escape') {
