@@ -352,6 +352,38 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     );
   };
 
+  // Read-only progress display for calculated values
+  const ProgressDisplay = ({ 
+    value, 
+    className = "" 
+  }: { 
+    value: number; 
+    className?: string;
+  }) => {
+    return (
+      <span 
+        className={`text-xs text-muted-foreground font-medium ${className}`}
+        title="Calculated from child items"
+      >
+        {value}%
+      </span>
+    );
+  };
+
+  // Calculate component progress from child elements
+  const calculateComponentProgress = (component: ScopeComponent) => {
+    if (component.elements.length === 0) return 0;
+    const totalProgress = component.elements.reduce((sum, element) => sum + element.progress, 0);
+    return Math.round(totalProgress / component.elements.length);
+  };
+
+  // Calculate phase progress from child components  
+  const calculatePhaseProgress = (phase: ScopePhase) => {
+    if (phase.components.length === 0) return 0;
+    const totalProgress = phase.components.reduce((sum, component) => sum + calculateComponentProgress(component), 0);
+    return Math.round(totalProgress / phase.components.length);
+  };
+
   const StatusSelect = ({ 
     value, 
     onChange, 
@@ -831,19 +863,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const calculateOverallProgress = () => {
-    let totalElements = 0;
-    let totalProgress = 0;
+    let totalPhases = scopeData.length;
+    if (totalPhases === 0) return 0;
     
-    scopeData.forEach(phase => {
-      phase.components.forEach(component => {
-        totalElements += component.elements.length;
-        component.elements.forEach(element => {
-          totalProgress += element.progress;
-        });
-      });
-    });
-    
-    return totalElements > 0 ? Math.round(totalProgress / totalElements) : 0;
+    const totalProgress = scopeData.reduce((sum, phase) => sum + calculatePhaseProgress(phase), 0);
+    return Math.round(totalProgress / totalPhases);
   };
 
   const mainClasses = {
@@ -1006,17 +1030,16 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                     onChange={(newStatus) => updateWBSItem(phase.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
                                   />
                                 </div>
-                                <div className="px-2 py-2">
-                                  <div className="flex items-center gap-1">
-                                    <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
-                                      <div className={`h-full transition-all duration-300 ${getProgressColor(phase.progress)}`} style={{ width: `${phase.progress}%` }} />
-                                    </div>
-                                     <ProgressInput 
-                                       value={phase.progress} 
-                                       onChange={(newProgress) => updateWBSItem(phase.id, { progress: newProgress })}
-                                     />
-                                  </div>
-                                </div>
+                                 <div className="px-2 py-2">
+                                   <div className="flex items-center gap-1">
+                                     <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
+                                       <div className={`h-full transition-all duration-300 ${getProgressColor(calculatePhaseProgress(phase))}`} style={{ width: `${calculatePhaseProgress(phase)}%` }} />
+                                     </div>
+                                      <ProgressDisplay 
+                                        value={calculatePhaseProgress(phase)}
+                                      />
+                                   </div>
+                                 </div>
                                 <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
                                 <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
                                 <div className="px-2 py-2 flex items-center justify-center">
@@ -1146,17 +1169,16 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                 onChange={(newStatus) => updateWBSItem(component.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
                                               />
                                             </div>
-                                             <div className="px-2 py-2">
-                                              <div className="flex items-center gap-1">
-                                                <div className="w-10 h-1 bg-muted rounded-full overflow-hidden">
-                                                  <div className={`h-full transition-all duration-300 ${getProgressColor(component.progress)}`} style={{ width: `${component.progress}%` }} />
-                                                </div>
-                                                 <ProgressInput 
-                                                   value={component.progress} 
-                                                   onChange={(newProgress) => updateWBSItem(component.id, { progress: newProgress })}
-                                                 />
-                                              </div>
-                                            </div>
+                                              <div className="px-2 py-2">
+                                               <div className="flex items-center gap-1">
+                                                 <div className="w-10 h-1 bg-muted rounded-full overflow-hidden">
+                                                   <div className={`h-full transition-all duration-300 ${getProgressColor(calculateComponentProgress(component))}`} style={{ width: `${calculateComponentProgress(component)}%` }} />
+                                                 </div>
+                                                  <ProgressDisplay 
+                                                    value={calculateComponentProgress(component)}
+                                                  />
+                                               </div>
+                                             </div>
                                              <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
                                             <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
                                             <div className="px-2 py-2 flex items-center justify-center">
