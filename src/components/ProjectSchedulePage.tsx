@@ -10,8 +10,9 @@ import { Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { addDays } from 'date-fns';
 import { useWBS } from '@/hooks/useWBS';
-import { WBSItem } from '@/types/wbs';
-import { flattenWBSHierarchy } from '@/utils/wbsUtils';
+import { WBSItem, WBSItemInput } from '@/types/wbs';
+import { flattenWBSHierarchy, generateWBSId } from '@/utils/wbsUtils';
+import { useCompany } from '@/contexts/CompanyContext';
 
 interface ProjectSchedulePageProps {
   project: Project;
@@ -23,9 +24,10 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   const { fullHeightClasses } = useMenuBarSpacing('project-schedule');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedView, setSelectedView] = useState<'gantt' | 'calendar'>('gantt');
+  const { currentCompany } = useCompany();
   
   // Use WBS data from the scope table as the main repository
-  const { wbsItems, loading, updateWBSItem } = useWBS(project.id);
+  const { wbsItems, loading, updateWBSItem, createWBSItem, deleteWBSItem } = useWBS(project.id);
   const [tasks, setTasks] = useState<ModernGanttTask[]>([]);
 
   // Convert WBS items to Gantt tasks
@@ -118,17 +120,59 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     }
   };
 
-  const handleTaskAdd = (newTask: Omit<ModernGanttTask, 'id'>) => {
-    // For now, just add to local state - in a full implementation,
-    // this would create a new WBS item in the database
-    const id = `task-${Date.now()}`;
-    setTasks(prev => [...prev, { ...newTask, id }]);
+  const handleTaskAdd = async (newTask: Omit<ModernGanttTask, 'id'>) => {
+    if (!currentCompany) {
+      console.error('No active company selected');
+      return;
+    }
+
+    try {
+      // Convert Gantt task to WBS item format
+      const flatWbsItems = wbsItems ? flattenWBSHierarchy(wbsItems) : [];
+      const newWbsId = generateWBSId(newTask.parentId, flatWbsItems);
+      
+      const newWBSItem: WBSItemInput = {
+        company_id: currentCompany.id,
+        project_id: project.id,
+        parent_id: newTask.parentId || null,
+        wbs_id: newWbsId,
+        title: newTask.name,
+        description: '',
+        assigned_to: newTask.assignee !== 'Unassigned' ? newTask.assignee : undefined,
+        start_date: newTask.startDate.toISOString().split('T')[0],
+        end_date: newTask.endDate.toISOString().split('T')[0],
+        duration: Math.ceil((newTask.endDate.getTime() - newTask.startDate.getTime()) / (1000 * 3600 * 24)),
+        progress: newTask.progress,
+        status: newTask.status === 'completed' ? 'Completed' : 
+                newTask.status === 'in-progress' ? 'In Progress' : 
+                newTask.status === 'delayed' ? 'Delayed' : 'Not Started',
+        level: newTask.level,
+        category: newTask.category as 'Stage' | 'Component' | 'Element',
+        is_expanded: true,
+        linked_tasks: []
+      };
+
+      await createWBSItem(newWBSItem);
+    } catch (error) {
+      console.error('Error creating WBS item:', error);
+    }
   };
 
-  const handleTaskDelete = (taskId: string) => {
-    // For now, just remove from local state - in a full implementation,
-    // this would delete the WBS item from the database
-    setTasks(prev => prev.filter(task => task.id !== taskId));
+  const handleTaskDelete = async (taskId: string) => {
+    try {
+      // Remove from local state immediately for responsiveness
+      setTasks(prev => prev.filter(task => task.id !== taskId));
+      
+      // Delete from database
+      await deleteWBSItem(taskId);
+    } catch (error) {
+      console.error('Error deleting WBS item:', error);
+      // Revert the local change if the delete failed
+      if (wbsItems) {
+        const flattenedItems = flattenWBSHierarchy(wbsItems);
+        setTasks(convertWBSToTasks(flattenedItems));
+      }
+    }
   };
 
   const handleTaskReorder = (reorderedTasks: ModernGanttTask[]) => {
