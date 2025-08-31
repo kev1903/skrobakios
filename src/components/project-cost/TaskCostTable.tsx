@@ -66,6 +66,14 @@ export const TaskCostTable = ({
 
   const groupedData = Object.keys(groupedWBSData).length > 0 ? groupedWBSData : {};
 
+  // Auto-expand the first stage by default for better UX
+  React.useEffect(() => {
+    if (Object.keys(groupedData).length > 0 && expandedStages.size === 0) {
+      const firstStage = Object.keys(groupedData)[0];
+      setExpandedStages(new Set([firstStage]));
+    }
+  }, [Object.keys(groupedData).length]);
+
   const toggleStage = (stage: string) => {
     const newExpanded = new Set(expandedStages);
     if (newExpanded.has(stage)) {
@@ -210,35 +218,40 @@ export const TaskCostTable = ({
                   <React.Fragment key={stageName}>
                     {/* Stage Parent Row */}
                     <tr 
-                      className="bg-gray-100 border-b border-gray-200 hover:bg-gray-150 cursor-pointer transition-colors"
+                      className="bg-gray-100 border-b border-gray-200 hover:bg-gray-200 cursor-pointer transition-colors"
                       onClick={() => toggleStage(stageName)}
                     >
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200">
                         <div className="flex items-center">
                           {isExpanded ? (
-                            <ChevronDown className="w-3 h-3 mr-1" />
+                            <ChevronDown className="w-4 h-4 mr-2 text-gray-600" />
                           ) : (
-                            <ChevronRight className="w-3 h-3 mr-1" />
+                            <ChevronRight className="w-4 h-4 mr-2 text-gray-600" />
                           )}
-                          {stageData.stage.wbs_id || '1'}
+                          <span className="font-mono">{stageData.stage.wbs_id || '1'}</span>
                         </div>
                       </td>
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200">
-                        {stageData.stage.title || stageName}
+                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                        <div className="flex items-center">
+                          <span>{stageData.stage.title || stageName}</span>
+                          <span className="ml-2 px-2 py-1 bg-gray-200 rounded text-xs text-gray-600">
+                            {stageData.components.length + stageData.elements.length} items
+                          </span>
+                        </div>
                       </td>
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
+                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
                         {formatCurrency(stageTotal)}
                       </td>
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
+                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
                         {formatCurrency(stageTotal)}
                       </td>
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
+                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
                         {formatCurrency(stageActualTotal)}
                       </td>
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
+                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
                         $0.00
                       </td>
-                      <td className="px-2 py-2 text-xs font-semibold text-gray-900 text-right">
+                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 text-right">
                         {formatCurrency(stageTotal)}
                       </td>
                     </tr>
@@ -254,20 +267,23 @@ export const TaskCostTable = ({
                           const isEditingActual = editingCell?.taskId === component.id && editingCell?.field === 'actual_cost';
                           
                           return (
-                            <tr key={component.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors group">
+                            <tr key={component.id} className="border-b border-gray-100 hover:bg-blue-50/30 transition-colors group bg-blue-50/10">
                               {/* WBS Code */}
-                              <td className="px-4 py-1 text-xs text-gray-600 border-r border-gray-100">
+                              <td className="px-6 py-2 text-xs text-gray-700 border-r border-gray-100 font-mono">
                                 {component.wbs_id}
                               </td>
 
                               {/* Name */}
-                              <td className="px-2 py-1 border-r border-gray-100 text-xs text-gray-600">
-                                {component.title}
+                              <td className="px-4 py-2 border-r border-gray-100 text-xs text-gray-800 font-medium">
+                                <div className="flex items-center">
+                                  <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                                  {component.title}
+                                </div>
                               </td>
 
                               {/* Cost Estimate */}
                               <td 
-                                className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
+                                className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors"
                                 onClick={() => handleCellClick(component.id, 'budgeted_cost', budgeted)}
                               >
                                 {isEditingBudgeted ? (
@@ -283,18 +299,18 @@ export const TaskCostTable = ({
                                     />
                                   </div>
                                 ) : (
-                                  <span className="text-xs">{formatCurrency(budgeted)}</span>
+                                  <span className="text-xs font-medium">{formatCurrency(budgeted)}</span>
                                 )}
                               </td>
 
                               {/* Project Budget */}
-                              <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
+                              <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 text-right">
                                 <span className="text-xs">{formatCurrency(budgeted)}</span>
                               </td>
 
                               {/* Cost Committed */}
                               <td 
-                                className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
+                                className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors"
                                 onClick={() => handleCellClick(component.id, 'actual_cost', actual)}
                               >
                                 {isEditingActual ? (
@@ -310,18 +326,18 @@ export const TaskCostTable = ({
                                     />
                                   </div>
                                 ) : (
-                                  <span className="text-xs">{formatCurrency(actual)}</span>
+                                  <span className="text-xs font-medium">{formatCurrency(actual)}</span>
                                 )}
                               </td>
 
                               {/* Paid to Date */}
-                              <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
+                              <td className="px-3 py-2 text-xs text-gray-600 border-r border-gray-100 text-right">
                                 <span className="text-xs">$0.00</span>
                               </td>
 
                               {/* Cost */}
-                              <td className="px-2 py-1 text-xs text-gray-900 text-right">
-                                <span className="text-xs">{formatCurrency(budgeted)}</span>
+                              <td className="px-3 py-2 text-xs text-gray-900 text-right">
+                                <span className="text-xs font-medium">{formatCurrency(budgeted)}</span>
                               </td>
                             </tr>
                           );
@@ -335,22 +351,25 @@ export const TaskCostTable = ({
                           const isEditingActual = editingCell?.taskId === element.id && editingCell?.field === 'actual_cost';
                           
                           return (
-                            <tr key={element.id} className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors group bg-gray-25">
+                            <tr key={element.id} className="border-b border-gray-100 hover:bg-green-50/30 transition-colors group bg-green-50/10">
                               {/* WBS Code */}
-                              <td className="px-6 py-1 text-xs text-gray-500 border-r border-gray-100">
+                              <td className="px-8 py-2 text-xs text-gray-600 border-r border-gray-100 font-mono">
                                 {element.wbs_id}
                               </td>
 
                               {/* Name */}
-                              <td className="px-4 py-1 text-xs text-gray-800 border-r border-gray-100 max-w-xs">
-                                <div className="truncate" title={element.title}>
-                                  {element.title}
+                              <td className="px-6 py-2 text-xs text-gray-700 border-r border-gray-100 max-w-xs">
+                                <div className="flex items-center">
+                                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2"></div>
+                                  <div className="truncate" title={element.title}>
+                                    {element.title}
+                                  </div>
                                 </div>
                               </td>
 
                               {/* Cost Estimate */}
                               <td 
-                                className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
+                                className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors"
                                 onClick={() => handleCellClick(element.id, 'budgeted_cost', budgeted)}
                               >
                                 {isEditingBudgeted ? (
@@ -371,13 +390,13 @@ export const TaskCostTable = ({
                               </td>
 
                               {/* Project Budget */}
-                              <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
+                              <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 text-right">
                                 <span className="text-xs">{formatCurrency(budgeted)}</span>
                               </td>
 
                               {/* Cost Committed */}
                               <td 
-                                className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-50 text-right"
+                                className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors"
                                 onClick={() => handleCellClick(element.id, 'actual_cost', actual)}
                               >
                                 {isEditingActual ? (
@@ -398,12 +417,12 @@ export const TaskCostTable = ({
                               </td>
 
                               {/* Paid to Date */}
-                              <td className="px-2 py-1 text-xs text-gray-900 border-r border-gray-100 text-right">
+                              <td className="px-3 py-2 text-xs text-gray-600 border-r border-gray-100 text-right">
                                 <span className="text-xs">$0.00</span>
                               </td>
 
                               {/* Cost */}
-                              <td className="px-2 py-1 text-xs text-gray-900 text-right">
+                              <td className="px-3 py-2 text-xs text-gray-900 text-right">
                                 <span className="text-xs">{formatCurrency(budgeted)}</span>
                               </td>
                             </tr>
