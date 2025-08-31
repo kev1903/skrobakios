@@ -194,7 +194,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     error, 
     createWBSItem, 
     updateWBSItem, 
-    deleteWBSItem 
+    deleteWBSItem,
+    generateWBSId,
   } = useWBS(project.id);
 
   // Convert WBS items to scope data structure
@@ -290,11 +291,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         return;
       }
 
-      const component = wbsItems.find(item => item.id === componentId);
-      if (!component) return;
-
-      const elementCount = component.children?.filter(child => child.level === 3).length || 0;
-      const wbsId = `${component.wbs_id}.${elementCount + 1}`;
+      const wbsId = generateWBSId(componentId);
 
       await createWBSItem({
         company_id: currentCompany.id,
@@ -334,19 +331,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         return;
       }
 
-      // Find the phase to get the proper WBS ID
-      const phaseIndex = scopeData.findIndex(phase => phase.id === phaseId);
-      console.log('📊 Found phase at index:', phaseIndex, 'for ID:', phaseId);
-      
-      if (phaseIndex === -1) {
-        console.error('Phase not found:', phaseId);
-        return;
-      }
-
-      const phase = scopeData[phaseIndex];
-      const componentCount = phase.components.length;
-      const wbsId = `${phaseIndex + 1}.${componentCount + 1}`;
-      
+      const wbsId = generateWBSId(phaseId);
       console.log('🆔 Creating component with WBS ID:', wbsId);
 
       await createWBSItem({
@@ -388,7 +373,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         return;
       }
 
-      const wbsId = `${scopeData.length + 1}.0`;
+      const wbsId = generateWBSId();
 
       const inserted = await createWBSItem({
         company_id: currentCompany.id,
