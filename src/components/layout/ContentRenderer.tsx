@@ -83,7 +83,7 @@ import { IssueEditPage } from "@/pages/qaqc/IssueEditPage";
 import { StakeholdersPage } from "@/pages/StakeholdersPage";
 import { ProjectProcurementPage } from "@/pages/ProjectProcurementPage";
 import { AiChatSidebar } from "@/components/AiChatSidebar";
-import { ProjectScopePageNew } from "@/components/ProjectScopePageNew";
+import { ProjectScopePage } from "@/components/ProjectScopePage";
 import { ProjectSchedulePage } from "@/components/ProjectSchedulePage";
 
 
@@ -411,7 +411,7 @@ export const ContentRenderer = ({
     case "project-specification":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ProjectScopePageNew project={currentProject} onNavigate={onNavigate} />
+          <ProjectScopePage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
     case "project-procurement":
