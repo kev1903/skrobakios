@@ -288,7 +288,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   };
 
-  const statusOptions = ['Not Started', 'In Progress', 'Completed', 'On Hold'] as const;
+  const statusOptions = [
+    { value: 'Not Started', label: 'Not Started', short: 'NS', color: 'bg-slate-400' },
+    { value: 'In Progress', label: 'In Progress', short: 'IP', color: 'bg-blue-500' },
+    { value: 'Completed', label: 'Completed', short: 'Done', color: 'bg-green-500' },
+    { value: 'On Hold', label: 'On Hold', short: 'Hold', color: 'bg-amber-500' }
+  ] as const;
 
   const StatusSelect = ({ 
     value, 
@@ -298,24 +303,32 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     value: string; 
     onChange: (value: string) => void;
     className?: string;
-  }) => (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className={`h-6 text-xs border-0 bg-transparent hover:bg-accent/50 focus:ring-0 focus:ring-offset-0 ${className}`}>
-        <div className={`px-2 py-0.5 rounded-md text-xs ${getStatusColor(value)}`}>
-          <SelectValue />
-        </div>
-      </SelectTrigger>
-      <SelectContent className="min-w-32 bg-background border shadow-lg z-50">
-        {statusOptions.map((status) => (
-          <SelectItem key={status} value={status} className="text-xs">
-            <div className={`px-2 py-0.5 rounded-md ${getStatusColor(status)}`}>
-              {status}
-            </div>
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
+  }) => {
+    const currentStatus = statusOptions.find(s => s.value === value);
+    
+    return (
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className={`h-7 w-16 text-xs border-0 bg-transparent hover:bg-accent/30 focus:ring-0 focus:ring-offset-0 p-1 ${className}`}>
+          <div className="flex items-center gap-1.5">
+            <div className={`w-2 h-2 rounded-full ${currentStatus?.color || 'bg-slate-400'}`} />
+            <span className="text-xs font-medium text-muted-foreground">
+              {currentStatus?.short || 'NS'}
+            </span>
+          </div>
+        </SelectTrigger>
+        <SelectContent className="min-w-36 bg-background border shadow-lg z-50 p-1">
+          {statusOptions.map((status) => (
+            <SelectItem key={status.value} value={status.value} className="text-xs py-2 px-2 cursor-pointer">
+              <div className="flex items-center gap-2">
+                <div className={`w-2.5 h-2.5 rounded-full ${status.color}`} />
+                <span className="font-medium">{status.label}</span>
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    );
+  };
 
   const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element') => {
     switch (action) {
