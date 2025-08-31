@@ -104,6 +104,11 @@ interface IssueData {
   created_at: string;
   auto_number?: number;
   attachments?: IssueAttachment[];
+  profiles?: {
+    first_name?: string;
+    last_name?: string;
+    professional_title?: string;
+  };
 }
 
 interface CompanyData {
@@ -146,10 +151,15 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
 
     if (projectError) throw projectError;
 
-    // Fetch associated issues with attachments
+    // Fetch associated issues with attachments and user profiles
     const { data: issues, error: issuesError } = await supabase
       .from('issues')
-      .select('*')
+      .select(`
+        *,
+        profiles!issues_created_by_fkey (
+          first_name, last_name, professional_title
+        )
+      `)
       .eq('report_id', reportId)
       .order('created_at', { ascending: true });
 
@@ -364,10 +374,10 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     const columns = [
       { header: '#', x: tableMargin, width: tableWidth * 0.08, align: 'center' as const },
       { header: 'Preview', x: tableMargin + (tableWidth * 0.08), width: tableWidth * 0.12, align: 'center' as const },
-      { header: 'Issue Title', x: tableMargin + (tableWidth * 0.2), width: tableWidth * 0.35, align: 'center' as const },
-      { header: 'Category', x: tableMargin + (tableWidth * 0.55), width: tableWidth * 0.15, align: 'center' as const },
-      { header: 'Status', x: tableMargin + (tableWidth * 0.7), width: tableWidth * 0.12, align: 'center' as const },
-      { header: 'Location', x: tableMargin + (tableWidth * 0.82), width: tableWidth * 0.18, align: 'center' as const }
+      { header: 'Issue Title', x: tableMargin + (tableWidth * 0.2), width: tableWidth * 0.4, align: 'center' as const },
+      { header: 'Category', x: tableMargin + (tableWidth * 0.6), width: tableWidth * 0.15, align: 'center' as const },
+      { header: 'Status', x: tableMargin + (tableWidth * 0.75), width: tableWidth * 0.15, align: 'center' as const },
+      { header: 'Created By', x: tableMargin + (tableWidth * 0.9), width: tableWidth * 0.1, align: 'center' as const }
     ];
     
     // Draw table headers with background
@@ -488,9 +498,11 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       pdf.setTextColor(40, 40, 40);
       
       const issueNumber = issue.auto_number?.toString() || `${i + 1}`;
-      const issueTitle = issue.title.length > 40 ? issue.title.substring(0, 40) + '...' : issue.title;
+      const issueTitle = issue.title.length > 45 ? issue.title.substring(0, 45) + '...' : issue.title;
       const category = issue.category || 'N/A';
-      const location = issue.location?.length > 20 ? issue.location.substring(0, 20) + '...' : issue.location || 'N/A';
+      const createdByName = issue.profiles ? 
+        `${issue.profiles.first_name || ''} ${issue.profiles.last_name || ''}`.trim() || 'Unknown User' : 
+        'Unknown User';
       
       const textY = yPosition + 15; // Center text vertically in row
       pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
@@ -504,9 +516,9 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       pdf.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
       pdf.text(issue.status, columns[4].x + columns[4].width/2, textY, { align: 'center' });
       
-      // Reset text color for location
+      // Reset text color for created by
       pdf.setTextColor(0, 0, 0);
-      pdf.text(location, columns[5].x + columns[5].width/2, textY, { align: 'center' });
+      pdf.text(createdByName, columns[5].x + columns[5].width/2, textY, { align: 'center' });
       
       // Draw subtle row separator
       pdf.setDrawColor(240, 240, 240);
@@ -712,18 +724,6 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       pdf.text(issue.category || 'N/A', detailsX, detailsY);
       detailsY += 5;
       
-      // Location
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(60, 60, 60);
-      pdf.text('Location:', detailsX, detailsY);
-      detailsY += 5;
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(80, 80, 80);
-      const locationText = issue.location || 'N/A';
-      const truncatedLocation = locationText.length > 25 ? locationText.substring(0, 25) + '...' : locationText;
-      pdf.text(truncatedLocation, detailsX, detailsY);
-      detailsY += 5;
-      
       // Created by
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
@@ -731,9 +731,10 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      const createdByText = issue.created_by || 'N/A';
-      const truncatedCreatedBy = createdByText.length > 20 ? createdByText.substring(0, 20) + '...' : createdByText;
-      pdf.text(truncatedCreatedBy, detailsX, detailsY);
+      const createdByName = issue.profiles ? 
+        `${issue.profiles.first_name || ''} ${issue.profiles.last_name || ''}`.trim() || 'Unknown User' : 
+        'Unknown User';
+      pdf.text(createdByName, detailsX, detailsY);
       detailsY += 5;
       
       // Created date
