@@ -618,15 +618,15 @@ export const QAQCTable = ({ data, type, isLoading, onNavigate, onDelete, onRefre
                 <Archive className="w-4 h-4 mr-2" />
                 Archive
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleBulkAction('export')}
-                className="text-blue-700 border-blue-300 hover:bg-blue-50"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Export
-              </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onBulkAction?.('export', selectedItems)}
+                  className="text-blue-700 border-blue-300 hover:bg-blue-50"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export
+                </Button>
               <Button
                 size="sm"
                 variant="outline"

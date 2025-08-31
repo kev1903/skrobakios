@@ -10,6 +10,7 @@ import { useIssueReport } from '@/hooks/useQAQCData';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { exportIssueReportToPDF } from '@/utils/pdfExport';
+import { exportSelectedIssuesToPDF } from '@/utils/exportSelectedIssues';
 
 interface IssueReportDetailPageProps {
   onNavigate: (page: string) => void;
@@ -164,11 +165,16 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
           break;
           
         case 'export':
-          // Export selected issues (placeholder)
-          toast({
-            title: "Export Started",
-            description: `Exporting ${selectedIds.length} issue${selectedIds.length > 1 ? 's' : ''}.`,
-          });
+          // Export selected issues to PDF
+          if (projectId && reportId) {
+            setLoading(true);
+            await exportSelectedIssuesToPDF(selectedIds, reportId, projectId);
+            toast({
+              title: "Export Complete",
+              description: `Successfully exported ${selectedIds.length} selected issue${selectedIds.length > 1 ? 's' : ''} to PDF.`,
+            });
+            setLoading(false);
+          }
           break;
       }
       
