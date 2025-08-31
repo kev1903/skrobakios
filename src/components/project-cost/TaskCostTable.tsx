@@ -66,11 +66,11 @@ export const TaskCostTable = ({
 
   const groupedData = Object.keys(groupedWBSData).length > 0 ? groupedWBSData : {};
 
-  // Auto-expand the first stage by default for better UX
+  // Auto-expand all stages by default for better UX
   React.useEffect(() => {
-    if (Object.keys(groupedData).length > 0 && expandedStages.size === 0) {
-      const firstStage = Object.keys(groupedData)[0];
-      setExpandedStages(new Set([firstStage]));
+    const hasStages = Object.keys(groupedData).length > 0;
+    if (hasStages && expandedStages.size === 0) {
+      setExpandedStages(new Set(Object.keys(groupedData)));
     }
   }, [Object.keys(groupedData).length]);
 
