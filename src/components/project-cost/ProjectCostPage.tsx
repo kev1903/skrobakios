@@ -168,6 +168,30 @@ export const ProjectCostPage = ({
 
       {/* Main Content */}
       <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
+        {/* Header Section */}
+        <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground font-inter">Project Cost</h1>
+              <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground font-inter">Budget Status</div>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="outline" className={`text-xs px-2 py-1 ${varianceStatus.color}`}>
+                    <VarianceIcon className="w-3 h-3 mr-1" />
+                    {varianceStatus.text}
+                  </Badge>
+                  <span className="text-sm font-semibold text-foreground">
+                    {formatCurrency(Math.abs(costSummary.variance))}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div className="p-6 min-h-full">
           {/* Summary Cards - Dynamic based on active tab */}
           <div className="mb-3 bg-card border rounded-lg p-2">
