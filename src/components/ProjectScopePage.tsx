@@ -977,15 +977,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const mainClasses = {
-    mobile: "relative h-screen overflow-hidden",
-    tablet: "relative h-screen overflow-hidden", 
-    desktop: "relative h-screen overflow-hidden"
+    mobile: "h-screen overflow-hidden",
+    tablet: "h-screen overflow-hidden", 
+    desktop: "h-screen overflow-hidden"
   };
 
   const contentClasses = {
-    mobile: "fixed inset-x-0 top-12 bottom-0 overflow-hidden",
-    tablet: "fixed inset-x-0 top-12 bottom-0 overflow-hidden",
-    desktop: "fixed left-40 right-0 top-12 bottom-0 overflow-hidden"
+    mobile: "mt-12 h-[calc(100vh-3rem)] overflow-hidden",
+    tablet: "mt-12 h-[calc(100vh-3rem)] overflow-hidden",
+    desktop: "ml-40 mt-12 h-[calc(100vh-3rem)] overflow-hidden"
   };
 
   return (
