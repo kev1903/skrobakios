@@ -1045,87 +1045,113 @@ export const ModernGanttChart = ({
                 ref={provided.innerRef}
                 {...provided.draggableProps}
                 className={cn(
-                  "transition-colors duration-200 cursor-pointer",
-                  // Stage level (depth 0)
+                  "grid items-center relative transition-colors duration-200 cursor-pointer",
+                  // Stage level (depth 0) - matches Project Scope exactly
                   task.depth === 0 && "bg-slate-200 border-l-4 border-l-slate-700 hover:bg-slate-300",
-                  // Component level (depth 1)  
+                  // Component level (depth 1) - matches Project Scope exactly
                   task.depth === 1 && "bg-slate-100 border-l-[3px] border-l-slate-500 hover:bg-slate-200",
-                  // Element level (depth 2)
+                  // Element level (depth 2) - matches Project Scope exactly
                   task.depth === 2 && "bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50",
                   // Default for any other levels
                   task.depth > 2 && "bg-white hover:bg-gray-50",
                   selectedTaskId === task.id && "ring-2 ring-blue-500 ring-inset",
-                  snapshot.isDragging && "shadow-lg bg-white border border-gray-300 z-50"
+                  snapshot.isDragging && "shadow-xl bg-card z-50"
                 )}
                 style={{ 
                   height: 40,
+                  gridTemplateColumns: screenSize === 'mobile' ? '12px 12px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '16px 12px minmax(120px, 1fr) 60px 60px 50px 50px' : '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px',
+                  minWidth: screenSize === 'mobile' ? '200px' : screenSize === 'tablet' ? '350px' : '680px',
                   ...provided.draggableProps.style
                 }}
                 onClick={() => handleRowClick(task.id)}
                 onContextMenu={(e) => handleRowContextMenu(e, task.id)}
               >
-                   <div className="h-full flex items-center px-1 sm:px-2 md:px-4">
-                    <div className="grid items-center w-full gap-1 sm:gap-2 md:gap-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '12px 12px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '16px 12px minmax(120px, 1fr) 60px 60px 50px 50px' : '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '200px' : screenSize === 'tablet' ? '350px' : '680px' }}>
-                      {/* Drag Handle */}
-                      <div 
-                        {...provided.dragHandleProps}
-                        className="flex items-center justify-center cursor-grab active:cursor-grabbing hover:bg-gray-100 rounded p-1"
-                      >
-                        <GripVertical className="w-3 h-3 text-gray-400" />
-                      </div>
-                      
+                   <div className="px-2 py-2">
+                     <div 
+                       {...provided.dragHandleProps}
+                       className={cn(
+                         "cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200",
+                         task.depth === 0 && "hover:bg-primary/10",
+                         task.depth === 1 && "ml-4 hover:bg-secondary/10", 
+                         task.depth === 2 && "ml-8 hover:bg-gray-100",
+                         snapshot.isDragging && task.depth === 0 && "bg-primary/20 shadow-sm",
+                         snapshot.isDragging && task.depth === 1 && "bg-secondary/20 shadow-sm",
+                         snapshot.isDragging && task.depth === 2 && "bg-gray-200 shadow-sm"
+                       )}
+                       title="Drag to reorder task"
+                     >
+                       <GripVertical className="w-3 h-3 text-muted-foreground" />
+                     </div>
+                   </div>
+                       
                        {/* WBS ID */}
-                       <div className="text-sm text-gray-600 font-mono" style={{ paddingLeft: `${task.depth * 24}px` }}>
-                         {task.wbs || task.rowNumber}
+                       <div className="px-2 py-2">
+                         <div className="flex items-center">
+                           {task.hasChildren && (
+                             <button
+                               onClick={() => toggleSection(task.id)}
+                               className={cn(
+                                 "p-0.5 rounded transition-colors duration-200 mr-1",
+                                 task.depth === 0 && "hover:bg-accent",
+                                 task.depth === 1 && "hover:bg-blue-100", 
+                                 task.depth === 2 && "hover:bg-gray-100"
+                               )}
+                               aria-label="Toggle section"
+                             >
+                               {expandedSections.has(task.id) ? (
+                                 <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                               ) : (
+                                 <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                               )}
+                             </button>
+                           )}
+                           <div className={cn(
+                             "text-sm font-mono truncate",
+                             task.depth === 0 && "font-semibold text-primary",
+                             task.depth === 1 && "font-medium text-blue-600",
+                             task.depth === 2 && "text-gray-600"
+                           )} style={{ paddingLeft: task.hasChildren ? '0px' : `${(task.depth + 1) * 16}px` }}>
+                             {task.wbs || task.rowNumber}
+                           </div>
+                         </div>
                        </div>
-                     
-                     {/* Task Name with hierarchy */}
-                     <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-                      <div style={{ paddingLeft: `${task.depth * (screenSize === 'mobile' ? 8 : 16)}px` }} className="flex items-center gap-1 min-w-0 w-full">
-                        {task.hasChildren && (
-                          <button
-                            onClick={() => toggleSection(task.id)}
-                            className="p-1 hover:bg-gray-100 rounded transition-colors duration-200 flex-shrink-0"
-                          >
-                            {expandedSections.has(task.id) ? (
-                              <ChevronDown className="w-3 h-3 text-gray-500" />
-                            ) : (
-                              <ChevronRight className="w-3 h-3 text-gray-500" />
-                            )}
-                          </button>
-                        )}
-                         {editingTaskName === task.id ? (
-                           <Input
-                             value={taskNameInput}
-                             onChange={(e) => setTaskNameInput(e.target.value)}
-                             onBlur={() => finishTaskNameEdit(task.id)}
-                             onKeyDown={(e) => {
-                               if (e.key === 'Enter') {
-                                 finishTaskNameEdit(task.id);
-                               } else if (e.key === 'Escape') {
-                                 cancelTaskNameEdit();
-                               }
-                             }}
-                             className="text-sm h-6 px-1 font-normal min-w-0 flex-1"
-                             autoFocus
-                           />
-                         ) : (
-                           <span 
-                             className={cn(
-                               "text-sm font-normal truncate min-w-0 flex-1 text-gray-700 cursor-pointer hover:bg-gray-100 px-1 py-0.5 rounded",
-                               task.isStage ? "font-medium text-gray-900" : ""
-                             )} 
-                             title={task.name}
-                             onClick={() => startTaskNameEdit(task.id, task.name)}
-                           >
-                             {task.name}
-                           </span>
-                         )}
+                      
+                      {/* Task Name with hierarchy */}
+                      <div className="px-3 py-2 min-w-0 truncate">
+                        <div style={{ paddingLeft: `${task.depth * (screenSize === 'mobile' ? 8 : 16)}px` }} className="flex items-center gap-1 min-w-0 w-full">
+                          {editingTaskName === task.id ? (
+                            <Input
+                              value={taskNameInput}
+                              onChange={(e) => setTaskNameInput(e.target.value)}
+                              onBlur={() => finishTaskNameEdit(task.id)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  finishTaskNameEdit(task.id);
+                                } else if (e.key === 'Escape') {
+                                  cancelTaskNameEdit();
+                                }
+                              }}
+                              className="text-sm h-6 px-1 font-normal min-w-0 flex-1"
+                              autoFocus
+                            />
+                          ) : (
+                            <span 
+                              className={cn(
+                                "text-sm cursor-pointer hover:bg-gray-50 px-1 py-0.5 rounded min-w-0 truncate flex-1",
+                                task.depth === 0 && "font-semibold text-foreground",
+                                task.depth === 1 && "font-medium text-foreground",
+                                task.depth === 2 && "font-normal text-foreground"
+                              )}
+                              onClick={() => startTaskNameEdit(task.id, task.name)}
+                              title={task.name}
+                            >
+                              {task.name}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-
-                     {/* Start Date - Hide on mobile */}
-                     {screenSize !== 'mobile' && (
+                      {/* Start Date - Hide on mobile */}
+                      {screenSize !== 'mobile' && (
                      <div>
                        <Popover 
                          open={openDatePickers.has(`${task.id}-startDate`)} 
@@ -1272,12 +1298,11 @@ export const ModernGanttChart = ({
                            task.status.replace('-', ' ')
                          }
                        </span>
-                     </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-                        )}
-                      </Draggable>
+                         )}
+                       </Draggable>
                     ))}
                     {provided.placeholder}
                   </div>
