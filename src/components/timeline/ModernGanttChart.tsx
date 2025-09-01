@@ -68,6 +68,7 @@ export const ModernGanttChart = ({
     }
   };
   const [taskListWidth, setTaskListWidth] = useState(getInitialTaskListWidth());
+  useEffect(() => { setTaskListWidth(getInitialTaskListWidth()); }, [screenSize]);
   const [isResizing, setIsResizing] = useState(false);
   const [openDatePickers, setOpenDatePickers] = useState<Set<string>>(new Set());
   const [editingDuration, setEditingDuration] = useState<Set<string>>(new Set());
