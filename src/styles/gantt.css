@@ -1,0 +1,74 @@
+/* Frappe Gantt Styles */
+.gantt-container {
+  overflow: auto;
+  font-family: 'Inter', sans-serif;
+}
+
+.gantt .grid-header {
+  background: hsl(var(--background));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.gantt .grid-row {
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.gantt .grid-row:nth-child(even) {
+  background: hsl(var(--muted) / 0.5);
+}
+
+.gantt .bar {
+  fill: hsl(var(--primary));
+  stroke: hsl(var(--primary-foreground));
+  stroke-width: 1;
+}
+
+.gantt .bar-progress {
+  fill: hsl(var(--primary) / 0.8);
+}
+
+.gantt .bar-label {
+  fill: hsl(var(--primary-foreground));
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.gantt .tick {
+  stroke: hsl(var(--border));
+  stroke-width: 1;
+}
+
+.gantt .today-highlight {
+  fill: hsl(var(--destructive) / 0.1);
+  stroke: hsl(var(--destructive));
+  stroke-width: 1;
+}
+
+.gantt .arrow {
+  stroke: hsl(var(--muted-foreground));
+  stroke-width: 2;
+  fill: none;
+}
+
+/* Custom popup styles */
+.details-container {
+  padding: 12px;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  font-family: 'Inter', sans-serif;
+}
+
+.details-container h5 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.details-container p {
+  margin: 4px 0;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
