@@ -49,12 +49,20 @@ export const WBSTimeView = ({
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
   const timelineScrollRef = useRef<HTMLDivElement>(null);
+  const headerHorizScrollRef = useRef<HTMLDivElement>(null);
+  const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
 
   const handleTimelineScroll = useCallback(() => {
     if (leftScrollRef.current && rightScrollRef.current && timelineScrollRef.current) {
       const scrollTop = timelineScrollRef.current.scrollTop;
       leftScrollRef.current.scrollTop = scrollTop;
       rightScrollRef.current.scrollTop = scrollTop;
+    }
+  }, []);
+
+  const handleHorizontalSync = useCallback(() => {
+    if (headerHorizScrollRef.current && bodyHorizScrollRef.current) {
+      headerHorizScrollRef.current.scrollLeft = bodyHorizScrollRef.current.scrollLeft;
     }
   }, []);
 
@@ -65,9 +73,10 @@ export const WBSTimeView = ({
         <Panel defaultSize={50} minSize={30} className="flex flex-col">
           {/* Header Section */}
           <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border flex-shrink-0">
-            <div className="flex h-full">
+            {/* Make header horizontally scroll-sync with body */}
+            <div ref={headerHorizScrollRef} className="flex h-full overflow-x-auto">
               {/* WBS Left Panel Header */}
-              <div className="w-[420px] px-2 py-2 text-xs font-medium text-slate-700 border-r border-border">
+              <div className="w-[420px] px-2 py-2 text-xs font-medium text-slate-700 border-r border-border flex-shrink-0">
                 <div className="grid items-center" style={{
                   gridTemplateColumns: '32px 120px 1fr',
                 }}>
@@ -78,7 +87,7 @@ export const WBSTimeView = ({
               </div>
               
               {/* WBS Right Panel Header - Table Section */}
-              <div className="flex-1 py-2 text-xs font-medium text-slate-700">
+              <div className="py-2 text-xs font-medium text-slate-700 flex-1 min-w-fit">
                 <div className="grid items-center" style={{
                   gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
                 }}>
@@ -96,7 +105,7 @@ export const WBSTimeView = ({
 
           {/* Content Section */}
           <div className="flex-1 min-h-0 flex overflow-hidden">
-            <div className="flex h-full w-full overflow-x-auto">
+            <div ref={bodyHorizScrollRef} className="flex h-full w-full overflow-x-auto" onScroll={handleHorizontalSync}>
               <WBSLeftPanel
                 items={items}
                 onToggleExpanded={onToggleExpanded}
