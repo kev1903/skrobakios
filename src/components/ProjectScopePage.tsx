@@ -999,11 +999,30 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       <div className={contentClasses[screenSize]}>
         <div className="flex flex-col h-full bg-background overflow-auto">
           <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground font-inter">Project Scope</h1>
-                <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground font-inter">Project Scope</h1>
+                  <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
+                </div>
+                
+                {/* Tabs in Header */}
+                <TabsList className="grid w-fit grid-cols-3">
+                  <TabsTrigger value="scope" className="flex items-center gap-2">
+                    <NotebookPen className="w-4 h-4" />
+                    Scope
+                  </TabsTrigger>
+                  <TabsTrigger value="time" className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Time
+                  </TabsTrigger>
+                  <TabsTrigger value="cost" className="flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    Cost
+                  </TabsTrigger>
+                </TabsList>
               </div>
+              
               <div className="flex items-center gap-4">
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground font-inter">Overall Progress</div>
@@ -1032,24 +1051,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   </Button>
                 </div>
               </div>
-            </div>
-            
-            {/* Tabs in Header */}
-            <div className="flex items-center justify-between">
-              <TabsList className="grid w-fit grid-cols-3">
-                <TabsTrigger value="scope" className="flex items-center gap-2">
-                  <NotebookPen className="w-4 h-4" />
-                  Scope
-                </TabsTrigger>
-                <TabsTrigger value="time" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Time
-                </TabsTrigger>
-                <TabsTrigger value="cost" className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4" />
-                  Cost
-                </TabsTrigger>
-              </TabsList>
             </div>
           </div>
 
