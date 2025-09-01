@@ -18,13 +18,14 @@
 }
 
 .gantt .bar {
-  fill: hsl(var(--primary));
-  stroke: hsl(var(--primary-foreground));
+  /* Use design token with sensible fallback so bars are visible */
+  fill: hsl(var(--primary, 221 83% 53%));
+  stroke: hsl(var(--primary-foreground, 0 0% 100%));
   stroke-width: 1;
 }
 
 .gantt .bar-progress {
-  fill: hsl(var(--primary) / 0.8);
+  fill: hsl(var(--primary, 221 83% 53%) / 0.85);
 }
 
 .gantt .bar-label {

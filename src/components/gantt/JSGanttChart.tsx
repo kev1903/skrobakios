@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { WBSItem } from '@/types/wbs';
 import Gantt from 'frappe-gantt';
+import 'frappe-gantt/dist/frappe-gantt.css';
 import '@/styles/gantt.css';
 
 interface JSGanttChartProps {
@@ -170,7 +171,7 @@ export const JSGanttChart: React.FC<JSGanttChartProps> = ({
       <div className="h-full overflow-auto p-4">
         <div 
           ref={ganttRef}
-          className="w-full min-h-[400px] border border-border rounded-lg"
+          className="gantt-container w-full min-h-[400px] border border-border rounded-lg"
         />
       </div>
     </div>
