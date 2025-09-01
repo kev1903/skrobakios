@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Edit2, Copy, Trash2, NotebookPen } from 'lucide-react';
+import { DatePickerCell } from './DatePickerCell';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,8 @@ interface WBSItem {
   progress: number;
   assignedTo?: string;
   level: number;
+  start_date?: string | Date | null;
+  end_date?: string | Date | null;
 }
 
 interface WBSTimeRightPanelProps {
@@ -70,24 +73,26 @@ export const WBSTimeRightPanel = ({
             </div>
 
             <div className="px-2 py-3 min-h-[3.5rem] flex items-center text-xs text-muted-foreground">
-              <EditableCell
+              <DatePickerCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
                 field="start_date"
-                value=""
-                placeholder="TBD"
+                value={item.start_date}
+                placeholder="Start date"
                 className="text-xs text-muted-foreground"
+                onUpdate={(id, field, value) => onItemUpdate(id, { [field]: value })}
               />
             </div>
 
             <div className="px-2 py-3 min-h-[3.5rem] flex items-center text-xs text-muted-foreground">
-              <EditableCell
+              <DatePickerCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
                 field="end_date"
-                value=""
-                placeholder="TBD"
+                value={item.end_date}
+                placeholder="End date"
                 className="text-xs text-muted-foreground"
+                onUpdate={(id, field, value) => onItemUpdate(id, { [field]: value })}
               />
             </div>
 
