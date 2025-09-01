@@ -49,7 +49,7 @@ export const GanttTaskList: React.FC<GanttTaskListProps> = ({
       {/* Task List */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden min-h-0"
+        className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 max-h-full"
       >
         <div style={{ minHeight: tasks.length * rowHeight }}>
           {tasks.map((task, index) => (
