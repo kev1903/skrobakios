@@ -1002,7 +1002,7 @@ const toggleSection = (taskId: string) => {
       )}
       
       {/* Gantt Chart */}
-      <div ref={containerRef} className="bg-white rounded-lg overflow-hidden w-full max-w-full h-full flex flex-col">
+      <div ref={containerRef} className="bg-white rounded-lg overflow-x-hidden w-full max-w-full h-full min-h-[70vh] flex flex-col">
         <div className="flex flex-1 overflow-hidden">
           {/* Task List */}
           <div 
@@ -1042,7 +1042,7 @@ const toggleSection = (taskId: string) => {
             {/* Task List Items */}
           <div 
             ref={taskListBodyRef}
-            className="flex-1 overflow-y-auto"
+            className="flex-1 overflow-y-auto pb-4"
           >
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="task-list">
@@ -1401,7 +1401,7 @@ const toggleSection = (taskId: string) => {
           {/* Timeline Content */}
           <div 
             ref={ganttScrollBodyRef}
-            className="flex-1 overflow-x-auto overflow-y-auto gantt-body-scroll bg-white"
+            className="flex-1 overflow-x-auto overflow-y-auto gantt-body-scroll bg-white pb-4"
             style={{ 
               maxWidth: '100%'
             }}
