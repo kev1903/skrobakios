@@ -815,7 +815,7 @@ const toggleSection = (taskId: string) => {
     const minTimelineWidth = screenSize === 'mobile' ? 800 : screenSize === 'tablet' ? 1200 : 1600;
     
     // Ensure content is always wider than available space to trigger horizontal scroll
-    const targetWidth = Math.max(contentWidth, minTimelineWidth, availableWidth + 400);
+    const targetWidth = Math.max(contentWidth, minTimelineWidth, availableWidth + 800);
     
     return targetWidth;
   };

@@ -4,6 +4,9 @@
 .gantt-header-scroll {
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: #cbd5e0 #f7fafc; /* Firefox */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-gutter: stable both-edges;
 }
 
 .gantt-header-scroll::-webkit-scrollbar {
@@ -28,6 +31,9 @@
 .gantt-body-scroll {
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: #cbd5e0 #f7fafc; /* Firefox */
+  overflow-x: auto;
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
 }
 
 .gantt-body-scroll::-webkit-scrollbar {
