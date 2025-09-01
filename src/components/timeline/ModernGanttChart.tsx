@@ -62,8 +62,8 @@ export const ModernGanttChart = ({
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const getInitialTaskListWidth = () => {
     switch (screenSize) {
-      case 'mobile': return 280;
-      case 'tablet': return 320;
+      case 'mobile': return 220;
+      case 'tablet': return 280;
       default: return 384;
     }
   };
@@ -171,7 +171,7 @@ export const ModernGanttChart = ({
   }, [tasks]);
 
   const days = eachDayOfInterval({ start: viewStart, end: viewEnd });
-  const dayWidth = 32; // Increased for better day name visibility
+  const dayWidth = screenSize === 'mobile' ? 24 : screenSize === 'tablet' ? 28 : 32; // Responsive day width
   const rowHeight = 24; // Minimized row height
 
   // Initialize expanded stages only once
@@ -787,8 +787,8 @@ export const ModernGanttChart = ({
     if (typeof window === 'undefined') return 1200;
     
     const baseWidth = window.innerWidth - taskListWidth - 100;
-    const minTimelineWidth = screenSize === 'mobile' ? 600 : screenSize === 'tablet' ? 800 : 1000;
-    const maxTimelineWidth = screenSize === 'mobile' ? 1000 : screenSize === 'tablet' ? 1400 : 2000;
+    const minTimelineWidth = screenSize === 'mobile' ? 300 : screenSize === 'tablet' ? 500 : 800;
+    const maxTimelineWidth = screenSize === 'mobile' ? 800 : screenSize === 'tablet' ? 1200 : 2000;
     
     return Math.min(Math.max(currentDays.length * dayWidth, minTimelineWidth), Math.min(baseWidth, maxTimelineWidth));
   };
@@ -999,7 +999,7 @@ export const ModernGanttChart = ({
               )}
               {/* Column Headers */}
                <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-2 sm:gap-4 px-2 sm:px-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '16px 40px minmax(120px, 1fr) 60px 60px' : screenSize === 'tablet' ? '20px 50px minmax(160px, 1fr) 70px 70px 60px 60px' : '20px 64px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '320px' : screenSize === 'tablet' ? '500px' : '680px' }}>
+                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-1 sm:gap-2 md:gap-4 px-1 sm:px-2 md:px-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '12px 30px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '16px 40px minmax(120px, 1fr) 60px 60px 50px 50px' : '20px 64px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '240px' : screenSize === 'tablet' ? '400px' : '680px' }}>
                     <div></div>
                     <div className="text-left">WBS</div>
                     <div className="text-left">Name</div>
@@ -1050,8 +1050,8 @@ export const ModernGanttChart = ({
                 onClick={() => handleRowClick(task.id)}
                 onContextMenu={(e) => handleRowContextMenu(e, task.id)}
               >
-                   <div className="h-full flex items-center px-2 sm:px-4">
-                    <div className="grid items-center w-full gap-2 sm:gap-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '16px 16px minmax(120px, 1fr) 60px 60px' : screenSize === 'tablet' ? '20px 16px minmax(160px, 1fr) 70px 70px 60px 60px' : '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '280px' : screenSize === 'tablet' ? '450px' : '680px' }}>
+                   <div className="h-full flex items-center px-1 sm:px-2 md:px-4">
+                    <div className="grid items-center w-full gap-1 sm:gap-2 md:gap-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '12px 12px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '16px 12px minmax(120px, 1fr) 60px 60px 50px 50px' : '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '200px' : screenSize === 'tablet' ? '350px' : '680px' }}>
                       {/* Drag Handle */}
                       <div 
                         {...provided.dragHandleProps}
@@ -1067,7 +1067,7 @@ export const ModernGanttChart = ({
                      
                      {/* Task Name with hierarchy */}
                      <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-                      <div style={{ paddingLeft: `${task.depth * (screenSize === 'mobile' ? 12 : 24)}px` }} className="flex items-center gap-1 sm:gap-2 min-w-0 w-full">
+                      <div style={{ paddingLeft: `${task.depth * (screenSize === 'mobile' ? 8 : 16)}px` }} className="flex items-center gap-1 min-w-0 w-full">
                         {task.hasChildren && (
                           <button
                             onClick={() => toggleSection(task.id)}
