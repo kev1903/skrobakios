@@ -47,13 +47,13 @@ export const WBSRightPanel = ({
   onScroll
 }: WBSRightPanelProps) => {
   return (
-    <div className="flex-1 bg-white overflow-hidden">
-      {/* Content - No separate header since it's now unified */}
-      <div ref={scrollRef} className="h-[calc(100vh-200px)] overflow-y-auto overflow-x-auto" onScroll={onScroll}>
+      <div className="w-full bg-white overflow-hidden">
+        {/* Content - No separate header since it's now unified */}
+        <div ref={scrollRef} className="h-[calc(100vh-200px)] overflow-y-auto overflow-x-hidden w-full" onScroll={onScroll}>
         {items.map((item) => (
           <div
             key={item.id}
-            className={`grid items-center ${
+            className={`grid items-center w-full ${
               item.level === 0 
                 ? 'bg-primary/5 hover:bg-primary/10' 
                 : item.level === 1
@@ -61,7 +61,7 @@ export const WBSRightPanel = ({
                 : 'bg-white hover:bg-slate-50/50'
             } transition-colors duration-200`}
             style={{
-              gridTemplateColumns: '1fr 140px 120px 160px 160px 84px',
+              gridTemplateColumns: 'minmax(200px, 1fr) 140px 120px 160px 160px 84px',
             }}
           >
             <div className="px-3 py-3 min-h-[3.5rem] flex items-center text-muted-foreground text-xs">
