@@ -78,7 +78,7 @@ export const WBSTimeView = ({
               </div>
               
               {/* WBS Right Panel Header - Table Section */}
-              <div className="flex-1 px-2 py-2 text-xs font-medium text-slate-700">
+              <div className="flex-1 py-2 text-xs font-medium text-slate-700">
                 <div className="grid items-center" style={{
                   gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
                 }}>
