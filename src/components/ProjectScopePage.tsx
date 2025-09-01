@@ -998,65 +998,66 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
       <div className={contentClasses[screenSize]}>
         <div className="flex flex-col h-full bg-background overflow-auto">
-          <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                <div>
-                  <h1 className="text-2xl font-bold text-foreground font-inter">Project Scope</h1>
-                  <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
+          {/* Tabs Container - moved up to wrap everything */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+            <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6">
+                  <div>
+                    <h1 className="text-2xl font-bold text-foreground font-inter">Project Scope</h1>
+                    <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
+                  </div>
+                  
+                  {/* Tabs in Header */}
+                  <TabsList className="grid w-fit grid-cols-3">
+                    <TabsTrigger value="scope" className="flex items-center gap-2">
+                      <NotebookPen className="w-4 h-4" />
+                      Scope
+                    </TabsTrigger>
+                    <TabsTrigger value="time" className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      Time
+                    </TabsTrigger>
+                    <TabsTrigger value="cost" className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4" />
+                      Cost
+                    </TabsTrigger>
+                  </TabsList>
                 </div>
                 
-                {/* Tabs in Header */}
-                <TabsList className="grid w-fit grid-cols-3">
-                  <TabsTrigger value="scope" className="flex items-center gap-2">
-                    <NotebookPen className="w-4 h-4" />
-                    Scope
-                  </TabsTrigger>
-                  <TabsTrigger value="time" className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Time
-                  </TabsTrigger>
-                  <TabsTrigger value="cost" className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
-                    Cost
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <div className="text-xs text-muted-foreground font-inter">Overall Progress</div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full transition-all duration-300 ${getProgressColor(calculateOverallProgress())}`}
-                        style={{ width: `${calculateOverallProgress()}%` }}
-                      />
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="text-xs text-muted-foreground font-inter">Overall Progress</div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full transition-all duration-300 ${getProgressColor(calculateOverallProgress())}`}
+                          style={{ width: `${calculateOverallProgress()}%` }}
+                        />
+                      </div>
+                      <span className="text-xs font-medium text-foreground font-inter">{calculateOverallProgress()}%</span>
                     </div>
-                    <span className="text-xs font-medium text-foreground font-inter">{calculateOverallProgress()}%</span>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={collapseAll}>
-                    <ChevronsUp className="w-3 h-3 mr-1" />
-                    Collapse All
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={expandAll}>
-                    <ChevronsDown className="w-3 h-3 mr-1" />
-                    Expand All
-                  </Button>
-                  <Button size="sm" onClick={() => addNewPhase()}>
-                    <Plus className="w-3 h-3 mr-1" />
-                    Add Phase
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={collapseAll}>
+                      <ChevronsUp className="w-3 h-3 mr-1" />
+                      Collapse All
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={expandAll}>
+                      <ChevronsDown className="w-3 h-3 mr-1" />
+                      Expand All
+                    </Button>
+                    <Button size="sm" onClick={() => addNewPhase()}>
+                      <Plus className="w-3 h-3 mr-1" />
+                      Add Phase
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Tabs Container */}
-          <div className="flex-1 bg-white">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+            {/* Tab Contents */}
+            <div className="flex-1 bg-white">
 
               <TabsContent value="scope" className="flex-1 m-0">
                 <div className="flex-1 h-full flex flex-col">
@@ -1229,119 +1230,119 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
               <TabsContent value="cost" className="flex-1 m-0">
                 <div className="flex-1 h-full flex flex-col">
-                  {/* Combined Header with Table Headers */}
-                  <div className="bg-background border-b border-border">
-                    {/* Title Row */}
-                    <div className="px-6 py-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-semibold text-foreground">Cost Breakdown</h3>
-                        <Badge variant="outline" className="text-xs">
-                          {scopeData.length} phases
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    {/* Table Headers Row */}
-                    <div className="bg-slate-100/70 border-t border-slate-200 flex">
-                      {/* Left Panel Header */}
-                      <div className="w-[420px] px-2 py-2 text-xs font-medium text-slate-700 border-r border-border">
-                        <div className="grid items-center" style={{
-                          gridTemplateColumns: '32px 120px 1fr',
-                        }}>
-                          <div></div>
-                          <div className="px-2 font-semibold">WBS</div>
-                          <div className="px-3 font-semibold">NAME</div>
-                        </div>
-                      </div>
-                      
-                      {/* Right Panel Header */}
-                      <div className="flex-1 px-2 py-2 text-xs font-medium text-slate-700">
-                        <div className="grid items-center" style={{
-                          gridTemplateColumns: '1fr 120px 120px 120px 100px 140px 84px',
-                        }}>
-                          <div className="px-3 font-semibold">DESCRIPTION</div>
-                          <div className="px-2 font-semibold text-right">BUDGET</div>
-                          <div className="px-2 font-semibold text-right">ACTUAL</div>
-                          <div className="px-2 font-semibold text-right">VARIANCE</div>
-                          <div className="px-2 font-semibold">COST CODE</div>
-                          <div className="px-2 font-semibold">STATUS</div>
-                          <div className="px-2 font-semibold">ACTIONS</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                   {/* Combined Header with Table Headers */}
+                   <div className="bg-background border-b border-border">
+                     {/* Title Row */}
+                     <div className="px-6 py-4 flex items-center justify-between">
+                       <div className="flex items-center gap-3">
+                         <h3 className="text-lg font-semibold text-foreground">Cost Breakdown</h3>
+                         <Badge variant="outline" className="text-xs">
+                           {scopeData.length} phases
+                         </Badge>
+                       </div>
+                     </div>
+                     
+                     {/* Table Headers Row */}
+                     <div className="bg-slate-100/70 border-t border-slate-200 flex">
+                       {/* Left Panel Header */}
+                       <div className="w-[420px] px-2 py-2 text-xs font-medium text-slate-700 border-r border-border">
+                         <div className="grid items-center" style={{
+                           gridTemplateColumns: '32px 120px 1fr',
+                         }}>
+                           <div></div>
+                           <div className="px-2 font-semibold">WBS</div>
+                           <div className="px-3 font-semibold">NAME</div>
+                         </div>
+                       </div>
+                       
+                       {/* Right Panel Header */}
+                       <div className="flex-1 px-2 py-2 text-xs font-medium text-slate-700">
+                         <div className="grid items-center" style={{
+                           gridTemplateColumns: '1fr 120px 120px 120px 100px 140px 84px',
+                         }}>
+                           <div className="px-3 font-semibold">DESCRIPTION</div>
+                           <div className="px-2 font-semibold text-right">BUDGET</div>
+                           <div className="px-2 font-semibold text-right">ACTUAL</div>
+                           <div className="px-2 font-semibold text-right">VARIANCE</div>
+                           <div className="px-2 font-semibold">COST CODE</div>
+                           <div className="px-2 font-semibold">STATUS</div>
+                           <div className="px-2 font-semibold">ACTIONS</div>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
 
-                  {loading ? (
-                    <div className="flex items-center justify-center h-64">
-                      <div className="text-center">
-                        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
-                        <div className="text-sm text-muted-foreground">Loading WBS...</div>
-                      </div>
-                    </div>
-                  ) : error ? (
-                    <div className="flex items-center justify-center h-64">
-                      <div className="text-center">
-                        <div className="text-sm text-destructive mb-2">Error loading WBS</div>
-                        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                          Retry
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex-1">
-                      <WBSCostView
-                        items={flatWBSItems}
-                        onToggleExpanded={(itemId) => {
-                          const item = wbsItems.find(i => i.id === itemId);
-                          if (item) {
-                            updateWBSItem(itemId, { is_expanded: !item.is_expanded });
-                          }
-                        }}
-                        onDragEnd={onDragEnd}
-                        onItemUpdate={updateWBSItem}
-                        onContextMenuAction={handleContextMenuAction}
-                        onOpenNotesDialog={openNotesDialog}
-                        dragIndicator={dragIndicator}
-                        EditableCell={EditableCell}
-                        StatusSelect={StatusSelect}
-                        generateWBSNumber={generateWBSNumber}
-                      />
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
-      </div>
+                   {loading ? (
+                     <div className="flex items-center justify-center h-64">
+                       <div className="text-center">
+                         <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
+                         <div className="text-sm text-muted-foreground">Loading WBS...</div>
+                       </div>
+                     </div>
+                   ) : error ? (
+                     <div className="flex items-center justify-center h-64">
+                       <div className="text-center">
+                         <div className="text-sm text-destructive mb-2">Error loading WBS</div>
+                         <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                           Retry
+                         </Button>
+                       </div>
+                     </div>
+                   ) : (
+                     <div className="flex-1">
+                       <WBSCostView
+                         items={flatWBSItems}
+                         onToggleExpanded={(itemId) => {
+                           const item = wbsItems.find(i => i.id === itemId);
+                           if (item) {
+                             updateWBSItem(itemId, { is_expanded: !item.is_expanded });
+                           }
+                         }}
+                         onDragEnd={onDragEnd}
+                         onItemUpdate={updateWBSItem}
+                         onContextMenuAction={handleContextMenuAction}
+                         onOpenNotesDialog={openNotesDialog}
+                         dragIndicator={dragIndicator}
+                         EditableCell={EditableCell}
+                         StatusSelect={StatusSelect}
+                         generateWBSNumber={generateWBSNumber}
+                       />
+                     </div>
+                   )}
+                 </div>
+               </TabsContent>
+             </div>
+           </Tabs>
+         </div>
+       </div>
 
-      {/* Notes Dialog */}
-      <Dialog open={notesDialogOpen} onOpenChange={(open) => !open && closeNotesDialog()}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit Notes</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Item: {currentNotesItem?.title}</label>
-            </div>
-            <Textarea
-              placeholder="Enter your notes here..."
-              value={notesValue}
-              onChange={(e) => setNotesValue(e.target.value)}
-              className="min-h-[120px]"
-            />
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={closeNotesDialog}>
-                Cancel
-              </Button>
-              <Button onClick={saveNotes}>
-                Save Notes
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-};
+       {/* Notes Dialog */}
+       <Dialog open={notesDialogOpen} onOpenChange={(open) => !open && closeNotesDialog()}>
+         <DialogContent className="sm:max-w-md">
+           <DialogHeader>
+             <DialogTitle>Edit Notes</DialogTitle>
+           </DialogHeader>
+           <div className="space-y-4">
+             <div>
+               <label className="text-sm font-medium">Item: {currentNotesItem?.title}</label>
+             </div>
+             <Textarea
+               placeholder="Enter your notes here..."
+               value={notesValue}
+               onChange={(e) => setNotesValue(e.target.value)}
+               className="min-h-[120px]"
+             />
+             <div className="flex justify-end space-x-2">
+               <Button variant="outline" onClick={closeNotesDialog}>
+                 Cancel
+               </Button>
+               <Button onClick={saveNotes}>
+                 Save Notes
+               </Button>
+             </div>
+           </div>
+         </DialogContent>
+       </Dialog>
+     </div>
+   );
+ };
