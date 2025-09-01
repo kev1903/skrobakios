@@ -32,12 +32,6 @@ const CORE_MODULES = [{
   icon: File,
   page: 'project-specification'
 }, {
-  id: 'schedule',
-  key: 'schedule',
-  label: 'Schedule',
-  icon: Calendar,
-  page: 'project-schedule'
-}, {
   id: 'cost',
   key: 'cost',
   label: 'Cost',
