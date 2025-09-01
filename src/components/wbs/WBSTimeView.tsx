@@ -1,6 +1,7 @@
 import React, { useRef, useCallback } from 'react';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
+import { GanttChart } from './GanttChart';
 import { DropResult } from 'react-beautiful-dnd';
 
 interface WBSItem {
@@ -55,27 +56,38 @@ export const WBSTimeView = ({
 
   return (
     <div className="flex h-full w-full bg-white overflow-hidden">
-      <WBSLeftPanel
-        items={items}
-        onToggleExpanded={onToggleExpanded}
-        onDragEnd={onDragEnd}
-        onItemEdit={onItemUpdate}
-        dragIndicator={dragIndicator}
-        EditableCell={EditableCell}
-        generateWBSNumber={generateWBSNumber}
-        scrollRef={leftScrollRef}
-      />
-      
-      <WBSTimeRightPanel
-        items={items}
-        onItemUpdate={onItemUpdate}
-        onContextMenuAction={onContextMenuAction}
-        onOpenNotesDialog={onOpenNotesDialog}
-        EditableCell={EditableCell}
-        StatusSelect={StatusSelect}
-        scrollRef={rightScrollRef}
-        onScroll={handleRightScroll}
-      />
+      {/* Left side - Table view */}
+      <div className="flex-1 flex h-full overflow-hidden">
+        <WBSLeftPanel
+          items={items}
+          onToggleExpanded={onToggleExpanded}
+          onDragEnd={onDragEnd}
+          onItemEdit={onItemUpdate}
+          dragIndicator={dragIndicator}
+          EditableCell={EditableCell}
+          generateWBSNumber={generateWBSNumber}
+          scrollRef={leftScrollRef}
+        />
+        
+        <WBSTimeRightPanel
+          items={items}
+          onItemUpdate={onItemUpdate}
+          onContextMenuAction={onContextMenuAction}
+          onOpenNotesDialog={onOpenNotesDialog}
+          EditableCell={EditableCell}
+          StatusSelect={StatusSelect}
+          scrollRef={rightScrollRef}
+          onScroll={handleRightScroll}
+        />
+      </div>
+
+      {/* Right side - Gantt Chart */}
+      <div className="w-1/2 flex flex-col overflow-hidden">
+        <div className="bg-slate-100/70 border-b border-slate-200 px-2 py-2 text-xs font-medium text-slate-700 border-l border-border">
+          <div className="px-3 font-semibold">TIMELINE</div>
+        </div>
+        <GanttChart items={items} className="flex-1" />
+      </div>
     </div>
   );
 };
