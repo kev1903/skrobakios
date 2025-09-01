@@ -80,7 +80,7 @@ export const WBSTimeView = ({
               {/* WBS Right Panel Header - Table Section */}
               <div className="flex-1 px-2 py-2 text-xs font-medium text-slate-700">
                 <div className="grid items-center" style={{
-                  gridTemplateColumns: '1fr 120px 120px 100px 140px 140px 84px',
+                  gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
                 }}>
                   <div className="px-3 font-semibold">DESCRIPTION</div>
                   <div className="px-2 font-semibold">START DATE</div>
