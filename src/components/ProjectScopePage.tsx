@@ -981,7 +981,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   const contentClasses = {
     mobile: "flex-1",
     tablet: "flex-1",
-    desktop: "flex-1 ml-48"
+    desktop: "flex-1 ml-40"
   };
 
   return (
