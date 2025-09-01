@@ -4,8 +4,10 @@ import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { useScreenSize } from "@/hooks/use-mobile";
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 import { Button } from "@/components/ui/button";
-import { Menu } from "lucide-react";
+import { Menu, RefreshCw, Download, ZoomIn, ZoomOut } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { JSGanttChart } from "@/components/gantt/JSGanttChart";
+import { useWBS } from "@/hooks/useWBS";
 
 interface ProjectTimelinePageProps {
   project: Project;
@@ -16,6 +18,9 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
   const screenSize = useScreenSize();
   const { fullHeightClasses } = useMenuBarSpacing('project-timeline');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // WBS data hook
+  const { wbsItems, loading, error, loadWBSItems, updateWBSItem } = useWBS(project.id);
 
   // Responsive classes based on screen size
   const containerClasses = {
@@ -95,9 +100,61 @@ export const ProjectTimelinePage = ({ project, onNavigate }: ProjectTimelinePage
           </div>
         </div>
 
-        {/* Empty Timeline Content Area */}
-        <div className="flex-1 min-h-0 overflow-hidden">
-          {/* Timeline content will go here */}
+        {/* Timeline Content Area */}
+        <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          {/* Toolbar */}
+          <div className="flex-shrink-0 border-b border-border px-3 sm:px-6 py-2 bg-background">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={loadWBSItems}
+                  disabled={loading}
+                  className="gap-2"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="gap-2">
+                  <ZoomOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Zoom Out</span>
+                </Button>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <ZoomIn className="w-4 h-4" />
+                  <span className="hidden sm:inline">Zoom In</span>
+                </Button>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="w-4 h-4" />
+                  <span className="hidden sm:inline">Export</span>
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Gantt Chart */}
+          <div className="flex-1 min-h-0 overflow-hidden">
+            {error ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <p className="text-lg font-medium text-destructive mb-2">Error loading timeline</p>
+                  <p className="text-sm text-muted-foreground mb-4">{error}</p>
+                  <Button onClick={loadWBSItems} variant="outline">
+                    Try Again
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <JSGanttChart
+                tasks={wbsItems}
+                onTaskUpdate={updateWBSItem}
+                loading={loading}
+              />
+            )}
+          </div>
         </div>
       </main>
     </div>
