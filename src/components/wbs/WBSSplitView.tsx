@@ -57,7 +57,7 @@ export const WBSSplitView = ({
   }, []);
 
   return (
-    <div className="flex h-full bg-white rounded-lg border border-border shadow-sm overflow-hidden">
+    <div className="flex h-full bg-white overflow-hidden">
       <WBSLeftPanel
         items={items}
         onToggleExpanded={onToggleExpanded}

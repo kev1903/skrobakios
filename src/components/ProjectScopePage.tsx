@@ -1050,10 +1050,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </TabsList>
               </div>
 
-              <TabsContent value="scope" className="flex-1 px-6 py-4 m-0">
-                <div className="flex-1">
+              <TabsContent value="scope" className="flex-1 m-0">
+                <div className="flex-1 h-full">
                   {/* Header Controls */}
-                  <div className="mb-6 flex items-center justify-between">
+                  <div className="px-6 py-4 border-b border-border bg-background flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <h3 className="text-lg font-semibold text-foreground">Work Breakdown Structure</h3>
                       <Badge variant="outline" className="text-xs">
