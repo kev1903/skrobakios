@@ -345,7 +345,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
 
         {/* Schedule Content - Gantt Chart */}
         <div className="flex-1 bg-white flex flex-col overflow-hidden">
-          <div className="flex-1 p-2 sm:p-4 overflow-hidden w-full">
+          <div className="flex-1 overflow-hidden w-full h-full">
             <div className="w-full h-full overflow-hidden">
               <Card className="shadow-lg w-full h-full overflow-hidden">
                 <CardContent className="p-0 overflow-hidden h-full w-full">
