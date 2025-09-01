@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSRightPanel } from './WBSRightPanel';
 import { DropResult } from 'react-beautiful-dnd';
@@ -47,6 +47,15 @@ export const WBSSplitView = ({
   getProgressColor,
   generateWBSNumber
 }: WBSSplitViewProps) => {
+  const leftScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
+
+  const handleRightScroll = useCallback(() => {
+    if (leftScrollRef.current && rightScrollRef.current) {
+      leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
+    }
+  }, []);
+
   return (
     <div className="flex h-full bg-white rounded-lg border border-border shadow-sm overflow-hidden">
       <WBSLeftPanel
@@ -57,6 +66,7 @@ export const WBSSplitView = ({
         dragIndicator={dragIndicator}
         EditableCell={EditableCell}
         generateWBSNumber={generateWBSNumber}
+        scrollRef={leftScrollRef}
       />
       
       <WBSRightPanel
@@ -69,6 +79,8 @@ export const WBSSplitView = ({
         ProgressInput={ProgressInput}
         ProgressDisplay={ProgressDisplay}
         getProgressColor={getProgressColor}
+        scrollRef={rightScrollRef}
+        onScroll={handleRightScroll}
       />
     </div>
   );

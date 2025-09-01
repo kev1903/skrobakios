@@ -29,6 +29,8 @@ interface WBSRightPanelProps {
   ProgressInput: any;
   ProgressDisplay: any;
   getProgressColor: (progress: number) => string;
+  scrollRef: React.RefObject<HTMLDivElement>;
+  onScroll: () => void;
 }
 
 export const WBSRightPanel = ({
@@ -40,7 +42,9 @@ export const WBSRightPanel = ({
   StatusSelect,
   ProgressInput,
   ProgressDisplay,
-  getProgressColor
+  getProgressColor,
+  scrollRef,
+  onScroll
 }: WBSRightPanelProps) => {
   return (
     <div className="flex-1 bg-white overflow-hidden">
@@ -59,7 +63,7 @@ export const WBSRightPanel = ({
       </div>
 
       {/* Content */}
-      <div className="h-[calc(100vh-200px)] overflow-y-auto overflow-x-auto">
+      <div ref={scrollRef} className="h-[calc(100vh-200px)] overflow-y-auto overflow-x-auto" onScroll={onScroll}>
         {items.map((item) => (
           <div
             key={item.id}

@@ -20,6 +20,7 @@ interface WBSLeftPanelProps {
   dragIndicator: any;
   EditableCell: any;
   generateWBSNumber: (phaseIndex: number, componentIndex?: number, elementIndex?: number) => string;
+  scrollRef: React.RefObject<HTMLDivElement>;
 }
 
 // Portal wrapper to avoid transform/fixed offset issues during drag
@@ -36,7 +37,8 @@ export const WBSLeftPanel = ({
   onItemEdit,
   dragIndicator,
   EditableCell,
-  generateWBSNumber
+  generateWBSNumber,
+  scrollRef
 }: WBSLeftPanelProps) => {
   return (
     <div className="w-[420px] bg-white border-r border-border flex-shrink-0 overflow-hidden">
@@ -52,7 +54,7 @@ export const WBSLeftPanel = ({
       </div>
 
       {/* Content */}
-      <div className="h-[calc(100vh-200px)] overflow-y-auto">
+      <div ref={scrollRef} className="h-[calc(100vh-200px)] overflow-y-hidden overflow-x-hidden">
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="wbs-phases" type="phase">
             {(provided) => (
