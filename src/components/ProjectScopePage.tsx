@@ -1002,6 +1002,16 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                       )}
                                     </button>
                                     <div className="font-semibold text-primary text-sm truncate">{generateWBSNumber(phaseIndex)}</div>
+                                    {/* Add Component button in WBS column */}
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="h-6 w-6 p-0 hover:bg-primary/10 text-primary hover:text-primary ml-2"
+                                      onClick={() => handleContextMenuAction('add-component', phase.id, 'phase')}
+                                      title="Add Component"
+                                    >
+                                      <Plus className="w-3 h-3" />
+                                    </Button>
                                   </div>
                                 </div>
                                 <div className="px-3 py-2 font-semibold text-foreground text-sm truncate">
@@ -1044,15 +1054,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                 <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
                                 <div className="px-2 py-2 flex items-center justify-center">
                                   <div className="flex items-center gap-1">
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm" 
-                                      className="h-6 w-6 p-0 hover:bg-primary/10 text-primary hover:text-primary"
-                                      onClick={() => handleContextMenuAction('add-component', phase.id, 'phase')}
-                                      title="Add Component"
-                                    >
-                                      <Plus className="w-3 h-3" />
-                                    </Button>
                                     <DropdownMenu>
                                       <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
@@ -1141,6 +1142,16 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                     )}
                                                   </button>
                                                   <div className="font-medium text-blue-600 text-xs truncate">{generateWBSNumber(phaseIndex, componentIndex)}</div>
+                                                  {/* Add Element button in WBS column */}
+                                                  <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-6 w-6 p-0 hover:bg-blue-100 text-blue-600 hover:text-blue-700 ml-2"
+                                                    onClick={() => handleContextMenuAction('add-element', component.id, 'component')}
+                                                    title="Add Element"
+                                                  >
+                                                    <Plus className="w-3 h-3" />
+                                                  </Button>
                                                 </div>
                                              </div>
                              <div className="px-3 py-2 font-medium text-foreground text-xs ml-8 truncate">
@@ -1183,15 +1194,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                             <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
                                             <div className="px-2 py-2 flex items-center justify-center">
                                               <div className="flex items-center gap-1">
-                                                <Button 
-                                                  variant="ghost" 
-                                                  size="sm" 
-                                                  className="h-6 w-6 p-0 hover:bg-blue-100 text-blue-600 hover:text-blue-700"
-                                                  onClick={() => handleContextMenuAction('add-element', component.id, 'component')}
-                                                  title="Add Element"
-                                                >
-                                                  <Plus className="w-3 h-3" />
-                                                </Button>
                                                 <DropdownMenu>
                                                   <DropdownMenuTrigger asChild>
                                                     <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
