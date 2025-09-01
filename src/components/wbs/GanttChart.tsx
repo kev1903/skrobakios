@@ -33,8 +33,8 @@ export const GanttChart = ({ items, className = "" }: GanttChartProps) => {
       const today = new Date();
       return {
         startDate: startOfWeek(today),
-        endDate: endOfWeek(addDays(today, 30)),
-        timelineDays: eachDayOfInterval({ start: startOfWeek(today), end: endOfWeek(addDays(today, 30)) })
+        endDate: endOfWeek(addDays(today, 60)), // Extended to show more days
+        timelineDays: eachDayOfInterval({ start: startOfWeek(today), end: endOfWeek(addDays(today, 60)) })
       };
     }
 
@@ -42,7 +42,7 @@ export const GanttChart = ({ items, className = "" }: GanttChartProps) => {
     const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
     
     const chartStart = startOfWeek(minDate);
-    const chartEnd = endOfWeek(addDays(maxDate, 7));
+    const chartEnd = endOfWeek(addDays(maxDate, 14)); // Extended buffer
     
     return {
       startDate: chartStart,
@@ -99,10 +99,10 @@ export const GanttChart = ({ items, className = "" }: GanttChartProps) => {
   const rowHeight = 56; // Height matching the table rows (3.5rem)
 
   return (
-    <div className={`flex-1 bg-white border-l border-border ${className}`}>
-      {/* Timeline Header */}
+    <div className={`h-full w-full bg-white ${className}`}>
+      {/* Timeline Header - Sticky */}
       <div className="sticky top-0 bg-white border-b border-border z-10">
-        <div className="overflow-x-auto">
+        <div className="min-w-fit">
           <div style={{ width: chartWidth }} className="flex">
             {timelineDays.map((day, index) => (
               <div
@@ -121,8 +121,8 @@ export const GanttChart = ({ items, className = "" }: GanttChartProps) => {
         </div>
       </div>
 
-      {/* Gantt Bars */}
-      <div className="overflow-x-auto">
+      {/* Gantt Bars Container */}
+      <div className="min-w-fit">
         <div style={{ width: chartWidth }} className="relative">
           {items.map((item, index) => {
             const position = getTaskPosition(item);
