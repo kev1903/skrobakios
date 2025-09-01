@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "@/components/ProjectSidebar";
-import { ModernGanttChart, ModernGanttTask } from '@/components/timeline/ModernGanttChart';
+import { GanttChart } from '@/components/gantt/GanttChart';
+import { GanttTask } from '@/types/gantt';
 import { useScreenSize } from "@/hooks/use-mobile";
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 import { Button } from "@/components/ui/button";
@@ -28,10 +29,10 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   
   // Use WBS data from the scope table as the main repository
   const { wbsItems, loading, updateWBSItem, createWBSItem, deleteWBSItem } = useWBS(project.id);
-  const [tasks, setTasks] = useState<ModernGanttTask[]>([]);
+  const [tasks, setTasks] = useState<GanttTask[]>([]);
 
   // Convert WBS items to Gantt tasks (strictly synced with Scope)
-  const convertWBSToTasks = (items: WBSItem[]): ModernGanttTask[] => {
+  const convertWBSToTasks = (items: WBSItem[]): GanttTask[] => {
     // Build helper maps to derive parentId from WBS code (don't trust parent_id)
     const byWbs = new Map<string, WBSItem>();
     items.forEach(i => byWbs.set(i.wbs_id, i));
@@ -42,13 +43,13 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       return parts.slice(0, parts.length - 1).join('.');
     };
 
-    const statusFromWBS = (status?: string): ModernGanttTask['status'] => {
+    const statusFromWBS = (status?: string): GanttTask['status'] => {
       switch (status) {
         case 'Completed': return 'completed';
         case 'In Progress': return 'in-progress';
         case 'On Hold': return 'delayed';
         case 'Delayed': return 'delayed';
-        default: return 'pending';
+        default: return 'not-started';
       }
     };
 
@@ -64,14 +65,12 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
         endDate: item.end_date ? new Date(item.end_date) : addDays(new Date(), item.duration || 7),
         progress: item.progress || 0,
         status: statusFromWBS(item.status),
-        assignee: item.assigned_to || 'Unassigned',
-        duration: `${item.duration || 0} days`,
-        category: level === 0 ? 'Stage' : level === 1 ? 'Component' : 'Element',
-        isStage: level === 0,
-        level,
+        assignee: item.assigned_to || undefined,
         wbs: item.wbs_id,
         parentId: parentItem?.id, // derive from WBS path to match Scope hierarchy
-        expanded: !!item.is_expanded,
+        level,
+        isExpanded: !!item.is_expanded,
+        category: (level === 0 ? 'Stage' : level === 1 ? 'Component' : 'Element') as 'Stage' | 'Component' | 'Element'
       };
     });
   };
@@ -91,7 +90,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     }
   }, [wbsItems]);
 
-  const handleTaskUpdate = async (taskId: string, updates: Partial<ModernGanttTask>) => {
+  const handleTaskUpdate = async (taskId: string, updates: Partial<GanttTask>) => {
     // Update local state immediately for responsiveness
     setTasks(prev => prev.map(task => 
       task.id === taskId ? { ...task, ...updates } : task
@@ -107,7 +106,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       if (updates.startDate) wbsUpdates.start_date = updates.startDate.toISOString().split('T')[0];
       if (updates.endDate) wbsUpdates.end_date = updates.endDate.toISOString().split('T')[0];
       if (updates.parentId !== undefined) wbsUpdates.parent_id = updates.parentId || null;
-      if (updates.expanded !== undefined) wbsUpdates.is_expanded = updates.expanded;
+      if (updates.isExpanded !== undefined) wbsUpdates.is_expanded = updates.isExpanded;
       
       if (updates.status) {
         switch (updates.status) {
@@ -128,7 +127,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     }
   };
 
-  const handleTaskAdd = async (newTask: Omit<ModernGanttTask, 'id'>) => {
+  const handleTaskAdd = async (newTask: Omit<GanttTask, 'id'>) => {
     if (!currentCompany) {
       console.error('No active company selected');
       return;
@@ -146,7 +145,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
         wbs_id: newWbsId,
         title: newTask.name,
         description: '',
-        assigned_to: newTask.assignee !== 'Unassigned' ? newTask.assignee : undefined,
+        assigned_to: newTask.assignee ? newTask.assignee : undefined,
         start_date: newTask.startDate.toISOString().split('T')[0],
         end_date: newTask.endDate.toISOString().split('T')[0],
         duration: Math.ceil((newTask.endDate.getTime() - newTask.startDate.getTime()) / (1000 * 3600 * 24)),
@@ -199,7 +198,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     // Update the tasks state to mark them as expanded
     setTasks(prev => prev.map(task => ({
       ...task,
-      expanded: tasksWithChildren.has(task.id)
+      isExpanded: tasksWithChildren.has(task.id)
     })));
   };
 
@@ -207,11 +206,11 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
     // Collapse all tasks
     setTasks(prev => prev.map(task => ({
       ...task,
-      expanded: false
+      isExpanded: false
     })));
   };
 
-  const handleTaskReorder = (reorderedTasks: ModernGanttTask[]) => {
+  const handleTaskReorder = (reorderedTasks: GanttTask[]) => {
     // For now, just update local state - in a full implementation,
     // this would update the sort order in the database
     setTasks(reorderedTasks);
@@ -345,16 +344,12 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
 
         {/* Schedule Content - Gantt Chart */}
         <div className="flex-1 min-h-0 overflow-hidden">
-          <ModernGanttChart 
+          <GanttChart 
             tasks={tasks} 
             onTaskUpdate={handleTaskUpdate}
             onTaskAdd={handleTaskAdd}
             onTaskDelete={handleTaskDelete}
             onTaskReorder={handleTaskReorder}
-            onExpandAll={handleExpandAll}
-            onCollapseAll={handleCollapseAll}
-            hideToolbar
-            hideTabs
           />
         </div>
       </main>
