@@ -49,14 +49,18 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     // Set timeout for loading state
     timeoutRef.current = setTimeout(() => {
       setLocalLoading(false);
-    }, 3000); // 3 second timeout
+    }, 5000); // Extended timeout to allow for project auto-selection
 
     const fetchProject = async () => {
       setLocalLoading(true);
       
       if (!projectId) {
-        // No projectId provided, show message or redirect
-        setLocalLoading(false);
+        // No projectId provided - wait a bit for auto-selection to happen
+        setTimeout(() => {
+          if (!projectId) {
+            setLocalLoading(false);
+          }
+        }, 2000); // Wait 2 seconds for auto-selection
         return;
       }
       
@@ -164,12 +168,20 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50">
         <div className="flex items-center justify-center w-full">
           <div className="text-center">
-            <div className="text-slate-700 text-lg mb-4">Project not found</div>
+            <div className="text-slate-700 text-lg mb-4">
+              {!projectId ? "No project selected" : "Project not found"}
+            </div>
+            <p className="text-slate-600 mb-4">
+              {!projectId 
+                ? "Please select a project to view its details" 
+                : "The requested project could not be found"
+              }
+            </p>
             <button 
               onClick={() => onNavigate("projects")}
               className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-600 px-4 py-2 rounded-lg transition-all duration-300 shadow-md"
             >
-              Back to Projects
+              View All Projects
             </button>
           </div>
         </div>
