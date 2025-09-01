@@ -49,7 +49,12 @@ export const WBSRightPanel = ({
   return (
     <div className="flex-1 min-w-0 bg-white overflow-hidden">
       {/* Content - No separate header since it's now unified */}
-      <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full" onScroll={onScroll}>
+      <div
+        ref={scrollRef}
+        className="h-full overflow-y-auto overflow-x-hidden w-full mr-[-16px] pr-4"
+        onScroll={onScroll}
+        style={{ scrollbarGutter: 'stable' }}
+      >
         {items.map((item) => (
           <div
             key={item.id}
