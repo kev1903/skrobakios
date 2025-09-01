@@ -1,4 +1,5 @@
 import React, { useRef, useCallback } from 'react';
+import { format } from 'date-fns';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
 import { GanttChart } from './GanttChart';
@@ -140,7 +141,7 @@ export const WBSTimeView = ({
           <Panel defaultSize={50} minSize={30} className="flex flex-col">
             {/* Header Section */}
             <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border border-l border-border px-2 py-2 text-xs font-medium text-slate-700 flex-shrink-0">
-              <div className="px-3 font-semibold">TIMELINE</div>
+              <div className="px-3 font-semibold">{format(new Date(), 'MMMM yyyy').toUpperCase()}</div>
             </div>
 
             {/* Gantt Chart Content - Master Scroll Controller */}
