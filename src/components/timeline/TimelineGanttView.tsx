@@ -1352,10 +1352,18 @@ export const TimelineGanttView = ({
               <Label htmlFor="progress">Progress (%)</Label>
               <Input 
                 id="progress" 
-                type="number" 
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 min="0" 
                 max="100" 
-                defaultValue={editingTask?.progress || 0} 
+                defaultValue={editingTask?.progress || 0}
+                className="[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                onBlur={(e) => {
+                  const value = parseInt(e.target.value) || 0;
+                  const clampedValue = Math.max(0, Math.min(100, value));
+                  e.target.value = clampedValue.toString();
+                }}
               />
             </div>
           </div>
