@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { WBSSplitView } from '@/components/wbs/WBSSplitView';
 import {
   Dialog,
   DialogContent,
@@ -243,6 +244,62 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             })) || []
         })) || []
     }));
+
+  // Convert scope data to flat array for split view
+  const flatWBSItems = React.useMemo(() => {
+    const items: any[] = [];
+    
+    scopeData.forEach((phase, phaseIndex) => {
+      items.push({
+        id: phase.id,
+        name: phase.name,
+        description: phase.description,
+        status: phase.status,
+        progress: calculatePhaseProgress(phase),
+        assignedTo: '',
+        level: 0,
+        wbsNumber: (phaseIndex + 1).toString(),
+        isExpanded: phase.isExpanded,
+        hasChildren: phase.components.length > 0
+      });
+
+      if (phase.isExpanded) {
+        phase.components.forEach((component, componentIndex) => {
+          items.push({
+            id: component.id,
+            name: component.name,
+            description: component.description,
+            status: component.status,
+            progress: calculateComponentProgress(component),
+            assignedTo: '',
+            level: 1,
+            wbsNumber: generateWBSNumber(phaseIndex, componentIndex),
+            isExpanded: component.isExpanded,
+            hasChildren: component.elements.length > 0
+          });
+
+          if (component.isExpanded) {
+            component.elements.forEach((element, elementIndex) => {
+              items.push({
+                id: element.id,
+                name: element.name,
+                description: element.description,
+                status: element.status,
+                progress: element.progress,
+                assignedTo: element.assignedTo || '',
+                level: 2,
+                wbsNumber: generateWBSNumber(phaseIndex, componentIndex, elementIndex),
+                isExpanded: false,
+                hasChildren: false
+              });
+            });
+          }
+        });
+      }
+    });
+
+    return items;
+  }, [scopeData]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -993,462 +1050,71 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </TabsList>
               </div>
 
-              <TabsContent value="scope" className="flex-1 px-6 py-4 m-0">{/* Scope Content */}
-            <div className="rounded-lg border border-border bg-white shadow-sm">
-              {/* Header */}
-               <div
-                 className="bg-muted/40 border-b border-border grid text-left text-xs font-medium text-muted-foreground uppercase tracking-wider"
-                 style={{ gridTemplateColumns: '32px 120px 280px 1fr 140px 120px 160px 160px 84px' }}
-               >
-                <div className="px-2 py-2" />
-                <div className="px-2 py-2">WBS</div>
-                <div className="px-3 py-2">Name</div>
-                <div className="px-3 py-2">Description</div>
-                <div className="px-2 py-2">Status</div>
-                <div className="px-2 py-2">Progress</div>
-                <div className="px-2 py-2">Assigned To</div>
-                <div className="px-2 py-2">Note</div>
-                <div className="px-2 py-2">Actions</div>
-              </div>
-
-              {/* Body - Grid-based DnD to avoid table offsets */}
-              <DragDropContext onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
-                <Droppable droppableId="scope-phases" type="phase">
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`divide-y divide-border transition-colors duration-200 ${
-                        snapshot.isDraggingOver ? 'bg-primary/5' : ''
-                      }`}
-                    >
-                      {scopeData.map((phase, phaseIndex) => (
-                        <React.Fragment key={phase.id}>
-                          {dragIndicator && dragIndicator.type === 'phase' && dragIndicator.index === phaseIndex && (
-                            <div className="px-2"><div className="h-0.5 bg-primary/60 rounded-full" /></div>
-                          )}
-
-                          <Draggable draggableId={phase.id} index={phaseIndex}>
-                            {(providedDraggable, snapshotDraggable) => (
-                              <DragPortalWrapper isDragging={snapshotDraggable.isDragging}>
-                              <div
-                                ref={providedDraggable.innerRef}
-                                {...providedDraggable.draggableProps}
-                                 className={`grid items-center relative bg-slate-200 border-l-4 border-l-slate-700 hover:bg-slate-300 ${
-                                   snapshotDraggable.isDragging ? 'shadow-xl bg-card border-slate-700 z-50' : ''
-                                 }`}
-                                 style={{
-                                   gridTemplateColumns: '32px 120px 280px 1fr 140px 120px 160px 160px 84px',
-                                   ...providedDraggable.draggableProps.style,
-                                 }}
-                              >
-                                <div className="px-2 py-2">
-                                  <div
-                                    {...providedDraggable.dragHandleProps}
-                                    className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 ${
-                                      snapshotDraggable.isDragging ? 'bg-primary/20 shadow-sm' : 'hover:bg-primary/10'
-                                    }`}
-                                    title="Drag to reorder phase"
-                                  >
-                                    <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                  </div>
-                                </div>
-                                <div className="px-2 py-2">
-                                  <div className="flex items-center">
-                                    <button
-                                      onClick={() => togglePhase(phase.id)}
-                                      className="p-0.5 hover:bg-accent rounded transition-colors duration-200 mr-1"
-                                      aria-label="Toggle phase"
-                                    >
-                                      {phase.isExpanded ? (
-                                        <ChevronDown className="w-3 h-3 text-muted-foreground" />
-                                      ) : (
-                                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                                      )}
-                                    </button>
-                                    <div className="font-semibold text-primary text-sm truncate">{generateWBSNumber(phaseIndex)}</div>
-                                    {/* Add Component button in WBS column */}
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm" 
-                                      className="h-6 w-6 p-0 hover:bg-primary/10 text-primary hover:text-primary ml-2"
-                                      onClick={() => handleContextMenuAction('add-component', phase.id, 'phase')}
-                                      title="Add Component"
-                                    >
-                                      <Plus className="w-3 h-3" />
-                                    </Button>
-                                  </div>
-                                </div>
-                                <div className="px-3 py-2 font-semibold text-foreground text-sm truncate">
-                                  <EditableCell
-                                    id={phase.id}
-                                    type="phase"
-                                    field="name"
-                                    value={phase.name}
-                                    placeholder="Untitled Phase"
-                                    className="font-semibold text-sm"
-                                  />
-                                </div>
-                                <div className="px-3 py-2 text-muted-foreground text-xs truncate">
-                                  <EditableCell
-                                    id={phase.id}
-                                    type="phase"
-                                    field="description"
-                                    value={phase.description || ''}
-                                    placeholder="Add description..."
-                                    className="text-xs text-muted-foreground"
-                                  />
-                                </div>
-                                <div className="px-2 py-2">
-                                  <StatusSelect 
-                                    value={phase.status} 
-                                    onChange={(newStatus) => updateWBSItem(phase.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
-                                  />
-                                </div>
-                                 <div className="px-2 py-2">
-                                   <div className="flex items-center gap-1">
-                                     <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
-                                       <div className={`h-full transition-all duration-300 ${getProgressColor(calculatePhaseProgress(phase))}`} style={{ width: `${calculatePhaseProgress(phase)}%` }} />
-                                     </div>
-                                      <ProgressDisplay 
-                                        value={calculatePhaseProgress(phase)}
-                                      />
-                                   </div>
-                                 </div>
-                                <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
-                                <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
-                                <div className="px-2 py-2 flex items-center justify-center">
-                                  <div className="flex items-center gap-1">
-                                    <DropdownMenu>
-                                      <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
-                                          <MoreHorizontal className="w-3 h-3" />
-                                        </Button>
-                                      </DropdownMenuTrigger>
-                                      <DropdownMenuContent align="end" className="w-40">
-                                        <DropdownMenuItem onClick={() => handleContextMenuAction('add-component', phase.id, 'phase')}>
-                                          <Plus className="w-3 h-3 mr-2" />
-                                          Add Component
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={() => handleContextMenuAction('edit', phase.id, 'phase')}>
-                                          <Edit2 className="w-3 h-3 mr-2" />
-                                          Edit
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', phase.id, 'phase')}>
-                                          <Copy className="w-3 h-3 mr-2" />
-                                          Duplicate
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem onClick={() => handleContextMenuAction('delete', phase.id, 'phase')} className="text-destructive focus:text-destructive">
-                                          <Trash2 className="w-3 h-3 mr-2" />
-                                          Delete
-                                        </DropdownMenuItem>
-                                      </DropdownMenuContent>
-                                    </DropdownMenu>
-                                  </div>
-                                </div>
-                              </div>
-                              </DragPortalWrapper>
-                            )}
-                          </Draggable>
-
-                          {phase.isExpanded && (
-                            <Droppable droppableId={`components-${phase.id}`} type={`component-${phase.id}`}>
-                              {(componentProvided, componentSnapshot) => (
-                                <div
-                                  ref={componentProvided.innerRef}
-                                  {...componentProvided.droppableProps}
-                                  className={`${componentSnapshot.isDraggingOver ? 'bg-secondary/5' : ''}`}
-                                >
-                                  {phase.components.map((component, componentIndex) => (
-                                    <React.Fragment key={component.id}>
-                                      {dragIndicator && dragIndicator.type === `component-${phase.id}` && dragIndicator.droppableId === `components-${phase.id}` && dragIndicator.index === componentIndex && (
-                                        <div className="px-2 ml-8"><div className="h-0.5 bg-secondary/60 rounded-full" /></div>
-                                      )}
-
-                                      <Draggable draggableId={component.id} index={componentIndex}>
-                                        {(componentDragProvided, componentSnapshot2) => (
-                                          <DragPortalWrapper isDragging={componentSnapshot2.isDragging}>
-                                           <div
-                                             ref={componentDragProvided.innerRef}
-                                             {...componentDragProvided.draggableProps}
-                                              className={`grid items-center bg-slate-100 border-l-[3px] border-l-slate-500 hover:bg-slate-200 ${
-                                                componentSnapshot2.isDragging ? 'shadow-xl bg-card border-slate-500 z-40' : ''
-                                              }`}
-                                             style={{
-                                               gridTemplateColumns: '32px 120px 280px 1fr 140px 120px 160px 160px 84px',
-                                               ...componentDragProvided.draggableProps.style,
-                                             }}
-                                          >
-                                            <div className="px-2 py-2">
-                                              <div
-                                                {...componentDragProvided.dragHandleProps}
-                                                className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 ml-4 ${
-                                                  componentSnapshot2.isDragging ? 'bg-secondary/20 shadow-sm' : 'hover:bg-secondary/10'
-                                                }`}
-                                                title="Drag to reorder component"
-                                              >
-                                                <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                              </div>
-                                            </div>
-                                              <div className="px-2 py-2">
-                                                <div className="flex items-center ml-4">
-                                                  <button 
-                                                    onClick={() => toggleComponent(phase.id, component.id, component.isExpanded)} 
-                                                    className="p-1 hover:bg-blue-100 rounded transition-colors duration-200 mr-2 border border-transparent hover:border-blue-200" 
-                                                    aria-label="Toggle component"
-                                                    title={component.isExpanded ? "Collapse component" : "Expand component"}
-                                                  >
-                                                    {component.isExpanded ? (
-                                                      <ChevronDown className="w-3 h-3 text-blue-600" />
-                                                    ) : (
-                                                      <ChevronRight className="w-3 h-3 text-blue-600" />
-                                                    )}
-                                                  </button>
-                                                  <div className="font-medium text-blue-600 text-xs truncate">{generateWBSNumber(phaseIndex, componentIndex)}</div>
-                                                  {/* Add Element button in WBS column */}
-                                                  <Button 
-                                                    variant="ghost" 
-                                                    size="sm" 
-                                                    className="h-6 w-6 p-0 hover:bg-blue-100 text-blue-600 hover:text-blue-700 ml-2"
-                                                    onClick={() => handleContextMenuAction('add-element', component.id, 'component')}
-                                                    title="Add Element"
-                                                  >
-                                                    <Plus className="w-3 h-3" />
-                                                  </Button>
-                                                </div>
-                                             </div>
-                             <div className="px-3 py-2 font-medium text-foreground text-xs ml-8 truncate">
-                               <EditableCell
-                                 id={component.id}
-                                 type="component"
-                                 field="name"
-                                 value={component.name}
-                                 placeholder="Untitled Component"
-                                 className="font-medium text-xs"
-                               />
-                             </div>
-                             <div className="px-3 py-2 text-muted-foreground text-xs truncate">
-                               <EditableCell
-                                 id={component.id}
-                                 type="component"
-                                 field="description"
-                                 value={component.description || ''}
-                                 placeholder="Add description..."
-                                 className="text-xs text-muted-foreground"
-                               />
-                             </div>
-                                            <div className="px-2 py-2">
-                                              <StatusSelect 
-                                                value={component.status} 
-                                                onChange={(newStatus) => updateWBSItem(component.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
-                                              />
-                                            </div>
-                                              <div className="px-2 py-2">
-                                               <div className="flex items-center gap-1">
-                                                 <div className="w-10 h-1 bg-muted rounded-full overflow-hidden">
-                                                   <div className={`h-full transition-all duration-300 ${getProgressColor(calculateComponentProgress(component))}`} style={{ width: `${calculateComponentProgress(component)}%` }} />
-                                                 </div>
-                                                  <ProgressDisplay 
-                                                    value={calculateComponentProgress(component)}
-                                                  />
-                                               </div>
-                                             </div>
-                                             <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
-                                            <div className="px-2 py-2 text-muted-foreground text-xs truncate">-</div>
-                                            <div className="px-2 py-2 flex items-center justify-center">
-                                              <div className="flex items-center gap-1">
-                                                <DropdownMenu>
-                                                  <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
-                                                      <MoreHorizontal className="w-3 h-3" />
-                                                    </Button>
-                                                  </DropdownMenuTrigger>
-                                                  <DropdownMenuContent align="end" className="w-40">
-                                                    <DropdownMenuItem onClick={() => handleContextMenuAction('add-element', component.id, 'component')}>
-                                                      <Plus className="w-3 h-3 mr-2" />
-                                                      Add Element
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem onClick={() => handleContextMenuAction('edit', component.id, 'component')}>
-                                                      <Edit2 className="w-3 h-3 mr-2" />
-                                                      Edit
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', component.id, 'component')}>
-                                                      <Copy className="w-3 h-3 mr-2" />
-                                                      Duplicate
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem onClick={() => handleContextMenuAction('delete', component.id, 'component')} className="text-destructive focus:text-destructive">
-                                                      <Trash2 className="w-3 h-3 mr-2" />
-                                                      Delete
-                                                    </DropdownMenuItem>
-                                                  </DropdownMenuContent>
-                                                </DropdownMenu>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          </DragPortalWrapper>
-                                        )}
-                                      </Draggable>
-
-                                      {component.isExpanded && (
-                                        <Droppable droppableId={`elements-${phase.id}-${component.id}`} type={`element-${phase.id}-${component.id}`}>
-                                          {(elementProvided, elementSnapshot) => (
-                                            <div ref={elementProvided.innerRef} {...elementProvided.droppableProps} className={`${elementSnapshot.isDraggingOver ? 'bg-accent/5' : ''}`}>
-                                              {component.elements.map((element, elementIndex) => (
-                                                <React.Fragment key={element.id}>
-                                                  {dragIndicator && dragIndicator.type === `element-${phase.id}-${component.id}` && dragIndicator.droppableId === `elements-${phase.id}-${component.id}` && dragIndicator.index === elementIndex && (
-                                                    <div className="px-2 ml-14"><div className="h-0.5 bg-accent/60 rounded-full" /></div>
-                                                  )}
-                                                  <Draggable draggableId={element.id} index={elementIndex}>
-                                                    {(elementDragProvided, elementSnapshot2) => (
-                                                      <DragPortalWrapper isDragging={elementSnapshot2.isDragging}>
-                                                       <div
-                                                         ref={elementDragProvided.innerRef}
-                                                         {...elementDragProvided.draggableProps}
-                                                          className={`grid items-center bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50 ${
-                                                            elementSnapshot2.isDragging ? 'shadow-lg bg-card border-slate-400 z-30' : ''
-                                                          }`}
-                                                         style={{
-                                                           gridTemplateColumns: '32px 120px 280px 1fr 140px 120px 160px 160px 84px',
-                                                           ...elementDragProvided.draggableProps.style,
-                                                         }}
-                                                      >
-                                                         <div className="px-2 py-2">
-                                                          <div
-                                                             {...elementDragProvided.dragHandleProps}
-                                                             className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 ml-8 ${
-                                                               elementSnapshot2.isDragging ? 'bg-accent/30 shadow-sm' : 'hover:bg-accent/20'
-                                                             }`}
-                                                             title="Drag to reorder element"
-                                                           >
-                                                             <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                                           </div>
-                                                        </div>
-                                                        <div className="px-2 py-2 font-medium text-slate-600 text-xs ml-12 truncate">{generateWBSNumber(phaseIndex, componentIndex, elementIndex)}</div>
-                                                         <div className="px-3 py-2 font-medium text-foreground text-xs ml-12 min-h-[2rem] flex items-center">
-                                                           <EditableCell
-                                                             id={element.id}
-                                                             type="element"
-                                                             field="name"
-                                                             value={element.name}
-                                                             placeholder="Untitled Element"
-                                                             className="font-medium text-xs text-muted-foreground"
-                                                           />
-                                                         </div>
-                                                         <div className="px-3 py-2 text-muted-foreground text-xs truncate">
-                                                           <EditableCell
-                                                             id={element.id}
-                                                             type="element"
-                                                             field="description"
-                                                             value={element.description || ''}
-                                                             placeholder="Add description..."
-                                                             className="text-xs text-muted-foreground"
-                                                           />
-                                                         </div>
-                                                        <div className="px-2 py-2">
-                                                          <StatusSelect 
-                                                            value={element.status} 
-                                                            onChange={(newStatus) => updateWBSItem(element.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
-                                                          />
-                                                        </div>
-                                                         <div className="px-2 py-2">
-                                                          <div className="flex items-center gap-1">
-                                                            <div className="w-8 h-1 bg-muted rounded-full overflow-hidden">
-                                                              <div className={`h-full transition-all duration-300 ${getProgressColor(element.progress)}`} style={{ width: `${element.progress}%` }} />
-                                                            </div>
-                                                             <ProgressInput 
-                                                               value={element.progress} 
-                                                               onChange={(newProgress) => updateWBSItem(element.id, { progress: newProgress })}
-                                                             />
-                                                          </div>
-                                                        </div>
-                                                          <div className="px-2 py-2 text-muted-foreground text-xs truncate">
-                                                           <EditableCell
-                                                             id={element.id}
-                                                             type="element"
-                                                             field="assignedTo"
-                                                             value={element.assignedTo || ''}
-                                                             placeholder="Assign to..."
-                                                             className="text-xs text-muted-foreground"
-                                                           />
-                                                         </div>
-                                                          <div className="px-2 py-2 text-muted-foreground text-xs truncate">
-                                                            <div className="flex items-center gap-1">
-                                                              <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="h-4 w-4 p-0 hover:bg-accent"
-                                                                onClick={() => openNotesDialog(element)}
-                                                              >
-                                                                <NotebookPen className="w-3 h-3 text-muted-foreground hover:text-foreground" />
-                                                              </Button>
-                                                              <span className="text-xs text-muted-foreground truncate flex-1">
-                                                                {element.description || 'Add note...'}
-                                                              </span>
-                                                            </div>
-                                                          </div>
-                                                        <div className="px-2 py-2 flex items-center justify-center">
-                                                          <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
-                                                                <MoreHorizontal className="w-3 h-3" />
-                                                              </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end" className="w-40">
-                                                              <DropdownMenuItem onClick={() => handleContextMenuAction('edit', element.id, 'element')}>
-                                                                <Edit2 className="w-3 h-3 mr-2" />
-                                                                Edit
-                                                              </DropdownMenuItem>
-                                                              <DropdownMenuItem onClick={() => handleContextMenuAction('duplicate', element.id, 'element')}>
-                                                                <Copy className="w-3 h-3 mr-2" />
-                                                                Duplicate
-                                                              </DropdownMenuItem>
-                                                              <DropdownMenuSeparator />
-                                                              <DropdownMenuItem onClick={() => handleContextMenuAction('delete', element.id, 'element')} className="text-destructive focus:text-destructive">
-                                                                <Trash2 className="w-3 h-3 mr-2" />
-                                                                Delete
-                                                              </DropdownMenuItem>
-                                                            </DropdownMenuContent>
-                                                          </DropdownMenu>
-                                                        </div>
-                                                      </div>
-                                                      </DragPortalWrapper>
-                                                    )}
-                                                  </Draggable>
-                                                </React.Fragment>
-                                              ))}
-                                              {dragIndicator && dragIndicator.type === `element-${phase.id}-${component.id}` && dragIndicator.droppableId === `elements-${phase.id}-${component.id}` && dragIndicator.index === component.elements.length && (
-                                                <div className="px-2 ml-14"><div className="h-0.5 bg-accent/60 rounded-full" /></div>
-                                              )}
-                                              {elementProvided.placeholder}
-                                            </div>
-                                          )}
-                                        </Droppable>
-                                      )}
-                                    </React.Fragment>
-                                  ))}
-                                  {dragIndicator && dragIndicator.type === `component-${phase.id}` && dragIndicator.droppableId === `components-${phase.id}` && dragIndicator.index === phase.components.length && (
-                                    <div className="px-2 ml-8"><div className="h-0.5 bg-secondary/60 rounded-full" /></div>
-                                  )}
-                                  {componentProvided.placeholder}
-                                </div>
-                              )}
-                            </Droppable>
-                          )}
-                        </React.Fragment>
-                      ))}
-                      {dragIndicator && dragIndicator.type === 'phase' && dragIndicator.index === scopeData.length && (
-                        <div className="px-2"><div className="h-0.5 bg-primary/60 rounded-full" /></div>
-                      )}
-                      {provided.placeholder}
+              <TabsContent value="scope" className="flex-1 px-6 py-4 m-0">
+                <div className="flex-1">
+                  {/* Header Controls */}
+                  <div className="mb-6 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-lg font-semibold text-foreground">Work Breakdown Structure</h3>
+                      <Badge variant="outline" className="text-xs">
+                        {scopeData.length} phases
+                      </Badge>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" onClick={collapseAll}>
+                        <ChevronsUp className="w-3 h-3 mr-1" />
+                        Collapse All
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={expandAll}>
+                        <ChevronsDown className="w-3 h-3 mr-1" />
+                        Expand All
+                      </Button>
+                      <Button size="sm" onClick={() => addNewPhase()}>
+                        <Plus className="w-3 h-3 mr-1" />
+                        Add Phase
+                      </Button>
+                    </div>
+                  </div>
+
+                  {loading ? (
+                    <div className="flex items-center justify-center h-64">
+                      <div className="text-center">
+                        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
+                        <div className="text-sm text-muted-foreground">Loading WBS...</div>
+                      </div>
+                    </div>
+                  ) : error ? (
+                    <div className="flex items-center justify-center h-64">
+                      <div className="text-center">
+                        <div className="text-sm text-destructive mb-2">Error loading WBS</div>
+                        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                          Retry
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <WBSSplitView
+                      items={flatWBSItems}
+                      onToggleExpanded={(itemId) => {
+                        const item = wbsItems.find(i => i.id === itemId);
+                        if (item) {
+                          updateWBSItem(itemId, { is_expanded: !item.is_expanded });
+                        }
+                      }}
+                      onDragEnd={onDragEnd}
+                      onItemUpdate={updateWBSItem}
+                      onContextMenuAction={handleContextMenuAction}
+                      onOpenNotesDialog={openNotesDialog}
+                      dragIndicator={dragIndicator}
+                      EditableCell={EditableCell}
+                      StatusSelect={StatusSelect}
+                      ProgressInput={ProgressInput}
+                      ProgressDisplay={ProgressDisplay}
+                      getProgressColor={getProgressColor}
+                      generateWBSNumber={generateWBSNumber}
+                    />
                   )}
-                </Droppable>
-              </DragDropContext>
-            </div>
+                </div>
               </TabsContent>
 
               <TabsContent value="time" className="flex-1 px-6 py-4 m-0">
