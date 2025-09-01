@@ -49,7 +49,7 @@ export const ProjectHeader = ({
       {/* Project Banner or Default Hero */}
       <div className="mb-8">
         {bannerImage ? (
-          <div className="w-full h-48 rounded-lg overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 relative">
+          <div className="w-full h-64 rounded-lg overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 relative">
             <img
               src={bannerImage}
               alt="Project banner"
