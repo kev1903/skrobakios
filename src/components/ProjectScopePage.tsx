@@ -999,11 +999,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       />
 
       <div className={contentClasses[screenSize]}>
-        <div className="h-full flex flex-col min-h-0 bg-background">
+        <div className="h-full w-full flex flex-col bg-background">
           {/* Tabs Container - moved up to wrap everything */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-            <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
-              <div className="flex items-center justify-between">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full w-full flex flex-col">
+            <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
+              <div className="flex items-center justify-between px-6 py-4">
                 <div className="flex items-center gap-6">
                   <div>
                     <h1 className="text-2xl font-bold text-foreground font-inter">Project Scope</h1>
@@ -1059,10 +1059,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             </div>
 
             {/* Tab Contents */}
-            <div className="flex-1 min-h-0 overflow-hidden">
+            <div className="flex-1 w-full overflow-hidden">
 
-              <TabsContent value="scope" className="h-full m-0 data-[state=active]:flex">
-                <div className="h-full flex flex-col min-h-0">
+              <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex">
+                <div className="h-full w-full flex flex-col">
                   {/* Combined Header with Table Headers */}
                   <div className="bg-background border-b border-border">
                     
