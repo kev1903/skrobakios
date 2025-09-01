@@ -1354,13 +1354,6 @@ const toggleSection = (taskId: string) => {
               className="flex flex-col relative bg-white"
               style={{ width: timelineWidth, minWidth: timelineWidth }}
             >
-              {/* Month Header Section */}
-              <div className="flex h-7 bg-gray-50 relative z-10">
-                <div className="flex items-center px-4 text-xs font-medium text-gray-600">
-                  April 2024
-                </div>
-              </div>
-              
               {/* Days Header Section */}
               <div className="flex h-8 bg-white relative z-10">
                 {currentDays.map((day, index) => {
