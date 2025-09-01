@@ -981,7 +981,7 @@ const toggleSection = (taskId: string) => {
 
   return (
     <>
-    <div className="space-y-4">
+    <div className="h-full flex flex-col min-h-0">
       {/* Toolbar */}
       {!hideToolbar && (
         <Toolbar 
@@ -1002,7 +1002,7 @@ const toggleSection = (taskId: string) => {
       )}
       
       {/* Gantt Chart */}
-      <div ref={containerRef} className="bg-white w-full h-full flex flex-col">
+      <div ref={containerRef} className="bg-white w-full flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="flex flex-1 min-h-0">
           {/* Task List */}
           <div 

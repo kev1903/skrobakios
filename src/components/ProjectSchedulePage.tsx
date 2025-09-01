@@ -21,7 +21,7 @@ interface ProjectSchedulePageProps {
 
 export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePageProps) => {
   const screenSize = useScreenSize();
-  const { fullHeightClasses } = useMenuBarSpacing('landing');
+  const { fullHeightClasses } = useMenuBarSpacing('project-schedule');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedView, setSelectedView] = useState<'gantt' | 'calendar'>('gantt');
   const { currentCompany } = useCompany();
@@ -220,9 +220,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
 
   // Responsive classes based on screen size
   const containerClasses = {
-    mobile: "flex flex-col h-screen overflow-hidden",
-    tablet: "flex flex-col h-screen overflow-hidden", 
-    desktop: "flex h-screen overflow-hidden"
+    mobile: "flex flex-col overflow-hidden",
+    tablet: "flex flex-col overflow-hidden", 
+    desktop: "flex overflow-hidden"
   };
 
   const mainContentClasses = {
