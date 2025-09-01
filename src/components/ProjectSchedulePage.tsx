@@ -21,7 +21,7 @@ interface ProjectSchedulePageProps {
 
 export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePageProps) => {
   const screenSize = useScreenSize();
-  const { fullHeightClasses } = useMenuBarSpacing('landing');
+  const { fullHeightClasses } = useMenuBarSpacing('project-schedule');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [selectedView, setSelectedView] = useState<'gantt' | 'calendar'>('gantt');
   const { currentCompany } = useCompany();
