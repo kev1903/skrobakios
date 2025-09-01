@@ -1033,278 +1033,268 @@ export const ModernGanttChart = ({
           >
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="task-list">
-                {(provided) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                  >
+                {(dropProvided) => (
+                  <div ref={dropProvided.innerRef} {...dropProvided.droppableProps}>
                     {visibleTasks.map((task, index) => (
                       <Draggable key={task.id} draggableId={task.id} index={index}>
-                        {(provided, snapshot) => (
-              <div
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                className={cn(
-                  "grid items-center relative transition-colors duration-200 cursor-pointer",
-                  // Stage level (depth 0) - matches Project Scope exactly
-                  task.depth === 0 && "bg-slate-200 border-l-4 border-l-slate-700 hover:bg-slate-300",
-                  // Component level (depth 1) - matches Project Scope exactly
-                  task.depth === 1 && "bg-slate-100 border-l-[3px] border-l-slate-500 hover:bg-slate-200",
-                  // Element level (depth 2) - matches Project Scope exactly
-                  task.depth === 2 && "bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50",
-                  // Default for any other levels
-                  task.depth > 2 && "bg-white hover:bg-gray-50",
-                  selectedTaskId === task.id && "ring-2 ring-blue-500 ring-inset",
-                  snapshot.isDragging && "shadow-xl bg-card z-50"
-                )}
-                style={{ 
-                  height: 40,
-                  gridTemplateColumns: screenSize === 'mobile' ? '12px 12px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '16px 12px minmax(120px, 1fr) 60px 60px 50px 50px' : '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px',
-                  minWidth: screenSize === 'mobile' ? '200px' : screenSize === 'tablet' ? '350px' : '680px',
-                  ...provided.draggableProps.style
-                }}
-                onClick={() => handleRowClick(task.id)}
-                onContextMenu={(e) => handleRowContextMenu(e, task.id)}
-              >
-                   <div className="px-2 py-2">
-                     <div 
-                       {...provided.dragHandleProps}
-                       className={cn(
-                         "cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200",
-                         task.depth === 0 && "hover:bg-primary/10",
-                         task.depth === 1 && "ml-4 hover:bg-secondary/10", 
-                         task.depth === 2 && "ml-8 hover:bg-gray-100",
-                         snapshot.isDragging && task.depth === 0 && "bg-primary/20 shadow-sm",
-                         snapshot.isDragging && task.depth === 1 && "bg-secondary/20 shadow-sm",
-                         snapshot.isDragging && task.depth === 2 && "bg-gray-200 shadow-sm"
-                       )}
-                       title="Drag to reorder task"
-                     >
-                       <GripVertical className="w-3 h-3 text-muted-foreground" />
-                     </div>
-                   </div>
-                       
-                       {/* WBS ID */}
-                       <div className="px-2 py-2">
-                         <div className="flex items-center">
-                           {task.hasChildren && (
-                             <button
-                               onClick={() => toggleSection(task.id)}
-                               className={cn(
-                                 "p-0.5 rounded transition-colors duration-200 mr-1",
-                                 task.depth === 0 && "hover:bg-accent",
-                                 task.depth === 1 && "hover:bg-blue-100", 
-                                 task.depth === 2 && "hover:bg-gray-100"
-                               )}
-                               aria-label="Toggle section"
-                             >
-                               {expandedSections.has(task.id) ? (
-                                 <ChevronDown className="w-3 h-3 text-muted-foreground" />
-                               ) : (
-                                 <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                               )}
-                             </button>
-                           )}
-                           <div className={cn(
-                             "text-sm font-mono truncate",
-                             task.depth === 0 && "font-semibold text-primary",
-                             task.depth === 1 && "font-medium text-blue-600",
-                             task.depth === 2 && "text-gray-600"
-                           )} style={{ paddingLeft: task.hasChildren ? '0px' : `${(task.depth + 1) * 16}px` }}>
-                             {task.wbs || task.rowNumber}
-                           </div>
-                         </div>
-                       </div>
-                      
-                      {/* Task Name with hierarchy */}
-                      <div className="px-3 py-2 min-w-0 truncate">
-                        <div style={{ paddingLeft: `${task.depth * (screenSize === 'mobile' ? 8 : 16)}px` }} className="flex items-center gap-1 min-w-0 w-full">
-                          {editingTaskName === task.id ? (
-                            <Input
-                              value={taskNameInput}
-                              onChange={(e) => setTaskNameInput(e.target.value)}
-                              onBlur={() => finishTaskNameEdit(task.id)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                  finishTaskNameEdit(task.id);
-                                } else if (e.key === 'Escape') {
-                                  cancelTaskNameEdit();
+                        {(dragProvided, snapshot) => (
+                          <div
+                            ref={dragProvided.innerRef}
+                            {...dragProvided.draggableProps}
+                            className={cn(
+                              "grid items-center relative transition-colors duration-200 cursor-pointer",
+                              // Stage level (depth 0) - matches Project Scope exactly
+                              task.depth === 0 && "bg-slate-200 border-l-4 border-l-slate-700 hover:bg-slate-300",
+                              // Component level (depth 1) - matches Project Scope exactly
+                              task.depth === 1 && "bg-slate-100 border-l-[3px] border-l-slate-500 hover:bg-slate-200",
+                              // Element level (depth 2) - matches Project Scope exactly
+                              task.depth === 2 && "bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50",
+                              // Default for any other levels
+                              task.depth > 2 && "bg-white hover:bg-gray-50",
+                              selectedTaskId === task.id && "ring-2 ring-blue-500 ring-inset",
+                              snapshot.isDragging && "shadow-xl bg-card z-50"
+                            )}
+                            style={{ 
+                              height: 40,
+                              gridTemplateColumns: screenSize === 'mobile' ? '12px 12px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '16px 12px minmax(120px, 1fr) 60px 60px 50px 50px' : '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px',
+                              minWidth: screenSize === 'mobile' ? '200px' : screenSize === 'tablet' ? '350px' : '680px',
+                              ...dragProvided.draggableProps.style
+                            }}
+                            onClick={() => handleRowClick(task.id)}
+                            onContextMenu={(e) => handleRowContextMenu(e, task.id)}
+                          >
+                            <div className="px-2 py-2">
+                              <div 
+                                {...dragProvided.dragHandleProps}
+                                className={cn(
+                                  "cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200",
+                                  task.depth === 0 && "hover:bg-primary/10",
+                                  task.depth === 1 && "ml-4 hover:bg-secondary/10", 
+                                  task.depth === 2 && "ml-8 hover:bg-gray-100",
+                                  snapshot.isDragging && task.depth === 0 && "bg-primary/20 shadow-sm",
+                                  snapshot.isDragging && task.depth === 1 && "bg-secondary/20 shadow-sm",
+                                  snapshot.isDragging && task.depth === 2 && "bg-gray-200 shadow-sm"
+                                )}
+                                title="Drag to reorder task"
+                              >
+                                <GripVertical className="w-3 h-3 text-muted-foreground" />
+                              </div>
+                            </div>
+                            {/* WBS ID */}
+                            <div className="px-2 py-2">
+                              <div className="flex items-center">
+                                {task.hasChildren && (
+                                  <button
+                                    onClick={() => toggleSection(task.id)}
+                                    className={cn(
+                                      "p-0.5 rounded transition-colors duration-200 mr-1",
+                                      task.depth === 0 && "hover:bg-accent",
+                                      task.depth === 1 && "hover:bg-blue-100", 
+                                      task.depth === 2 && "hover:bg-gray-100"
+                                    )}
+                                    aria-label="Toggle section"
+                                  >
+                                    {expandedSections.has(task.id) ? (
+                                      <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                                    ) : (
+                                      <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                                    )}
+                                  </button>
+                                )}
+                                <div className={cn(
+                                  "text-sm font-mono truncate",
+                                  task.depth === 0 && "font-semibold text-primary",
+                                  task.depth === 1 && "font-medium text-blue-600",
+                                  task.depth === 2 && "text-gray-600"
+                                )} style={{ paddingLeft: task.hasChildren ? '0px' : `${(task.depth + 1) * 16}px` }}>
+                                  {task.wbs || task.rowNumber}
+                                </div>
+                              </div>
+                            </div>
+                            {/* Task Name with hierarchy */}
+                            <div className="px-3 py-2 min-w-0 truncate">
+                              <div style={{ paddingLeft: `${task.depth * (screenSize === 'mobile' ? 8 : 16)}px` }} className="flex items-center gap-1 min-w-0 w-full">
+                                {editingTaskName === task.id ? (
+                                  <Input
+                                    value={taskNameInput}
+                                    onChange={(e) => setTaskNameInput(e.target.value)}
+                                    onBlur={() => finishTaskNameEdit(task.id)}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                        finishTaskNameEdit(task.id);
+                                      } else if (e.key === 'Escape') {
+                                        cancelTaskNameEdit();
+                                      }
+                                    }}
+                                    className="text-sm h-6 px-1 font-normal min-w-0 flex-1"
+                                    autoFocus
+                                  />
+                                ) : (
+                                  <span 
+                                    className={cn(
+                                      "text-sm cursor-pointer hover:bg-gray-50 px-1 py-0.5 rounded min-w-0 truncate flex-1",
+                                      task.depth === 0 && "font-semibold text-foreground",
+                                      task.depth === 1 && "font-medium text-foreground",
+                                      task.depth === 2 && "font-normal text-foreground"
+                                    )}
+                                    onClick={() => startTaskNameEdit(task.id, task.name)}
+                                    title={task.name}
+                                  >
+                                    {task.name}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {/* Start Date - Hide on mobile */}
+                            {screenSize !== 'mobile' && (
+                              <div>
+                                <Popover 
+                                  open={openDatePickers.has(`${task.id}-startDate`)} 
+                                  onOpenChange={(open) => !open && setOpenDatePickers(prev => {
+                                    const newSet = new Set(prev);
+                                    newSet.delete(`${task.id}-startDate`);
+                                    return newSet;
+                                  })}
+                                >
+                                  <PopoverTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
+                                      onClick={() => toggleDatePicker(task.id, 'startDate')}
+                                    >
+                                      {format(task.startDate, screenSize === 'tablet' ? 'M/d' : 'MMM d')}
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                      mode="single"
+                                      selected={task.startDate}
+                                      onSelect={(date) => date && handleDateChange(task.id, 'startDate', date)}
+                                      className={cn("p-3 pointer-events-auto")}
+                                      initialFocus
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                            )}
+                            {/* End Date - Hide on mobile */}
+                            {screenSize !== 'mobile' && (
+                              <div>
+                                <Popover 
+                                  open={openDatePickers.has(`${task.id}-endDate`)} 
+                                  onOpenChange={(open) => !open && setOpenDatePickers(prev => {
+                                    const newSet = new Set(prev);
+                                    newSet.delete(`${task.id}-endDate`);
+                                    return newSet;
+                                  })}
+                                >
+                                  <PopoverTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
+                                      onClick={() => toggleDatePicker(task.id, 'endDate')}
+                                    >
+                                      {format(task.endDate, screenSize === 'tablet' ? 'M/d' : 'MMM d')}
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                      mode="single"
+                                      selected={task.endDate}
+                                      onSelect={(date) => date && handleDateChange(task.id, 'endDate', date)}
+                                      className={cn("p-3 pointer-events-auto")}
+                                      initialFocus
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                            )}
+                            {/* Duration - Show on tablet and desktop */}
+                            {screenSize !== 'mobile' && (
+                              <div>
+                                {editingDuration.has(task.id) ? (
+                                  <Input
+                                    value={durationInputs[task.id] || ''}
+                                    onChange={(e) => setDurationInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
+                                    onBlur={() => finishDurationEdit(task.id)}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                        finishDurationEdit(task.id);
+                                      } else if (e.key === 'Escape') {
+                                        setEditingDuration(prev => {
+                                          const newSet = new Set(prev);
+                                          newSet.delete(task.id);
+                                          return newSet;
+                                        });
+                                        setDurationInputs(prev => {
+                                          const newInputs = { ...prev };
+                                          delete newInputs[task.id];
+                                          return newInputs;
+                                        });
+                                      }
+                                    }}
+                                    className="text-xs sm:text-sm h-6 px-1 w-full"
+                                    placeholder="e.g. 5d"
+                                    autoFocus
+                                  />
+                                ) : (
+                                  <Button
+                                    variant="ghost"
+                                    className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100 w-full justify-start"
+                                    onClick={() => startDurationEdit(task.id)}
+                                  >
+                                    {screenSize === 'tablet' ? task.duration.replace(' days', 'd').replace(' day', 'd') : task.duration}
+                                  </Button>
+                                )}
+                              </div>
+                            )}
+                            {/* Predecessors - Show only on desktop */}
+                            {screenSize === 'desktop' && (
+                              <div>
+                                {editingPredecessors.has(task.id) ? (
+                                  <Input
+                                    value={predecessorInputs[task.id] || ''}
+                                    onChange={(e) => setPredecessorInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
+                                    onBlur={() => finishPredecessorEdit(task.id)}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                        finishPredecessorEdit(task.id);
+                                      } else if (e.key === 'Escape') {
+                                        cancelPredecessorEdit(task.id);
+                                      }
+                                    }}
+                                    className="text-xs sm:text-sm h-6 px-1 w-full"
+                                    placeholder="e.g. 1, 3"
+                                    autoFocus
+                                  />
+                                ) : (
+                                  <Button
+                                    variant="ghost"
+                                    className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100 w-full justify-start"
+                                    onClick={() => startPredecessorEdit(task.id)}
+                                  >
+                                    {task.predecessors && task.predecessors.length > 0 
+                                      ? task.predecessors.join(', ') 
+                                      : '-'
+                                    }
+                                  </Button>
+                                )}
+                              </div>
+                            )}
+                            {/* Status - Show on all screen sizes */}
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs sm:text-sm text-gray-600 capitalize">
+                                {screenSize === 'mobile' ? 
+                                  task.status.replace('in-progress', 'IP').replace('completed', 'Done').replace('pending', 'Pending').replace('delayed', 'Delayed') :
+                                  task.status.replace('-', ' ')
                                 }
-                              }}
-                              className="text-sm h-6 px-1 font-normal min-w-0 flex-1"
-                              autoFocus
-                            />
-                          ) : (
-                            <span 
-                              className={cn(
-                                "text-sm cursor-pointer hover:bg-gray-50 px-1 py-0.5 rounded min-w-0 truncate flex-1",
-                                task.depth === 0 && "font-semibold text-foreground",
-                                task.depth === 1 && "font-medium text-foreground",
-                                task.depth === 2 && "font-normal text-foreground"
-                              )}
-                              onClick={() => startTaskNameEdit(task.id, task.name)}
-                              title={task.name}
-                            >
-                              {task.name}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      {/* Start Date - Hide on mobile */}
-                      {screenSize !== 'mobile' && (
-                     <div>
-                       <Popover 
-                         open={openDatePickers.has(`${task.id}-startDate`)} 
-                         onOpenChange={(open) => !open && setOpenDatePickers(prev => {
-                           const newSet = new Set(prev);
-                           newSet.delete(`${task.id}-startDate`);
-                           return newSet;
-                         })}
-                       >
-                         <PopoverTrigger asChild>
-                           <Button
-                             variant="ghost"
-                             className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
-                             onClick={() => toggleDatePicker(task.id, 'startDate')}
-                           >
-                             {format(task.startDate, screenSize === 'tablet' ? 'M/d' : 'MMM d')}
-                           </Button>
-                         </PopoverTrigger>
-                         <PopoverContent className="w-auto p-0" align="start">
-                           <Calendar
-                             mode="single"
-                             selected={task.startDate}
-                             onSelect={(date) => date && handleDateChange(task.id, 'startDate', date)}
-                             className={cn("p-3 pointer-events-auto")}
-                             initialFocus
-                           />
-                         </PopoverContent>
-                       </Popover>
-                     </div>
-                     )}
-
-                     {/* End Date - Hide on mobile */}
-                     {screenSize !== 'mobile' && (
-                     <div>
-                       <Popover 
-                         open={openDatePickers.has(`${task.id}-endDate`)} 
-                         onOpenChange={(open) => !open && setOpenDatePickers(prev => {
-                           const newSet = new Set(prev);
-                           newSet.delete(`${task.id}-endDate`);
-                           return newSet;
-                         })}
-                       >
-                         <PopoverTrigger asChild>
-                           <Button
-                             variant="ghost"
-                             className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100"
-                             onClick={() => toggleDatePicker(task.id, 'endDate')}
-                           >
-                             {format(task.endDate, screenSize === 'tablet' ? 'M/d' : 'MMM d')}
-                           </Button>
-                         </PopoverTrigger>
-                         <PopoverContent className="w-auto p-0" align="start">
-                           <Calendar
-                             mode="single"
-                             selected={task.endDate}
-                             onSelect={(date) => date && handleDateChange(task.id, 'endDate', date)}
-                             className={cn("p-3 pointer-events-auto")}
-                             initialFocus
-                           />
-                         </PopoverContent>
-                       </Popover>
-                     </div>
-                     )}
-
-                     {/* Duration - Show on tablet and desktop */}
-                     {screenSize !== 'mobile' && (
-                     <div>
-                       {editingDuration.has(task.id) ? (
-                         <Input
-                           value={durationInputs[task.id] || ''}
-                           onChange={(e) => setDurationInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
-                           onBlur={() => finishDurationEdit(task.id)}
-                           onKeyDown={(e) => {
-                             if (e.key === 'Enter') {
-                               finishDurationEdit(task.id);
-                             } else if (e.key === 'Escape') {
-                               setEditingDuration(prev => {
-                                 const newSet = new Set(prev);
-                                 newSet.delete(task.id);
-                                 return newSet;
-                               });
-                               setDurationInputs(prev => {
-                                 const newInputs = { ...prev };
-                                 delete newInputs[task.id];
-                                 return newInputs;
-                               });
-                             }
-                           }}
-                           className="text-xs sm:text-sm h-6 px-1 w-full"
-                           placeholder="e.g. 5d"
-                           autoFocus
-                         />
-                       ) : (
-                         <Button
-                           variant="ghost"
-                           className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100 w-full justify-start"
-                           onClick={() => startDurationEdit(task.id)}
-                         >
-                           {screenSize === 'tablet' ? task.duration.replace(' days', 'd').replace(' day', 'd') : task.duration}
-                         </Button>
-                       )}
-                     </div>
-                     )}
-
-                     {/* Predecessors - Show only on desktop */}
-                     {screenSize === 'desktop' && (
-                     <div>
-                       {editingPredecessors.has(task.id) ? (
-                         <Input
-                           value={predecessorInputs[task.id] || ''}
-                           onChange={(e) => setPredecessorInputs(prev => ({ ...prev, [task.id]: e.target.value }))}
-                           onBlur={() => finishPredecessorEdit(task.id)}
-                           onKeyDown={(e) => {
-                             if (e.key === 'Enter') {
-                               finishPredecessorEdit(task.id);
-                             } else if (e.key === 'Escape') {
-                               cancelPredecessorEdit(task.id);
-                             }
-                           }}
-                           className="text-xs sm:text-sm h-6 px-1 w-full"
-                           placeholder="e.g. 1, 3"
-                           autoFocus
-                         />
-                       ) : (
-                         <Button
-                           variant="ghost"
-                           className="text-xs sm:text-sm text-gray-600 h-auto p-1 font-normal hover:bg-gray-100 w-full justify-start"
-                           onClick={() => startPredecessorEdit(task.id)}
-                         >
-                           {task.predecessors && task.predecessors.length > 0 
-                             ? task.predecessors.join(', ') 
-                             : '-'
-                           }
-                         </Button>
-                       )}
-                     </div>
-                     )}
-
-                     {/* Status - Show on all screen sizes */}
-                     <div className="flex items-center gap-2">
-                       <span className="text-xs sm:text-sm text-gray-600 capitalize">
-                         {screenSize === 'mobile' ? 
-                           task.status.replace('in-progress', 'IP').replace('completed', 'Done').replace('pending', 'Pending').replace('delayed', 'Delayed') :
-                           task.status.replace('-', ' ')
-                         }
-                       </span>
-                      </div>
-                    </div>
-                  </div>
-                         )}
-                       </Draggable>
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
                     ))}
-                    {provided.placeholder}
+                    {dropProvided.placeholder}
                   </div>
                 )}
               </Droppable>
