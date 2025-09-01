@@ -1059,10 +1059,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             </div>
 
             {/* Tab Contents */}
-            <div className="flex-1 bg-white overflow-hidden">
+            <div className="flex-1 overflow-hidden">
 
-              <TabsContent value="scope" className="flex-1 m-0">
-                <div className="flex-1 h-full flex flex-col">
+              <TabsContent value="scope" className="h-full m-0 data-[state=active]:flex">
+                <div className="h-full flex flex-col">
                   {/* Combined Header with Table Headers */}
                   <div className="bg-background border-b border-border">
                     
@@ -1138,8 +1138,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </div>
               </TabsContent>
 
-              <TabsContent value="time" className="flex-1 m-0">
-                <div className="flex-1 h-full flex flex-col">
+              <TabsContent value="time" className="h-full m-0 data-[state=active]:flex">
+                <div className="h-full flex flex-col">
                   {/* Combined Header with Table Headers */}
                   <div className="bg-background border-b border-border">
                     
@@ -1212,8 +1212,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </div>
               </TabsContent>
 
-              <TabsContent value="cost" className="flex-1 m-0">
-                <div className="flex-1 h-full flex flex-col">
+              <TabsContent value="cost" className="h-full m-0 data-[state=active]:flex">
+                <div className="h-full flex flex-col">
                    {/* Combined Header with Table Headers */}
                    <div className="bg-background border-b border-border">
                      
