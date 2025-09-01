@@ -56,6 +56,12 @@ export const WBSSplitView = ({
     }
   }, []);
 
+  const handleLeftScroll = useCallback(() => {
+    if (leftScrollRef.current && rightScrollRef.current) {
+      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
+    }
+  }, []);
+
   return (
     <div className="flex h-full w-full bg-white overflow-hidden">
       <WBSLeftPanel
@@ -67,6 +73,7 @@ export const WBSSplitView = ({
         EditableCell={EditableCell}
         generateWBSNumber={generateWBSNumber}
         scrollRef={leftScrollRef}
+        onScroll={handleLeftScroll}
       />
       
       <WBSRightPanel

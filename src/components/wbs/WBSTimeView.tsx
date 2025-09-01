@@ -55,6 +55,12 @@ export const WBSTimeView = ({
     }
   }, []);
 
+  const handleLeftScroll = useCallback(() => {
+    if (leftScrollRef.current && rightScrollRef.current) {
+      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
+    }
+  }, []);
+
   return (
     <PanelGroup direction="horizontal" className="h-full w-full bg-white">
       {/* Left Panel - Table view */}
@@ -70,6 +76,7 @@ export const WBSTimeView = ({
               EditableCell={EditableCell}
               generateWBSNumber={generateWBSNumber}
               scrollRef={leftScrollRef}
+              onScroll={handleLeftScroll}
             />
             
             <WBSTimeRightPanel
@@ -94,7 +101,7 @@ export const WBSTimeView = ({
       {/* Right Panel - Gantt Chart (Header removed, now controlled by parent) */}
       <Panel defaultSize={50} minSize={30}>
         <div className="flex-1 overflow-x-auto overflow-y-auto">
-          <GanttChart items={items} className="min-w-fit" />
+          <GanttChart items={items} className="min-w-fit" hideHeader />
         </div>
       </Panel>
     </PanelGroup>

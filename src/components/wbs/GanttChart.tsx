@@ -16,9 +16,10 @@ interface WBSItem {
 interface GanttChartProps {
   items: WBSItem[];
   className?: string;
+  hideHeader?: boolean;
 }
 
-export const GanttChart = ({ items, className = "" }: GanttChartProps) => {
+export const GanttChart = ({ items, className = "", hideHeader = false }: GanttChartProps) => {
   // Calculate the date range for the chart
   const { startDate, endDate, timelineDays } = useMemo(() => {
     const dates = items
@@ -100,26 +101,27 @@ export const GanttChart = ({ items, className = "" }: GanttChartProps) => {
 
   return (
     <div className={`h-full w-full bg-white ${className}`}>
-      {/* Timeline Header - Sticky */}
-      <div className="sticky top-0 bg-white border-b border-border z-10">
-        <div className="min-w-fit">
-          <div style={{ width: chartWidth }} className="flex">
-            {timelineDays.map((day, index) => (
-              <div
-                key={day.toISOString()}
-                className="flex-shrink-0 border-r border-gray-200 text-center"
-                style={{ width: dayWidth }}
-              >
-                <div className="px-1 py-2 text-xs font-medium text-gray-700">
-                  <div className="text-xs">{format(day, 'MMM')}</div>
-                  <div className="text-sm font-bold">{format(day, 'd')}</div>
-                  <div className="text-xs">{format(day, 'EEE')}</div>
-                </div>
-              </div>
-            ))}
+{!hideHeader && (
+  <div className="sticky top-0 bg-white border-b border-border z-10">
+    <div className="min-w-fit">
+      <div style={{ width: chartWidth }} className="flex">
+        {timelineDays.map((day) => (
+          <div
+            key={day.toISOString()}
+            className="flex-shrink-0 border-r border-gray-200 text-center"
+            style={{ width: dayWidth }}
+          >
+            <div className="px-1 py-2 text-xs font-medium text-gray-700">
+              <div className="text-xs">{format(day, 'MMM')}</div>
+              <div className="text-sm font-bold">{format(day, 'd')}</div>
+              <div className="text-xs">{format(day, 'EEE')}</div>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
+    </div>
+  </div>
+)}
 
       {/* Gantt Bars Container */}
       <div className="min-w-fit">

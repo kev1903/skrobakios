@@ -21,6 +21,7 @@ interface WBSLeftPanelProps {
   EditableCell: any;
   generateWBSNumber: (phaseIndex: number, componentIndex?: number, elementIndex?: number) => string;
   scrollRef: React.RefObject<HTMLDivElement>;
+  onScroll: () => void;
 }
 
 // Portal wrapper to avoid transform/fixed offset issues during drag
@@ -38,12 +39,13 @@ export const WBSLeftPanel = ({
   dragIndicator,
   EditableCell,
   generateWBSNumber,
-  scrollRef
+  scrollRef,
+  onScroll
 }: WBSLeftPanelProps) => {
   return (
     <div className="w-[420px] bg-white border-r border-border flex-shrink-0 overflow-hidden">
       {/* Content - No separate header since it's now unified */}
-      <div ref={scrollRef} className="h-full overflow-y-hidden overflow-x-hidden">
+      <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden" onScroll={onScroll}>
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="wbs-phases" type="phase">
             {(provided) => (
