@@ -1018,14 +1018,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline" className="font-inter text-xs" onClick={expandAll} title="Expand All">
-                    <ChevronsDown className="w-3 h-3" />
+                  <Button variant="outline" size="sm" onClick={collapseAll}>
+                    <ChevronsUp className="w-3 h-3 mr-1" />
+                    Collapse All
                   </Button>
-                  <Button size="sm" variant="outline" className="font-inter text-xs" onClick={collapseAll} title="Collapse All">
-                    <ChevronsUp className="w-3 h-3" />
+                  <Button variant="outline" size="sm" onClick={expandAll}>
+                    <ChevronsDown className="w-3 h-3 mr-1" />
+                    Expand All
                   </Button>
-                  <Button size="sm" className="font-inter text-xs" onClick={addNewPhase} title="Add Phase">
-                    <Plus className="w-3 h-3" />
+                  <Button size="sm" onClick={() => addNewPhase()}>
+                    <Plus className="w-3 h-3 mr-1" />
+                    Add Phase
                   </Button>
                 </div>
               </div>
@@ -1054,29 +1057,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
               <TabsContent value="scope" className="flex-1 m-0">
                 <div className="flex-1 h-full flex flex-col">
-                  {/* Combined Header with Controls and Table Headers */}
+                  {/* Combined Header with Table Headers */}
                   <div className="bg-background border-b border-border">
-                    {/* Title and Controls Row */}
+                    {/* Title Row */}
                     <div className="px-6 py-4 flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <h3 className="text-lg font-semibold text-foreground">Work Breakdown Structure</h3>
                         <Badge variant="outline" className="text-xs">
                           {scopeData.length} phases
                         </Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={collapseAll}>
-                          <ChevronsUp className="w-3 h-3 mr-1" />
-                          Collapse All
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={expandAll}>
-                          <ChevronsDown className="w-3 h-3 mr-1" />
-                          Expand All
-                        </Button>
-                        <Button size="sm" onClick={() => addNewPhase()}>
-                          <Plus className="w-3 h-3 mr-1" />
-                          Add Phase
-                        </Button>
                       </div>
                     </div>
                     
@@ -1154,29 +1143,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
               <TabsContent value="time" className="flex-1 m-0">
                 <div className="flex-1 h-full flex flex-col">
-                  {/* Combined Header with Controls and Table Headers */}
+                  {/* Combined Header with Table Headers */}
                   <div className="bg-background border-b border-border">
-                    {/* Title and Controls Row */}
+                    {/* Title Row */}
                     <div className="px-6 py-4 flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <h3 className="text-lg font-semibold text-foreground">Time Schedule</h3>
                         <Badge variant="outline" className="text-xs">
                           {scopeData.length} phases
                         </Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={collapseAll}>
-                          <ChevronsUp className="w-3 h-3 mr-1" />
-                          Collapse All
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={expandAll}>
-                          <ChevronsDown className="w-3 h-3 mr-1" />
-                          Expand All
-                        </Button>
-                        <Button size="sm" onClick={() => addNewPhase()}>
-                          <Plus className="w-3 h-3 mr-1" />
-                          Add Phase
-                        </Button>
                       </div>
                     </div>
                     
@@ -1251,29 +1226,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
               <TabsContent value="cost" className="flex-1 m-0">
                 <div className="flex-1 h-full flex flex-col">
-                  {/* Combined Header with Controls and Table Headers */}
+                  {/* Combined Header with Table Headers */}
                   <div className="bg-background border-b border-border">
-                    {/* Title and Controls Row */}
+                    {/* Title Row */}
                     <div className="px-6 py-4 flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <h3 className="text-lg font-semibold text-foreground">Cost Breakdown</h3>
                         <Badge variant="outline" className="text-xs">
                           {scopeData.length} phases
                         </Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={collapseAll}>
-                          <ChevronsUp className="w-3 h-3 mr-1" />
-                          Collapse All
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={expandAll}>
-                          <ChevronsDown className="w-3 h-3 mr-1" />
-                          Expand All
-                        </Button>
-                        <Button size="sm" onClick={() => addNewPhase()}>
-                          <Plus className="w-3 h-3 mr-1" />
-                          Add Phase
-                        </Button>
                       </div>
                     </div>
                     
