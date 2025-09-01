@@ -348,40 +348,22 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
       // Store marker reference so it persists
       markersRef.current.push(marker);
 
-      // Create enhanced hover popup with coordinate accuracy
+      // Create simplified hover popup
       const hoverPopup = new mapboxgl.Popup({ 
         offset: 25,
         closeButton: false,
         closeOnClick: false,
         className: 'hover-popup'
       }).setHTML(
-        `<div class="bg-popover/95 backdrop-blur-md border border-border rounded-lg p-3 shadow-lg min-w-[200px]">
-          <div class="font-semibold mb-2 text-foreground text-sm cursor-pointer hover:underline" style="color: hsl(var(--primary)); cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</div>
-          <div class="text-muted-foreground text-xs mb-2">${project.location || 'Address not specified'}</div>
-          <div class="text-xs text-muted-foreground mb-2">🏢 ${project.company_name || 'Unknown Company'}</div>
-          <div class="text-xs px-2 py-1 rounded-md inline-block" style="background: hsl(var(--primary) / 0.1); color: hsl(var(--primary))">
-            📍 Project Location
-          </div>
+        `<div class="bg-popover/95 backdrop-blur-md border border-border rounded-lg p-3 shadow-lg">
+          <div class="font-semibold text-foreground cursor-pointer hover:underline" style="color: hsl(var(--primary)); cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</div>
         </div>`
       );
 
-      // Create click popup (detailed)
+      // Create simplified click popup
       const clickPopup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-        `<div class="bg-popover border border-border rounded-lg p-4 shadow-xl">
-          <h3 class="font-semibold text-foreground text-sm mb-3 cursor-pointer hover:underline" style="cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</h3>
-          <div class="mb-3">
-            <span class="text-xs text-muted-foreground font-medium">COMPANY:</span>
-            <div class="text-xs text-foreground mt-1">🏢 ${project.company_name || 'Unknown Company'}</div>
-          </div>
-          <div class="mb-3">
-            <span class="text-xs text-muted-foreground font-medium">ADDRESS:</span>
-            <div class="text-xs text-foreground mt-1">${project.location || 'Location not specified'}</div>
-          </div>
-          <div class="mt-3">
-            <span class="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs font-medium">
-              ${project.status || 'Active'}
-            </span>
-          </div>
+        `<div class="bg-popover border border-border rounded-lg p-3 shadow-xl">
+          <h3 class="font-semibold text-foreground cursor-pointer hover:underline" style="cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</h3>
         </div>`
       );
 
