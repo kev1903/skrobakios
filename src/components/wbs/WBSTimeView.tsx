@@ -3,7 +3,7 @@ import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
 import { GanttChart } from './GanttChart';
 import { DropResult } from 'react-beautiful-dnd';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
 interface WBSItem {
   id: string;
@@ -56,9 +56,9 @@ export const WBSTimeView = ({
   }, []);
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="h-full w-full bg-white">
+    <PanelGroup direction="horizontal" className="h-full w-full bg-white">
       {/* Left Panel - Table view */}
-      <ResizablePanel defaultSize={50} minSize={30}>
+      <Panel defaultSize={50} minSize={30}>
         <div className="flex h-full w-full overflow-hidden">
           <div className="flex h-full w-full overflow-x-auto">
             <WBSLeftPanel
@@ -84,13 +84,15 @@ export const WBSTimeView = ({
             />
           </div>
         </div>
-      </ResizablePanel>
+      </Panel>
 
       {/* Resizable Handle */}
-      <ResizableHandle withHandle className="w-2 bg-border hover:bg-accent transition-colors duration-200 cursor-col-resize" />
+      <PanelResizeHandle className="w-2 bg-border hover:bg-accent transition-colors duration-200 cursor-col-resize flex items-center justify-center">
+        <div className="w-1 h-8 bg-border rounded-full"></div>
+      </PanelResizeHandle>
 
       {/* Right Panel - Gantt Chart */}
-      <ResizablePanel defaultSize={50} minSize={30}>
+      <Panel defaultSize={50} minSize={30}>
         <div className="flex flex-col h-full overflow-hidden">
           <div className="bg-slate-100/70 border-b border-slate-200 px-2 py-2 text-xs font-medium text-slate-700 border-l border-border flex-shrink-0">
             <div className="px-3 font-semibold">TIMELINE</div>
@@ -99,7 +101,7 @@ export const WBSTimeView = ({
             <GanttChart items={items} className="min-w-fit" />
           </div>
         </div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+      </Panel>
+    </PanelGroup>
   );
 };
