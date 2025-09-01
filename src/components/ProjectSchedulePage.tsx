@@ -238,7 +238,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   };
 
   return (
-    <div className={`${containerClasses[screenSize]} ${fullHeightClasses}`}>
+    <div className={`${containerClasses[screenSize]} ${fullHeightClasses} max-h-screen`}>
       {/* Desktop Sidebar */}
       {screenSize === 'desktop' && (
         <ProjectSidebar
@@ -344,26 +344,18 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
         </div>
 
         {/* Schedule Content - Gantt Chart */}
-        <div className="flex-1 bg-white flex flex-col overflow-hidden">
-          <div className="flex-1 overflow-hidden w-full h-full">
-            <div className="w-full h-full overflow-hidden">
-              <Card className="shadow-lg w-full h-full overflow-hidden">
-                <CardContent className="p-0 overflow-hidden h-full w-full">
-                  <ModernGanttChart 
-                    tasks={tasks} 
-                    onTaskUpdate={handleTaskUpdate}
-                    onTaskAdd={handleTaskAdd}
-                    onTaskDelete={handleTaskDelete}
-                    onTaskReorder={handleTaskReorder}
-                    onExpandAll={handleExpandAll}
-                    onCollapseAll={handleCollapseAll}
-                    hideToolbar
-                    hideTabs
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <ModernGanttChart 
+            tasks={tasks} 
+            onTaskUpdate={handleTaskUpdate}
+            onTaskAdd={handleTaskAdd}
+            onTaskDelete={handleTaskDelete}
+            onTaskReorder={handleTaskReorder}
+            onExpandAll={handleExpandAll}
+            onCollapseAll={handleCollapseAll}
+            hideToolbar
+            hideTabs
+          />
         </div>
       </main>
     </div>

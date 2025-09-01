@@ -1002,7 +1002,7 @@ const toggleSection = (taskId: string) => {
       )}
       
       {/* Gantt Chart */}
-      <div ref={containerRef} className="bg-white rounded-lg overflow-x-hidden w-full max-w-full h-full min-h-[70vh] flex flex-col">
+      <div ref={containerRef} className="bg-white rounded-lg w-full h-full flex flex-col overflow-hidden">
         <div className="flex flex-1 overflow-hidden">
           {/* Task List */}
           <div 
