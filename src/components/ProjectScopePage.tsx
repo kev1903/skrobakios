@@ -216,6 +216,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     generateWBSId,
   } = useWBS(project.id);
 
+  console.log('ProjectScopePage rendering', { project, wbsItems: wbsItems?.length, loading, error, activeTab });
+
   // Convert WBS items to scope data structure (roots are X.0 which we treat as level 0)
   const scopeData: ScopePhase[] = wbsItems
     .filter(item => item.wbs_id?.endsWith('.0') || item.level === 0 || item.parent_id == null)
