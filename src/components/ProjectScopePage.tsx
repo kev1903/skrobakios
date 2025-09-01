@@ -1065,15 +1065,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 <div className="flex-1 h-full flex flex-col">
                   {/* Combined Header with Table Headers */}
                   <div className="bg-background border-b border-border">
-                    {/* Title Row */}
-                    <div className="px-6 py-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-semibold text-foreground">Work Breakdown Structure</h3>
-                        <Badge variant="outline" className="text-xs">
-                          {scopeData.length} phases
-                        </Badge>
-                      </div>
-                    </div>
                     
                     {/* Table Headers Row */}
                     <div className="bg-slate-100/70 border-t border-slate-200 flex">
@@ -1225,15 +1216,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 <div className="flex-1 h-full flex flex-col">
                    {/* Combined Header with Table Headers */}
                    <div className="bg-background border-b border-border">
-                     {/* Title Row */}
-                     <div className="px-6 py-4 flex items-center justify-between">
-                       <div className="flex items-center gap-3">
-                         <h3 className="text-lg font-semibold text-foreground">Cost Breakdown</h3>
-                         <Badge variant="outline" className="text-xs">
-                           {scopeData.length} phases
-                         </Badge>
-                       </div>
-                     </div>
                      
                      {/* Table Headers Row */}
                      <div className="bg-slate-100/70 border-t border-slate-200 flex">
