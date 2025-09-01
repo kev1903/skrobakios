@@ -91,15 +91,10 @@ export const WBSTimeView = ({
         <div className="w-1 h-8 bg-border rounded-full"></div>
       </PanelResizeHandle>
 
-      {/* Right Panel - Gantt Chart */}
+      {/* Right Panel - Gantt Chart (Header removed, now controlled by parent) */}
       <Panel defaultSize={50} minSize={30}>
-        <div className="flex flex-col h-full overflow-hidden">
-          <div className="bg-slate-100/70 border-b border-slate-200 px-2 py-2 text-xs font-medium text-slate-700 border-l border-border flex-shrink-0">
-            <div className="px-3 font-semibold">TIMELINE</div>
-          </div>
-          <div className="flex-1 overflow-x-auto overflow-y-auto">
-            <GanttChart items={items} className="min-w-fit" />
-          </div>
+        <div className="flex-1 overflow-x-auto overflow-y-auto">
+          <GanttChart items={items} className="min-w-fit" />
         </div>
       </Panel>
     </PanelGroup>
