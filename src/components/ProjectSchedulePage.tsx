@@ -6,7 +6,7 @@ import { useScreenSize } from "@/hooks/use-mobile";
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from '@/components/ui/card';
-import { Menu, ChevronsDown, ChevronsUp, Plus } from "lucide-react";
+import { Menu, ChevronsDown, ChevronsUp, Plus, GripVertical } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { addDays } from 'date-fns';
 import { useWBS } from '@/hooks/useWBS';
@@ -335,25 +335,100 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
           </div>
         </div>
 
-        {/* Schedule Content - Gantt Chart */}
+        {/* Schedule Content - WBS Table */}
         <div className="flex-1 bg-white flex flex-col overflow-hidden">
           <div className="flex-1 p-2 sm:p-4 overflow-hidden w-full">
             <div className="w-full h-full overflow-hidden">
-              <Card className="shadow-lg w-full h-full overflow-hidden">
-                <CardContent className="p-0 overflow-hidden h-full w-full">
-                  <ModernGanttChart 
-                    tasks={tasks} 
-                    onTaskUpdate={handleTaskUpdate}
-                    onTaskAdd={handleTaskAdd}
-                    onTaskDelete={handleTaskDelete}
-                    onTaskReorder={handleTaskReorder}
-                    onExpandAll={handleExpandAll}
-                    onCollapseAll={handleCollapseAll}
-                    hideToolbar
-                    hideTabs
-                  />
-                </CardContent>
-              </Card>
+              <div className="rounded-lg border border-border bg-white shadow-sm h-full flex flex-col">
+                {/* Header */}
+                <div
+                  className="bg-muted/40 border-b border-border grid text-left text-xs font-medium text-muted-foreground uppercase tracking-wider flex-shrink-0"
+                  style={{ gridTemplateColumns: '48px 120px 280px 120px 120px 140px 120px 160px' }}
+                >
+                  <div className="px-2 py-2"></div>
+                  <div className="px-2 py-2">WBS</div>
+                  <div className="px-3 py-2">Name</div>
+                  <div className="px-3 py-2">Start</div>
+                  <div className="px-3 py-2">End</div>
+                  <div className="px-2 py-2">Duration</div>
+                  <div className="px-2 py-2">Predecessors</div>
+                  <div className="px-2 py-2">Status</div>
+                </div>
+
+                {/* Body */}
+                <div className="flex-1 overflow-y-auto divide-y divide-border">
+                  {tasks.map((task, index) => (
+                    <div
+                      key={task.id}
+                      className={`grid items-center relative transition-colors duration-200 cursor-pointer ${
+                        // Stage level (depth 0) - darker background with thicker border
+                        task.level === 0 ? "bg-slate-300 border-l-4 border-l-slate-700 hover:bg-slate-400" :
+                        // Component level (depth 1) - medium background
+                        task.level === 1 ? "bg-slate-200 border-l-[3px] border-l-slate-600 hover:bg-slate-300" :
+                        // Element level (depth 2) - light background
+                        "bg-white border-l-2 border-l-slate-400 hover:bg-slate-50"
+                      }`}
+                      style={{ gridTemplateColumns: '48px 120px 280px 120px 120px 140px 120px 160px' }}
+                    >
+                      <div className="px-2 py-2">
+                        <div className={`p-1 rounded transition-colors duration-200 ${task.level > 0 ? `ml-${task.level * 4}` : ''}`}>
+                          <GripVertical className="w-3 h-3 text-muted-foreground" />
+                        </div>
+                      </div>
+                      <div className="px-2 py-2">
+                        <div className={`font-medium text-sm truncate ${
+                          task.level === 0 ? 'text-primary' : 
+                          task.level === 1 ? 'text-blue-600' : 
+                          'text-foreground'
+                        } ${task.level > 0 ? `ml-${task.level * 4}` : ''}`}>
+                          {task.wbs}
+                        </div>
+                      </div>
+                      <div className={`px-3 py-2 font-medium text-sm truncate ${
+                        task.level === 0 ? 'font-semibold text-foreground' : 
+                        task.level === 1 ? 'font-medium text-foreground' : 
+                        'text-foreground'
+                      } ${task.level > 0 ? `ml-${task.level * 4}` : ''}`}>
+                        {task.name}
+                      </div>
+                      <div className="px-3 py-2 text-xs text-muted-foreground">
+                        {task.startDate ? new Intl.DateTimeFormat('en-US', { 
+                          month: 'short', 
+                          day: 'numeric' 
+                        }).format(task.startDate) : '-'}
+                      </div>
+                      <div className="px-3 py-2 text-xs text-muted-foreground">
+                        {task.endDate ? new Intl.DateTimeFormat('en-US', { 
+                          month: 'short', 
+                          day: 'numeric' 
+                        }).format(task.endDate) : '-'}
+                      </div>
+                      <div className="px-2 py-2 text-xs text-muted-foreground">
+                        {task.duration || '0 days'}
+                      </div>
+                      <div className="px-2 py-2 text-xs text-muted-foreground">
+                        -
+                      </div>
+                      <div className="px-2 py-2">
+                        <div className="flex items-center gap-1">
+                          <div className={`w-2 h-2 rounded-full ${
+                            task.status === 'completed' ? 'bg-green-500' :
+                            task.status === 'in-progress' ? 'bg-blue-500' :
+                            task.status === 'delayed' ? 'bg-red-500' :
+                            'bg-slate-400'
+                          }`} />
+                          <span className="text-xs font-medium text-muted-foreground">
+                            {task.status === 'completed' ? 'Done' :
+                             task.status === 'in-progress' ? 'IP' :
+                             task.status === 'delayed' ? 'Delayed' :
+                             'Pending'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
