@@ -188,7 +188,7 @@ export const ModernGanttChart = ({
 
   const days = eachDayOfInterval({ start: viewStart, end: viewEnd });
   const dayWidth = screenSize === 'mobile' ? 24 : screenSize === 'tablet' ? 28 : 32; // Responsive day width
-  const rowHeight = 24; // Minimized row height
+  const rowHeight = 40; // Consistent row height for alignment
 
 // Initialize expanded sections from Scope (is_expanded) and keep stages open by default
 useEffect(() => {
@@ -834,7 +834,7 @@ const toggleSection = (taskId: string) => {
     return {
       x: startDayIndex * dayWidth,
       endX: (endDayIndex + 1) * dayWidth,
-      y: taskIndex * 40 + 20, // Center of task row
+      y: taskIndex * rowHeight + rowHeight / 2, // Center of task row
       taskIndex
     };
   };
@@ -1061,7 +1061,7 @@ const toggleSection = (taskId: string) => {
                               snapshot.isDragging && "shadow-xl bg-card z-50"
                             )}
                             style={{ 
-                              height: 40,
+                              height: rowHeight,
                               gridTemplateColumns: screenSize === 'mobile' ? '16px 48px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '20px 60px minmax(120px, 1fr) 60px 60px 50px 50px' : '24px 80px minmax(200px, 1fr) 80px 80px 80px 100px 80px',
                               minWidth: screenSize === 'mobile' ? '260px' : screenSize === 'tablet' ? '420px' : '740px',
                               ...dragProvided.draggableProps.style
@@ -1403,7 +1403,7 @@ const toggleSection = (taskId: string) => {
             <div 
               className="relative" 
               style={{ 
-                height: visibleTasks.length * 40, 
+                height: visibleTasks.length * rowHeight, 
                 width: timelineWidth, 
                 minWidth: timelineWidth 
               }}
@@ -1415,7 +1415,7 @@ const toggleSection = (taskId: string) => {
                   className="absolute top-0 left-0 pointer-events-none z-10"
                   style={{ 
                     width: timelineWidth, 
-                    height: visibleTasks.length * 40,
+                    height: visibleTasks.length * rowHeight,
                     minWidth: timelineWidth 
                   }}
                 >
@@ -1456,7 +1456,7 @@ const toggleSection = (taskId: string) => {
                   className="absolute top-0 w-0.5 bg-blue-500 z-20"
                   style={{
                     left: currentDays.findIndex(day => isToday(day)) * dayWidth + dayWidth / 2,
-                    height: visibleTasks.length * 40
+                    height: visibleTasks.length * rowHeight
                   }}
                 />
               )}
@@ -1475,10 +1475,10 @@ const toggleSection = (taskId: string) => {
                     key={`${task.id}-bar`}
                     className="absolute"
                     style={{
-                      top: index * 40 + 8,
+                      top: index * rowHeight + 8,
                       left: position.left,
                       width: position.width,
-                      height: 24
+                      height: rowHeight - 16 // Leave 8px padding on top and bottom
                     }}
                   >
                     {task.isStage ? (
@@ -1534,7 +1534,7 @@ const toggleSection = (taskId: string) => {
                       style={{
                         left: index * dayWidth,
                         width: dayWidth,
-                        height: visibleTasks.length * 40
+                        height: visibleTasks.length * rowHeight
                       }}
                     />
                   )
