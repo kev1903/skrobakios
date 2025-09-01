@@ -977,15 +977,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const mainClasses = {
-    mobile: "flex flex-col h-full",
-    tablet: "flex flex-col h-full", 
-    desktop: "flex h-full"
+    mobile: "flex flex-col h-screen overflow-hidden",
+    tablet: "flex flex-col h-screen overflow-hidden", 
+    desktop: "flex h-screen overflow-hidden"
   };
 
   const contentClasses = {
-    mobile: "flex-1",
-    tablet: "flex-1",
-    desktop: "flex-1 ml-40"
+    mobile: "flex-1 overflow-hidden",
+    tablet: "flex-1 overflow-hidden",
+    desktop: "flex-1 ml-40 overflow-hidden"
   };
 
   return (
@@ -999,7 +999,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       />
 
       <div className={contentClasses[screenSize]}>
-        <div className="flex flex-col h-full bg-background overflow-auto">
+        <div className="flex flex-col h-full bg-background overflow-hidden">
           {/* Tabs Container - moved up to wrap everything */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
             <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
@@ -1059,7 +1059,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             </div>
 
             {/* Tab Contents */}
-            <div className="flex-1 bg-white">
+            <div className="flex-1 bg-white overflow-hidden">
 
               <TabsContent value="scope" className="flex-1 m-0">
                 <div className="flex-1 h-full flex flex-col">
