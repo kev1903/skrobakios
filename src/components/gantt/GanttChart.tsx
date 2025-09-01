@@ -80,63 +80,64 @@ export const GanttChart: React.FC<GanttProps> = ({
     );
   }
 
-    return (
-      <div ref={containerRef} className="h-full flex flex-col bg-white overflow-hidden">
-        {/* Toolbar */}
-        <div className="flex items-center gap-2 p-3 border-b border-gray-200 bg-gray-50">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={expandAll}
-            className="h-7"
-          >
-            <ChevronsDown className="w-3 h-3 mr-1" />
-            Expand All
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={collapseAll}
-            className="h-7"
-          >
-            <ChevronsUp className="w-3 h-3 mr-1" />
-            Collapse All
-          </Button>
-          <div className="ml-auto text-sm text-gray-600">
-            {visibleTasks.length} of {tasks.length} tasks visible
+  return (
+    <div ref={containerRef} className="h-full flex flex-col bg-white overflow-hidden">
+      {/* Toolbar */}
+      <div className="flex items-center gap-2 p-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={expandAll}
+          className="h-7"
+        >
+          <ChevronsDown className="w-3 h-3 mr-1" />
+          Expand All
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={collapseAll}
+          className="h-7"
+        >
+          <ChevronsUp className="w-3 h-3 mr-1" />
+          Collapse All
+        </Button>
+        <div className="ml-auto text-sm text-gray-600">
+          {visibleTasks.length} of {tasks.length} tasks visible
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
+        {/* Task List Panel */}
+        <GanttTaskList
+          tasks={visibleTasks}
+          expandedIds={expandedIds}
+          onToggleExpanded={toggleExpanded}
+          onTaskUpdate={onTaskUpdate}
+          width={taskListWidth}
+          rowHeight={viewSettings.rowHeight}
+          scrollRef={taskListRef}
+        />
+
+        {/* Resizable Divider */}
+        <div
+          className={cn(
+            "w-1 bg-gray-200 hover:bg-blue-400 cursor-col-resize relative transition-colors duration-200 flex-shrink-0",
+            isResizing && "bg-blue-500"
+          )}
+          onMouseDown={handleResizerMouseDown}
+        >
+          {/* Visual grip indicator */}
+          <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 flex items-center">
+            <GripVertical className="w-3 h-8 text-gray-400 opacity-60" />
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex flex-1 min-h-0">
-          {/* Task List Panel */}
-          <GanttTaskList
-            tasks={visibleTasks}
-            expandedIds={expandedIds}
-            onToggleExpanded={toggleExpanded}
-            onTaskUpdate={onTaskUpdate}
-            width={taskListWidth}
-            rowHeight={viewSettings.rowHeight}
-            scrollRef={taskListRef}
-          />
-
-          {/* Resizable Divider */}
-          <div
-            className={cn(
-              "w-1 bg-gray-200 hover:bg-blue-400 cursor-col-resize relative transition-colors duration-200 flex-shrink-0",
-              isResizing && "bg-blue-500"
-            )}
-            onMouseDown={handleResizerMouseDown}
-          >
-            {/* Visual grip indicator */}
-            <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 flex items-center">
-              <GripVertical className="w-3 h-8 text-gray-400 opacity-60" />
-            </div>
-          </div>
-
-          {/* Timeline Panel */}
-          <div className="flex-1 flex flex-col min-w-0">
-            {/* Timeline Header */}
+        {/* Timeline Panel */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          {/* Timeline Header */}
+          <div className="flex-shrink-0">
             <GanttHeader
               viewSettings={{
                 ...viewSettings,
@@ -144,8 +145,10 @@ export const GanttChart: React.FC<GanttProps> = ({
               }}
               scrollRef={timelineHeaderRef}
             />
+          </div>
 
-            {/* Timeline Body */}
+          {/* Timeline Body */}
+          <div className="flex-1 min-h-0 overflow-hidden">
             <GanttTimeline
               tasks={visibleTasks}
               viewSettings={{
@@ -158,5 +161,6 @@ export const GanttChart: React.FC<GanttProps> = ({
           </div>
         </div>
       </div>
-    );
+    </div>
+  );
 };

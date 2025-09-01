@@ -25,8 +25,7 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
   return (
     <div 
       ref={scrollRef}
-      className="flex-1 overflow-auto bg-white"
-      style={{ height: totalHeight }}
+      className="flex-1 overflow-auto bg-white min-h-0"
     >
       <div 
         className="relative"

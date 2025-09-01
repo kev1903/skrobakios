@@ -26,9 +26,9 @@ export const GanttTaskList: React.FC<GanttTaskListProps> = ({
   };
 
   return (
-    <div className="flex flex-col bg-white border-r border-gray-200" style={{ width }}>
+    <div className="flex flex-col bg-white border-r border-gray-200 overflow-hidden" style={{ width }}>
       {/* Header */}
-      <div className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+      <div className="bg-gray-50 border-b border-gray-200 flex-shrink-0">
         <div
           className="grid items-center px-2 py-3 text-xs font-medium text-gray-700"
           style={{
@@ -49,20 +49,21 @@ export const GanttTaskList: React.FC<GanttTaskListProps> = ({
       {/* Task List */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden"
-        style={{ height: tasks.length * rowHeight }}
+        className="flex-1 overflow-y-auto overflow-x-hidden min-h-0"
       >
-        {tasks.map((task, index) => (
-          <GanttTaskRow
-            key={task.id}
-            task={task}
-            hasChildren={hasChildren(task.id)}
-            isExpanded={expandedIds.has(task.id)}
-            onToggleExpanded={onToggleExpanded}
-            onTaskUpdate={onTaskUpdate}
-            style={{ height: rowHeight }}
-          />
-        ))}
+        <div style={{ minHeight: tasks.length * rowHeight }}>
+          {tasks.map((task, index) => (
+            <GanttTaskRow
+              key={task.id}
+              task={task}
+              hasChildren={hasChildren(task.id)}
+              isExpanded={expandedIds.has(task.id)}
+              onToggleExpanded={onToggleExpanded}
+              onTaskUpdate={onTaskUpdate}
+              style={{ height: rowHeight }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
