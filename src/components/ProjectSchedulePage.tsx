@@ -335,23 +335,23 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
           </div>
         </div>
 
-        {/* Schedule Content - WBS Table */}
-        <div className="flex-1 bg-white flex flex-col overflow-hidden">
-          <div className="flex-1 p-2 sm:p-4 overflow-hidden w-full">
+        {/* Schedule Content - Split View */}
+        <div className="flex-1 bg-white flex overflow-hidden">
+          {/* Left Side - WBS Table */}
+          <div className="w-1/2 p-2 sm:p-4 overflow-hidden border-r border-border">
             <div className="w-full h-full overflow-hidden">
               <div className="rounded-lg border border-border bg-white shadow-sm h-full flex flex-col">
                 {/* Header */}
                 <div
                   className="bg-muted/40 border-b border-border grid text-left text-xs font-medium text-muted-foreground uppercase tracking-wider flex-shrink-0"
-                  style={{ gridTemplateColumns: '48px 120px 280px 120px 120px 140px 120px 160px' }}
+                  style={{ gridTemplateColumns: '32px 80px 200px 80px 80px 100px 80px' }}
                 >
                   <div className="px-2 py-2"></div>
                   <div className="px-2 py-2">WBS</div>
                   <div className="px-3 py-2">Name</div>
-                  <div className="px-3 py-2">Start</div>
-                  <div className="px-3 py-2">End</div>
+                  <div className="px-2 py-2">Start</div>
+                  <div className="px-2 py-2">End</div>
                   <div className="px-2 py-2">Duration</div>
-                  <div className="px-2 py-2">Predecessors</div>
                   <div className="px-2 py-2">Status</div>
                 </div>
 
@@ -368,36 +368,36 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                         // Element level (depth 2) - light background
                         "bg-white border-l-2 border-l-slate-400 hover:bg-slate-50"
                       }`}
-                      style={{ gridTemplateColumns: '48px 120px 280px 120px 120px 140px 120px 160px' }}
+                      style={{ gridTemplateColumns: '32px 80px 200px 80px 80px 100px 80px' }}
                     >
                       <div className="px-2 py-2">
-                        <div className={`p-1 rounded transition-colors duration-200 ${task.level > 0 ? `ml-${task.level * 4}` : ''}`}>
+                        <div className={`p-1 rounded transition-colors duration-200 ${task.level > 0 ? `ml-${task.level * 2}` : ''}`}>
                           <GripVertical className="w-3 h-3 text-muted-foreground" />
                         </div>
                       </div>
                       <div className="px-2 py-2">
-                        <div className={`font-medium text-sm truncate ${
+                        <div className={`font-medium text-xs truncate ${
                           task.level === 0 ? 'text-primary' : 
                           task.level === 1 ? 'text-blue-600' : 
                           'text-foreground'
-                        } ${task.level > 0 ? `ml-${task.level * 4}` : ''}`}>
+                        } ${task.level > 0 ? `ml-${task.level * 2}` : ''}`}>
                           {task.wbs}
                         </div>
                       </div>
-                      <div className={`px-3 py-2 font-medium text-sm truncate ${
+                      <div className={`px-2 py-2 font-medium text-xs truncate ${
                         task.level === 0 ? 'font-semibold text-foreground' : 
                         task.level === 1 ? 'font-medium text-foreground' : 
                         'text-foreground'
-                      } ${task.level > 0 ? `ml-${task.level * 4}` : ''}`}>
+                      } ${task.level > 0 ? `ml-${task.level * 2}` : ''}`}>
                         {task.name}
                       </div>
-                      <div className="px-3 py-2 text-xs text-muted-foreground">
+                      <div className="px-2 py-2 text-xs text-muted-foreground">
                         {task.startDate ? new Intl.DateTimeFormat('en-US', { 
                           month: 'short', 
                           day: 'numeric' 
                         }).format(task.startDate) : '-'}
                       </div>
-                      <div className="px-3 py-2 text-xs text-muted-foreground">
+                      <div className="px-2 py-2 text-xs text-muted-foreground">
                         {task.endDate ? new Intl.DateTimeFormat('en-US', { 
                           month: 'short', 
                           day: 'numeric' 
@@ -405,9 +405,6 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                       </div>
                       <div className="px-2 py-2 text-xs text-muted-foreground">
                         {task.duration || '0 days'}
-                      </div>
-                      <div className="px-2 py-2 text-xs text-muted-foreground">
-                        -
                       </div>
                       <div className="px-2 py-2">
                         <div className="flex items-center gap-1">
@@ -428,6 +425,21 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side - Gantt Chart */}
+          <div className="w-1/2 p-2 sm:p-4 overflow-hidden">
+            <div className="w-full h-full">
+              <div className="h-full">
+                <ModernGanttChart
+                  tasks={tasks}
+                  onTaskUpdate={handleTaskUpdate}
+                  onTaskAdd={handleTaskAdd}
+                  onTaskDelete={handleTaskDelete}
+                  onTaskReorder={handleTaskReorder}
+                />
               </div>
             </div>
           </div>
