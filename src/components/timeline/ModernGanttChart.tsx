@@ -1348,7 +1348,7 @@ const toggleSection = (taskId: string) => {
           <div 
             ref={ganttHeaderRef}
             className="bg-white overflow-x-auto gantt-header-scroll relative z-10"
-            style={{ height: '60px' }}
+            style={{ height: '32px' }}
           >
             <div 
               className="flex flex-col relative bg-white"
