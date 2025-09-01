@@ -1,13 +1,27 @@
 /* Gantt Chart Scroll Styles */
 
-/* Hide scrollbars for header while keeping scrolling functionality */
+/* Header scroll container - show horizontal scrollbar */
 .gantt-header-scroll {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #cbd5e0 #f7fafc; /* Firefox */
 }
 
 .gantt-header-scroll::-webkit-scrollbar {
-  display: none; /* WebKit */
+  height: 8px; /* WebKit */
+}
+
+.gantt-header-scroll::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 4px;
+}
+
+.gantt-header-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+.gantt-header-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
 }
 
 /* Body scroll container - show scrollbars */

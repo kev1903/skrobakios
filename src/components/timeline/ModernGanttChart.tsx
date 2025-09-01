@@ -807,10 +807,10 @@ const toggleSection = (taskId: string) => {
   const getResponsiveTimelineWidth = () => {
     const baseContainer = containerWidth || (typeof window !== 'undefined' ? window.innerWidth : 1200);
     const baseWidth = Math.max(baseContainer - taskListWidth - 24, 200);
-    const minTimelineWidth = screenSize === 'mobile' ? 300 : screenSize === 'tablet' ? 500 : 800;
-    const maxTimelineWidth = screenSize === 'mobile' ? 800 : screenSize === 'tablet' ? 1200 : 2000;
+    const minTimelineWidth = screenSize === 'mobile' ? 600 : screenSize === 'tablet' ? 800 : 1200; // Increased minimum widths
+    const maxTimelineWidth = screenSize === 'mobile' ? 1200 : screenSize === 'tablet' ? 1800 : 3000; // Increased maximum widths
     
-    return Math.min(Math.max(currentDays.length * dayWidth, minTimelineWidth), Math.min(baseWidth, maxTimelineWidth));
+    return Math.min(Math.max(currentDays.length * dayWidth, minTimelineWidth), Math.min(baseWidth * 2, maxTimelineWidth)); // Allow wider timeline
   };
   
   const timelineWidth = getResponsiveTimelineWidth();
