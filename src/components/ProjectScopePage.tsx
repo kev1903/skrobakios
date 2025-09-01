@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal, ChevronsDown, ChevronsUp } from 'lucide-react';
+import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal, ChevronsDown, ChevronsUp, NotebookPen } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -942,7 +942,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 <div className="px-2 py-2">Status</div>
                 <div className="px-2 py-2">Progress</div>
                 <div className="px-2 py-2">Assigned To</div>
-                <div className="px-2 py-2">Deliverable</div>
+                <div className="px-2 py-2">Note</div>
                 <div className="px-2 py-2">Actions</div>
               </div>
 
@@ -1310,16 +1310,19 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                                              className="text-xs text-muted-foreground"
                                                            />
                                                          </div>
-                                                         <div className="px-2 py-2 text-muted-foreground text-xs truncate">
-                                                           <EditableCell
-                                                             id={element.id}
-                                                             type="element"
-                                                             field="deliverable"
-                                                             value={element.deliverable || ''}
-                                                             placeholder="Add deliverable..."
-                                                             className="text-xs text-muted-foreground"
-                                                           />
-                                                         </div>
+                                                          <div className="px-2 py-2 text-muted-foreground text-xs truncate">
+                                                            <div className="flex items-center gap-1">
+                                                              <NotebookPen className="w-3 h-3 text-muted-foreground" />
+                                                              <EditableCell
+                                                                id={element.id}
+                                                                type="element"
+                                                                field="deliverable"
+                                                                value={element.deliverable || ''}
+                                                                placeholder="Add note..."
+                                                                className="text-xs text-muted-foreground"
+                                                              />
+                                                            </div>
+                                                          </div>
                                                         <div className="px-2 py-2 flex items-center justify-center">
                                                           <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
