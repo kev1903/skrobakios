@@ -63,9 +63,9 @@ export const ModernGanttChart = ({
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const getInitialTaskListWidth = () => {
     switch (screenSize) {
-      case 'mobile': return 220;
-      case 'tablet': return 280;
-      default: return 384;
+      case 'mobile': return 200;
+      case 'tablet': return 250; 
+      default: return 300; // Reduced from 384 to give more space to timeline
     }
   };
   const [taskListWidth, setTaskListWidth] = useState(getInitialTaskListWidth());
@@ -158,7 +158,7 @@ export const ModernGanttChart = ({
 
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = e.clientX - startX;
-      const newWidth = Math.max(200, Math.min(Math.min(window.innerWidth * 0.8, 1200), startWidth + deltaX)); // Min 200px, max 80% of screen or 1200px
+      const newWidth = Math.max(180, Math.min(Math.min(window.innerWidth * 0.4, 500), startWidth + deltaX)); // Better min/max constraints
       setTaskListWidth(newWidth);
     };
 
@@ -1026,7 +1026,7 @@ const toggleSection = (taskId: string) => {
               )}
               {/* Column Headers */}
                <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-1 sm:gap-2 md:gap-4 px-1 sm:px-2 md:px-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '16px 48px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '20px 60px minmax(120px, 1fr) 60px 60px 50px 50px' : '24px 80px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '260px' : screenSize === 'tablet' ? '420px' : '740px' }}>
+                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-1 sm:gap-2 md:gap-3 px-1 sm:px-2 md:px-3" style={{ gridTemplateColumns: screenSize === 'mobile' ? '16px 44px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '18px 50px minmax(120px, 1fr) 55px 55px 45px 45px' : '20px 60px minmax(160px, 1fr) 70px 70px 65px 80px 65px', minWidth: screenSize === 'mobile' ? '240px' : screenSize === 'tablet' ? '380px' : '580px' }}>
                     <div></div>
                     <div className="text-left">WBS</div>
                     <div className="text-left">Name</div>
@@ -1069,8 +1069,8 @@ const toggleSection = (taskId: string) => {
                             )}
                             style={{ 
                               height: rowHeight,
-                              gridTemplateColumns: screenSize === 'mobile' ? '16px 48px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '20px 60px minmax(120px, 1fr) 60px 60px 50px 50px' : '24px 80px minmax(200px, 1fr) 80px 80px 80px 100px 80px',
-                              minWidth: screenSize === 'mobile' ? '260px' : screenSize === 'tablet' ? '420px' : '740px',
+                              gridTemplateColumns: screenSize === 'mobile' ? '16px 44px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '18px 50px minmax(120px, 1fr) 55px 55px 45px 45px' : '20px 60px minmax(160px, 1fr) 70px 70px 65px 80px 65px',
+                              minWidth: screenSize === 'mobile' ? '240px' : screenSize === 'tablet' ? '380px' : '580px',
                               ...dragProvided.draggableProps.style
                             }}
                             onClick={() => handleRowClick(task.id)}

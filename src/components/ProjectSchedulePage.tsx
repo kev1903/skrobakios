@@ -228,7 +228,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   const mainContentClasses = {
     mobile: "flex-1 min-h-0 overflow-hidden",
     tablet: "flex-1 min-h-0 overflow-hidden",
-    desktop: "flex-1 ml-48 min-h-0 overflow-hidden"
+    desktop: "flex-1 ml-40 min-h-0 overflow-hidden" // Updated to match new sidebar width
   };
 
   const headerClasses = {

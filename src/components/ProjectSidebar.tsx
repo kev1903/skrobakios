@@ -122,7 +122,7 @@ export const ProjectSidebar = ({
   const sidebarClasses = {
     mobile: "w-full h-screen bg-white border-r border-gray-200",
     tablet: "w-full h-screen bg-white border-r border-gray-200", 
-    desktop: "fixed left-0 top-0 w-48 h-screen bg-white border-r border-gray-200 z-50"
+    desktop: "fixed left-0 top-0 w-40 h-screen bg-white border-r border-gray-200 z-50" // Reduced from w-48 to w-40
   };
 
   const contentClasses = {
