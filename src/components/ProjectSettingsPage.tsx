@@ -110,7 +110,8 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
         localStorage.setItem(`project_coordinates_${project.id}`, JSON.stringify(formData.coordinates));
       }
 
-      if (formData.banner_image) {
+      // Only save banner image if it's not empty (preserve existing banner)
+      if (formData.banner_image && formData.banner_image.trim() !== '') {
         localStorage.setItem(`project_banner_${project.id}`, formData.banner_image);
       }
 
@@ -156,6 +157,14 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
   };
 
   useEffect(() => {
+    // Set the uploaded image as the default banner for this project
+    const uploadedImageUrl = "/lovable-uploads/a4e24d03-7164-4da7-8680-7f416bd30464.png";
+    const existingBanner = localStorage.getItem(`project_banner_${project.id}`);
+    
+    if (!existingBanner) {
+      localStorage.setItem(`project_banner_${project.id}`, uploadedImageUrl);
+    }
+    
     // Load existing SharePoint link from localStorage
     const savedLink = localStorage.getItem(`project_sharepoint_${project.id}`);
     if (savedLink) {
