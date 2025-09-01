@@ -103,9 +103,9 @@ export const WBSTimeView = ({
             </div>
           </div>
 
-          {/* Content Section */}
+          {/* Content Section with Horizontal Scroll */}
           <div className="flex-1 min-h-0 flex overflow-hidden">
-            <div ref={bodyHorizScrollRef} className="flex h-full w-full overflow-x-auto" onScroll={handleHorizontalSync}>
+            <div ref={bodyHorizScrollRef} className="flex h-full w-full overflow-x-auto overflow-y-hidden" onScroll={handleHorizontalSync}>
               <WBSLeftPanel
                 items={items}
                 onToggleExpanded={onToggleExpanded}
