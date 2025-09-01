@@ -147,6 +147,7 @@ export const WBSTimeView = ({
                   const monthStart = startOfMonth(currentDate);
                   const monthEnd = endOfMonth(currentDate);
                   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+                  const dayWidth = 32; // Match GanttChart dayWidth
                   
                   return days.map((day, index) => {
                     const isToday = format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
@@ -155,15 +156,16 @@ export const WBSTimeView = ({
                     return (
                       <div 
                         key={index}
-                        className={`flex flex-col items-center justify-center px-3 py-2 min-w-[60px] border-r border-slate-200/50 ${
+                        className={`flex flex-col items-center justify-center border-r border-slate-200/50 ${
                           isToday ? 'bg-primary/10 text-primary font-bold' : 
                           isWeekend ? 'bg-slate-50 text-slate-500' : 'text-slate-700'
                         }`}
+                        style={{ width: dayWidth }}
                       >
-                        <div className="text-[10px] font-medium mb-1">
+                        <div className="text-[9px] font-medium mb-0.5">
                           {format(day, 'EEE').toUpperCase()}
                         </div>
-                        <div className={`text-sm ${isToday ? 'font-bold' : 'font-semibold'}`}>
+                        <div className={`text-xs ${isToday ? 'font-bold' : 'font-semibold'}`}>
                           {format(day, 'd')}
                         </div>
                       </div>
