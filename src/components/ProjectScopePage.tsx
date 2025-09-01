@@ -934,7 +934,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     );
   };
 
-  const generateWBSNumber = (phaseIndex: number, componentIndex?: number, elementIndex?: number) => {
+  function generateWBSNumber(phaseIndex: number, componentIndex?: number, elementIndex?: number) {
     const phaseNumber = phaseIndex + 1;
     if (componentIndex !== undefined) {
       const componentNumber = componentIndex + 1;
@@ -944,7 +944,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       return `${phaseNumber}.${componentNumber}`;
     }
     return phaseNumber.toString();
-  };
+  }
 
   const onDragEnd = (result: DropResult) => {
     setDragIndicator(null);
