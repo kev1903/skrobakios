@@ -979,13 +979,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   const mainClasses = {
     mobile: "flex flex-col h-screen overflow-hidden",
     tablet: "flex flex-col h-screen overflow-hidden", 
-    desktop: "flex h-screen overflow-hidden"
+    desktop: "h-screen overflow-hidden"
   };
 
   const contentClasses = {
     mobile: "flex-1 overflow-hidden",
     tablet: "flex-1 overflow-hidden",
-    desktop: "flex-1 overflow-hidden"
+    desktop: "h-full ml-40 overflow-hidden"
   };
 
   return (
@@ -998,8 +998,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         activeSection="specification"
       />
 
-      <div className={`${contentClasses[screenSize]} ${screenSize === 'desktop' ? 'ml-64' : ''}`}>
-        <div className="flex flex-col h-full bg-background overflow-hidden">
+      <div className={contentClasses[screenSize]}>
+        <div className="h-full flex flex-col bg-background">
           {/* Tabs Container - moved up to wrap everything */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
             <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
