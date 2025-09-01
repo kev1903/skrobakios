@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal, ChevronsDown, ChevronsUp, NotebookPen } from 'lucide-react';
+import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal, ChevronsDown, ChevronsUp, NotebookPen, Clock, DollarSign } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -192,6 +193,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   const screenSize = useScreenSize();
   const { currentCompany } = useCompany();
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState('scope');
   const [dragIndicator, setDragIndicator] = useState<{ type: string; droppableId: string; index: number } | null>(null);
   const [editingItem, setEditingItem] = useState<{ id: string; type: 'phase' | 'component' | 'element'; field: string } | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -971,7 +973,27 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             </div>
           </div>
 
-          <div className="flex-1 px-6 py-4 bg-white">
+          {/* Tabs Container */}
+          <div className="flex-1 bg-white">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+              <div className="flex-shrink-0 px-6 py-3 border-b border-border bg-white">
+                <TabsList className="grid w-fit grid-cols-3">
+                  <TabsTrigger value="scope" className="flex items-center gap-2">
+                    <NotebookPen className="w-4 h-4" />
+                    Scope
+                  </TabsTrigger>
+                  <TabsTrigger value="time" className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Time
+                  </TabsTrigger>
+                  <TabsTrigger value="cost" className="flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    Cost
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+
+              <TabsContent value="scope" className="flex-1 px-6 py-4 m-0">{/* Scope Content */}
             <div className="rounded-lg border border-border bg-white shadow-sm">
               {/* Header */}
                <div
@@ -1427,6 +1449,46 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </Droppable>
               </DragDropContext>
             </div>
+              </TabsContent>
+
+              <TabsContent value="time" className="flex-1 px-6 py-4 m-0">
+                <div className="rounded-lg border border-border bg-white shadow-sm p-6">
+                  <div className="text-center py-12">
+                    <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Time Management</h3>
+                    <p className="text-muted-foreground mb-4">Schedule and timeline management features</p>
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <p>• Project timeline and milestones</p>
+                      <p>• Task scheduling and dependencies</p>
+                      <p>• Resource allocation over time</p>
+                      <p>• Critical path analysis</p>
+                    </div>
+                    <Button className="mt-6" variant="outline">
+                      Coming Soon
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="cost" className="flex-1 px-6 py-4 m-0">
+                <div className="rounded-lg border border-border bg-white shadow-sm p-6">
+                  <div className="text-center py-12">
+                    <DollarSign className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Cost Management</h3>
+                    <p className="text-muted-foreground mb-4">Budget and cost tracking features</p>
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <p>• Budget planning and allocation</p>
+                      <p>• Cost tracking and reporting</p>
+                      <p>• Expense management</p>
+                      <p>• Financial forecasting</p>
+                    </div>
+                    <Button className="mt-6" variant="outline">
+                      Coming Soon
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
