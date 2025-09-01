@@ -138,7 +138,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
           }`}
           style={{ paddingLeft: `${item.level * 24 + 12}px` }}
         >
-          {/* WBS ID & Expand/Collapse */}
+          {/* WBS ID & Expand/Collapse & Add Child Button */}
           <div className="col-span-2 flex items-center space-x-2">
             {hasChildren && (
               <button
@@ -153,6 +153,19 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
               </button>
             )}
             <span className="text-sm font-mono text-gray-600">{item.wbs_id}</span>
+            
+            {/* Add child button in WBS column */}
+            {!isEditing && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => addChildItem(item.id)}
+                className="h-7 px-2 ml-2"
+                title="Add child item"
+              >
+                <Plus className="w-3 h-3" />
+              </Button>
+            )}
           </div>
 
           {/* Title */}
@@ -295,14 +308,6 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
                   className="h-7 px-2"
                 >
                   <Edit2 className="w-3 h-3" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => addChildItem(item.id)}
-                  className="h-7 px-2"
-                >
-                  <Plus className="w-3 h-3" />
                 </Button>
                 <Button
                   size="sm"
