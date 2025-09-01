@@ -1035,7 +1035,7 @@ const toggleSection = (taskId: string) => {
             {/* Task List Items */}
           <div 
             ref={taskListBodyRef}
-            className="flex-1 overflow-auto"
+            className="flex-1 overflow-y-auto"
           >
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="task-list">
@@ -1391,7 +1391,7 @@ const toggleSection = (taskId: string) => {
           {/* Timeline Content */}
           <div 
             ref={ganttScrollBodyRef}
-            className="flex-1 overflow-auto gantt-body-scroll bg-white"
+            className="flex-1 overflow-x-auto overflow-y-auto gantt-body-scroll bg-white"
           >
             <div 
               className="relative" 
