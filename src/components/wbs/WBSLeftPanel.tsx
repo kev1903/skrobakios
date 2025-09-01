@@ -84,7 +84,7 @@ export const WBSLeftPanel = ({
                             }}
                             onClick={() => item.hasChildren && onToggleExpanded(item.id)}
                           >
-                            <div className="px-2 py-3 flex items-center justify-center">
+                            <div className="px-2 py-3 min-h-[3.5rem] flex items-center justify-center">
                               <div className="flex items-center">
                                 <div
                                   {...dragProvided.dragHandleProps}
@@ -111,7 +111,7 @@ export const WBSLeftPanel = ({
                               </div>
                             </div>
                             
-                            <div className={`px-2 py-3 text-sm ${
+                            <div className={`px-2 py-3 min-h-[3.5rem] flex items-center text-sm ${
                               item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
                             } ${
                               item.level === 0 
@@ -123,7 +123,7 @@ export const WBSLeftPanel = ({
                               {item.wbsNumber}
                             </div>
                             
-                            <div className={`px-3 py-3 min-h-[2rem] flex items-center ${
+                            <div className={`px-3 py-3 min-h-[3.5rem] flex items-center ${
                               item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
                             } ${
                               item.level === 0 

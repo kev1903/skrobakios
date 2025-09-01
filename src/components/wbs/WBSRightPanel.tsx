@@ -74,7 +74,7 @@ export const WBSRightPanel = ({
               gridTemplateColumns: '1fr 140px 120px 160px 160px 84px',
             }}
           >
-            <div className="px-3 py-3 text-muted-foreground text-xs truncate">
+            <div className="px-3 py-3 min-h-[3.5rem] flex items-center text-muted-foreground text-xs">
               <EditableCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -85,14 +85,14 @@ export const WBSRightPanel = ({
               />
             </div>
 
-            <div className="px-2 py-3">
+            <div className="px-2 py-3 min-h-[3.5rem] flex items-center">
               <StatusSelect 
                 value={item.status} 
                 onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
               />
             </div>
 
-            <div className="px-2 py-3">
+            <div className="px-2 py-3 min-h-[3.5rem] flex items-center">
               <div className="flex items-center gap-1">
                 <div className="w-8 h-1 bg-muted rounded-full overflow-hidden">
                   <div 
@@ -111,7 +111,7 @@ export const WBSRightPanel = ({
               </div>
             </div>
 
-            <div className="px-2 py-3 text-muted-foreground text-xs truncate">
+            <div className="px-2 py-3 min-h-[3.5rem] flex items-center text-muted-foreground text-xs">
               <EditableCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -122,7 +122,7 @@ export const WBSRightPanel = ({
               />
             </div>
 
-            <div className="px-2 py-3 text-muted-foreground text-xs truncate">
+            <div className="px-2 py-3 min-h-[3.5rem] flex items-center text-muted-foreground text-xs">
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
@@ -138,7 +138,7 @@ export const WBSRightPanel = ({
               </div>
             </div>
 
-            <div className="px-2 py-3 flex items-center justify-center">
+            <div className="px-2 py-3 min-h-[3.5rem] flex items-center justify-center">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
