@@ -706,14 +706,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       console.log('Saving scope to database:', scopeData);
       
       // Flatten the scope data into WBS items
-      const wbsItems = [];
+      const itemsToSave: any[] = [];
       
       for (let phaseIndex = 0; phaseIndex < scopeData.length; phaseIndex++) {
         const phase = scopeData[phaseIndex];
         const phaseWbsId = `${phaseIndex + 1}.0`;
         
         // Add the phase
-        wbsItems.push({
+        itemsToSave.push({
           company_id: currentCompany.id,
           project_id: project.id,
           parent_id: null,
@@ -733,7 +733,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           const component = phase.components[compIndex];
           const componentWbsId = `${phaseIndex + 1}.${compIndex + 1}`;
           
-          wbsItems.push({
+          itemsToSave.push({
             company_id: currentCompany.id,
             project_id: project.id,
             parent_id: null, // Will be set to phase ID after creation
@@ -753,7 +753,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             const element = component.elements[elemIndex];
             const elementWbsId = `${phaseIndex + 1}.${compIndex + 1}.${elemIndex + 1}`;
             
-            wbsItems.push({
+            itemsToSave.push({
               company_id: currentCompany.id,
               project_id: project.id,
               parent_id: null, // Will be set to component ID after creation
@@ -773,11 +773,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       }
       
       // Save all items to database
-      for (const item of wbsItems) {
+      for (const item of itemsToSave) {
         await WBSService.createWBSItem(item);
       }
       
-      console.log(`Successfully saved ${wbsItems.length} scope items to database`);
+      console.log(`Successfully saved ${itemsToSave.length} scope items to database`);
     } catch (error) {
       console.error('Failed to save scope to database:', error);
     }
