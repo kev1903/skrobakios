@@ -41,22 +41,22 @@ export const WBSCostRightPanel = ({
   onScroll
 }: WBSCostRightPanelProps) => {
   return (
-    <div className="flex-1 bg-white overflow-hidden">
+    <div className="flex-1 min-w-0 bg-white overflow-hidden">
       {/* Content */}
-      <div ref={scrollRef} className="h-[calc(100vh-200px)] overflow-y-auto overflow-x-auto" onScroll={onScroll}>
+      <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full" onScroll={onScroll}>
         {items.map((item) => (
           <div
             key={item.id}
-            className={`grid items-center ${
+            className={`grid items-center w-full ${
               item.level === 0 
                 ? 'bg-primary/5 hover:bg-primary/10' 
                 : item.level === 1
                 ? 'bg-secondary/5 hover:bg-secondary/10'
                 : 'bg-white hover:bg-slate-50/50'
             } transition-colors duration-200`}
-            style={{
-              gridTemplateColumns: '1fr 120px 120px 120px 100px 140px 84px',
-            }}
+          style={{
+            gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 120px 100px 140px 84px',
+          }}
           >
             <div className="px-3 py-3 min-h-[3.5rem] flex items-center text-muted-foreground text-xs">
               <EditableCell

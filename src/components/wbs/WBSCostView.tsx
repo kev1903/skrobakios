@@ -51,7 +51,7 @@ export const WBSCostView = ({
   }, []);
 
   return (
-    <div className="flex h-full bg-white overflow-hidden">
+    <div className="flex h-full w-full bg-white overflow-hidden">
       <WBSLeftPanel
         items={items}
         onToggleExpanded={onToggleExpanded}
