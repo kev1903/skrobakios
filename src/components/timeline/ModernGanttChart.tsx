@@ -806,11 +806,18 @@ const toggleSection = (taskId: string) => {
   // Calculate responsive timeline width based on available space and screen size
   const getResponsiveTimelineWidth = () => {
     const baseContainer = containerWidth || (typeof window !== 'undefined' ? window.innerWidth : 1200);
-    const baseWidth = Math.max(baseContainer - taskListWidth - 24, 200);
-    const minTimelineWidth = screenSize === 'mobile' ? 600 : screenSize === 'tablet' ? 800 : 1200; // Increased minimum widths
-    const maxTimelineWidth = screenSize === 'mobile' ? 1200 : screenSize === 'tablet' ? 1800 : 3000; // Increased maximum widths
+    const availableWidth = Math.max(baseContainer - taskListWidth - 24, 200);
     
-    return Math.min(Math.max(currentDays.length * dayWidth, minTimelineWidth), Math.min(baseWidth * 2, maxTimelineWidth)); // Allow wider timeline
+    // Calculate content width based on days
+    const contentWidth = currentDays.length * dayWidth;
+    
+    // Force minimum width to ensure horizontal scrolling
+    const minTimelineWidth = screenSize === 'mobile' ? 800 : screenSize === 'tablet' ? 1200 : 1600;
+    
+    // Ensure content is always wider than available space to trigger horizontal scroll
+    const targetWidth = Math.max(contentWidth, minTimelineWidth, availableWidth + 400);
+    
+    return targetWidth;
   };
   
   const timelineWidth = getResponsiveTimelineWidth();
@@ -1348,7 +1355,10 @@ const toggleSection = (taskId: string) => {
           <div 
             ref={ganttHeaderRef}
             className="bg-white overflow-x-auto gantt-header-scroll relative z-10"
-            style={{ height: '32px' }}
+            style={{ 
+              height: '32px',
+              maxWidth: '100%'
+            }}
           >
             <div 
               className="flex flex-col relative bg-white"
@@ -1392,6 +1402,9 @@ const toggleSection = (taskId: string) => {
           <div 
             ref={ganttScrollBodyRef}
             className="flex-1 overflow-x-auto overflow-y-auto gantt-body-scroll bg-white"
+            style={{ 
+              maxWidth: '100%'
+            }}
           >
             <div 
               className="relative" 
