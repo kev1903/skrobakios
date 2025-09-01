@@ -806,16 +806,16 @@ const toggleSection = (taskId: string) => {
   // Calculate responsive timeline width based on available space and screen size
   const getResponsiveTimelineWidth = () => {
     const baseContainer = containerWidth || (typeof window !== 'undefined' ? window.innerWidth : 1200);
-    const availableWidth = Math.max(baseContainer - taskListWidth - 24, 200);
+    const availableWidth = Math.max(baseContainer - taskListWidth - 40, 200);
     
-    // Calculate content width based on days
+    // Calculate content width based on days - ensure we show more months
     const contentWidth = currentDays.length * dayWidth;
     
-    // Force minimum width to ensure horizontal scrolling
-    const minTimelineWidth = screenSize === 'mobile' ? 800 : screenSize === 'tablet' ? 1200 : 1600;
+    // Force wider timeline to guarantee horizontal scroll for calendar navigation
+    const minTimelineWidth = screenSize === 'mobile' ? 1200 : screenSize === 'tablet' ? 1800 : 2400;
     
-    // Ensure content is always wider than available space to trigger horizontal scroll
-    const targetWidth = Math.max(contentWidth, minTimelineWidth, availableWidth + 800);
+    // Always make timeline significantly wider than container to force horizontal scroll
+    const targetWidth = Math.max(contentWidth, minTimelineWidth, availableWidth * 2);
     
     return targetWidth;
   };
@@ -1356,13 +1356,42 @@ const toggleSection = (taskId: string) => {
             ref={ganttHeaderRef}
             className="bg-white overflow-x-scroll gantt-header-scroll relative z-10"
             style={{ 
-              height: '32px'
+              height: '38px' // Increased to accommodate month headers
             }}
           >
             <div 
               className="flex flex-col relative bg-white"
               style={{ width: timelineWidth, minWidth: timelineWidth }}
             >
+              {/* Month Headers */}
+              <div className="flex h-6 bg-gray-50 border-b border-gray-200 relative z-20">
+                {currentDays.reduce((acc, day, index) => {
+                  const monthKey = format(day, 'yyyy-MM');
+                  const isFirstDayOfMonth = format(day, 'd') === '1' || index === 0;
+                  
+                  if (isFirstDayOfMonth) {
+                    const monthStart = index;
+                    const monthEnd = currentDays.findIndex((d, i) => i > index && format(d, 'yyyy-MM') !== monthKey);
+                    const monthWidth = (monthEnd === -1 ? currentDays.length - monthStart : monthEnd - monthStart) * dayWidth;
+                    
+                    acc.push(
+                      <div
+                        key={monthKey}
+                        className="flex items-center justify-center text-xs font-semibold text-gray-700 border-r border-gray-300 bg-gray-50"
+                        style={{ 
+                          width: `${monthWidth}px`, 
+                          minWidth: `${monthWidth}px`,
+                          height: '100%'
+                        }}
+                      >
+                        {format(day, 'MMM yyyy')}
+                      </div>
+                    );
+                  }
+                  return acc;
+                }, [] as React.ReactElement[])}
+              </div>
+              
               {/* Days Header Section */}
               <div className="flex h-8 bg-white relative z-10">
                 {currentDays.map((day, index) => {
