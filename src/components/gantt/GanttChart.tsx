@@ -123,14 +123,26 @@ export const GanttChart: React.FC<GanttProps> = ({
         {/* Resizable Divider */}
         <div
           className={cn(
-            "w-1 bg-gray-200 hover:bg-blue-400 cursor-col-resize relative transition-colors duration-200 flex-shrink-0",
+            "w-2 bg-gray-200 hover:bg-blue-400 cursor-col-resize relative transition-colors duration-200 flex-shrink-0 z-10",
             isResizing && "bg-blue-500"
           )}
           onMouseDown={handleResizerMouseDown}
+          onTouchStart={(e) => {
+            const touch = e.touches[0];
+            // Synthesize a mouse-like event for shared handler
+            // @ts-ignore - adapting signature for touch
+            handleResizerMouseDown({
+              preventDefault: () => e.preventDefault(),
+              clientX: touch.clientX
+            } as React.MouseEvent);
+          }}
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize task list"
         >
           {/* Visual grip indicator */}
           <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 flex items-center">
-            <GripVertical className="w-3 h-8 text-gray-400 opacity-60" />
+            <GripVertical className="w-3 h-8 text-gray-400 opacity-70" />
           </div>
         </div>
 
