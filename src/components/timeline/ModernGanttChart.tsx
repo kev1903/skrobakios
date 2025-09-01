@@ -1013,7 +1013,7 @@ export const ModernGanttChart = ({
               )}
               {/* Column Headers */}
                <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-1 sm:gap-2 md:gap-4 px-1 sm:px-2 md:px-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '12px 30px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '16px 40px minmax(120px, 1fr) 60px 60px 50px 50px' : '20px 64px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '240px' : screenSize === 'tablet' ? '400px' : '680px' }}>
+                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-1 sm:gap-2 md:gap-4 px-1 sm:px-2 md:px-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '16px 32px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '20px 48px minmax(120px, 1fr) 60px 60px 50px 50px' : '24px 64px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '240px' : screenSize === 'tablet' ? '400px' : '680px' }}>
                     <div></div>
                     <div className="text-left">WBS</div>
                     <div className="text-left">Name</div>
@@ -1056,28 +1056,28 @@ export const ModernGanttChart = ({
                             )}
                             style={{ 
                               height: 40,
-                              gridTemplateColumns: screenSize === 'mobile' ? '12px 12px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '16px 12px minmax(120px, 1fr) 60px 60px 50px 50px' : '20px 20px minmax(200px, 1fr) 80px 80px 80px 100px 80px',
-                              minWidth: screenSize === 'mobile' ? '200px' : screenSize === 'tablet' ? '350px' : '680px',
+                              gridTemplateColumns: screenSize === 'mobile' ? '16px 32px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '20px 48px minmax(120px, 1fr) 60px 60px 50px 50px' : '24px 64px minmax(200px, 1fr) 80px 80px 80px 100px 80px',
+                              minWidth: screenSize === 'mobile' ? '240px' : screenSize === 'tablet' ? '400px' : '720px',
                               ...dragProvided.draggableProps.style
                             }}
                             onClick={() => handleRowClick(task.id)}
                             onContextMenu={(e) => handleRowContextMenu(e, task.id)}
                           >
-                            <div className="px-2 py-2">
+                            <div className="px-1 py-2">
                               <div 
                                 {...dragProvided.dragHandleProps}
                                 className={cn(
-                                  "cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200",
+                                  "cursor-grab active:cursor-grabbing p-0.5 rounded transition-colors duration-200",
                                   task.depth === 0 && "hover:bg-primary/10",
-                                  task.depth === 1 && "ml-4 hover:bg-secondary/10", 
-                                  task.depth === 2 && "ml-8 hover:bg-gray-100",
+                                  task.depth === 1 && "hover:bg-secondary/10", 
+                                  task.depth === 2 && "hover:bg-gray-100",
                                   snapshot.isDragging && task.depth === 0 && "bg-primary/20 shadow-sm",
                                   snapshot.isDragging && task.depth === 1 && "bg-secondary/20 shadow-sm",
                                   snapshot.isDragging && task.depth === 2 && "bg-gray-200 shadow-sm"
                                 )}
                                 title="Drag to reorder task"
                               >
-                                <GripVertical className="w-3 h-3 text-muted-foreground" />
+                                <GripVertical className="w-2.5 h-2.5 text-muted-foreground" />
                               </div>
                             </div>
                             {/* WBS ID */}
@@ -1087,7 +1087,7 @@ export const ModernGanttChart = ({
                                   <button
                                     onClick={() => toggleSection(task.id)}
                                     className={cn(
-                                      "p-0.5 rounded transition-colors duration-200 mr-1",
+                                      "p-0.5 rounded transition-colors duration-200 mr-2",
                                       task.depth === 0 && "hover:bg-accent",
                                       task.depth === 1 && "hover:bg-blue-100", 
                                       task.depth === 2 && "hover:bg-gray-100"
