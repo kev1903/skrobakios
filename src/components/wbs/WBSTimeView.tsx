@@ -1,5 +1,5 @@
 import React, { useRef, useCallback } from 'react';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths } from 'date-fns';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
 import { GanttChart } from './GanttChart';
@@ -139,9 +139,38 @@ export const WBSTimeView = ({
 
           {/* Right Panel - includes both header and Gantt chart */}
           <Panel defaultSize={50} minSize={30} className="flex flex-col">
-            {/* Header Section */}
-            <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border border-l border-border px-2 py-2 text-xs font-medium text-slate-700 flex-shrink-0">
-              <div className="px-3 font-semibold">{format(new Date(), 'MMMM yyyy').toUpperCase()}</div>
+            {/* Header Section - Daily Calendar */}
+            <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border border-l border-border text-xs font-medium text-slate-700 flex-shrink-0 overflow-x-auto">
+              <div className="flex min-w-fit">
+                {(() => {
+                  const currentDate = new Date();
+                  const monthStart = startOfMonth(currentDate);
+                  const monthEnd = endOfMonth(currentDate);
+                  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+                  
+                  return days.map((day, index) => {
+                    const isToday = format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+                    const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                    
+                    return (
+                      <div 
+                        key={index}
+                        className={`flex flex-col items-center justify-center px-3 py-2 min-w-[60px] border-r border-slate-200/50 ${
+                          isToday ? 'bg-primary/10 text-primary font-bold' : 
+                          isWeekend ? 'bg-slate-50 text-slate-500' : 'text-slate-700'
+                        }`}
+                      >
+                        <div className="text-[10px] font-medium mb-1">
+                          {format(day, 'EEE').toUpperCase()}
+                        </div>
+                        <div className={`text-sm ${isToday ? 'font-bold' : 'font-semibold'}`}>
+                          {format(day, 'd')}
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
             </div>
 
             {/* Gantt Chart Content - Master Scroll Controller */}
