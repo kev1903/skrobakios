@@ -35,7 +35,7 @@ interface WBSTimeRightPanelProps {
   EditableCell: any;
   StatusSelect: any;
   scrollRef: React.RefObject<HTMLDivElement>;
-  onScroll: () => void;
+  onScroll?: () => void;
 }
 
 export const WBSTimeRightPanel = ({
@@ -115,7 +115,7 @@ export const WBSTimeRightPanel = ({
   return (
     <div className="flex-1 min-w-0 bg-white overflow-hidden">
       {/* Content */}
-      <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full" onScroll={onScroll}>
+      <div ref={scrollRef} className="h-full overflow-hidden w-full" onScroll={onScroll}>
         {items.map((item) => (
           <div
             key={item.id}

@@ -48,16 +48,13 @@ export const WBSTimeView = ({
 }: WBSTimeViewProps) => {
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
+  const timelineScrollRef = useRef<HTMLDivElement>(null);
 
-  const handleRightScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current) {
-      leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
-    }
-  }, []);
-
-  const handleLeftScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current) {
-      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
+  const handleTimelineScroll = useCallback(() => {
+    if (leftScrollRef.current && rightScrollRef.current && timelineScrollRef.current) {
+      const scrollTop = timelineScrollRef.current.scrollTop;
+      leftScrollRef.current.scrollTop = scrollTop;
+      rightScrollRef.current.scrollTop = scrollTop;
     }
   }, []);
 
@@ -109,7 +106,6 @@ export const WBSTimeView = ({
                 EditableCell={EditableCell}
                 generateWBSNumber={generateWBSNumber}
                 scrollRef={leftScrollRef}
-                onScroll={handleLeftScroll}
               />
               
               <WBSTimeRightPanel
@@ -120,7 +116,6 @@ export const WBSTimeView = ({
                 EditableCell={EditableCell}
                 StatusSelect={StatusSelect}
                 scrollRef={rightScrollRef}
-                onScroll={handleRightScroll}
               />
             </div>
           </div>
@@ -138,8 +133,12 @@ export const WBSTimeView = ({
             <div className="px-3 font-semibold">TIMELINE</div>
           </div>
 
-          {/* Gantt Chart Content */}
-          <div className="flex-1 overflow-x-auto overflow-y-auto">
+          {/* Gantt Chart Content - Master Scroll Controller */}
+          <div 
+            ref={timelineScrollRef}
+            className="flex-1 overflow-auto"
+            onScroll={handleTimelineScroll}
+          >
             <GanttChart items={items} className="min-w-fit" hideHeader />
           </div>
         </Panel>
