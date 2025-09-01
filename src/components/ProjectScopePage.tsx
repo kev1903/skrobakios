@@ -1051,28 +1051,59 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               </div>
 
               <TabsContent value="scope" className="flex-1 m-0">
-                <div className="flex-1 h-full">
-                  {/* Header Controls */}
-                  <div className="px-6 py-4 border-b border-border bg-background flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-lg font-semibold text-foreground">Work Breakdown Structure</h3>
-                      <Badge variant="outline" className="text-xs">
-                        {scopeData.length} phases
-                      </Badge>
+                <div className="flex-1 h-full flex flex-col">
+                  {/* Combined Header with Controls and Table Headers */}
+                  <div className="bg-background border-b border-border">
+                    {/* Title and Controls Row */}
+                    <div className="px-6 py-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-lg font-semibold text-foreground">Work Breakdown Structure</h3>
+                        <Badge variant="outline" className="text-xs">
+                          {scopeData.length} phases
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={collapseAll}>
+                          <ChevronsUp className="w-3 h-3 mr-1" />
+                          Collapse All
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={expandAll}>
+                          <ChevronsDown className="w-3 h-3 mr-1" />
+                          Expand All
+                        </Button>
+                        <Button size="sm" onClick={() => addNewPhase()}>
+                          <Plus className="w-3 h-3 mr-1" />
+                          Add Phase
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={collapseAll}>
-                        <ChevronsUp className="w-3 h-3 mr-1" />
-                        Collapse All
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={expandAll}>
-                        <ChevronsDown className="w-3 h-3 mr-1" />
-                        Expand All
-                      </Button>
-                      <Button size="sm" onClick={() => addNewPhase()}>
-                        <Plus className="w-3 h-3 mr-1" />
-                        Add Phase
-                      </Button>
+                    
+                    {/* Table Headers Row */}
+                    <div className="bg-slate-100/70 border-t border-slate-200 flex">
+                      {/* Left Panel Header */}
+                      <div className="w-[420px] px-2 py-2 text-xs font-medium text-slate-700 border-r border-border">
+                        <div className="grid items-center" style={{
+                          gridTemplateColumns: '32px 120px 1fr',
+                        }}>
+                          <div></div>
+                          <div className="px-2 font-semibold">WBS</div>
+                          <div className="px-3 font-semibold">NAME</div>
+                        </div>
+                      </div>
+                      
+                      {/* Right Panel Header */}
+                      <div className="flex-1 px-2 py-2 text-xs font-medium text-slate-700">
+                        <div className="grid items-center" style={{
+                          gridTemplateColumns: '1fr 140px 120px 160px 160px 84px',
+                        }}>
+                          <div className="px-3 font-semibold">DESCRIPTION</div>
+                          <div className="px-2 font-semibold">STATUS</div>
+                          <div className="px-2 font-semibold">PROGRESS</div>
+                          <div className="px-2 font-semibold">ASSIGNED TO</div>
+                          <div className="px-2 font-semibold">NOTE</div>
+                          <div className="px-2 font-semibold">ACTIONS</div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -1093,26 +1124,28 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       </div>
                     </div>
                   ) : (
-                    <WBSSplitView
-                      items={flatWBSItems}
-                      onToggleExpanded={(itemId) => {
-                        const item = wbsItems.find(i => i.id === itemId);
-                        if (item) {
-                          updateWBSItem(itemId, { is_expanded: !item.is_expanded });
-                        }
-                      }}
-                      onDragEnd={onDragEnd}
-                      onItemUpdate={updateWBSItem}
-                      onContextMenuAction={handleContextMenuAction}
-                      onOpenNotesDialog={openNotesDialog}
-                      dragIndicator={dragIndicator}
-                      EditableCell={EditableCell}
-                      StatusSelect={StatusSelect}
-                      ProgressInput={ProgressInput}
-                      ProgressDisplay={ProgressDisplay}
-                      getProgressColor={getProgressColor}
-                      generateWBSNumber={generateWBSNumber}
-                    />
+                    <div className="flex-1">
+                      <WBSSplitView
+                        items={flatWBSItems}
+                        onToggleExpanded={(itemId) => {
+                          const item = wbsItems.find(i => i.id === itemId);
+                          if (item) {
+                            updateWBSItem(itemId, { is_expanded: !item.is_expanded });
+                          }
+                        }}
+                        onDragEnd={onDragEnd}
+                        onItemUpdate={updateWBSItem}
+                        onContextMenuAction={handleContextMenuAction}
+                        onOpenNotesDialog={openNotesDialog}
+                        dragIndicator={dragIndicator}
+                        EditableCell={EditableCell}
+                        StatusSelect={StatusSelect}
+                        ProgressInput={ProgressInput}
+                        ProgressDisplay={ProgressDisplay}
+                        getProgressColor={getProgressColor}
+                        generateWBSNumber={generateWBSNumber}
+                      />
+                    </div>
                   )}
                 </div>
               </TabsContent>

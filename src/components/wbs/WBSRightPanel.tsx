@@ -48,21 +48,7 @@ export const WBSRightPanel = ({
 }: WBSRightPanelProps) => {
   return (
     <div className="flex-1 bg-white overflow-hidden">
-      {/* Header */}
-      <div className="bg-slate-100/70 border-b border-slate-200 px-2 py-2 text-xs font-medium text-slate-700">
-        <div className="grid items-center" style={{
-          gridTemplateColumns: '1fr 140px 120px 160px 160px 84px',
-        }}>
-          <div className="px-3 font-semibold">DESCRIPTION</div>
-          <div className="px-2 font-semibold">STATUS</div>
-          <div className="px-2 font-semibold">PROGRESS</div>
-          <div className="px-2 font-semibold">ASSIGNED TO</div>
-          <div className="px-2 font-semibold">NOTE</div>
-          <div className="px-2 font-semibold">ACTIONS</div>
-        </div>
-      </div>
-
-      {/* Content */}
+      {/* Content - No separate header since it's now unified */}
       <div ref={scrollRef} className="h-[calc(100vh-200px)] overflow-y-auto overflow-x-auto" onScroll={onScroll}>
         {items.map((item) => (
           <div

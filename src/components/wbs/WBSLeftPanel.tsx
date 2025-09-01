@@ -42,18 +42,7 @@ export const WBSLeftPanel = ({
 }: WBSLeftPanelProps) => {
   return (
     <div className="w-[420px] bg-white border-r border-border flex-shrink-0 overflow-hidden">
-      {/* Header */}
-      <div className="bg-slate-100/70 border-b border-slate-200 px-2 py-2 text-xs font-medium text-slate-700">
-        <div className="grid items-center" style={{
-          gridTemplateColumns: '32px 120px 1fr',
-        }}>
-          <div></div>
-          <div className="px-2 font-semibold">WBS</div>
-          <div className="px-3 font-semibold">NAME</div>
-        </div>
-      </div>
-
-      {/* Content */}
+      {/* Content - No separate header since it's now unified */}
       <div ref={scrollRef} className="h-[calc(100vh-200px)] overflow-y-hidden overflow-x-hidden">
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="wbs-phases" type="phase">
