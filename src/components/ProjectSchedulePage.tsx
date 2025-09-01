@@ -430,17 +430,15 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
           </div>
 
           {/* Right Side - Gantt Chart */}
-          <div className="w-1/2 p-2 sm:p-4 overflow-hidden">
+          <div className="w-1/2 overflow-hidden">
             <div className="w-full h-full">
-              <div className="h-full">
-                <ModernGanttChart
-                  tasks={tasks}
-                  onTaskUpdate={handleTaskUpdate}
-                  onTaskAdd={handleTaskAdd}
-                  onTaskDelete={handleTaskDelete}
-                  onTaskReorder={handleTaskReorder}
-                />
-              </div>
+              <ModernGanttChart
+                tasks={tasks}
+                onTaskUpdate={handleTaskUpdate}
+                onTaskAdd={handleTaskAdd}
+                onTaskDelete={handleTaskDelete}
+                onTaskReorder={handleTaskReorder}
+              />
             </div>
           </div>
         </div>
