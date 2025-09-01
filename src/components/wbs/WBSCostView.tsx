@@ -14,6 +14,9 @@ interface WBSItem {
   wbsNumber: string;
   isExpanded?: boolean;
   hasChildren?: boolean;
+  start_date?: string | Date | null;
+  end_date?: string | Date | null;
+  duration?: number;
 }
 
 interface WBSCostViewProps {

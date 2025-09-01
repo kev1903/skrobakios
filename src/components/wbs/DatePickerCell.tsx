@@ -18,6 +18,8 @@ interface DatePickerCellProps {
   placeholder?: string;
   className?: string;
   onUpdate?: (id: string, field: string, value: string) => void;
+  onCalculate?: (id: string, field: string, value: string, currentItem: any) => void;
+  currentItem?: any;
 }
 
 export const DatePickerCell = ({
@@ -27,7 +29,9 @@ export const DatePickerCell = ({
   value,
   placeholder = "Select date",
   className = "",
-  onUpdate
+  onUpdate,
+  onCalculate,
+  currentItem
 }: DatePickerCellProps) => {
   const [date, setDate] = useState<Date | undefined>(
     value ? (typeof value === 'string' ? new Date(value) : value) : undefined
@@ -36,8 +40,17 @@ export const DatePickerCell = ({
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     setDate(selectedDate);
-    if (selectedDate && onUpdate) {
-      onUpdate(id, field, selectedDate.toISOString());
+    if (selectedDate) {
+      const dateString = selectedDate.toISOString();
+      
+      if (onUpdate) {
+        onUpdate(id, field, dateString);
+      }
+      
+      // Auto-calculate logic
+      if (onCalculate && currentItem) {
+        onCalculate(id, field, dateString, currentItem);
+      }
     }
     setIsOpen(false);
   };

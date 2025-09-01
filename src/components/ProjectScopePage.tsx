@@ -278,7 +278,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         level: 0,
         wbsNumber: (phaseIndex + 1).toString(),
         isExpanded: phase.isExpanded,
-        hasChildren: phase.components.length > 0
+        hasChildren: phase.components.length > 0,
+        start_date: null, // Add from WBS item if available
+        end_date: null, // Add from WBS item if available
+        duration: 0 // Add from WBS item if available
       });
 
       if (phase.isExpanded) {
@@ -293,7 +296,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             level: 1,
             wbsNumber: generateWBSNumber(phaseIndex, componentIndex),
             isExpanded: component.isExpanded,
-            hasChildren: component.elements.length > 0
+            hasChildren: component.elements.length > 0,
+            start_date: null, // Add from WBS item if available
+            end_date: null, // Add from WBS item if available
+            duration: 0 // Add from WBS item if available
           });
 
           if (component.isExpanded) {
@@ -308,7 +314,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 level: 2,
                 wbsNumber: generateWBSNumber(phaseIndex, componentIndex, elementIndex),
                 isExpanded: false,
-                hasChildren: false
+                hasChildren: false,
+                start_date: null, // Add from WBS item if available
+                end_date: null, // Add from WBS item if available
+                duration: 0 // Add from WBS item if available
               });
             });
           }
@@ -316,8 +325,20 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       }
     });
 
-    return items;
-  }, [scopeData]);
+    // Merge with actual WBS items to get date and duration data
+    return items.map(item => {
+      const wbsItem = wbsItems.find(w => w.id === item.id);
+      if (wbsItem) {
+        return {
+          ...item,
+          start_date: wbsItem.start_date,
+          end_date: wbsItem.end_date,
+          duration: wbsItem.duration || 0
+        };
+      }
+      return item;
+    });
+  }, [scopeData, wbsItems]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

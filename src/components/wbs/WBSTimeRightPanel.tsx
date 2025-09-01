@@ -2,6 +2,8 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Edit2, Copy, Trash2, NotebookPen } from 'lucide-react';
 import { DatePickerCell } from './DatePickerCell';
+import { DurationCell } from './DurationCell';
+import { differenceInDays, addDays, subDays } from 'date-fns';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +22,7 @@ interface WBSItem {
   level: number;
   start_date?: string | Date | null;
   end_date?: string | Date | null;
+  duration?: number; // Duration in days
 }
 
 interface WBSTimeRightPanelProps {
@@ -43,6 +46,70 @@ export const WBSTimeRightPanel = ({
   scrollRef,
   onScroll
 }: WBSTimeRightPanelProps) => {
+
+  // Auto-calculation logic for dates and duration
+  const handleDateCalculation = (id: string, field: string, value: string, currentItem: any) => {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    const updates: any = { [field]: value };
+    
+    if (field === 'start_date') {
+      // If we have end_date, calculate duration
+      if (item.end_date) {
+        const startDate = new Date(value);
+        const endDate = new Date(item.end_date);
+        const diffDays = differenceInDays(endDate, startDate);
+        updates.duration = Math.max(0, diffDays);
+      }
+      // If we have duration, calculate end_date
+      else if (item.duration && item.duration > 0) {
+        const startDate = new Date(value);
+        const endDate = addDays(startDate, item.duration);
+        updates.end_date = endDate.toISOString();
+      }
+    } else if (field === 'end_date') {
+      // If we have start_date, calculate duration
+      if (item.start_date) {
+        const startDate = new Date(item.start_date);
+        const endDate = new Date(value);
+        const diffDays = differenceInDays(endDate, startDate);
+        updates.duration = Math.max(0, diffDays);
+      }
+      // If we have duration, calculate start_date
+      else if (item.duration && item.duration > 0) {
+        const endDate = new Date(value);
+        const startDate = subDays(endDate, item.duration);
+        updates.start_date = startDate.toISOString();
+      }
+    }
+
+    onItemUpdate(id, updates);
+  };
+
+  const handleDurationCalculation = (id: string, field: string, value: number) => {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    const updates: any = { [field]: value };
+
+    if (field === 'duration' && value > 0) {
+      // If we have start_date, calculate end_date
+      if (item.start_date) {
+        const startDate = new Date(item.start_date);
+        const endDate = addDays(startDate, value);
+        updates.end_date = endDate.toISOString();
+      }
+      // If we have end_date, calculate start_date
+      else if (item.end_date) {
+        const endDate = new Date(item.end_date);
+        const startDate = subDays(endDate, value);
+        updates.start_date = startDate.toISOString();
+      }
+    }
+
+    onItemUpdate(id, updates);
+  };
   return (
     <div className="flex-1 min-w-0 bg-white overflow-hidden">
       {/* Content */}
@@ -81,6 +148,8 @@ export const WBSTimeRightPanel = ({
                 placeholder="Start date"
                 className="text-xs text-muted-foreground"
                 onUpdate={(id, field, value) => onItemUpdate(id, { [field]: value })}
+                onCalculate={handleDateCalculation}
+                currentItem={item}
               />
             </div>
 
@@ -93,11 +162,19 @@ export const WBSTimeRightPanel = ({
                 placeholder="End date"
                 className="text-xs text-muted-foreground"
                 onUpdate={(id, field, value) => onItemUpdate(id, { [field]: value })}
+                onCalculate={handleDateCalculation}
+                currentItem={item}
               />
             </div>
 
             <div className="px-2 py-3 min-h-[3.5rem] flex items-center text-xs text-muted-foreground">
-              -
+              <DurationCell
+                id={item.id}
+                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                value={item.duration || 0}
+                className="text-xs text-muted-foreground"
+                onUpdate={handleDurationCalculation}
+              />
             </div>
 
             <div className="px-2 py-3 min-h-[3.5rem] flex items-center">
