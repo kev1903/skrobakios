@@ -245,6 +245,20 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         })) || []
     }));
 
+  // Calculate component progress from child elements
+  const calculateComponentProgress = (component: ScopeComponent) => {
+    if (component.elements.length === 0) return 0;
+    const totalProgress = component.elements.reduce((sum, element) => sum + element.progress, 0);
+    return Math.round(totalProgress / component.elements.length);
+  };
+
+  // Calculate phase progress from child components  
+  const calculatePhaseProgress = (phase: ScopePhase) => {
+    if (phase.components.length === 0) return 0;
+    const totalProgress = phase.components.reduce((sum, component) => sum + calculateComponentProgress(component), 0);
+    return Math.round(totalProgress / phase.components.length);
+  };
+
   // Convert scope data to flat array for split view
   const flatWBSItems = React.useMemo(() => {
     const items: any[] = [];
@@ -472,21 +486,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     );
   };
 
-  // Calculate component progress from child elements
-  const calculateComponentProgress = (component: ScopeComponent) => {
-    if (component.elements.length === 0) return 0;
-    const totalProgress = component.elements.reduce((sum, element) => sum + element.progress, 0);
-    return Math.round(totalProgress / component.elements.length);
-  };
-
-  // Calculate phase progress from child components  
-  const calculatePhaseProgress = (phase: ScopePhase) => {
-    if (phase.components.length === 0) return 0;
-    const totalProgress = phase.components.reduce((sum, component) => sum + calculateComponentProgress(component), 0);
-    return Math.round(totalProgress / phase.components.length);
-  };
-
-  const StatusSelect = ({ 
+  const StatusSelect = ({
     value, 
     onChange, 
     className = "" 
