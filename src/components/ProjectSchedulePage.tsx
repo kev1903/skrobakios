@@ -220,9 +220,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
 
   // Responsive classes based on screen size
   const containerClasses = {
-    mobile: "flex flex-col h-screen",
-    tablet: "flex flex-col h-screen", 
-    desktop: "flex h-screen"
+    mobile: "flex flex-col h-screen overflow-hidden",
+    tablet: "flex flex-col h-screen overflow-hidden", 
+    desktop: "flex h-screen overflow-hidden"
   };
 
   const mainContentClasses = {
@@ -238,7 +238,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   };
 
   return (
-    <div className={`${containerClasses[screenSize]} ${fullHeightClasses} max-h-screen`}>
+    <div className={`${containerClasses[screenSize]} ${fullHeightClasses}`}>
       {/* Desktop Sidebar */}
       {screenSize === 'desktop' && (
         <ProjectSidebar
@@ -260,9 +260,9 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       {/* Main Content Area */}
       <main className={mainContentClasses[screenSize]}>
         {/* Header Banner - Responsive */}
-        <div className="flex-shrink-0 border-b border-border px-3 sm:px-6 py-3 sm:py-4 bg-white backdrop-blur-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex-shrink-0 border-b border-border px-3 sm:px-6 py-2 sm:py-3 bg-white backdrop-blur-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2 sm:gap-3">
               {/* Mobile Menu Button */}
               {(screenSize === 'mobile' || screenSize === 'tablet') && (
                 <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -300,7 +300,7 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
               <div className="w-full sm:w-auto">
                 <div className="text-xs text-muted-foreground font-inter mb-1">Schedule Progress</div>
                 <div className="flex items-center gap-2">

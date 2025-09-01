@@ -1002,11 +1002,11 @@ const toggleSection = (taskId: string) => {
       )}
       
       {/* Gantt Chart */}
-      <div ref={containerRef} className="bg-white rounded-lg w-full h-full flex flex-col overflow-hidden">
-        <div className="flex flex-1 overflow-hidden">
+      <div ref={containerRef} className="bg-white w-full h-full flex flex-col">
+        <div className="flex flex-1 min-h-0">
           {/* Task List */}
           <div 
-            className="border-r border-gray-200 bg-white relative flex flex-col overflow-hidden"
+            className="border-r border-gray-200 bg-white relative flex flex-col min-h-0"
             style={{ width: taskListWidth }}
           >
             {/* Task List Header */}
@@ -1350,7 +1350,7 @@ const toggleSection = (taskId: string) => {
         </div>
 
         {/* Timeline */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-h-0">
           {/* Timeline Header */}
           <div 
             ref={ganttHeaderRef}
