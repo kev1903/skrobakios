@@ -1013,7 +1013,7 @@ export const ModernGanttChart = ({
               )}
               {/* Column Headers */}
                <div className="h-8 overflow-x-auto overflow-y-hidden gantt-header-scroll" ref={taskListHeaderRef}>
-                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-1 sm:gap-2 md:gap-4 px-1 sm:px-2 md:px-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '16px 32px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '20px 48px minmax(120px, 1fr) 60px 60px 50px 50px' : '24px 64px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '240px' : screenSize === 'tablet' ? '400px' : '680px' }}>
+                 <div className="grid items-center h-full text-xs font-medium text-gray-600 gap-1 sm:gap-2 md:gap-4 px-1 sm:px-2 md:px-4" style={{ gridTemplateColumns: screenSize === 'mobile' ? '16px 48px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '20px 60px minmax(120px, 1fr) 60px 60px 50px 50px' : '24px 80px minmax(200px, 1fr) 80px 80px 80px 100px 80px', minWidth: screenSize === 'mobile' ? '260px' : screenSize === 'tablet' ? '420px' : '740px' }}>
                     <div></div>
                     <div className="text-left">WBS</div>
                     <div className="text-left">Name</div>
@@ -1056,8 +1056,8 @@ export const ModernGanttChart = ({
                             )}
                             style={{ 
                               height: 40,
-                              gridTemplateColumns: screenSize === 'mobile' ? '16px 32px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '20px 48px minmax(120px, 1fr) 60px 60px 50px 50px' : '24px 64px minmax(200px, 1fr) 80px 80px 80px 100px 80px',
-                              minWidth: screenSize === 'mobile' ? '240px' : screenSize === 'tablet' ? '400px' : '720px',
+                              gridTemplateColumns: screenSize === 'mobile' ? '16px 48px minmax(80px, 1fr) 40px 40px' : screenSize === 'tablet' ? '20px 60px minmax(120px, 1fr) 60px 60px 50px 50px' : '24px 80px minmax(200px, 1fr) 80px 80px 80px 100px 80px',
+                              minWidth: screenSize === 'mobile' ? '260px' : screenSize === 'tablet' ? '420px' : '740px',
                               ...dragProvided.draggableProps.style
                             }}
                             onClick={() => handleRowClick(task.id)}
