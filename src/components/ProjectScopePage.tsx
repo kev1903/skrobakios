@@ -1432,7 +1432,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       </div>
 
       {/* Notes Dialog */}
-      <Dialog open={notesDialogOpen} onOpenChange={setNotesDialogOpen}>
+      <Dialog open={notesDialogOpen} onOpenChange={(open) => !open && closeNotesDialog()}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Notes</DialogTitle>
