@@ -1452,39 +1452,273 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               </TabsContent>
 
               <TabsContent value="time" className="flex-1 px-6 py-4 m-0">
-                <div className="rounded-lg border border-border bg-white shadow-sm p-6">
-                  <div className="text-center py-12">
-                    <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Time Management</h3>
-                    <p className="text-muted-foreground mb-4">Schedule and timeline management features</p>
-                    <div className="space-y-2 text-sm text-muted-foreground">
-                      <p>• Project timeline and milestones</p>
-                      <p>• Task scheduling and dependencies</p>
-                      <p>• Resource allocation over time</p>
-                      <p>• Critical path analysis</p>
+                <div className="rounded-lg border border-border bg-white shadow-sm overflow-hidden">
+                  {/* Header */}
+                  <div className="bg-slate-50/50 border-b border-border px-4 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-base font-semibold text-foreground">Time Schedule</h3>
+                      <Badge variant="outline" className="text-xs">
+                        {scopeData.length} phases
+                      </Badge>
                     </div>
-                    <Button className="mt-6" variant="outline">
-                      Coming Soon
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" onClick={collapseAll}>
+                        <ChevronsUp className="w-3 h-3 mr-1" />
+                        Collapse All
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={expandAll}>
+                        <ChevronsDown className="w-3 h-3 mr-1" />
+                        Expand All
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Time Table Header */}
+                  <div className="bg-slate-100/70 border-b border-slate-200 px-2 py-2 text-xs font-medium text-slate-700">
+                    <div className="grid items-center" style={{
+                      gridTemplateColumns: '32px 120px 280px 1fr 120px 120px 100px 140px',
+                    }}>
+                      <div></div>
+                      <div className="px-2 font-semibold">WBS</div>
+                      <div className="px-3 font-semibold">NAME</div>
+                      <div className="px-3 font-semibold">DESCRIPTION</div>
+                      <div className="px-2 font-semibold">START DATE</div>
+                      <div className="px-2 font-semibold">END DATE</div>
+                      <div className="px-2 font-semibold">DURATION</div>
+                      <div className="px-2 font-semibold">STATUS</div>
+                    </div>
+                  </div>
+
+                  {/* Time Table Content */}
+                  <div className="max-h-[calc(100vh-320px)] overflow-y-auto">
+                    {scopeData.map((phase, phaseIndex) => (
+                      <React.Fragment key={phase.id}>
+                        {/* Phase Row */}
+                        <div
+                          className="grid items-center bg-primary/5 border-l-4 border-l-primary hover:bg-primary/10 cursor-pointer transition-colors duration-200"
+                          style={{
+                            gridTemplateColumns: '32px 120px 280px 1fr 120px 120px 100px 140px',
+                          }}
+                          onClick={() => togglePhase(phase.id)}
+                        >
+                          <div className="px-2 py-3 flex items-center justify-center">
+                            {phase.isExpanded ? (
+                              <ChevronDown className="w-3 h-3 text-primary" />
+                            ) : (
+                              <ChevronRight className="w-3 h-3 text-primary" />
+                            )}
+                          </div>
+                          <div className="px-2 py-3 font-bold text-primary text-sm">{phaseIndex + 1}</div>
+                          <div className="px-3 py-3 font-bold text-primary text-sm">{phase.name}</div>
+                          <div className="px-3 py-3 text-muted-foreground text-xs">{phase.description}</div>
+                          <div className="px-2 py-3 text-xs text-muted-foreground">TBD</div>
+                          <div className="px-2 py-3 text-xs text-muted-foreground">TBD</div>
+                          <div className="px-2 py-3 text-xs text-muted-foreground">-</div>
+                          <div className="px-2 py-3">
+                            <StatusSelect 
+                              value={phase.status} 
+                              onChange={(newStatus) => updateWBSItem(phase.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Components */}
+                        {phase.isExpanded && phase.components.map((component, componentIndex) => (
+                          <React.Fragment key={component.id}>
+                            <div
+                              className="grid items-center bg-secondary/5 border-l-4 border-l-secondary hover:bg-secondary/10 cursor-pointer transition-colors duration-200"
+                              style={{
+                                gridTemplateColumns: '32px 120px 280px 1fr 120px 120px 100px 140px',
+                              }}
+                              onClick={() => toggleComponent(phase.id, component.id, component.isExpanded)}
+                            >
+                              <div className="px-2 py-2 flex items-center justify-center ml-4">
+                                {component.isExpanded ? (
+                                  <ChevronDown className="w-3 h-3 text-secondary-foreground" />
+                                ) : (
+                                  <ChevronRight className="w-3 h-3 text-secondary-foreground" />
+                                )}
+                              </div>
+                              <div className="px-2 py-2 font-semibold text-secondary-foreground text-xs ml-4">{generateWBSNumber(phaseIndex, componentIndex)}</div>
+                              <div className="px-3 py-2 font-semibold text-secondary-foreground text-xs ml-4">{component.name}</div>
+                              <div className="px-3 py-2 text-muted-foreground text-xs">{component.description}</div>
+                              <div className="px-2 py-2 text-xs text-muted-foreground">TBD</div>
+                              <div className="px-2 py-2 text-xs text-muted-foreground">TBD</div>
+                              <div className="px-2 py-2 text-xs text-muted-foreground">-</div>
+                              <div className="px-2 py-2">
+                                <StatusSelect 
+                                  value={component.status} 
+                                  onChange={(newStatus) => updateWBSItem(component.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Elements */}
+                            {component.isExpanded && component.elements.map((element, elementIndex) => (
+                              <div
+                                key={element.id}
+                                className="grid items-center bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50"
+                                style={{
+                                  gridTemplateColumns: '32px 120px 280px 1fr 120px 120px 100px 140px',
+                                }}
+                              >
+                                <div className="px-2 py-2"></div>
+                                <div className="px-2 py-2 font-medium text-slate-600 text-xs ml-12">{generateWBSNumber(phaseIndex, componentIndex, elementIndex)}</div>
+                                <div className="px-3 py-2 font-medium text-foreground text-xs ml-12">{element.name}</div>
+                                <div className="px-3 py-2 text-muted-foreground text-xs">{element.description}</div>
+                                <div className="px-2 py-2 text-xs text-muted-foreground">TBD</div>
+                                <div className="px-2 py-2 text-xs text-muted-foreground">TBD</div>
+                                <div className="px-2 py-2 text-xs text-muted-foreground">-</div>
+                                <div className="px-2 py-2">
+                                  <StatusSelect 
+                                    value={element.status} 
+                                    onChange={(newStatus) => updateWBSItem(element.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </React.Fragment>
+                    ))}
                   </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="cost" className="flex-1 px-6 py-4 m-0">
-                <div className="rounded-lg border border-border bg-white shadow-sm p-6">
-                  <div className="text-center py-12">
-                    <DollarSign className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Cost Management</h3>
-                    <p className="text-muted-foreground mb-4">Budget and cost tracking features</p>
-                    <div className="space-y-2 text-sm text-muted-foreground">
-                      <p>• Budget planning and allocation</p>
-                      <p>• Cost tracking and reporting</p>
-                      <p>• Expense management</p>
-                      <p>• Financial forecasting</p>
+                <div className="rounded-lg border border-border bg-white shadow-sm overflow-hidden">
+                  {/* Header */}
+                  <div className="bg-slate-50/50 border-b border-border px-4 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-base font-semibold text-foreground">Cost Breakdown</h3>
+                      <Badge variant="outline" className="text-xs">
+                        {scopeData.length} phases
+                      </Badge>
                     </div>
-                    <Button className="mt-6" variant="outline">
-                      Coming Soon
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" onClick={collapseAll}>
+                        <ChevronsUp className="w-3 h-3 mr-1" />
+                        Collapse All
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={expandAll}>
+                        <ChevronsDown className="w-3 h-3 mr-1" />
+                        Expand All
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Cost Table Header */}
+                  <div className="bg-slate-100/70 border-b border-slate-200 px-2 py-2 text-xs font-medium text-slate-700">
+                    <div className="grid items-center" style={{
+                      gridTemplateColumns: '32px 120px 280px 1fr 120px 120px 120px 100px 140px',
+                    }}>
+                      <div></div>
+                      <div className="px-2 font-semibold">WBS</div>
+                      <div className="px-3 font-semibold">NAME</div>
+                      <div className="px-3 font-semibold">DESCRIPTION</div>
+                      <div className="px-2 font-semibold text-right">BUDGET</div>
+                      <div className="px-2 font-semibold text-right">ACTUAL</div>
+                      <div className="px-2 font-semibold text-right">VARIANCE</div>
+                      <div className="px-2 font-semibold">COST CODE</div>
+                      <div className="px-2 font-semibold">STATUS</div>
+                    </div>
+                  </div>
+
+                  {/* Cost Table Content */}
+                  <div className="max-h-[calc(100vh-320px)] overflow-y-auto">
+                    {scopeData.map((phase, phaseIndex) => (
+                      <React.Fragment key={phase.id}>
+                        {/* Phase Row */}
+                        <div
+                          className="grid items-center bg-primary/5 border-l-4 border-l-primary hover:bg-primary/10 cursor-pointer transition-colors duration-200"
+                          style={{
+                            gridTemplateColumns: '32px 120px 280px 1fr 120px 120px 120px 100px 140px',
+                          }}
+                          onClick={() => togglePhase(phase.id)}
+                        >
+                          <div className="px-2 py-3 flex items-center justify-center">
+                            {phase.isExpanded ? (
+                              <ChevronDown className="w-3 h-3 text-primary" />
+                            ) : (
+                              <ChevronRight className="w-3 h-3 text-primary" />
+                            )}
+                          </div>
+                          <div className="px-2 py-3 font-bold text-primary text-sm">{phaseIndex + 1}</div>
+                          <div className="px-3 py-3 font-bold text-primary text-sm">{phase.name}</div>
+                          <div className="px-3 py-3 text-muted-foreground text-xs">{phase.description}</div>
+                          <div className="px-2 py-3 text-xs text-muted-foreground text-right">$0</div>
+                          <div className="px-2 py-3 text-xs text-muted-foreground text-right">$0</div>
+                          <div className="px-2 py-3 text-xs text-success text-right">$0</div>
+                          <div className="px-2 py-3 text-xs text-muted-foreground">-</div>
+                          <div className="px-2 py-3">
+                            <StatusSelect 
+                              value={phase.status} 
+                              onChange={(newStatus) => updateWBSItem(phase.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Components */}
+                        {phase.isExpanded && phase.components.map((component, componentIndex) => (
+                          <React.Fragment key={component.id}>
+                            <div
+                              className="grid items-center bg-secondary/5 border-l-4 border-l-secondary hover:bg-secondary/10 cursor-pointer transition-colors duration-200"
+                              style={{
+                                gridTemplateColumns: '32px 120px 280px 1fr 120px 120px 120px 100px 140px',
+                              }}
+                              onClick={() => toggleComponent(phase.id, component.id, component.isExpanded)}
+                            >
+                              <div className="px-2 py-2 flex items-center justify-center ml-4">
+                                {component.isExpanded ? (
+                                  <ChevronDown className="w-3 h-3 text-secondary-foreground" />
+                                ) : (
+                                  <ChevronRight className="w-3 h-3 text-secondary-foreground" />
+                                )}
+                              </div>
+                              <div className="px-2 py-2 font-semibold text-secondary-foreground text-xs ml-4">{generateWBSNumber(phaseIndex, componentIndex)}</div>
+                              <div className="px-3 py-2 font-semibold text-secondary-foreground text-xs ml-4">{component.name}</div>
+                              <div className="px-3 py-2 text-muted-foreground text-xs">{component.description}</div>
+                              <div className="px-2 py-2 text-xs text-muted-foreground text-right">$0</div>
+                              <div className="px-2 py-2 text-xs text-muted-foreground text-right">$0</div>
+                              <div className="px-2 py-2 text-xs text-success text-right">$0</div>
+                              <div className="px-2 py-2 text-xs text-muted-foreground">-</div>
+                              <div className="px-2 py-2">
+                                <StatusSelect 
+                                  value={component.status} 
+                                  onChange={(newStatus) => updateWBSItem(component.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Elements */}
+                            {component.isExpanded && component.elements.map((element, elementIndex) => (
+                              <div
+                                key={element.id}
+                                className="grid items-center bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50"
+                                style={{
+                                  gridTemplateColumns: '32px 120px 280px 1fr 120px 120px 120px 100px 140px',
+                                }}
+                              >
+                                <div className="px-2 py-2"></div>
+                                <div className="px-2 py-2 font-medium text-slate-600 text-xs ml-12">{generateWBSNumber(phaseIndex, componentIndex, elementIndex)}</div>
+                                <div className="px-3 py-2 font-medium text-foreground text-xs ml-12">{element.name}</div>
+                                <div className="px-3 py-2 text-muted-foreground text-xs">{element.description}</div>
+                                <div className="px-2 py-2 text-xs text-muted-foreground text-right">$0</div>
+                                <div className="px-2 py-2 text-xs text-muted-foreground text-right">$0</div>
+                                <div className="px-2 py-2 text-xs text-success text-right">$0</div>
+                                <div className="px-2 py-2 text-xs text-muted-foreground">-</div>
+                                <div className="px-2 py-2">
+                                  <StatusSelect 
+                                    value={element.status} 
+                                    onChange={(newStatus) => updateWBSItem(element.id, { status: newStatus as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' })}
+                                  />
+                                </div>
+                              </div>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </React.Fragment>
+                    ))}
                   </div>
                 </div>
               </TabsContent>
