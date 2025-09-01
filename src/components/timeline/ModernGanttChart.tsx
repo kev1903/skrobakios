@@ -80,6 +80,20 @@ export const ModernGanttChart = ({
   const [predecessorInputs, setPredecessorInputs] = useState<Record<string, string>>({});
   const [contextMenuTaskId, setContextMenuTaskId] = useState<string | null>(null);
   
+  // Measure container width to avoid page overflow
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+  useEffect(() => {
+    const update = () => {
+      if (containerRef.current) setContainerWidth(containerRef.current.clientWidth);
+    };
+    update();
+    window.addEventListener('resize', update);
+    const ro = new ResizeObserver(update);
+    if (containerRef.current) ro.observe(containerRef.current);
+    return () => { window.removeEventListener('resize', update); ro.disconnect(); };
+  }, []);
+  
   // Context menu items
   const getContextMenuItems = (taskId: string) => [
     { label: 'Cut', shortcut: 'Ctrl + X', icon: <Scissors className="w-4 h-4" />, action: () => console.log('Cut', taskId) },
@@ -785,9 +799,8 @@ export const ModernGanttChart = ({
 
   // Calculate responsive timeline width based on available space and screen size
   const getResponsiveTimelineWidth = () => {
-    if (typeof window === 'undefined') return 1200;
-    
-    const baseWidth = window.innerWidth - taskListWidth - 100;
+    const baseContainer = containerWidth || (typeof window !== 'undefined' ? window.innerWidth : 1200);
+    const baseWidth = Math.max(baseContainer - taskListWidth - 24, 200);
     const minTimelineWidth = screenSize === 'mobile' ? 300 : screenSize === 'tablet' ? 500 : 800;
     const maxTimelineWidth = screenSize === 'mobile' ? 800 : screenSize === 'tablet' ? 1200 : 2000;
     
@@ -976,7 +989,7 @@ export const ModernGanttChart = ({
       )}
       
       {/* Gantt Chart */}
-      <div className="bg-white rounded-lg overflow-hidden w-full max-w-full h-full flex flex-col">
+      <div ref={containerRef} className="bg-white rounded-lg overflow-hidden w-full max-w-full h-full flex flex-col">
         <div className="flex flex-1 overflow-hidden">
           {/* Task List */}
           <div 
