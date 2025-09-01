@@ -281,7 +281,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         hasChildren: phase.components.length > 0,
         start_date: null, // Add from WBS item if available
         end_date: null, // Add from WBS item if available
-        duration: 0 // Add from WBS item if available
+        duration: 0, // Add from WBS item if available
+        predecessors: [] // Add from WBS item if available
       });
 
       if (phase.isExpanded) {
@@ -299,7 +300,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             hasChildren: component.elements.length > 0,
             start_date: null, // Add from WBS item if available
             end_date: null, // Add from WBS item if available
-            duration: 0 // Add from WBS item if available
+            duration: 0, // Add from WBS item if available
+            predecessors: [] // Add from WBS item if available
           });
 
           if (component.isExpanded) {
@@ -317,7 +319,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 hasChildren: false,
                 start_date: null, // Add from WBS item if available
                 end_date: null, // Add from WBS item if available
-                duration: 0 // Add from WBS item if available
+                duration: 0, // Add from WBS item if available
+                predecessors: [] // Add from WBS item if available
               });
             });
           }
@@ -333,7 +336,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           ...item,
           start_date: wbsItem.start_date,
           end_date: wbsItem.end_date,
-          duration: wbsItem.duration || 0
+          duration: wbsItem.duration || 0,
+          predecessors: (wbsItem as any).predecessors || []
         };
       }
       return item;
@@ -1179,16 +1183,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       
                       {/* Right Panel Header */}
                       <div className="flex-1 px-2 py-2 text-xs font-medium text-slate-700">
-                        <div className="grid items-center" style={{
-                          gridTemplateColumns: '1fr 120px 120px 100px 140px 84px',
-                        }}>
-                          <div className="px-3 font-semibold">DESCRIPTION</div>
-                          <div className="px-2 font-semibold">START DATE</div>
-                          <div className="px-2 font-semibold">END DATE</div>
-                          <div className="px-2 font-semibold">DURATION</div>
-                          <div className="px-2 font-semibold">STATUS</div>
-                          <div className="px-2 font-semibold">ACTIONS</div>
-                        </div>
+                         <div className="grid items-center" style={{
+                           gridTemplateColumns: '1fr 120px 120px 100px 140px 140px 84px',
+                         }}>
+                           <div className="px-3 font-semibold">DESCRIPTION</div>
+                           <div className="px-2 font-semibold">START DATE</div>
+                           <div className="px-2 font-semibold">END DATE</div>
+                           <div className="px-2 font-semibold">DURATION</div>
+                           <div className="px-2 font-semibold">PREDECESSORS</div>
+                           <div className="px-2 font-semibold">STATUS</div>
+                           <div className="px-2 font-semibold">ACTIONS</div>
+                         </div>
                       </div>
                     </div>
                   </div>

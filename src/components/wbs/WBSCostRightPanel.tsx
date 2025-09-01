@@ -17,6 +17,10 @@ interface WBSItem {
   progress: number;
   assignedTo?: string;
   level: number;
+  start_date?: string | Date | null;
+  end_date?: string | Date | null;
+  duration?: number;
+  predecessors?: string[];
 }
 
 interface WBSCostRightPanelProps {

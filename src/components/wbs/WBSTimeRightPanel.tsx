@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Edit2, Copy, Trash2, NotebookPen } from 'lucide-react';
 import { DatePickerCell } from './DatePickerCell';
 import { DurationCell } from './DurationCell';
+import { PredecessorCell } from './PredecessorCell';
 import { differenceInDays, addDays, subDays } from 'date-fns';
 import {
   DropdownMenu,
@@ -23,6 +24,7 @@ interface WBSItem {
   start_date?: string | Date | null;
   end_date?: string | Date | null;
   duration?: number; // Duration in days
+  predecessors?: string[]; // Array of predecessor IDs
 }
 
 interface WBSTimeRightPanelProps {
@@ -124,9 +126,9 @@ export const WBSTimeRightPanel = ({
                 ? 'bg-secondary/5 hover:bg-secondary/10'
                 : 'bg-white hover:bg-slate-50/50'
             } transition-colors duration-200`}
-          style={{
-            gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 84px',
-          }}
+            style={{
+              gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
+            }}
           >
             <div className="px-3 py-3 min-h-[3.5rem] flex items-center text-muted-foreground text-xs">
               <EditableCell
@@ -174,6 +176,22 @@ export const WBSTimeRightPanel = ({
                 value={item.duration || 0}
                 className="text-xs text-muted-foreground"
                 onUpdate={handleDurationCalculation}
+              />
+            </div>
+
+            <div className="px-2 py-3 min-h-[3.5rem] flex items-center text-xs text-muted-foreground">
+              <PredecessorCell
+                id={item.id}
+                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                value={item.predecessors || []}
+                availableItems={items.map(i => ({
+                  id: i.id,
+                  name: i.name,
+                  wbsNumber: (i as any).wbsNumber || '',
+                  level: i.level
+                }))}
+                className="text-xs text-muted-foreground"
+                onUpdate={(id, field, value) => onItemUpdate(id, { [field]: value })}
               />
             </div>
 
