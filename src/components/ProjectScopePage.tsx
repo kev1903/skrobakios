@@ -999,7 +999,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       <div className={contentClasses[screenSize]}>
         <div className="flex flex-col h-full bg-background overflow-auto">
           <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-4">
               <div>
                 <h1 className="text-2xl font-bold text-foreground font-inter">Project Scope</h1>
                 <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
@@ -1033,27 +1033,29 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </div>
               </div>
             </div>
+            
+            {/* Tabs in Header */}
+            <div className="flex items-center justify-between">
+              <TabsList className="grid w-fit grid-cols-3">
+                <TabsTrigger value="scope" className="flex items-center gap-2">
+                  <NotebookPen className="w-4 h-4" />
+                  Scope
+                </TabsTrigger>
+                <TabsTrigger value="time" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Time
+                </TabsTrigger>
+                <TabsTrigger value="cost" className="flex items-center gap-2">
+                  <DollarSign className="w-4 h-4" />
+                  Cost
+                </TabsTrigger>
+              </TabsList>
+            </div>
           </div>
 
           {/* Tabs Container */}
           <div className="flex-1 bg-white">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-              <div className="flex-shrink-0 px-6 py-3 border-b border-border bg-white">
-                <TabsList className="grid w-fit grid-cols-3">
-                  <TabsTrigger value="scope" className="flex items-center gap-2">
-                    <NotebookPen className="w-4 h-4" />
-                    Scope
-                  </TabsTrigger>
-                  <TabsTrigger value="time" className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Time
-                  </TabsTrigger>
-                  <TabsTrigger value="cost" className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
-                    Cost
-                  </TabsTrigger>
-                </TabsList>
-              </div>
 
               <TabsContent value="scope" className="flex-1 m-0">
                 <div className="flex-1 h-full flex flex-col">
