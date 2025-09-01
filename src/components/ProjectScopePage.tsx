@@ -1165,44 +1165,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
               <TabsContent value="time" className="h-full w-full m-0 p-0 data-[state=active]:flex">
                 <div className="h-full w-full flex flex-col min-h-0">
-                  {/* Combined Header with Table Headers */}
-                  <div className="bg-background border-b border-border">
-                    
-                     {/* Table Headers Row */}
-                     <div className="bg-slate-100/70 border-t border-slate-200 flex">
-                       {/* Left Panel Header */}
-                       <div className="w-[420px] px-2 py-2 text-xs font-medium text-slate-700 border-r border-border">
-                         <div className="grid items-center" style={{
-                           gridTemplateColumns: '32px 120px 1fr',
-                         }}>
-                           <div></div>
-                           <div className="px-2 font-semibold">WBS</div>
-                           <div className="px-3 font-semibold">NAME</div>
-                         </div>
-                       </div>
-                       
-                       {/* Right Panel Header - Table Section */}
-                       <div className="flex-1 px-2 py-2 text-xs font-medium text-slate-700">
-                          <div className="grid items-center" style={{
-                            gridTemplateColumns: '1fr 120px 120px 100px 140px 140px 84px',
-                          }}>
-                            <div className="px-3 font-semibold">DESCRIPTION</div>
-                            <div className="px-2 font-semibold">START DATE</div>
-                            <div className="px-2 font-semibold">END DATE</div>
-                            <div className="px-2 font-semibold">DURATION</div>
-                            <div className="px-2 font-semibold">PREDECESSORS</div>
-                            <div className="px-2 font-semibold">STATUS</div>
-                            <div className="px-2 font-semibold">ACTIONS</div>
-                          </div>
-                       </div>
-
-                       {/* Calendar Panel Header */}
-                       <div className="w-1/2 px-2 py-2 text-xs font-medium text-slate-700 border-l border-border">
-                         <div className="px-3 font-semibold">TIMELINE</div>
-                       </div>
-                     </div>
-                  </div>
-
                   {loading ? (
                     <div className="flex items-center justify-center h-64">
                       <div className="text-center">

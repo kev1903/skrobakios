@@ -62,48 +62,101 @@ export const WBSTimeView = ({
   }, []);
 
   return (
-    <PanelGroup direction="horizontal" className="h-full w-full bg-white">
-      {/* Left Panel - Table view */}
-      <Panel defaultSize={50} minSize={30}>
-        <div className="flex h-full w-full overflow-hidden">
-          <div className="flex h-full w-full overflow-x-auto">
-            <WBSLeftPanel
-              items={items}
-              onToggleExpanded={onToggleExpanded}
-              onDragEnd={onDragEnd}
-              onItemEdit={onItemUpdate}
-              dragIndicator={dragIndicator}
-              EditableCell={EditableCell}
-              generateWBSNumber={generateWBSNumber}
-              scrollRef={leftScrollRef}
-              onScroll={handleLeftScroll}
-            />
-            
-            <WBSTimeRightPanel
-              items={items}
-              onItemUpdate={onItemUpdate}
-              onContextMenuAction={onContextMenuAction}
-              onOpenNotesDialog={onOpenNotesDialog}
-              EditableCell={EditableCell}
-              StatusSelect={StatusSelect}
-              scrollRef={rightScrollRef}
-              onScroll={handleRightScroll}
-            />
-          </div>
-        </div>
-      </Panel>
+    <div className="h-full w-full bg-white flex flex-col">
+      {/* Unified Header */}
+      <div className="bg-background border-b border-border flex-shrink-0">
+        <PanelGroup direction="horizontal" className="bg-slate-100/70 border-t border-slate-200">
+          {/* Left Panel Header */}
+          <Panel defaultSize={50} minSize={30}>
+            <div className="flex h-full">
+              {/* WBS Left Panel Header */}
+              <div className="w-[420px] px-2 py-2 text-xs font-medium text-slate-700 border-r border-border">
+                <div className="grid items-center" style={{
+                  gridTemplateColumns: '32px 120px 1fr',
+                }}>
+                  <div></div>
+                  <div className="px-2 font-semibold">WBS</div>
+                  <div className="px-3 font-semibold">NAME</div>
+                </div>
+              </div>
+              
+              {/* WBS Right Panel Header - Table Section */}
+              <div className="flex-1 px-2 py-2 text-xs font-medium text-slate-700">
+                <div className="grid items-center" style={{
+                  gridTemplateColumns: '1fr 120px 120px 100px 140px 140px 84px',
+                }}>
+                  <div className="px-3 font-semibold">DESCRIPTION</div>
+                  <div className="px-2 font-semibold">START DATE</div>
+                  <div className="px-2 font-semibold">END DATE</div>
+                  <div className="px-2 font-semibold">DURATION</div>
+                  <div className="px-2 font-semibold">PREDECESSORS</div>
+                  <div className="px-2 font-semibold">STATUS</div>
+                  <div className="px-2 font-semibold">ACTIONS</div>
+                </div>
+              </div>
+            </div>
+          </Panel>
 
-      {/* Resizable Handle */}
-      <PanelResizeHandle className="w-2 bg-border hover:bg-accent transition-colors duration-200 cursor-col-resize flex items-center justify-center">
-        <div className="w-1 h-8 bg-border rounded-full"></div>
-      </PanelResizeHandle>
+          {/* Resizable Handle */}
+          <PanelResizeHandle className="w-2 bg-border hover:bg-accent transition-colors duration-200 cursor-col-resize flex items-center justify-center">
+            <div className="w-1 h-8 bg-border rounded-full"></div>
+          </PanelResizeHandle>
 
-      {/* Right Panel - Gantt Chart (Header removed, now controlled by parent) */}
-      <Panel defaultSize={50} minSize={30}>
-        <div className="flex-1 overflow-x-auto overflow-y-auto">
-          <GanttChart items={items} className="min-w-fit" hideHeader />
-        </div>
-      </Panel>
-    </PanelGroup>
+          {/* Calendar Panel Header */}
+          <Panel defaultSize={50} minSize={30}>
+            <div className="px-2 py-2 text-xs font-medium text-slate-700 border-l border-border">
+              <div className="px-3 font-semibold">TIMELINE</div>
+            </div>
+          </Panel>
+        </PanelGroup>
+      </div>
+
+      {/* Content Panels */}
+      <div className="flex-1 min-h-0">
+        <PanelGroup direction="horizontal" className="h-full w-full">
+          {/* Left Panel - Table view */}
+          <Panel defaultSize={50} minSize={30}>
+            <div className="flex h-full w-full overflow-hidden">
+              <div className="flex h-full w-full overflow-x-auto">
+                <WBSLeftPanel
+                  items={items}
+                  onToggleExpanded={onToggleExpanded}
+                  onDragEnd={onDragEnd}
+                  onItemEdit={onItemUpdate}
+                  dragIndicator={dragIndicator}
+                  EditableCell={EditableCell}
+                  generateWBSNumber={generateWBSNumber}
+                  scrollRef={leftScrollRef}
+                  onScroll={handleLeftScroll}
+                />
+                
+                <WBSTimeRightPanel
+                  items={items}
+                  onItemUpdate={onItemUpdate}
+                  onContextMenuAction={onContextMenuAction}
+                  onOpenNotesDialog={onOpenNotesDialog}
+                  EditableCell={EditableCell}
+                  StatusSelect={StatusSelect}
+                  scrollRef={rightScrollRef}
+                  onScroll={handleRightScroll}
+                />
+              </div>
+            </div>
+          </Panel>
+
+          {/* Resizable Handle */}
+          <PanelResizeHandle className="w-2 bg-border hover:bg-accent transition-colors duration-200 cursor-col-resize flex items-center justify-center">
+            <div className="w-1 h-8 bg-border rounded-full"></div>
+          </PanelResizeHandle>
+
+          {/* Right Panel - Gantt Chart */}
+          <Panel defaultSize={50} minSize={30}>
+            <div className="flex-1 overflow-x-auto overflow-y-auto">
+              <GanttChart items={items} className="min-w-fit" hideHeader />
+            </div>
+          </Panel>
+        </PanelGroup>
+      </div>
+    </div>
   );
 };
