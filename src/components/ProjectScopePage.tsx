@@ -1138,7 +1138,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </div>
               </TabsContent>
 
-              <TabsContent value="time" className="h-full m-0 data-[state=active]:flex">
+              <TabsContent value="time" className="h-full w-full m-0 p-0 data-[state=active]:flex">
                 <div className="h-full flex flex-col min-h-0">
                   {/* Combined Header with Table Headers */}
                   <div className="bg-background border-b border-border">
