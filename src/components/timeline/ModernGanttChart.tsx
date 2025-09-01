@@ -30,6 +30,7 @@ export interface ModernGanttTask {
   parentId?: string;
   isStage?: boolean;
   level?: number; // 0 = Stage, 1 = Component, 2 = Element
+  expanded?: boolean; // synced with scope is_expanded
   children?: ModernGanttTask[];
 }
 
@@ -189,14 +190,16 @@ export const ModernGanttChart = ({
   const dayWidth = screenSize === 'mobile' ? 24 : screenSize === 'tablet' ? 28 : 32; // Responsive day width
   const rowHeight = 24; // Minimized row height
 
-  // Initialize expanded stages only once
-  useEffect(() => {
-    tasks.forEach(task => {
-      if (task.isStage && !expandedSections.has(task.id)) {
-        setExpandedSections(prev => new Set([...prev, task.id]));
-      }
-    });
-  }, [tasks.map(t => t.id).join(',')]); // Only run when task IDs change
+// Initialize expanded sections from Scope (is_expanded) and keep stages open by default
+useEffect(() => {
+  const initial = new Set<string>(expandedSections);
+  tasks.forEach(task => {
+    if (task.expanded) initial.add(task.id);
+    if (task.isStage) initial.add(task.id);
+  });
+  setExpandedSections(initial);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [tasks.map(t => `${t.id}:${t.expanded ? 1 : 0}`).join(',')]);
 
   // Build hierarchical structure
   const hierarchicalTasks = useMemo(() => {
@@ -283,15 +286,18 @@ export const ModernGanttChart = ({
     return flatTasks;
   }, [hierarchicalTasks, expandedSections, allTasksWithRowNumbers]);
 
-  const toggleSection = (taskId: string) => {
-    const newExpanded = new Set(expandedSections);
-    if (newExpanded.has(taskId)) {
-      newExpanded.delete(taskId);
-    } else {
-      newExpanded.add(taskId);
-    }
-    setExpandedSections(newExpanded);
-  };
+const toggleSection = (taskId: string) => {
+  const newExpanded = new Set(expandedSections);
+  const willExpand = !newExpanded.has(taskId);
+  if (willExpand) {
+    newExpanded.add(taskId);
+  } else {
+    newExpanded.delete(taskId);
+  }
+  setExpandedSections(newExpanded);
+  // Persist expand/collapse to Scope via parent handler
+  onTaskUpdate?.(taskId, { expanded: willExpand });
+};
 
   // Expand all sections
   const expandAll = () => {

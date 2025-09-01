@@ -30,27 +30,32 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
   const { wbsItems, loading, updateWBSItem, createWBSItem, deleteWBSItem } = useWBS(project.id);
   const [tasks, setTasks] = useState<ModernGanttTask[]>([]);
 
-  // Convert WBS items to Gantt tasks
-  const convertWBSToTasks = (wbsItems: WBSItem[]): ModernGanttTask[] => {
-    return wbsItems.map(item => {
-      const getStatusFromWBS = (status?: string) => {
-        switch (status) {
-          case 'Completed': return 'completed';
-          case 'In Progress': return 'in-progress';
-          case 'On Hold': return 'delayed'; // Map 'On Hold' to 'delayed' since 'on-hold' isn't supported
-          case 'Delayed': return 'delayed';
-          default: return 'pending';
-        }
-      };
+  // Convert WBS items to Gantt tasks (strictly synced with Scope)
+  const convertWBSToTasks = (items: WBSItem[]): ModernGanttTask[] => {
+    // Build helper maps to derive parentId from WBS code (don't trust parent_id)
+    const byWbs = new Map<string, WBSItem>();
+    items.forEach(i => byWbs.set(i.wbs_id, i));
+    const getParentWbs = (wbsId: string): string | null => {
+      const parts = wbsId.split('.');
+      if (parts.length <= 2 && parts[1] === '0') return null; // X.0 is root
+      if (parts.length === 2) return `${parts[0]}.0`;
+      return parts.slice(0, parts.length - 1).join('.');
+    };
 
-      const getCategoryFromLevel = (level: number) => {
-        switch (level) {
-          case 0: return 'Stage';
-          case 1: return 'Component';
-          case 2: return 'Element';
-          default: return 'Task';
-        }
-      };
+    const statusFromWBS = (status?: string): ModernGanttTask['status'] => {
+      switch (status) {
+        case 'Completed': return 'completed';
+        case 'In Progress': return 'in-progress';
+        case 'On Hold': return 'delayed';
+        case 'Delayed': return 'delayed';
+        default: return 'pending';
+      }
+    };
+
+    return items.map(item => {
+      const parentWbs = getParentWbs(item.wbs_id);
+      const parentItem = parentWbs ? byWbs.get(parentWbs) : undefined;
+      const level = item.level ?? 0;
 
       return {
         id: item.id,
@@ -58,14 +63,15 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
         startDate: item.start_date ? new Date(item.start_date) : addDays(new Date(), 0),
         endDate: item.end_date ? new Date(item.end_date) : addDays(new Date(), item.duration || 7),
         progress: item.progress || 0,
-        status: getStatusFromWBS(item.status),
+        status: statusFromWBS(item.status),
         assignee: item.assigned_to || 'Unassigned',
         duration: `${item.duration || 0} days`,
-        category: getCategoryFromLevel(item.level),
-        isStage: item.level === 0,
-        level: item.level,
+        category: level === 0 ? 'Stage' : level === 1 ? 'Component' : 'Element',
+        isStage: level === 0,
+        level,
         wbs: item.wbs_id,
-        parentId: item.parent_id || undefined
+        parentId: parentItem?.id, // derive from WBS path to match Scope hierarchy
+        expanded: !!item.is_expanded,
       };
     });
   };
@@ -100,6 +106,8 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
       if (updates.assignee) wbsUpdates.assigned_to = updates.assignee;
       if (updates.startDate) wbsUpdates.start_date = updates.startDate.toISOString().split('T')[0];
       if (updates.endDate) wbsUpdates.end_date = updates.endDate.toISOString().split('T')[0];
+      if (updates.parentId !== undefined) wbsUpdates.parent_id = updates.parentId || null;
+      if (updates.expanded !== undefined) wbsUpdates.is_expanded = updates.expanded;
       
       if (updates.status) {
         switch (updates.status) {
