@@ -977,15 +977,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const mainClasses = {
-    mobile: "flex flex-col h-screen overflow-hidden",
-    tablet: "flex flex-col h-screen overflow-hidden", 
-    desktop: "h-screen overflow-hidden"
+    mobile: "relative h-screen overflow-hidden",
+    tablet: "relative h-screen overflow-hidden", 
+    desktop: "relative h-screen overflow-hidden"
   };
 
   const contentClasses = {
-    mobile: "flex-1 overflow-hidden",
-    tablet: "flex-1 overflow-hidden",
-    desktop: "h-full ml-40 overflow-hidden"
+    mobile: "absolute inset-0 overflow-hidden",
+    tablet: "absolute inset-0 overflow-hidden",
+    desktop: "fixed inset-0 left-40 overflow-hidden"
   };
 
   return (
@@ -999,7 +999,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       />
 
       <div className={contentClasses[screenSize]}>
-        <div className="h-full flex flex-col bg-background">
+        <div className="h-full flex flex-col min-h-0 bg-background">
           {/* Tabs Container - moved up to wrap everything */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
             <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
@@ -1059,10 +1059,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             </div>
 
             {/* Tab Contents */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-hidden">
 
               <TabsContent value="scope" className="h-full m-0 data-[state=active]:flex">
-                <div className="h-full flex flex-col">
+                <div className="h-full flex flex-col min-h-0">
                   {/* Combined Header with Table Headers */}
                   <div className="bg-background border-b border-border">
                     
@@ -1112,7 +1112,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       </div>
                     </div>
                   ) : (
-                    <div className="flex-1">
+                    <div className="flex-1 overflow-y-auto">
                       <WBSSplitView
                         items={flatWBSItems}
                         onToggleExpanded={(itemId) => {
@@ -1139,7 +1139,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               </TabsContent>
 
               <TabsContent value="time" className="h-full m-0 data-[state=active]:flex">
-                <div className="h-full flex flex-col">
+                <div className="h-full flex flex-col min-h-0">
                   {/* Combined Header with Table Headers */}
                   <div className="bg-background border-b border-border">
                     
@@ -1189,7 +1189,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       </div>
                     </div>
                   ) : (
-                    <div className="flex-1">
+                    <div className="flex-1 overflow-y-auto">
                       <WBSTimeView
                         items={flatWBSItems}
                         onToggleExpanded={(itemId) => {
@@ -1213,7 +1213,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               </TabsContent>
 
               <TabsContent value="cost" className="h-full m-0 data-[state=active]:flex">
-                <div className="h-full flex flex-col">
+                <div className="h-full flex flex-col min-h-0">
                    {/* Combined Header with Table Headers */}
                    <div className="bg-background border-b border-border">
                      
@@ -1264,7 +1264,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        </div>
                      </div>
                    ) : (
-                     <div className="flex-1">
+                     <div className="flex-1 overflow-y-auto">
                        <WBSCostView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
