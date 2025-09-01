@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
+import { useNavigate } from 'react-router-dom';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { MapPin, Building2, Calendar, DollarSign } from 'lucide-react';
@@ -32,6 +33,7 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const { currentCompany } = useCompany();
+  const navigate = useNavigate();
 
   // Fetch Mapbox token
   useEffect(() => {
@@ -87,6 +89,22 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
   };
+
+  // Set up global navigation function for popup clicks
+  useEffect(() => {
+    (window as any).projectNavigate = (projectId: string) => {
+      try {
+        console.log('Navigating to project dashboard:', projectId);
+        navigate(`/?page=project-detail&projectId=${projectId}`);
+      } catch (error) {
+        console.error('Navigation error:', error);
+      }
+    };
+
+    return () => {
+      delete (window as any).projectNavigate;
+    };
+  }, [navigate]);
 
   // Geocode addresses and add markers
   const addProjectMarkers = async () => {
@@ -149,7 +167,7 @@ const VictoriaProjectMap: React.FC<VictoriaProjectMapProps> = ({ className = "w-
                   </svg>
                 </div>
                 <div class="flex-1">
-                  <h3 class="font-semibold text-lg text-gray-900 mb-1">${project.name}</h3>
+                  <h3 class="font-semibold text-lg text-gray-900 mb-1 cursor-pointer hover:text-primary transition-colors" onclick="window.projectNavigate('${project.id}')">${project.name}</h3>
                   <p class="text-sm text-gray-600">${project.project_id}</p>
                 </div>
               </div>

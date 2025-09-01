@@ -157,12 +157,10 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   useEffect(() => {
     (window as any).projectNavigate = (projectId: string) => {
       try {
-        console.log('Attempting to navigate to:', `/project-dashboard/${projectId}`);
-        navigate(`/project-dashboard/${projectId}`);
+        console.log('Navigating to project dashboard:', projectId);
+        navigate(`/?page=project-detail&projectId=${projectId}`);
       } catch (error) {
         console.error('Navigation error:', error);
-        // Fallback: use window.location
-        window.location.href = `/project-dashboard/${projectId}`;
       }
     };
 
