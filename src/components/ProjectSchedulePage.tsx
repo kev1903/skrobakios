@@ -13,6 +13,7 @@ import { useWBS } from '@/hooks/useWBS';
 import { WBSItem, WBSItemInput } from '@/types/wbs';
 import { flattenWBSHierarchy, generateWBSId } from '@/utils/wbsUtils';
 import { useCompany } from '@/contexts/CompanyContext';
+import { WBSScheduleTable } from '@/components/schedule/WBSScheduleTable';
 
 interface ProjectSchedulePageProps {
   project: Project;
@@ -335,10 +336,25 @@ export const ProjectSchedulePage = ({ project, onNavigate }: ProjectSchedulePage
           </div>
         </div>
 
-        {/* Schedule Content - Gantt Chart */}
-        <div className="flex-1 bg-white flex flex-col overflow-hidden">
-          <div className="flex-1 p-2 sm:p-4 overflow-hidden w-full">
-            <div className="w-full h-full overflow-hidden">
+        {/* Schedule Content - Split View: WBS Table + Gantt Chart */}
+        <div className="flex-1 bg-white flex overflow-hidden">
+          {/* Left Side - WBS Table (50%) */}
+          <div className="w-1/2 border-r border-border overflow-hidden flex flex-col">
+            <div className="flex-1 p-4 overflow-hidden">
+              <WBSScheduleTable
+                wbsItems={wbsItems || []}
+                onUpdateWBSItem={updateWBSItem}
+                onCreateWBSItem={createWBSItem}
+                onDeleteWBSItem={deleteWBSItem}
+                companyId={currentCompany?.id || ''}
+                projectId={project.id}
+              />
+            </div>
+          </div>
+
+          {/* Right Side - Gantt Chart (50%) */}
+          <div className="w-1/2 overflow-hidden flex flex-col">
+            <div className="flex-1 p-4 overflow-hidden">
               <Card className="shadow-lg w-full h-full overflow-hidden">
                 <CardContent className="p-0 overflow-hidden h-full w-full">
                   <ModernGanttChart 
