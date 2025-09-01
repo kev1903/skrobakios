@@ -63,11 +63,11 @@ export const WBSTimeView = ({
 
   return (
     <div className="h-full w-full bg-white flex flex-col">
-      {/* Unified Header */}
-      <div className="bg-background border-b border-border flex-shrink-0">
-        <PanelGroup direction="horizontal" className="bg-slate-100/70 border-t border-slate-200">
-          {/* Left Panel Header */}
-          <Panel defaultSize={50} minSize={30}>
+      <PanelGroup direction="horizontal" className="h-full w-full flex flex-col">
+        {/* Left Panel - includes both header and content */}
+        <Panel defaultSize={50} minSize={30} className="flex flex-col">
+          {/* Header Section */}
+          <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border flex-shrink-0">
             <div className="flex h-full">
               {/* WBS Left Panel Header */}
               <div className="w-[420px] px-2 py-2 text-xs font-medium text-slate-700 border-r border-border">
@@ -95,68 +95,55 @@ export const WBSTimeView = ({
                 </div>
               </div>
             </div>
-          </Panel>
+          </div>
 
-          {/* Resizable Handle */}
-          <PanelResizeHandle className="w-2 bg-border hover:bg-accent transition-colors duration-200 cursor-col-resize flex items-center justify-center">
-            <div className="w-1 h-8 bg-border rounded-full"></div>
-          </PanelResizeHandle>
-
-          {/* Calendar Panel Header */}
-          <Panel defaultSize={50} minSize={30}>
-            <div className="px-2 py-2 text-xs font-medium text-slate-700 border-l border-border">
-              <div className="px-3 font-semibold">TIMELINE</div>
+          {/* Content Section */}
+          <div className="flex-1 min-h-0 flex overflow-hidden">
+            <div className="flex h-full w-full overflow-x-auto">
+              <WBSLeftPanel
+                items={items}
+                onToggleExpanded={onToggleExpanded}
+                onDragEnd={onDragEnd}
+                onItemEdit={onItemUpdate}
+                dragIndicator={dragIndicator}
+                EditableCell={EditableCell}
+                generateWBSNumber={generateWBSNumber}
+                scrollRef={leftScrollRef}
+                onScroll={handleLeftScroll}
+              />
+              
+              <WBSTimeRightPanel
+                items={items}
+                onItemUpdate={onItemUpdate}
+                onContextMenuAction={onContextMenuAction}
+                onOpenNotesDialog={onOpenNotesDialog}
+                EditableCell={EditableCell}
+                StatusSelect={StatusSelect}
+                scrollRef={rightScrollRef}
+                onScroll={handleRightScroll}
+              />
             </div>
-          </Panel>
-        </PanelGroup>
-      </div>
+          </div>
+        </Panel>
 
-      {/* Content Panels */}
-      <div className="flex-1 min-h-0">
-        <PanelGroup direction="horizontal" className="h-full w-full">
-          {/* Left Panel - Table view */}
-          <Panel defaultSize={50} minSize={30}>
-            <div className="flex h-full w-full overflow-hidden">
-              <div className="flex h-full w-full overflow-x-auto">
-                <WBSLeftPanel
-                  items={items}
-                  onToggleExpanded={onToggleExpanded}
-                  onDragEnd={onDragEnd}
-                  onItemEdit={onItemUpdate}
-                  dragIndicator={dragIndicator}
-                  EditableCell={EditableCell}
-                  generateWBSNumber={generateWBSNumber}
-                  scrollRef={leftScrollRef}
-                  onScroll={handleLeftScroll}
-                />
-                
-                <WBSTimeRightPanel
-                  items={items}
-                  onItemUpdate={onItemUpdate}
-                  onContextMenuAction={onContextMenuAction}
-                  onOpenNotesDialog={onOpenNotesDialog}
-                  EditableCell={EditableCell}
-                  StatusSelect={StatusSelect}
-                  scrollRef={rightScrollRef}
-                  onScroll={handleRightScroll}
-                />
-              </div>
-            </div>
-          </Panel>
+        {/* Single Resizable Handle */}
+        <PanelResizeHandle className="w-2 bg-border hover:bg-accent transition-colors duration-200 cursor-col-resize flex items-center justify-center">
+          <div className="w-1 h-8 bg-border rounded-full"></div>
+        </PanelResizeHandle>
 
-          {/* Resizable Handle */}
-          <PanelResizeHandle className="w-2 bg-border hover:bg-accent transition-colors duration-200 cursor-col-resize flex items-center justify-center">
-            <div className="w-1 h-8 bg-border rounded-full"></div>
-          </PanelResizeHandle>
+        {/* Right Panel - includes both header and Gantt chart */}
+        <Panel defaultSize={50} minSize={30} className="flex flex-col">
+          {/* Header Section */}
+          <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border border-l border-border px-2 py-2 text-xs font-medium text-slate-700 flex-shrink-0">
+            <div className="px-3 font-semibold">TIMELINE</div>
+          </div>
 
-          {/* Right Panel - Gantt Chart */}
-          <Panel defaultSize={50} minSize={30}>
-            <div className="flex-1 overflow-x-auto overflow-y-auto">
-              <GanttChart items={items} className="min-w-fit" hideHeader />
-            </div>
-          </Panel>
-        </PanelGroup>
-      </div>
+          {/* Gantt Chart Content */}
+          <div className="flex-1 overflow-x-auto overflow-y-auto">
+            <GanttChart items={items} className="min-w-fit" hideHeader />
+          </div>
+        </Panel>
+      </PanelGroup>
     </div>
   );
 };
