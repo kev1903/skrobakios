@@ -1044,11 +1044,11 @@ export const ModernGanttChart = ({
                             className={cn(
                               "grid items-center relative transition-colors duration-200 cursor-pointer",
                               // Stage level (depth 0) - darker background with thicker border
-                              task.depth === 0 && "bg-slate-300 border-l-4 border-l-slate-800 hover:bg-slate-400",
-                              // Component level (depth 1) - medium background 
-                              task.depth === 1 && "bg-slate-150 border-l-[3px] border-l-slate-600 hover:bg-slate-250",
+                              task.depth === 0 && "bg-slate-300 border-l-4 border-l-slate-700 hover:bg-slate-400",
+                              // Component level (depth 1) - medium background
+                              task.depth === 1 && "bg-slate-200 border-l-[3px] border-l-slate-600 hover:bg-slate-300",
                               // Element level (depth 2) - light background
-                              task.depth === 2 && "bg-slate-50 border-l-2 border-l-slate-400 hover:bg-slate-100",
+                              task.depth === 2 && "bg-white border-l-2 border-l-slate-400 hover:bg-slate-50",
                               // Default for any other levels
                               task.depth > 2 && "bg-white hover:bg-gray-50",
                               selectedTaskId === task.id && "ring-2 ring-blue-500 ring-inset",
