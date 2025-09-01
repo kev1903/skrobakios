@@ -65,9 +65,3 @@
 .gantt-body-scroll * {
   user-select: none;
 }
-
-/* Prevent page-level horizontal scroll */
-body, html {
-  overflow-x: hidden !important;
-  max-width: 100vw !important;
-}

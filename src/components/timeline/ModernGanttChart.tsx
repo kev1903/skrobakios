@@ -1354,10 +1354,9 @@ const toggleSection = (taskId: string) => {
           {/* Timeline Header */}
           <div 
             ref={ganttHeaderRef}
-            className="bg-white overflow-x-auto gantt-header-scroll relative z-10"
+            className="bg-white overflow-x-scroll gantt-header-scroll relative z-10"
             style={{ 
-              height: '32px',
-              maxWidth: '100%'
+              height: '32px'
             }}
           >
             <div 
@@ -1401,10 +1400,7 @@ const toggleSection = (taskId: string) => {
           {/* Timeline Content */}
           <div 
             ref={ganttScrollBodyRef}
-            className="flex-1 overflow-x-auto overflow-y-auto gantt-body-scroll bg-white pb-4"
-            style={{ 
-              maxWidth: '100%'
-            }}
+            className="flex-1 overflow-x-scroll overflow-y-auto gantt-body-scroll bg-white pb-4"
           >
             <div 
               className="relative" 
