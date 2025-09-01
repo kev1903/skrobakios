@@ -983,9 +983,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const contentClasses = {
-    mobile: "fixed inset-0 overflow-hidden",
-    tablet: "fixed inset-0 overflow-hidden",
-    desktop: "fixed left-40 right-0 top-0 bottom-0 overflow-hidden"
+    mobile: "fixed inset-x-0 top-12 bottom-0 overflow-hidden",
+    tablet: "fixed inset-x-0 top-12 bottom-0 overflow-hidden",
+    desktop: "fixed left-40 right-0 top-12 bottom-0 overflow-hidden"
   };
 
   return (
