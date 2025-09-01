@@ -52,12 +52,6 @@ const DELIVERY_SUPPORT = [{
   icon: Square,
   page: 'project-tasks'
 }, {
-  id: 'timeline',
-  key: 'timeline',
-  label: 'Timeline',
-  icon: CalendarRange,
-  page: 'project-timeline'
-}, {
   id: 'team',
   key: 'team',
   label: 'Team',

@@ -11,8 +11,6 @@ import { ProjectSidebar } from "@/components/ProjectSidebar";
 import { ProjectSettingsPage } from "@/components/ProjectSettingsPage";
 import { ProjectContractsPage } from "@/components/projects/ProjectContractsPage";
 import { ProjectTasksPage } from "@/components/ProjectTasksPage";
-
-import { ProjectTimelinePage } from "@/components/ProjectTimelinePage";
 import { UploadProject } from "@/components/UploadProject";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { PlatformSignupPage } from "@/components/auth/PlatformSignupPage";
@@ -179,12 +177,6 @@ export const ContentRenderer = ({
           <ProjectTasksPage project={currentProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
-    case "project-timeline":
-      return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
-          <ProjectTimelinePage project={currentProject} onNavigate={onNavigate} />
-        </SubscriptionProtectedRoute>
-       ) : renderProjectNotFound();
     case "project-team":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
