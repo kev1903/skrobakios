@@ -61,7 +61,7 @@ export const transformWBSToJSGantt = (wbsItems: WBSItem[]): JSGanttTask[] => {
       pGroup: hasChildren ? 1 : 0,
       pParent: item.parent_id || 0,
       pOpen: item.is_expanded ? 1 : 0,
-      pDepend: item.linked_tasks?.join(',') || '',
+      pDepend: item.predecessors?.map(p => p.id).join(',') || '',
       pCaption: item.description || '',
       pNotes: item.description || '',
       pGantt: item.wbs_id || item.id,

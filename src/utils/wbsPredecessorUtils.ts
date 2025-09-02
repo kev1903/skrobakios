@@ -100,8 +100,7 @@ export const findDependentWBSTasks = (
   allTasks: WBSItem[]
 ): WBSItem[] => {
   return allTasks.filter(task => 
-    task.predecessors?.some(pred => pred.id === taskId) ||
-    task.linked_tasks?.includes(taskId)
+    task.predecessors?.some(pred => pred.id === taskId)
   );
 };
 

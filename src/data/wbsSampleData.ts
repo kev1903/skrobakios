@@ -18,6 +18,7 @@ export interface WBSItem {
   level?: number | null;
   is_expanded?: boolean | null;
   linked_tasks?: any;
+  predecessors?: any; // Structured predecessor data
   children?: WBSItem[];
   created_at?: string;
   updated_at?: string;
@@ -60,7 +61,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 45,
       level: 0,
       is_expanded: true,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: []
     },
     // Components under Planning & Design (Level 1)
     {
@@ -79,7 +81,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 90,
       level: 1,
       is_expanded: true,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: []
     },
     // Elements under Site Preparation (Level 2)
     {
@@ -98,7 +101,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 100,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: []
     },
     {
       company_id: companyId,
@@ -116,7 +120,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 80,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '1.1.1', type: 'FS', lag: 0 }] // Depends on Site Survey
     },
     // Design Development Component (Level 1)
     {
@@ -135,7 +140,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 25,
       level: 1,
       is_expanded: true,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '1.1.1', type: 'FS', lag: 0 }] // Can start after Site Survey
     },
     // Elements under Design Development (Level 2)
     {
@@ -154,7 +160,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 30,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: []
     },
     {
       company_id: companyId,
@@ -172,7 +179,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 10,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '1.2.1', type: 'SS', lag: 15 }] // Can start 15 days after Architectural Plans start
     },
 
     // Phase 2: Construction Phase (Level 0)
@@ -192,7 +200,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 0,
       is_expanded: true,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '1.2.2', type: 'FS', lag: 0 }] // Must complete design first
     },
     // Foundation Work Component (Level 1)
     {
@@ -211,7 +220,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 1,
       is_expanded: true,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '1.1.2', type: 'FS', lag: 0 }] // Needs site clearing complete
     },
     // Elements under Foundation Work (Level 2)
     {
@@ -230,7 +240,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: []
     },
     {
       company_id: companyId,
@@ -248,7 +259,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '2.1.1', type: 'FS', lag: 0 }] // Must complete excavation first
     },
     // Structural Framework Component (Level 1)
     {
@@ -267,7 +279,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 1,
       is_expanded: true,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '2.1.2', type: 'FS', lag: 0 }] // Foundation must be complete
     },
     // Elements under Structural Framework (Level 2)
     {
@@ -286,7 +299,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: []
     },
     {
       company_id: companyId,
@@ -304,7 +318,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '2.2.1', type: 'FS', lag: 0 }] // Steel must be erected first
     },
 
     // Phase 3: Finishing Phase (Level 0)
@@ -324,7 +339,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 0,
       is_expanded: true,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '2.2.2', type: 'FS', lag: 0 }] // Structure must be complete
     },
     // Building Envelope Component (Level 1)
     {
@@ -343,7 +359,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 1,
       is_expanded: true,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: []
     },
     // Elements under Building Envelope (Level 2)
     {
@@ -362,7 +379,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: []
     },
     {
       company_id: companyId,
@@ -380,7 +398,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '3.1.1', type: 'FS', lag: 0 }] // Walls must be complete first
     },
     // Interior Finishes Component (Level 1)
     {
@@ -399,7 +418,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 1,
       is_expanded: true,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '3.1.2', type: 'FS', lag: 0 }] // Envelope must be complete
     },
     // Elements under Interior Finishes (Level 2)
     {
@@ -418,7 +438,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: []
     },
     {
       company_id: companyId,
@@ -436,7 +457,8 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
       progress: 0,
       level: 2,
       is_expanded: false,
-      linked_tasks: []
+      linked_tasks: [],
+      predecessors: [{ id: '3.2.1', type: 'FS', lag: 0 }] // Flooring must be installed first
     }
   ];
 
@@ -474,6 +496,7 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
         progress: data.progress || 0,
         level: data.level,
         is_expanded: data.is_expanded,
+        predecessors: Array.isArray(data.predecessors) ? data.predecessors : [],
         linked_tasks: Array.isArray(data.linked_tasks) ? (data.linked_tasks as string[]) : [],
         children: [],
         created_at: data.created_at,
@@ -516,6 +539,30 @@ export const createSampleWBSData = async (projectId: string, companyId: string):
     }
   }
 
-  console.log(`🎉 Successfully created ${createdItems.length} WBS items with proper hierarchy`);
+  // Third pass: Update predecessor relationships with actual IDs
+  for (const item of createdItems) {
+    if (item.predecessors && Array.isArray(item.predecessors) && item.predecessors.length > 0) {
+      const updatedPredecessors = item.predecessors.map((pred: any) => {
+        const predecessorItem = itemsByWbsId[pred.id];
+        if (predecessorItem && predecessorItem.id) {
+          return {
+            ...pred,
+            id: predecessorItem.id // Replace WBS ID with actual database ID
+          };
+        }
+        return pred;
+      }).filter((pred: any) => itemsByWbsId[pred.id] || createdItems.some(ci => ci.id === pred.id));
+
+      if (updatedPredecessors.length > 0) {
+        await supabase
+          .from('wbs_items')
+          .update({ predecessors: updatedPredecessors })
+          .eq('id', item.id);
+        console.log(`🔗 Updated predecessors for ${item.wbs_id}`);
+      }
+    }
+  }
+
+  console.log(`🎉 Successfully created ${createdItems.length} WBS items with proper hierarchy and dependencies`);
   return createdItems;
 };

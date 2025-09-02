@@ -29,7 +29,8 @@ export class WBSService {
     // Convert database records to WBSItem format with proper predecessors handling
     const wbsItems = data.map(item => ({
       ...item,
-      predecessors: (item.predecessors as unknown as WBSPredecessor[]) || []
+      predecessors: (item.predecessors as unknown as WBSPredecessor[]) || [],
+      linked_tasks: Array.isArray(item.linked_tasks) ? (item.linked_tasks as string[]) : []
     }));
 
     // Build and return hierarchy
@@ -62,8 +63,8 @@ export class WBSService {
       category: itemData.category,
       priority: itemData.priority,
       is_expanded: itemData.is_expanded,
-      linked_tasks: itemData.linked_tasks,
-      predecessors: (itemData.predecessors || []) as any
+      predecessors: (itemData.predecessors || []) as any,
+      linked_tasks: itemData.linked_tasks
     };
 
     const { data, error } = await supabase

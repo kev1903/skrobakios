@@ -271,7 +271,11 @@ export const WBSTimeView = ({
                   name: item.title,
                   wbsNumber: item.wbs_id,
                   status: item.status || 'Not Started',
-                  predecessors: item.linked_tasks || []
+                  predecessors: item.predecessors?.map(p => ({
+                    predecessorId: p.id,
+                    type: p.type,
+                    lag: p.lag
+                  })) || []
                 }))} 
                 className="min-w-fit" 
                 hideHeader 

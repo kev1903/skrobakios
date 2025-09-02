@@ -35,7 +35,7 @@ export const JSGanttChart: React.FC<JSGanttChartProps> = ({
       start: item.start_date || new Date().toISOString().split('T')[0],
       end: item.end_date || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       progress: item.progress || 0,
-      dependencies: item.linked_tasks?.join(',') || ''
+      dependencies: item.predecessors?.map(p => p.id).join(',') || ''
     }));
   };
 
