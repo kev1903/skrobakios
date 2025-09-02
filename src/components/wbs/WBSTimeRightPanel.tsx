@@ -76,6 +76,51 @@ export const WBSTimeRightPanel = ({
     return items.filter(item => item.parent_id === parentId);
   };
 
+  // Rollup dates for parents (display-only) from descendant elements
+  const rollupDates = React.useMemo(() => {
+    // Build children map for fast traversal
+    const cMap = new Map<string, WBSItem[]>();
+    items.forEach(it => {
+      if (it.parent_id) {
+        const arr = cMap.get(it.parent_id) || [];
+        arr.push(it);
+        cMap.set(it.parent_id, arr);
+      }
+    });
+
+    const map = new Map<string, { start?: Date; end?: Date; duration?: number }>();
+
+    const collect = (id: string) => {
+      const stack: WBSItem[] = [...(cMap.get(id) || [])];
+      const starts: Date[] = [];
+      const ends: Date[] = [];
+      while (stack.length) {
+        const node = stack.pop() as WBSItem;
+        if (node.level < 2) {
+          (cMap.get(node.id) || []).forEach(child => stack.push(child));
+        } else {
+          if (node.start_date) starts.push(new Date(node.start_date));
+          if (node.end_date) ends.push(new Date(node.end_date));
+        }
+      }
+      if (starts.length || ends.length) {
+        const start = starts.length ? new Date(Math.min(...starts.map(d => d.getTime()))) : undefined;
+        const end = ends.length ? new Date(Math.max(...ends.map(d => d.getTime()))) : undefined;
+        map.set(id, {
+          start,
+          end,
+          duration: start && end ? differenceInDays(end, start) + 1 : undefined
+        });
+      }
+    };
+
+    items.forEach(it => {
+      if (it.level === 0 || it.level === 1) collect(it.id);
+    });
+
+    return map;
+  }, [items]);
+
   // Auto-calculate parent dates based on children
   const calculateParentDates = (parentId: string) => {
     const parent = items.find(item => item.id === parentId);
@@ -224,41 +269,71 @@ export const WBSTimeRightPanel = ({
             </div>
 
             <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
-                <DatePickerCell
-                  id={item.id}
-                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                  field="start_date"
-                  value={item.start_date}
-                  placeholder="Start date"
-                  className="text-xs text-muted-foreground"
-                  onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
-                  onCalculate={handleDateCalculation}
-                  currentItem={item}
-                />
+                {(() => {
+                  // Use rollup date if available for parent items, otherwise use actual value
+                  const rollup = rollupDates.get(item.id);
+                  const displayValue = (item.level < 2 && rollup?.start) 
+                    ? rollup.start.toISOString().split('T')[0] 
+                    : item.start_date;
+                  
+                  return (
+                    <DatePickerCell
+                      id={item.id}
+                      type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                      field="start_date"
+                      value={displayValue}
+                      placeholder="Start date"
+                      className="text-xs text-muted-foreground"
+                      onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                      onCalculate={handleDateCalculation}
+                      currentItem={item}
+                    />
+                  );
+                })()}
             </div>
 
             <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
-              <DatePickerCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="end_date"
-                value={item.end_date}
-                placeholder="End date"
-                className="text-xs text-muted-foreground"
-                onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
-                onCalculate={handleDateCalculation}
-                currentItem={item}
-              />
+              {(() => {
+                // Use rollup date if available for parent items, otherwise use actual value
+                const rollup = rollupDates.get(item.id);
+                const displayValue = (item.level < 2 && rollup?.end) 
+                  ? rollup.end.toISOString().split('T')[0] 
+                  : item.end_date;
+                
+                return (
+                  <DatePickerCell
+                    id={item.id}
+                    type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                    field="end_date"
+                    value={displayValue}
+                    placeholder="End date"
+                    className="text-xs text-muted-foreground"
+                    onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                    onCalculate={handleDateCalculation}
+                    currentItem={item}
+                  />
+                );
+              })()}
             </div>
 
             <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
-              <DurationCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                value={item.duration || 0}
-                className="text-xs text-muted-foreground"
-                onUpdate={handleDurationCalculation}
-              />
+              {(() => {
+                // Use rollup duration if available for parent items, otherwise use actual value
+                const rollup = rollupDates.get(item.id);
+                const displayValue = (item.level < 2 && rollup?.duration) 
+                  ? rollup.duration 
+                  : (item.duration || 0);
+                
+                return (
+                  <DurationCell
+                    id={item.id}
+                    type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                    value={displayValue}
+                    className="text-xs text-muted-foreground"
+                    onUpdate={handleDurationCalculation}
+                  />
+                );
+              })()}
             </div>
 
             <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
