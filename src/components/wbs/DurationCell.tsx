@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 
 interface DurationCellProps {
@@ -18,8 +18,18 @@ export const DurationCell = ({
 }: DurationCellProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value.toString());
+  
+  // Update local state when prop value changes (for auto-calculated duration)
+  useEffect(() => {
+    setInputValue(value.toString());
+  }, [value]);
+  
+  // Only allow editing for elements (level 2)
+  const isEditable = type === 'element';
 
   const handleSave = () => {
+    if (!isEditable) return;
+    
     const numValue = Math.max(0, parseInt(inputValue) || 0);
     if (onUpdate) {
       onUpdate(id, 'duration', numValue);
@@ -36,7 +46,7 @@ export const DurationCell = ({
     }
   };
 
-  if (isEditing) {
+  if (isEditing && isEditable) {
     return (
       <Input
         value={inputValue}
@@ -53,12 +63,16 @@ export const DurationCell = ({
 
   return (
     <div
-      className={`w-full h-full flex items-center justify-center cursor-pointer hover:bg-accent/20 rounded px-1 ${className}`}
+      className={`w-full h-full flex items-center justify-center rounded px-1 ${
+        isEditable ? 'cursor-pointer hover:bg-accent/20' : 'cursor-default opacity-60'
+      } ${className}`}
       onClick={() => {
-        setInputValue(value.toString());
-        setIsEditing(true);
+        if (isEditable) {
+          setInputValue(value.toString());
+          setIsEditing(true);
+        }
       }}
-      title="Click to edit duration (days)"
+      title={isEditable ? "Click to edit duration (days)" : "Auto-calculated duration"}
     >
       <span className="text-xs text-muted-foreground">
         {value > 0 ? `${value}d` : '-'}

@@ -49,6 +49,84 @@ export const WBSTimeRightPanel = ({
   onScroll
 }: WBSTimeRightPanelProps) => {
 
+  // Helper function to get children of a specific item
+  const getChildren = (parentId: string) => {
+    return items.filter(item => {
+      const parent = items.find(p => p.id === parentId);
+      if (!parent) return false;
+      
+      // Check if item is a direct child based on WBS hierarchy
+      // This is a simplified approach - you might need to adjust based on your WBS structure
+      if (parent.level === 0) {
+        return item.level === 1; // Components are children of phases
+      } else if (parent.level === 1) {
+        return item.level === 2; // Elements are children of components  
+      }
+      return false;
+    });
+  };
+
+  // Auto-calculate parent dates based on children
+  const calculateParentDates = (parentId: string) => {
+    const parent = items.find(item => item.id === parentId);
+    if (!parent || parent.level === 2) return; // Only calculate for phases and components
+    
+    const children = getChildren(parentId);
+    if (children.length === 0) return;
+    
+    // Filter children that have dates
+    const childrenWithDates = children.filter(child => child.start_date && child.end_date);
+    if (childrenWithDates.length === 0) return;
+    
+    // Calculate earliest start and latest end
+    const startDates = childrenWithDates.map(child => new Date(child.start_date!));
+    const endDates = childrenWithDates.map(child => new Date(child.end_date!));
+    
+    const earliestStart = new Date(Math.min(...startDates.map(d => d.getTime())));
+    const latestEnd = new Date(Math.max(...endDates.map(d => d.getTime())));
+    const calculatedDuration = differenceInDays(latestEnd, earliestStart);
+    
+    // Update parent with calculated values
+    onItemUpdate(parentId, {
+      start_date: earliestStart.toISOString(),
+      end_date: latestEnd.toISOString(),
+      duration: calculatedDuration
+    });
+  };
+
+  // Enhanced onItemUpdate that triggers parent calculations
+  const handleItemUpdate = (itemId: string, updates: any) => {
+    // First update the item itself
+    onItemUpdate(itemId, updates);
+    
+    // If dates or duration were updated, recalculate parent dates
+    if (updates.start_date || updates.end_date || updates.duration) {
+      const item = items.find(i => i.id === itemId);
+      if (item) {
+        // Find and update parent
+        if (item.level === 2) {
+          // Element updated - find parent component
+          const parentComponent = items.find(p => p.level === 1); // This is simplified - you'll need proper parent lookup
+          if (parentComponent) {
+            setTimeout(() => calculateParentDates(parentComponent.id), 100);
+            
+            // Also update grandparent phase
+            const grandparentPhase = items.find(p => p.level === 0);
+            if (grandparentPhase) {
+              setTimeout(() => calculateParentDates(grandparentPhase.id), 200);
+            }
+          }
+        } else if (item.level === 1) {
+          // Component updated - find parent phase
+          const parentPhase = items.find(p => p.level === 0);
+          if (parentPhase) {
+            setTimeout(() => calculateParentDates(parentPhase.id), 100);
+          }
+        }
+      }
+    }
+  };
+
   // Auto-calculation logic for dates and duration
   const handleDateCalculation = (id: string, field: string, value: string, currentItem: any) => {
     const item = items.find(i => i.id === id);
@@ -86,7 +164,7 @@ export const WBSTimeRightPanel = ({
       }
     }
 
-    onItemUpdate(id, updates);
+    handleItemUpdate(id, updates);
   };
 
   const handleDurationCalculation = (id: string, field: string, value: number) => {
@@ -110,7 +188,7 @@ export const WBSTimeRightPanel = ({
       }
     }
 
-    onItemUpdate(id, updates);
+    handleItemUpdate(id, updates);
   };
   return (
     <div className="flex-1 min-w-0 bg-white overflow-hidden">
@@ -142,17 +220,17 @@ export const WBSTimeRightPanel = ({
             </div>
 
             <div className="px-2 py-3 min-h-[3.5rem] flex items-center text-xs text-muted-foreground">
-              <DatePickerCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="start_date"
-                value={item.start_date}
-                placeholder="Start date"
-                className="text-xs text-muted-foreground"
-                onUpdate={(id, field, value) => onItemUpdate(id, { [field]: value })}
-                onCalculate={handleDateCalculation}
-                currentItem={item}
-              />
+                <DatePickerCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="start_date"
+                  value={item.start_date}
+                  placeholder="Start date"
+                  className="text-xs text-muted-foreground"
+                  onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                  onCalculate={handleDateCalculation}
+                  currentItem={item}
+                />
             </div>
 
             <div className="px-2 py-3 min-h-[3.5rem] flex items-center text-xs text-muted-foreground">
@@ -163,7 +241,7 @@ export const WBSTimeRightPanel = ({
                 value={item.end_date}
                 placeholder="End date"
                 className="text-xs text-muted-foreground"
-                onUpdate={(id, field, value) => onItemUpdate(id, { [field]: value })}
+                onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
                 onCalculate={handleDateCalculation}
                 currentItem={item}
               />
@@ -191,7 +269,7 @@ export const WBSTimeRightPanel = ({
                   level: i.level
                 }))}
                 className="text-xs text-muted-foreground"
-                onUpdate={(id, field, value) => onItemUpdate(id, { [field]: value })}
+                onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
               />
             </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -37,8 +37,18 @@ export const DatePickerCell = ({
     value ? (typeof value === 'string' ? new Date(value) : value) : undefined
   );
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Update local state when prop value changes (for auto-calculated dates)
+  useEffect(() => {
+    setDate(value ? (typeof value === 'string' ? new Date(value) : value) : undefined);
+  }, [value]);
+  
+  // Only allow editing for elements (level 2)
+  const isEditable = type === 'element';
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
+    if (!isEditable) return;
+    
     setDate(selectedDate);
     if (selectedDate) {
       const dateString = selectedDate.toISOString();
@@ -57,12 +67,14 @@ export const DatePickerCell = ({
 
   return (
     <div className="w-full h-full flex items-center">
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <Popover open={isOpen && isEditable} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
+            disabled={!isEditable}
             className={cn(
-              "w-full justify-start text-left font-normal p-0 h-auto hover:bg-accent/20",
+              "w-full justify-start text-left font-normal p-0 h-auto",
+              isEditable ? "hover:bg-accent/20" : "cursor-default opacity-60",
               !date && "text-muted-foreground",
               className
             )}
@@ -71,9 +83,11 @@ export const DatePickerCell = ({
               {date ? (
                 format(date, "MMM dd, yyyy")
               ) : (
-                <span className="text-muted-foreground">{placeholder}</span>
+                <span className="text-muted-foreground">
+                  {isEditable ? placeholder : "Auto-calculated"}
+                </span>
               )}
-              <CalendarIcon className="h-3 w-3 opacity-50" />
+              {isEditable && <CalendarIcon className="h-3 w-3 opacity-50" />}
             </div>
           </Button>
         </PopoverTrigger>
