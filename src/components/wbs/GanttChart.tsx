@@ -105,10 +105,10 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
 
   const getLevelColor = (level: number) => {
     switch (level) {
-      case 0: return 'glass-light border-primary/20 shadow-lg bg-gradient-to-r from-primary/5 to-primary/10';
-      case 1: return 'glass-light border-secondary/30 shadow-md bg-gradient-to-r from-secondary/10 to-secondary/20';
-      case 2: return 'glass-light border-accent/30 shadow-sm bg-gradient-to-r from-accent/10 to-accent/20';
-      default: return 'glass-light border-muted/30 shadow-sm bg-gradient-to-r from-muted/5 to-muted/10';
+      case 0: return 'border-primary/30 bg-primary/10';
+      case 1: return 'border-secondary/40 bg-secondary/15';
+      case 2: return 'border-accent/40 bg-accent/15';
+      default: return 'border-muted/40 bg-muted/10';
     }
   };
 
@@ -138,9 +138,9 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
 
 
   return (
-    <div className={`h-full w-full glass-light rounded-xl border border-border/20 overflow-hidden ${className}`}>
+    <div className={`h-full w-full rounded-xl border border-border/20 overflow-hidden ${className}`}>
 {!hideHeader && (
-  <div className="sticky top-0 glass-light backdrop-blur-xl border-b border-border/10 z-10">
+  <div className="sticky top-0 bg-background border-b border-border/10 z-10">
     <div className="min-w-fit">
       <div style={{ width: chartWidth }} className="flex">
         {timelineDays.map((day) => {
@@ -212,7 +212,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                 {/* Task bar */}
                 {position && (
                   <div
-                    className={`absolute top-1 bottom-1 rounded-lg border ${getLevelColor(item.level)} transition-all duration-300 cursor-pointer group backdrop-blur-sm`}
+                    className={`absolute top-1 bottom-1 rounded-lg border ${getLevelColor(item.level)} transition-all duration-300 cursor-pointer group`}
                     style={{
                       left: position.left + 3,
                       width: Math.max(28, position.width - 6)
@@ -220,7 +220,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                     title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
                   >
                     {/* Status indicator with gradient */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg ${getStatusColor(item.status)} shadow-sm`} />
+                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg ${getStatusColor(item.status)}`} />
                     
                     {/* Task content */}
                     {position.width <= 60 ? (
@@ -247,7 +247,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
 
                     {/* Enhanced tooltip */}
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 transition-all duration-300 pointer-events-none z-20">
-                      <div className="glass-light backdrop-blur-xl border border-border/20 rounded-lg py-3 px-4 shadow-xl">
+                      <div className="bg-background border border-border/20 rounded-lg py-3 px-4">
                         <div className="font-semibold text-foreground text-sm">{getWbs(item)} - {item.name}</div>
                         <div className="text-muted-foreground text-xs mt-1">
                           {format(position.startDate, 'MMM dd, yyyy')} - {format(position.endDate, 'MMM dd, yyyy')}
@@ -268,10 +268,9 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                 {/* Enhanced today indicator */}
                 {timelineDays.some(day => isSameDay(day, new Date())) && (
                   <div
-                    className="absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary to-primary/60 z-10 shadow-lg animate-pulse"
+                    className="absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary to-primary/60 z-10"
                     style={{
-                      left: timelineDays.findIndex(day => isSameDay(day, new Date())) * dayWidth + dayWidth/2,
-                      filter: 'drop-shadow(0 0 4px hsl(var(--primary) / 0.5))'
+                      left: timelineDays.findIndex(day => isSameDay(day, new Date())) * dayWidth + dayWidth/2
                     }}
                   />
                 )}
