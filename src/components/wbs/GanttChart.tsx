@@ -113,7 +113,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
 
   const dayWidth = 32;
   const chartWidth = timelineDays.length * dayWidth;
-  const rowHeight = 56; // Height matching the table rows (3.5rem)
+  const rowHeight = 28; // Height matching the table rows (1.75rem)
 
   return (
     <div className={`h-full w-full bg-white ${className}`}>
@@ -148,7 +148,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
             return (
               <div
                 key={item.id}
-                className={`relative border-b border-gray-100 ${
+                className={`relative ${
                   item.level === 0 
                     ? 'bg-primary/5' 
                     : item.level === 1
