@@ -46,19 +46,7 @@ export const WBSTimeRightPanel = ({
 
   // Helper function to get children of a specific item
   const getChildren = (parentId: string) => {
-    return items.filter(item => {
-      const parent = items.find(p => p.id === parentId);
-      if (!parent) return false;
-      
-      // Check if item is a direct child based on WBS hierarchy
-      // This is a simplified approach - you might need to adjust based on your WBS structure
-      if (parent.level === 0) {
-        return item.level === 1; // Components are children of phases
-      } else if (parent.level === 1) {
-        return item.level === 2; // Elements are children of components  
-      }
-      return false;
-    });
+    return items.filter(item => item.parent_id === parentId);
   };
 
   // Auto-calculate parent dates based on children
