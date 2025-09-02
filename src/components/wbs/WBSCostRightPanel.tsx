@@ -44,7 +44,9 @@ export const WBSCostRightPanel = ({
   EditableCell,
   StatusSelect,
   scrollRef,
-  onScroll
+  onScroll,
+  hoveredId,
+  onRowHover
 }: WBSCostRightPanelProps) => {
   return (
     <div className="flex-1 min-w-0 bg-white overflow-hidden">
