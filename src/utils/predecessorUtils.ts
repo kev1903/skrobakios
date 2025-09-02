@@ -207,14 +207,18 @@ const getTaskStartX = (task: GanttTask, viewSettings: any) => {
   const daysSinceStart = Math.floor(
     (task.startDate.getTime() - viewSettings.viewStart.getTime()) / (1000 * 60 * 60 * 24)
   );
-  return daysSinceStart * viewSettings.dayWidth;
+  return daysSinceStart * viewSettings.dayWidth + 3; // Add 3px for container padding
 };
 
 const getTaskEndX = (task: GanttTask, viewSettings: any) => {
   const daysSinceStart = Math.floor(
     (task.endDate.getTime() - viewSettings.viewStart.getTime()) / (1000 * 60 * 60 * 24)
   );
-  return daysSinceStart * viewSettings.dayWidth;
+  const duration = Math.ceil(
+    (task.endDate.getTime() - task.startDate.getTime()) / (1000 * 60 * 60 * 24)
+  ) + 1;
+  const taskWidth = Math.max(viewSettings.dayWidth, duration * viewSettings.dayWidth);
+  return daysSinceStart * viewSettings.dayWidth + taskWidth - 3; // Subtract 3px for container padding
 };
 
 const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number) => {
@@ -225,7 +229,7 @@ const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number)
   // Determine routing based on relative positions
   if (Math.abs(toY - fromY) <= 5) {
     // Same row - simple horizontal line
-    return `M ${fromX} ${fromY} L ${toX - 8} ${toY}`;
+    return `M ${fromX} ${fromY} L ${toX} ${toY}`;
   }
   
   if (toX > fromX) {
@@ -235,11 +239,11 @@ const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number)
     return `M ${fromX} ${fromY} 
             L ${midX} ${fromY}
             L ${midX} ${toY}
-            L ${toX - 8} ${toY}`;
+            L ${toX} ${toY}`;
   } else {
     // Backward dependency - more complex routing to avoid overlap
     const extensionX = fromX + horizontalOffset;
-    const returnX = toX - horizontalOffset - 8;
+    const returnX = toX - horizontalOffset;
     const midY = fromY + (toY > fromY ? verticalOffset : -verticalOffset);
     
     return `M ${fromX} ${fromY}
@@ -247,7 +251,7 @@ const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number)
             L ${extensionX} ${midY}
             L ${returnX} ${midY}
             L ${returnX} ${toY}
-            L ${toX - 8} ${toY}`;
+            L ${toX} ${toY}`;
   }
 };
 
