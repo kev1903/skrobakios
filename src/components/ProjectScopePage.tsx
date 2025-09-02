@@ -335,13 +335,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       if (wbsItem) {
         return {
           ...item,
+          // Ensure hierarchy fields are present for rollups
+          parent_id: wbsItem.parent_id,
+          wbs_id: wbsItem.wbs_id,
+          level: wbsItem.level ?? item.level,
           name: wbsItem.title || item.name, // Use WBS title if available
           title: wbsItem.title || item.name, // Also set title field
           start_date: wbsItem.start_date || null,
           end_date: wbsItem.end_date || null,
           duration: wbsItem.duration || 0,
           predecessors: (wbsItem as any).predecessors || []
-        };
+        } as any;
       }
       return item;
     });

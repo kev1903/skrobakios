@@ -70,20 +70,17 @@ export const WBSTimeRightPanel = ({
         return false;
       };
 
-      const parentsWithChildren = items.filter(
-        (item) => (item.level === 0 || item.level === 1) && hasDirectChild(item as WBSItem)
-      );
+      const parentsWithChildren = items.filter((item) => hasDirectChild(item as WBSItem));
       
-      // Calculate dates for components first, then phases
-      const components = parentsWithChildren.filter(item => item.level === 1);
-      const phases = parentsWithChildren.filter(item => item.level === 0);
-      
-      components.forEach(component => {
-        setTimeout(() => calculateParentDates(component.id), 10);
+      // Calculate for all parents (deeper first if possible)
+      const sortedParents = [...parentsWithChildren].sort((a, b) => {
+        const depthA = (a.wbs_id ? (a.wbs_id.endsWith('.0') ? a.wbs_id.slice(0, -2) : a.wbs_id) : '').split('.').length;
+        const depthB = (b.wbs_id ? (b.wbs_id.endsWith('.0') ? b.wbs_id.slice(0, -2) : b.wbs_id) : '').split('.').length;
+        return depthB - depthA; // deeper first
       });
       
-      phases.forEach(phase => {
-        setTimeout(() => calculateParentDates(phase.id), 20);
+      sortedParents.forEach((parent, idx) => {
+        setTimeout(() => calculateParentDates(parent.id), 10 * (idx + 1));
       });
     };
     
@@ -135,8 +132,8 @@ export const WBSTimeRightPanel = ({
       }
 
       const children = getChildren(id);
-      // Treat level 2 or items with no children as leaves
-      if (item.level === 2 || children.length === 0) {
+      // Treat items with no children as leaves
+      if (children.length === 0) {
         const start = item.start_date ? new Date(item.start_date) : undefined;
         const end = item.end_date ? new Date(item.end_date) : undefined;
         const duration = start && end ? differenceInDays(end, start) + 1 : item.duration;
@@ -163,7 +160,7 @@ export const WBSTimeRightPanel = ({
 
     // Compute for all parents
     items.forEach((it) => {
-      if (it.level === 0 || it.level === 1 || getChildren(it.id).length > 0) {
+      if (getChildren(it.id).length > 0) {
         map.set(it.id, compute(it.id));
       }
     });
@@ -182,7 +179,7 @@ export const WBSTimeRightPanel = ({
   // Auto-calculate parent dates based on children
   const calculateParentDates = (parentId: string) => {
     const parent = items.find(item => item.id === parentId);
-    if (!parent || parent.level === 2) return; // Only calculate for phases and components
+    if (!parent) return;
     
     const children = getChildren(parentId);
     if (children.length === 0) return;
