@@ -12,6 +12,7 @@ export class WBSService {
       .from('wbs_items')
       .select('*')
       .eq('project_id', projectId)
+      .eq('company_id', companyId)
       .order('level', { ascending: true })
       .order('wbs_id', { ascending: true });
 
@@ -20,10 +21,78 @@ export class WBSService {
     console.log('📊 Raw WBS data from database:', data?.length || 0, 'items');
     data?.forEach(item => console.log(`  ${item.wbs_id}: ${item.title} (Level ${item.level})`));
 
-    // If no data exists, return empty array (no auto-sample)
+    // If no data exists, seed a minimal default WBS so users always see something
     if (!data || data.length === 0) {
-      console.log('🏗️ No WBS data found. Returning empty dataset.');
-      return [];
+      console.log('🏗️ No WBS data found. Seeding default structure...');
+
+      // 1) Create default Phase (level 0)
+      const { data: phase, error: phaseErr } = await supabase
+        .from('wbs_items')
+        .insert({
+          company_id: companyId,
+          project_id: projectId,
+          parent_id: null,
+          wbs_id: '1.0',
+          title: 'Phase 1',
+          description: 'Initial phase',
+          level: 0,
+          category: 'Stage',
+          is_expanded: true,
+          linked_tasks: [],
+          progress: 0,
+          status: 'Not Started'
+        })
+        .select()
+        .single();
+      if (phaseErr) throw phaseErr;
+
+      // 2) Create default Component (level 1)
+      const { data: component, error: compErr } = await supabase
+        .from('wbs_items')
+        .insert({
+          company_id: companyId,
+          project_id: projectId,
+          parent_id: phase.id,
+          wbs_id: '1.1',
+          title: 'Component 1',
+          description: 'First component',
+          level: 1,
+          category: 'Component',
+          is_expanded: true,
+          linked_tasks: [],
+          progress: 0,
+          status: 'Not Started'
+        })
+        .select()
+        .single();
+      if (compErr) throw compErr;
+
+      // 3) Create default Element (level 2)
+      const { data: element, error: elemErr } = await supabase
+        .from('wbs_items')
+        .insert({
+          company_id: companyId,
+          project_id: projectId,
+          parent_id: component.id,
+          wbs_id: '1.1.1',
+          title: 'Task 1',
+          description: 'First task',
+          level: 2,
+          category: 'Element',
+          is_expanded: false,
+          linked_tasks: [],
+          progress: 0,
+          status: 'Not Started',
+          duration: 1
+        })
+        .select()
+        .single();
+      if (elemErr) throw elemErr;
+
+      const inserted = [phase, component, element];
+      const hierarchyData = buildHierarchy(inserted);
+      console.log('🌳 Seeded hierarchy with', hierarchyData.length, 'root items');
+      return hierarchyData;
     }
 
     // Build and return hierarchy
