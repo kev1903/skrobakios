@@ -80,7 +80,7 @@ export const DatePickerCell = ({
               className
             )}
           >
-            <div className="flex items-center gap-1 text-xs">
+            <div className="text-xs">
               {date ? (
                 format(date, "MMM dd, yyyy")
               ) : (
@@ -88,7 +88,6 @@ export const DatePickerCell = ({
                   {isEditable ? placeholder : "Auto-calculated"}
                 </span>
               )}
-              {isEditable && <CalendarIcon className="h-3 w-3 opacity-50" />}
             </div>
           </Button>
         </PopoverTrigger>
