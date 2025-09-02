@@ -227,9 +227,10 @@ const getTaskEndX = (task: GanttTask, viewSettings: any) => {
 };
 
 const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number) => {
-  // Calculate orthogonal routing with 90-degree turns
+  // Calculate orthogonal routing with rounded corners
   const horizontalOffset = 20; // Distance to move horizontally before turning
   const verticalOffset = 10; // Minimum vertical space for turns
+  const cornerRadius = 8; // Radius for rounded corners
   
   // Determine routing based on relative positions
   if (Math.abs(toY - fromY) <= 5) {
@@ -241,22 +242,56 @@ const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number)
     // Forward dependency - go right, then down/up, then right to target
     const midX = fromX + Math.max(horizontalOffset, (toX - fromX) * 0.3);
     
-    return `M ${fromX} ${fromY} 
-            L ${midX} ${fromY}
-            L ${midX} ${toY}
-            L ${toX} ${toY}`;
+    // Create path with rounded corners using quadratic curves
+    if (toY > fromY) {
+      // Going down
+      return `M ${fromX} ${fromY} 
+              L ${midX - cornerRadius} ${fromY}
+              Q ${midX} ${fromY} ${midX} ${fromY + cornerRadius}
+              L ${midX} ${toY - cornerRadius}
+              Q ${midX} ${toY} ${midX + cornerRadius} ${toY}
+              L ${toX} ${toY}`;
+    } else {
+      // Going up
+      return `M ${fromX} ${fromY} 
+              L ${midX - cornerRadius} ${fromY}
+              Q ${midX} ${fromY} ${midX} ${fromY - cornerRadius}
+              L ${midX} ${toY + cornerRadius}
+              Q ${midX} ${toY} ${midX + cornerRadius} ${toY}
+              L ${toX} ${toY}`;
+    }
   } else {
     // Backward dependency - more complex routing to avoid overlap
     const extensionX = fromX + horizontalOffset;
     const returnX = toX - horizontalOffset;
     const midY = fromY + (toY > fromY ? verticalOffset : -verticalOffset);
     
-    return `M ${fromX} ${fromY}
-            L ${extensionX} ${fromY}
-            L ${extensionX} ${midY}
-            L ${returnX} ${midY}
-            L ${returnX} ${toY}
-            L ${toX} ${toY}`;
+    // Create path with rounded corners for complex routing
+    if (toY > fromY) {
+      // Going down then back
+      return `M ${fromX} ${fromY}
+              L ${extensionX - cornerRadius} ${fromY}
+              Q ${extensionX} ${fromY} ${extensionX} ${fromY + cornerRadius}
+              L ${extensionX} ${midY - cornerRadius}
+              Q ${extensionX} ${midY} ${extensionX - cornerRadius} ${midY}
+              L ${returnX + cornerRadius} ${midY}
+              Q ${returnX} ${midY} ${returnX} ${midY + cornerRadius}
+              L ${returnX} ${toY - cornerRadius}
+              Q ${returnX} ${toY} ${returnX + cornerRadius} ${toY}
+              L ${toX} ${toY}`;
+    } else {
+      // Going up then back
+      return `M ${fromX} ${fromY}
+              L ${extensionX - cornerRadius} ${fromY}
+              Q ${extensionX} ${fromY} ${extensionX} ${fromY - cornerRadius}
+              L ${extensionX} ${midY + cornerRadius}
+              Q ${extensionX} ${midY} ${extensionX - cornerRadius} ${midY}
+              L ${returnX + cornerRadius} ${midY}
+              Q ${returnX} ${midY} ${returnX} ${midY - cornerRadius}
+              L ${returnX} ${toY + cornerRadius}
+              Q ${returnX} ${toY} ${returnX + cornerRadius} ${toY}
+              L ${toX} ${toY}`;
+    }
   }
 };
 
