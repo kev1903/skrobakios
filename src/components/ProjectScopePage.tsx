@@ -344,7 +344,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           start_date: wbsItem.start_date || null,
           end_date: wbsItem.end_date || null,
           duration: wbsItem.duration || 0,
-          predecessors: (wbsItem as any).predecessors || []
+          linked_tasks: Array.isArray(wbsItem.linked_tasks) ? wbsItem.linked_tasks : [],
+          predecessors: Array.isArray((wbsItem as any).predecessors) ? (wbsItem as any).predecessors : []
         } as any;
       }
       return item;
