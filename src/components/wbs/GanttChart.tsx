@@ -94,20 +94,20 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Completed': return 'bg-green-500';
-      case 'In Progress': return 'bg-blue-500';
-      case 'On Hold': return 'bg-yellow-500';
-      case 'Not Started': return 'bg-gray-400';
-      default: return 'bg-gray-400';
+      case 'Completed': return 'bg-gradient-to-r from-success to-success/80';
+      case 'In Progress': return 'bg-gradient-to-r from-primary to-primary/80';
+      case 'On Hold': return 'bg-gradient-to-r from-warning to-warning/80';
+      case 'Not Started': return 'bg-gradient-to-r from-muted-foreground/60 to-muted-foreground/40';
+      default: return 'bg-gradient-to-r from-muted-foreground/60 to-muted-foreground/40';
     }
   };
 
   const getLevelColor = (level: number) => {
     switch (level) {
-      case 0: return 'bg-purple-100 border-purple-300';
-      case 1: return 'bg-blue-100 border-blue-300';
-      case 2: return 'bg-green-100 border-green-300';
-      default: return 'bg-gray-100 border-gray-300';
+      case 0: return 'glass-light border-primary/20 shadow-lg bg-gradient-to-r from-primary/5 to-primary/10';
+      case 1: return 'glass-light border-secondary/30 shadow-md bg-gradient-to-r from-secondary/10 to-secondary/20';
+      case 2: return 'glass-light border-accent/30 shadow-sm bg-gradient-to-r from-accent/10 to-accent/20';
+      default: return 'glass-light border-muted/30 shadow-sm bg-gradient-to-r from-muted/5 to-muted/10';
     }
   };
 
@@ -116,103 +116,132 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
   const rowHeight = 28; // Height matching the table rows (1.75rem)
 
   return (
-    <div className={`h-full w-full bg-white ${className}`}>
+    <div className={`h-full w-full glass-light rounded-xl border border-border/20 overflow-hidden ${className}`}>
 {!hideHeader && (
-  <div className="sticky top-0 bg-white border-b border-border z-10">
+  <div className="sticky top-0 glass-light backdrop-blur-xl border-b border-border/10 z-10">
     <div className="min-w-fit">
       <div style={{ width: chartWidth }} className="flex">
-        {timelineDays.map((day) => (
-          <div
-            key={day.toISOString()}
-            className="flex-shrink-0 border-r border-gray-200 text-center"
-            style={{ width: dayWidth }}
-          >
-            <div className="px-1 py-2 text-xs font-medium text-gray-700">
-              <div className="text-xs">{format(day, 'MMM')}</div>
-              <div className="text-sm font-bold">{format(day, 'd')}</div>
-              <div className="text-xs">{format(day, 'EEE')}</div>
+        {timelineDays.map((day) => {
+          const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+          const isToday = isSameDay(day, new Date());
+          return (
+            <div
+              key={day.toISOString()}
+              className={`flex-shrink-0 border-r border-border/10 text-center transition-all duration-200 ${
+                isWeekend ? 'bg-muted/20' : ''
+              } ${isToday ? 'bg-primary/10 border-primary/30' : ''}`}
+              style={{ width: dayWidth }}
+            >
+              <div className="px-1 py-3 text-xs font-medium">
+                <div className={`text-xs ${isToday ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
+                  {format(day, 'MMM')}
+                </div>
+                <div className={`text-sm font-bold ${isToday ? 'text-primary' : 'text-foreground'}`}>
+                  {format(day, 'd')}
+                </div>
+                <div className={`text-xs ${isToday ? 'text-primary/80' : 'text-muted-foreground'}`}>
+                  {format(day, 'EEE')}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   </div>
 )}
 
       {/* Gantt Bars Container */}
-      <div className="min-w-fit">
+      <div className="min-w-fit bg-gradient-to-b from-background/50 to-background/30">
         <div style={{ width: chartWidth }} className="relative">
           {items.map((item, index) => {
             const position = getTaskPosition(item);
+            const isEven = index % 2 === 0;
             
             return (
               <div
                 key={item.id}
-                className={`relative ${
+                className={`relative border-b border-border/5 transition-all duration-200 ${
                   item.level === 0 
-                    ? 'bg-primary/5' 
+                    ? 'bg-gradient-to-r from-primary/3 to-primary/8' 
                     : item.level === 1
-                    ? 'bg-secondary/5'
-                    : 'bg-white'
+                    ? 'bg-gradient-to-r from-secondary/3 to-secondary/8'
+                    : isEven ? 'bg-background/30' : 'bg-muted/10'
                 }`}
                 style={{ height: rowHeight }}
               >
                 {/* Grid lines */}
-                {timelineDays.map((day, dayIndex) => (
-                  <div
-                    key={day.toISOString()}
-                    className="absolute top-0 bottom-0 border-r border-gray-100"
-                    style={{ 
-                      left: dayIndex * dayWidth,
-                      width: dayWidth
-                    }}
-                  />
-                ))}
+                {timelineDays.map((day, dayIndex) => {
+                  const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                  return (
+                    <div
+                      key={day.toISOString()}
+                      className={`absolute top-0 bottom-0 border-r transition-all duration-200 ${
+                        isWeekend ? 'border-muted/20 bg-muted/5' : 'border-border/5'
+                      }`}
+                      style={{ 
+                        left: dayIndex * dayWidth,
+                        width: dayWidth
+                      }}
+                    />
+                  );
+                })}
 
                 {/* Task bar */}
                 {position && (
                   <div
-                    className={`absolute top-2 bottom-2 rounded-sm border-2 ${getLevelColor(item.level)} transition-all duration-200 hover:shadow-md cursor-pointer group`}
+                    className={`absolute top-1 bottom-1 rounded-lg border ${getLevelColor(item.level)} transition-all duration-300 hover:shadow-xl hover:scale-[1.02] cursor-pointer group backdrop-blur-sm`}
                     style={{
-                      left: position.left + 2,
-                      width: Math.max(24, position.width - 4)
+                      left: position.left + 3,
+                      width: Math.max(28, position.width - 6)
                     }}
                     title={`${item.wbsNumber} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
                   >
-                    {/* Status indicator */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-sm ${getStatusColor(item.status)}`} />
+                    {/* Status indicator with gradient */}
+                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg ${getStatusColor(item.status)} shadow-sm`} />
                     
                     {/* Task content */}
-                    <div className="px-2 py-1 flex items-center h-full">
-                      <span className="text-xs font-medium text-gray-700 truncate">
+                    <div className="px-3 py-1 flex items-center h-full">
+                      <span className="text-xs font-semibold text-foreground/90 truncate">
                         {item.wbsNumber}
                       </span>
-                      {position.width > 80 && (
-                        <span className="ml-1 text-xs text-gray-600 truncate">
+                      {position.width > 100 && (
+                        <span className="ml-2 text-xs text-muted-foreground truncate">
                           {item.name}
                         </span>
                       )}
                     </div>
 
-                    {/* Tooltip on hover */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
-                      <div className="bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap">
-                        <div className="font-medium">{item.wbsNumber} - {item.name}</div>
-                        <div className="text-gray-300">
-                          {format(position.startDate, 'MMM dd')} - {format(position.endDate, 'MMM dd')}
+                    {/* Progress indicator overlay */}
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                    {/* Enhanced tooltip */}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-20">
+                      <div className="glass-light backdrop-blur-xl border border-border/20 rounded-lg py-3 px-4 shadow-xl">
+                        <div className="font-semibold text-foreground text-sm">{item.wbsNumber} - {item.name}</div>
+                        <div className="text-muted-foreground text-xs mt-1">
+                          {format(position.startDate, 'MMM dd, yyyy')} - {format(position.endDate, 'MMM dd, yyyy')}
                         </div>
-                        <div className="text-gray-300">Status: {item.status}</div>
+                        <div className={`text-xs mt-2 font-medium px-2 py-1 rounded-md inline-block ${
+                          item.status === 'Completed' ? 'bg-success/20 text-success-foreground' :
+                          item.status === 'In Progress' ? 'bg-primary/20 text-primary-foreground' :
+                          item.status === 'On Hold' ? 'bg-warning/20 text-warning-foreground' :
+                          'bg-muted/20 text-muted-foreground'
+                        }`}>
+                          {item.status}
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* Today indicator */}
+                {/* Enhanced today indicator */}
                 {timelineDays.some(day => isSameDay(day, new Date())) && (
                   <div
-                    className="absolute top-0 bottom-0 w-px bg-blue-500 z-10"
+                    className="absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary to-primary/60 z-10 shadow-lg animate-pulse"
                     style={{
-                      left: timelineDays.findIndex(day => isSameDay(day, new Date())) * dayWidth
+                      left: timelineDays.findIndex(day => isSameDay(day, new Date())) * dayWidth + dayWidth/2,
+                      filter: 'drop-shadow(0 0 4px hsl(var(--primary) / 0.5))'
                     }}
                   />
                 )}
@@ -220,7 +249,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
             );
           })}
 
-          {/* Weekend highlighting */}
+          {/* Weekend highlighting with subtle pattern */}
           {timelineDays.map((day, index) => {
             const isWeekend = day.getDay() === 0 || day.getDay() === 6;
             if (!isWeekend) return null;
@@ -228,7 +257,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
             return (
               <div
                 key={`weekend-${day.toISOString()}`}
-                className="absolute top-0 bottom-0 bg-gray-50 opacity-50 pointer-events-none"
+                className="absolute top-0 bottom-0 bg-gradient-to-b from-muted/5 to-muted/10 opacity-60 pointer-events-none"
                 style={{
                   left: index * dayWidth,
                   width: dayWidth
