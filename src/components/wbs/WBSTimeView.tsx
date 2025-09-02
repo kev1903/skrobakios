@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, startOfWeek, endOfWeek, addDays } from 'date-fns';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
@@ -39,6 +39,7 @@ export const WBSTimeView = ({
   const mainScrollRef = useRef<HTMLDivElement>(null);
   const headerHorizScrollRef = useRef<HTMLDivElement>(null);
   const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const handleTimelineScroll = useCallback(() => {
     if (leftScrollRef.current && rightScrollRef.current && mainScrollRef.current) {
@@ -134,6 +135,8 @@ export const WBSTimeView = ({
                 EditableCell={EditableCell}
                 generateWBSNumber={generateWBSNumber}
                 scrollRef={leftScrollRef}
+                hoveredId={hoveredId}
+                onRowHover={setHoveredId}
               />
               
               <WBSTimeRightPanel
@@ -145,6 +148,8 @@ export const WBSTimeView = ({
                 EditableCell={EditableCell}
                 StatusSelect={StatusSelect}
                 scrollRef={rightScrollRef}
+                hoveredId={hoveredId}
+                onRowHover={setHoveredId}
               />
             </div>
           </div>

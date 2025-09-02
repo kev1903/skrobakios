@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSRightPanel } from './WBSRightPanel';
 import { DropResult } from 'react-beautiful-dnd';
@@ -49,6 +49,7 @@ export const WBSSplitView = ({
 }: WBSSplitViewProps) => {
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const handleRightScroll = useCallback(() => {
     if (leftScrollRef.current && rightScrollRef.current) {
@@ -74,6 +75,8 @@ export const WBSSplitView = ({
         generateWBSNumber={generateWBSNumber}
         scrollRef={leftScrollRef}
         onScroll={handleLeftScroll}
+        hoveredId={hoveredId}
+        onRowHover={setHoveredId}
       />
       
       <WBSRightPanel
@@ -88,6 +91,8 @@ export const WBSSplitView = ({
         getProgressColor={getProgressColor}
         scrollRef={rightScrollRef}
         onScroll={handleRightScroll}
+        hoveredId={hoveredId}
+        onRowHover={setHoveredId}
       />
     </div>
   );

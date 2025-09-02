@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSCostRightPanel } from './WBSCostRightPanel';
 import { DropResult } from 'react-beautiful-dnd';
@@ -46,6 +46,7 @@ export const WBSCostView = ({
 }: WBSCostViewProps) => {
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const handleRightScroll = useCallback(() => {
     if (leftScrollRef.current && rightScrollRef.current) {
@@ -70,6 +71,8 @@ export const WBSCostView = ({
         generateWBSNumber={generateWBSNumber}
         scrollRef={leftScrollRef}
         onScroll={handleLeftScroll}
+        hoveredId={hoveredId}
+        onRowHover={setHoveredId}
       />
       
       <WBSCostRightPanel
@@ -81,6 +84,8 @@ export const WBSCostView = ({
         StatusSelect={StatusSelect}
         scrollRef={rightScrollRef}
         onScroll={handleRightScroll}
+        hoveredId={hoveredId}
+        onRowHover={setHoveredId}
       />
     </div>
   );

@@ -32,6 +32,8 @@ interface WBSCostRightPanelProps {
   StatusSelect: any;
   scrollRef: React.RefObject<HTMLDivElement>;
   onScroll: () => void;
+  hoveredId?: string | null;
+  onRowHover?: (id: string | null) => void;
 }
 
 export const WBSCostRightPanel = ({
@@ -57,10 +59,12 @@ export const WBSCostRightPanel = ({
                 : item.level === 1
                 ? 'bg-secondary/5 hover:bg-secondary/10'
                 : 'bg-white hover:bg-slate-50/50'
-            } transition-colors duration-200`}
+            } transition-colors duration-200 ${hoveredId === item.id ? 'bg-accent/20' : ''}`}
           style={{
             gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 120px 100px 140px 84px',
           }}
+          onMouseEnter={() => onRowHover?.(item.id)}
+          onMouseLeave={() => onRowHover?.(null)}
           >
             <div className="px-3 h-[1.75rem] flex items-center text-muted-foreground text-xs">
               <EditableCell

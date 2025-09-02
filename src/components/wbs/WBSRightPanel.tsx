@@ -31,6 +31,8 @@ interface WBSRightPanelProps {
   getProgressColor: (progress: number) => string;
   scrollRef: React.RefObject<HTMLDivElement>;
   onScroll: () => void;
+  hoveredId?: string | null;
+  onRowHover?: (id: string | null) => void;
 }
 
 export const WBSRightPanel = ({
@@ -44,7 +46,9 @@ export const WBSRightPanel = ({
   ProgressDisplay,
   getProgressColor,
   scrollRef,
-  onScroll
+  onScroll,
+  hoveredId,
+  onRowHover
 }: WBSRightPanelProps) => {
   return (
     <div className="flex-1 min-w-0 bg-white overflow-hidden">
@@ -59,10 +63,12 @@ export const WBSRightPanel = ({
                 : item.level === 1
                 ? 'bg-secondary/5 hover:bg-secondary/10'
                 : 'bg-white hover:bg-slate-50/50'
-            } transition-colors duration-200`}
+            } transition-colors duration-200 ${hoveredId === item.id ? 'bg-accent/20' : ''}`}
             style={{
               gridTemplateColumns: 'minmax(200px, 1fr) 140px 120px 160px 160px 84px',
             }}
+            onMouseEnter={() => onRowHover?.(item.id)}
+            onMouseLeave={() => onRowHover?.(null)}
           >
             <div className="px-3 h-[1.75rem] flex items-center text-muted-foreground text-xs">
               <EditableCell

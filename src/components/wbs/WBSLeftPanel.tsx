@@ -22,6 +22,8 @@ interface WBSLeftPanelProps {
   generateWBSNumber: (phaseIndex: number, componentIndex?: number, elementIndex?: number) => string;
   scrollRef: React.RefObject<HTMLDivElement>;
   onScroll?: () => void;
+  hoveredId?: string | null;
+  onRowHover?: (id: string | null) => void;
 }
 
 // Portal wrapper to avoid transform/fixed offset issues during drag
@@ -41,7 +43,9 @@ export const WBSLeftPanel = ({
   EditableCell,
   generateWBSNumber,
   scrollRef,
-  onScroll
+  onScroll,
+  hoveredId,
+  onRowHover
 }: WBSLeftPanelProps) => {
   return (
     <div className="w-[420px] bg-white border-r border-border flex-shrink-0 overflow-hidden">
@@ -71,12 +75,14 @@ export const WBSLeftPanel = ({
                                   : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
                               } cursor-pointer transition-colors duration-200 ${
                                 snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
-                              }`}
+                              } ${hoveredId === item.id ? 'bg-accent/20' : ''}`}
                               style={{
                                 gridTemplateColumns: '32px 120px 1fr',
                                 ...dragProvided.draggableProps.style,
                               }}
                               onClick={() => item.hasChildren && onToggleExpanded(item.id)}
+                              onMouseEnter={() => onRowHover?.(item.id)}
+                              onMouseLeave={() => onRowHover?.(null)}
                             >
                               <div className="px-2 h-[1.75rem] flex items-center justify-center">
                                 <div className="flex items-center">
