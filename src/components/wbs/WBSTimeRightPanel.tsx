@@ -115,7 +115,8 @@ export const WBSTimeRightPanel = ({
     };
 
     items.forEach(it => {
-      if (it.level === 0 || it.level === 1) collect(it.id);
+      const hasKids = (cMap.get(it.id) || []).length > 0;
+      if (hasKids) collect(it.id);
     });
 
     return map;
@@ -271,7 +272,8 @@ export const WBSTimeRightPanel = ({
             <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
                 {(() => {
                   const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                  if (type !== 'element') {
+                  const isParent = (item.level === 0 || item.level === 1) || getChildren(item.id).length > 0;
+                  if (isParent) {
                     const rollup = rollupDates.get(item.id);
                     const d = rollup?.start;
                     return (
@@ -299,7 +301,8 @@ export const WBSTimeRightPanel = ({
             <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
               {(() => {
                 const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                if (type !== 'element') {
+                const isParent = (item.level === 0 || item.level === 1) || getChildren(item.id).length > 0;
+                if (isParent) {
                   const rollup = rollupDates.get(item.id);
                   const d = rollup?.end;
                   return (
@@ -327,7 +330,8 @@ export const WBSTimeRightPanel = ({
             <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
               {(() => {
                 const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                if (type !== 'element') {
+                const isParent = (item.level === 0 || item.level === 1) || getChildren(item.id).length > 0;
+                if (isParent) {
                   const rollup = rollupDates.get(item.id);
                   const d = rollup?.duration ?? item.duration;
                   return (
