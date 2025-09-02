@@ -24,6 +24,12 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { getProject, loading } = useProjects();
 
+  // Reset banner state immediately on project change to avoid showing stale images
+  useEffect(() => {
+    setBannerImage("");
+    setBannerPosition({ x: 0, y: 0, scale: 1 });
+  }, [projectId]);
+
   // Always call useMemo hooks before any conditional logic
   const progress = useMemo(() => {
     if (!project) return 0;
@@ -69,23 +75,31 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
         if (foundProject) {
           setProject(foundProject);
           
-          // Load banner image from localStorage
+          // Load banner image from localStorage (reset if none)
           const savedBanner = localStorage.getItem(`project_banner_${foundProject.id}`);
-          if (savedBanner) {
+          if (savedBanner && savedBanner.trim() !== "") {
             setBannerImage(savedBanner);
+          } else {
+            setBannerImage("");
           }
 
-          // Load banner position from localStorage
+          // Load banner position from localStorage (reset if none)
           const savedBannerPosition = localStorage.getItem(`project_banner_position_${foundProject.id}`);
           if (savedBannerPosition) {
             const position = safeJsonParse(savedBannerPosition, { fallback: null });
-            if (position) {
+            if (position && typeof position.x === "number" && typeof position.y === "number" && typeof position.scale === "number") {
               setBannerPosition(position);
+            } else {
+              setBannerPosition({ x: 0, y: 0, scale: 1 });
             }
+          } else {
+            setBannerPosition({ x: 0, y: 0, scale: 1 });
           }
         } else {
-          // Project not found, set to null
+          // Project not found, clear state
           setProject(null);
+          setBannerImage("");
+          setBannerPosition({ x: 0, y: 0, scale: 1 });
         }
       } catch (error) {
         console.error('Error fetching project:', error);
