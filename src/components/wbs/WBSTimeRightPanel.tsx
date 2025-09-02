@@ -283,7 +283,7 @@ export const WBSTimeRightPanel = ({
               item.level === 0 
                 ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 hover:from-blue-50 hover:to-blue-100 border-l-[6px] border-blue-800 shadow-sm' 
                 : item.level === 1
-                ? 'bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 hover:from-blue-50 hover:to-blue-100 border-l-[4px] border-blue-600'
+                ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 hover:from-blue-100 hover:to-blue-200 border-l-[4px] border-blue-400'
                 : 'bg-white hover:bg-slate-50/50'
             } transition-all duration-200 ${hoveredId === item.id ? 'bg-accent/20' : ''}`}
             style={{

@@ -71,7 +71,7 @@ export const WBSLeftPanel = ({
                                 item.level === 0 
                                   ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
                                   : item.level === 1
-                                  ? 'bg-gradient-to-r from-slate-50 via-blue-50 to-slate-50 border-l-[4px] border-l-blue-600 hover:from-blue-50 hover:to-blue-100'
+                                  ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
                                   : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
                               } cursor-pointer transition-all duration-200 ${
                                 snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
@@ -100,11 +100,11 @@ export const WBSLeftPanel = ({
                                   {item.hasChildren && (
                                     item.isExpanded ? (
                                        <ChevronDown className={`w-3 h-3 ${
-                                         item.level === 0 ? 'text-blue-900' : 'text-blue-700'
+                                         item.level === 0 ? 'text-blue-900' : 'text-blue-500'
                                        }`} />
                                      ) : (
                                        <ChevronRight className={`w-3 h-3 ${
-                                         item.level === 0 ? 'text-blue-900' : 'text-blue-700'
+                                         item.level === 0 ? 'text-blue-900' : 'text-blue-500'
                                        }`} />
                                     )
                                   )}
@@ -117,7 +117,7 @@ export const WBSLeftPanel = ({
                                  item.level === 0 
                                    ? 'font-black text-blue-900 text-sm tracking-wide' 
                                    : item.level === 1
-                                   ? 'font-bold text-blue-800 text-sm'
+                                   ? 'font-bold text-blue-600 text-sm'
                                    : 'font-medium text-slate-600 text-xs'
                                }`}>
                                 {item.wbsNumber}
@@ -129,7 +129,7 @@ export const WBSLeftPanel = ({
                                  item.level === 0 
                                    ? 'font-black text-blue-900 text-base tracking-wide' 
                                    : item.level === 1
-                                   ? 'font-bold text-blue-800 text-sm'
+                                   ? 'font-bold text-blue-600 text-sm'
                                    : 'font-medium text-foreground text-xs'
                                }`}>
                                 <EditableCell
@@ -138,7 +138,7 @@ export const WBSLeftPanel = ({
                                   field="name"
                                   value={item.name}
                                   placeholder={item.level === 2 ? "Untitled Element" : "Untitled"}
-                                  className={item.level === 0 ? "font-black text-base text-blue-900 tracking-wide" : item.level === 1 ? "font-bold text-sm text-blue-800" : "font-medium text-xs text-muted-foreground"}
+                                  className={item.level === 0 ? "font-black text-base text-blue-900 tracking-wide" : item.level === 1 ? "font-bold text-sm text-blue-600" : "font-medium text-xs text-muted-foreground"}
                                 />
                               </div>
                             </div>
