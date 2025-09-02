@@ -285,7 +285,7 @@ export const WBSTimeRightPanel = ({
                 : item.level === 1
                 ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 hover:from-blue-100 hover:to-blue-200 border-l-[4px] border-blue-400'
                 : 'bg-white hover:bg-slate-50/50'
-            } transition-all duration-200 ${hoveredId === item.id ? 'bg-accent/20' : ''}`}
+            } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-blue-200/80 via-blue-100/60 to-blue-200/80 shadow-lg ring-2 ring-blue-300/50' : ''}`}
             style={{
               gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
             }}

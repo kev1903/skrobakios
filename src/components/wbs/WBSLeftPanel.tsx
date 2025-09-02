@@ -67,15 +67,15 @@ export const WBSLeftPanel = ({
                             <div
                               ref={dragProvided.innerRef}
                               {...dragProvided.draggableProps}
-                              className={`grid items-center ${
-                                item.level === 0 
-                                  ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
-                                  : item.level === 1
-                                  ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
-                                  : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-                              } cursor-pointer transition-all duration-200 ${
-                                snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
-                              } ${hoveredId === item.id ? 'bg-accent/20' : ''}`}
+                className={`grid items-center ${
+                  item.level === 0 
+                    ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                    : item.level === 1
+                    ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                    : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+                } cursor-pointer transition-all duration-200 ${
+                  snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
+                } ${hoveredId === item.id ? 'bg-gradient-to-r from-blue-200/80 via-blue-100/60 to-blue-200/80 shadow-lg ring-2 ring-blue-300/50' : ''}`}
                               style={{
                                 gridTemplateColumns: '32px 120px 1fr',
                                 ...dragProvided.draggableProps.style,

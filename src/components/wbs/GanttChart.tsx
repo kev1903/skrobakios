@@ -24,9 +24,11 @@ interface GanttChartProps {
   items: WBSItem[];
   className?: string;
   hideHeader?: boolean;
+  hoveredId?: string | null;
+  onRowHover?: (id: string | null) => void;
 }
 
-export const GanttChart = ({ items, className = "", hideHeader = false }: GanttChartProps) => {
+export const GanttChart = ({ items, className = "", hideHeader = false, hoveredId, onRowHover }: GanttChartProps) => {
   // Debug logging
   console.log('GanttChart items:', items.map(item => ({
     id: item.id,
@@ -236,8 +238,10 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                 key={item.id}
                 className={`relative border-b border-border/5 transition-all duration-200 ${
                   isEven ? 'bg-white' : 'bg-muted/5'
-                }`}
+                } ${hoveredId === item.id ? 'bg-gradient-to-r from-blue-200/80 via-blue-100/60 to-blue-200/80 shadow-lg ring-2 ring-blue-300/50' : 'hover:bg-muted/10'}`}
                 style={{ height: rowHeight }}
+                onMouseEnter={() => onRowHover?.(item.id)}
+                onMouseLeave={() => onRowHover?.(null)}
               >
                 {/* Grid lines */}
                 {timelineDays.map((day, dayIndex) => {

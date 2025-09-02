@@ -275,6 +275,8 @@ export const WBSTimeView = ({
                 }))} 
                 className="min-w-fit" 
                 hideHeader 
+                hoveredId={hoveredId}
+                onRowHover={setHoveredId}
               />
             </div>
           </div>
