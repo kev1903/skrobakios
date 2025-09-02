@@ -23,6 +23,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
   // Debug logging
   console.log('GanttChart items:', items.map(item => ({
     id: item.id,
+    wbsNumber: item.wbsNumber,
     name: item.name,
     start_date: item.start_date,
     end_date: item.end_date,
@@ -201,16 +202,24 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                     <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg ${getStatusColor(item.status)} shadow-sm`} />
                     
                     {/* Task content */}
-                    <div className="px-2 py-1 flex items-center h-full">
-                      <span className="text-xs font-bold text-foreground truncate min-w-0 flex-shrink-0">
-                        {item.wbsNumber}
-                      </span>
-                      {position.width > 80 && (
-                        <span className="ml-1.5 text-xs text-muted-foreground truncate min-w-0">
-                          {item.name}
+                    {position.width <= 60 ? (
+                      <div className="px-1 flex items-center justify-center h-full">
+                        <span className="text-[10px] font-semibold text-foreground">
+                          {item.wbsNumber}
                         </span>
-                      )}
-                    </div>
+                      </div>
+                    ) : (
+                      <div className="px-2 py-1 flex items-center h-full">
+                        <span className="text-xs font-bold text-foreground truncate min-w-0 flex-shrink-0">
+                          {item.wbsNumber}
+                        </span>
+                        {position.width > 80 && (
+                          <span className="ml-1.5 text-xs text-muted-foreground truncate min-w-0">
+                            {item.name}
+                          </span>
+                        )}
+                      </div>
+                    )}
 
                     {/* Progress indicator overlay */}
                     <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity duration-300" />
