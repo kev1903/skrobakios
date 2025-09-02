@@ -75,7 +75,7 @@ export const DatePickerCell = ({
             disabled={!isEditable}
             className={cn(
               "w-full justify-start text-left font-normal p-0 h-auto",
-              isEditable ? "hover:bg-accent/20" : "cursor-default opacity-60",
+              isEditable ? "" : "cursor-default opacity-60",
               !date && "text-muted-foreground",
               className
             )}
