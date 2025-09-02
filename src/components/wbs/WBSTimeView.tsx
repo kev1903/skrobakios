@@ -1,5 +1,5 @@
 import React, { useRef, useCallback } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, startOfWeek, endOfWeek, addDays } from 'date-fns';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
 import { GanttChart } from './GanttChart';
@@ -149,10 +149,35 @@ export const WBSTimeView = ({
               <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border border-l border-border text-xs font-medium text-slate-700 sticky top-0 z-10">
                 <div className="flex">
                   {(() => {
-                    const currentDate = new Date();
-                    const monthStart = startOfMonth(currentDate);
-                    const monthEnd = endOfMonth(currentDate);
-                    const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+                    // Use the same date range as the GanttChart
+                    const itemsWithDates = items.filter(item => item.start_date || item.end_date);
+                    let days: Date[] = [];
+                    
+                    if (itemsWithDates.length > 0) {
+                      const dates = itemsWithDates
+                        .flatMap(item => [
+                          item.start_date ? (typeof item.start_date === 'string' ? new Date(item.start_date) : item.start_date) : null,
+                          item.end_date ? (typeof item.end_date === 'string' ? new Date(item.end_date) : item.end_date) : null
+                        ])
+                        .filter(Boolean) as Date[];
+                      
+                      if (dates.length > 0) {
+                        const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+                        const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+                        const chartStart = startOfWeek(minDate);
+                        const chartEnd = endOfWeek(addDays(maxDate, 14));
+                        days = eachDayOfInterval({ start: chartStart, end: chartEnd });
+                      }
+                    }
+                    
+                    // Fallback to current month if no dates
+                    if (days.length === 0) {
+                      const currentDate = new Date();
+                      const monthStart = startOfMonth(currentDate);
+                      const monthEnd = endOfMonth(currentDate);
+                      days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+                    }
+                    
                     const dayWidth = 32; // Match GanttChart dayWidth
                     
                     return days.map((day, index) => {

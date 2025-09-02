@@ -20,6 +20,15 @@ interface GanttChartProps {
 }
 
 export const GanttChart = ({ items, className = "", hideHeader = false }: GanttChartProps) => {
+  // Debug logging
+  console.log('GanttChart items:', items.map(item => ({
+    id: item.id,
+    name: item.name,
+    start_date: item.start_date,
+    end_date: item.end_date,
+    level: item.level
+  })));
+
   // Calculate the date range for the chart
   const { startDate, endDate, timelineDays } = useMemo(() => {
     const dates = items
@@ -30,12 +39,17 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
       ])
       .filter(Boolean) as Date[];
 
+    console.log('Parsed dates for chart:', dates);
+
     if (dates.length === 0) {
       const today = new Date();
+      const fallbackStart = startOfWeek(today);
+      const fallbackEnd = endOfWeek(addDays(today, 60));
+      console.log('No dates found, using fallback range:', { fallbackStart, fallbackEnd });
       return {
-        startDate: startOfWeek(today),
-        endDate: endOfWeek(addDays(today, 60)), // Extended to show more days
-        timelineDays: eachDayOfInterval({ start: startOfWeek(today), end: endOfWeek(addDays(today, 60)) })
+        startDate: fallbackStart,
+        endDate: fallbackEnd,
+        timelineDays: eachDayOfInterval({ start: fallbackStart, end: fallbackEnd })
       };
     }
 
@@ -44,6 +58,8 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
     
     const chartStart = startOfWeek(minDate);
     const chartEnd = endOfWeek(addDays(maxDate, 14)); // Extended buffer
+    
+    console.log('Chart date range:', { chartStart, chartEnd, minDate, maxDate });
     
     return {
       startDate: chartStart,
