@@ -69,11 +69,11 @@ export const WBSLeftPanel = ({
                               {...dragProvided.draggableProps}
                               className={`grid items-center ${
                                 item.level === 0 
-                                  ? 'bg-primary/5 border-l-4 border-l-primary hover:bg-primary/10' 
+                                  ? 'bg-gradient-to-r from-blue-50 to-blue-100/50 border-l-[6px] border-l-blue-600 shadow-sm hover:from-blue-100 hover:to-blue-150/60' 
                                   : item.level === 1
-                                  ? 'bg-secondary/5 border-l-4 border-l-secondary hover:bg-secondary/10'
+                                  ? 'bg-gradient-to-r from-emerald-50 to-emerald-100/40 border-l-[4px] border-l-emerald-500 hover:from-emerald-100 hover:to-emerald-150/50'
                                   : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-                              } cursor-pointer transition-colors duration-200 ${
+                              } cursor-pointer transition-all duration-200 ${
                                 snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
                               } ${hoveredId === item.id ? 'bg-accent/20' : ''}`}
                               style={{
@@ -99,46 +99,46 @@ export const WBSLeftPanel = ({
                                   </div>
                                   {item.hasChildren && (
                                     item.isExpanded ? (
-                                      <ChevronDown className={`w-3 h-3 ${
-                                        item.level === 0 ? 'text-primary' : 'text-secondary-foreground'
-                                      }`} />
-                                    ) : (
-                                      <ChevronRight className={`w-3 h-3 ${
-                                        item.level === 0 ? 'text-primary' : 'text-secondary-foreground'
-                                      }`} />
+                                       <ChevronDown className={`w-3 h-3 ${
+                                         item.level === 0 ? 'text-blue-700' : 'text-emerald-600'
+                                       }`} />
+                                     ) : (
+                                       <ChevronRight className={`w-3 h-3 ${
+                                         item.level === 0 ? 'text-blue-700' : 'text-emerald-600'
+                                       }`} />
                                     )
                                   )}
                                 </div>
                               </div>
                               
-                              <div className={`px-2 h-[1.75rem] flex items-center text-sm ${
-                                item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
-                              } ${
-                                item.level === 0 
-                                  ? 'font-bold text-primary' 
-                                  : item.level === 1
-                                  ? 'font-semibold text-secondary-foreground text-xs'
-                                  : 'font-medium text-slate-600 text-xs'
-                              }`}>
+                               <div className={`px-2 h-[1.75rem] flex items-center ${
+                                 item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
+                               } ${
+                                 item.level === 0 
+                                   ? 'font-black text-blue-800 text-sm tracking-wide' 
+                                   : item.level === 1
+                                   ? 'font-bold text-emerald-700 text-sm'
+                                   : 'font-medium text-slate-600 text-xs'
+                               }`}>
                                 {item.wbsNumber}
                               </div>
                               
-                              <div className={`px-3 h-[1.75rem] flex items-center ${
-                                item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
-                              } ${
-                                item.level === 0 
-                                  ? 'font-bold text-primary text-sm' 
-                                  : item.level === 1
-                                  ? 'font-semibold text-secondary-foreground text-xs'
-                                  : 'font-medium text-foreground text-xs'
-                              }`}>
+                               <div className={`px-3 h-[1.75rem] flex items-center ${
+                                 item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
+                               } ${
+                                 item.level === 0 
+                                   ? 'font-black text-blue-900 text-base tracking-wide' 
+                                   : item.level === 1
+                                   ? 'font-bold text-emerald-800 text-sm'
+                                   : 'font-medium text-foreground text-xs'
+                               }`}>
                                 <EditableCell
                                   id={item.id}
                                   type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
                                   field="name"
                                   value={item.name}
                                   placeholder={item.level === 2 ? "Untitled Element" : "Untitled"}
-                                  className={item.level === 0 ? "font-bold text-sm text-primary" : item.level === 1 ? "font-semibold text-xs text-secondary-foreground" : "font-medium text-xs text-muted-foreground"}
+                                  className={item.level === 0 ? "font-black text-base text-blue-900 tracking-wide" : item.level === 1 ? "font-bold text-sm text-emerald-800" : "font-medium text-xs text-muted-foreground"}
                                 />
                               </div>
                             </div>
