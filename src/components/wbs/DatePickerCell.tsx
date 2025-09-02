@@ -51,7 +51,8 @@ export const DatePickerCell = ({
     
     setDate(selectedDate);
     if (selectedDate) {
-      const dateString = selectedDate.toISOString();
+      // Store as YYYY-MM-DD to avoid timezone shifts
+      const dateString = format(selectedDate, 'yyyy-MM-dd');
       
       if (onUpdate) {
         onUpdate(id, field, dateString);

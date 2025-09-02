@@ -84,12 +84,12 @@ export const WBSTimeRightPanel = ({
     
     const earliestStart = new Date(Math.min(...startDates.map(d => d.getTime())));
     const latestEnd = new Date(Math.max(...endDates.map(d => d.getTime())));
-    const calculatedDuration = differenceInDays(latestEnd, earliestStart);
+    const calculatedDuration = differenceInDays(latestEnd, earliestStart) + 1;
     
     // Update parent with calculated values
     onItemUpdate(parentId, {
-      start_date: earliestStart.toISOString(),
-      end_date: latestEnd.toISOString(),
+      start_date: `${earliestStart.getFullYear()}-${String(earliestStart.getMonth()+1).padStart(2,'0')}-${String(earliestStart.getDate()).padStart(2,'0')}`,
+      end_date: `${latestEnd.getFullYear()}-${String(latestEnd.getMonth()+1).padStart(2,'0')}-${String(latestEnd.getDate()).padStart(2,'0')}`,
       duration: calculatedDuration
     });
   };
@@ -139,28 +139,28 @@ export const WBSTimeRightPanel = ({
       if (item.end_date) {
         const startDate = new Date(value);
         const endDate = new Date(item.end_date);
-        const diffDays = differenceInDays(endDate, startDate);
-        updates.duration = Math.max(0, diffDays);
+        const diffDays = differenceInDays(endDate, startDate) + 1;
+        updates.duration = Math.max(1, diffDays);
       }
       // If we have duration, calculate end_date
       else if (item.duration && item.duration > 0) {
         const startDate = new Date(value);
-        const endDate = addDays(startDate, item.duration);
-        updates.end_date = endDate.toISOString();
+        const endDate = addDays(startDate, item.duration - 1);
+        updates.end_date = `${endDate.getFullYear()}-${String(endDate.getMonth()+1).padStart(2,'0')}-${String(endDate.getDate()).padStart(2,'0')}`;
       }
     } else if (field === 'end_date') {
       // If we have start_date, calculate duration
       if (item.start_date) {
         const startDate = new Date(item.start_date);
         const endDate = new Date(value);
-        const diffDays = differenceInDays(endDate, startDate);
-        updates.duration = Math.max(0, diffDays);
+        const diffDays = differenceInDays(endDate, startDate) + 1;
+        updates.duration = Math.max(1, diffDays);
       }
       // If we have duration, calculate start_date
       else if (item.duration && item.duration > 0) {
         const endDate = new Date(value);
-        const startDate = subDays(endDate, item.duration);
-        updates.start_date = startDate.toISOString();
+        const startDate = subDays(endDate, item.duration - 1);
+        updates.start_date = `${startDate.getFullYear()}-${String(startDate.getMonth()+1).padStart(2,'0')}-${String(startDate.getDate()).padStart(2,'0')}`;
       }
     }
 
