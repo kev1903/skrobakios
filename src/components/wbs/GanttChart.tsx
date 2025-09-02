@@ -238,7 +238,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                 key={item.id}
                 className={`relative border-b border-border/5 transition-all duration-200 ${
                   isEven ? 'bg-white' : 'bg-muted/5'
-                } ${hoveredId === item.id ? 'bg-gradient-to-r from-blue-200/80 via-blue-100/60 to-blue-200/80 shadow-lg ring-2 ring-blue-300/50' : 'hover:bg-muted/10'}`}
+                } ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : 'hover:bg-muted/10'}`}
                 style={{ height: rowHeight }}
                 onMouseEnter={() => onRowHover?.(item.id)}
                 onMouseLeave={() => onRowHover?.(null)}

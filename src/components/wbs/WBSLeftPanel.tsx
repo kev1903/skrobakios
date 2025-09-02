@@ -75,7 +75,7 @@ export const WBSLeftPanel = ({
                     : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
                 } cursor-pointer transition-all duration-200 ${
                   snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
-                } ${hoveredId === item.id ? 'bg-gradient-to-r from-blue-200/80 via-blue-100/60 to-blue-200/80 shadow-lg ring-2 ring-blue-300/50' : ''}`}
+                } ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
                               style={{
                                 gridTemplateColumns: '32px 120px 1fr',
                                 ...dragProvided.draggableProps.style,
