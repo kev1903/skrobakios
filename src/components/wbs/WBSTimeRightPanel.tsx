@@ -368,7 +368,7 @@ export const WBSTimeRightPanel = ({
                 })()}
             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
+            <div className="px-2 h-[1.75rem] flex items-end text-xs text-muted-foreground">
               {(() => {
                 const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
                 const isParent = (item.level === 0 || item.level === 1) || getChildren(item.id).length > 0;
@@ -397,7 +397,7 @@ export const WBSTimeRightPanel = ({
               })()}
             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
+            <div className="px-2 h-[1.75rem] flex items-end text-xs text-muted-foreground">
               {(() => {
                 const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
                 const isParent = (item.level === 0 || item.level === 1) || getChildren(item.id).length > 0;
