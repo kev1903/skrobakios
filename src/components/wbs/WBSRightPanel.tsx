@@ -117,7 +117,7 @@ export const WBSRightPanel = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-4 w-4 p-0 hover:bg-accent"
+                  className="h-4 w-4 p-0"
                   onClick={() => onOpenNotesDialog(item)}
                 >
                   <NotebookPen className="w-3 h-3 text-muted-foreground hover:text-foreground" />
@@ -131,7 +131,7 @@ export const WBSRightPanel = ({
             <div className="px-2 h-[1.75rem] flex items-center justify-center">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                     <MoreHorizontal className="w-3 h-3" />
                   </Button>
                 </DropdownMenuTrigger>

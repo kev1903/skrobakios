@@ -64,7 +64,7 @@ export const DurationCell = ({
   return (
     <div
       className={`w-full h-full flex items-end justify-start rounded px-1 ${
-        isEditable ? 'cursor-pointer hover:bg-accent/20' : 'cursor-default opacity-60'
+        isEditable ? 'cursor-pointer' : 'cursor-default opacity-60'
       } ${className}`}
       onClick={() => {
         if (isEditable) {

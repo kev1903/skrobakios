@@ -88,7 +88,7 @@ export const PredecessorCell = ({
             role="combobox"
             aria-expanded={isOpen}
             className={cn(
-              "w-full justify-between text-left font-normal p-1 h-auto hover:bg-accent/20",
+              "w-full justify-between text-left font-normal p-1 h-auto",
               selectedItems.length === 0 && "text-muted-foreground",
               className
             )}

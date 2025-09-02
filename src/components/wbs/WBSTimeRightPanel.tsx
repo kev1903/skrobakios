@@ -383,7 +383,7 @@ export const WBSTimeRightPanel = ({
             <div className="px-2 h-[1.75rem] flex items-center justify-center">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                     <MoreHorizontal className="w-3 h-3" />
                   </Button>
                 </DropdownMenuTrigger>
