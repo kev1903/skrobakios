@@ -346,36 +346,36 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                 >
                   <path
                     d="M0,0 L0,6 L8,3 z"
-                    fill="rgba(107, 114, 128, 0.9)"
+                    fill="rgba(156, 163, 175, 0.9)"
                     stroke="rgba(0,0,0,0.1)"
                     strokeWidth="0.3"
                   />
                 </marker>
                 
-                {/* Gradient definitions for different dependency types - All grey */}
+                {/* Gradient definitions for different dependency types - All light grey */}
                 <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: 'rgba(107, 114, 128, 0.8)' }} />
-                  <stop offset="100%" style={{ stopColor: 'rgba(107, 114, 128, 1)' }} />
+                  <stop offset="0%" style={{ stopColor: 'rgba(156, 163, 175, 0.8)' }} />
+                  <stop offset="100%" style={{ stopColor: 'rgba(156, 163, 175, 1)' }} />
                 </linearGradient>
                 
                 <linearGradient id="fsGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: 'rgba(107, 114, 128, 0.6)' }} />
-                  <stop offset="100%" style={{ stopColor: 'rgba(107, 114, 128, 0.9)' }} />
+                  <stop offset="0%" style={{ stopColor: 'rgba(156, 163, 175, 0.6)' }} />
+                  <stop offset="100%" style={{ stopColor: 'rgba(156, 163, 175, 0.9)' }} />
                 </linearGradient>
                 
                 <linearGradient id="ssGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: 'rgba(107, 114, 128, 0.6)' }} />
-                  <stop offset="100%" style={{ stopColor: 'rgba(107, 114, 128, 0.9)' }} />
+                  <stop offset="0%" style={{ stopColor: 'rgba(156, 163, 175, 0.6)' }} />
+                  <stop offset="100%" style={{ stopColor: 'rgba(156, 163, 175, 0.9)' }} />
                 </linearGradient>
                 
                 <linearGradient id="ffGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: 'rgba(107, 114, 128, 0.6)' }} />
-                  <stop offset="100%" style={{ stopColor: 'rgba(107, 114, 128, 0.9)' }} />
+                  <stop offset="0%" style={{ stopColor: 'rgba(156, 163, 175, 0.6)' }} />
+                  <stop offset="100%" style={{ stopColor: 'rgba(156, 163, 175, 0.9)' }} />
                 </linearGradient>
                 
                 <linearGradient id="sfGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: 'rgba(107, 114, 128, 0.6)' }} />
-                  <stop offset="100%" style={{ stopColor: 'rgba(107, 114, 128, 0.9)' }} />
+                  <stop offset="0%" style={{ stopColor: 'rgba(156, 163, 175, 0.6)' }} />
+                  <stop offset="100%" style={{ stopColor: 'rgba(156, 163, 175, 0.9)' }} />
                 </linearGradient>
                 
                 {/* Drop shadow filter */}
