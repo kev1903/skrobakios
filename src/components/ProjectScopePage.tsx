@@ -335,6 +335,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       if (wbsItem) {
         return {
           ...item,
+          name: wbsItem.title || item.name, // Use WBS title if available
+          title: wbsItem.title || item.name, // Also set title field
           start_date: wbsItem.start_date || null,
           end_date: wbsItem.end_date || null,
           duration: wbsItem.duration || 0,
