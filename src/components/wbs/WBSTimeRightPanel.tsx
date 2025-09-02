@@ -205,47 +205,68 @@ export const WBSTimeRightPanel = ({
     });
   };
 
-  // Enhanced onItemUpdate that triggers immediate parent calculations
-  const handleItemUpdate = (itemId: string, updates: any) => {
+  // Enhanced onItemUpdate with proper debouncing to prevent excessive API calls
+  const handleItemUpdate = React.useCallback((itemId: string, updates: any) => {
     // First update the item itself
     onItemUpdate(itemId, updates);
     
-    // If dates or duration were updated, immediately recalculate parent dates
+    // If dates or duration were updated, debounce parent calculations
     if (updates.start_date || updates.end_date || updates.duration) {
-      // Find all parents that need updating (immediate and ancestors)
-      const updateParentChain = (childId: string) => {
-        const child = items.find(i => i.id === childId);
-        if (!child) return;
-        
-        // Find parent by parent_id first
-        let parent = child.parent_id ? items.find(p => p.id === child.parent_id) : null;
-        
-        // If no parent_id, try WBS-based parent detection
-        if (!parent && child.wbs_id) {
-          const childBase = child.wbs_id.endsWith('.0') ? child.wbs_id.slice(0, -2) : child.wbs_id;
-          const childSegs = childBase.split('.');
-          if (childSegs.length > 1) {
-            const parentBase = childSegs.slice(0, -1).join('.');
-            parent = items.find(p => {
-              if (!p.wbs_id) return false;
-              const pBase = p.wbs_id.endsWith('.0') ? p.wbs_id.slice(0, -2) : p.wbs_id;
-              return pBase === parentBase;
-            });
-          }
-        }
-        
-        if (parent) {
-          // Immediate calculation without timeout
-          calculateParentDates(parent.id);
-          // Recursively update grandparents
-          updateParentChain(parent.id);
-        }
-      };
+      // Clear any existing timeout for this item to prevent duplicate calculations
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
       
-      // Start the parent chain update
-      updateParentChain(itemId);
+      // Debounce parent updates to prevent excessive API calls
+      timeoutRef.current = setTimeout(() => {
+        const updateParentChain = (childId: string, visited = new Set<string>()) => {
+          // Prevent infinite loops
+          if (visited.has(childId)) return;
+          visited.add(childId);
+          
+          const child = items.find(i => i.id === childId);
+          if (!child) return;
+          
+          // Find parent by parent_id first
+          let parent = child.parent_id ? items.find(p => p.id === child.parent_id) : null;
+          
+          // If no parent_id, try WBS-based parent detection
+          if (!parent && child.wbs_id) {
+            const childBase = child.wbs_id.endsWith('.0') ? child.wbs_id.slice(0, -2) : child.wbs_id;
+            const childSegs = childBase.split('.');
+            if (childSegs.length > 1) {
+              const parentBase = childSegs.slice(0, -1).join('.');
+              parent = items.find(p => {
+                if (!p.wbs_id || visited.has(p.id)) return false;
+                const pBase = p.wbs_id.endsWith('.0') ? p.wbs_id.slice(0, -2) : p.wbs_id;
+                return pBase === parentBase;
+              });
+            }
+          }
+          
+          if (parent && !visited.has(parent.id)) {
+            calculateParentDates(parent.id);
+            // Recursively update grandparents with visit tracking
+            updateParentChain(parent.id, visited);
+          }
+        };
+        
+        // Start the parent chain update with visit tracking
+        updateParentChain(itemId);
+      }, 300); // 300ms debounce to batch updates
     }
-  };
+  }, [items, onItemUpdate]);
+
+  const timeoutRef = React.useRef<NodeJS.Timeout>();
+  
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   // Auto-calculation logic for dates and duration
   const handleDateCalculation = (id: string, field: string, value: string, currentItem: any) => {
