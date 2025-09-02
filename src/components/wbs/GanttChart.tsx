@@ -190,7 +190,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                 {/* Task bar */}
                 {position && (
                   <div
-                    className={`absolute top-1 bottom-1 rounded-lg border ${getLevelColor(item.level)} transition-all duration-300 hover:shadow-xl hover:scale-[1.02] cursor-pointer group backdrop-blur-sm`}
+                    className={`absolute top-1 bottom-1 rounded-lg border ${getLevelColor(item.level)} transition-all duration-300 cursor-pointer group backdrop-blur-sm`}
                     style={{
                       left: position.left + 3,
                       width: Math.max(28, position.width - 6)
@@ -213,10 +213,10 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                     </div>
 
                     {/* Progress indicator overlay */}
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity duration-300" />
 
                     {/* Enhanced tooltip */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-20">
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 transition-all duration-300 pointer-events-none z-20">
                       <div className="glass-light backdrop-blur-xl border border-border/20 rounded-lg py-3 px-4 shadow-xl">
                         <div className="font-semibold text-foreground text-sm">{item.wbsNumber} - {item.name}</div>
                         <div className="text-muted-foreground text-xs mt-1">
