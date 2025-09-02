@@ -332,18 +332,18 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                 {/* Enhanced arrowhead with gradient */}
                 <marker
                   id="arrowhead"
-                  markerWidth="12"
-                  markerHeight="10"
-                  refX="11"
-                  refY="5"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
                   orient="auto"
                   markerUnits="strokeWidth"
                 >
                   <path
-                    d="M0,0 L0,10 L12,5 z"
+                    d="M0,0 L0,6 L8,3 z"
                     fill="url(#arrowGradient)"
                     stroke="rgba(0,0,0,0.1)"
-                    strokeWidth="0.5"
+                    strokeWidth="0.3"
                   />
                 </marker>
                 
