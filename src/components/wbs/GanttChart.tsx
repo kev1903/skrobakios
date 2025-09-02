@@ -319,30 +319,13 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
             );
           })}
 
-          {/* Weekend highlighting with subtle pattern */}
-          {timelineDays.map((day, index) => {
-            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-            if (!isWeekend) return null;
-            
-            return (
-              <div
-                key={`weekend-${day.toISOString()}`}
-                className="absolute top-0 bottom-0 bg-gradient-to-b from-muted/5 to-muted/10 opacity-60 pointer-events-none"
-                style={{
-                  left: index * dayWidth,
-                  width: dayWidth
-                }}
-              />
-            );
-          })}
-
           {/* Dependency Arrows */}
           {dependencyLines.length > 0 && (
             <svg 
-              className="absolute inset-0 pointer-events-none"
+              className="absolute inset-0 pointer-events-none z-50"
               width={chartWidth} 
               height={items.length * rowHeight}
-              style={{ overflow: 'visible', zIndex: 30 }}
+              style={{ overflow: 'visible' }}
             >
               {dependencyLines.map((line) => (
                 <g key={line.id}>
@@ -372,6 +355,24 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
               </defs>
             </svg>
           )}
+
+          {/* Weekend highlighting with subtle pattern */}
+          {timelineDays.map((day, index) => {
+            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+            if (!isWeekend) return null;
+            
+            return (
+              <div
+                key={`weekend-${day.toISOString()}`}
+                className="absolute top-0 bottom-0 bg-gradient-to-b from-muted/5 to-muted/10 opacity-60 pointer-events-none"
+                style={{
+                  left: index * dayWidth,
+                  width: dayWidth
+                }}
+              />
+            );
+          })}
+
         </div>
       </div>
     </div>

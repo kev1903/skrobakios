@@ -182,15 +182,15 @@ export const getDependencyLines = (
         ? getTaskEndX(predecessorTask, viewSettings)
         : getTaskStartX(predecessorTask, viewSettings);
         
-      const toX = dependency.type === 'SS' || dependency.type === 'SF'
-        ? getTaskStartX(task, viewSettings) 
+      const toX = dependency.type === 'FF' || dependency.type === 'SF'
+        ? getTaskEndX(task, viewSettings)
         : getTaskStartX(task, viewSettings);
 
       // Create path for arrow
       const path = createArrowPath(fromX, fromY, toX, toY);
       
       lines.push({
-        id: `${dependency.predecessorId}-${task.id}`,
+        id: `${dependency.predecessorId}-${task.id}-${dependency.type}`,
         fromTask: dependency.predecessorId,
         toTask: task.id,
         type: dependency.type,
