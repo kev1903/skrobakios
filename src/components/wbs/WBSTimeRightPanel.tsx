@@ -47,10 +47,29 @@ export const WBSTimeRightPanel = ({
   // Calculate parent dates on component mount and when items change
   React.useEffect(() => {
     const calculateAllParentDates = () => {
-      // Find all phases and components that have children
-      const parentsWithChildren = items.filter(item => 
-        (item.level === 0 || item.level === 1) && 
-        items.some(child => child.parent_id === item.id)
+      // Find all phases and components that have children (by parent_id or WBS prefix)
+      const hasDirectChild = (parent: WBSItem) => {
+        // 1) Direct relation via parent_id
+        if (items.some(child => child.parent_id === parent.id)) return true;
+        // 2) Fallback by WBS number direct child (one more segment)
+        if (parent.wbs_id) {
+          const parentSegs = parent.wbs_id.split('.').length;
+          const prefix = parent.wbs_id + '.';
+          if (
+            items.some(
+              (child) =>
+                child.wbs_id?.startsWith(prefix) &&
+                child.wbs_id.split('.').length === parentSegs + 1
+            )
+          ) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+      const parentsWithChildren = items.filter(
+        (item) => (item.level === 0 || item.level === 1) && hasDirectChild(item as WBSItem)
       );
       
       // Calculate dates for components first, then phases
@@ -71,20 +90,53 @@ export const WBSTimeRightPanel = ({
     }
   }, [items]);
 
-  // Helper function to get children of a specific item
+  // Helper function to get children of a specific item (by parent_id or WBS direct child)
   const getChildren = (parentId: string) => {
-    return items.filter(item => item.parent_id === parentId);
+    const parent = items.find((i) => i.id === parentId);
+    if (!parent) return [] as WBSItem[];
+
+    // Prefer explicit parent_id linkage
+    const byId = items.filter((item) => item.parent_id === parentId);
+    if (byId.length > 0) return byId;
+
+    // Fallback to WBS numbers: direct child has exactly one more segment
+    if (parent.wbs_id) {
+      const parentSegs = parent.wbs_id.split('.').length;
+      const prefix = parent.wbs_id + '.';
+      return items.filter(
+        (child) =>
+          child.wbs_id?.startsWith(prefix) &&
+          child.wbs_id.split('.').length === parentSegs + 1
+      );
+    }
+    return [] as WBSItem[];
   };
 
   // Rollup dates for parents (display-only) from descendant elements
   const rollupDates = React.useMemo(() => {
-    // Build children map for fast traversal
+    // Build children map using both parent_id and WBS direct-parent inference
     const cMap = new Map<string, WBSItem[]>();
-    items.forEach(it => {
-      if (it.parent_id) {
-        const arr = cMap.get(it.parent_id) || [];
-        arr.push(it);
-        cMap.set(it.parent_id, arr);
+    const addChild = (parentKey: string, child: WBSItem) => {
+      const arr = cMap.get(parentKey) || [];
+      if (!arr.some((c) => c.id === child.id)) arr.push(child);
+      cMap.set(parentKey, arr);
+    };
+
+    // 1) Direct parent_id mapping
+    items.forEach((it) => {
+      if (it.parent_id) addChild(it.parent_id, it);
+    });
+
+    // 2) WBS-based direct parent (one extra segment)
+    const wbsIndex = new Map<string, WBSItem>();
+    items.forEach((it) => {
+      if (it.wbs_id) wbsIndex.set(it.wbs_id, it);
+    });
+    items.forEach((it) => {
+      if (it.wbs_id && it.wbs_id.includes('.')) {
+        const parentWbs = it.wbs_id.split('.').slice(0, -1).join('.');
+        const parent = wbsIndex.get(parentWbs);
+        if (parent) addChild(parent.id, it);
       }
     });
 
@@ -97,24 +149,24 @@ export const WBSTimeRightPanel = ({
       while (stack.length) {
         const node = stack.pop() as WBSItem;
         if (node.level < 2) {
-          (cMap.get(node.id) || []).forEach(child => stack.push(child));
+          (cMap.get(node.id) || []).forEach((child) => stack.push(child));
         } else {
           if (node.start_date) starts.push(new Date(node.start_date));
           if (node.end_date) ends.push(new Date(node.end_date));
         }
       }
       if (starts.length || ends.length) {
-        const start = starts.length ? new Date(Math.min(...starts.map(d => d.getTime()))) : undefined;
-        const end = ends.length ? new Date(Math.max(...ends.map(d => d.getTime()))) : undefined;
+        const start = starts.length ? new Date(Math.min(...starts.map((d) => d.getTime()))) : undefined;
+        const end = ends.length ? new Date(Math.max(...ends.map((d) => d.getTime()))) : undefined;
         map.set(id, {
           start,
           end,
-          duration: start && end ? differenceInDays(end, start) + 1 : undefined
+          duration: start && end ? differenceInDays(end, start) + 1 : undefined,
         });
       }
     };
 
-    items.forEach(it => {
+    items.forEach((it) => {
       const hasKids = (cMap.get(it.id) || []).length > 0;
       if (hasKids) collect(it.id);
     });
