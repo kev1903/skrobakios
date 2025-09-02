@@ -4,7 +4,7 @@ import { MoreHorizontal, Edit2, Copy, Trash2, NotebookPen, Calendar } from 'luci
 import { DatePickerCell } from './DatePickerCell';
 import { DurationCell } from './DurationCell';
 import { PredecessorCell } from './PredecessorCell';
-import { differenceInDays, addDays, subDays } from 'date-fns';
+import { differenceInDays, addDays, subDays, format } from 'date-fns';
 import { WBSItem } from '@/types/wbs';
 import {
   DropdownMenu,
@@ -270,18 +270,22 @@ export const WBSTimeRightPanel = ({
 
             <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
                 {(() => {
-                  // Use rollup date if available for parent items, otherwise use actual value
-                  const rollup = rollupDates.get(item.id);
-                  const displayValue: string | Date | undefined = (item.level < 2 && rollup?.start)
-                    ? rollup.start
-                    : item.start_date;
-                  
+                  const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
+                  if (type !== 'element') {
+                    const rollup = rollupDates.get(item.id);
+                    const d = rollup?.start;
+                    return (
+                      <span className="text-xs text-muted-foreground">
+                        {d ? format(d, 'MMM dd, yyyy') : '-'}
+                      </span>
+                    );
+                  }
                   return (
                     <DatePickerCell
                       id={item.id}
-                      type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                      type={type}
                       field="start_date"
-                      value={displayValue}
+                      value={item.start_date}
                       placeholder="Start date"
                       className="text-xs text-muted-foreground"
                       onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
@@ -294,18 +298,22 @@ export const WBSTimeRightPanel = ({
 
             <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
               {(() => {
-                // Use rollup date if available for parent items, otherwise use actual value
-                const rollup = rollupDates.get(item.id);
-                const displayValue: string | Date | undefined = (item.level < 2 && rollup?.end)
-                  ? rollup.end
-                  : item.end_date;
-                
+                const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
+                if (type !== 'element') {
+                  const rollup = rollupDates.get(item.id);
+                  const d = rollup?.end;
+                  return (
+                    <span className="text-xs text-muted-foreground">
+                      {d ? format(d, 'MMM dd, yyyy') : '-'}
+                    </span>
+                  );
+                }
                 return (
                   <DatePickerCell
                     id={item.id}
-                    type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                    type={type}
                     field="end_date"
-                    value={displayValue}
+                    value={item.end_date}
                     placeholder="End date"
                     className="text-xs text-muted-foreground"
                     onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
