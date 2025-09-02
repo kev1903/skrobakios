@@ -214,9 +214,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                     style={{
                       left: timelineDays.findIndex(day => isSameDay(day, new Date())) * dayWidth
                     }}
-                  >
-                    <div className="absolute top-0 w-1.5 h-1.5 bg-primary/60 rounded-full transform -translate-x-1/2 shadow-sm" />
-                  </div>
+                  />
                 )}
               </div>
             );
