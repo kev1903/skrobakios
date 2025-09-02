@@ -226,14 +226,14 @@ export const WBSTimeRightPanel = ({
       // If we have start_date, calculate end_date
       if (item.start_date) {
         const startDate = new Date(item.start_date);
-        const endDate = addDays(startDate, value);
-        updates.end_date = endDate.toISOString();
+        const endDate = addDays(startDate, value - 1); // Subtract 1 since duration includes start day
+        updates.end_date = `${endDate.getFullYear()}-${String(endDate.getMonth()+1).padStart(2,'0')}-${String(endDate.getDate()).padStart(2,'0')}`;
       }
       // If we have end_date, calculate start_date
       else if (item.end_date) {
         const endDate = new Date(item.end_date);
-        const startDate = subDays(endDate, value);
-        updates.start_date = startDate.toISOString();
+        const startDate = subDays(endDate, value - 1); // Subtract 1 since duration includes end day
+        updates.start_date = `${startDate.getFullYear()}-${String(startDate.getMonth()+1).padStart(2,'0')}-${String(startDate.getDate()).padStart(2,'0')}`;
       }
     }
 
