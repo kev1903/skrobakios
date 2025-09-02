@@ -18,7 +18,7 @@ export const useWBS = (projectId: string) => {
 
   // Load WBS items for a project
   const loadWBSItems = async () => {
-    if (!projectId || !currentCompany?.id) return;
+    if (!projectId) return;
     
     setLoading(true);
     setError(null);

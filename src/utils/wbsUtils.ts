@@ -126,12 +126,25 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
 
   // Link by WBS path regardless of parent_id stored
   const roots: WBSItem[] = [];
-  const getParentWbs = (wbsId: string): string | null => {
-    const parts = wbsId.split('.');
-    if (parts.length <= 2 && parts[1] === '0') return null; // X.0 is root
-    if (parts.length === 2) return `${parts[0]}.0`;
-    if (parts.length > 2) return `${parts[0]}.${parts[1]}`;
-    return null;
+  const getParentCandidates = (wbsId: string): string[] => {
+    const parts = (wbsId || '').split('.');
+    // Single-segment like "1" → root
+    if (parts.length === 1) return [];
+    // Two segments
+    if (parts.length === 2) {
+      // X.0 → explicit root
+      if (parts[1] === '0') return [];
+      // Prefer parent "X"; also support datasets using "X.0" as parent
+      return [parts[0], `${parts[0]}.0`];
+    }
+    // Three or more → parent is all but last
+    const parent = parts.slice(0, -1).join('.');
+    // If parent ends with .0, also provide variant without .0
+    const candidates = [parent];
+    if (parent.endsWith('.0')) {
+      candidates.push(parent.split('.').slice(0, -1).join('.'));
+    }
+    return candidates;
   };
 
   // Ensure deterministic order
@@ -150,15 +163,19 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
   const all = Array.from(byWbsId.values()).sort(sortByWbs);
   const byId = new Map<string, WBSItem>(all.map(i => [i.id!, i]));
 
-  // Link children
+  // Link children with robust parent fallback
   for (const item of all) {
-    const parentWbs = getParentWbs(item.wbs_id);
-    if (!parentWbs) {
+    const candidates = getParentCandidates(item.wbs_id);
+    if (candidates.length === 0) {
       item.level = expectedLevel(item.wbs_id);
       roots.push(item);
       continue;
     }
-    const parent = byWbsId.get(parentWbs);
+    let parent: WBSItem | undefined;
+    for (const cand of candidates) {
+      parent = byWbsId.get(cand);
+      if (parent) break;
+    }
     if (parent) {
       item.level = expectedLevel(item.wbs_id);
       parent.children!.push(item);
