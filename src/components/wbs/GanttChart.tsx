@@ -105,9 +105,9 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
 
   const getLevelColor = (level: number) => {
     switch (level) {
-      case 0: return 'border-primary/30 bg-primary/10';
-      case 1: return 'border-secondary/40 bg-secondary/15';
-      case 2: return 'border-accent/40 bg-accent/15';
+      case 0: return 'border-primary/40 bg-primary/20';
+      case 1: return 'border-secondary/50 bg-secondary/25';
+      case 2: return 'border-accent/40 bg-accent/12';
       default: return 'border-muted/40 bg-muted/10';
     }
   };
