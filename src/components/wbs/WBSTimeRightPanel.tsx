@@ -326,17 +326,21 @@ export const WBSTimeRightPanel = ({
 
             <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
               {(() => {
-                // Use rollup duration if available for parent items, otherwise use actual value
-                const rollup = rollupDates.get(item.id);
-                const displayValue = (item.level < 2 && rollup?.duration) 
-                  ? rollup.duration 
-                  : (item.duration || 0);
-                
+                const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
+                if (type !== 'element') {
+                  const rollup = rollupDates.get(item.id);
+                  const d = rollup?.duration ?? item.duration;
+                  return (
+                    <span className="text-xs text-muted-foreground">
+                      {d ? `${d}d` : '-'}
+                    </span>
+                  );
+                }
                 return (
                   <DurationCell
                     id={item.id}
-                    type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                    value={displayValue}
+                    type={type}
+                    value={item.duration || 0}
                     className="text-xs text-muted-foreground"
                     onUpdate={handleDurationCalculation}
                   />
