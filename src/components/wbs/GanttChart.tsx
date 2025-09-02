@@ -180,9 +180,9 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
 
 
   return (
-    <div className={`h-full w-full rounded-xl border border-blue-200 bg-gradient-to-br from-slate-100 via-blue-50 to-slate-100 overflow-hidden ${className}`}>
+    <div className={`h-full w-full rounded-xl border border-border/20 bg-white overflow-hidden ${className}`}>
 {!hideHeader && (
-  <div className="sticky top-0 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-b border-blue-200 z-10">
+  <div className="sticky top-0 bg-white border-b border-border/10 z-10">
     <div className="min-w-fit">
       <div style={{ width: chartWidth }} className="flex">
         {timelineDays.map((day) => {
@@ -191,19 +191,19 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
           return (
             <div
               key={day.toISOString()}
-              className={`flex-shrink-0 border-r border-blue-200 text-center transition-all duration-200 ${
-                isWeekend ? 'bg-blue-100/50' : ''
-              } ${isToday ? 'bg-blue-200/70 border-blue-400/50' : ''}`}
+              className={`flex-shrink-0 border-r border-border/10 text-center transition-all duration-200 ${
+                isWeekend ? 'bg-muted/20' : ''
+              } ${isToday ? 'bg-primary/10 border-primary/30' : ''}`}
               style={{ width: dayWidth }}
             >
               <div className="px-1 py-3 text-xs font-medium">
-                <div className={`text-xs ${isToday ? 'text-blue-800 font-semibold' : 'text-blue-600'}`}>
+                <div className={`text-xs ${isToday ? 'text-primary font-semibold' : 'text-muted-foreground'}`}>
                   {format(day, 'MMM')}
                 </div>
-                <div className={`text-sm font-bold ${isToday ? 'text-blue-900' : 'text-blue-800'}`}>
+                <div className={`text-sm font-bold ${isToday ? 'text-primary' : 'text-foreground'}`}>
                   {format(day, 'd')}
                 </div>
-                <div className={`text-xs ${isToday ? 'text-blue-700' : 'text-blue-600'}`}>
+                <div className={`text-xs ${isToday ? 'text-primary/80' : 'text-muted-foreground'}`}>
                   {format(day, 'EEE')}
                 </div>
               </div>
@@ -216,7 +216,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
 )}
 
       {/* Gantt Bars Container */}
-      <div className="min-w-fit bg-gradient-to-b from-blue-50/30 to-blue-100/20">
+      <div className="min-w-fit bg-white">
         <div style={{ width: chartWidth }} className="relative">
           {items.map((item, index) => {
             const position = getTaskPosition(item);
@@ -225,12 +225,8 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
             return (
               <div
                 key={item.id}
-                className={`relative border-b border-blue-200/30 transition-all duration-200 ${
-                  item.level === 0 
-                    ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100' 
-                    : item.level === 1
-                    ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50'
-                    : isEven ? 'bg-blue-50/20' : 'bg-white/60'
+                className={`relative border-b border-border/5 transition-all duration-200 ${
+                  isEven ? 'bg-white' : 'bg-muted/5'
                 }`}
                 style={{ height: rowHeight }}
               >
@@ -241,7 +237,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                     <div
                       key={day.toISOString()}
                       className={`absolute top-0 bottom-0 border-r transition-all duration-200 ${
-                        isWeekend ? 'border-blue-300/40 bg-blue-100/20' : 'border-blue-200/20'
+                        isWeekend ? 'border-muted/20 bg-muted/5' : 'border-border/5'
                       }`}
                       style={{ 
                         left: dayIndex * dayWidth,
