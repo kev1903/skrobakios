@@ -219,22 +219,34 @@ const getTaskEndX = (task: GanttTask, viewSettings: any) => {
 
 const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number) => {
   const midX = (fromX + toX) / 2;
+  const offsetY = Math.abs(toY - fromY) * 0.3; // Curve intensity based on vertical distance
   
+  // Create smooth curved path
+  const controlPoint1X = fromX + Math.min(60, Math.abs(toX - fromX) * 0.3);
+  const controlPoint1Y = fromY;
+  const controlPoint2X = toX - Math.min(60, Math.abs(toX - fromX) * 0.3);
+  const controlPoint2Y = toY;
+  
+  // If arrows are on same row or close, use simple curve
+  if (Math.abs(toY - fromY) < 10) {
+    return `M ${fromX} ${fromY} 
+            C ${fromX + 30} ${fromY} ${toX - 30} ${toY} ${toX - 12} ${toY}`;
+  }
+  
+  // Multi-level curved path for better visual flow
   return `M ${fromX} ${fromY} 
-          L ${midX} ${fromY} 
-          L ${midX} ${toY} 
-          L ${toX - 8} ${toY}
-          M ${toX - 8} ${toY - 4}
-          L ${toX} ${toY}
-          L ${toX - 8} ${toY + 4}`;
+          C ${controlPoint1X} ${fromY} ${controlPoint1X} ${fromY} ${controlPoint1X + 20} ${fromY}
+          C ${midX - 20} ${fromY} ${midX - 20} ${fromY + offsetY} ${midX} ${(fromY + toY) / 2}
+          C ${midX + 20} ${toY - offsetY} ${midX + 20} ${toY} ${controlPoint2X - 20} ${toY}
+          C ${controlPoint2X} ${toY} ${controlPoint2X} ${toY} ${toX - 12} ${toY}`;
 };
 
 const getDependencyColor = (type: DependencyType) => {
   switch (type) {
-    case 'FS': return '#3b82f6'; // blue
-    case 'SS': return '#10b981'; // green  
-    case 'FF': return '#f59e0b'; // amber
-    case 'SF': return '#ef4444'; // red
-    default: return '#6b7280'; // gray
+    case 'FS': return 'rgba(59, 130, 246, 0.8)'; // blue with opacity
+    case 'SS': return 'rgba(16, 185, 129, 0.8)'; // green with opacity  
+    case 'FF': return 'rgba(245, 158, 11, 0.8)'; // amber with opacity
+    case 'SF': return 'rgba(239, 68, 68, 0.8)'; // red with opacity
+    default: return 'rgba(107, 114, 128, 0.8)'; // gray with opacity
   }
 };

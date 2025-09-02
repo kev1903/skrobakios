@@ -1,0 +1,81 @@
+/* Dependency Arrow Styles */
+.dependency-arrow {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dependency-arrow:hover .arrow-main {
+  stroke-width: 3.5px;
+  filter: brightness(1.1) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.dependency-arrow:hover .arrow-highlight {
+  opacity: 1;
+}
+
+.dependency-arrow:hover .arrow-glow {
+  opacity: 0.4;
+  stroke-width: 8px;
+}
+
+/* Arrow animations */
+@keyframes arrow-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+.dependency-arrow.active {
+  animation: arrow-pulse 2s ease-in-out infinite;
+}
+
+/* Dependency type specific styles */
+.dependency-fs {
+  --arrow-color: rgba(59, 130, 246, 0.9);
+}
+
+.dependency-ss {
+  --arrow-color: rgba(16, 185, 129, 0.9);
+}
+
+.dependency-ff {
+  --arrow-color: rgba(245, 158, 11, 0.9);
+}
+
+.dependency-sf {
+  --arrow-color: rgba(239, 68, 68, 0.9);
+}
+
+/* Smooth entrance animation */
+.dependency-arrow {
+  opacity: 0;
+  animation: arrow-fade-in 0.5s ease-out forwards;
+}
+
+@keyframes arrow-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Arrow path transitions */
+.arrow-main {
+  transition: stroke-width 0.2s ease, filter 0.2s ease;
+}
+
+.arrow-highlight {
+  transition: opacity 0.2s ease;
+}
+
+.arrow-glow {
+  transition: opacity 0.2s ease, stroke-width 0.2s ease;
+}

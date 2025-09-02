@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { format, addDays, differenceInDays, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, parseISO } from 'date-fns';
 import { getDependencyLines } from '@/utils/predecessorUtils';
 import { GanttTask, DependencyType } from '@/types/gantt';
+import './dependency-arrows.css';
 
 interface WBSItem {
   id: string;
@@ -327,32 +328,106 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
               height={items.length * rowHeight}
               style={{ overflow: 'visible' }}
             >
-              {dependencyLines.map((line) => (
-                <g key={line.id}>
-                  <path
-                    d={line.path}
-                    stroke={line.color}
-                    strokeWidth="2"
-                    fill="none"
-                    markerEnd="url(#arrowhead)"
-                  />
-                </g>
-              ))}
               <defs>
+                {/* Enhanced arrowhead with gradient */}
                 <marker
                   id="arrowhead"
-                  markerWidth="10"
-                  markerHeight="7"
-                  refX="9"
-                  refY="3.5"
+                  markerWidth="12"
+                  markerHeight="10"
+                  refX="11"
+                  refY="5"
                   orient="auto"
+                  markerUnits="strokeWidth"
                 >
-                  <polygon
-                    points="0 0, 10 3.5, 0 7"
-                    fill="#6b7280"
+                  <path
+                    d="M0,0 L0,10 L12,5 z"
+                    fill="url(#arrowGradient)"
+                    stroke="rgba(0,0,0,0.1)"
+                    strokeWidth="0.5"
                   />
                 </marker>
+                
+                {/* Gradient definitions for different dependency types */}
+                <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style={{ stopColor: 'rgba(59, 130, 246, 0.8)' }} />
+                  <stop offset="100%" style={{ stopColor: 'rgba(59, 130, 246, 1)' }} />
+                </linearGradient>
+                
+                <linearGradient id="fsGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style={{ stopColor: 'rgba(59, 130, 246, 0.6)' }} />
+                  <stop offset="100%" style={{ stopColor: 'rgba(59, 130, 246, 0.9)' }} />
+                </linearGradient>
+                
+                <linearGradient id="ssGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style={{ stopColor: 'rgba(16, 185, 129, 0.6)' }} />
+                  <stop offset="100%" style={{ stopColor: 'rgba(16, 185, 129, 0.9)' }} />
+                </linearGradient>
+                
+                <linearGradient id="ffGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style={{ stopColor: 'rgba(245, 158, 11, 0.6)' }} />
+                  <stop offset="100%" style={{ stopColor: 'rgba(245, 158, 11, 0.9)' }} />
+                </linearGradient>
+                
+                <linearGradient id="sfGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" style={{ stopColor: 'rgba(239, 68, 68, 0.6)' }} />
+                  <stop offset="100%" style={{ stopColor: 'rgba(239, 68, 68, 0.9)' }} />
+                </linearGradient>
+                
+                {/* Drop shadow filter */}
+                <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="1" dy="1" stdDeviation="1.5" floodOpacity="0.2" />
+                </filter>
               </defs>
+              
+              {dependencyLines.map((line) => {
+                const gradientId = `${line.type.toLowerCase()}Gradient`;
+                return (
+                  <g key={line.id} className={`dependency-arrow dependency-${line.type.toLowerCase()} group`}>
+                    {/* Glow effect background */}
+                    <path
+                      d={line.path}
+                      stroke={line.color}
+                      strokeWidth="6"
+                      fill="none"
+                      opacity="0.2"
+                      className="arrow-glow"
+                    />
+                    
+                    {/* Main arrow path */}
+                    <path
+                      d={line.path}
+                      stroke={`url(#${gradientId})`}
+                      strokeWidth="2.5"
+                      fill="none"
+                      markerEnd="url(#arrowhead)"
+                      filter="url(#dropShadow)"
+                      className="arrow-main"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <title>{`${line.type} Dependency: ${line.fromTask} → ${line.toTask}`}</title>
+                    </path>
+                    
+                    {/* Animated highlight */}
+                    <path
+                      d={line.path}
+                      stroke="rgba(255,255,255,0.6)"
+                      strokeWidth="1"
+                      fill="none"
+                      className="arrow-highlight"
+                      strokeDasharray="5,5"
+                      strokeLinecap="round"
+                    >
+                      <animate
+                        attributeName="stroke-dashoffset"
+                        values="0;10"
+                        dur="1s"
+                        repeatCount="indefinite"
+                      />
+                    </path>
+                  </g>
+                );
+              })}
             </svg>
           )}
 
