@@ -58,7 +58,7 @@ export const WBSTimeView = ({
         {/* Left Panel - includes both header and content */}
         <Panel defaultSize={50} minSize={30} className="flex flex-col">
           {/* Header Section */}
-          <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border flex-shrink-0">
+          <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border flex-shrink-0 h-[60px]">
             {/* Make header horizontally scroll-sync with body */}
             <div ref={headerHorizScrollRef} className="flex h-full overflow-hidden">
               {/* WBS Left Panel Header */}
@@ -136,8 +136,8 @@ export const WBSTimeView = ({
           >
             <div className="min-w-fit">
               {/* Header Section - Daily Calendar */}
-              <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border border-l border-border text-xs font-medium text-slate-700 sticky top-0 z-10">
-                <div className="flex">
+              <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border border-l border-border text-xs font-medium text-slate-700 sticky top-0 z-10 h-[60px]">
+                <div className="flex h-full">
                   {(() => {
                     // Use the same date range as the GanttChart
                     const itemsWithDates = items.filter(item => item.start_date || item.end_date);
