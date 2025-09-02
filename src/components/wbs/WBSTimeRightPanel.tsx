@@ -44,293 +44,207 @@ export const WBSTimeRightPanel = ({
   onScroll
 }: WBSTimeRightPanelProps) => {
 
-  // Calculate parent dates on component mount and when items change
-  React.useEffect(() => {
-    const calculateAllParentDates = () => {
-      // Find all phases and components that have children (by parent_id or WBS prefix)
-      // Determine if an item has direct children (by parent_id or WBS direct child rule)
-      const hasDirectChild = (parent: WBSItem) => {
-        // Prefer explicit parent_id linkage
-        if (items.some((child) => child.parent_id === parent.id)) return true;
-
-        // Fallback by WBS numbering: direct child has exactly one more segment
-        if (parent.wbs_id) {
-          const parentBase = parent.wbs_id.endsWith('.0') ? parent.wbs_id.slice(0, -2) : parent.wbs_id;
-          const parentSegs = parentBase.split('.').length;
-          const isDirect = items.some((child) => {
-            if (!child.wbs_id) return false;
-            if (child.id === parent.id) return false; // avoid self as child
-            const childBase = child.wbs_id.endsWith('.0') ? child.wbs_id.slice(0, -2) : child.wbs_id;
-            if (!childBase.startsWith(parentBase + '.')) return false;
-            const segs = childBase.split('.').length;
-            return segs === parentSegs + 1;
-          });
-          if (isDirect) return true;
-        }
-        return false;
-      };
-
-      const parentsWithChildren = items.filter((item) => hasDirectChild(item as WBSItem));
-      
-      // Calculate for all parents (deeper first if possible)
-      const sortedParents = [...parentsWithChildren].sort((a, b) => {
-        const depthA = (a.wbs_id ? (a.wbs_id.endsWith('.0') ? a.wbs_id.slice(0, -2) : a.wbs_id) : '').split('.').length;
-        const depthB = (b.wbs_id ? (b.wbs_id.endsWith('.0') ? b.wbs_id.slice(0, -2) : b.wbs_id) : '').split('.').length;
-        return depthB - depthA; // deeper first
-      });
-      
-      sortedParents.forEach((parent, idx) => {
-        setTimeout(() => calculateParentDates(parent.id), 10 * (idx + 1));
-      });
-    };
+  const timeoutRef = React.useRef<NodeJS.Timeout>();
+  
+  // Memoized parent-child relationships for efficiency
+  const parentChildMap = React.useMemo(() => {
+    const map = new Map<string, string[]>();
+    const parentSet = new Set<string>();
     
-    if (items.length > 0) {
-      calculateAllParentDates();
-    }
+    items.forEach(item => {
+      // Direct parent_id relationships
+      if (item.parent_id) {
+        if (!map.has(item.parent_id)) map.set(item.parent_id, []);
+        map.get(item.parent_id)!.push(item.id);
+        parentSet.add(item.parent_id);
+      }
+      
+      // WBS-based relationships as fallback
+      if (item.wbs_id) {
+        const base = item.wbs_id.endsWith('.0') ? item.wbs_id.slice(0, -2) : item.wbs_id;
+        const segs = base.split('.');
+        if (segs.length > 1) {
+          const parentBase = segs.slice(0, -1).join('.');
+          const potentialParent = items.find(p => {
+            if (!p.wbs_id || p.id === item.id) return false;
+            const pBase = p.wbs_id.endsWith('.0') ? p.wbs_id.slice(0, -2) : p.wbs_id;
+            return pBase === parentBase;
+          });
+          if (potentialParent && !item.parent_id) {
+            if (!map.has(potentialParent.id)) map.set(potentialParent.id, []);
+            map.get(potentialParent.id)!.push(item.id);
+            parentSet.add(potentialParent.id);
+          }
+        }
+      }
+    });
+    
+    return { map, parentSet };
   }, [items]);
 
-  // Helper function to get children of a specific item (by parent_id or WBS direct child)
-  const getChildren = (parentId: string) => {
-    const parent = items.find((i) => i.id === parentId);
-    if (!parent) return [] as WBSItem[];
-
-    // Prefer explicit parent_id linkage
-    const byId = items.filter((item) => item.parent_id === parentId);
-    if (byId.length > 0) return byId;
-
-    // Fallback to WBS numbers: direct child has exactly one more segment
-    if (parent.wbs_id) {
-      const parentBase = parent.wbs_id.endsWith('.0') ? parent.wbs_id.slice(0, -2) : parent.wbs_id;
-      const parentSegs = parentBase.split('.').length;
-      return items.filter((child) => {
-        if (!child.wbs_id) return false;
-        if (child.id === parent.id) return false; // avoid self
-        const childBase = child.wbs_id.endsWith('.0') ? child.wbs_id.slice(0, -2) : child.wbs_id;
-        if (!childBase.startsWith(parentBase + '.')) return false;
-        const segs = childBase.split('.').length;
-        return segs === parentSegs + 1;
-      });
-    }
-    return [] as WBSItem[];
-  };
-
-  // Rollup dates for parents using robust recursive traversal of actual children
+  // Optimized rollup calculations with caching
   const rollupDates = React.useMemo(() => {
-    type Roll = { start?: Date; end?: Date; duration?: number };
-    const map = new Map<string, Roll>();
-
-    // Build quick index
-    const byId = new Map(items.map((i) => [i.id, i] as const));
-    const memo = new Map<string, Roll>();
-
-    const compute = (id: string): Roll => {
-      if (memo.has(id)) return memo.get(id)!;
-      const item = byId.get(id);
-      if (!item) {
-        const empty: Roll = {};
-        memo.set(id, empty);
-        return empty;
-      }
-
-      const children = getChildren(id);
-      // Treat items with no children as leaves
-      if (children.length === 0) {
+    const cache = new Map<string, { start?: Date; end?: Date; duration?: number }>();
+    const itemMap = new Map(items.map(i => [i.id, i]));
+    
+    const compute = (itemId: string, visited = new Set<string>()): typeof cache extends Map<any, infer T> ? T : never => {
+      if (visited.has(itemId) || cache.has(itemId)) return cache.get(itemId) || {};
+      visited.add(itemId);
+      
+      const item = itemMap.get(itemId);
+      if (!item) return {};
+      
+      const childIds = parentChildMap.map.get(itemId) || [];
+      
+      // Leaf node - use actual dates
+      if (childIds.length === 0) {
         const start = item.start_date ? new Date(item.start_date) : undefined;
         const end = item.end_date ? new Date(item.end_date) : undefined;
         const duration = start && end ? differenceInDays(end, start) + 1 : item.duration;
-        const leaf: Roll = { start, end, duration };
-        memo.set(id, leaf);
-        return leaf;
-      }
-
-      // Aggregate from descendants
-      const starts: Date[] = [];
-      const ends: Date[] = [];
-      children.forEach((ch) => {
-        const r = compute(ch.id);
-        if (r.start) starts.push(r.start);
-        if (r.end) ends.push(r.end);
-      });
-
-      const start = starts.length ? new Date(Math.min(...starts.map((d) => d.getTime()))) : undefined;
-      const end = ends.length ? new Date(Math.max(...ends.map((d) => d.getTime()))) : undefined;
-      const roll: Roll = { start, end, duration: start && end ? differenceInDays(end, start) + 1 : undefined };
-      memo.set(id, roll);
-      return roll;
-    };
-
-    // Compute for all parents
-    items.forEach((it) => {
-      if (getChildren(it.id).length > 0) {
-        map.set(it.id, compute(it.id));
-      }
-    });
-
-    // Diagnostics to help verify in console
-    try {
-      const parents = items.filter((i) => i.level < 2).length;
-      const leavesWithDates = items.filter((i) => (i.level === 2 || getChildren(i.id).length === 0) && (i.start_date || i.end_date)).length;
-      // eslint-disable-next-line no-console
-      console.debug('WBSTime rollups stats', { parents, leavesWithDates, mapSize: map.size });
-    } catch {}
-
-    return map;
-  }, [items]);
-
-  // Auto-calculate parent dates based on children
-  const calculateParentDates = (parentId: string) => {
-    const parent = items.find(item => item.id === parentId);
-    if (!parent) return;
-    
-    const children = getChildren(parentId);
-    if (children.length === 0) return;
-    
-    // Filter children that have dates
-    const childrenWithDates = children.filter(child => child.start_date && child.end_date);
-    if (childrenWithDates.length === 0) return;
-    
-    // Calculate earliest start and latest end
-    const startDates = childrenWithDates.map(child => new Date(child.start_date!));
-    const endDates = childrenWithDates.map(child => new Date(child.end_date!));
-    
-    const earliestStart = new Date(Math.min(...startDates.map(d => d.getTime())));
-    const latestEnd = new Date(Math.max(...endDates.map(d => d.getTime())));
-    const calculatedDuration = differenceInDays(latestEnd, earliestStart) + 1;
-    
-    // Update parent with calculated values
-    onItemUpdate(parentId, {
-      start_date: `${earliestStart.getFullYear()}-${String(earliestStart.getMonth()+1).padStart(2,'0')}-${String(earliestStart.getDate()).padStart(2,'0')}`,
-      end_date: `${latestEnd.getFullYear()}-${String(latestEnd.getMonth()+1).padStart(2,'0')}-${String(latestEnd.getDate()).padStart(2,'0')}`,
-      duration: calculatedDuration
-    });
-  };
-
-  // Enhanced onItemUpdate with proper debouncing to prevent excessive API calls
-  const handleItemUpdate = React.useCallback((itemId: string, updates: any) => {
-    // First update the item itself
-    onItemUpdate(itemId, updates);
-    
-    // If dates or duration were updated, debounce parent calculations
-    if (updates.start_date || updates.end_date || updates.duration) {
-      // Clear any existing timeout for this item to prevent duplicate calculations
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+        const result = { start, end, duration };
+        cache.set(itemId, result);
+        return result;
       }
       
-      // Debounce parent updates to prevent excessive API calls
+      // Parent node - aggregate from children
+      const childResults = childIds.map(childId => compute(childId, new Set(visited))).filter(r => r.start || r.end);
+      
+      if (childResults.length === 0) {
+        cache.set(itemId, {});
+        return {};
+      }
+      
+      const starts = childResults.map(r => r.start).filter(Boolean) as Date[];
+      const ends = childResults.map(r => r.end).filter(Boolean) as Date[];
+      
+      const start = starts.length ? new Date(Math.min(...starts.map(d => d.getTime()))) : undefined;
+      const end = ends.length ? new Date(Math.max(...ends.map(d => d.getTime()))) : undefined;
+      const duration = start && end ? differenceInDays(end, start) + 1 : undefined;
+      
+      const result = { start, end, duration };
+      cache.set(itemId, result);
+      return result;
+    };
+    
+    // Compute only for parents
+    parentChildMap.parentSet.forEach(parentId => compute(parentId));
+    
+    return cache;
+  }, [items, parentChildMap]);
+
+  // Optimized parent date calculation
+  const calculateParentDates = React.useCallback((parentId: string) => {
+    const childIds = parentChildMap.map.get(parentId);
+    if (!childIds?.length) return;
+    
+    const childrenWithDates = childIds
+      .map(id => items.find(i => i.id === id))
+      .filter(child => child?.start_date && child?.end_date) as typeof items;
+    
+    if (childrenWithDates.length === 0) return;
+    
+    const startTimes = childrenWithDates.map(c => new Date(c.start_date!).getTime());
+    const endTimes = childrenWithDates.map(c => new Date(c.end_date!).getTime());
+    
+    const earliestStart = new Date(Math.min(...startTimes));
+    const latestEnd = new Date(Math.max(...endTimes));
+    const calculatedDuration = differenceInDays(latestEnd, earliestStart) + 1;
+    
+    onItemUpdate(parentId, {
+      start_date: earliestStart.toISOString().split('T')[0],
+      end_date: latestEnd.toISOString().split('T')[0],
+      duration: calculatedDuration
+    });
+  }, [items, parentChildMap.map, onItemUpdate]);
+
+  // Debounced and optimized item update handler
+  const handleItemUpdate = React.useCallback((itemId: string, updates: any) => {
+    onItemUpdate(itemId, updates);
+    
+    if (updates.start_date || updates.end_date || updates.duration) {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      
       timeoutRef.current = setTimeout(() => {
-        const updateParentChain = (childId: string, visited = new Set<string>()) => {
-          // Prevent infinite loops
+        // Find all ancestor parents efficiently
+        const updateAncestors = (childId: string, visited = new Set<string>()) => {
           if (visited.has(childId)) return;
           visited.add(childId);
           
           const child = items.find(i => i.id === childId);
           if (!child) return;
           
-          // Find parent by parent_id first
-          let parent = child.parent_id ? items.find(p => p.id === child.parent_id) : null;
+          // Find direct parent
+          let parentId = child.parent_id;
           
-          // If no parent_id, try WBS-based parent detection
-          if (!parent && child.wbs_id) {
+          // Fallback to WBS parent
+          if (!parentId && child.wbs_id) {
             const childBase = child.wbs_id.endsWith('.0') ? child.wbs_id.slice(0, -2) : child.wbs_id;
             const childSegs = childBase.split('.');
             if (childSegs.length > 1) {
               const parentBase = childSegs.slice(0, -1).join('.');
-              parent = items.find(p => {
+              const parent = items.find(p => {
                 if (!p.wbs_id || visited.has(p.id)) return false;
                 const pBase = p.wbs_id.endsWith('.0') ? p.wbs_id.slice(0, -2) : p.wbs_id;
                 return pBase === parentBase;
               });
+              parentId = parent?.id;
             }
           }
           
-          if (parent && !visited.has(parent.id)) {
-            calculateParentDates(parent.id);
-            // Recursively update grandparents with visit tracking
-            updateParentChain(parent.id, visited);
+          if (parentId && !visited.has(parentId)) {
+            calculateParentDates(parentId);
+            updateAncestors(parentId, visited);
           }
         };
         
-        // Start the parent chain update with visit tracking
-        updateParentChain(itemId);
-      }, 300); // 300ms debounce to batch updates
+        updateAncestors(itemId);
+      }, 200);
     }
-  }, [items, onItemUpdate]);
+  }, [items, onItemUpdate, calculateParentDates]);
 
-  const timeoutRef = React.useRef<NodeJS.Timeout>();
-  
-  // Cleanup timeout on unmount
-  React.useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
+  // Cleanup
+  React.useEffect(() => () => timeoutRef.current && clearTimeout(timeoutRef.current), []);
 
-  // Auto-calculation logic for dates and duration
-  const handleDateCalculation = (id: string, field: string, value: string, currentItem: any) => {
+  // Memoized date and duration handlers
+  const handleDateCalculation = React.useCallback((id: string, field: string, value: string, currentItem: any) => {
     const item = items.find(i => i.id === id);
     if (!item) return;
 
     const updates: any = { [field]: value };
     
-    if (field === 'start_date') {
-      // If we have end_date, calculate duration
-      if (item.end_date) {
-        const startDate = new Date(value);
-        const endDate = new Date(item.end_date);
-        const diffDays = differenceInDays(endDate, startDate) + 1;
-        updates.duration = Math.max(1, diffDays);
-      }
-      // If we have duration, calculate end_date
-      else if (item.duration && item.duration > 0) {
-        const startDate = new Date(value);
-        const endDate = addDays(startDate, item.duration - 1);
-        updates.end_date = `${endDate.getFullYear()}-${String(endDate.getMonth()+1).padStart(2,'0')}-${String(endDate.getDate()).padStart(2,'0')}`;
-      }
-    } else if (field === 'end_date') {
-      // If we have start_date, calculate duration
-      if (item.start_date) {
-        const startDate = new Date(item.start_date);
-        const endDate = new Date(value);
-        const diffDays = differenceInDays(endDate, startDate) + 1;
-        updates.duration = Math.max(1, diffDays);
-      }
-      // If we have duration, calculate start_date
-      else if (item.duration && item.duration > 0) {
-        const endDate = new Date(value);
-        const startDate = subDays(endDate, item.duration - 1);
-        updates.start_date = `${startDate.getFullYear()}-${String(startDate.getMonth()+1).padStart(2,'0')}-${String(startDate.getDate()).padStart(2,'0')}`;
-      }
+    if (field === 'start_date' && item.end_date) {
+      updates.duration = Math.max(1, differenceInDays(new Date(item.end_date), new Date(value)) + 1);
+    } else if (field === 'start_date' && item.duration) {
+      const endDate = addDays(new Date(value), item.duration - 1);
+      updates.end_date = endDate.toISOString().split('T')[0];
+    } else if (field === 'end_date' && item.start_date) {
+      updates.duration = Math.max(1, differenceInDays(new Date(value), new Date(item.start_date)) + 1);
+    } else if (field === 'end_date' && item.duration) {
+      const startDate = subDays(new Date(value), item.duration - 1);
+      updates.start_date = startDate.toISOString().split('T')[0];
     }
 
     handleItemUpdate(id, updates);
-  };
+  }, [items, handleItemUpdate]);
 
-  const handleDurationCalculation = (id: string, field: string, value: number) => {
+  const handleDurationCalculation = React.useCallback((id: string, field: string, value: number) => {
     const item = items.find(i => i.id === id);
     if (!item) return;
 
     const updates: any = { [field]: value };
 
     if (field === 'duration' && value > 0) {
-      // If we have start_date, calculate end_date
       if (item.start_date) {
-        const startDate = new Date(item.start_date);
-        const endDate = addDays(startDate, value - 1); // Subtract 1 since duration includes start day
-        updates.end_date = `${endDate.getFullYear()}-${String(endDate.getMonth()+1).padStart(2,'0')}-${String(endDate.getDate()).padStart(2,'0')}`;
-      }
-      // If we have end_date, calculate start_date
-      else if (item.end_date) {
-        const endDate = new Date(item.end_date);
-        const startDate = subDays(endDate, value - 1); // Subtract 1 since duration includes end day
-        updates.start_date = `${startDate.getFullYear()}-${String(startDate.getMonth()+1).padStart(2,'0')}-${String(startDate.getDate()).padStart(2,'0')}`;
+        const endDate = addDays(new Date(item.start_date), value - 1);
+        updates.end_date = endDate.toISOString().split('T')[0];
+      } else if (item.end_date) {
+        const startDate = subDays(new Date(item.end_date), value - 1);
+        updates.start_date = startDate.toISOString().split('T')[0];
       }
     }
 
     handleItemUpdate(id, updates);
-  };
+  }, [items, handleItemUpdate]);
   return (
     <div className="flex-1 min-w-0 bg-white overflow-hidden">
       {/* Content */}
@@ -363,7 +277,7 @@ export const WBSTimeRightPanel = ({
             <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
                 {(() => {
                   const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                  const isParent = (item.level === 0 || item.level === 1) || getChildren(item.id).length > 0;
+                  const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
                   if (isParent) {
                     const rollup = rollupDates.get(item.id);
                     const d = rollup?.start;
@@ -392,7 +306,7 @@ export const WBSTimeRightPanel = ({
             <div className="px-2 h-[1.75rem] flex items-end text-xs text-muted-foreground">
               {(() => {
                 const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                const isParent = (item.level === 0 || item.level === 1) || getChildren(item.id).length > 0;
+                const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
                 if (isParent) {
                   const rollup = rollupDates.get(item.id);
                   const d = rollup?.end;
@@ -421,7 +335,7 @@ export const WBSTimeRightPanel = ({
             <div className="px-2 h-[1.75rem] flex items-end text-xs text-muted-foreground">
               {(() => {
                 const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                const isParent = (item.level === 0 || item.level === 1) || getChildren(item.id).length > 0;
+                const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
                 if (isParent) {
                   const rollup = rollupDates.get(item.id);
                   const d = rollup?.duration ?? item.duration;
