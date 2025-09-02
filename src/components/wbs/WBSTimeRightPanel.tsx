@@ -48,24 +48,24 @@ export const WBSTimeRightPanel = ({
   React.useEffect(() => {
     const calculateAllParentDates = () => {
       // Find all phases and components that have children (by parent_id or WBS prefix)
+      // Determine if an item has direct children (by parent_id or WBS direct child rule)
       const hasDirectChild = (parent: WBSItem) => {
-        // 1) Direct relation via parent_id
-        if (items.some(child => child.parent_id === parent.id)) return true;
-        // 2) Fallback by WBS number direct child (one more segment)
+        // Prefer explicit parent_id linkage
+        if (items.some((child) => child.parent_id === parent.id)) return true;
+
+        // Fallback by WBS numbering: direct child has exactly one more segment
         if (parent.wbs_id) {
-          // Normalize base so that a parent like "1.0" treats children like "1.1" as direct
           const parentBase = parent.wbs_id.endsWith('.0') ? parent.wbs_id.slice(0, -2) : parent.wbs_id;
-          const baseSegs = parentBase.split('.').length;
-          const prefix = parentBase + '.';
-          if (
-            items.some(
-              (child) =>
-                child.wbs_id?.startsWith(prefix) &&
-                child.wbs_id.split('.').length === baseSegs + 1
-            )
-          ) {
-            return true;
-          }
+          const parentSegs = parentBase.split('.').length;
+          const isDirect = items.some((child) => {
+            if (!child.wbs_id) return false;
+            if (child.id === parent.id) return false; // avoid self as child
+            const childBase = child.wbs_id.endsWith('.0') ? child.wbs_id.slice(0, -2) : child.wbs_id;
+            if (!childBase.startsWith(parentBase + '.')) return false;
+            const segs = childBase.split('.').length;
+            return segs === parentSegs + 1;
+          });
+          if (isDirect) return true;
         }
         return false;
       };
@@ -100,15 +100,16 @@ export const WBSTimeRightPanel = ({
 
     // Fallback to WBS numbers: direct child has exactly one more segment
     if (parent.wbs_id) {
-      // Normalize base so that a parent like "1.0" treats children like "1.1" as direct
       const parentBase = parent.wbs_id.endsWith('.0') ? parent.wbs_id.slice(0, -2) : parent.wbs_id;
-      const baseSegs = parentBase.split('.').length;
-      const prefix = parentBase + '.';
-      return items.filter(
-        (child) =>
-          child.wbs_id?.startsWith(prefix) &&
-          child.wbs_id.split('.').length === baseSegs + 1
-      );
+      const parentSegs = parentBase.split('.').length;
+      return items.filter((child) => {
+        if (!child.wbs_id) return false;
+        if (child.id === parent.id) return false; // avoid self
+        const childBase = child.wbs_id.endsWith('.0') ? child.wbs_id.slice(0, -2) : child.wbs_id;
+        if (!childBase.startsWith(parentBase + '.')) return false;
+        const segs = childBase.split('.').length;
+        return segs === parentSegs + 1;
+      });
     }
     return [] as WBSItem[];
   };
