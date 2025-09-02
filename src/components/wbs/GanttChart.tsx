@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import { format, addDays, differenceInDays, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, parseISO } from 'date-fns';
+import { getDependencyLines } from '@/utils/predecessorUtils';
+import { GanttTask, DependencyType } from '@/types/gantt';
 
 interface WBSItem {
   id: string;
@@ -9,7 +11,11 @@ interface WBSItem {
   start_date?: string | Date | null;
   end_date?: string | Date | null;
   duration?: number;
-  predecessors?: string[];
+  predecessors?: (string | {
+    predecessorId: string;
+    type: DependencyType;
+    lag?: number;
+  })[];
   status: string;
 }
 
@@ -27,7 +33,8 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
     name: item.name,
     start_date: item.start_date,
     end_date: item.end_date,
-    level: item.level
+    level: item.level,
+    predecessors: item.predecessors
   })));
 
   // Calculate the date range for the chart
@@ -135,6 +142,40 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
   }, [items]);
 
   const getWbs = (it: WBSItem) => (it.wbsNumber && it.wbsNumber.trim().length > 0 ? it.wbsNumber : (computedWbsNumbers.get(it.id) || ''));
+
+  // Convert WBS items to GanttTask format for dependency calculations
+  const ganttTasks: GanttTask[] = useMemo(() => {
+    return items.map(item => ({
+      id: item.id,
+      name: item.name,
+      startDate: item.start_date ? (typeof item.start_date === 'string' ? parseISO(item.start_date) : item.start_date) : new Date(),
+      endDate: item.end_date ? (typeof item.end_date === 'string' ? parseISO(item.end_date) : item.end_date) : new Date(),
+      progress: 0,
+      status: 'not-started' as const,
+      level: item.level,
+      category: 'Element' as const,
+      predecessors: item.predecessors ? item.predecessors.map(predId => ({
+        predecessorId: typeof predId === 'string' ? predId : predId.predecessorId,
+        type: typeof predId === 'string' ? 'FS' as DependencyType : predId.type,
+        lag: typeof predId === 'string' ? 0 : (predId.lag || 0)
+      })) : []
+    }));
+  }, [items]);
+
+  // Calculate dependency lines
+  const dependencyLines = useMemo(() => {
+    if (ganttTasks.length === 0) return [];
+    
+    const viewSettings = {
+      dayWidth,
+      rowHeight,
+      viewStart: startDate
+    };
+    
+    const lines = getDependencyLines(ganttTasks, viewSettings);
+    console.log('Dependency lines calculated:', lines.length, lines);
+    return lines;
+  }, [ganttTasks, dayWidth, rowHeight, startDate]);
 
 
   return (
@@ -294,6 +335,43 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
               />
             );
           })}
+
+          {/* Dependency Arrows */}
+          {dependencyLines.length > 0 && (
+            <svg 
+              className="absolute inset-0 pointer-events-none"
+              width={chartWidth} 
+              height={items.length * rowHeight}
+              style={{ overflow: 'visible', zIndex: 30 }}
+            >
+              {dependencyLines.map((line) => (
+                <g key={line.id}>
+                  <path
+                    d={line.path}
+                    stroke={line.color}
+                    strokeWidth="2"
+                    fill="none"
+                    markerEnd="url(#arrowhead)"
+                  />
+                </g>
+              ))}
+              <defs>
+                <marker
+                  id="arrowhead"
+                  markerWidth="10"
+                  markerHeight="7"
+                  refX="9"
+                  refY="3.5"
+                  orient="auto"
+                >
+                  <polygon
+                    points="0 0, 10 3.5, 0 7"
+                    fill="#6b7280"
+                  />
+                </marker>
+              </defs>
+            </svg>
+          )}
         </div>
       </div>
     </div>

@@ -231,7 +231,8 @@ export const WBSTimeView = ({
                   ...item,
                   name: item.title,
                   wbsNumber: item.wbs_id,
-                  status: item.status || 'Not Started'
+                  status: item.status || 'Not Started',
+                  predecessors: item.linked_tasks || []
                 }))} 
                 className="min-w-fit" 
                 hideHeader 
