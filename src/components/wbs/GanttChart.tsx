@@ -116,6 +116,27 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
   const chartWidth = timelineDays.length * dayWidth;
   const rowHeight = 28; // Height matching the table rows (1.75rem)
 
+  // Fallback WBS numbering when wbsNumber is missing
+  const computedWbsNumbers = useMemo(() => {
+    const counters: number[] = [];
+    const map = new Map<string, string>();
+
+    items.forEach((it) => {
+      const level = Math.max(0, it.level || 0);
+      while (counters.length <= level) counters.push(0);
+      // Trim deeper levels when moving up
+      if (level < counters.length - 1) counters.splice(level + 1);
+      counters[level]++;
+      const num = counters.slice(0, level + 1).join('.');
+      map.set(it.id, num);
+    });
+
+    return map;
+  }, [items]);
+
+  const getWbs = (it: WBSItem) => (it.wbsNumber && it.wbsNumber.trim().length > 0 ? it.wbsNumber : (computedWbsNumbers.get(it.id) || ''));
+
+
   return (
     <div className={`h-full w-full glass-light rounded-xl border border-border/20 overflow-hidden ${className}`}>
 {!hideHeader && (
@@ -196,22 +217,22 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                       left: position.left + 3,
                       width: Math.max(28, position.width - 6)
                     }}
-                    title={`${item.wbsNumber} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
+                    title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
                   >
                     {/* Status indicator with gradient */}
                     <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg ${getStatusColor(item.status)} shadow-sm`} />
                     
                     {/* Task content */}
                     {position.width <= 60 ? (
-                      <div className="px-1 flex items-center justify-center h-full">
+                      <div className="px-1 flex items-center justify-center h-full relative z-10">
                         <span className="text-[10px] font-semibold text-foreground">
-                          {item.wbsNumber}
+                          {getWbs(item)}
                         </span>
                       </div>
                     ) : (
-                      <div className="px-2 py-1 flex items-center h-full">
+                      <div className="px-2 py-1 flex items-center h-full relative z-10">
                         <span className="text-xs font-bold text-foreground truncate min-w-0 flex-shrink-0">
-                          {item.wbsNumber}
+                          {getWbs(item)}
                         </span>
                         {position.width > 80 && (
                           <span className="ml-1.5 text-xs text-muted-foreground truncate min-w-0">
@@ -222,12 +243,12 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                     )}
 
                     {/* Progress indicator overlay */}
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity duration-300" />
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity duration-300 pointer-events-none z-0" />
 
                     {/* Enhanced tooltip */}
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 transition-all duration-300 pointer-events-none z-20">
                       <div className="glass-light backdrop-blur-xl border border-border/20 rounded-lg py-3 px-4 shadow-xl">
-                        <div className="font-semibold text-foreground text-sm">{item.wbsNumber} - {item.name}</div>
+                        <div className="font-semibold text-foreground text-sm">{getWbs(item)} - {item.name}</div>
                         <div className="text-muted-foreground text-xs mt-1">
                           {format(position.startDate, 'MMM dd, yyyy')} - {format(position.endDate, 'MMM dd, yyyy')}
                         </div>
