@@ -405,9 +405,9 @@ export const WBSTimeRightPanel = ({
                   const rollup = rollupDates.get(item.id);
                   const d = rollup?.duration ?? item.duration;
                   return (
-                    <span className="text-xs text-muted-foreground">
-                      {d ? `${d}d` : '-'}
-                    </span>
+                    <div className="w-full h-full flex items-end">
+                      <span className="text-xs leading-none text-muted-foreground">{d ? `${d}d` : '-'}</span>
+                    </div>
                   );
                 }
                 return (
