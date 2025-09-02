@@ -120,6 +120,15 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
     }
   };
 
+  const getLevelFontStyle = (level: number) => {
+    switch (level) {
+      case 0: return 'font-black text-blue-900 tracking-wide'; // Phase - matches table
+      case 1: return 'font-bold text-blue-600'; // Component - matches table
+      case 2: return 'font-medium text-foreground'; // Element - matches table
+      default: return 'font-medium text-muted-foreground';
+    }
+  };
+
   const dayWidth = 32;
   const chartWidth = timelineDays.length * dayWidth;
   const rowHeight = 28; // Height matching the table rows (1.75rem)
@@ -263,17 +272,17 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                     {/* Task content */}
                     {position.width <= 60 ? (
                       <div className="px-1 flex items-center justify-center h-full relative z-10">
-                        <span className="text-[10px] font-semibold text-foreground">
+                        <span className={`text-[10px] ${getLevelFontStyle(item.level)}`}>
                           {getWbs(item)}
                         </span>
                       </div>
                     ) : (
                       <div className="px-2 py-1 flex items-center h-full relative z-10">
-                        <span className="text-xs font-bold text-foreground truncate min-w-0 flex-shrink-0">
+                        <span className={`text-xs truncate min-w-0 flex-shrink-0 ${getLevelFontStyle(item.level)}`}>
                           {getWbs(item)}
                         </span>
                         {position.width > 80 && (
-                          <span className="ml-1.5 text-xs text-muted-foreground truncate min-w-0">
+                          <span className={`ml-1.5 text-xs truncate min-w-0 ${getLevelFontStyle(item.level)}`}>
                             {item.name}
                           </span>
                         )}
