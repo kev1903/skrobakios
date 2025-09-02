@@ -1097,7 +1097,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     {/* Table Headers Row */}
                     <div className="bg-slate-100/70 border-t border-slate-200 flex">
                       {/* Left Panel Header */}
-                      <div className="w-[420px] px-2 py-2 text-xs font-medium text-slate-700 border-r border-border">
+                       <div className="w-[420px] px-2 py-1 text-xs font-medium text-slate-700 border-r border-border">
                         <div className="grid items-center" style={{
                           gridTemplateColumns: '32px 120px 1fr',
                         }}>
@@ -1108,7 +1108,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       </div>
                       
                       {/* Right Panel Header */}
-                      <div className="flex-1 px-2 py-2 text-xs font-medium text-slate-700">
+                       <div className="flex-1 px-2 py-1 text-xs font-medium text-slate-700">
                          <div className="grid items-center w-full" style={{
                            gridTemplateColumns: '1fr 140px 120px 160px 160px 84px',
                          }}>
@@ -1216,7 +1216,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                      {/* Table Headers Row */}
                      <div className="bg-slate-100/70 border-t border-slate-200 flex">
                        {/* Left Panel Header */}
-                       <div className="w-[420px] px-2 py-2 text-xs font-medium text-slate-700 border-r border-border">
+                       <div className="w-[420px] px-2 py-1 text-xs font-medium text-slate-700 border-r border-border">
                          <div className="grid items-center" style={{
                            gridTemplateColumns: '32px 120px 1fr',
                          }}>
@@ -1227,7 +1227,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        </div>
                        
                        {/* Right Panel Header */}
-                       <div className="flex-1 px-2 py-2 text-xs font-medium text-slate-700">
+                       <div className="flex-1 px-2 py-1 text-xs font-medium text-slate-700">
                          <div className="grid items-center" style={{
                            gridTemplateColumns: '1fr 120px 120px 120px 100px 140px 84px',
                          }}>

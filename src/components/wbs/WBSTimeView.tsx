@@ -62,7 +62,7 @@ export const WBSTimeView = ({
             {/* Make header horizontally scroll-sync with body */}
             <div ref={headerHorizScrollRef} className="flex h-full overflow-hidden">
               {/* WBS Left Panel Header */}
-              <div className="w-[420px] px-2 py-2 text-xs font-medium text-slate-700 border-r border-border flex-shrink-0">
+              <div className="w-[420px] px-2 py-1 text-xs font-medium text-slate-700 border-r border-border flex-shrink-0">
                 <div className="grid items-center" style={{
                   gridTemplateColumns: '32px 120px 1fr',
                 }}>
@@ -73,7 +73,7 @@ export const WBSTimeView = ({
               </div>
               
               {/* WBS Right Panel Header - Table Section */}
-              <div className="py-2 text-xs font-medium text-slate-700 flex-1 min-w-fit">
+              <div className="py-1 text-xs font-medium text-slate-700 flex-1 min-w-fit">
                 <div className="grid items-center" style={{
                   gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
                 }}>
