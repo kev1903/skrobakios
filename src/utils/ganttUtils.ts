@@ -105,19 +105,19 @@ export const getTaskLevelStyles = (level: number) => {
       return {
         background: 'bg-slate-100',
         border: 'border-l-4 border-l-slate-700',
-        text: 'font-semibold text-slate-800'
+        text: 'text-slate-700'
       };
     case 1:
       return {
         background: 'bg-slate-50',
         border: 'border-l-2 border-l-slate-600',
-        text: 'font-medium text-slate-700'
+        text: 'text-slate-700'
       };
     default:
       return {
         background: 'bg-white',
         border: 'border-l border-l-slate-400',
-        text: 'text-slate-600'
+        text: 'text-slate-700'
       };
   }
 };
