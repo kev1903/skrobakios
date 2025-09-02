@@ -75,8 +75,8 @@ export const WBSTimeView = ({
               </div>
               
               {/* WBS Right Panel Header - Table Section */}
-              <div className="py-1 text-xs font-medium text-slate-700 flex-1 min-w-fit">
-                <div className="grid items-center" style={{
+              <div className="py-1 text-xs font-medium text-slate-700 flex-1 min-w-fit flex items-center">
+                <div className="grid items-center flex-1" style={{
                   gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
                 }}>
                   <div className="px-3 font-semibold">DESCRIPTION</div>
@@ -87,6 +87,17 @@ export const WBSTimeView = ({
                   <div className="px-2 font-semibold">STATUS</div>
                   <div className="px-2 font-semibold">ACTIONS</div>
                 </div>
+                {onClearAllDates && (
+                  <div className="ml-2 pr-2">
+                    <button
+                      onClick={onClearAllDates}
+                      className="px-2 py-1 text-xs bg-background border border-border rounded hover:bg-accent transition-colors flex items-center gap-1"
+                    >
+                      <span className="w-3 h-3">🗓️</span>
+                      Clear Dates
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

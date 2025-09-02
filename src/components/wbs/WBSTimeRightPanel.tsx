@@ -181,21 +181,6 @@ export const WBSTimeRightPanel = ({
   };
   return (
     <div className="flex-1 min-w-0 bg-white overflow-hidden">
-      {/* Header with clear dates button */}
-      {onClearAllDates && (
-        <div className="flex justify-end p-2 border-b bg-slate-50">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onClearAllDates}
-            className="text-xs"
-          >
-            <Calendar className="w-3 h-3 mr-1" />
-            Clear All Dates
-          </Button>
-        </div>
-      )}
-      
       {/* Content */}
       <div ref={scrollRef} className="h-full overflow-hidden w-full" onScroll={onScroll}>
         {items.map((item) => (
