@@ -113,10 +113,10 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
 
   const getLevelColor = (level: number) => {
     switch (level) {
-      case 0: return 'border-blue-800/60 bg-blue-800/20 shadow-md';
-      case 1: return 'border-blue-600/60 bg-blue-600/20 shadow-sm';
-      case 2: return 'border-blue-400/50 bg-blue-400/15';
-      default: return 'border-blue-300/40 bg-blue-300/10';
+      case 0: return 'border-blue-800/80 bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 shadow-md'; // Phase - matches table
+      case 1: return 'border-blue-400/80 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 shadow-sm'; // Component - matches table
+      case 2: return 'border-slate-300/60 bg-gradient-to-r from-white to-slate-50'; // Element - matches table
+      default: return 'border-slate-300/40 bg-gradient-to-r from-white to-slate-50';
     }
   };
 
