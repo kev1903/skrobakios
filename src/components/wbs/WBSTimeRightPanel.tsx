@@ -205,30 +205,45 @@ export const WBSTimeRightPanel = ({
     });
   };
 
-  // Enhanced onItemUpdate that triggers parent calculations
+  // Enhanced onItemUpdate that triggers immediate parent calculations
   const handleItemUpdate = (itemId: string, updates: any) => {
     // First update the item itself
     onItemUpdate(itemId, updates);
     
-    // If dates or duration were updated, recalculate parent dates
+    // If dates or duration were updated, immediately recalculate parent dates
     if (updates.start_date || updates.end_date || updates.duration) {
-      const item = items.find(i => i.id === itemId);
-      if (item && item.parent_id) {
-        // Find the actual parent by parent_id
-        const parent = items.find(p => p.id === item.parent_id);
-        if (parent) {
-          // Use a timeout to ensure the item update is processed first
-          setTimeout(() => calculateParentDates(parent.id), 50);
-          
-          // If this is an Element (level 2), also update the grandparent Phase
-          if (item.level === 2 && parent.parent_id) {
-            const grandparent = items.find(gp => gp.id === parent.parent_id);
-            if (grandparent) {
-              setTimeout(() => calculateParentDates(grandparent.id), 100);
-            }
+      // Find all parents that need updating (immediate and ancestors)
+      const updateParentChain = (childId: string) => {
+        const child = items.find(i => i.id === childId);
+        if (!child) return;
+        
+        // Find parent by parent_id first
+        let parent = child.parent_id ? items.find(p => p.id === child.parent_id) : null;
+        
+        // If no parent_id, try WBS-based parent detection
+        if (!parent && child.wbs_id) {
+          const childBase = child.wbs_id.endsWith('.0') ? child.wbs_id.slice(0, -2) : child.wbs_id;
+          const childSegs = childBase.split('.');
+          if (childSegs.length > 1) {
+            const parentBase = childSegs.slice(0, -1).join('.');
+            parent = items.find(p => {
+              if (!p.wbs_id) return false;
+              const pBase = p.wbs_id.endsWith('.0') ? p.wbs_id.slice(0, -2) : p.wbs_id;
+              return pBase === parentBase;
+            });
           }
         }
-      }
+        
+        if (parent) {
+          // Immediate calculation without timeout
+          calculateParentDates(parent.id);
+          // Recursively update grandparents
+          updateParentChain(parent.id);
+        }
+      };
+      
+      // Start the parent chain update
+      updateParentChain(itemId);
     }
   };
 
