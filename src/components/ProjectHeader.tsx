@@ -64,8 +64,8 @@ export const ProjectHeader = ({
           <div className="w-full h-48 bg-gradient-to-r from-gray-800 to-gray-900 rounded-lg flex items-center justify-center text-white relative overflow-hidden">
             <div className="absolute inset-0 bg-black/20"></div>
             <div className="relative text-center">
-              <h2 className="text-4xl font-bold mb-2 tracking-wider">SALFORD</h2>
-              <p className="text-sm tracking-widest opacity-90">YOUR PREMIER REAL ESTATE AGENCY</p>
+              <h2 className="text-4xl font-bold mb-2 tracking-wider">{project.name}</h2>
+              <p className="text-sm tracking-widest opacity-90">{project.description || 'PROJECT OVERVIEW'}</p>
             </div>
           </div>
         )}
