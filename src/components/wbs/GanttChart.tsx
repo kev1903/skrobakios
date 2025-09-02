@@ -210,7 +210,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                 {/* Today indicator */}
                 {timelineDays.some(day => isSameDay(day, new Date())) && (
                   <div
-                    className="absolute top-0 bottom-0 w-px bg-primary/40 z-10"
+                    className="absolute top-0 bottom-0 w-px bg-blue-500 z-10"
                     style={{
                       left: timelineDays.findIndex(day => isSameDay(day, new Date())) * dayWidth
                     }}
