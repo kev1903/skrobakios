@@ -75,17 +75,30 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
         if (foundProject) {
           setProject(foundProject);
           
-          // Load banner image from localStorage (reset if none)
+          // Load and validate banner image from localStorage
           const savedBanner = localStorage.getItem(`project_banner_${foundProject.id}`);
           if (savedBanner && savedBanner.trim() !== "") {
-            setBannerImage(savedBanner);
+            // Validate that the stored data is a proper base64 image
+            const isValidBase64Image = /^data:image\/(jpeg|jpg|png|gif|webp|bmp);base64,/.test(savedBanner);
+            
+            if (isValidBase64Image) {
+              console.log(`Loading valid banner for project ${foundProject.id}`);
+              setBannerImage(savedBanner);
+            } else {
+              console.warn(`Invalid banner data found for project ${foundProject.id}, clearing...`);
+              // Clear corrupted banner data
+              localStorage.removeItem(`project_banner_${foundProject.id}`);
+              localStorage.removeItem(`project_banner_position_${foundProject.id}`);
+              setBannerImage("");
+            }
           } else {
+            console.log(`No banner found for project ${foundProject.id}`);
             setBannerImage("");
           }
 
           // Load banner position from localStorage (reset if none)
           const savedBannerPosition = localStorage.getItem(`project_banner_position_${foundProject.id}`);
-          if (savedBannerPosition) {
+          if (savedBannerPosition && savedBanner) {
             const position = safeJsonParse(savedBannerPosition, { fallback: null });
             if (position && typeof position.x === "number" && typeof position.y === "number" && typeof position.scale === "number") {
               setBannerPosition(position);
