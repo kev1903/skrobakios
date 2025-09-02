@@ -5523,6 +5523,7 @@ export type Database = {
           level: number | null
           linked_tasks: Json | null
           parent_id: string | null
+          predecessors: Json | null
           priority: string | null
           progress: number | null
           progress_status: string | null
@@ -5550,6 +5551,7 @@ export type Database = {
           level?: number | null
           linked_tasks?: Json | null
           parent_id?: string | null
+          predecessors?: Json | null
           priority?: string | null
           progress?: number | null
           progress_status?: string | null
@@ -5577,6 +5579,7 @@ export type Database = {
           level?: number | null
           linked_tasks?: Json | null
           parent_id?: string | null
+          predecessors?: Json | null
           priority?: string | null
           progress?: number | null
           progress_status?: string | null
@@ -6377,6 +6380,10 @@ export type Database = {
           requesting_user_id: string
         }
         Returns: string
+      }
+      migrate_linked_tasks_to_predecessors: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       set_active_context: {
         Args: { p_context_id?: string; p_context_type: string }

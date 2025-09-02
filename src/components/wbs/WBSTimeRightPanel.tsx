@@ -193,7 +193,7 @@ export const WBSTimeRightPanel = ({
         );
         
         // Find all ancestor parents efficiently
-        const updateAncestors = (childId: string, visited = new Set<string>()) => {
+        const updateAncestors = async (childId: string, visited = new Set<string>()) => {
           if (visited.has(childId)) return;
           visited.add(childId);
           
@@ -220,11 +220,11 @@ export const WBSTimeRightPanel = ({
           
           if (parentId && !visited.has(parentId)) {
             await calculateParentDates(parentId);
-            updateAncestors(parentId, visited);
+            await updateAncestors(parentId, visited);
           }
         };
         
-        updateAncestors(itemId);
+        await updateAncestors(itemId);
       }, 200);
     }
   }, [items, onItemUpdate, calculateParentDates]);
