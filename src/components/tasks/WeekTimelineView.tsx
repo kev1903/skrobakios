@@ -35,23 +35,23 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   
   // Get category colors from time tracking settings - now in HSL format
   const categoryColors = settings?.category_colors || {
-    'Design': '217 91% 60%',     // Blue
-    'Admin': '159 61% 51%',      // Green  
-    'Calls': '43 96% 56%',       // Amber
-    'Break': '0 84% 60%',        // Red
-    'Browsing': '263 69% 69%',   // Purple
-    'Site Visit': '188 94% 43%', // Cyan
-    'Deep Work': '160 84% 39%',  // Emerald
-    'Other': '217 33% 47%',      // Gray
+    'Design': '217 91% 60%',     // Deep Blue
+    'Admin': '214 88% 65%',      // Medium Blue
+    'Calls': '210 85% 70%',      // Light Blue
+    'Break': '207 82% 75%',      // Lighter Blue
+    'Browsing': '220 80% 80%',   // Very Light Blue
+    'Site Visit': '213 86% 68%', // Blue Variant
+    'Deep Work': '216 89% 62%',  // Deep Blue Variant
+    'Other': '211 84% 72%',      // Soft Blue
     // Legacy categories for backward compatibility
-    work: '217 91% 60%',        // Blue
-    personal: '159 61% 51%',    // Green
-    meeting: '43 96% 56%',      // Amber
-    break: '0 84% 60%',         // Red
-    family: '327 73% 97%',      // Pink
-    site_visit: '188 94% 43%',  // Cyan
-    church: '263 69% 69%',      // Purple
-    rest: '217 33% 47%'         // Gray
+    work: '217 91% 60%',         // Deep Blue
+    personal: '214 88% 65%',     // Medium Blue
+    meeting: '210 85% 70%',      // Light Blue
+    break: '207 82% 75%',        // Lighter Blue
+    family: '220 80% 80%',       // Very Light Blue
+    site_visit: '213 86% 68%',   // Blue Variant
+    church: '216 89% 62%',       // Deep Blue Variant
+    rest: '211 84% 72%'          // Soft Blue
   };
 
   // Update current time every minute - optimized for performance
@@ -170,11 +170,11 @@ export const WeekTimelineView: React.FC<WeekTimelineViewProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] shadow-lg rounded-xl overflow-hidden">
+    <div className="h-full flex flex-col bg-gradient-to-br from-slate-100 via-blue-50 to-slate-100 border border-blue-200 shadow-lg rounded-xl overflow-hidden">
       {/* Week Grid with Time Slots */}
       <div className="flex-1 overflow-hidden">
         {/* Day Headers Row */}
-        <div className="grid grid-cols-8 gap-1 border-b border-white/[0.08] bg-white/[0.05] backdrop-blur-sm p-2">
+        <div className="grid grid-cols-8 gap-1 border-b border-blue-200 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 p-2">
           <div className="p-3 text-center text-white/60 font-medium text-sm min-w-[100px] bg-white/[0.02] rounded-lg border border-white/[0.08]">
             Time
           </div>

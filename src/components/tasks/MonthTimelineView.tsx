@@ -73,9 +73,9 @@ export const MonthTimelineView: React.FC<MonthTimelineViewProps> = ({
   return (
     <div className="h-full flex flex-col">
       {/* Month Grid */}
-      <div className="flex-1 overflow-hidden border border-white/[0.08] rounded-lg backdrop-blur-xl bg-white/[0.02]">
+      <div className="flex-1 overflow-hidden border border-blue-200 rounded-lg bg-gradient-to-br from-slate-100 via-blue-50 to-slate-100">
         {/* Week Headers */}
-        <div className="grid grid-cols-7 gap-0 border-b border-white/[0.08] bg-white/[0.05]">
+        <div className="grid grid-cols-7 gap-0 border-b border-blue-200 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50">
           {weekHeaders.map(day => (
             <div key={day} className="p-3 text-center text-white/60 font-medium text-sm border-r border-white/[0.08] last:border-r-0">
               {day}

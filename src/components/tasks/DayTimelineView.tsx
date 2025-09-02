@@ -58,24 +58,24 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
     settings
   } = useTimeTracking();
 
-  // Get category colors from time tracking settings - now in HSL format
+  // Get category colors from time tracking settings - now in HSL format  
   const categoryColors = settings?.category_colors || {
-    'Design': '217 91% 60%',
-    'Admin': '159 61% 51%',
-    'Calls': '43 96% 56%',
-    'Break': '0 84% 60%',
-    'Browsing': '263 69% 69%',
-    'Site Visit': '188 94% 43%',
-    'Deep Work': '160 84% 39%',
-    'Other': '217 33% 47%',
-    work: '217 91% 60%',
-    personal: '159 61% 51%',
-    meeting: '43 96% 56%',
-    break: '0 84% 60%',
-    family: '327 73% 97%',
-    site_visit: '188 94% 43%',
-    church: '263 69% 69%',
-    rest: '217 33% 47%'
+    'Design': '217 91% 60%',     // Deep Blue
+    'Admin': '214 88% 65%',      // Medium Blue
+    'Calls': '210 85% 70%',      // Light Blue
+    'Break': '207 82% 75%',      // Lighter Blue
+    'Browsing': '220 80% 80%',   // Very Light Blue
+    'Site Visit': '213 86% 68%', // Blue Variant
+    'Deep Work': '216 89% 62%',  // Deep Blue Variant
+    'Other': '211 84% 72%',      // Soft Blue
+    work: '217 91% 60%',         // Deep Blue
+    personal: '214 88% 65%',     // Medium Blue
+    meeting: '210 85% 70%',      // Light Blue
+    break: '207 82% 75%',        // Lighter Blue
+    family: '220 80% 80%',       // Very Light Blue
+    site_visit: '213 86% 68%',   // Blue Variant
+    church: '216 89% 62%',       // Deep Blue Variant
+    rest: '211 84% 72%'          // Soft Blue
   };
 
   // Load time blocks from database
@@ -593,13 +593,13 @@ export const DayTimelineView: React.FC<DayTimelineViewProps> = ({
   // Removed drag and drop functionality - keeping all other features
 
   const TimelineContent = () => (
-    <div className="h-full flex bg-card border border-border shadow-lg rounded-xl overflow-hidden">
+    <div className="h-full flex bg-gradient-to-br from-slate-100 via-blue-50 to-slate-100 border border-blue-200 shadow-lg rounded-xl overflow-hidden">
       {/* Main Timeline Area */}
       <div className="flex flex-col overflow-hidden" style={{
       width: isDragActive ? '100%' : 'calc(100% - 320px)'
     }}>
         {/* Column Headers */}
-        <div className="border-b border-border bg-muted/50">
+        <div className="border-b border-blue-200 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50">
           <div className="flex h-10">
             <div className="border-r border-border flex items-center justify-center bg-muted/30" style={{
             width: '60px',
