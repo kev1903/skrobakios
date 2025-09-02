@@ -3,6 +3,7 @@ import { format, isToday, isWeekend } from 'date-fns';
 import { GanttTask, GanttViewSettings } from '@/types/gantt';
 import { GanttTaskBar } from './GanttTaskBar';
 import { calculateTaskPosition, generateTimelineData } from '@/utils/ganttUtils';
+import { getDependencyLines } from '@/utils/predecessorUtils';
 import { cn } from '@/lib/utils';
 
 interface GanttTimelineProps {
@@ -21,6 +22,9 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
   const { days } = generateTimelineData(viewSettings.viewStart, viewSettings.viewEnd);
   const totalWidth = days.length * viewSettings.dayWidth;
   const totalHeight = tasks.length * viewSettings.rowHeight;
+  
+  // Get dependency lines for visualization
+  const dependencyLines = getDependencyLines(tasks, viewSettings);
 
   return (
     <div 
@@ -94,6 +98,43 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
             );
           })}
         </div>
+
+        {/* Dependency Arrows */}
+        {dependencyLines.length > 0 && (
+          <svg 
+            className="absolute inset-0 z-30 pointer-events-none"
+            width={totalWidth} 
+            height={totalHeight}
+            style={{ overflow: 'visible' }}
+          >
+            {dependencyLines.map((line) => (
+              <g key={line.id}>
+                <path
+                  d={line.path}
+                  stroke={line.color}
+                  strokeWidth="2"
+                  fill="none"
+                  markerEnd="url(#arrowhead)"
+                />
+              </g>
+            ))}
+            <defs>
+              <marker
+                id="arrowhead"
+                markerWidth="10"
+                markerHeight="7"
+                refX="9"
+                refY="3.5"
+                orient="auto"
+              >
+                <polygon
+                  points="0 0, 10 3.5, 0 7"
+                  fill="#6b7280"
+                />
+              </marker>
+            </defs>
+          </svg>
+        )}
       </div>
     </div>
   );
