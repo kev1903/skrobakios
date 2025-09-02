@@ -5,22 +5,7 @@ import { WBSTimeRightPanel } from './WBSTimeRightPanel';
 import { GanttChart } from './GanttChart';
 import { DropResult } from 'react-beautiful-dnd';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-
-interface WBSItem {
-  id: string;
-  name: string;
-  description?: string;
-  status: string;
-  progress: number;
-  assignedTo?: string;
-  level: number;
-  wbsNumber: string;
-  isExpanded?: boolean;
-  hasChildren?: boolean;
-  start_date?: string | Date | null;
-  end_date?: string | Date | null;
-  duration?: number;
-}
+import { WBSItem } from '@/types/wbs';
 
 interface WBSTimeViewProps {
   items: WBSItem[];
@@ -108,7 +93,12 @@ export const WBSTimeView = ({
           <div className="flex-1 min-h-0 flex overflow-hidden">
             <div ref={bodyHorizScrollRef} className="flex h-full w-full overflow-hidden" onScroll={handleLeftPanelHorizontalScroll}>
               <WBSLeftPanel
-                items={items}
+                items={items.map(item => ({
+                  ...item,
+                  name: item.title,
+                  wbsNumber: item.wbs_id,
+                  status: item.status || 'Not Started'
+                }))}
                 onToggleExpanded={onToggleExpanded}
                 onDragEnd={onDragEnd}
                 onItemEdit={onItemUpdate}
@@ -207,7 +197,16 @@ export const WBSTimeView = ({
               </div>
 
               {/* Gantt Chart Content */}
-              <GanttChart items={items} className="min-w-fit" hideHeader />
+              <GanttChart 
+                items={items.map(item => ({
+                  ...item,
+                  name: item.title,
+                  wbsNumber: item.wbs_id,
+                  status: item.status || 'Not Started'
+                }))} 
+                className="min-w-fit" 
+                hideHeader 
+              />
             </div>
           </div>
         </Panel>

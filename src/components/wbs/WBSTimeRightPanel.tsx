@@ -5,6 +5,7 @@ import { DatePickerCell } from './DatePickerCell';
 import { DurationCell } from './DurationCell';
 import { PredecessorCell } from './PredecessorCell';
 import { differenceInDays, addDays, subDays } from 'date-fns';
+import { WBSItem } from '@/types/wbs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,18 +14,10 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
-interface WBSItem {
-  id: string;
-  name: string;
-  description?: string;
-  status: string;
-  progress: number;
-  assignedTo?: string;
-  level: number;
-  start_date?: string | Date | null;
-  end_date?: string | Date | null;
-  duration?: number; // Duration in days
-  predecessors?: string[]; // Array of predecessor IDs
+// Extended interface to include fields needed by this component
+interface WBSTimeItem extends WBSItem {
+  name: string; // Legacy compatibility
+  predecessors?: string[]; // For predecessor management
 }
 
 interface WBSTimeRightPanelProps {
@@ -102,25 +95,19 @@ export const WBSTimeRightPanel = ({
     // If dates or duration were updated, recalculate parent dates
     if (updates.start_date || updates.end_date || updates.duration) {
       const item = items.find(i => i.id === itemId);
-      if (item) {
-        // Find and update parent
-        if (item.level === 2) {
-          // Element updated - find parent component
-          const parentComponent = items.find(p => p.level === 1); // This is simplified - you'll need proper parent lookup
-          if (parentComponent) {
-            setTimeout(() => calculateParentDates(parentComponent.id), 100);
-            
-            // Also update grandparent phase
-            const grandparentPhase = items.find(p => p.level === 0);
-            if (grandparentPhase) {
-              setTimeout(() => calculateParentDates(grandparentPhase.id), 200);
+      if (item && item.parent_id) {
+        // Find the actual parent by parent_id
+        const parent = items.find(p => p.id === item.parent_id);
+        if (parent) {
+          // Use a timeout to ensure the item update is processed first
+          setTimeout(() => calculateParentDates(parent.id), 50);
+          
+          // If this is an Element (level 2), also update the grandparent Phase
+          if (item.level === 2 && parent.parent_id) {
+            const grandparent = items.find(gp => gp.id === parent.parent_id);
+            if (grandparent) {
+              setTimeout(() => calculateParentDates(grandparent.id), 100);
             }
-          }
-        } else if (item.level === 1) {
-          // Component updated - find parent phase
-          const parentPhase = items.find(p => p.level === 0);
-          if (parentPhase) {
-            setTimeout(() => calculateParentDates(parentPhase.id), 100);
           }
         }
       }
@@ -261,15 +248,15 @@ export const WBSTimeRightPanel = ({
               <PredecessorCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                value={item.predecessors || []}
+                value={item.linked_tasks || []}
                 availableItems={items.map(i => ({
                   id: i.id,
-                  name: i.name,
-                  wbsNumber: (i as any).wbsNumber || '',
+                  name: i.title,
+                  wbsNumber: i.wbs_id || '',
                   level: i.level
                 }))}
                 className="text-xs text-muted-foreground"
-                onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                onUpdate={(id, field, value) => handleItemUpdate(id, { linked_tasks: value })}
               />
             </div>
 
