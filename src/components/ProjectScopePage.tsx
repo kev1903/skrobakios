@@ -214,6 +214,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     updateWBSItem, 
     deleteWBSItem,
     generateWBSId,
+    findWBSItem,
   } = useWBS(project.id);
 
   console.log('ProjectScopePage rendering', { project, wbsItems: wbsItems?.length, loading, error, activeTab });
@@ -330,12 +331,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
     // Merge with actual WBS items to get date and duration data
     return items.map(item => {
-      const wbsItem = wbsItems.find(w => w.id === item.id);
+      const wbsItem = findWBSItem(item.id);
       if (wbsItem) {
         return {
           ...item,
-          start_date: wbsItem.start_date,
-          end_date: wbsItem.end_date,
+          start_date: wbsItem.start_date || null,
+          end_date: wbsItem.end_date || null,
           duration: wbsItem.duration || 0,
           predecessors: (wbsItem as any).predecessors || []
         };
