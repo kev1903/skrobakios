@@ -32,15 +32,15 @@ export const GanttTaskList: React.FC<GanttTaskListProps> = ({
         <div
           className="grid items-center px-2 py-3 text-xs font-medium text-gray-700"
           style={{
-            gridTemplateColumns: '20px 60px 1fr 80px 80px 60px 100px',
+            gridTemplateColumns: '20px 60px 1fr 90px 90px 60px 100px',
             height: rowHeight
           }}
         >
           <div></div>
           <div>WBS</div>
           <div>Task Name</div>
-          <div>Start</div>
-          <div>End</div>
+          <div className="text-center">Start</div>
+          <div className="text-center">End</div>
           <div>Duration</div>
           <div>Status</div>
         </div>

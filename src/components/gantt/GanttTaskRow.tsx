@@ -73,7 +73,7 @@ export const GanttTaskRow: React.FC<GanttTaskRowProps> = ({
       )}
       style={{
         ...style,
-        gridTemplateColumns: '20px 60px 1fr 80px 80px 60px 100px'
+        gridTemplateColumns: '20px 60px 1fr 90px 90px 60px 100px'
       }}
     >
       {/* Expand/Collapse Button */}
@@ -126,12 +126,12 @@ export const GanttTaskRow: React.FC<GanttTaskRowProps> = ({
       </div>
 
       {/* Start Date */}
-      <div className="px-2 py-2 text-xs text-gray-600">
+      <div className="px-2 py-2 text-xs text-gray-600 text-center">
         {task.startDate.toLocaleDateString()}
       </div>
 
       {/* End Date */}
-      <div className="px-2 py-2 text-xs text-gray-600">
+      <div className="px-2 py-2 text-xs text-gray-600 text-center">
         {task.endDate.toLocaleDateString()}
       </div>
 
