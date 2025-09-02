@@ -405,6 +405,30 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   };
 
+  const clearAllDates = async () => {
+    try {
+      // Clear dates from all WBS items
+      for (const item of wbsItems) {
+        await updateWBSItem(item.id, { 
+          start_date: null, 
+          end_date: null, 
+          duration: null 
+        });
+      }
+      
+      toast({
+        title: "Dates cleared",
+        description: "All dates have been cleared from the project schedule.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to clear dates. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const openNotesDialog = (item: any) => {
     setCurrentNotesItem(item);
     setNotesValue(item.description || '');
@@ -1198,6 +1222,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         onItemUpdate={updateWBSItem}
                         onContextMenuAction={handleContextMenuAction}
                         onOpenNotesDialog={openNotesDialog}
+                        onClearAllDates={clearAllDates}
                         dragIndicator={dragIndicator}
                         EditableCell={EditableCell}
                         StatusSelect={StatusSelect}

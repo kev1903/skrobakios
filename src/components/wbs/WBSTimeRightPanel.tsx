@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Edit2, Copy, Trash2, NotebookPen } from 'lucide-react';
+import { MoreHorizontal, Edit2, Copy, Trash2, NotebookPen, Calendar } from 'lucide-react';
 import { DatePickerCell } from './DatePickerCell';
 import { DurationCell } from './DurationCell';
 import { PredecessorCell } from './PredecessorCell';
@@ -25,6 +25,7 @@ interface WBSTimeRightPanelProps {
   onItemUpdate: (itemId: string, updates: any) => void;
   onContextMenuAction: (action: string, itemId: string, type: string) => void;
   onOpenNotesDialog: (item: any) => void;
+  onClearAllDates?: () => void;
   EditableCell: any;
   StatusSelect: any;
   scrollRef: React.RefObject<HTMLDivElement>;
@@ -36,6 +37,7 @@ export const WBSTimeRightPanel = ({
   onItemUpdate,
   onContextMenuAction,
   onOpenNotesDialog,
+  onClearAllDates,
   EditableCell,
   StatusSelect,
   scrollRef,
@@ -179,6 +181,21 @@ export const WBSTimeRightPanel = ({
   };
   return (
     <div className="flex-1 min-w-0 bg-white overflow-hidden">
+      {/* Header with clear dates button */}
+      {onClearAllDates && (
+        <div className="flex justify-end p-2 border-b bg-slate-50">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onClearAllDates}
+            className="text-xs"
+          >
+            <Calendar className="w-3 h-3 mr-1" />
+            Clear All Dates
+          </Button>
+        </div>
+      )}
+      
       {/* Content */}
       <div ref={scrollRef} className="h-full overflow-hidden w-full" onScroll={onScroll}>
         {items.map((item) => (

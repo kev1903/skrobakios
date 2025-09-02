@@ -14,6 +14,7 @@ interface WBSTimeViewProps {
   onItemUpdate: (itemId: string, updates: any) => void;
   onContextMenuAction: (action: string, itemId: string, type: string) => void;
   onOpenNotesDialog: (item: any) => void;
+  onClearAllDates?: () => void;
   dragIndicator: any;
   EditableCell: any;
   StatusSelect: any;
@@ -27,6 +28,7 @@ export const WBSTimeView = ({
   onItemUpdate,
   onContextMenuAction,
   onOpenNotesDialog,
+  onClearAllDates,
   dragIndicator,
   EditableCell,
   StatusSelect,
@@ -113,6 +115,7 @@ export const WBSTimeView = ({
                 onItemUpdate={onItemUpdate}
                 onContextMenuAction={onContextMenuAction}
                 onOpenNotesDialog={onOpenNotesDialog}
+                onClearAllDates={onClearAllDates}
                 EditableCell={EditableCell}
                 StatusSelect={StatusSelect}
                 scrollRef={rightScrollRef}
