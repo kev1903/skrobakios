@@ -272,8 +272,8 @@ export const WBSTimeRightPanel = ({
                 {(() => {
                   // Use rollup date if available for parent items, otherwise use actual value
                   const rollup = rollupDates.get(item.id);
-                  const displayValue = (item.level < 2 && rollup?.start) 
-                    ? rollup.start.toISOString().split('T')[0] 
+                  const displayValue: string | Date | undefined = (item.level < 2 && rollup?.start)
+                    ? rollup.start
                     : item.start_date;
                   
                   return (
@@ -296,8 +296,8 @@ export const WBSTimeRightPanel = ({
               {(() => {
                 // Use rollup date if available for parent items, otherwise use actual value
                 const rollup = rollupDates.get(item.id);
-                const displayValue = (item.level < 2 && rollup?.end) 
-                  ? rollup.end.toISOString().split('T')[0] 
+                const displayValue: string | Date | undefined = (item.level < 2 && rollup?.end)
+                  ? rollup.end
                   : item.end_date;
                 
                 return (
