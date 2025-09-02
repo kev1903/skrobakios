@@ -161,14 +161,14 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
             {dependencyLines.map((line) => {
               const gradientId = `timeline${line.type.toLowerCase()}Gradient`;
               return (
-                <g key={line.id} className="dependency-arrow group">
-                  {/* Glow effect background */}
+                <g key={line.id} className={`dependency-arrow dependency-${line.type.toLowerCase()} group`}>
+                  {/* Subtle glow effect background */}
                   <path
                     d={line.path}
                     stroke={line.color}
-                    strokeWidth="6"
+                    strokeWidth="3"
                     fill="none"
-                    opacity="0.2"
+                    opacity="0.15"
                     className="arrow-glow"
                   />
                   
@@ -176,29 +176,30 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
                   <path
                     d={line.path}
                     stroke={`url(#${gradientId})`}
-                    strokeWidth="2.5"
+                    strokeWidth="2"
                     fill="none"
                     markerEnd="url(#arrowhead-timeline)"
                     filter="url(#timelineDropShadow)"
-                    className="arrow-main transition-all duration-300"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    className="arrow-main"
+                    strokeLinecap="square"
+                    strokeLinejoin="miter"
                   />
                   
                   {/* Animated highlight */}
                   <path
                     d={line.path}
-                    stroke="rgba(255,255,255,0.6)"
+                    stroke="rgba(255,255,255,0.4)"
                     strokeWidth="1"
                     fill="none"
-                    className="arrow-highlight opacity-0 transition-opacity duration-300"
-                    strokeDasharray="5,5"
-                    strokeLinecap="round"
+                    className="arrow-highlight"
+                    strokeDasharray="4,4"
+                    strokeLinecap="square"
+                    strokeLinejoin="miter"
                   >
                     <animate
                       attributeName="stroke-dashoffset"
-                      values="0;10"
-                      dur="1s"
+                      values="0;8"
+                      dur="1.2s"
                       repeatCount="indefinite"
                     />
                   </path>

@@ -218,27 +218,37 @@ const getTaskEndX = (task: GanttTask, viewSettings: any) => {
 };
 
 const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number) => {
-  const midX = (fromX + toX) / 2;
-  const offsetY = Math.abs(toY - fromY) * 0.3; // Curve intensity based on vertical distance
+  // Calculate orthogonal routing with 90-degree turns
+  const horizontalOffset = 20; // Distance to move horizontally before turning
+  const verticalOffset = 10; // Minimum vertical space for turns
   
-  // Create smooth curved path
-  const controlPoint1X = fromX + Math.min(60, Math.abs(toX - fromX) * 0.3);
-  const controlPoint1Y = fromY;
-  const controlPoint2X = toX - Math.min(60, Math.abs(toX - fromX) * 0.3);
-  const controlPoint2Y = toY;
-  
-  // If arrows are on same row or close, use simple curve
-  if (Math.abs(toY - fromY) < 10) {
-    return `M ${fromX} ${fromY} 
-            C ${fromX + 30} ${fromY} ${toX - 30} ${toY} ${toX - 12} ${toY}`;
+  // Determine routing based on relative positions
+  if (Math.abs(toY - fromY) <= 5) {
+    // Same row - simple horizontal line
+    return `M ${fromX} ${fromY} L ${toX - 8} ${toY}`;
   }
   
-  // Multi-level curved path for better visual flow
-  return `M ${fromX} ${fromY} 
-          C ${controlPoint1X} ${fromY} ${controlPoint1X} ${fromY} ${controlPoint1X + 20} ${fromY}
-          C ${midX - 20} ${fromY} ${midX - 20} ${fromY + offsetY} ${midX} ${(fromY + toY) / 2}
-          C ${midX + 20} ${toY - offsetY} ${midX + 20} ${toY} ${controlPoint2X - 20} ${toY}
-          C ${controlPoint2X} ${toY} ${controlPoint2X} ${toY} ${toX - 12} ${toY}`;
+  if (toX > fromX) {
+    // Forward dependency - go right, then down/up, then right to target
+    const midX = fromX + Math.max(horizontalOffset, (toX - fromX) * 0.3);
+    
+    return `M ${fromX} ${fromY} 
+            L ${midX} ${fromY}
+            L ${midX} ${toY}
+            L ${toX - 8} ${toY}`;
+  } else {
+    // Backward dependency - more complex routing to avoid overlap
+    const extensionX = fromX + horizontalOffset;
+    const returnX = toX - horizontalOffset - 8;
+    const midY = fromY + (toY > fromY ? verticalOffset : -verticalOffset);
+    
+    return `M ${fromX} ${fromY}
+            L ${extensionX} ${fromY}
+            L ${extensionX} ${midY}
+            L ${returnX} ${midY}
+            L ${returnX} ${toY}
+            L ${toX - 8} ${toY}`;
+  }
 };
 
 const getDependencyColor = (type: DependencyType) => {

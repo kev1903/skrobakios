@@ -1,11 +1,11 @@
-/* Dependency Arrow Styles */
+/* Dependency Arrow Styles - Orthogonal Design */
 .dependency-arrow {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dependency-arrow:hover .arrow-main {
-  stroke-width: 3.5px;
-  filter: brightness(1.1) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+  stroke-width: 3px;
+  filter: brightness(1.1) drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 .dependency-arrow:hover .arrow-highlight {
@@ -13,27 +13,25 @@
 }
 
 .dependency-arrow:hover .arrow-glow {
-  opacity: 0.4;
-  stroke-width: 8px;
+  opacity: 0.3;
+  stroke-width: 5px;
 }
 
-/* Arrow animations */
-@keyframes arrow-pulse {
-  0%, 100% {
-    opacity: 0.6;
-    transform: scale(1);
+/* Cleaner orthogonal arrow animations */
+@keyframes arrow-dash {
+  0% {
+    stroke-dashoffset: 0;
   }
-  50% {
-    opacity: 1;
-    transform: scale(1.02);
+  100% {
+    stroke-dashoffset: 10;
   }
 }
 
 .dependency-arrow.active {
-  animation: arrow-pulse 2s ease-in-out infinite;
+  opacity: 1;
 }
 
-/* Dependency type specific styles */
+/* Dependency type specific styles - more subtle */
 .dependency-fs {
   --arrow-color: rgba(59, 130, 246, 0.9);
 }
@@ -50,32 +48,40 @@
   --arrow-color: rgba(239, 68, 68, 0.9);
 }
 
-/* Smooth entrance animation */
+/* Clean entrance animation */
 .dependency-arrow {
   opacity: 0;
-  animation: arrow-fade-in 0.5s ease-out forwards;
+  animation: arrow-fade-in 0.4s ease-out forwards;
 }
 
 @keyframes arrow-fade-in {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    stroke-dasharray: 5, 5;
+    stroke-dashoffset: 10;
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
   }
 }
 
-/* Arrow path transitions */
+/* Sharp orthogonal transitions */
 .arrow-main {
-  transition: stroke-width 0.2s ease, filter 0.2s ease;
+  transition: stroke-width 0.15s ease, filter 0.15s ease;
+  stroke-linejoin: miter;
+  stroke-linecap: square;
 }
 
 .arrow-highlight {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease;
+  stroke-linejoin: miter;
+  stroke-linecap: square;
 }
 
 .arrow-glow {
-  transition: opacity 0.2s ease, stroke-width 0.2s ease;
+  transition: opacity 0.15s ease, stroke-width 0.15s ease;
+  stroke-linejoin: miter;
+  stroke-linecap: square;
 }

@@ -383,13 +383,13 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                 const gradientId = `${line.type.toLowerCase()}Gradient`;
                 return (
                   <g key={line.id} className={`dependency-arrow dependency-${line.type.toLowerCase()} group`}>
-                    {/* Glow effect background */}
+                    {/* Subtle glow effect background */}
                     <path
                       d={line.path}
                       stroke={line.color}
-                      strokeWidth="6"
+                      strokeWidth="3"
                       fill="none"
-                      opacity="0.2"
+                      opacity="0.15"
                       className="arrow-glow"
                     />
                     
@@ -397,13 +397,13 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                     <path
                       d={line.path}
                       stroke={`url(#${gradientId})`}
-                      strokeWidth="2.5"
+                      strokeWidth="2"
                       fill="none"
                       markerEnd="url(#arrowhead)"
                       filter="url(#dropShadow)"
                       className="arrow-main"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                      strokeLinecap="square"
+                      strokeLinejoin="miter"
                     >
                       <title>{`${line.type} Dependency: ${line.fromTask} → ${line.toTask}`}</title>
                     </path>
@@ -411,17 +411,18 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                     {/* Animated highlight */}
                     <path
                       d={line.path}
-                      stroke="rgba(255,255,255,0.6)"
+                      stroke="rgba(255,255,255,0.4)"
                       strokeWidth="1"
                       fill="none"
                       className="arrow-highlight"
-                      strokeDasharray="5,5"
-                      strokeLinecap="round"
+                      strokeDasharray="4,4"
+                      strokeLinecap="square"
+                      strokeLinejoin="miter"
                     >
                       <animate
                         attributeName="stroke-dashoffset"
-                        values="0;10"
-                        dur="1s"
+                        values="0;8"
+                        dur="1.2s"
                         repeatCount="indefinite"
                       />
                     </path>
