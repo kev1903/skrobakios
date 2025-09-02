@@ -201,12 +201,12 @@ export const GanttChart = ({ items, className = "", hideHeader = false }: GanttC
                     <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg ${getStatusColor(item.status)} shadow-sm`} />
                     
                     {/* Task content */}
-                    <div className="px-3 py-1 flex items-center h-full">
-                      <span className="text-xs font-semibold text-foreground/90 truncate">
+                    <div className="px-2 py-1 flex items-center h-full">
+                      <span className="text-xs font-bold text-foreground truncate min-w-0 flex-shrink-0">
                         {item.wbsNumber}
                       </span>
-                      {position.width > 100 && (
-                        <span className="ml-2 text-xs text-muted-foreground truncate">
+                      {position.width > 80 && (
+                        <span className="ml-1.5 text-xs text-muted-foreground truncate min-w-0">
                           {item.name}
                         </span>
                       )}
