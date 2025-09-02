@@ -1,3 +1,11 @@
+export type DependencyType = 'FS' | 'SS' | 'FF' | 'SF';
+
+export interface WBSPredecessor {
+  id: string;
+  type: DependencyType;
+  lag?: number; // Days of lag/lead time
+}
+
 export interface WBSItem {
   id: string;
   company_id: string;
@@ -20,7 +28,8 @@ export interface WBSItem {
   level: number;
   category?: 'Stage' | 'Component' | 'Element'; // Single source categorization
   is_expanded: boolean;
-  linked_tasks: string[];
+  linked_tasks: string[]; // Legacy field for backwards compatibility
+  predecessors?: WBSPredecessor[]; // New structured predecessor data
   children: WBSItem[];
   created_at: string;
   updated_at: string;

@@ -5,7 +5,8 @@ import { DatePickerCell } from './DatePickerCell';
 import { DurationCell } from './DurationCell';
 import { PredecessorCell } from './PredecessorCell';
 import { differenceInDays, addDays, subDays, format } from 'date-fns';
-import { WBSItem } from '@/types/wbs';
+import { WBSItem, WBSPredecessor } from '@/types/wbs';
+import { autoScheduleDependentWBSTasks } from '@/utils/wbsPredecessorUtils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,12 +18,11 @@ import {
 // Extended interface to include fields needed by this component
 interface WBSTimeItem extends WBSItem {
   name: string; // Legacy compatibility
-  predecessors?: string[]; // For predecessor management
 }
 
 interface WBSTimeRightPanelProps {
   items: WBSItem[];
-  onItemUpdate: (itemId: string, updates: any) => void;
+  onItemUpdate: (itemId: string, updates: any) => Promise<void> | void;
   onContextMenuAction: (action: string, itemId: string, type: string) => void;
   onOpenNotesDialog: (item: any) => void;
   onClearAllDates?: () => void;
@@ -137,7 +137,7 @@ export const WBSTimeRightPanel = ({
   }, [items, parentChildMap]);
 
   // Optimized parent date calculation
-  const calculateParentDates = React.useCallback((parentId: string) => {
+  const calculateParentDates = React.useCallback(async (parentId: string) => {
     const childIds = parentChildMap.map.get(parentId);
     if (!childIds?.length) return;
     
@@ -154,21 +154,44 @@ export const WBSTimeRightPanel = ({
     const latestEnd = new Date(Math.max(...endTimes));
     const calculatedDuration = differenceInDays(latestEnd, earliestStart) + 1;
     
-    onItemUpdate(parentId, {
+    await Promise.resolve(onItemUpdate(parentId, {
       start_date: earliestStart.toISOString().split('T')[0],
       end_date: latestEnd.toISOString().split('T')[0],
       duration: calculatedDuration
-    });
+    }));
   }, [items, parentChildMap.map, onItemUpdate]);
 
-  // Debounced and optimized item update handler
-  const handleItemUpdate = React.useCallback((itemId: string, updates: any) => {
-    onItemUpdate(itemId, updates);
+  // Debounced and optimized item update handler with auto-scheduling
+  const handleItemUpdate = React.useCallback(async (itemId: string, updates: any) => {
+    await onItemUpdate(itemId, updates);
     
+    // Handle predecessor updates with auto-scheduling
+    if (updates.predecessors) {
+      const flatItems = items.reduce<WBSItem[]>((acc, item) => {
+        const flatten = (i: WBSItem): WBSItem[] => [i, ...i.children.flatMap(flatten)];
+        return [...acc, ...flatten(item)];
+      }, []);
+      
+      await autoScheduleDependentWBSTasks(itemId, flatItems, (id, updates) => 
+        Promise.resolve(onItemUpdate(id, updates))
+      );
+    }
+    
+    // Handle date changes with auto-scheduling for dependents
     if (updates.start_date || updates.end_date || updates.duration) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       
-      timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = setTimeout(async () => {
+        // Auto-schedule dependent tasks
+        const flatItems = items.reduce<WBSItem[]>((acc, item) => {
+          const flatten = (i: WBSItem): WBSItem[] => [i, ...i.children.flatMap(flatten)];
+          return [...acc, ...flatten(item)];
+        }, []);
+        
+        await autoScheduleDependentWBSTasks(itemId, flatItems, (id, updates) => 
+          Promise.resolve(onItemUpdate(id, updates))
+        );
+        
         // Find all ancestor parents efficiently
         const updateAncestors = (childId: string, visited = new Set<string>()) => {
           if (visited.has(childId)) return;
@@ -196,7 +219,7 @@ export const WBSTimeRightPanel = ({
           }
           
           if (parentId && !visited.has(parentId)) {
-            calculateParentDates(parentId);
+            await calculateParentDates(parentId);
             updateAncestors(parentId, visited);
           }
         };
@@ -367,7 +390,7 @@ export const WBSTimeRightPanel = ({
               <PredecessorCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                value={item.linked_tasks || []}
+                value={item.predecessors || []}
                 availableItems={items.map(i => ({
                   id: i.id,
                   name: i.title,
@@ -375,7 +398,21 @@ export const WBSTimeRightPanel = ({
                   level: i.level
                 }))}
                 className="text-xs text-muted-foreground"
-                onUpdate={(id, field, value) => handleItemUpdate(id, { linked_tasks: value })}
+                onUpdate={async (id, field, value) => {
+                  await onItemUpdate(id, { [field]: value });
+                  
+                  // Trigger auto-scheduling after predecessor update
+                  if (field === 'predecessors') {
+                    const flatItems = items.reduce<WBSItem[]>((acc, item) => {
+                      const flatten = (i: WBSItem): WBSItem[] => [i, ...i.children.flatMap(flatten)];
+                      return [...acc, ...flatten(item)];
+                    }, []);
+                    
+                    await autoScheduleDependentWBSTasks(id, flatItems, (id, updates) => 
+                      Promise.resolve(onItemUpdate(id, updates))
+                    );
+                  }
+                }}
               />
             </div>
 
