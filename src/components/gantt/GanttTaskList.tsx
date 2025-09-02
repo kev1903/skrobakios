@@ -7,6 +7,7 @@ interface GanttTaskListProps {
   expandedIds: Set<string>;
   onToggleExpanded: (taskId: string) => void;
   onTaskUpdate?: (taskId: string, updates: Partial<GanttTask>) => void;
+  onPredecessorUpdate?: (taskId: string, predecessors: any[]) => void;
   width: number;
   rowHeight: number;
   scrollRef: React.RefObject<HTMLDivElement>;
@@ -17,6 +18,7 @@ export const GanttTaskList: React.FC<GanttTaskListProps> = ({
   expandedIds,
   onToggleExpanded,
   onTaskUpdate,
+  onPredecessorUpdate,
   width,
   rowHeight,
   scrollRef
@@ -32,7 +34,7 @@ export const GanttTaskList: React.FC<GanttTaskListProps> = ({
         <div
           className="grid items-center px-2 py-3 text-xs font-medium text-gray-700"
           style={{
-            gridTemplateColumns: '20px 60px 1fr 90px 90px 60px 100px',
+            gridTemplateColumns: '20px 60px 1fr 90px 90px 60px 100px 120px',
             height: rowHeight
           }}
         >
@@ -43,6 +45,7 @@ export const GanttTaskList: React.FC<GanttTaskListProps> = ({
           <div className="text-center">End</div>
           <div>Duration</div>
           <div>Status</div>
+          <div>Predecessors</div>
         </div>
       </div>
 
@@ -60,6 +63,8 @@ export const GanttTaskList: React.FC<GanttTaskListProps> = ({
               isExpanded={expandedIds.has(task.id)}
               onToggleExpanded={onToggleExpanded}
               onTaskUpdate={onTaskUpdate}
+              onPredecessorUpdate={onPredecessorUpdate}
+              allTasks={tasks}
               style={{ height: rowHeight }}
             />
           ))}

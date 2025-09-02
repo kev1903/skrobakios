@@ -5,6 +5,7 @@ import { getTaskLevelStyles, formatDuration } from '@/utils/ganttUtils';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { PredecessorManager } from './PredecessorManager';
 
 interface GanttTaskRowProps {
   task: GanttTask;
@@ -12,6 +13,8 @@ interface GanttTaskRowProps {
   isExpanded: boolean;
   onToggleExpanded: (taskId: string) => void;
   onTaskUpdate?: (taskId: string, updates: Partial<GanttTask>) => void;
+  onPredecessorUpdate?: (taskId: string, predecessors: any[]) => void;
+  allTasks?: GanttTask[];
   style: React.CSSProperties;
 }
 
@@ -21,6 +24,8 @@ export const GanttTaskRow: React.FC<GanttTaskRowProps> = ({
   isExpanded,
   onToggleExpanded,
   onTaskUpdate,
+  onPredecessorUpdate,
+  allTasks = [],
   style
 }) => {
   const [editingName, setEditingName] = useState(false);
@@ -73,7 +78,7 @@ export const GanttTaskRow: React.FC<GanttTaskRowProps> = ({
       )}
       style={{
         ...style,
-        gridTemplateColumns: '20px 60px 1fr 90px 90px 60px 100px'
+        gridTemplateColumns: '20px 60px 1fr 90px 90px 60px 100px 120px'
       }}
     >
       {/* Expand/Collapse Button */}
@@ -145,6 +150,15 @@ export const GanttTaskRow: React.FC<GanttTaskRowProps> = ({
         <Badge variant={getStatusVariant(task.status)} className="text-xs">
           {getStatusLabel(task.status)}
         </Badge>
+      </div>
+
+      {/* Predecessors */}
+      <div className="px-2 py-2">
+        <PredecessorManager
+          task={task}
+          allTasks={allTasks}
+          onUpdatePredecessors={onPredecessorUpdate || (() => {})}
+        />
       </div>
     </div>
   );

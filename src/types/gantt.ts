@@ -1,3 +1,11 @@
+export type DependencyType = 'FS' | 'SS' | 'FF' | 'SF';
+
+export interface TaskDependency {
+  predecessorId: string;
+  type: DependencyType;
+  lag?: number; // Days of lag/lead time
+}
+
 export interface GanttTask {
   id: string;
   name: string;
@@ -11,6 +19,7 @@ export interface GanttTask {
   level: number;
   isExpanded?: boolean;
   dependencies?: string[];
+  predecessors?: TaskDependency[];
   category: 'Stage' | 'Component' | 'Element';
 }
 
