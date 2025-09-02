@@ -112,64 +112,69 @@ export const WBSTimeRightPanel = ({
     return [] as WBSItem[];
   };
 
-  // Rollup dates for parents (display-only) from descendant elements
+  // Rollup dates for parents (display-only) from descendant elements (robust WBS prefix method)
   const rollupDates = React.useMemo(() => {
-    // Build children map using both parent_id and WBS direct-parent inference
-    const cMap = new Map<string, WBSItem[]>();
-    const addChild = (parentKey: string, child: WBSItem) => {
-      const arr = cMap.get(parentKey) || [];
-      if (!arr.some((c) => c.id === child.id)) arr.push(child);
-      cMap.set(parentKey, arr);
-    };
-
-    // 1) Direct parent_id mapping
-    items.forEach((it) => {
-      if (it.parent_id) addChild(it.parent_id, it);
-    });
-
-    // 2) WBS-based direct parent (one extra segment)
-    const wbsIndex = new Map<string, WBSItem>();
-    items.forEach((it) => {
-      if (it.wbs_id) wbsIndex.set(it.wbs_id, it);
-    });
-    items.forEach((it) => {
-      if (it.wbs_id && it.wbs_id.includes('.')) {
-        const parentWbs = it.wbs_id.split('.').slice(0, -1).join('.');
-        const parent = wbsIndex.get(parentWbs);
-        if (parent) addChild(parent.id, it);
-      }
-    });
-
     const map = new Map<string, { start?: Date; end?: Date; duration?: number }>();
 
-    const collect = (id: string) => {
-      const stack: WBSItem[] = [...(cMap.get(id) || [])];
-      const starts: Date[] = [];
-      const ends: Date[] = [];
-      while (stack.length) {
-        const node = stack.pop() as WBSItem;
-        if (node.level < 2) {
-          (cMap.get(node.id) || []).forEach((child) => stack.push(child));
-        } else {
-          if (node.start_date) starts.push(new Date(node.start_date));
-          if (node.end_date) ends.push(new Date(node.end_date));
-        }
+    // Helper: direct child check for leaf detection (by parent_id or WBS direct)
+    const hasDirectChild = (parent: WBSItem) => {
+      if (items.some((c) => c.parent_id === parent.id)) return true;
+      if (parent.wbs_id) {
+        const segs = parent.wbs_id.split('.').length;
+        const prefix = parent.wbs_id + '.';
+        if (
+          items.some(
+            (c) => c.wbs_id?.startsWith(prefix) && c.wbs_id.split('.').length === segs + 1
+          )
+        )
+          return true;
       }
-      if (starts.length || ends.length) {
-        const start = starts.length ? new Date(Math.min(...starts.map((d) => d.getTime()))) : undefined;
-        const end = ends.length ? new Date(Math.max(...ends.map((d) => d.getTime()))) : undefined;
-        map.set(id, {
-          start,
-          end,
-          duration: start && end ? differenceInDays(end, start) + 1 : undefined,
-        });
-      }
+      return false;
     };
 
-    items.forEach((it) => {
-      const hasKids = (cMap.get(it.id) || []).length > 0;
-      if (hasKids) collect(it.id);
+    // Leaves are items without direct children
+    const leaves = items.filter((it) => !hasDirectChild(it));
+
+    // Precompute leaf date ranges
+    const leafRanges = leaves
+      .map((leaf) => {
+        const start = leaf.start_date ? new Date(leaf.start_date) : undefined;
+        const end = leaf.end_date ? new Date(leaf.end_date) : undefined;
+        return { leaf, start, end };
+      })
+      .filter((x) => x.start || x.end);
+
+    // For every item, find descendant leaves by WBS prefix and aggregate
+    items.forEach((parent) => {
+      if (!parent.wbs_id) return;
+      const prefix = parent.wbs_id + '.';
+      const relevant = leafRanges.filter((x) => x.leaf.wbs_id?.startsWith(prefix));
+      if (relevant.length === 0) return;
+
+      const starts = relevant.map((r) => r.start).filter(Boolean) as Date[];
+      const ends = relevant.map((r) => r.end).filter(Boolean) as Date[];
+      if (starts.length === 0 && ends.length === 0) return;
+
+      const start = starts.length ? new Date(Math.min(...starts.map((d) => d.getTime()))) : undefined;
+      const end = ends.length ? new Date(Math.max(...ends.map((d) => d.getTime()))) : undefined;
+      map.set(parent.id, {
+        start,
+        end,
+        duration: start && end ? differenceInDays(end, start) + 1 : undefined,
+      });
     });
+
+    // Debug: surface which parents got rollups
+    if (map.size > 0) {
+      try {
+        const debug = Array.from(map.entries()).slice(0, 10).map(([id, v]) => {
+          const item = items.find((i) => i.id === id);
+          return { id, wbs: item?.wbs_id, title: item?.title, start: v.start, end: v.end, duration: v.duration };
+        });
+        // eslint-disable-next-line no-console
+        console.debug('WBSTime rollups sample', debug);
+      } catch {}
+    }
 
     return map;
   }, [items]);
