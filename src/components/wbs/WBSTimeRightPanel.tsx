@@ -53,13 +53,15 @@ export const WBSTimeRightPanel = ({
         if (items.some(child => child.parent_id === parent.id)) return true;
         // 2) Fallback by WBS number direct child (one more segment)
         if (parent.wbs_id) {
-          const parentSegs = parent.wbs_id.split('.').length;
-          const prefix = parent.wbs_id + '.';
+          // Normalize base so that a parent like "1.0" treats children like "1.1" as direct
+          const parentBase = parent.wbs_id.endsWith('.0') ? parent.wbs_id.slice(0, -2) : parent.wbs_id;
+          const baseSegs = parentBase.split('.').length;
+          const prefix = parentBase + '.';
           if (
             items.some(
               (child) =>
                 child.wbs_id?.startsWith(prefix) &&
-                child.wbs_id.split('.').length === parentSegs + 1
+                child.wbs_id.split('.').length === baseSegs + 1
             )
           ) {
             return true;
@@ -101,12 +103,14 @@ export const WBSTimeRightPanel = ({
 
     // Fallback to WBS numbers: direct child has exactly one more segment
     if (parent.wbs_id) {
-      const parentSegs = parent.wbs_id.split('.').length;
-      const prefix = parent.wbs_id + '.';
+      // Normalize base so that a parent like "1.0" treats children like "1.1" as direct
+      const parentBase = parent.wbs_id.endsWith('.0') ? parent.wbs_id.slice(0, -2) : parent.wbs_id;
+      const baseSegs = parentBase.split('.').length;
+      const prefix = parentBase + '.';
       return items.filter(
         (child) =>
           child.wbs_id?.startsWith(prefix) &&
-          child.wbs_id.split('.').length === parentSegs + 1
+          child.wbs_id.split('.').length === baseSegs + 1
       );
     }
     return [] as WBSItem[];
