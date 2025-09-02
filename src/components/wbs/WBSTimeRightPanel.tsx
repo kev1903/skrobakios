@@ -44,6 +44,33 @@ export const WBSTimeRightPanel = ({
   onScroll
 }: WBSTimeRightPanelProps) => {
 
+  // Calculate parent dates on component mount and when items change
+  React.useEffect(() => {
+    const calculateAllParentDates = () => {
+      // Find all phases and components that have children
+      const parentsWithChildren = items.filter(item => 
+        (item.level === 0 || item.level === 1) && 
+        items.some(child => child.parent_id === item.id)
+      );
+      
+      // Calculate dates for components first, then phases
+      const components = parentsWithChildren.filter(item => item.level === 1);
+      const phases = parentsWithChildren.filter(item => item.level === 0);
+      
+      components.forEach(component => {
+        setTimeout(() => calculateParentDates(component.id), 10);
+      });
+      
+      phases.forEach(phase => {
+        setTimeout(() => calculateParentDates(phase.id), 20);
+      });
+    };
+    
+    if (items.length > 0) {
+      calculateAllParentDates();
+    }
+  }, [items]);
+
   // Helper function to get children of a specific item
   const getChildren = (parentId: string) => {
     return items.filter(item => item.parent_id === parentId);
