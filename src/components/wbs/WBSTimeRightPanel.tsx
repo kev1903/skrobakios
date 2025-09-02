@@ -195,7 +195,7 @@ export const WBSTimeRightPanel = ({
               gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
             }}
           >
-            <div className="px-3 py-1 min-h-[2rem] flex items-center text-muted-foreground text-xs">
+            <div className="px-3 h-[1.75rem] flex items-center text-muted-foreground text-xs">
               <EditableCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -206,7 +206,7 @@ export const WBSTimeRightPanel = ({
               />
             </div>
 
-            <div className="px-2 py-1 min-h-[2rem] flex items-center text-xs text-muted-foreground">
+            <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
                 <DatePickerCell
                   id={item.id}
                   type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -220,7 +220,7 @@ export const WBSTimeRightPanel = ({
                 />
             </div>
 
-            <div className="px-2 py-1 min-h-[2rem] flex items-center text-xs text-muted-foreground">
+            <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
               <DatePickerCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -234,7 +234,7 @@ export const WBSTimeRightPanel = ({
               />
             </div>
 
-            <div className="px-2 py-1 min-h-[2rem] flex items-center text-xs text-muted-foreground">
+            <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
               <DurationCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -244,7 +244,7 @@ export const WBSTimeRightPanel = ({
               />
             </div>
 
-            <div className="px-2 py-1 min-h-[2rem] flex items-center text-xs text-muted-foreground">
+            <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
               <PredecessorCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -260,14 +260,14 @@ export const WBSTimeRightPanel = ({
               />
             </div>
 
-            <div className="px-2 py-1 min-h-[2rem] flex items-center">
+            <div className="px-2 h-[1.75rem] flex items-center">
               <StatusSelect 
                 value={item.status} 
                 onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
               />
             </div>
 
-            <div className="px-2 py-1 min-h-[2rem] flex items-center justify-center">
+            <div className="px-2 h-[1.75rem] flex items-center justify-center">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
