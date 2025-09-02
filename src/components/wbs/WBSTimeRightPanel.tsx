@@ -254,9 +254,9 @@ export const WBSTimeRightPanel = ({
             key={item.id}
             className={`grid items-center w-full ${
               item.level === 0 
-                ? 'bg-primary/5 hover:bg-primary/10' 
+                ? 'bg-primary/8 hover:bg-primary/12 border-l-2 border-primary/20' 
                 : item.level === 1
-                ? 'bg-secondary/5 hover:bg-secondary/10'
+                ? 'bg-secondary/15 hover:bg-secondary/20 border-l-2 border-secondary/30'
                 : 'bg-white hover:bg-slate-50/50'
             } transition-colors duration-200`}
             style={{
