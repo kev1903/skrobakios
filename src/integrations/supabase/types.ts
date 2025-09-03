@@ -5891,6 +5891,53 @@ export type Database = {
         }
         Relationships: []
       }
+      stakeholder_contacts_safe: {
+        Row: {
+          created_at: string | null
+          email_masked: string | null
+          id: string | null
+          is_preferred: boolean | null
+          is_primary: boolean | null
+          mobile_masked: string | null
+          name: string | null
+          phone_masked: string | null
+          stakeholder_id: string | null
+          title: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_masked?: never
+          id?: string | null
+          is_preferred?: boolean | null
+          is_primary?: boolean | null
+          mobile_masked?: never
+          name?: string | null
+          phone_masked?: never
+          stakeholder_id?: string | null
+          title?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email_masked?: never
+          id?: string | null
+          is_preferred?: boolean | null
+          is_primary?: boolean | null
+          mobile_masked?: never
+          name?: string | null
+          phone_masked?: never
+          stakeholder_id?: string | null
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stakeholder_contacts_stakeholder_id_fkey"
+            columns: ["stakeholder_id"]
+            isOneToOne: false
+            referencedRelation: "stakeholders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_project_invitation: {
@@ -5927,6 +5974,10 @@ export type Database = {
       }
       can_view_company_projects: {
         Args: { target_company_id: string; target_user_id: string }
+        Returns: boolean
+      }
+      check_contact_access_rate_limit: {
+        Args: { operation_type?: string }
         Returns: boolean
       }
       check_security_rate_limit: {
@@ -6219,6 +6270,24 @@ export type Database = {
           current_value: number
           risk_level: string
           security_metric: string
+        }[]
+      }
+      get_stakeholder_contacts_secure: {
+        Args: {
+          include_sensitive_data?: boolean
+          target_stakeholder_id: string
+        }
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          is_preferred: boolean
+          is_primary: boolean
+          mobile: string
+          name: string
+          phone: string
+          stakeholder_id: string
+          title: string
         }[]
       }
       get_user_companies: {

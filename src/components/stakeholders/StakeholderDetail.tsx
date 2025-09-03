@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useSecureStakeholderContacts } from '@/hooks/useSecureStakeholderContacts';
+import { SecureContactDisplay } from './SecureContactDisplay';
 
 interface StakeholderDetailProps {
   stakeholderId: string;
@@ -109,12 +111,20 @@ export const StakeholderDetail: React.FC<StakeholderDetailProps> = ({
   onBack,
 }) => {
   const [stakeholder, setStakeholder] = useState<Stakeholder | null>(null);
-  const [contacts, setContacts] = useState<Contact[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [projectRoles, setProjectRoles] = useState<ProjectRole[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Use secure contacts hook for enhanced security
+  const { 
+    contacts, 
+    loading: contactsLoading, 
+    error: contactsError, 
+    canViewSensitiveData,
+    refetch: refetchContacts 
+  } = useSecureStakeholderContacts(stakeholderId);
 
   useEffect(() => {
     fetchStakeholderData();
@@ -134,16 +144,6 @@ export const StakeholderDetail: React.FC<StakeholderDetailProps> = ({
       if (stakeholderError) throw stakeholderError;
 
       setStakeholder(stakeholderData);
-
-      // Fetch contacts
-      const { data: contactsData, error: contactsError } = await supabase
-        .from('stakeholder_contacts')
-        .select('*')
-        .eq('stakeholder_id', stakeholderId)
-        .order('is_primary', { ascending: false });
-
-      if (contactsError) throw contactsError;
-      setContacts(contactsData || []);
 
       // Fetch addresses
       const { data: addressesData, error: addressesError } = await supabase
@@ -381,53 +381,52 @@ export const StakeholderDetail: React.FC<StakeholderDetailProps> = ({
         <TabsContent value="contacts" className="space-y-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Contacts</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                Contacts
+                {contactsError && (
+                  <Badge variant="destructive" className="text-xs">Security Error</Badge>
+                )}
+                {canViewSensitiveData && (
+                  <Badge variant="default" className="text-xs">Admin Access</Badge>
+                )}
+              </CardTitle>
               <Button size="sm">
                 <Users className="h-4 w-4 mr-2" />
                 Add Contact
               </Button>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {contacts.map(contact => (
-                  <div key={contact.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{contact.name}</span>
-                        {contact.is_primary && (
-                          <Badge variant="default" className="text-xs">Primary</Badge>
-                        )}
-                        {contact.is_preferred && (
-                          <Badge variant="secondary" className="text-xs">Preferred</Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{contact.title}</p>
-                      <div className="flex gap-4 mt-1 text-sm text-muted-foreground">
-                        {contact.email && (
-                          <span className="flex items-center gap-1">
-                            <Mail className="h-3 w-3" />
-                            {contact.email}
-                          </span>
-                        )}
-                        {contact.phone && (
-                          <span className="flex items-center gap-1">
-                            <Phone className="h-3 w-3" />
-                            {contact.phone}
-                          </span>
-                        )}
-                      </div>
+              {contactsLoading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Loading secure contact information...
+                </div>
+              ) : contactsError ? (
+                <div className="text-center py-8">
+                  <div className="text-red-600 mb-2">⚠️ Security Access Error</div>
+                  <p className="text-sm text-muted-foreground mb-4">{contactsError}</p>
+                  <Button onClick={refetchContacts} variant="outline" size="sm">
+                    Retry Access
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {contacts.map(contact => (
+                    <SecureContactDisplay
+                      key={contact.id}
+                      contact={contact}
+                      canViewSensitiveData={canViewSensitiveData}
+                      onRequestSensitiveAccess={() => {
+                        toast.info('Contact your administrator to request access to sensitive contact information.');
+                      }}
+                    />
+                  ))}
+                  {contacts.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No contacts found for this stakeholder
                     </div>
-                    <Button variant="outline" size="sm">
-                      Set Preferred
-                    </Button>
-                  </div>
-                ))}
-                {contacts.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No contacts found
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
