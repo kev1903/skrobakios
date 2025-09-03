@@ -81,9 +81,8 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
 
     console.log("Saving project settings:", formData);
     
-    // Prepare project updates (only include fields that exist in the database)
+    // Prepare project updates (exclude project_id since it has unique constraint)
     const projectUpdates = {
-      project_id: formData.project_id,
       name: formData.name,
       description: formData.description,
       location: formData.location,
