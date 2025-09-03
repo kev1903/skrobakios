@@ -248,18 +248,18 @@ export const exportSelectedIssuesToPDF = async (
     
     // Add Skrobaki logo to top left of cover page
     try {
-      const skrobakiLogoUrl = '/lovable-uploads/0ebb3672-15b3-4c91-8157-7c45f2f190ac.png';
-      const logoDataUrl = await loadImageAsDataUrl(skrobakiLogoUrl);
+      // Use a placeholder or try to get the logo from company data instead
+      // For now, we'll add text placeholder for Skrobaki
+      pdf.setFontSize(18);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(70, 130, 180); // Steel blue color for Skrobaki
+      pdf.text('SKROBAKI', 20, 55);
       
-      // Calculate logo dimensions for top left positioning
-      const logoMaxWidth = 60;
-      const logoMaxHeight = 30;
-      const logoX = 20;
-      const logoY = 40;
-      
-      pdf.addImage(logoDataUrl, 'PNG', logoX, logoY, logoMaxWidth, logoMaxHeight);
+      // Add a simple geometric shape to represent the logo
+      pdf.setFillColor(70, 130, 180);
+      pdf.triangle(20, 40, 35, 40, 27.5, 50, 'F');
     } catch (logoError) {
-      console.warn('Could not load Skrobaki logo:', logoError);
+      console.warn('Could not add Skrobaki branding:', logoError);
     }
     
     let yPos = 80; // Start content below the logo
