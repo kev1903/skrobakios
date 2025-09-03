@@ -52,36 +52,41 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   }, [project?.id]);
 
   useEffect(() => {
+    let isActive = true;
+
     // Set timeout for loading state
     timeoutRef.current = setTimeout(() => {
+      if (!isActive) return;
       setLocalLoading(false);
     }, 5000); // Extended timeout to allow for project auto-selection
 
     const fetchProject = async () => {
+      if (!isActive) return;
       setLocalLoading(true);
       
       if (!projectId) {
         // No projectId provided - wait a bit for auto-selection to happen
         setTimeout(() => {
-          if (!projectId) {
-            setLocalLoading(false);
-          }
+          if (!isActive) return;
+          setLocalLoading(false);
         }, 2000); // Wait 2 seconds for auto-selection
         return;
       }
       
       try {
         const foundProject = await getProject(projectId);
+        if (!isActive) return; // Prevent stale updates when switching projects quickly
         if (foundProject) {
           setProject(foundProject);
           
           // Load and validate banner image from localStorage
           const savedBanner = localStorage.getItem(`project_banner_${foundProject.id}`);
           if (savedBanner && savedBanner.trim() !== "") {
-            // Validate that the stored data is a proper base64 image
+            // Accept both base64 data URIs and URL paths (e.g. /lovable-uploads/... or http urls)
             const isValidBase64Image = /^data:image\/(jpeg|jpg|png|gif|webp|bmp);base64,/.test(savedBanner);
+            const isUrlImage = /^(https?:\/\/|\/)/.test(savedBanner);
             
-            if (isValidBase64Image) {
+            if (isValidBase64Image || isUrlImage) {
               console.log(`Loading valid banner for project ${foundProject.id}`);
               setBannerImage(savedBanner);
             } else {
@@ -116,9 +121,11 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
         }
       } catch (error) {
         console.error('Error fetching project:', error);
+        if (!isActive) return;
         // Set to null on error
         setProject(null);
       } finally {
+        if (!isActive) return;
         setLocalLoading(false);
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
@@ -129,6 +136,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     fetchProject();
 
     return () => {
+      isActive = false;
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
