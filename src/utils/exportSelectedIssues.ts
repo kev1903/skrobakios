@@ -246,23 +246,24 @@ export const exportSelectedIssuesToPDF = async (
     // Cover Page
     addHeaderFooter(pdf, pageNumber, true);
     
-    // Add Skrobaki logo to top left of cover page
+    // Add Skrobaki logo/branding to top left of cover page
     try {
-      // Use a placeholder or try to get the logo from company data instead
-      // For now, we'll add text placeholder for Skrobaki
-      pdf.setFontSize(18);
+      pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(70, 130, 180); // Steel blue color for Skrobaki
-      pdf.text('SKROBAKI', 20, 55);
+      pdf.setTextColor(41, 128, 185); // Professional blue color
+      pdf.text('SKROBAKI', 20, 50);
       
-      // Add a simple geometric shape to represent the logo
-      pdf.setFillColor(70, 130, 180);
-      pdf.triangle(20, 40, 35, 40, 27.5, 50, 'F');
+      // Add geometric design element using rectangles to create a diamond
+      pdf.setFillColor(41, 128, 185);
+      pdf.setDrawColor(41, 128, 185);
+      // Create diamond shape using rotated rectangles
+      pdf.rect(24, 53, 8, 2, 'F'); // Horizontal bar
+      pdf.rect(27, 50, 2, 8, 'F'); // Vertical bar
     } catch (logoError) {
       console.warn('Could not add Skrobaki branding:', logoError);
     }
     
-    let yPos = 80; // Start content below the logo
+    let yPos = 85; // Start content below the logo
 
     // Cover page content
     if (fullCompanyData?.address) {
@@ -273,9 +274,11 @@ export const exportSelectedIssuesToPDF = async (
       yPos += 15;
     }
     
-    // Extract email from company name if it exists (but don't display it)
-    const emailMatch = fullCompanyData?.name?.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-    // Note: Email intentionally not displayed per user request
+    // Completely skip any email rendering - check if company name contains email and don't display it
+    if (fullCompanyData?.name?.includes('@')) {
+      // Skip rendering any email content
+      console.log('Email detected in company name - skipping email display');
+    }
     
     if (fullCompanyData?.abn) {
       pdf.setFontSize(11);
