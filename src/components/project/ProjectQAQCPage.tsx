@@ -9,7 +9,6 @@ import { QAQCTable } from '@/components/qaqc/QAQCTable';
 import { 
   useChecklists,
   useIssues,
-  useDefects,
   useQualityInspections,
   useQualityPlans,
   useIssueReports
@@ -19,7 +18,6 @@ import {
   ListChecks,
   HelpCircle,
   AlertTriangle,
-  Bug,
   FlaskConical,
   FileCheck
 } from 'lucide-react';
@@ -36,7 +34,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('projectId');
   const tabParam = searchParams.get('tab') || 'checklists';
-  const defaultTab = (['checklists','issues','defects','inspections','itps'] as const).includes(tabParam as any) ? (tabParam as any) : 'checklists';
+  const defaultTab = (['checklists','issues','inspections','itps'] as const).includes(tabParam as any) ? (tabParam as any) : 'checklists';
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
   const { toast } = useToast();
@@ -45,7 +43,6 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   // Fetch QA/QC data
   const { data: checklists, isLoading: checklistsLoading } = useChecklists(projectId || '');
   const { data: issues, isLoading: issuesLoading } = useIssues(projectId || '');
-  const { data: defects, isLoading: defectsLoading } = useDefects(projectId || '');
   const { data: inspections, isLoading: inspectionsLoading } = useQualityInspections(projectId || '');
   const { data: qualityPlans, isLoading: qualityPlansLoading } = useQualityPlans(projectId || '');
   const { data: issueReports, isLoading: issueReportsLoading } = useIssueReports(projectId || '');
@@ -155,7 +152,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
       <div className="flex-1 ml-48 p-6 overflow-auto">
         <div className="max-w-7xl mx-auto">
           {/* Quick Stats */}
-          <div className="grid grid-cols-3 md:grid-cols-5 gap-3 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
             <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-checklists?projectId=${projectId}`)}>
               <CardContent className="p-4">
                 <div className="flex items-center">
@@ -180,17 +177,6 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
 
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-defects?projectId=${projectId}`)}>
-              <CardContent className="p-4">
-                <div className="flex items-center">
-                  <Bug className="w-8 h-8 text-yellow-600" />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-muted-foreground">Defects</p>
-                    <p className="text-2xl font-bold text-foreground">{defects?.length || 0}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
 
             <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-inspections?projectId=${projectId}`)}>
               <CardContent className="p-4">
@@ -220,10 +206,9 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
           {/* Main Content - Tabs */}
           <div>
             <Tabs defaultValue={defaultTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="checklists">Checklists</TabsTrigger>
                 <TabsTrigger value="issues">Issues/NCRs</TabsTrigger>
-                <TabsTrigger value="defects">Defects</TabsTrigger>
                 <TabsTrigger value="inspections">Inspections</TabsTrigger>
                 <TabsTrigger value="itps">Quality Plans</TabsTrigger>
               </TabsList>
@@ -258,16 +243,6 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                 <QAQCTable data={issueReports || []} type="issueReports" isLoading={issueReportsLoading} onNavigate={onNavigate} onDelete={handleDeleteIssueReport} onExportPDF={handleExportPDF} />
               </TabsContent>
 
-              <TabsContent value="defects" className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Defects & Punch List</h3>
-                  <Button>
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Defect
-                  </Button>
-                </div>
-                <QAQCTable data={defects || []} type="defects" isLoading={defectsLoading} onNavigate={onNavigate} />
-              </TabsContent>
 
               <TabsContent value="inspections" className="space-y-4">
                 <div className="flex items-center justify-between">
