@@ -197,6 +197,16 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     let logoWidth = 40;
     let logoHeight = 20;
     
+    // Try to use company logo if available, otherwise preload Skrobaki logo from uploads
+    let customLogoDataUrl: string | null = null;
+    if (!fullCompanyData?.logo_url) {
+      try {
+        customLogoDataUrl = await loadImageAsDataUrl('/lovable-uploads/0ebb3672-15b3-4c91-8157-7c45f2f190ac.png');
+      } catch (e) {
+        console.warn('Fallback Skrobaki logo not available:', e);
+      }
+    }
+    
     if (fullCompanyData?.logo_url) {
       try {
         const img = new Image();
@@ -221,6 +231,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       }
     }
 
+
     // Header and footer helper function
     const addHeaderFooter = (pdf: jsPDF, pageNum: number, isFirstPage = false) => {
       // Header with company logo and info
@@ -233,6 +244,9 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
           pdf.setFont('helvetica', 'bold');
           pdf.setTextColor(40, 40, 40);
           pdf.text(fullCompanyData.name, 25 + logoWidth, 17);
+        } else if (customLogoDataUrl) {
+          // Use fallback Skrobaki logo if provided
+          pdf.addImage(customLogoDataUrl, 'PNG', 20, 10, 60, 26);
         } else {
           // Fallback with company name
           pdf.setFontSize(12);
@@ -313,11 +327,13 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     }
 
     // Cover page content
-    if (fullCompanyData?.address) {
+    const addressText = fullCompanyData?.address?.toString().trim();
+    const addressLooksLikeEmail = addressText ? /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/.test(addressText) : false;
+    if (addressText && !addressLooksLikeEmail) {
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      pdf.text(fullCompanyData.address, pageWidth / 2, yPos, { align: 'center' });
+      pdf.text(addressText, pageWidth / 2, yPos, { align: 'center' });
       yPos += 15;
     }
     
