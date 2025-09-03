@@ -53,12 +53,10 @@ export const ProjectHeader = ({
             <img
               src={bannerImage}
               alt="Project banner"
-              className="absolute top-0 left-0 max-w-none"
+              className="w-full h-full object-cover"
               style={{
                 transform: `translate(${bannerPosition.x}px, ${bannerPosition.y}px) scale(${bannerPosition.scale})`,
-                transformOrigin: 'top left',
-                width: 'auto',
-                height: 'auto'
+                transformOrigin: 'center'
               }}
             />
           </div>

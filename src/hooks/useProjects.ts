@@ -17,8 +17,6 @@ export interface Project {
   latitude?: number | null;
   longitude?: number | null;
   geocoded_at?: string | null;
-  banner_image?: string | null;
-  banner_position?: { x: number; y: number; scale: number } | null;
   created_at: string;
   updated_at: string;
 }
@@ -114,21 +112,11 @@ export const useProjects = () => {
 
       if (error) throw error;
       
-      // Convert database data to Project interface with proper type handling
-      const createdProject = {
-        ...data,
-        banner_position: data.banner_position 
-          ? (typeof data.banner_position === 'object' && data.banner_position !== null 
-             ? data.banner_position as { x: number; y: number; scale: number }
-             : { x: 0, y: 0, scale: 1 })
-          : null
-      } as Project;
-      
       // Invalidate cache
       globalCache.data = null;
       globalCache.timestamp = 0;
       
-      return createdProject;
+      return data;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create project';
       setError(errorMessage);
@@ -188,15 +176,7 @@ export const useProjects = () => {
 
       if (error) throw error;
       
-      // Convert database data to Project interface with proper type handling
-      const freshData = (data || []).map(project => ({
-        ...project,
-        banner_position: project.banner_position 
-          ? (typeof project.banner_position === 'object' && project.banner_position !== null 
-             ? project.banner_position as { x: number; y: number; scale: number }
-             : { x: 0, y: 0, scale: 1 })
-          : null
-      })) as Project[];
+      const freshData = (data || []) as Project[];
       
       console.log("📊 Raw projects fetched:", freshData.length);
       console.log("🏢 Projects by company:", freshData.reduce((acc, p) => {
@@ -273,18 +253,7 @@ export const useProjects = () => {
         .single();
 
       if (error) throw error;
-      
-      // Convert database data to Project interface with proper type handling
-      const projectData = {
-        ...data,
-        banner_position: data.banner_position 
-          ? (typeof data.banner_position === 'object' && data.banner_position !== null 
-             ? data.banner_position as { x: number; y: number; scale: number }
-             : { x: 0, y: 0, scale: 1 })
-          : null
-      } as Project;
-      
-      return projectData;
+      return data;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch project';
       setError(errorMessage);
@@ -344,20 +313,10 @@ export const useProjects = () => {
 
       if (error) throw error;
       
-      // Convert database data to Project interface with proper type handling
-      const updatedProjectData = {
-        ...data,
-        banner_position: data.banner_position 
-          ? (typeof data.banner_position === 'object' && data.banner_position !== null 
-             ? data.banner_position as { x: number; y: number; scale: number }
-             : { x: 0, y: 0, scale: 1 })
-          : null
-      } as Project;
-      
       // Update cache
       if (globalCache.data) {
         const updatedProjects = globalCache.data.map(p => 
-          p.id === projectId ? { ...p, ...updatedProjectData } : p
+          p.id === projectId ? { ...p, ...data } : p
         );
         globalCache.data = updatedProjects;
         globalCache.timestamp = Date.now();
@@ -369,7 +328,7 @@ export const useProjects = () => {
       }
       
       console.log('Project updated successfully:', projectId);
-      return updatedProjectData;
+      return data;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update project';
       setError(errorMessage);

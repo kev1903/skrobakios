@@ -67,18 +67,8 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({
           .single();
         
         if (data && !error) {
-          // Convert database data to Project interface with proper type handling
-          const convertedProject = {
-            ...data,
-            banner_position: data.banner_position 
-              ? (typeof data.banner_position === 'object' && data.banner_position !== null 
-                 ? data.banner_position as { x: number; y: number; scale: number }
-                 : { x: 0, y: 0, scale: 1 })
-              : null
-          } as Project;
-          
-          setProject(convertedProject);
-          console.log('Found project:', convertedProject);
+          setProject(data);
+          console.log('Found project:', data);
         } else {
           console.log('Project not found with ID, trying project_id lookup');
           // Fallback: try by project_id if direct ID lookup fails
@@ -89,18 +79,8 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({
             .single();
           
           if (fallbackData && !fallbackError) {
-            // Convert database data to Project interface with proper type handling
-            const convertedFallbackProject = {
-              ...fallbackData,
-              banner_position: fallbackData.banner_position 
-                ? (typeof fallbackData.banner_position === 'object' && fallbackData.banner_position !== null 
-                   ? fallbackData.banner_position as { x: number; y: number; scale: number }
-                   : { x: 0, y: 0, scale: 1 })
-                : null
-            } as Project;
-            
-            setProject(convertedFallbackProject);
-            console.log('Found project via project_id:', convertedFallbackProject);
+            setProject(fallbackData);
+            console.log('Found project via project_id:', fallbackData);
           }
         }
       } catch (error) {
