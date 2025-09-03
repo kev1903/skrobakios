@@ -257,6 +257,10 @@ export const exportSelectedIssuesToPDF = async (
       yPos += 15;
     }
     
+    // Extract email from company name if it exists (but don't display it)
+    const emailMatch = fullCompanyData?.name?.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
+    // Note: Email intentionally not displayed per user request
+    
     if (fullCompanyData?.abn) {
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'normal');
