@@ -246,7 +246,23 @@ export const exportSelectedIssuesToPDF = async (
     // Cover Page
     addHeaderFooter(pdf, pageNumber, true);
     
-    let yPos = 50;
+    // Add Skrobaki logo to top left of cover page
+    try {
+      const skrobakiLogoUrl = '/lovable-uploads/0ebb3672-15b3-4c91-8157-7c45f2f190ac.png';
+      const logoDataUrl = await loadImageAsDataUrl(skrobakiLogoUrl);
+      
+      // Calculate logo dimensions for top left positioning
+      const logoMaxWidth = 60;
+      const logoMaxHeight = 30;
+      const logoX = 20;
+      const logoY = 40;
+      
+      pdf.addImage(logoDataUrl, 'PNG', logoX, logoY, logoMaxWidth, logoMaxHeight);
+    } catch (logoError) {
+      console.warn('Could not load Skrobaki logo:', logoError);
+    }
+    
+    let yPos = 80; // Start content below the logo
 
     // Cover page content
     if (fullCompanyData?.address) {
