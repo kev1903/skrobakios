@@ -9,7 +9,7 @@ import { LatestUpdates } from "./LatestUpdates";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { safeJsonParse } from "@/utils/secureJson";
-
+import { useCompany } from "@/contexts/CompanyContext";
 interface ProjectDetailProps {
   projectId: string | null;
   onNavigate: (page: string) => void;
@@ -23,7 +23,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   const [localLoading, setLocalLoading] = useState(true);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { getProject, loading } = useProjects();
-
+  const { currentCompany } = useCompany();
   // Reset banner state immediately on project change to avoid showing stale images
   useEffect(() => {
     setBannerImage("");
@@ -77,6 +77,15 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
         const foundProject = await getProject(projectId);
         if (!isActive) return; // Prevent stale updates when switching projects quickly
         if (foundProject) {
+          // Enforce company scope to avoid showing projects from other businesses
+          if (currentCompany?.id && foundProject.company_id !== currentCompany.id) {
+            console.warn(`Project ${foundProject.id} does not belong to current company ${currentCompany.id}. Clearing state.`);
+            setProject(null);
+            setBannerImage("");
+            setBannerPosition({ x: 0, y: 0, scale: 1 });
+            return;
+          }
+
           setProject(foundProject);
           
           // Load and validate banner image from localStorage

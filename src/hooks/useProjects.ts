@@ -220,26 +220,36 @@ export const useProjects = () => {
   }, [currentCompany]);
 
   const getProject = useCallback(async (projectId: string): Promise<Project | null> => {
-    // First try to get from cache
-    if (globalCache.data) {
-      const cached = globalCache.data.find(p => p.id === projectId);
+    // Ensure we only ever return a project for the current company
+    const companyId = currentCompany?.id;
+
+    // First try to get from cache (scoped by company)
+    if (globalCache.data && companyId) {
+      const cached = globalCache.data.find(p => p.id === projectId && p.company_id === companyId);
       if (cached) return cached;
     }
 
-    // Try localStorage cache
+    // Try localStorage cache (scoped by company)
     const cachedProjects = loadFromLocalStorage();
-    const cachedProject = cachedProjects.find(p => p.id === projectId);
-    if (cachedProject) return cachedProject;
+    if (companyId) {
+      const cachedProject = cachedProjects.find(p => p.id === projectId && p.company_id === companyId);
+      if (cachedProject) return cachedProject;
+    }
 
-    // Fallback to database query
+    // Fallback to database query (enforce company scope)
     setLoading(true);
     setError(null);
     
     try {
+      if (!companyId) {
+        // Without a company context, never return cross-company data
+        return null;
+      }
       const { data, error } = await supabase
         .from('projects')
         .select('*')
         .eq('id', projectId)
+        .eq('company_id', companyId)
         .single();
 
       if (error) throw error;
@@ -249,12 +259,12 @@ export const useProjects = () => {
       setError(errorMessage);
       console.error('Error fetching project:', err);
       
-      // Return null when project not found
+      // Return null when project not found or mismatched company
       return null;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentCompany]);
 
   const deleteProject = async (projectId: string): Promise<boolean> => {
     setLoading(true);
