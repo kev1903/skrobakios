@@ -88,39 +88,55 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
 
           setProject(foundProject);
           
-          // Load and validate banner image from localStorage
-          const savedBanner = localStorage.getItem(`project_banner_${foundProject.id}`);
-          if (savedBanner && savedBanner.trim() !== "") {
+          // Load banner data from database (with fallback to localStorage for legacy)
+          if (foundProject.banner_image && foundProject.banner_image.trim() !== "") {
             // Accept both base64 data URIs and URL paths (e.g. /lovable-uploads/... or http urls)
-            const isValidBase64Image = /^data:image\/(jpeg|jpg|png|gif|webp|bmp);base64,/.test(savedBanner);
-            const isUrlImage = /^(https?:\/\/|\/)/.test(savedBanner);
+            const isValidBase64Image = /^data:image\/(jpeg|jpg|png|gif|webp|bmp);base64,/.test(foundProject.banner_image);
+            const isUrlImage = /^(https?:\/\/|\/)/.test(foundProject.banner_image);
             
             if (isValidBase64Image || isUrlImage) {
-              console.log(`Loading valid banner for project ${foundProject.id}`);
-              setBannerImage(savedBanner);
+              console.log(`Loading valid banner from database for project ${foundProject.id}`);
+              setBannerImage(foundProject.banner_image);
+              
+              // Load banner position from database
+              if (foundProject.banner_position && typeof foundProject.banner_position === 'object') {
+                const pos = foundProject.banner_position as { x: number; y: number; scale: number };
+                if (typeof pos.x === "number" && typeof pos.y === "number" && typeof pos.scale === "number") {
+                  setBannerPosition(pos);
+                } else {
+                  setBannerPosition({ x: 0, y: 0, scale: 1 });
+                }
+              } else {
+                setBannerPosition({ x: 0, y: 0, scale: 1 });
+              }
             } else {
-              console.warn(`Invalid banner data found for project ${foundProject.id}, clearing...`);
-              // Clear corrupted banner data
-              localStorage.removeItem(`project_banner_${foundProject.id}`);
-              localStorage.removeItem(`project_banner_position_${foundProject.id}`);
+              console.warn(`Invalid banner data found in database for project ${foundProject.id}`);
               setBannerImage("");
-            }
-          } else {
-            console.log(`No banner found for project ${foundProject.id}`);
-            setBannerImage("");
-          }
-
-          // Load banner position from localStorage (reset if none)
-          const savedBannerPosition = localStorage.getItem(`project_banner_position_${foundProject.id}`);
-          if (savedBannerPosition && savedBanner) {
-            const position = safeJsonParse(savedBannerPosition, { fallback: null });
-            if (position && typeof position.x === "number" && typeof position.y === "number" && typeof position.scale === "number") {
-              setBannerPosition(position);
-            } else {
               setBannerPosition({ x: 0, y: 0, scale: 1 });
             }
           } else {
-            setBannerPosition({ x: 0, y: 0, scale: 1 });
+            // Fallback to localStorage for legacy banner data
+            const savedBanner = localStorage.getItem(`project_banner_${foundProject.id}`);
+            if (savedBanner && savedBanner.trim() !== "") {
+              console.log(`Loading banner from localStorage for project ${foundProject.id}`);
+              setBannerImage(savedBanner);
+              
+              const savedBannerPosition = localStorage.getItem(`project_banner_position_${foundProject.id}`);
+              if (savedBannerPosition) {
+                const position = safeJsonParse(savedBannerPosition, { fallback: null });
+                if (position && typeof position.x === "number" && typeof position.y === "number" && typeof position.scale === "number") {
+                  setBannerPosition(position);
+                } else {
+                  setBannerPosition({ x: 0, y: 0, scale: 1 });
+                }
+              } else {
+                setBannerPosition({ x: 0, y: 0, scale: 1 });
+              }
+            } else {
+              console.log(`No banner found for project ${foundProject.id}`);
+              setBannerImage("");
+              setBannerPosition({ x: 0, y: 0, scale: 1 });
+            }
           }
         } else {
           // Project not found, clear state

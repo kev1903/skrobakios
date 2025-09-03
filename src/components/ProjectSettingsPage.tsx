@@ -97,8 +97,15 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
       geocoded_at: formData.coordinates ? new Date().toISOString() : null,
     };
 
+    // Include banner data in project updates for database storage
+    const fullProjectUpdates = {
+      ...projectUpdates,
+      banner_image: formData.banner_image || null,
+      banner_position: formData.banner_position || { x: 0, y: 0, scale: 1 },
+    };
+
     // Update project in the database
-    const updatedProject = await updateProject(project.id, projectUpdates);
+    const updatedProject = await updateProject(project.id, fullProjectUpdates);
     
     if (updatedProject) {
       // Store additional settings in localStorage (since they're not in the projects table)
@@ -108,15 +115,6 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
 
       if (formData.coordinates) {
         localStorage.setItem(`project_coordinates_${project.id}`, JSON.stringify(formData.coordinates));
-      }
-
-      // Only save banner image if it's not empty (preserve existing banner)
-      if (formData.banner_image && formData.banner_image.trim() !== '') {
-        localStorage.setItem(`project_banner_${project.id}`, formData.banner_image);
-      }
-
-      if (formData.banner_position) {
-        localStorage.setItem(`project_banner_position_${project.id}`, JSON.stringify(formData.banner_position));
       }
 
       toast({
@@ -157,14 +155,6 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
   };
 
   useEffect(() => {
-    // Set the uploaded image as the default banner for this project
-    const uploadedImageUrl = "/lovable-uploads/a4e24d03-7164-4da7-8680-7f416bd30464.png";
-    const existingBanner = localStorage.getItem(`project_banner_${project.id}`);
-    
-    if (!existingBanner) {
-      localStorage.setItem(`project_banner_${project.id}`, uploadedImageUrl);
-    }
-    
     // Load existing SharePoint link from localStorage
     const savedLink = localStorage.getItem(`project_sharepoint_${project.id}`);
     if (savedLink) {
@@ -186,27 +176,35 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
       }
     }
 
-    // Load existing banner image from localStorage
-    const savedBanner = localStorage.getItem(`project_banner_${project.id}`);
-    if (savedBanner) {
+    // Load banner data from database (with fallback to localStorage for legacy)
+    if (project.banner_image && project.banner_image.trim() !== "") {
       setFormData(prev => ({
         ...prev,
-        banner_image: savedBanner
+        banner_image: project.banner_image || "",
+        banner_position: project.banner_position || { x: 0, y: 0, scale: 1 }
       }));
-    }
-
-    // Load existing banner position from localStorage
-    const savedBannerPosition = localStorage.getItem(`project_banner_position_${project.id}`);
-    if (savedBannerPosition) {
-      const bannerPosition = safeJsonParse(savedBannerPosition, { fallback: null });
-      if (bannerPosition) {
+    } else {
+      // Fallback to localStorage for legacy banner data
+      const savedBanner = localStorage.getItem(`project_banner_${project.id}`);
+      if (savedBanner) {
         setFormData(prev => ({
           ...prev,
-          banner_position: bannerPosition
+          banner_image: savedBanner
         }));
       }
+
+      const savedBannerPosition = localStorage.getItem(`project_banner_position_${project.id}`);
+      if (savedBannerPosition) {
+        const bannerPosition = safeJsonParse(savedBannerPosition, { fallback: null });
+        if (bannerPosition) {
+          setFormData(prev => ({
+            ...prev,
+            banner_position: bannerPosition
+          }));
+        }
+      }
     }
-  }, [project.id]);
+  }, [project.id, project.banner_image, project.banner_position]);
 
   return (
     <div className="flex min-h-full">

@@ -146,7 +146,7 @@ export const ProjectBannerCard = ({ formData, onInputChange }: ProjectBannerCard
             <div className="relative">
               <div 
                 ref={imageContainerRef}
-                className="w-full h-64 rounded-lg overflow-hidden border-2 border-gray-200 bg-gradient-to-br from-slate-100 to-slate-200 cursor-move"
+                className="w-full h-64 rounded-lg overflow-hidden border-2 border-gray-200 bg-gradient-to-br from-slate-100 to-slate-200 cursor-move relative"
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
@@ -155,12 +155,26 @@ export const ProjectBannerCard = ({ formData, onInputChange }: ProjectBannerCard
                 <img
                   src={formData.banner_image}
                   alt="Project banner"
-                  className="w-full h-full object-cover transition-transform duration-200"
+                  className="absolute top-0 left-0 max-w-none transition-transform duration-200"
                   style={{
                     transform: `translate(${position.x}px, ${position.y}px) scale(${position.scale})`,
-                    transformOrigin: 'center'
+                    transformOrigin: 'top left',
+                    width: 'auto',
+                    height: 'auto'
                   }}
                   draggable={false}
+                  onLoad={(e) => {
+                    const img = e.target as HTMLImageElement;
+                    // Set initial scale to fit container width while maintaining aspect ratio
+                    if (position.scale === 1 && imageContainerRef.current) {
+                      const container = imageContainerRef.current;
+                      const scaleToFit = Math.min(
+                        container.offsetWidth / img.naturalWidth,
+                        container.offsetHeight / img.naturalHeight
+                      );
+                      onInputChange("banner_position", { ...position, scale: scaleToFit });
+                    }
+                  }}
                 />
                 <Button
                   variant="destructive"

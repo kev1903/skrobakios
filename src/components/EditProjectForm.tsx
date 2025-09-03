@@ -83,7 +83,17 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
         description: "Project updated successfully",
       });
 
-      onUpdate(data);
+      // Convert database data to Project interface with proper type handling
+      const convertedData = {
+        ...data,
+        banner_position: data.banner_position 
+          ? (typeof data.banner_position === 'object' && data.banner_position !== null 
+             ? data.banner_position as { x: number; y: number; scale: number }
+             : { x: 0, y: 0, scale: 1 })
+          : null
+      } as Project;
+      
+      onUpdate(convertedData);
       onClose();
     } catch (error) {
       console.error('Error updating project:', error);
