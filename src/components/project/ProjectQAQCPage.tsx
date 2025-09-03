@@ -8,7 +8,6 @@ import { useProjects, Project } from '@/hooks/useProjects';
 import { QAQCTable } from '@/components/qaqc/QAQCTable';
 import { 
   useChecklists,
-  useRFIs,
   useIssues,
   useDefects,
   useQualityInspections,
@@ -37,7 +36,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('projectId');
   const tabParam = searchParams.get('tab') || 'checklists';
-  const defaultTab = (['checklists','rfis','issues','defects','inspections','itps'] as const).includes(tabParam as any) ? (tabParam as any) : 'checklists';
+  const defaultTab = (['checklists','issues','defects','inspections','itps'] as const).includes(tabParam as any) ? (tabParam as any) : 'checklists';
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
   const { toast } = useToast();
@@ -45,7 +44,6 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
 
   // Fetch QA/QC data
   const { data: checklists, isLoading: checklistsLoading } = useChecklists(projectId || '');
-  const { data: rfis, isLoading: rfisLoading } = useRFIs(projectId || '');
   const { data: issues, isLoading: issuesLoading } = useIssues(projectId || '');
   const { data: defects, isLoading: defectsLoading } = useDefects(projectId || '');
   const { data: inspections, isLoading: inspectionsLoading } = useQualityInspections(projectId || '');
@@ -157,7 +155,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
       <div className="flex-1 ml-48 p-6 overflow-auto">
         <div className="max-w-7xl mx-auto">
           {/* Quick Stats */}
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-4">
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-3 mb-4">
             <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-checklists?projectId=${projectId}`)}>
               <CardContent className="p-4">
                 <div className="flex items-center">
@@ -170,18 +168,6 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
               </CardContent>
             </Card>
             
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-rfis?projectId=${projectId}`)}>
-              <CardContent className="p-4">
-                <div className="flex items-center">
-                  <HelpCircle className="w-8 h-8 text-orange-600" />
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-muted-foreground">RFIs</p>
-                    <p className="text-2xl font-bold text-foreground">{rfis?.length || 0}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
             <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-issues?projectId=${projectId}`)}>
               <CardContent className="p-4">
                 <div className="flex items-center">
@@ -234,9 +220,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
           {/* Main Content - Tabs */}
           <div>
             <Tabs defaultValue={defaultTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="checklists">Checklists</TabsTrigger>
-                <TabsTrigger value="rfis">RFIs</TabsTrigger>
                 <TabsTrigger value="issues">Issues/NCRs</TabsTrigger>
                 <TabsTrigger value="defects">Defects</TabsTrigger>
                 <TabsTrigger value="inspections">Inspections</TabsTrigger>
@@ -252,17 +237,6 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                   </Button>
                 </div>
                 <QAQCTable data={checklists || []} type="checklists" isLoading={checklistsLoading} onNavigate={onNavigate} />
-              </TabsContent>
-
-              <TabsContent value="rfis" className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">Requests for Information</h3>
-                  <Button>
-                    <Plus className="w-4 h-4 mr-2" />
-                    New RFI
-                  </Button>
-                </div>
-                <QAQCTable data={rfis || []} type="rfis" isLoading={rfisLoading} onNavigate={onNavigate} />
               </TabsContent>
 
               <TabsContent value="issues" className="space-y-4">
