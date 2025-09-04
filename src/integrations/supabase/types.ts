@@ -3211,6 +3211,8 @@ export type Database = {
       }
       projects: {
         Row: {
+          banner_image: string | null
+          banner_position: Json | null
           bim_model_url: string | null
           company_id: string
           contract_price: string | null
@@ -3234,6 +3236,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          banner_image?: string | null
+          banner_position?: Json | null
           bim_model_url?: string | null
           company_id: string
           contract_price?: string | null
@@ -3257,6 +3261,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          banner_image?: string | null
+          banner_position?: Json | null
           bim_model_url?: string | null
           company_id?: string
           contract_price?: string | null
