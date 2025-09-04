@@ -312,39 +312,15 @@ const moduleConfig = {
     table: 'projects',
     category: 'project'
   },
-  'digital-twin': {
-    icon: MapPin,
-    color: 'bg-cyan-500',
-    title: 'Digital Twin',
-    subtitle: '3D Models & Mapping',
-    table: 'model_3d',
-    category: 'project'
-  },
-  tasks: {
-    icon: CheckSquare,
-    color: 'bg-pink-500',
-    title: 'Tasks',
-    subtitle: 'Task Management',
-    table: 'activities',
-    category: 'project'
-  },
-  files: {
-    icon: FolderOpen,
-    color: 'bg-yellow-500',
-    title: 'Files',
-    subtitle: 'Document Management',
-    table: 'portfolio_items',
-    category: 'project'
-  },
-  'digital-objects': {
-    icon: Database,
-    color: 'bg-teal-500',
-    title: 'Digital Objects',
-    subtitle: 'Object Management',
-    table: 'digital_objects',
-    category: 'project'
-  }
-};
+    'files': {
+      icon: FolderOpen,
+      color: 'bg-yellow-500',
+      title: 'Files',
+      subtitle: 'Document Management',
+      table: 'portfolio_items',
+      category: 'project'
+    }
+  };
 const nodeTypes: NodeTypes = {
   moduleNode: ModuleNode,
   companyCenter: CompanyCenterNode
@@ -895,7 +871,7 @@ export const BusinessMapPage = ({
     enabledModules.forEach(m => moduleMap.set(m.module_name, m.id));
 
     // Business workflow connections with shortest distance
-    const connections = [['sales', 'projects'], ['projects', 'tasks'], ['projects', 'finance'], ['tasks', 'team'], ['files', 'projects'], ['digital-twin', 'projects'], ['cost-contracts', 'finance']];
+    const connections = [['sales', 'projects'], ['projects', 'tasks'], ['projects', 'finance'], ['tasks', 'team'], ['files', 'projects'], ['cost-contracts', 'finance']];
     connections.forEach(([source, target]) => {
       const sourceId = moduleMap.get(source);
       const targetId = moduleMap.get(target);

@@ -24,13 +24,13 @@ export const getDefaultPermissions = (roleLevel: number): string[] => {
         'finance',
         'sales',
         'dashboard',
-        'digital-twin',
+        
         'cost-contracts',
         'schedule',
         'tasks',
         'files',
         'team',
-        'digital-objects',
+        
       ];
     default:
       return [];

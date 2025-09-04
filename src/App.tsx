@@ -45,7 +45,7 @@ import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
 import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
 import { InvoiceFormPage } from "./components/invoices/InvoiceFormPage";
-import { DigitalObjectsProvider } from "@/contexts/DigitalObjectsContext";
+
 import { MenuBar } from "./components/MenuBar";
 import PDFExtractionDocs from "./pages/PDFExtractionDocs";
 
@@ -339,9 +339,7 @@ const AppContent = () => {
         } />
         <Route path="/invoices" element={<InvoicesPageWrapper />} />
         <Route path="/invoice-details/:invoiceId" element={
-          <DigitalObjectsProvider>
-            <InvoiceDetailsPage />
-          </DigitalObjectsProvider>
+          <InvoiceDetailsPage />
         } />
         <Route path="/invoice/create" element={<InvoiceFormPage />} />
         

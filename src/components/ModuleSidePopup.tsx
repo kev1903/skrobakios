@@ -76,9 +76,6 @@ export const ModuleSidePopup = ({ isOpen, onClose, moduleData, onNavigate }: Mod
         case 'portfolio_items':
           query = supabase.from('portfolio_items').select('*').eq('owner_id', currentCompany.id).eq('owner_type', 'company');
           break;
-        case 'digital_objects':
-          query = supabase.from('digital_objects').select('*').eq('company_id', currentCompany.id);
-          break;
         default:
           setItems([]);
           return;

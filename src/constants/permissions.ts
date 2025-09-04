@@ -18,13 +18,13 @@ export const defaultPermissions: Permission[] = [
   { id: 'finance', name: 'Finance Module', description: 'Access and manage the finance module', category: 'Company Permissions' },
   { id: 'sales', name: 'Sales Module', description: 'Access and manage the sales module', category: 'Company Permissions' },
   { id: 'dashboard', name: 'Dashboard Module', description: 'Access and manage the dashboard module', category: 'Company Permissions' },
-  { id: 'digital-twin', name: 'Digital Twin Module', description: 'Access and manage the digital-twin module', category: 'Company Permissions' },
+  
   { id: 'cost-contracts', name: 'Cost Contracts Module', description: 'Access and manage the cost-contracts module', category: 'Company Permissions' },
   { id: 'schedule', name: 'Schedule Module', description: 'Access and manage the schedule module', category: 'Company Permissions' },
   { id: 'tasks', name: 'Tasks Module', description: 'Access and manage the tasks module', category: 'Company Permissions' },
   { id: 'files', name: 'Files Module', description: 'Access and manage the files module', category: 'Company Permissions' },
   { id: 'team', name: 'Team Module', description: 'Access and manage the team module', category: 'Company Permissions' },
-  { id: 'digital-objects', name: 'Digital Objects Module', description: 'Access and manage the digital-objects module', category: 'Company Permissions' },
+  
 ];
 
 export const defaultRoles: Role[] = [

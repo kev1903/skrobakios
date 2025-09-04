@@ -203,13 +203,6 @@ export const ContentRenderer = ({
           <SK25008Dashboard projectId={projectId} />
         </SubscriptionProtectedRoute>
       );
-    case "project-digital-twin":
-      return currentProject ? (
-        <SubscriptionProtectedRoute requiredFeature="advanced_projects" onNavigate={onNavigate}>
-          <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={currentProject} />
-        </SubscriptionProtectedRoute>
-      ) : renderProjectNotFound();
-    case "project-wbs":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <WBSPage project={currentProject} onNavigate={onNavigate} />

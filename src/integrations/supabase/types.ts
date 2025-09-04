@@ -1344,76 +1344,6 @@ export type Database = {
           },
         ]
       }
-      digital_objects: {
-        Row: {
-          company_id: string
-          created_at: string
-          description: string | null
-          expanded: boolean | null
-          id: string
-          level: number
-          name: string
-          object_type: string
-          parent_id: string | null
-          project_id: string | null
-          stage: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          company_id: string
-          created_at?: string
-          description?: string | null
-          expanded?: boolean | null
-          id?: string
-          level?: number
-          name: string
-          object_type: string
-          parent_id?: string | null
-          project_id?: string | null
-          stage?: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string
-          created_at?: string
-          description?: string | null
-          expanded?: boolean | null
-          id?: string
-          level?: number
-          name?: string
-          object_type?: string
-          parent_id?: string | null
-          project_id?: string | null
-          stage?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "digital_objects_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "digital_objects_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "digital_objects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "digital_objects_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       estimate_drawings: {
         Row: {
           created_by: string | null
@@ -3219,7 +3149,6 @@ export type Database = {
           created_at: string
           deadline: string | null
           description: string | null
-          digital_twin_events: Json | null
           geocoded_at: string | null
           id: string
           iot_status: Json | null
@@ -3244,7 +3173,6 @@ export type Database = {
           created_at?: string
           deadline?: string | null
           description?: string | null
-          digital_twin_events?: Json | null
           geocoded_at?: string | null
           id?: string
           iot_status?: Json | null
@@ -3269,7 +3197,6 @@ export type Database = {
           created_at?: string
           deadline?: string | null
           description?: string | null
-          digital_twin_events?: Json | null
           geocoded_at?: string | null
           id?: string
           iot_status?: Json | null

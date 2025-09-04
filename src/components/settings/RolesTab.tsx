@@ -68,8 +68,6 @@ export const RolesTab = () => {
         { id: 'schedule', name: 'Schedule', description: 'View project schedule', enabled: false },
         { id: 'cost', name: 'Cost & Contracts', description: 'No cost access', enabled: false },
         { id: 'team', name: 'Team', description: 'View team members', enabled: false },
-        { id: 'digital-twin', name: 'Digital Twin', description: 'Limited digital twin access', enabled: false },
-        { id: 'digital-objects', name: 'Digital Objects', description: 'View digital objects', enabled: false },
       ]
     },
     {

@@ -34,14 +34,6 @@ interface Project {
   description: string | null;
 }
 
-interface DigitalObject {
-  id: string;
-  name: string;
-  object_type: string;
-  stage: string;
-  level: number;
-}
-
 interface XeroAccount {
   id: string;
   name: string;
@@ -53,7 +45,6 @@ interface InvoiceAllocation {
   id: string;
   account_id: string | null;
   project_id: string | null;
-  digital_object_id: string | null;
   allocated_amount: number | null;
   notes: string | null;
   created_at: string;
@@ -70,12 +61,10 @@ export const InvoiceDetailsPage = () => {
   const [accounts, setAccounts] = useState<XeroAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [existingAllocation, setExistingAllocation] = useState<InvoiceAllocation | null>(null);
-  const [projectDigitalObjects, setProjectDigitalObjects] = useState<DigitalObject[]>([]);
   
   // Allocation states
   const [selectedAccount, setSelectedAccount] = useState<string>("");
   const [selectedProject, setSelectedProject] = useState<string>("");
-  const [selectedDigitalObject, setSelectedDigitalObject] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
   const [isSaving, setIsSaving] = useState(false);
 
@@ -87,12 +76,6 @@ export const InvoiceDetailsPage = () => {
       fetchExistingAllocation();
     }
   }, [invoiceId]);
-
-  useEffect(() => {
-    if (selectedProject) {
-      setSelectedDigitalObject(""); // Reset selection when project changes
-    }
-  }, [selectedProject]);
 
   const fetchInvoiceData = async () => {
     try {
@@ -128,28 +111,6 @@ export const InvoiceDetailsPage = () => {
     }
   };
 
-  // Load digital objects for selected or existing allocation project
-  useEffect(() => {
-    const targetProjectId = selectedProject || existingAllocation?.project_id || "";
-    if (!targetProjectId) {
-      setProjectDigitalObjects([]);
-      return;
-    }
-    const load = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('digital_objects')
-          .select('*')
-          .eq('project_id', targetProjectId)
-          .order('created_at', { ascending: true });
-        if (error) throw error;
-        setProjectDigitalObjects((data as unknown as DigitalObject[]) || []);
-      } catch (err) {
-        console.error('Error fetching digital objects:', err);
-      }
-    };
-    load();
-  }, [selectedProject, existingAllocation?.project_id]);
 
   const fetchAccounts = async () => {
     try {
@@ -189,7 +150,6 @@ export const InvoiceDetailsPage = () => {
         // Pre-populate form with existing allocation data
         setSelectedAccount(data.account_id || "");
         setSelectedProject(data.project_id || "");
-        setSelectedDigitalObject(data.digital_object_id || "");
         setNotes(data.notes || "");
       }
     } catch (error) {
@@ -231,7 +191,6 @@ export const InvoiceDetailsPage = () => {
         invoice_id: invoiceId,
         account_id: selectedAccount,
         project_id: selectedProject || null,
-        digital_object_id: selectedDigitalObject || null,
         allocated_amount: invoice?.total || null,
         notes: notes || null,
         user_id: user.id
@@ -411,15 +370,6 @@ export const InvoiceDetailsPage = () => {
                   </p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-green-700">Digital Object</Label>
-                  <p className="text-sm text-green-800">
-                    {existingAllocation.digital_object_id 
-                      ? projectDigitalObjects.find(o => o.id === existingAllocation.digital_object_id)?.name || 'Unknown Object'
-                      : 'Not allocated'
-                    }
-                  </p>
-                </div>
-                <div>
                   <Label className="text-sm font-medium text-green-700">Allocated Amount</Label>
                   <p className="text-sm text-green-800 font-medium">
                     {formatCurrency(existingAllocation.allocated_amount, invoice?.currency_code)}
@@ -566,33 +516,6 @@ export const InvoiceDetailsPage = () => {
               </Select>
             </div>
 
-            {/* Digital Object Selection */}
-            {selectedProject && (
-              <div className="space-y-2">
-                <Label htmlFor="digital-object-select">Digital Object (Optional)</Label>
-                <Select value={selectedDigitalObject} onValueChange={setSelectedDigitalObject}>
-                  <SelectTrigger id="digital-object-select">
-                    <SelectValue placeholder="Select a digital object" />
-                  </SelectTrigger>
-                  <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
-                    {projectDigitalObjects.map((object) => (
-                      <SelectItem key={object.id} value={object.id}>
-                        <div>
-                          <p className="font-medium">{object.name}</p>
-                          <p className="text-xs text-gray-500">
-                            {object.object_type} • {object.stage}
-                          </p>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {projectDigitalObjects.length === 0 && (
-                  <p className="text-xs text-gray-500">No digital objects found in selected project.</p>
-                )}
-              </div>
-            )}
-
             {/* Notes Section */}
             <div className="space-y-2">
               <Label htmlFor="notes">Notes (Optional)</Label>
@@ -606,7 +529,7 @@ export const InvoiceDetailsPage = () => {
             </div>
 
             {/* Allocation Summary */}
-            {(selectedAccount || selectedProject || selectedDigitalObject) && (
+            {(selectedAccount || selectedProject) && (
               <div className="bg-blue-50 p-4 rounded-lg">
                 <h4 className="text-sm font-medium text-blue-900 mb-2">Allocation Summary</h4>
                 <div className="space-y-1 text-sm text-blue-800">
@@ -615,9 +538,6 @@ export const InvoiceDetailsPage = () => {
                   )}
                   {selectedProject && (
                     <p>• Project: {projects.find(p => p.id === selectedProject)?.name}</p>
-                  )}
-                  {selectedDigitalObject && (
-                    <p>• Digital Object: {projectDigitalObjects.find(o => o.id === selectedDigitalObject)?.name}</p>
                   )}
                 </div>
               </div>

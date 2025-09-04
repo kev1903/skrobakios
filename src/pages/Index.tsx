@@ -6,7 +6,7 @@ import { ServicesPage } from "@/components/pages/ServicesPage";
 import { ProjectsPage } from "@/components/pages/ProjectsPage";
 import { AboutPage } from "@/components/pages/AboutPage";
 import { ContactPage } from "@/components/pages/ContactPage";
-import { DigitalObjectsProvider } from "@/contexts/DigitalObjectsContext";
+
 import { TaskProvider } from "@/components/tasks/TaskContext";
 import { MobileHeader } from "@/components/MobileHeader";
 import { ContentRenderer } from "@/components/layout/ContentRenderer";
@@ -140,8 +140,7 @@ const Index = () => {
   }
 
   return (
-    <DigitalObjectsProvider>
-      <TaskProvider>
+    <TaskProvider>
         {currentPage === "sales" || currentPage === "auth" ? (
           // Sales CRM and Auth take full screen - no main layout wrapper
           <div className="flex h-screen min-h-0 overflow-hidden">
@@ -218,7 +217,6 @@ const Index = () => {
           </div>
         )}
       </TaskProvider>
-    </DigitalObjectsProvider>
   );
 };
 
