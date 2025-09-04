@@ -3975,6 +3975,39 @@ export type Database = {
         }
         Relationships: []
       }
+      security_rate_limits_enhanced: {
+        Row: {
+          action_type: string
+          attempt_count: number
+          blocked_until: string | null
+          created_at: string
+          id: string
+          identifier: string
+          updated_at: string
+          window_start: string
+        }
+        Insert: {
+          action_type: string
+          attempt_count?: number
+          blocked_until?: string | null
+          created_at?: string
+          id?: string
+          identifier: string
+          updated_at?: string
+          window_start?: string
+        }
+        Update: {
+          action_type?: string
+          attempt_count?: number
+          blocked_until?: string | null
+          created_at?: string
+          id?: string
+          identifier?: string
+          updated_at?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       service_categories: {
         Row: {
           created_at: string
@@ -6295,6 +6328,10 @@ export type Database = {
           stakeholder_id: string
           title: string
         }[]
+      }
+      get_user_birth_date_secure: {
+        Args: { target_user_id: string }
+        Returns: string
       }
       get_user_companies: {
         Args: { target_user_id?: string }
