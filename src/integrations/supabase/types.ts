@@ -6313,6 +6313,14 @@ export type Database = {
           years_experience: number
         }[]
       }
+      get_security_config: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_security_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_security_overview: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -6515,6 +6523,10 @@ export type Database = {
       migrate_linked_tasks_to_predecessors: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      sanitize_user_input: {
+        Args: { input_text: string }
+        Returns: string
       }
       set_active_context: {
         Args: { p_context_id?: string; p_context_type: string }
