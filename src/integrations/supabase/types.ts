@@ -6019,6 +6019,16 @@ export type Database = {
         Args: { operation_type?: string }
         Returns: boolean
       }
+      check_rate_limit: {
+        Args: {
+          action_type_param: string
+          block_minutes_param?: number
+          identifier_param: string
+          max_attempts_param?: number
+          window_minutes_param?: number
+        }
+        Returns: Json
+      }
       check_security_rate_limit: {
         Args: {
           action_type_param: string
@@ -6459,6 +6469,15 @@ export type Database = {
       is_superadmin: {
         Args: { target_user_id?: string }
         Returns: boolean
+      }
+      log_security_event: {
+        Args: {
+          event_type_param: string
+          metadata_param?: Json
+          severity_param?: string
+          user_id_param?: string
+        }
+        Returns: string
       }
       log_user_action: {
         Args: {
