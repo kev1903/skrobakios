@@ -23,7 +23,7 @@ interface ModernTimelineViewProps {
 
 export const ModernTimelineView = ({ projectId, projectName, companyId }: ModernTimelineViewProps) => {
   // Fixed: Removed dateRange functionality completely
-  const [viewMode, setViewMode] = useState<'list' | 'gantt'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'gantt'>('gantt');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
