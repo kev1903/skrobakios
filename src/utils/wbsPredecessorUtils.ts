@@ -78,8 +78,9 @@ export const autoScheduleWBSTask = (
   const currentStart = task.start_date ? parseISO(task.start_date) : null;
   const duration = task.duration || 1;
 
-  // Only reschedule if the earliest start is later than current start
-  if (!currentStart || isAfter(earliestStart, currentStart)) {
+  // Always reschedule if there are predecessors to ensure proper sequencing
+  // or if the earliest start differs from current start
+  if (!currentStart || earliestStart.getTime() !== currentStart.getTime()) {
     const newStartDate = earliestStart.toISOString().split('T')[0];
     const newEndDate = addDays(earliestStart, duration - 1).toISOString().split('T')[0];
 
