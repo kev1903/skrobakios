@@ -60,9 +60,9 @@ export const PredecessorCell = ({
 
   const selectedIds = selectedPredecessors.map(p => p.id);
   
-  // Filter out the current item and already selected items
+  // Filter out the current item, already selected items, and show only elements (level 2)
   const filteredItems = availableItems.filter(item => 
-    item.id !== id && !selectedIds.includes(item.id)
+    item.id !== id && !selectedIds.includes(item.id) && item.level === 2
   );
 
   const selectedItems = availableItems.filter(item => 
