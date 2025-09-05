@@ -339,11 +339,11 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                           {/* Main summary line */}
                           <div className="h-full bg-gray-600 rounded-full" />
                           
-                          {/* Start diamond */}
-                          <div className="absolute left-0 top-1/2 w-3 h-3 transform -translate-y-1/2 -translate-x-1/2 rotate-45 bg-gray-600 border-white border-2" />
+                          {/* Start dot */}
+                          <div className="absolute left-0 top-1/2 w-2 h-2 transform -translate-y-1/2 -translate-x-1/2 rounded-full bg-gray-600 border-white border" />
                           
-                          {/* End diamond */}
-                          <div className="absolute right-0 top-1/2 w-3 h-3 transform -translate-y-1/2 translate-x-1/2 rotate-45 bg-gray-600 border-white border-2" />
+                          {/* End dot */}
+                          <div className="absolute right-0 top-1/2 w-2 h-2 transform -translate-y-1/2 translate-x-1/2 rounded-full bg-gray-600 border-white border" />
                         </div>
 
                         {/* Enhanced tooltip for Component */}
