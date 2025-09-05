@@ -46,20 +46,20 @@ export const calculateWBSDependencyDate = (
   let constraintDate: Date;
 
   switch (dependencyType) {
-    case 'FS': // Finish-to-Start
-      constraintDate = predecessorEnd;
+    case 'FS': // Finish-to-Start: dependent starts the day after predecessor finishes
+      constraintDate = addDays(predecessorEnd, 1);
       break;
-    case 'SS': // Start-to-Start
+    case 'SS': // Start-to-Start: dependent starts when predecessor starts
       constraintDate = predecessorStart;
       break;
-    case 'FF': // Finish-to-Finish
+    case 'FF': // Finish-to-Finish: dependent finishes when predecessor finishes
       constraintDate = predecessorEnd;
       break;
-    case 'SF': // Start-to-Finish
+    case 'SF': // Start-to-Finish: dependent finishes when predecessor starts
       constraintDate = predecessorStart;
       break;
     default:
-      constraintDate = predecessorEnd;
+      constraintDate = addDays(predecessorEnd, 1); // Default to FS behavior
   }
 
   return addDays(constraintDate, lag);
