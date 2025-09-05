@@ -65,7 +65,7 @@ export const WBSRightPanel = ({
                 : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
             } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
             style={{
-              gridTemplateColumns: 'minmax(200px, 1fr) 140px 120px 160px 160px 84px',
+              gridTemplateColumns: 'minmax(200px, 1fr) 140px 120px 160px 40px 84px',
             }}
             onMouseEnter={() => onRowHover?.(item.id)}
             onMouseLeave={() => onRowHover?.(null)}
@@ -118,7 +118,7 @@ export const WBSRightPanel = ({
               />
             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center justify-center">
+            <div className="px-1 h-[1.75rem] flex items-center justify-center">
               <Button
                 variant="ghost"
                 size="sm"
@@ -126,7 +126,11 @@ export const WBSRightPanel = ({
                 onClick={() => onOpenNotesDialog(item)}
                 title={item.description ? "View/Edit note" : "Add note"}
               >
-                <NotebookPen className="w-4 h-4 text-muted-foreground hover:text-foreground transition-colors" />
+                <NotebookPen className={`w-4 h-4 transition-colors ${
+                  item.description && item.description.trim() 
+                    ? 'text-blue-600 hover:text-blue-700' 
+                    : 'text-muted-foreground hover:text-foreground'
+                }`} />
               </Button>
             </div>
 
