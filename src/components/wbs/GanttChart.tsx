@@ -334,7 +334,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                         }}
                         title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
                       >
-                        {/* Summary line with diamond endpoints */}
+                        {/* Summary line with dot endpoints */}
                         <div className="relative h-full">
                           {/* Main summary line */}
                           <div className="h-full bg-gray-600 rounded-full" />
@@ -344,6 +344,13 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                           
                           {/* End dot */}
                           <div className="absolute right-0 top-1/2 w-2 h-2 transform -translate-y-1/2 translate-x-1/2 rounded-full bg-gray-600 border-white border" />
+                          
+                          {/* Component name in the middle */}
+                          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                                         bg-white px-2 py-0.5 rounded text-xs font-medium text-gray-700 
+                                         border border-gray-300 shadow-sm whitespace-nowrap">
+                            {item.name}
+                          </div>
                         </div>
 
                         {/* Enhanced tooltip for Component */}
