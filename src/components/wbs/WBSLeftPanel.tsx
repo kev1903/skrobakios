@@ -1,5 +1,6 @@
 import React from 'react';
-import { ChevronRight, ChevronDown, GripVertical } from 'lucide-react';
+import { ChevronRight, ChevronDown, GripVertical, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { createPortal } from 'react-dom';
 
@@ -17,6 +18,7 @@ interface WBSLeftPanelProps {
   onToggleExpanded: (itemId: string) => void;
   onDragEnd: (result: DropResult) => void;
   onItemEdit: (itemId: string, field: string, value: string) => void;
+  onAddChild?: (parentId: string) => void;
   dragIndicator: any;
   EditableCell: any;
   generateWBSNumber: (phaseIndex: number, componentIndex?: number, elementIndex?: number) => string;
@@ -39,6 +41,7 @@ export const WBSLeftPanel = ({
   onToggleExpanded,
   onDragEnd,
   onItemEdit,
+  onAddChild,
   dragIndicator,
   EditableCell,
   generateWBSNumber,
@@ -77,7 +80,7 @@ export const WBSLeftPanel = ({
                   snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
                 } ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
                               style={{
-                                gridTemplateColumns: '32px 120px 1fr',
+                                gridTemplateColumns: '32px 120px 1fr 40px',
                                 ...dragProvided.draggableProps.style,
                               }}
                               onClick={() => item.hasChildren && onToggleExpanded(item.id)}
@@ -140,6 +143,25 @@ export const WBSLeftPanel = ({
                                   placeholder={item.level === 2 ? "Untitled Element" : "Untitled"}
                                   className={item.level === 0 ? "font-black text-base text-gray-800 tracking-wide" : item.level === 1 ? "font-bold text-sm text-gray-700" : "font-medium text-xs text-muted-foreground"}
                                 />
+                              </div>
+                              
+                              {/* Add Child Button */}
+                              <div className="px-2 h-[1.75rem] flex items-center">
+                                {item.level < 2 && onAddChild && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      onAddChild(item.id);
+                                    }}
+                                    className="h-6 w-6 p-0 hover:bg-primary/10"
+                                    title={item.level === 0 ? "Add Component" : "Add Element"}
+                                  >
+                                    <Plus className="w-3 h-3" />
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           </DragPortalWrapper>

@@ -645,6 +645,21 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     setEditValue(currentValue);
   };
 
+  // Generic function to add child items
+  const addChildItem = async (parentId: string) => {
+    const parentItem = findWBSItem(parentId);
+    if (!parentItem) return;
+    
+    // Determine child type based on parent level
+    if (parentItem.level === 0) {
+      // Parent is phase, add component
+      await addNewComponent(parentId);
+    } else if (parentItem.level === 1) {
+      // Parent is component, add element
+      await addNewElement(parentId);
+    }
+  };
+
   const addNewComponent = async (phaseId: string) => {
     try {
       console.log('🔧 Starting addNewComponent for phase:', phaseId);
@@ -1181,6 +1196,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         }}
                         onDragEnd={onDragEnd}
                         onItemUpdate={updateWBSItem}
+                        onAddChild={addChildItem}
                         onContextMenuAction={handleContextMenuAction}
                         onOpenNotesDialog={openNotesDialog}
                         dragIndicator={dragIndicator}

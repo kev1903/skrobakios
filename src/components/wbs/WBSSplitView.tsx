@@ -21,6 +21,7 @@ interface WBSSplitViewProps {
   onToggleExpanded: (itemId: string) => void;
   onDragEnd: (result: DropResult) => void;
   onItemUpdate: (itemId: string, updates: any) => void;
+  onAddChild?: (parentId: string) => void;
   onContextMenuAction: (action: string, itemId: string, type: string) => void;
   onOpenNotesDialog: (item: any) => void;
   dragIndicator: any;
@@ -37,6 +38,7 @@ export const WBSSplitView = ({
   onToggleExpanded,
   onDragEnd,
   onItemUpdate,
+  onAddChild,
   onContextMenuAction,
   onOpenNotesDialog,
   dragIndicator,
@@ -65,19 +67,20 @@ export const WBSSplitView = ({
 
   return (
     <div className="flex h-full w-full bg-white overflow-hidden">
-      <WBSLeftPanel
-        items={items}
-        onToggleExpanded={onToggleExpanded}
-        onDragEnd={onDragEnd}
-        onItemEdit={onItemUpdate}
-        dragIndicator={dragIndicator}
-        EditableCell={EditableCell}
-        generateWBSNumber={generateWBSNumber}
-        scrollRef={leftScrollRef}
-        onScroll={handleLeftScroll}
-        hoveredId={hoveredId}
-        onRowHover={setHoveredId}
-      />
+        <WBSLeftPanel
+          items={items}
+          onToggleExpanded={onToggleExpanded}
+          onDragEnd={onDragEnd}
+          onItemEdit={onItemUpdate}
+          onAddChild={onAddChild}
+          dragIndicator={dragIndicator}
+          EditableCell={EditableCell}
+          generateWBSNumber={generateWBSNumber}
+          scrollRef={leftScrollRef}
+          onScroll={handleLeftScroll}
+          hoveredId={hoveredId}
+          onRowHover={setHoveredId}
+        />
       
       <WBSRightPanel
         items={items}
