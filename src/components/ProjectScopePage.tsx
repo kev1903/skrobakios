@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal, ChevronsDown, ChevronsUp, NotebookPen, Clock, DollarSign } from 'lucide-react';
+import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal, ChevronsDown, ChevronsUp, NotebookPen, Clock, DollarSign, Settings } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -1119,6 +1119,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     </Button>
                     <Button variant="outline" size="sm" onClick={expandAll} title="Expand All">
                       <ChevronsDown className="w-4 h-4" />
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => {}} title="Baseline">
+                      <span className="text-xs font-medium">Baseline</span>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => {}} title="Critical Path">
+                      <span className="text-xs font-medium">Critical Path</span>
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => {}} title="Settings">
+                      <Settings className="w-4 h-4" />
                     </Button>
                     <Button size="sm" onClick={() => addNewPhase()}>
                       <Plus className="w-3 h-3 mr-1" />
