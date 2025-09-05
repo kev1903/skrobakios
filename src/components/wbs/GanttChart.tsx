@@ -255,7 +255,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                   return (
                     <div
                       key={day.toISOString()}
-                      className={`absolute top-0 bottom-0 border-r transition-all duration-200 ${
+                      className={`absolute top-0 bottom-0 border-r transition-all duration-200 z-0 ${
                         isWeekend ? 'border-gray-200 bg-gray-50/30' : 'border-gray-100'
                       }`}
                       style={{ 
@@ -269,7 +269,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                 {/* Modern, sleek task bar */}
                 {position && (
                   <div
-                    className="absolute cursor-pointer group"
+                    className="absolute cursor-pointer group z-20"
                     style={{
                       left: position.left + 4,
                       top: 2,
@@ -321,7 +321,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
 
                     {/* Enhanced tooltip */}
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 
-                                  transition-all duration-300 pointer-events-none z-20">
+                                  transition-all duration-300 pointer-events-none z-30">
                       <div className="bg-white border border-gray-200 rounded-lg py-3 px-4 shadow-lg">
                         <div className="font-semibold text-gray-800 text-sm">{getWbs(item)} - {item.name}</div>
                         <div className="text-gray-600 text-xs mt-1">
