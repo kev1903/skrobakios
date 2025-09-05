@@ -114,20 +114,25 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
   };
 
   const getLevelColor = (level: number) => {
+    // Clean, professional bars: white fill with subtle hierarchy-colored borders
     switch (level) {
-      case 0: return 'border-blue-800/80 bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 shadow-md'; // Phase - matches table
-      case 1: return 'border-blue-400/80 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 shadow-sm'; // Component - matches table
-      case 2: return 'border-slate-300/60 bg-gradient-to-r from-white to-slate-50'; // Element - matches table
-      default: return 'border-slate-300/40 bg-gradient-to-r from-white to-slate-50';
+      case 0:
+        return 'border-blue-500 bg-white'; // Stage
+      case 1:
+        return 'border-blue-400 bg-white'; // Component
+      case 2:
+        return 'border-slate-300 bg-white'; // Element
+      default:
+        return 'border-slate-200 bg-white';
     }
   };
 
   const getLevelFontStyle = (level: number) => {
     switch (level) {
-      case 0: return 'font-black text-blue-900 tracking-wide'; // Phase - matches table
-      case 1: return 'font-bold text-blue-600'; // Component - matches table
-      case 2: return 'font-medium text-foreground'; // Element - matches table
-      default: return 'font-medium text-muted-foreground';
+      case 0: return 'font-semibold text-blue-600'; // Stage
+      case 1: return 'font-medium text-blue-600'; // Component
+      case 2: return 'font-medium text-slate-700'; // Element
+      default: return 'font-medium text-slate-600';
     }
   };
 
@@ -236,9 +241,9 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
             return (
               <div
                 key={item.id}
-                className={`relative border-b border-border/5 transition-all duration-200 ${
-                  isEven ? 'bg-white' : 'bg-muted/5'
-                } ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : 'hover:bg-muted/10'}`}
+                className={`relative border-b border-border/5 transition-colors duration-150 ${
+                  isEven ? 'bg-white' : 'bg-slate-50/50'
+                } ${hoveredId === item.id ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
                 style={{ height: rowHeight }}
                 onMouseEnter={() => onRowHover?.(item.id)}
                 onMouseLeave={() => onRowHover?.(null)}
