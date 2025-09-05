@@ -1,12 +1,11 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Edit2, Copy, Trash2, NotebookPen } from 'lucide-react';
+import { MoreHorizontal, Trash2, NotebookPen } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
 interface WBSItem {
@@ -142,15 +141,6 @@ export const WBSRightPanel = ({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuItem onClick={() => onContextMenuAction('edit', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}>
-                    <Edit2 className="w-3 h-3 mr-2" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onContextMenuAction('duplicate', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}>
-                    <Copy className="w-3 h-3 mr-2" />
-                    Duplicate
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')} className="text-destructive focus:text-destructive">
                     <Trash2 className="w-3 h-3 mr-2" />
                     Delete
