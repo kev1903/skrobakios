@@ -89,20 +89,8 @@ export const WBSTimeView = ({
     }
   }, []);
 
-  // Compute fallback WBS numbers for table if missing
-  const computedWbsMap = React.useMemo(() => {
-    const counters: number[] = [];
-    const map = new Map<string, string>();
-    items.forEach((it) => {
-      const level = Math.max(0, it.level || 0);
-      while (counters.length <= level) counters.push(0);
-      if (level < counters.length - 1) counters.splice(level + 1);
-      counters[level]++;
-      const num = counters.slice(0, level + 1).join('.');
-      map.set(it.id, num);
-    });
-    return map;
-  }, [items]);
+  // Use actual WBS IDs from database - no fallback computation needed
+  // All WBS items should have proper wbs_id values from the database
 
   return (
     <div className="h-full w-full bg-white flex flex-col">
@@ -159,7 +147,7 @@ export const WBSTimeView = ({
                 items={items.map(item => ({
                   ...item,
                   name: item.title,
-                  wbsNumber: item.wbs_id || computedWbsMap.get(item.id) || '',
+                  wbsNumber: item.wbs_id || '', // Use actual WBS ID from database
                   status: item.status || 'Not Started'
                 }))}
                 onToggleExpanded={onToggleExpanded}
@@ -269,7 +257,7 @@ export const WBSTimeView = ({
                 items={items.map(item => ({
                   ...item,
                   name: item.title,
-                  wbsNumber: item.wbs_id,
+                  wbsNumber: item.wbs_id || '', // Use actual WBS ID from database
                   status: item.status || 'Not Started',
                   predecessors: item.predecessors?.map(p => ({
                     predecessorId: p.id,
