@@ -58,6 +58,8 @@ export const PredecessorCell = ({
     lag: 0
   });
 
+  // Only allow predecessors for elements
+  const isElement = type === 'element';
   const selectedIds = selectedPredecessors.map(p => p.id);
   
   // Filter out the current item, already selected items, and show only elements (level 2)
@@ -107,6 +109,9 @@ export const PredecessorCell = ({
   };
 
   const getDisplayText = () => {
+    if (!isElement) {
+      return "-"; // Show dash for non-elements
+    }
     if (selectedPredecessors.length === 0) {
       return "None";
     }
@@ -117,6 +122,20 @@ export const PredecessorCell = ({
     }
     return `${selectedPredecessors.length} dependencies`;
   };
+
+  // If not an element, show read-only display
+  if (!isElement) {
+    return (
+      <div className="w-full h-full flex items-center">
+        <div className={cn(
+          "w-full text-left p-1 h-auto text-muted-foreground/50",
+          className
+        )}>
+          <span className="text-xs">-</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full flex items-center">
