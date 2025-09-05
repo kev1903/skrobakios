@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Check, ChevronsUpDown, X, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,10 +19,10 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { WBSPredecessor, DependencyType } from '@/types/wbs';
-import { getDependencyTypeLabel } from '@/utils/wbsPredecessorUtils';
+import { WBSPredecessor, DependencyType, WBSItem } from '@/types/wbs';
+import { getDependencyTypeLabel, validateWBSTaskSchedule } from '@/utils/wbsPredecessorUtils';
 
-interface WBSItem {
+interface AvailableWBSItem {
   id: string;
   name: string;
   wbsNumber: string;
@@ -33,7 +33,8 @@ interface PredecessorCellProps {
   id: string;
   type: 'phase' | 'component' | 'element';
   value?: WBSPredecessor[]; // Array of structured predecessors
-  availableItems: WBSItem[];
+  availableItems: AvailableWBSItem[];
+  allItems?: WBSItem[]; // Full WBS items for validation
   className?: string;
   onUpdate?: (id: string, field: string, value: WBSPredecessor[]) => void;
 }
@@ -43,11 +44,13 @@ export const PredecessorCell = ({
   type,
   value = [],
   availableItems,
+  allItems = [],
   className = "",
   onUpdate
 }: PredecessorCellProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPredecessors, setSelectedPredecessors] = useState<WBSPredecessor[]>(value);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [newPredecessor, setNewPredecessor] = useState<{
     id: string;
     type: DependencyType;
@@ -61,6 +64,17 @@ export const PredecessorCell = ({
   // Only allow predecessors for elements
   const isElement = type === 'element';
   const selectedIds = selectedPredecessors.map(p => p.id);
+
+  // Validate schedule when predecessors change
+  useEffect(() => {
+    if (isElement && allItems.length > 0) {
+      const currentTask = allItems.find(t => t.id === id);
+      if (currentTask) {
+        const validation = validateWBSTaskSchedule(currentTask, allItems);
+        setValidationErrors(validation.violations);
+      }
+    }
+  }, [selectedPredecessors, allItems, id, isElement]);
   
   // Filter out the current item, already selected items, and show only elements (level 2)
   const filteredItems = availableItems.filter(item => 
@@ -148,16 +162,28 @@ export const PredecessorCell = ({
             className={cn(
               "w-full justify-between text-left font-normal p-1 h-auto",
               selectedItems.length === 0 && "text-muted-foreground",
+              validationErrors.length > 0 && "text-destructive border border-destructive/20",
               className
             )}
           >
             <div className="flex items-center gap-1 text-xs flex-1">
+              {validationErrors.length > 0 && (
+                <AlertTriangle className="h-3 w-3 text-destructive" />
+              )}
               <span className="truncate">{getDisplayText()}</span>
             </div>
             <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-80 p-0" align="start">
+          {validationErrors.length > 0 && (
+            <div className="p-3 border-b bg-destructive/5">
+              <div className="text-xs font-medium text-destructive mb-1">Schedule Conflicts:</div>
+              {validationErrors.map((error, index) => (
+                <div key={index} className="text-xs text-destructive/80">{error}</div>
+              ))}
+            </div>
+          )}
           <div className="p-3 border-b">
             <h4 className="text-sm font-medium mb-2">Add Dependency</h4>
             <div className="space-y-2">
