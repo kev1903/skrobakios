@@ -1114,13 +1114,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={collapseAll}>
-                      <ChevronsUp className="w-3 h-3 mr-1" />
-                      Collapse All
+                    <Button variant="outline" size="sm" onClick={collapseAll} title="Collapse All">
+                      <ChevronsUp className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="sm" onClick={expandAll}>
-                      <ChevronsDown className="w-3 h-3 mr-1" />
-                      Expand All
+                    <Button variant="outline" size="sm" onClick={expandAll} title="Expand All">
+                      <ChevronsDown className="w-4 h-4" />
                     </Button>
                     <Button size="sm" onClick={() => addNewPhase()}>
                       <Plus className="w-3 h-3 mr-1" />
