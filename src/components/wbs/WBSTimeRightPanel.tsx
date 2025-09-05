@@ -281,10 +281,10 @@ export const WBSTimeRightPanel = ({
             key={item.id}
             className={`grid items-center w-full ${
               item.level === 0 
-                ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 hover:from-blue-50 hover:to-blue-100 border-l-[6px] border-blue-800 shadow-sm' 
+                ? 'bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 hover:from-gray-100 hover:to-gray-150 border-l-[6px] border-gray-600 shadow-sm' 
                 : item.level === 1
-                ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 hover:from-blue-100 hover:to-blue-200 border-l-[4px] border-blue-400'
-                : 'bg-white hover:bg-slate-50/50'
+                ? 'bg-gradient-to-r from-gray-25 via-gray-50 to-gray-25 hover:from-gray-50 hover:to-gray-100 border-l-[4px] border-gray-400'
+                : 'bg-white hover:bg-gray-50/50'
             } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
             style={{
               gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
