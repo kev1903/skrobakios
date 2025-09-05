@@ -269,8 +269,61 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                 {/* Task bar or summary line based on level */}
                 {position && (
                   <>
-                    {/* Summary line for Phases (level 0) and Components (level 1) */}
-                    {(item.level === 0 || item.level === 1) && (
+                    {/* Rectangular bar for Phases (level 0) */}
+                    {item.level === 0 && (
+                      <div
+                        className="absolute cursor-pointer group z-20"
+                        style={{
+                          left: position.left + 8,
+                          top: rowHeight / 2 - 8,
+                          width: Math.max(40, position.width - 16),
+                          height: 16
+                        }}
+                        title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
+                      >
+                        {/* Phase bar shape - rectangular with subtle styling */}
+                        <div className="relative h-full w-full bg-gray-800 rounded-sm border border-gray-700 shadow-sm">
+                          {/* Subtle gradient overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/10 rounded-sm" />
+                          
+                          {/* Phase label if wide enough */}
+                          {position.width > 60 && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-white text-xs font-semibold truncate px-1">
+                                {getWbs(item)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Enhanced tooltip for Phase */}
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 
+                                      transition-all duration-300 pointer-events-none z-30">
+                          <div className="bg-white border border-gray-200 rounded-lg py-3 px-4 shadow-lg">
+                            <div className="font-semibold text-gray-800 text-sm">
+                              {getWbs(item)} - {item.name} 
+                              <span className="text-xs text-gray-500 ml-2">
+                                (Phase Summary)
+                              </span>
+                            </div>
+                            <div className="text-gray-600 text-xs mt-1">
+                              {format(position.startDate, 'MMM dd, yyyy')} - {format(position.endDate, 'MMM dd, yyyy')}
+                            </div>
+                            <div className={`text-xs mt-2 font-medium px-2 py-1 rounded-md inline-block ${
+                              item.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                              item.status === 'In Progress' ? 'bg-gray-100 text-gray-700' :
+                              item.status === 'On Hold' ? 'bg-amber-100 text-amber-700' :
+                              'bg-slate-100 text-slate-600'
+                            }`}>
+                              {item.status}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Summary line for Components (level 1) only */}
+                    {item.level === 1 && (
                       <div
                         className="absolute cursor-pointer group z-20"
                         style={{
@@ -284,29 +337,23 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                         {/* Summary line with diamond endpoints */}
                         <div className="relative h-full">
                           {/* Main summary line */}
-                          <div className={`h-full ${
-                            item.level === 0 ? 'bg-gray-800' : 'bg-gray-600'
-                          } rounded-full`} />
+                          <div className="h-full bg-gray-600 rounded-full" />
                           
                           {/* Start diamond */}
-                          <div className={`absolute left-0 top-1/2 w-3 h-3 transform -translate-y-1/2 -translate-x-1/2 rotate-45 ${
-                            item.level === 0 ? 'bg-gray-800 border-white' : 'bg-gray-600 border-white'
-                          } border-2`} />
+                          <div className="absolute left-0 top-1/2 w-3 h-3 transform -translate-y-1/2 -translate-x-1/2 rotate-45 bg-gray-600 border-white border-2" />
                           
                           {/* End diamond */}
-                          <div className={`absolute right-0 top-1/2 w-3 h-3 transform -translate-y-1/2 translate-x-1/2 rotate-45 ${
-                            item.level === 0 ? 'bg-gray-800 border-white' : 'bg-gray-600 border-white'
-                          } border-2`} />
+                          <div className="absolute right-0 top-1/2 w-3 h-3 transform -translate-y-1/2 translate-x-1/2 rotate-45 bg-gray-600 border-white border-2" />
                         </div>
 
-                        {/* Enhanced tooltip for summary */}
+                        {/* Enhanced tooltip for Component */}
                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 
                                       transition-all duration-300 pointer-events-none z-30">
                           <div className="bg-white border border-gray-200 rounded-lg py-3 px-4 shadow-lg">
                             <div className="font-semibold text-gray-800 text-sm">
                               {getWbs(item)} - {item.name} 
                               <span className="text-xs text-gray-500 ml-2">
-                                ({item.level === 0 ? 'Phase' : 'Component'} Summary)
+                                (Component Summary)
                               </span>
                             </div>
                             <div className="text-gray-600 text-xs mt-1">
