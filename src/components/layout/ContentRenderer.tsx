@@ -154,6 +154,13 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "projects":
+      // If not authenticated, redirect to auth page
+      if (!isAuthenticated) {
+        onNavigate('auth');
+        return <div className="flex items-center justify-center h-full">
+          <p className="text-slate-500">Please log in to view projects...</p>
+        </div>;
+      }
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectList onNavigate={onNavigate} onSelectProject={onSelectProject} />
