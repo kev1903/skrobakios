@@ -6382,7 +6382,7 @@ export type Database = {
         Returns: boolean
       }
       is_member_of_company: {
-        Args: { p_company_id: string; p_user_id: string }
+        Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
       }
       is_platform_admin: {
