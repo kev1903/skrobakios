@@ -24,6 +24,7 @@ interface WBSCostViewProps {
   onToggleExpanded: (itemId: string) => void;
   onDragEnd: (result: DropResult) => void;
   onItemUpdate: (itemId: string, updates: any) => void;
+  onAddChild?: (parentId: string) => void;
   onContextMenuAction: (action: string, itemId: string, type: string) => void;
   onOpenNotesDialog: (item: any) => void;
   dragIndicator: any;
@@ -37,6 +38,7 @@ export const WBSCostView = ({
   onToggleExpanded,
   onDragEnd,
   onItemUpdate,
+  onAddChild,
   onContextMenuAction,
   onOpenNotesDialog,
   dragIndicator,
@@ -66,6 +68,7 @@ export const WBSCostView = ({
         onToggleExpanded={onToggleExpanded}
         onDragEnd={onDragEnd}
         onItemEdit={onItemUpdate}
+        onAddChild={onAddChild}
         dragIndicator={dragIndicator}
         EditableCell={EditableCell}
         generateWBSNumber={generateWBSNumber}

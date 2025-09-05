@@ -14,6 +14,7 @@ interface WBSTimeViewProps {
   onToggleExpanded: (itemId: string) => void;
   onDragEnd: (result: DropResult) => void;
   onItemUpdate: (itemId: string, updates: any) => void;
+  onAddChild?: (parentId: string) => void;
   onContextMenuAction: (action: string, itemId: string, type: string) => void;
   onOpenNotesDialog: (item: any) => void;
   onClearAllDates?: () => void;
@@ -28,6 +29,7 @@ export const WBSTimeView = ({
   onToggleExpanded,
   onDragEnd,
   onItemUpdate,
+  onAddChild,
   onContextMenuAction,
   onOpenNotesDialog,
   onClearAllDates,
@@ -153,6 +155,7 @@ export const WBSTimeView = ({
                 onToggleExpanded={onToggleExpanded}
                 onDragEnd={onDragEnd}
                 onItemEdit={onItemUpdate}
+                onAddChild={onAddChild}
                 dragIndicator={dragIndicator}
                 EditableCell={EditableCell}
                 generateWBSNumber={generateWBSNumber}

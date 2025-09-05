@@ -1242,6 +1242,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         }}
                         onDragEnd={onDragEnd}
                         onItemUpdate={updateWBSItem}
+                        onAddChild={addChildItem}
                         onContextMenuAction={handleContextMenuAction}
                         onOpenNotesDialog={openNotesDialog}
                         onClearAllDates={clearAllDates}
@@ -1308,23 +1309,24 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                      </div>
                    ) : (
                      <div className="flex-1 min-w-0 overflow-y-auto">
-                       <WBSCostView
-                         items={flatWBSItems}
-                         onToggleExpanded={(itemId) => {
-                           const item = wbsItems.find(i => i.id === itemId);
-                           if (item) {
-                             updateWBSItem(itemId, { is_expanded: !item.is_expanded });
-                           }
-                         }}
-                         onDragEnd={onDragEnd}
-                         onItemUpdate={updateWBSItem}
-                         onContextMenuAction={handleContextMenuAction}
-                         onOpenNotesDialog={openNotesDialog}
-                         dragIndicator={dragIndicator}
-                         EditableCell={EditableCell}
-                         StatusSelect={StatusSelect}
-                         generateWBSNumber={generateWBSNumber}
-                       />
+                      <WBSCostView
+                        items={flatWBSItems}
+                        onToggleExpanded={(itemId) => {
+                          const item = wbsItems.find(i => i.id === itemId);
+                          if (item) {
+                            updateWBSItem(itemId, { is_expanded: !item.is_expanded });
+                          }
+                        }}
+                        onDragEnd={onDragEnd}
+                        onItemUpdate={updateWBSItem}
+                        onAddChild={addChildItem}
+                        onContextMenuAction={handleContextMenuAction}
+                        onOpenNotesDialog={openNotesDialog}
+                        dragIndicator={dragIndicator}
+                        EditableCell={EditableCell}
+                        StatusSelect={StatusSelect}
+                        generateWBSNumber={generateWBSNumber}
+                      />
                      </div>
                    )}
                  </div>
