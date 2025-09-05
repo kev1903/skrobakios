@@ -104,12 +104,13 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
   };
 
   const getStatusColor = (status: string) => {
+    // Subtle, clean left stripe colors
     switch (status) {
-      case 'Completed': return 'bg-gradient-to-r from-success to-success/80';
-      case 'In Progress': return 'bg-gradient-to-r from-primary to-primary/80';
-      case 'On Hold': return 'bg-gradient-to-r from-warning to-warning/80';
-      case 'Not Started': return 'bg-gradient-to-r from-muted-foreground/60 to-muted-foreground/40';
-      default: return 'bg-gradient-to-r from-muted-foreground/60 to-muted-foreground/40';
+      case 'Completed': return 'bg-emerald-400/80';
+      case 'In Progress': return 'bg-blue-500/70';
+      case 'On Hold': return 'bg-amber-400/80';
+      case 'Not Started': return 'bg-slate-300/80';
+      default: return 'bg-slate-300/70';
     }
   };
 
@@ -268,7 +269,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                 {/* Task bar */}
                 {position && (
                   <div
-                    className={`absolute top-1 bottom-1 rounded-lg border ${getLevelColor(item.level)} transition-all duration-300 cursor-pointer group`}
+                    className={`absolute top-1 bottom-1 rounded-lg border-2 ${getLevelColor(item.level)} transition-all duration-200 cursor-pointer group`}
                     style={{
                       left: position.left + 3,
                       width: Math.max(28, position.width - 6)
@@ -324,7 +325,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                 {/* Enhanced today indicator */}
                 {timelineDays.some(day => isSameDay(day, new Date())) && (
                   <div
-                    className="absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary to-primary/60 z-10"
+                    className="absolute top-0 bottom-0 border-l-2 border-dashed border-blue-500 z-10"
                     style={{
                       left: timelineDays.findIndex(day => isSameDay(day, new Date())) * dayWidth + dayWidth/2
                     }}
