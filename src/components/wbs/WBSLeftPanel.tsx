@@ -72,10 +72,10 @@ export const WBSLeftPanel = ({
                               {...dragProvided.draggableProps}
                  className={`grid items-center ${
                   item.level === 0 
-                    ? 'bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 border-l-[6px] border-l-gray-600 shadow-sm hover:from-gray-100 hover:to-gray-150' 
+                    ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
                     : item.level === 1
-                    ? 'bg-gradient-to-r from-gray-25 via-gray-50 to-gray-25 border-l-[4px] border-l-gray-400 hover:from-gray-50 hover:to-gray-100'
-                    : 'bg-white border-l-2 border-l-gray-300 hover:bg-gray-50/50'
+                    ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                    : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
                 } cursor-pointer transition-all duration-200 ${
                   snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
                 } ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
