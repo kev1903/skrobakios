@@ -251,26 +251,40 @@ export const TimelineGanttView = ({
     };
   }, []);
 
-  // Task status colors with enhanced palette
+  // Professional task status colors with clean palette
   const getStatusColor = (task: GanttTask) => {
     if (showCriticalPath && task.isCritical) {
-      return 'hsl(0, 84%, 60%)'; // Red for critical path
+      return 'hsl(359, 100%, 71%)'; // Clean red for critical path
     }
     
     const progress = task.progress || 0;
-    if (progress === 100) return 'hsl(142, 76%, 36%)'; // Green for completed
-    if (progress > 75) return 'hsl(221, 83%, 53%)'; // Blue for near completion
-    if (progress > 50) return 'hsl(38, 92%, 50%)'; // Orange for in progress
-    if (progress > 0) return 'hsl(60, 100%, 50%)'; // Yellow for started
+    if (progress === 100) return 'hsl(142, 71%, 45%)'; // Professional green for completed
+    if (progress > 75) return 'hsl(217, 91%, 60%)'; // Professional blue for near completion
+    if (progress > 50) return 'hsl(32, 95%, 55%)'; // Professional orange for in progress
+    if (progress > 0) return 'hsl(48, 96%, 53%)'; // Professional yellow for started
     
     // Check if overdue
     const today = new Date();
     const endDate = task.end_date ? new Date(task.end_date) : null;
     if (endDate && endDate < today && progress < 100) {
-      return 'hsl(0, 84%, 60%)'; // Red for overdue
+      return 'hsl(359, 100%, 71%)'; // Clean red for overdue
     }
     
-    return 'hsl(220, 8.9%, 46.1%)'; // Gray for not started
+    return 'hsl(215, 14%, 71%)'; // Clean gray for not started
+  };
+
+  // Priority color mapping for professional appearance
+  const getPriorityColor = (priority?: string) => {
+    switch (priority?.toLowerCase()) {
+      case 'high':
+        return 'hsl(359, 100%, 71%)'; // Clean red
+      case 'medium':
+        return 'hsl(217, 91%, 60%)'; // Professional blue
+      case 'low':
+        return 'hsl(142, 71%, 45%)'; // Professional green
+      default:
+        return 'hsl(215, 14%, 71%)'; // Neutral gray
+    }
   };
 
   // Enhanced task geometry calculation with precise calendar alignment

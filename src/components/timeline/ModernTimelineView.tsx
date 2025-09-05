@@ -9,9 +9,10 @@ import { useTimeTracking, TimeEntry, DEFAULT_CATEGORY_COLORS } from '@/hooks/use
 import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { format, isToday, isYesterday, isThisWeek, startOfWeek, endOfWeek, addDays } from 'date-fns';
 import { useScreenSize } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TimelineListView } from './TimelineListView';
-import { TimelineGanttView } from './TimelineGanttView';
+import { ProfessionalTimelineView } from './ProfessionalTimelineView';
 import { TimelineFilters } from './TimelineFilters';
 
 interface ModernTimelineViewProps {
@@ -211,13 +212,13 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-slate-50 min-h-full p-6">
       {/* Header */}
       <div className="flex flex-col space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">{projectName} Timeline</h1>
-            <p className="text-muted-foreground">Track and visualize project activities</p>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">{projectName} Timeline</h1>
+            <p className="text-slate-600">Track and visualize project activities</p>
           </div>
         </div>
 
@@ -229,20 +230,20 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
           <div className="flex items-center gap-3">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-500" />
               <Input
                 placeholder="Search activities"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-64 h-9"
+                className="pl-10 w-64 h-9 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
               />
             </div>
 
             {/* Sort */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Sort by</span>
+              <span className="text-sm text-slate-600">Sort by</span>
               <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-                <SelectTrigger className="w-24 h-9">
+                <SelectTrigger className="w-24 h-9 border-slate-200">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -254,13 +255,18 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
               </Select>
             </div>
 
-            {/* List/Gantt Toggle - Moved to top right */}
-            <div className="flex items-center bg-muted/30 rounded-md p-1">
+            {/* List/Gantt Toggle - Clean professional buttons */}
+            <div className="flex items-center bg-slate-100 rounded-lg p-1 border border-slate-200">
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('list')}
-                className="h-8 px-3"
+                className={cn(
+                  "h-8 px-4 text-sm font-medium rounded-md transition-all",
+                  viewMode === 'list' 
+                    ? "bg-white text-slate-900 shadow-sm border border-slate-200" 
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                )}
               >
                 <List className="w-4 h-4 mr-2" />
                 List View
@@ -269,7 +275,12 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
                 variant={viewMode === 'gantt' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('gantt')}
-                className="h-8 px-3"
+                className={cn(
+                  "h-8 px-4 text-sm font-medium rounded-md transition-all",
+                  viewMode === 'gantt' 
+                    ? "bg-white text-slate-900 shadow-sm border border-slate-200" 
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
+                )}
               >
                 <BarChart3 className="w-4 h-4 mr-2" />
                 Gantt View
@@ -280,8 +291,8 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
       </div>
 
       {/* Timeline Content */}
-      <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300">
-        <CardContent className="p-0">
+      <div className="bg-white border border-slate-200 rounded-lg shadow-sm">
+        <div className="p-0">
           {viewMode === 'list' ? (
             <TimelineListView
               entries={filteredEntries}
@@ -291,34 +302,36 @@ export const ModernTimelineView = ({ projectId, projectName, companyId }: Modern
               screenSize={screenSize}
             />
           ) : (
-            <TimelineGanttView
-              tasks={displayTasks}
-              onTaskUpdate={updateTask}
-              screenSize={screenSize}
-            />
+            <div className="h-full">
+              <ProfessionalTimelineView
+                tasks={displayTasks}
+                onTaskUpdate={updateTask}
+                screenSize={screenSize}
+              />
+            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Empty State */}
       {filteredEntries.length === 0 && (
-        <Card className="backdrop-blur-xl bg-white/40 border-white/20 shadow-xl">
-          <CardContent className="p-12">
+        <div className="bg-white border border-slate-200 rounded-lg shadow-sm">
+          <div className="p-12">
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-muted rounded-full flex items-center justify-center">
-                <Calendar className="w-8 h-8 text-muted-foreground" />
+              <div className="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center">
+                <Calendar className="w-8 h-8 text-slate-500" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold">No timeline entries found</h3>
-                <p className="text-muted-foreground">Start tracking your time to see your project timeline here</p>
+                <h3 className="text-lg font-semibold text-slate-900">No timeline entries found</h3>
+                <p className="text-slate-600">Start tracking your time to see your project timeline here</p>
               </div>
-              <Button className="bg-gradient-primary hover:opacity-90 text-white">
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Create First Entry
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   );
