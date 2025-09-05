@@ -16,10 +16,24 @@ export const calculateWBSEarliestStartDate = (
 
   for (const predecessor of task.predecessors) {
     const predecessorTask = allTasks.find(t => t.id === predecessor.id);
-    if (!predecessorTask || !predecessorTask.end_date) continue;
+    if (!predecessorTask) continue;
+
+    // Derive predecessor end date if missing using start_date + duration
+    let augmentedPredecessor = predecessorTask;
+    if (!predecessorTask.end_date && predecessorTask.start_date && (predecessorTask.duration || predecessorTask.duration === 0)) {
+      const derivedEnd = addDays(parseISO(predecessorTask.start_date), Math.max(0, (predecessorTask.duration || 1) - 1));
+      augmentedPredecessor = { ...predecessorTask, end_date: derivedEnd.toISOString().split('T')[0] } as WBSItem;
+    }
+
+    // Ensure required anchor exists based on dependency type
+    const needsEnd = predecessor.type === 'FS' || predecessor.type === 'FF';
+    const needsStart = predecessor.type === 'SS' || predecessor.type === 'SF';
+    if ((needsEnd && !augmentedPredecessor.end_date) || (needsStart && !augmentedPredecessor.start_date)) {
+      continue;
+    }
 
     const constraintDate = calculateWBSDependencyDate(
-      predecessorTask, 
+      augmentedPredecessor, 
       predecessor.type, 
       predecessor.lag || 0
     );
@@ -40,26 +54,31 @@ export const calculateWBSDependencyDate = (
   dependencyType: DependencyType, 
   lag: number = 0
 ): Date => {
-  const predecessorStart = parseISO(predecessorTask.start_date!);
-  const predecessorEnd = parseISO(predecessorTask.end_date!);
+  const predecessorStart = predecessorTask.start_date ? parseISO(predecessorTask.start_date) : null;
+  let predecessorEnd = predecessorTask.end_date ? parseISO(predecessorTask.end_date) : null;
+
+  // Derive end date from start + duration if needed
+  if (!predecessorEnd && predecessorStart && predecessorTask.duration && predecessorTask.duration > 0) {
+    predecessorEnd = addDays(predecessorStart, predecessorTask.duration - 1);
+  }
 
   let constraintDate: Date;
 
   switch (dependencyType) {
     case 'FS': // Finish-to-Start: dependent starts the day after predecessor finishes
-      constraintDate = addDays(predecessorEnd, 1);
+      constraintDate = addDays(predecessorEnd ?? predecessorStart ?? new Date(), 1);
       break;
     case 'SS': // Start-to-Start: dependent starts when predecessor starts
-      constraintDate = predecessorStart;
+      constraintDate = predecessorStart ?? predecessorEnd ?? new Date();
       break;
     case 'FF': // Finish-to-Finish: dependent finishes when predecessor finishes
-      constraintDate = predecessorEnd;
+      constraintDate = predecessorEnd ?? predecessorStart ?? new Date();
       break;
     case 'SF': // Start-to-Finish: dependent finishes when predecessor starts
-      constraintDate = predecessorStart;
+      constraintDate = predecessorStart ?? predecessorEnd ?? new Date();
       break;
     default:
-      constraintDate = addDays(predecessorEnd, 1); // Default to FS behavior
+      constraintDate = addDays((predecessorEnd ?? predecessorStart ?? new Date()), 1); // Default to FS behavior
   }
 
   return addDays(constraintDate, lag);
