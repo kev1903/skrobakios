@@ -104,36 +104,36 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
   };
 
   const getStatusColor = (status: string) => {
-    // Subtle, clean left stripe colors
+    // Neutral left stripe colors
     switch (status) {
-      case 'Completed': return 'bg-emerald-400/80';
-      case 'In Progress': return 'bg-blue-500/70';
-      case 'On Hold': return 'bg-amber-400/80';
-      case 'Not Started': return 'bg-slate-300/80';
+      case 'Completed': return 'bg-green-500/70';
+      case 'In Progress': return 'bg-gray-500/70';
+      case 'On Hold': return 'bg-amber-500/70';
+      case 'Not Started': return 'bg-slate-300/70';
       default: return 'bg-slate-300/70';
     }
   };
 
   const getLevelColor = (level: number) => {
-    // Clean, professional bars: white fill with subtle hierarchy-colored borders
+    // Neutral, professional bars: white fill with subtle gray hierarchy borders
     switch (level) {
       case 0:
-        return 'border-blue-500 bg-white'; // Stage
+        return 'border-gray-500 bg-white'; // Stage - neutral dark gray
       case 1:
-        return 'border-blue-400 bg-white'; // Component
+        return 'border-gray-400 bg-white'; // Component - medium gray
       case 2:
-        return 'border-slate-300 bg-white'; // Element
+        return 'border-gray-300 bg-white'; // Element - light gray
       default:
-        return 'border-slate-200 bg-white';
+        return 'border-gray-200 bg-white';
     }
   };
 
   const getLevelFontStyle = (level: number) => {
     switch (level) {
-      case 0: return 'font-semibold text-blue-600'; // Stage
-      case 1: return 'font-medium text-blue-600'; // Component
-      case 2: return 'font-medium text-slate-700'; // Element
-      default: return 'font-medium text-slate-600';
+      case 0: return 'font-semibold text-gray-700'; // Stage - neutral dark gray
+      case 1: return 'font-medium text-gray-600'; // Component - medium gray
+      case 2: return 'font-medium text-gray-600'; // Element - medium gray
+      default: return 'font-medium text-gray-500';
     }
   };
 
@@ -242,9 +242,9 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
             return (
               <div
                 key={item.id}
-                className={`relative border-b border-border/5 transition-colors duration-150 ${
-                  isEven ? 'bg-white' : 'bg-slate-50/50'
-                } ${hoveredId === item.id ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
+                className={`relative border-b border-gray-100 transition-colors duration-150 ${
+                  isEven ? 'bg-white' : 'bg-gray-50/30'
+                } ${hoveredId === item.id ? 'bg-gray-50' : 'hover:bg-gray-50/50'}`}
                 style={{ height: rowHeight }}
                 onMouseEnter={() => onRowHover?.(item.id)}
                 onMouseLeave={() => onRowHover?.(null)}
@@ -256,7 +256,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                     <div
                       key={day.toISOString()}
                       className={`absolute top-0 bottom-0 border-r transition-all duration-200 ${
-                        isWeekend ? 'border-muted/20 bg-muted/5' : 'border-border/5'
+                        isWeekend ? 'border-gray-200 bg-gray-50/30' : 'border-gray-100'
                       }`}
                       style={{ 
                         left: dayIndex * dayWidth,
@@ -323,9 +323,10 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                 )}
 
                 {/* Enhanced today indicator */}
+                {/* Enhanced today indicator - neutral */}
                 {timelineDays.some(day => isSameDay(day, new Date())) && (
                   <div
-                    className="absolute top-0 bottom-0 border-l-2 border-dashed border-blue-500 z-10"
+                    className="absolute top-0 bottom-0 border-l-2 border-dashed border-gray-400 z-10"
                     style={{
                       left: timelineDays.findIndex(day => isSameDay(day, new Date())) * dayWidth + dayWidth/2
                     }}

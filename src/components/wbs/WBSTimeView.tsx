@@ -110,11 +110,11 @@ export const WBSTimeView = ({
         {/* Left Panel - includes both header and content */}
         <Panel defaultSize={50} minSize={30} className="flex flex-col">
           {/* Header Section */}
-          <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border flex-shrink-0 h-[60px]">
+          <div className="bg-white border-t border-gray-200 border-b border-gray-200 flex-shrink-0 h-[60px]">
             {/* Make header horizontally scroll-sync with body */}
             <div ref={headerHorizScrollRef} className="flex h-full overflow-hidden">
               {/* WBS Left Panel Header */}
-              <div className="w-[420px] px-2 py-1 text-xs font-medium text-slate-700 border-r border-border flex-shrink-0">
+              <div className="w-[420px] px-2 py-1 text-xs font-medium text-gray-700 border-r border-gray-200 flex-shrink-0">
                 <div className="grid items-center" style={{
                   gridTemplateColumns: '32px 120px 1fr',
                 }}>
@@ -125,7 +125,7 @@ export const WBSTimeView = ({
               </div>
               
               {/* WBS Right Panel Header - Table Section */}
-              <div className="py-1 text-xs font-medium text-slate-700 flex-1 min-w-fit flex items-center">
+              <div className="py-1 text-xs font-medium text-gray-700 flex-1 min-w-fit flex items-center">
                 <div className="grid items-center flex-1" style={{
                   gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
                 }}>
@@ -204,7 +204,7 @@ export const WBSTimeView = ({
           >
             <div className="min-w-fit">
               {/* Header Section - Daily Calendar */}
-              <div className="bg-slate-100/70 border-t border-slate-200 border-b border-border border-l border-border text-xs font-medium text-slate-700 sticky top-0 z-10 h-[60px]">
+              <div className="bg-white border-t border-gray-200 border-b border-gray-200 border-l border-gray-200 text-xs font-medium text-gray-700 sticky top-0 z-10 h-[60px]">
                 <div className="flex h-full">
                   {(() => {
                     // Use the same date range as the GanttChart
@@ -245,9 +245,9 @@ export const WBSTimeView = ({
                       return (
                         <div 
                           key={index}
-                          className={`flex flex-col items-center justify-center border-r border-slate-200/50 ${
-                            isToday ? 'bg-primary/10 text-primary font-bold' : 
-                            isWeekend ? 'bg-slate-50 text-slate-500' : 'text-slate-700'
+                          className={`flex flex-col items-center justify-center border-r border-gray-200 ${
+                            isToday ? 'bg-gray-100 text-gray-800 font-bold' : 
+                            isWeekend ? 'bg-gray-50 text-gray-500' : 'text-gray-700'
                           }`}
                           style={{ width: dayWidth }}
                         >
