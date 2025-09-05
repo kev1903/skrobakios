@@ -106,33 +106,33 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
   const getStatusColor = (status: string) => {
     // Neutral left stripe colors
     switch (status) {
-      case 'Completed': return 'bg-green-500/70';
-      case 'In Progress': return 'bg-gray-500/70';
-      case 'On Hold': return 'bg-amber-500/70';
-      case 'Not Started': return 'bg-slate-300/70';
-      default: return 'bg-slate-300/70';
+      case 'Completed': return 'bg-green-500/80';
+      case 'In Progress': return 'bg-gray-500/80';
+      case 'On Hold': return 'bg-amber-500/80';
+      case 'Not Started': return 'bg-slate-300/80';
+      default: return 'bg-slate-300/80';
     }
   };
 
   const getLevelColor = (level: number) => {
-    // Neutral, professional bars: white fill with subtle gray hierarchy borders
+    // Modern, sleek neutral bars with subtle hierarchy
     switch (level) {
       case 0:
-        return 'border-gray-500 bg-white'; // Stage - neutral dark gray
+        return 'border-gray-400 bg-white/95 shadow-md'; // Stage - elevated look
       case 1:
-        return 'border-gray-400 bg-white'; // Component - medium gray
+        return 'border-gray-300 bg-white/90 shadow-sm'; // Component - clean look
       case 2:
-        return 'border-gray-300 bg-white'; // Element - light gray
+        return 'border-gray-200 bg-white/85 shadow-sm'; // Element - subtle look
       default:
-        return 'border-gray-200 bg-white';
+        return 'border-gray-200 bg-white/80 shadow-sm';
     }
   };
 
   const getLevelFontStyle = (level: number) => {
     switch (level) {
-      case 0: return 'font-semibold text-gray-700'; // Stage - neutral dark gray
-      case 1: return 'font-medium text-gray-600'; // Component - medium gray
-      case 2: return 'font-medium text-gray-600'; // Element - medium gray
+      case 0: return 'font-semibold text-gray-800'; // Stage
+      case 1: return 'font-medium text-gray-700'; // Component  
+      case 2: return 'font-medium text-gray-600'; // Element
       default: return 'font-medium text-gray-500';
     }
   };
@@ -266,54 +266,72 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                   );
                 })}
 
-                {/* Task bar */}
+                {/* Modern, sleek task bar */}
                 {position && (
                   <div
-                    className={`absolute top-1 bottom-1 rounded-lg border-2 ${getLevelColor(item.level)} transition-all duration-200 cursor-pointer group`}
+                    className="absolute cursor-pointer group"
                     style={{
-                      left: position.left + 3,
-                      width: Math.max(28, position.width - 6)
+                      left: position.left + 4,
+                      top: 2,
+                      width: Math.max(32, position.width - 8),
+                      height: rowHeight - 4
                     }}
                     title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
                   >
-                    {/* Status indicator with gradient */}
-                    <div className={`absolute left-0 top-0 bottom-0 w-1.5 rounded-l-lg ${getStatusColor(item.status)}`} />
-                    
-                    {/* Task content */}
-                    {position.width <= 60 ? (
-                      <div className="px-1 flex items-center justify-center h-full relative z-10">
-                        <span className={`text-[10px] ${getLevelFontStyle(item.level)}`}>
-                          {getWbs(item)}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="px-2 py-1 flex items-center h-full relative z-10">
-                        <span className={`text-xs truncate min-w-0 flex-shrink-0 ${getLevelFontStyle(item.level)}`}>
-                          {getWbs(item)}
-                        </span>
-                        {position.width > 80 && (
-                          <span className={`ml-1.5 text-xs truncate min-w-0 ${getLevelFontStyle(item.level)}`}>
-                            {item.name}
+                    <div className={`
+                      h-full rounded-xl ${getLevelColor(item.level)} 
+                      transition-all duration-300 ease-out
+                      flex items-center
+                      backdrop-blur-sm
+                      hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-lg
+                      relative overflow-hidden
+                      border
+                    `}>
+                      {/* Subtle shine effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent 
+                                    opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+                      
+                      {/* Modern status indicator */}
+                      <div className={`absolute left-0 top-1 bottom-1 w-1 rounded-full ml-1 ${getStatusColor(item.status)}`} />
+                      
+                      {/* Task content with better spacing */}
+                      {position.width <= 60 ? (
+                        <div className="px-2 flex items-center justify-center h-full relative z-10">
+                          <span className={`text-[10px] font-semibold ${getLevelFontStyle(item.level)}`}>
+                            {getWbs(item)}
                           </span>
-                        )}
-                      </div>
-                    )}
+                        </div>
+                      ) : (
+                        <div className="px-3 py-1 flex items-center h-full relative z-10 w-full">
+                          <span className={`text-xs font-semibold truncate min-w-0 flex-shrink-0 ${getLevelFontStyle(item.level)}`}>
+                            {getWbs(item)}
+                          </span>
+                          {position.width > 90 && (
+                            <span className={`ml-2 text-xs font-medium truncate min-w-0 ${getLevelFontStyle(item.level)} opacity-80`}>
+                              {item.name}
+                            </span>
+                          )}
+                        </div>
+                      )}
 
-                    {/* Progress indicator overlay */}
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity duration-300 pointer-events-none z-0" />
+                      {/* Refined progress indicator */}
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/5 via-white/10 to-white/5 
+                                    opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none" />
+                    </div>
 
                     {/* Enhanced tooltip */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 transition-all duration-300 pointer-events-none z-20">
-                      <div className="bg-background border border-border/20 rounded-lg py-3 px-4">
-                        <div className="font-semibold text-foreground text-sm">{getWbs(item)} - {item.name}</div>
-                        <div className="text-muted-foreground text-xs mt-1">
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 
+                                  transition-all duration-300 pointer-events-none z-20">
+                      <div className="bg-white border border-gray-200 rounded-lg py-3 px-4 shadow-lg">
+                        <div className="font-semibold text-gray-800 text-sm">{getWbs(item)} - {item.name}</div>
+                        <div className="text-gray-600 text-xs mt-1">
                           {format(position.startDate, 'MMM dd, yyyy')} - {format(position.endDate, 'MMM dd, yyyy')}
                         </div>
                         <div className={`text-xs mt-2 font-medium px-2 py-1 rounded-md inline-block ${
-                          item.status === 'Completed' ? 'bg-success/20 text-success-foreground' :
-                          item.status === 'In Progress' ? 'bg-primary/20 text-primary-foreground' :
-                          item.status === 'On Hold' ? 'bg-warning/20 text-warning-foreground' :
-                          'bg-muted/20 text-muted-foreground'
+                          item.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                          item.status === 'In Progress' ? 'bg-gray-100 text-gray-700' :
+                          item.status === 'On Hold' ? 'bg-amber-100 text-amber-700' :
+                          'bg-slate-100 text-slate-600'
                         }`}>
                           {item.status}
                         </div>
@@ -322,8 +340,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                   </div>
                 )}
 
-                {/* Enhanced today indicator */}
-                {/* Enhanced today indicator - neutral */}
+                {/* Today indicator - neutral */}
                 {timelineDays.some(day => isSameDay(day, new Date())) && (
                   <div
                     className="absolute top-0 bottom-0 border-l-2 border-dashed border-gray-400 z-10"
@@ -423,48 +440,40 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                     >
                       <title>{`${line.type} Dependency: ${line.fromTask} → ${line.toTask}`}</title>
                     </path>
-                    
-                    {/* Animated highlight */}
-                    <path
-                      d={line.path}
-                      stroke="rgba(255,255,255,0.4)"
-                      strokeWidth="1"
-                      fill="none"
-                      className="arrow-highlight"
-                      strokeDasharray="4,4"
-                      strokeLinecap="square"
-                      strokeLinejoin="miter"
-                    >
-                      <animate
-                        attributeName="stroke-dashoffset"
-                        values="0;8"
-                        dur="1.2s"
-                        repeatCount="indefinite"
-                      />
-                    </path>
                   </g>
                 );
               })}
             </svg>
           )}
 
-          {/* Weekend highlighting with subtle pattern */}
-          {timelineDays.map((day, index) => {
-            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-            if (!isWeekend) return null;
-            
-            return (
-              <div
-                key={`weekend-${day.toISOString()}`}
-                className="absolute top-0 bottom-0 bg-gradient-to-b from-muted/5 to-muted/10 opacity-60 pointer-events-none"
-                style={{
-                  left: index * dayWidth,
-                  width: dayWidth
-                }}
-              />
-            );
-          })}
+          {/* Enhanced today indicator for the entire chart */}
+          {timelineDays.some(day => isSameDay(day, new Date())) && (
+            <div
+              className="absolute top-0 w-0.5 bg-gradient-to-b from-primary/40 via-primary to-primary/40 z-30 pointer-events-none"
+              style={{
+                height: items.length * rowHeight,
+                left: timelineDays.findIndex(day => isSameDay(day, new Date())) * dayWidth + dayWidth/2
+              }}
+            />
+          )}
 
+          {/* Weekend highlight overlay */}
+          {timelineDays.map((day, dayIndex) => {
+            if (day.getDay() === 0 || day.getDay() === 6) {
+              return (
+                <div
+                  key={`weekend-${day.toISOString()}`}
+                  className="absolute top-0 bg-slate-50/50 pointer-events-none"
+                  style={{
+                    left: dayIndex * dayWidth,
+                    width: dayWidth,
+                    height: items.length * rowHeight
+                  }}
+                />
+              );
+            }
+            return null;
+          })}
         </div>
       </div>
     </div>
