@@ -266,78 +266,139 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                   );
                 })}
 
-                {/* Modern, sleek task bar */}
+                {/* Task bar or summary line based on level */}
                 {position && (
-                  <div
-                    className="absolute cursor-pointer group z-20"
-                    style={{
-                      left: position.left + 4,
-                      top: 2,
-                      width: Math.max(32, position.width - 8),
-                      height: rowHeight - 4
-                    }}
-                    title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
-                  >
-                    <div className={`
-                      h-full rounded-xl ${getLevelColor(item.level)} 
-                      transition-all duration-300 ease-out
-                      flex items-center
-                      backdrop-blur-sm
-                      hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-lg
-                      relative overflow-hidden
-                      border
-                    `}>
-                      {/* Subtle shine effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent 
-                                    opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
-                      
-                      {/* Modern status indicator */}
-                      <div className={`absolute left-0 top-1 bottom-1 w-1 rounded-full ml-1 ${getStatusColor(item.status)}`} />
-                      
-                      {/* Task content with better spacing */}
-                      {position.width <= 60 ? (
-                        <div className="px-2 flex items-center justify-center h-full relative z-10">
-                          <span className={`text-[10px] font-semibold ${getLevelFontStyle(item.level)}`}>
-                            {getWbs(item)}
-                          </span>
+                  <>
+                    {/* Summary line for Phases (level 0) and Components (level 1) */}
+                    {(item.level === 0 || item.level === 1) && (
+                      <div
+                        className="absolute cursor-pointer group z-20"
+                        style={{
+                          left: position.left + 8,
+                          top: rowHeight / 2 - 1,
+                          width: Math.max(40, position.width - 16),
+                          height: 2
+                        }}
+                        title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
+                      >
+                        {/* Summary line with diamond endpoints */}
+                        <div className="relative h-full">
+                          {/* Main summary line */}
+                          <div className={`h-full ${
+                            item.level === 0 ? 'bg-gray-800' : 'bg-gray-600'
+                          } rounded-full`} />
+                          
+                          {/* Start diamond */}
+                          <div className={`absolute left-0 top-1/2 w-3 h-3 transform -translate-y-1/2 -translate-x-1/2 rotate-45 ${
+                            item.level === 0 ? 'bg-gray-800 border-white' : 'bg-gray-600 border-white'
+                          } border-2`} />
+                          
+                          {/* End diamond */}
+                          <div className={`absolute right-0 top-1/2 w-3 h-3 transform -translate-y-1/2 translate-x-1/2 rotate-45 ${
+                            item.level === 0 ? 'bg-gray-800 border-white' : 'bg-gray-600 border-white'
+                          } border-2`} />
                         </div>
-                      ) : (
-                        <div className="px-3 py-1 flex items-center h-full relative z-10 w-full">
-                          <span className={`text-xs font-semibold truncate min-w-0 flex-shrink-0 ${getLevelFontStyle(item.level)}`}>
-                            {getWbs(item)}
-                          </span>
-                          {position.width > 90 && (
-                            <span className={`ml-2 text-xs font-medium truncate min-w-0 ${getLevelFontStyle(item.level)} opacity-80`}>
-                              {item.name}
-                            </span>
-                          )}
-                        </div>
-                      )}
 
-                      {/* Refined progress indicator */}
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/5 via-white/10 to-white/5 
-                                    opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none" />
-                    </div>
-
-                    {/* Enhanced tooltip */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 
-                                  transition-all duration-300 pointer-events-none z-30">
-                      <div className="bg-white border border-gray-200 rounded-lg py-3 px-4 shadow-lg">
-                        <div className="font-semibold text-gray-800 text-sm">{getWbs(item)} - {item.name}</div>
-                        <div className="text-gray-600 text-xs mt-1">
-                          {format(position.startDate, 'MMM dd, yyyy')} - {format(position.endDate, 'MMM dd, yyyy')}
-                        </div>
-                        <div className={`text-xs mt-2 font-medium px-2 py-1 rounded-md inline-block ${
-                          item.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                          item.status === 'In Progress' ? 'bg-gray-100 text-gray-700' :
-                          item.status === 'On Hold' ? 'bg-amber-100 text-amber-700' :
-                          'bg-slate-100 text-slate-600'
-                        }`}>
-                          {item.status}
+                        {/* Enhanced tooltip for summary */}
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 
+                                      transition-all duration-300 pointer-events-none z-30">
+                          <div className="bg-white border border-gray-200 rounded-lg py-3 px-4 shadow-lg">
+                            <div className="font-semibold text-gray-800 text-sm">
+                              {getWbs(item)} - {item.name} 
+                              <span className="text-xs text-gray-500 ml-2">
+                                ({item.level === 0 ? 'Phase' : 'Component'} Summary)
+                              </span>
+                            </div>
+                            <div className="text-gray-600 text-xs mt-1">
+                              {format(position.startDate, 'MMM dd, yyyy')} - {format(position.endDate, 'MMM dd, yyyy')}
+                            </div>
+                            <div className={`text-xs mt-2 font-medium px-2 py-1 rounded-md inline-block ${
+                              item.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                              item.status === 'In Progress' ? 'bg-gray-100 text-gray-700' :
+                              item.status === 'On Hold' ? 'bg-amber-100 text-amber-700' :
+                              'bg-slate-100 text-slate-600'
+                            }`}>
+                              {item.status}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
+                    )}
+
+                    {/* Regular task bar for Elements (level 2) */}
+                    {item.level === 2 && (
+                      <div
+                        className="absolute cursor-pointer group z-20"
+                        style={{
+                          left: position.left + 4,
+                          top: 2,
+                          width: Math.max(32, position.width - 8),
+                          height: rowHeight - 4
+                        }}
+                        title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
+                      >
+                        <div className={`
+                          h-full rounded-xl ${getLevelColor(item.level)} 
+                          transition-all duration-300 ease-out
+                          flex items-center
+                          backdrop-blur-sm
+                          hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-lg
+                          relative overflow-hidden
+                          border
+                        `}>
+                          {/* Subtle shine effect */}
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent 
+                                        opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
+                          
+                          {/* Modern status indicator */}
+                          <div className={`absolute left-0 top-1 bottom-1 w-1 rounded-full ml-1 ${getStatusColor(item.status)}`} />
+                          
+                          {/* Task content with better spacing */}
+                          {position.width <= 60 ? (
+                            <div className="px-2 flex items-center justify-center h-full relative z-10">
+                              <span className={`text-[10px] font-semibold ${getLevelFontStyle(item.level)}`}>
+                                {getWbs(item)}
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="px-3 py-1 flex items-center h-full relative z-10 w-full">
+                              <span className={`text-xs font-semibold truncate min-w-0 flex-shrink-0 ${getLevelFontStyle(item.level)}`}>
+                                {getWbs(item)}
+                              </span>
+                              {position.width > 90 && (
+                                <span className={`ml-2 text-xs font-medium truncate min-w-0 ${getLevelFontStyle(item.level)} opacity-80`}>
+                                  {item.name}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Refined progress indicator */}
+                          <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/5 via-white/10 to-white/5 
+                                        opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none" />
+                        </div>
+
+                        {/* Enhanced tooltip for elements */}
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 opacity-0 group-hover:opacity-100 
+                                      transition-all duration-300 pointer-events-none z-30">
+                          <div className="bg-white border border-gray-200 rounded-lg py-3 px-4 shadow-lg">
+                            <div className="font-semibold text-gray-800 text-sm">{getWbs(item)} - {item.name}</div>
+                            <div className="text-gray-600 text-xs mt-1">
+                              {format(position.startDate, 'MMM dd, yyyy')} - {format(position.endDate, 'MMM dd, yyyy')}
+                            </div>
+                            <div className={`text-xs mt-2 font-medium px-2 py-1 rounded-md inline-block ${
+                              item.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                              item.status === 'In Progress' ? 'bg-gray-100 text-gray-700' :
+                              item.status === 'On Hold' ? 'bg-amber-100 text-amber-700' :
+                              'bg-slate-100 text-slate-600'
+                            }`}>
+                              {item.status}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {/* Today indicator - neutral */}
