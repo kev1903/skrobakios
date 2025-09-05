@@ -338,6 +338,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           // Ensure hierarchy fields are present for rollups
           parent_id: wbsItem.parent_id,
           wbs_id: wbsItem.wbs_id,
+          wbsNumber: wbsItem.wbs_id || item.wbsNumber,
           level: wbsItem.level ?? item.level,
           name: wbsItem.title || item.name, // Use WBS title if available
           title: wbsItem.title || item.name, // Also set title field
