@@ -208,8 +208,8 @@ const getTaskStartX = (task: GanttTask, viewSettings: any) => {
     (task.startDate.getTime() - viewSettings.viewStart.getTime()) / (1000 * 60 * 60 * 24)
   );
   const taskLeft = daysSinceStart * viewSettings.dayWidth;
-  // Match the task bar rendering: position.left + 3
-  return taskLeft + 3;
+  // Match the Element task bar rendering: position.left + 4
+  return taskLeft + 4;
 };
 
 const getTaskEndX = (task: GanttTask, viewSettings: any) => {
@@ -222,8 +222,8 @@ const getTaskEndX = (task: GanttTask, viewSettings: any) => {
   const duration = Math.max(1, endDaysSinceStart - startDaysSinceStart + 1);
   const taskLeft = startDaysSinceStart * viewSettings.dayWidth;
   const taskWidth = Math.max(viewSettings.dayWidth, duration * viewSettings.dayWidth);
-  // Match the task bar rendering: position.left + position.width - 3
-  return taskLeft + taskWidth - 3;
+  // Match the Element task bar rendering: position.left + position.width - 4
+  return taskLeft + taskWidth - 4;
 };
 
 const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number) => {

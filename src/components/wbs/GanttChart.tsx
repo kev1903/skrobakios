@@ -482,7 +482,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                   id="arrowhead"
                   markerWidth="8"
                   markerHeight="6"
-                  refX="7"
+                  refX="8"
                   refY="3"
                   orient="auto"
                   markerUnits="strokeWidth"
