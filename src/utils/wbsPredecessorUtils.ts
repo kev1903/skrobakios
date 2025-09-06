@@ -32,6 +32,11 @@ export const calculateWBSEarliestStartDate = (
       continue;
     }
 
+    // Only FS and SS affect earliest start; FF and SF are end constraints handled separately
+    if (predecessor.type === 'FF' || predecessor.type === 'SF') {
+      continue;
+    }
+
     const constraintDate = calculateWBSDependencyDate(
       augmentedPredecessor, 
       predecessor.type, 
@@ -92,16 +97,61 @@ export const autoScheduleWBSTask = (
   allTasks: WBSItem[]
 ): Partial<WBSItem> | null => {
   const earliestStart = calculateWBSEarliestStartDate(task, allTasks);
-  if (!earliestStart) return null;
-
-  const currentStart = task.start_date ? parseISO(task.start_date) : null;
   const duration = task.duration || 1;
 
+  // Compute end-based constraints (FF, SF) to ensure finish alignment
+  let latestEndConstraint: Date | null = null;
+  if (task.predecessors && task.predecessors.length > 0) {
+    for (const predecessor of task.predecessors) {
+      const predecessorTask = allTasks.find(t => t.id === predecessor.id);
+      if (!predecessorTask) continue;
+
+      // Derive predecessor end date if missing using start_date + duration
+      let augmentedPredecessor = predecessorTask;
+      if (!predecessorTask.end_date && predecessorTask.start_date && (predecessorTask.duration || predecessorTask.duration === 0)) {
+        const derivedEnd = addDays(parseISO(predecessorTask.start_date), Math.max(0, (predecessorTask.duration || 1) - 1));
+        augmentedPredecessor = { ...predecessorTask, end_date: derivedEnd.toISOString().split('T')[0] } as WBSItem;
+      }
+
+      // Ensure required anchor exists based on dependency type
+      const needsEnd = predecessor.type === 'FS' || predecessor.type === 'FF';
+      const needsStart = predecessor.type === 'SS' || predecessor.type === 'SF';
+      if ((needsEnd && !augmentedPredecessor.end_date) || (needsStart && !augmentedPredecessor.start_date)) {
+        continue;
+      }
+
+      if (predecessor.type === 'FF' || predecessor.type === 'SF') {
+        const endConstraint = calculateWBSDependencyDate(
+          augmentedPredecessor,
+          predecessor.type,
+          predecessor.lag || 0
+        );
+        if (!latestEndConstraint || isAfter(endConstraint, latestEndConstraint)) {
+          latestEndConstraint = endConstraint;
+        }
+      }
+    }
+  }
+
+  // Combine start and end constraints into a proposed start date
+  let proposedStart: Date | null = earliestStart;
+  if (latestEndConstraint) {
+    const requiredStartFromEnd = addDays(latestEndConstraint, -(duration - 1));
+    if (!proposedStart || isBefore(proposedStart, requiredStartFromEnd)) {
+      proposedStart = requiredStartFromEnd;
+    }
+  }
+
+  // If no constraints, do nothing
+  if (!proposedStart) return null;
+
+  const currentStart = task.start_date ? parseISO(task.start_date) : null;
+
   // Always reschedule if there are predecessors to ensure proper sequencing
-  // or if the earliest start differs from current start
-  if (!currentStart || earliestStart.getTime() !== currentStart.getTime()) {
-    const newStartDate = earliestStart.toISOString().split('T')[0];
-    const newEndDate = addDays(earliestStart, duration - 1).toISOString().split('T')[0];
+  // or if the proposed start differs from current start
+  if (!currentStart || proposedStart.getTime() !== currentStart.getTime()) {
+    const newStartDate = proposedStart.toISOString().split('T')[0];
+    const newEndDate = addDays(proposedStart, duration - 1).toISOString().split('T')[0];
 
     return {
       start_date: newStartDate,
