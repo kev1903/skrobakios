@@ -438,10 +438,10 @@ export function AiChatSidebar({
                    </div>}
 
                   {/* Messages */}
-                  <div className={cn(
-                    "flex-1 overflow-y-auto p-4 space-y-4",
-                    fullScreen && "pb-24"
-                  )}>
+                  <div
+                    className={cn("flex-1 overflow-y-auto p-4 space-y-4")}
+                    style={ fullScreen ? { paddingBottom: 'calc(env(safe-area-inset-bottom) + var(--mobile-bottom-bar-height, 80px) + 88px)' } : undefined }
+                  >
                    {messages.length === 0 && <div className="text-center text-muted-foreground py-8">
                        <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
                        <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
@@ -502,10 +502,17 @@ export function AiChatSidebar({
                  </div>
 
                   {/* Input area */}
-                  <div className={cn(
-                    "absolute left-0 right-0 p-4 border-t border-border bg-background",
-                    fullScreen ? "bottom-16 md:bottom-0" : "bottom-0"
-                  )}>
+                  <div
+                    className={cn(
+                      "absolute left-0 right-0 p-4 border-t border-border bg-background z-40",
+                      "bottom-0"
+                    )}
+                    style={{
+                      bottom: fullScreen
+                        ? 'calc(env(safe-area-inset-bottom) + var(--mobile-bottom-bar-height, 80px))'
+                        : 0
+                    }}
+                  >
                     <div className="flex gap-2">
                       <PhotoUploadButton 
                         onPhotoSelected={handlePhotoSelected}

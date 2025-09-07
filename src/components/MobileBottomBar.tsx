@@ -53,6 +53,7 @@ export const MobileBottomBar = ({ onNavigate }: MobileBottomBarProps) => {
         bottomPadding,
         'mobile-safe-area'
       )}
+      style={{ ['--mobile-bottom-bar-height' as any]: isMobileSmall ? '64px' : '80px' }}
       role="navigation"
       aria-label="Bottom Navigation"
     >
