@@ -381,14 +381,14 @@ export function AiChatSidebar({
   return (
     <>
       {/* Regular Chat Interface */}
-       <div className={cn(
-         fullScreen
-           ? "w-full h-full bg-background border-0 shadow-none flex flex-col"
-           : "fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col",
-         fullScreen ? "w-full" : (isCollapsed ? "w-16" : "w-full max-w-96 md:w-96")
-       )}>
-         {/* Header */}
-         <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
+        <div className={cn(
+          fullScreen
+            ? "w-full h-full bg-background border-0 shadow-none flex flex-col"
+            : "fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col",
+          fullScreen ? "w-full pb-20 md:pb-0" : (isCollapsed ? "w-16" : "w-full max-w-96 md:w-96")
+        )}>
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
            <div className="flex items-center gap-2 overflow-hidden">
              <Avatar className="h-8 w-8 flex-shrink-0">
                <AvatarImage src="/placeholder.svg" />
@@ -498,19 +498,22 @@ export function AiChatSidebar({
                    <div ref={messagesEndRef} />
                  </div>
 
-                 {/* Input area */}
-                 <div className="p-4 border-t border-border flex-shrink-0">
-                   <div className="flex gap-2">
-                     <PhotoUploadButton 
-                       onPhotoSelected={handlePhotoSelected}
-                       disabled={isLoading || !isAuthenticated}
-                     />
-                     <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
-                     <Button onClick={() => sendMessage()} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
-                       <Send className="h-4 w-4" />
-                     </Button>
-                   </div>
-                 </div>
+                  {/* Input area */}
+                  <div className={cn(
+                    "p-4 border-t border-border flex-shrink-0",
+                    fullScreen && "mb-safe-or-16 md:mb-0"
+                  )}>
+                    <div className="flex gap-2">
+                      <PhotoUploadButton 
+                        onPhotoSelected={handlePhotoSelected}
+                        disabled={isLoading || !isAuthenticated}
+                      />
+                      <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
+                      <Button onClick={() => sendMessage()} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
 
          {/* Debug Tools - Only shown when there might be language issues */}
          <ChatDebugTools />
