@@ -503,8 +503,8 @@ export function AiChatSidebar({
 
                   {/* Input area */}
                   <div className={cn(
-                    "absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-background",
-                    fullScreen && "pb-safe md:pb-4"
+                    "absolute left-0 right-0 p-4 border-t border-border bg-background",
+                    fullScreen ? "bottom-16 md:bottom-0" : "bottom-0"
                   )}>
                     <div className="flex gap-2">
                       <PhotoUploadButton 
