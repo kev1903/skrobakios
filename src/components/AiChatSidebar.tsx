@@ -509,7 +509,7 @@ export function AiChatSidebar({
                     )}
                     style={{
                       bottom: fullScreen
-                        ? 'calc(env(safe-area-inset-bottom) + var(--mobile-bottom-bar-height, 80px))'
+                        ? 'var(--mobile-bottom-bar-height, 80px)'
                         : 0
                     }}
                   >
