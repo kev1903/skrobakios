@@ -383,9 +383,9 @@ export function AiChatSidebar({
       {/* Regular Chat Interface */}
         <div className={cn(
           fullScreen
-            ? "w-full h-full bg-background border-0 shadow-none flex flex-col"
+            ? "w-full h-screen bg-background border-0 shadow-none flex flex-col"
             : "fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col",
-          fullScreen ? "w-full pb-20 md:pb-0" : (isCollapsed ? "w-16" : "w-full max-w-96 md:w-96")
+          fullScreen ? "w-full" : (isCollapsed ? "w-16" : "w-full max-w-96 md:w-96")
         )}>
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
@@ -437,8 +437,11 @@ export function AiChatSidebar({
                      </div>
                    </div>}
 
-                 {/* Messages */}
-                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {/* Messages */}
+                  <div className={cn(
+                    "flex-1 overflow-y-auto p-4 space-y-4",
+                    fullScreen && "pb-24"
+                  )}>
                    {messages.length === 0 && <div className="text-center text-muted-foreground py-8">
                        <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
                        <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
@@ -500,8 +503,8 @@ export function AiChatSidebar({
 
                   {/* Input area */}
                   <div className={cn(
-                    "p-4 border-t border-border flex-shrink-0",
-                    fullScreen && "mb-safe-or-16 md:mb-0"
+                    "absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-background",
+                    fullScreen && "pb-safe md:pb-4"
                   )}>
                     <div className="flex gap-2">
                       <PhotoUploadButton 
