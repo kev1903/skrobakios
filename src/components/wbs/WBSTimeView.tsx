@@ -41,8 +41,6 @@ export const WBSTimeView = ({
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
   const mainScrollRef = useRef<HTMLDivElement>(null);
-  const headerHorizScrollRef = useRef<HTMLDivElement>(null);
-  const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const {
@@ -85,11 +83,6 @@ export const WBSTimeView = ({
     }
   }, []);
 
-  const handleLeftPanelHorizontalScroll = useCallback(() => {
-    if (headerHorizScrollRef.current && bodyHorizScrollRef.current) {
-      headerHorizScrollRef.current.scrollLeft = bodyHorizScrollRef.current.scrollLeft;
-    }
-  }, []);
 
   // Use actual WBS IDs from database - no fallback computation needed
   // All WBS items should have proper wbs_id values from the database
@@ -112,8 +105,8 @@ export const WBSTimeView = ({
               </div>
             </div>
             
-            {/* Scrollable Header for remaining columns */}
-            <div ref={headerHorizScrollRef} className="flex-1 overflow-x-auto overflow-y-hidden">
+            {/* Header for remaining columns */}
+            <div className="flex-1 overflow-hidden">
               <div className="py-1 text-xs font-medium text-gray-700 flex items-center min-w-fit">
                 <div className="grid items-center" style={{
                   gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
@@ -166,8 +159,8 @@ export const WBSTimeView = ({
               />
             </div>
             
-            {/* Scrollable Right Panel */}
-            <div ref={bodyHorizScrollRef} className="flex-1 overflow-x-auto overflow-y-hidden" onScroll={handleLeftPanelHorizontalScroll}>
+            {/* Right Panel */}
+            <div className="flex-1 overflow-hidden">
               <WBSTimeRightPanel
                 items={items}
                 onItemUpdate={handleItemUpdate}
