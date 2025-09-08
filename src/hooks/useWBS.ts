@@ -20,11 +20,14 @@ export const useWBS = (projectId: string) => {
   const loadWBSItems = async () => {
     if (!projectId) return;
     
+    console.log('🔄 useWBS.loadWBSItems called with:', { projectId, companyId: currentCompany.id });
+    
     setLoading(true);
     setError(null);
     
     try {
       const items = await WBSService.loadWBSItems(projectId, currentCompany.id);
+      console.log('✅ useWBS.loadWBSItems received items:', items.length, 'for project:', projectId);
       setWBSItems(items);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load WBS items';
