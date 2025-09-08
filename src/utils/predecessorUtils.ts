@@ -239,16 +239,9 @@ const getTaskEndX = (task: GanttTask, viewSettings: any) => {
 };
 
 const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number) => {
-  // Always create L-shaped path with final vertical segment downward
-  const horizontalOffset = 20; // Distance to extend horizontally before turning down
-  
-  // Calculate the intermediate point for the L-shape
-  // Always go horizontally first, then vertically down to the target
-  const intermediateX = fromX + horizontalOffset;
-  
-  // Ensure the final segment is always vertical downward by using toY as the final Y
-  // Path: horizontal from predecessor, then vertical down to successor
-  return `M ${fromX} ${fromY} L ${intermediateX} ${fromY} L ${intermediateX} ${toY} L ${toX} ${toY}`;
+  // Simple L-shape: horizontal first, then vertical down
+  // Path: horizontal from start to target X, then vertical down to target Y
+  return `M ${fromX} ${fromY} L ${toX} ${fromY} L ${toX} ${toY}`;
 };
 
 const getDependencyColor = (type: DependencyType) => {
