@@ -65,14 +65,19 @@ export const PredecessorCell = ({
   const isElement = type === 'element';
   const selectedIds = selectedPredecessors.map(p => p.id);
 
-  // Validate schedule when predecessors change
+  // Validate schedule when predecessors change - defer validation to allow auto-scheduling
   useEffect(() => {
     if (isElement && allItems.length > 0) {
-      const currentTask = allItems.find(t => t.id === id);
-      if (currentTask) {
-        const validation = validateWBSTaskSchedule(currentTask, allItems);
-        setValidationErrors(validation.violations);
-      }
+      // Defer validation to allow auto-scheduling to complete first
+      const timeoutId = setTimeout(() => {
+        const currentTask = allItems.find(t => t.id === id);
+        if (currentTask) {
+          const validation = validateWBSTaskSchedule(currentTask, allItems);
+          setValidationErrors(validation.violations);
+        }
+      }, 500); // Wait 500ms for auto-scheduling to complete
+
+      return () => clearTimeout(timeoutId);
     }
   }, [selectedPredecessors, allItems, id, isElement]);
   

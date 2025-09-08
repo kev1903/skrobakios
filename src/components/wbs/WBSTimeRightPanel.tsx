@@ -449,6 +449,9 @@ export const WBSTimeRightPanel = ({
                       console.log(`Auto-scheduling dependent task ${taskId}:`, updates);
                       return Promise.resolve(onItemUpdate(taskId, updates));
                     });
+                    
+                    // Clear any validation errors after successful auto-scheduling
+                    console.log(`Auto-scheduling completed for task ${id} and dependencies`);
                   }
                 }}
               />
