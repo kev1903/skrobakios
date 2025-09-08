@@ -110,19 +110,52 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
             <defs>
               {/* Enhanced arrowhead with gradient */}
               <marker
-                id="arrowhead-timeline"
-                markerWidth="5"
-                markerHeight="4"
-                refX="2.5"
-                refY="0"
+                id="arrowhead-timeline-fs"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
                 orient="auto"
                 markerUnits="strokeWidth"
               >
-                <path
-                  d="M0,0 L5,0 L2.5,4 z"
-                  fill="var(--arrow-color, #6366f1)"
-                  stroke="none"
-                />
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(59, 130, 246, 0.9)" />
+              </marker>
+              <marker
+                id="arrowhead-timeline-ss"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(16, 185, 129, 0.9)" />
+              </marker>
+              <marker
+                id="arrowhead-timeline-ff"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(245, 158, 11, 0.9)" />
+              </marker>
+              <marker
+                id="arrowhead-timeline-sf"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="6"
+                markerHeight="6"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(239, 68, 68, 0.9)" />
               </marker>
               
               {/* Gradient definitions */}
@@ -177,7 +210,7 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
                     stroke={`url(#${gradientId})`}
                     strokeWidth="2"
                     fill="none"
-                    markerEnd="url(#arrowhead-timeline)"
+                    markerEnd={`url(#arrowhead-timeline-${line.type.toLowerCase()})`}
                     filter="url(#timelineDropShadow)"
                     className="arrow-main"
                     strokeLinecap="square"
