@@ -1,5 +1,5 @@
 import { WBSItem, WBSPredecessor, DependencyType } from '@/types/wbs';
-import { addDays, parseISO, isAfter, isBefore } from 'date-fns';
+import { addDays, parseISO, isAfter, isBefore, format } from 'date-fns';
 
 /**
  * Calculates the earliest start date for a WBS item based on its predecessors
@@ -22,7 +22,7 @@ export const calculateWBSEarliestStartDate = (
     let augmentedPredecessor = predecessorTask;
     if (!predecessorTask.end_date && predecessorTask.start_date && (predecessorTask.duration || predecessorTask.duration === 0)) {
       const derivedEnd = addDays(parseISO(predecessorTask.start_date), Math.max(0, (predecessorTask.duration || 1) - 1));
-      augmentedPredecessor = { ...predecessorTask, end_date: derivedEnd.toISOString().split('T')[0] } as WBSItem;
+      augmentedPredecessor = { ...predecessorTask, end_date: format(derivedEnd, 'yyyy-MM-dd') } as WBSItem;
     }
 
     // Ensure required anchor exists based on dependency type
@@ -150,8 +150,8 @@ export const autoScheduleWBSTask = (
   // Always reschedule if there are predecessors to ensure proper sequencing
   // or if the proposed start differs from current start
   if (!currentStart || proposedStart.getTime() !== currentStart.getTime()) {
-    const newStartDate = proposedStart.toISOString().split('T')[0];
-    const newEndDate = addDays(proposedStart, duration - 1).toISOString().split('T')[0];
+    const newStartDate = format(proposedStart, 'yyyy-MM-dd');
+    const newEndDate = format(addDays(proposedStart, duration - 1), 'yyyy-MM-dd');
 
     return {
       start_date: newStartDate,
