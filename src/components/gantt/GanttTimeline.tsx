@@ -111,51 +111,51 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
               {/* Enhanced arrowhead with gradient */}
               <marker
                 id="arrowhead-timeline-fs"
-                viewBox="0 0 10 10"
-                refX="9"
-                refY="5"
-                markerWidth="6"
-                markerHeight="6"
+                viewBox="0 0 8 8"
+                refX="7"
+                refY="4"
+                markerWidth="4"
+                markerHeight="4"
                 orient="auto"
                 markerUnits="strokeWidth"
               >
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(59, 130, 246, 0.9)" />
+                <path d="M 0 0 L 8 4 L 0 8 z" fill="rgba(59, 130, 246, 0.9)" />
               </marker>
               <marker
                 id="arrowhead-timeline-ss"
-                viewBox="0 0 10 10"
-                refX="9"
-                refY="5"
-                markerWidth="6"
-                markerHeight="6"
+                viewBox="0 0 8 8"
+                refX="7"
+                refY="4"
+                markerWidth="4"
+                markerHeight="4"
                 orient="auto"
                 markerUnits="strokeWidth"
               >
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(16, 185, 129, 0.9)" />
+                <path d="M 0 0 L 8 4 L 0 8 z" fill="rgba(16, 185, 129, 0.9)" />
               </marker>
               <marker
                 id="arrowhead-timeline-ff"
-                viewBox="0 0 10 10"
-                refX="9"
-                refY="5"
-                markerWidth="6"
-                markerHeight="6"
+                viewBox="0 0 8 8"
+                refX="7"
+                refY="4"
+                markerWidth="4"
+                markerHeight="4"
                 orient="auto"
                 markerUnits="strokeWidth"
               >
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(245, 158, 11, 0.9)" />
+                <path d="M 0 0 L 8 4 L 0 8 z" fill="rgba(245, 158, 11, 0.9)" />
               </marker>
               <marker
                 id="arrowhead-timeline-sf"
-                viewBox="0 0 10 10"
-                refX="9"
-                refY="5"
-                markerWidth="6"
-                markerHeight="6"
+                viewBox="0 0 8 8"
+                refX="7"
+                refY="4"
+                markerWidth="4"
+                markerHeight="4"
                 orient="auto"
                 markerUnits="strokeWidth"
               >
-                <path d="M 0 0 L 10 5 L 0 10 z" fill="rgba(239, 68, 68, 0.9)" />
+                <path d="M 0 0 L 8 4 L 0 8 z" fill="rgba(239, 68, 68, 0.9)" />
               </marker>
               
               {/* Gradient definitions */}
