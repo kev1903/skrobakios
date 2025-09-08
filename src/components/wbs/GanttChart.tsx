@@ -456,18 +456,17 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                 {/* Enhanced arrowhead with gradient */}
                 <marker
                   id="arrowhead"
-                  markerWidth="8"
-                  markerHeight="6"
-                  refX="8"
-                  refY="3"
+                  viewBox="0 0 12 8"
+                  refX="11"
+                  refY="4"
+                  markerWidth="12"
+                  markerHeight="8"
                   orient="auto"
-                  markerUnits="strokeWidth"
+                  markerUnits="userSpaceOnUse"
                 >
                   <path
-                    d="M0,0 L0,6 L8,3 z"
-                    fill="rgba(156, 163, 175, 0.9)"
-                    stroke="rgba(0,0,0,0.1)"
-                    strokeWidth="0.3"
+                    d="M0,0 L0,8 L12,4 z"
+                    fill="rgba(156, 163, 175, 0.95)"
                   />
                 </marker>
                 
