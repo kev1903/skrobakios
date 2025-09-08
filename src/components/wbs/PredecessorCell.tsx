@@ -91,19 +91,33 @@ export const PredecessorCell = ({
   );
 
   const handleAddPredecessor = () => {
-    if (!newPredecessor.id) return;
+    // Validate that a predecessor is selected
+    if (!newPredecessor.id) {
+      console.warn('⚠️ No predecessor selected for adding');
+      return;
+    }
     
+    // Check if this predecessor already exists
+    if (selectedPredecessors.some(p => p.id === newPredecessor.id)) {
+      console.warn('⚠️ Predecessor already exists:', newPredecessor.id);
+      return;
+    }
+
     const updated = [...selectedPredecessors, {
       id: newPredecessor.id,
       type: newPredecessor.type,
       lag: newPredecessor.lag
     }];
     
+    console.log(`➕ Adding predecessor to item ${id}:`, newPredecessor);
     setSelectedPredecessors(updated);
     setNewPredecessor({ id: '', type: 'FS', lag: 0 });
     
     if (onUpdate) {
+      console.log(`📝 Calling onUpdate for ${id} with predecessors:`, updated);
       onUpdate(id, 'predecessors', updated);
+    } else {
+      console.warn('⚠️ No onUpdate function provided');
     }
   };
 

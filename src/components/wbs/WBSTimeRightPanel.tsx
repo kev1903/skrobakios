@@ -400,58 +400,82 @@ export const WBSTimeRightPanel = ({
                 allItems={items} // Pass full items for validation
                 className="text-xs text-muted-foreground"
                 onUpdate={async (id, field, value) => {
-                  // Update the item with new predecessors first
-                  await onItemUpdate(id, { [field]: value });
-                  
-                  // Get updated flat items list
-                  const flatItems = items.reduce<WBSItem[]>((acc, item) => {
-                    const flatten = (i: WBSItem): WBSItem[] => [i, ...(i.children || []).flatMap(flatten)];
-                    return [...acc, ...flatten(item)];
-                  }, []);
-                  
-                  // Validate for circular dependencies
-                  const { detectCircularDependencies } = await import('@/utils/wbsPredecessorUtils');
-                  const hasCircular = detectCircularDependencies(id, flatItems);
-                  
-                  if (hasCircular) {
-                    // Revert the change if circular dependency detected
-                    const originalItem = flatItems.find(i => i.id === id);
-                    if (originalItem) {
-                      await onItemUpdate(id, { predecessors: originalItem.predecessors || [] });
+                  try {
+                    console.log(`Updating ${field} for item ${id}:`, value);
+                    
+                    // Update the item with new predecessors first
+                    await onItemUpdate(id, { [field]: value });
+                    console.log(`✅ Successfully updated ${field} for item ${id}`);
+                    
+                    // Get updated flat items list
+                    const flatItems = items.reduce<WBSItem[]>((acc, item) => {
+                      const flatten = (i: WBSItem): WBSItem[] => [i, ...(i.children || []).flatMap(flatten)];
+                      return [...acc, ...flatten(item)];
+                    }, []);
+                    
+                    // Validate for circular dependencies
+                    const { detectCircularDependencies } = await import('@/utils/wbsPredecessorUtils');
+                    const hasCircular = detectCircularDependencies(id, flatItems);
+                    
+                    if (hasCircular) {
+                      console.error('❌ Circular dependency detected - reverting changes');
+                      // Revert the change if circular dependency detected
+                      const originalItem = flatItems.find(i => i.id === id);
+                      if (originalItem) {
+                        await onItemUpdate(id, { predecessors: originalItem.predecessors || [] });
+                      }
+                      // Show user feedback about the circular dependency
+                      if (typeof window !== 'undefined' && 'toast' in window) {
+                        (window as any).toast({
+                          title: "Invalid Dependencies",
+                          description: "Circular dependencies are not allowed. Changes have been reverted.",
+                          variant: "destructive"
+                        });
+                      }
+                      return;
                     }
-                    console.error('Circular dependency detected - changes reverted');
-                    return;
-                  }
-                  
-                  // Auto-schedule this task based on its updated predecessors
-                  if (field === 'predecessors') {
-                    const { autoScheduleWBSTask } = await import('@/utils/wbsPredecessorUtils');
-                    const currentItem = flatItems.find(i => i.id === id);
-                    if (currentItem) {
-                      // Create updated item with new predecessors for scheduling calculation
-                      const itemWithNewPredecessors = { ...currentItem, predecessors: value };
-                      const scheduleUpdates = autoScheduleWBSTask(itemWithNewPredecessors, flatItems);
-                      
-                      if (scheduleUpdates) {
-                        console.log(`Auto-scheduling task ${id}:`, scheduleUpdates);
-                        await onItemUpdate(id, scheduleUpdates);
+                    
+                    // Auto-schedule this task based on its updated predecessors
+                    if (field === 'predecessors') {
+                      const { autoScheduleWBSTask } = await import('@/utils/wbsPredecessorUtils');
+                      const currentItem = flatItems.find(i => i.id === id);
+                      if (currentItem) {
+                        // Create updated item with new predecessors for scheduling calculation
+                        const itemWithNewPredecessors = { ...currentItem, predecessors: value };
+                        const scheduleUpdates = autoScheduleWBSTask(itemWithNewPredecessors, flatItems);
                         
-                        // Update flatItems with the newly scheduled item for dependent task scheduling
-                        const itemIndex = flatItems.findIndex(i => i.id === id);
-                        if (itemIndex >= 0) {
-                          flatItems[itemIndex] = { ...flatItems[itemIndex], ...scheduleUpdates, predecessors: value };
+                        if (scheduleUpdates) {
+                          console.log(`📅 Auto-scheduling task ${id}:`, scheduleUpdates);
+                          await onItemUpdate(id, scheduleUpdates);
+                          
+                          // Update flatItems with the newly scheduled item for dependent task scheduling
+                          const itemIndex = flatItems.findIndex(i => i.id === id);
+                          if (itemIndex >= 0) {
+                            flatItems[itemIndex] = { ...flatItems[itemIndex], ...scheduleUpdates, predecessors: value };
+                          }
                         }
                       }
+                      
+                      // Auto-schedule dependent tasks based on the updated item
+                      await autoScheduleDependentWBSTasks(id, flatItems, (taskId, updates) => {
+                        console.log(`📅 Auto-scheduling dependent task ${taskId}:`, updates);
+                        return Promise.resolve(onItemUpdate(taskId, updates));
+                      });
+                      
+                      // Show success feedback
+                      console.log(`✅ Auto-scheduling completed for task ${id} and dependencies`);
                     }
                     
-                    // Auto-schedule dependent tasks based on the updated item
-                    await autoScheduleDependentWBSTasks(id, flatItems, (taskId, updates) => {
-                      console.log(`Auto-scheduling dependent task ${taskId}:`, updates);
-                      return Promise.resolve(onItemUpdate(taskId, updates));
-                    });
-                    
-                    // Clear any validation errors after successful auto-scheduling
-                    console.log(`Auto-scheduling completed for task ${id} and dependencies`);
+                  } catch (error) {
+                    console.error('❌ Error updating predecessors:', error);
+                    // Show error feedback to user
+                    if (typeof window !== 'undefined' && 'toast' in window) {
+                      (window as any).toast({
+                        title: "Update Failed",
+                        description: "Failed to update predecessors. Please try again.",
+                        variant: "destructive"
+                      });
+                    }
                   }
                 }}
               />
