@@ -113,13 +113,13 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
                 id="arrowhead-timeline"
                 markerWidth="5"
                 markerHeight="4"
-                refX="4.5"
-                refY="2"
+                refX="2.5"
+                refY="0"
                 orient="auto"
                 markerUnits="strokeWidth"
               >
                 <path
-                  d="M0,0 L0,4 L5,2 z"
+                  d="M0,0 L5,0 L2.5,4 z"
                   fill="var(--arrow-color, #6366f1)"
                   stroke="none"
                 />
