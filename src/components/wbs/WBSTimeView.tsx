@@ -100,24 +100,24 @@ export const WBSTimeView = ({
         {/* Left Panel - includes both header and content */}
         <Panel defaultSize={50} minSize={30} className="flex flex-col">
           {/* Header Section */}
-          <div className="bg-white border-t border-gray-200 border-b border-gray-200 flex-shrink-0 h-[60px]">
-            {/* Make header horizontally scroll-sync with body */}
-            <div ref={headerHorizScrollRef} className="flex h-full overflow-hidden">
-              {/* WBS Left Panel Header */}
-              <div className="w-[420px] px-2 py-1 text-xs font-medium text-gray-700 border-r border-gray-200 flex-shrink-0">
-                <div className="grid items-center" style={{
-                  gridTemplateColumns: '32px 120px 1fr',
-                }}>
-                  <div></div>
-                  <div className="px-2 font-semibold">WBS</div>
-                  <div className="px-3 font-semibold">NAME</div>
-                </div>
+          <div className="bg-white border-t border-gray-200 border-b border-gray-200 flex-shrink-0 h-[60px] flex">
+            {/* Frozen WBS and NAME Header */}
+            <div className="w-[420px] px-2 py-1 text-xs font-medium text-gray-700 border-r border-gray-200 flex-shrink-0 bg-white z-30">
+              <div className="grid items-center h-full" style={{
+                gridTemplateColumns: '32px 120px 1fr',
+              }}>
+                <div></div>
+                <div className="px-2 font-semibold">WBS</div>
+                <div className="px-3 font-semibold">NAME</div>
               </div>
-              
-              {/* WBS Right Panel Header - Table Section */}
-              <div className="py-1 text-xs font-medium text-gray-700 flex-1 min-w-fit flex items-center">
-                <div className="grid items-center flex-1" style={{
+            </div>
+            
+            {/* Scrollable Header for remaining columns */}
+            <div ref={headerHorizScrollRef} className="flex-1 overflow-x-auto overflow-y-hidden">
+              <div className="py-1 text-xs font-medium text-gray-700 flex items-center min-w-fit">
+                <div className="grid items-center" style={{
                   gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
+                  minWidth: '884px' // Ensure minimum width for all columns
                 }}>
                   <div className="px-3 font-semibold">DESCRIPTION</div>
                   <div className="px-2 font-semibold">START DATE</div>
@@ -144,7 +144,8 @@ export const WBSTimeView = ({
 
           {/* Content Section */}
           <div className="flex-1 min-h-0 flex overflow-hidden">
-            <div ref={bodyHorizScrollRef} className="flex h-full w-full overflow-hidden" onScroll={handleLeftPanelHorizontalScroll}>
+            {/* Frozen WBS and NAME Panel */}
+            <div className="w-[420px] flex-shrink-0 bg-white border-r border-gray-200 z-20">
               <WBSLeftPanel
                 items={items.map(item => ({
                   ...item,
@@ -163,7 +164,10 @@ export const WBSTimeView = ({
                 hoveredId={hoveredId}
                 onRowHover={setHoveredId}
               />
-              
+            </div>
+            
+            {/* Scrollable Right Panel */}
+            <div ref={bodyHorizScrollRef} className="flex-1 overflow-x-auto overflow-y-hidden" onScroll={handleLeftPanelHorizontalScroll}>
               <WBSTimeRightPanel
                 items={items}
                 onItemUpdate={handleItemUpdate}
