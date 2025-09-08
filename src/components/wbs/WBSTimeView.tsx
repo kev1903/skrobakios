@@ -117,8 +117,8 @@ export const WBSTimeView = ({
             <div ref={headerHorizScrollRef} className="flex-1 overflow-x-hidden overflow-y-hidden">
               <div className="py-1 text-xs font-medium text-gray-700 flex items-center min-w-fit">
                 <div className="grid items-center" style={{
-                  gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
-                  minWidth: '884px' // Ensure minimum width for all columns
+                  gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 120px',
+                  minWidth: '920px' // Ensure minimum width for all columns
                 }}>
                   <div className="px-3 font-semibold">DESCRIPTION</div>
                   <div className="px-2 font-semibold">START DATE</div>

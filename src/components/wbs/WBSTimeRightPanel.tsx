@@ -273,7 +273,7 @@ export const WBSTimeRightPanel = ({
     handleItemUpdate(id, updates);
   }, [items, handleItemUpdate]);
   return (
-    <div className="bg-white overflow-hidden" style={{ minWidth: '884px' }}>
+    <div className="bg-white overflow-hidden" style={{ minWidth: '920px' }}>
       {/* Content */}
       <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full" onScroll={onScroll}>
         {items.map((item) => (
@@ -287,7 +287,7 @@ export const WBSTimeRightPanel = ({
                 : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
             } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
             style={{
-              gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 84px',
+              gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 120px',
             }}
             onMouseEnter={() => onRowHover?.(item.id)}
             onMouseLeave={() => onRowHover?.(null)}
