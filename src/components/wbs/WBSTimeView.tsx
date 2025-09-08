@@ -6,8 +6,6 @@ import { GanttChart } from './GanttChart';
 import { DropResult } from 'react-beautiful-dnd';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { WBSItem } from '@/types/wbs';
-import { useAutoScheduleNotifications } from '@/hooks/useAutoScheduleNotifications';
-import { AutoScheduleNotification } from './AutoScheduleNotification';
 
 interface WBSTimeViewProps {
   items: WBSItem[];
@@ -51,37 +49,10 @@ export const WBSTimeView = ({
     }
   }, []);
 
-  const {
-    notifications,
-    dismissNotification,
-    dismissAll,
-    createTaskUpdatedNotification
-  } = useAutoScheduleNotifications();
-
-  // Enhanced item update handler with notifications
+  // Simplified item update handler
   const handleItemUpdate = useCallback(async (itemId: string, updates: any) => {
-    const item = items.find(i => i.id === itemId);
-    if (!item) return;
-
-    const oldStartDate = item.start_date;
-    const oldEndDate = item.end_date;
-    
     await onItemUpdate(itemId, updates);
-    
-    // Check if dates changed and create notification
-    if ((updates.start_date && updates.start_date !== oldStartDate) || 
-        (updates.end_date && updates.end_date !== oldEndDate)) {
-      createTaskUpdatedNotification(
-        itemId,
-        item.title,
-        item.wbs_id || 'Unknown',
-        oldStartDate,
-        updates.start_date || item.start_date,
-        oldEndDate,
-        updates.end_date || item.end_date
-      );
-    }
-  }, [items, onItemUpdate, createTaskUpdatedNotification]);
+  }, [onItemUpdate]);
 
   const handleTimelineScroll = useCallback(() => {
     if (leftScrollRef.current && rightScrollRef.current && mainScrollRef.current) {
@@ -282,13 +253,6 @@ export const WBSTimeView = ({
           </div>
         </Panel>
       </PanelGroup>
-
-      {/* Auto-schedule notifications */}
-      <AutoScheduleNotification
-        notifications={notifications}
-        onDismiss={dismissNotification}
-        onDismissAll={dismissAll}
-      />
     </div>
   );
 };
