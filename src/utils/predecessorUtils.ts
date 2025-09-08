@@ -174,9 +174,9 @@ export const getDependencyLines = (
       
       if (!predecessorTask || predecessorIndex === -1) return;
 
-      // Calculate positions
-      const fromY = (predecessorIndex + 0.5) * viewSettings.rowHeight;
-      const toY = (taskIndex + 0.5) * viewSettings.rowHeight;
+      // Calculate positions - start from top corner of task bar
+      const fromY = predecessorIndex * viewSettings.rowHeight + 8; // Top of task bar with small offset
+      const toY = taskIndex * viewSettings.rowHeight + 8; // Top of task bar with small offset
       
       const fromX = dependency.type === 'FS' || dependency.type === 'FF' 
         ? getTaskEndX(predecessorTask, viewSettings)
