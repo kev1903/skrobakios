@@ -43,8 +43,8 @@ export const calculateDependencyDate = (
   let constraintDate: Date;
 
   switch (dependencyType) {
-    case 'FS': // Finish to Start - successor starts when predecessor finishes
-      constraintDate = predecessorTask.endDate;
+    case 'FS': // Finish to Start - successor starts one day after predecessor finishes
+      constraintDate = addDays(predecessorTask.endDate, 1);
       break;
     case 'SS': // Start to Start - successor starts when predecessor starts  
       constraintDate = predecessorTask.startDate;
