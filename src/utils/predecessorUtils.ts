@@ -239,8 +239,20 @@ const getTaskEndX = (task: GanttTask, viewSettings: any) => {
 };
 
 const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number) => {
-  // Simple vertical arrow path - straight down from predecessor to successor
-  return `M ${fromX} ${fromY} L ${fromX} ${toY} L ${toX} ${toY}`;
+  // Orthogonal path that TERMINATES VERTICALLY onto the successor's top edge
+  // This ensures the arrowhead points downward into the bar (top corner),
+  // matching Smartsheet-style connectors.
+  const stub = 8; // small offset for cleaner corners
+  const dirY = toY >= fromY ? 1 : -1;
+
+  const y1 = fromY + dirY * stub; // small vertical move from the predecessor corner
+
+  // Path:
+  // 1) start at predecessor corner
+  // 2) small vertical segment
+  // 3) long horizontal segment toward successor X
+  // 4) final vertical drop into the successor top edge (arrowhead here)
+  return `M ${fromX} ${fromY} L ${fromX} ${y1} L ${toX} ${y1} L ${toX} ${toY}`;
 };
 
 const getDependencyColor = (type: DependencyType) => {
