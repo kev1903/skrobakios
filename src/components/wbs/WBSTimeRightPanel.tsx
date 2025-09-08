@@ -168,7 +168,7 @@ export const WBSTimeRightPanel = ({
     // Handle predecessor updates with auto-scheduling
     if (updates.predecessors) {
       const flatItems = items.reduce<WBSItem[]>((acc, item) => {
-        const flatten = (i: WBSItem): WBSItem[] => [i, ...i.children.flatMap(flatten)];
+        const flatten = (i: WBSItem): WBSItem[] => [i, ...(i.children || []).flatMap(flatten)];
         return [...acc, ...flatten(item)];
       }, []);
       
@@ -184,7 +184,7 @@ export const WBSTimeRightPanel = ({
       timeoutRef.current = setTimeout(async () => {
         // Auto-schedule dependent tasks
         const flatItems = items.reduce<WBSItem[]>((acc, item) => {
-          const flatten = (i: WBSItem): WBSItem[] => [i, ...i.children.flatMap(flatten)];
+          const flatten = (i: WBSItem): WBSItem[] => [i, ...(i.children || []).flatMap(flatten)];
           return [...acc, ...flatten(item)];
         }, []);
         
@@ -405,7 +405,7 @@ export const WBSTimeRightPanel = ({
                   
                   // Get updated flat items list
                   const flatItems = items.reduce<WBSItem[]>((acc, item) => {
-                    const flatten = (i: WBSItem): WBSItem[] => [i, ...i.children.flatMap(flatten)];
+                    const flatten = (i: WBSItem): WBSItem[] => [i, ...(i.children || []).flatMap(flatten)];
                     return [...acc, ...flatten(item)];
                   }, []);
                   
