@@ -174,9 +174,9 @@ export const getDependencyLines = (
       
       if (!predecessorTask || predecessorIndex === -1) return;
 
-      // Calculate positions - start from top corner of task bar
-      const fromY = predecessorIndex * viewSettings.rowHeight + 8; // Top of task bar with small offset
-      const toY = taskIndex * viewSettings.rowHeight + 8; // Top of task bar with small offset
+// Calculate positions - align to the TOP corner of each bar based on level
+const fromY = predecessorIndex * viewSettings.rowHeight + getTaskTopOffset(viewSettings.rowHeight, predecessorTask.level);
+const toY = taskIndex * viewSettings.rowHeight + getTaskTopOffset(viewSettings.rowHeight, task.level);
       
       const fromX = dependency.type === 'FS' || dependency.type === 'FF' 
         ? getTaskEndX(predecessorTask, viewSettings)
@@ -201,6 +201,18 @@ export const getDependencyLines = (
   });
 
   return lines;
+};
+
+const getTaskTopOffset = (rowHeight: number, level?: number) => {
+  // Align with WBS/Gantt rendering:
+  // - Level 2 (Element bars): top offset is 2px
+  // - Level 1 (summary line): centered line height ~2px => use center - 1px
+  // - Level 0 (phase bar): 16px tall centered => use center - 8px
+  // - Fallback (generic gantt): 8px
+  if (level === 2) return 2;
+  if (level === 1) return rowHeight / 2 - 1;
+  if (level === 0) return rowHeight / 2 - 8;
+  return 8;
 };
 
 const getTaskStartX = (task: GanttTask, viewSettings: any) => {
