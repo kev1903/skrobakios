@@ -29,17 +29,6 @@ interface GanttChartProps {
 }
 
 export const GanttChart = ({ items, className = "", hideHeader = false, hoveredId, onRowHover }: GanttChartProps) => {
-  // Debug logging
-  console.log('GanttChart items:', items.map(item => ({
-    id: item.id,
-    wbsNumber: item.wbsNumber,
-    name: item.name,
-    start_date: item.start_date,
-    end_date: item.end_date,
-    level: item.level,
-    predecessors: item.predecessors
-  })));
-
   // Calculate the date range for the chart
   const { startDate, endDate, timelineDays } = useMemo(() => {
     const dates = items
@@ -50,13 +39,10 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
       ])
       .filter(Boolean) as Date[];
 
-    console.log('Parsed dates for chart:', dates);
-
     if (dates.length === 0) {
       const today = new Date();
       const fallbackStart = startOfWeek(today);
       const fallbackEnd = endOfWeek(addDays(today, 60));
-      console.log('No dates found, using fallback range:', { fallbackStart, fallbackEnd });
       return {
         startDate: fallbackStart,
         endDate: fallbackEnd,
@@ -69,8 +55,6 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
     
     const chartStart = startOfWeek(minDate);
     const chartEnd = endOfWeek(addDays(maxDate, 14)); // Extended buffer
-    
-    console.log('Chart date range:', { chartStart, chartEnd, minDate, maxDate });
     
     return {
       startDate: chartStart,
@@ -183,16 +167,8 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
   // Calculate dependency lines
   const dependencyLines = useMemo(() => {
     if (ganttTasks.length === 0) return [];
-    
-    const viewSettings = {
-      dayWidth,
-      rowHeight,
-      viewStart: startDate
-    };
-    
-    const lines = getDependencyLines(ganttTasks, viewSettings);
-    console.log('Dependency lines calculated:', lines.length, lines);
-    return lines;
+    const viewSettings = { dayWidth, rowHeight, viewStart: startDate };
+    return getDependencyLines(ganttTasks, viewSettings);
   }, [ganttTasks, dayWidth, rowHeight, startDate]);
 
 
