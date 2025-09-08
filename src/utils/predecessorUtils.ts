@@ -239,13 +239,15 @@ const getTaskEndX = (task: GanttTask, viewSettings: any) => {
 };
 
 const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number) => {
-  // L-shaped path: horizontal from predecessor, then 90-degree vertical drop to successor
+  // Always create L-shaped path with final vertical segment downward
   const horizontalOffset = 20; // Distance to extend horizontally before turning down
   
   // Calculate the intermediate point for the L-shape
+  // Always go horizontally first, then vertically down to the target
   const intermediateX = fromX + horizontalOffset;
   
-  // Path: horizontal line from predecessor, then vertical line to successor
+  // Ensure the final segment is always vertical downward by using toY as the final Y
+  // Path: horizontal from predecessor, then vertical down to successor
   return `M ${fromX} ${fromY} L ${intermediateX} ${fromY} L ${intermediateX} ${toY} L ${toX} ${toY}`;
 };
 
