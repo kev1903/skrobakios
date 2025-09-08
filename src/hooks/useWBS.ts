@@ -38,16 +38,72 @@ export const useWBS = (projectId: string) => {
     }
   };
 
-  // Create a new WBS item
+  // Create a new WBS item (optimistic, no full reload)
   const createWBSItem = async (itemData: WBSItemInput) => {
+    const tempId = `temp-${Date.now()}`;
+    const nowIso = new Date().toISOString();
+
+    const optimisticItem: WBSItem = {
+      id: tempId,
+      company_id: itemData.company_id,
+      project_id: itemData.project_id,
+      parent_id: itemData.parent_id,
+      wbs_id: itemData.wbs_id,
+      title: itemData.title,
+      description: itemData.description || '',
+      assigned_to: itemData.assigned_to,
+      start_date: itemData.start_date,
+      end_date: itemData.end_date,
+      duration: itemData.duration,
+      budgeted_cost: itemData.budgeted_cost,
+      actual_cost: itemData.actual_cost,
+      progress: itemData.progress ?? 0,
+      status: (itemData as any).status ?? 'Not Started',
+      health: (itemData as any).health ?? 'Good',
+      progress_status: (itemData as any).progress_status ?? 'On Track',
+      at_risk: (itemData as any).at_risk ?? false,
+      level: itemData.level,
+      category: itemData.category as any,
+      is_expanded: itemData.is_expanded ?? true,
+      linked_tasks: itemData.linked_tasks || [],
+      predecessors: (itemData as any).predecessors || [],
+      priority: (itemData as any).priority,
+      children: [],
+      created_at: nowIso,
+      updated_at: nowIso,
+    } as WBSItem;
+
+    // Helper to insert optimistically into tree
+    const insertItem = (list: WBSItem[]): WBSItem[] => {
+      if (!itemData.parent_id) return [...list, optimisticItem];
+      const recurse = (items: WBSItem[]): WBSItem[] =>
+        items.map((it) => {
+          if (it.id === itemData.parent_id) {
+            const children = Array.isArray(it.children) ? [...it.children, optimisticItem] : [optimisticItem];
+            return { ...it, is_expanded: true, children };
+          }
+          return { ...it, children: it.children ? recurse(it.children) : [] };
+        });
+      return recurse(list);
+    };
+
+    // Optimistic update
+    setWBSItems((prev) => insertItem(prev));
+
     try {
       const data = await WBSService.createWBSItem(itemData);
-      
-      // Reload items to update hierarchy
-      await loadWBSItems();
-      
+      // Replace temp item id with real id
+      setWBSItems((prev) =>
+        updateItemsRecursively(prev, tempId, {
+          id: data.id,
+          created_at: data.created_at,
+          updated_at: data.updated_at,
+        })
+      );
       return data;
     } catch (err) {
+      // Rollback on failure
+      setWBSItems((prev) => removeItemRecursively(prev, tempId));
       const errorMessage = err instanceof Error ? err.message : 'Failed to create WBS item';
       setError(errorMessage);
       console.error('Error creating WBS item:', err);

@@ -1175,7 +1175,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     </div>
                   </div>
 
-                  {loading ? (
+                  {loading && wbsItems.length === 0 ? (
                     <div className="flex items-center justify-center h-64">
                       <div className="text-center">
                         <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
@@ -1221,7 +1221,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
               <TabsContent value="time" className="h-full w-full m-0 p-0 data-[state=active]:flex">
                 <div className="h-full w-full flex flex-col min-h-0">
-                  {loading ? (
+                  {loading && wbsItems.length === 0 ? (
                     <div className="flex items-center justify-center h-64">
                       <div className="text-center">
                         <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
@@ -1298,7 +1298,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                      </div>
                    </div>
 
-                   {loading ? (
+                   {loading && wbsItems.length === 0 ? (
                      <div className="flex items-center justify-center h-64">
                        <div className="text-center">
                          <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
