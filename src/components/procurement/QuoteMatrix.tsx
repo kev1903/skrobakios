@@ -270,7 +270,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-5 w-5 p-0 bg-gray-200 text-gray-600 hover:bg-gray-300 border border-gray-300"
+                            className="h-5 w-5 p-0 text-gray-600 hover:text-gray-800"
                           >
                             <span className="text-xs">+</span>
                           </Button>
