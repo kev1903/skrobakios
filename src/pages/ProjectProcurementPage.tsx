@@ -221,19 +221,19 @@ export const ProjectProcurementPage = () => {
           </div>
 
           {/* Status Overview */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
             {PROCUREMENT_STATUSES.slice(0, 10).map((status) => {
               const count = getRFQCountByStatus(status.key);
               const StatusIcon = status.icon;
               return (
-                <Card key={status.key} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <StatusIcon className="w-4 h-4" />
-                      <span className="text-2xl font-bold">{count}</span>
+                <Card key={status.key} className="hover:shadow-md transition-shadow flex-shrink-0 min-w-[120px]">
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-1 mb-1">
+                      <StatusIcon className="w-3 h-3" />
+                      <span className="text-lg font-bold">{count}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">{status.label}</p>
-                    <Badge variant="secondary" className={`${status.color} mt-2`}>
+                    <p className="text-xs text-muted-foreground leading-tight">{status.label}</p>
+                    <Badge variant="secondary" className={`${status.color} mt-1 text-xs py-0 px-1`}>
                       {status.key}
                     </Badge>
                   </CardContent>
