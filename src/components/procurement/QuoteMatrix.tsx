@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useWBS } from '@/hooks/useWBS';
 
 interface RFQ {
   id: string;
@@ -38,8 +39,9 @@ interface Quote {
   vendor?: Vendor;
 }
 
-interface TradeRow {
-  trade: string;
+interface WBSRow {
+  wbsId: string;
+  title: string;
   contractors: Array<{
     contractorId: string;
     contractorName: string;
@@ -57,30 +59,9 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Predefined trade categories matching the uploaded design
-  const tradeCategories = [
-    "Preliminaries",
-    "Insurance", 
-    "Permit",
-    "Supervisor",
-    "Water Tapping",
-    "Electrical Connections",
-    "Electrical, Water & Gas Usuage",
-    "Drainer",
-    "Site Set Up",
-    "Site Shed (12month Hire)",
-    "Temporary Fencing (12month Hire)",
-    "Site Security Camera (12month Hire)", 
-    "Temporary Toilet (12month Hire)",
-    "Excavation",
-    "Set Out",
-    "Retaining Wall",
-    "Termite Protection",
-    "Concrete Pump",
-    "Slab Steel",
-    "Concrete"
-  ];
+  
+  // Load WBS items from database
+  const { wbsItems, loading: wbsLoading } = useWBS(projectId);
 
   useEffect(() => {
     fetchQuotesAndVendors();
@@ -133,12 +114,15 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
     .filter(vendor => quotes.some(quote => quote.vendor_id === vendor.id))
     .slice(0, 5);
 
-  // Build trade matrix data
-  const buildTradeMatrix = (): TradeRow[] => {
-    return tradeCategories.map(trade => {
+  // Build WBS matrix data
+  const buildWBSMatrix = (): WBSRow[] => {
+    return wbsItems.map(wbsItem => {
       const contractors = activeVendors.map(vendor => {
-        // Find RFQ for this trade category
-        const rfq = rfqs.find(r => r.trade_category.toLowerCase() === trade.toLowerCase());
+        // Find RFQ for this WBS item (matching by title or category)
+        const rfq = rfqs.find(r => 
+          r.trade_category.toLowerCase() === wbsItem.title.toLowerCase() ||
+          r.work_package.toLowerCase() === wbsItem.title.toLowerCase()
+        );
         // Find quote for this RFQ and vendor
         const quote = rfq ? quotes.find(q => q.rfq_id === rfq.id && q.vendor_id === vendor.id) : null;
         
@@ -150,15 +134,16 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
       });
 
       return {
-        trade,
+        wbsId: wbsItem.wbs_id,
+        title: wbsItem.title,
         contractors
       };
     });
   };
 
-  const tradeMatrix = buildTradeMatrix();
+  const wbsMatrix = buildWBSMatrix();
 
-  if (loading) {
+  if (loading || wbsLoading) {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-4">
@@ -181,7 +166,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
             <thead>
               <tr className="border-b bg-muted/30">
                 <th className="text-left py-3 px-4 font-medium text-muted-foreground min-w-[200px]">
-                  Trade
+                  WBS
                 </th>
                 {[1, 2, 3, 4, 5].map((num) => (
                   <React.Fragment key={num}>
@@ -196,15 +181,18 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
               </tr>
             </thead>
             <tbody>
-              {tradeMatrix.map((row, index) => (
+              {wbsMatrix.map((row, index) => (
                 <tr 
-                  key={row.trade} 
+                  key={row.wbsId} 
                   className={`border-b hover:bg-muted/20 transition-colors ${
                     index % 2 === 0 ? 'bg-background' : 'bg-muted/5'
                   }`}
                 >
                   <td className="py-4 px-4 font-medium text-foreground">
-                    {row.trade}
+                    <div>
+                      <div className="font-medium">{row.wbsId}</div>
+                      <div className="text-sm text-muted-foreground">{row.title}</div>
+                    </div>
                   </td>
                   {[0, 1, 2, 3, 4].map((contractorIndex) => {
                     const contractor = row.contractors[contractorIndex];
