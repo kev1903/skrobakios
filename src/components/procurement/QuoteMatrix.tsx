@@ -211,9 +211,9 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
       <div className="bg-white border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           {/* Table Header */}
-          <div className="bg-gray-100 border-b border-gray-200 sticky top-0 z-10">
-            <div className="grid grid-cols-12 gap-2 p-3 text-sm font-medium text-gray-700">
-              <div className="col-span-3">WBS</div>
+          <div className="bg-white border-b border-gray-200">
+            <div className="grid grid-cols-11 gap-4 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <div className="col-span-2">WBS</div>
               <div className="col-span-1 text-center">Contractor 1</div>
               <div className="col-span-1 text-center">Quote 1</div>
               <div className="col-span-1 text-center">Contractor 2</div>
@@ -222,48 +222,59 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
               <div className="col-span-1 text-center">Quote 3</div>
               <div className="col-span-1 text-center">Contractor 4</div>
               <div className="col-span-1 text-center">Quote 4</div>
-              <div className="col-span-1 text-center">Contractor 5</div>
-              <div className="col-span-1 text-center">Quote 5</div>
+              <div className="col-span-1 text-center">Contractor 5 / Quote 5</div>
             </div>
           </div>
 
           {/* Table Body */}
-          <div className="bg-white">
+          <div className="bg-white divide-y divide-gray-100">
             {wbsMatrix.map((row, index) => (
               <div 
                 key={row.wbsId} 
-                className={`grid grid-cols-12 gap-2 p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                  row.level > 0 ? 'bg-gray-25' : ''
+                className={`grid grid-cols-11 gap-4 px-4 py-3 hover:bg-gray-50 transition-colors ${
+                  row.level > 0 ? 'bg-blue-50/30' : 'bg-white'
                 }`}
               >
-                <div 
-                  className="col-span-3 flex items-center space-x-2" 
-                  style={{ paddingLeft: `${row.level * 20}px` }}
-                >
-                  {row.hasChildren && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleExpanded(row.itemId)}
-                      className="h-6 w-6 p-0 hover:bg-gray-200"
-                    >
-                      {row.isExpanded ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )}
-                    </Button>
-                  )}
-                  {!row.hasChildren && (
-                    <div className="w-6" /> /* Spacer for alignment */
-                  )}
-                  <div>
-                    <div className="text-sm font-mono text-gray-600">{row.wbsId}</div>
-                    <div className="text-sm font-medium">{row.title}</div>
+                <div className="col-span-2 flex items-center">
+                  <div 
+                    className="flex items-center space-x-2" 
+                    style={{ paddingLeft: `${row.level * 16}px` }}
+                  >
+                    {row.hasChildren ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleExpanded(row.itemId)}
+                        className="h-5 w-5 p-0 hover:bg-gray-200 flex-shrink-0"
+                      >
+                        {row.isExpanded ? (
+                          <ChevronDown className="w-3 h-3" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3" />
+                        )}
+                      </Button>
+                    ) : (
+                      <div className="w-5" />
+                    )}
+                    <div className="flex items-center space-x-2 min-w-0">
+                      <span className="text-sm font-medium text-blue-600 flex-shrink-0">{row.wbsId}</span>
+                      <span className="text-sm text-gray-900 truncate">{row.title}</span>
+                    </div>
                   </div>
                 </div>
                 {[0, 1, 2, 3, 4].map((contractorIndex) => {
                   const contractor = row.contractors[contractorIndex];
+                  if (contractorIndex === 4) {
+                    // Last column combines contractor and quote
+                    return (
+                      <div key={contractorIndex} className="col-span-1 text-center text-sm self-center">
+                        <div className="text-gray-600">{contractor?.contractorName || ''}</div>
+                        {contractor?.quote && (
+                          <div className="font-medium text-gray-900">{formatCurrency(contractor.quote)}</div>
+                        )}
+                      </div>
+                    );
+                  }
                   return (
                     <React.Fragment key={contractorIndex}>
                       <div className="col-span-1 text-center text-sm text-gray-600 self-center">
