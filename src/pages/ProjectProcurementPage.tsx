@@ -233,9 +233,6 @@ export const ProjectProcurementPage = () => {
                       <span className="text-lg font-bold">{count}</span>
                     </div>
                     <p className="text-xs text-muted-foreground leading-tight">{status.label}</p>
-                    <Badge variant="secondary" className={`${status.color} mt-1 text-xs py-0 px-1`}>
-                      {status.key}
-                    </Badge>
                   </CardContent>
                 </Card>
               );
