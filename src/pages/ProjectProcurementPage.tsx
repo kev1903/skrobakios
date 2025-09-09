@@ -290,8 +290,8 @@ export const ProjectProcurementPage = () => {
               <TabsTrigger value="matrix" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 Quote Matrix
               </TabsTrigger>
-              <TabsTrigger value="evaluation" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Evaluation
+              <TabsTrigger value="rfq" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                RFQ
               </TabsTrigger>
               <TabsTrigger value="approvals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 Approvals
@@ -309,7 +309,7 @@ export const ProjectProcurementPage = () => {
               />
             </TabsContent>
 
-            <TabsContent value="evaluation" className="space-y-6">
+            <TabsContent value="rfq" className="space-y-6">
               <EvaluationDashboard 
                 projectId={resolvedProjectId} 
                 rfqs={rfqs}
