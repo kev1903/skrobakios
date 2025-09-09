@@ -260,7 +260,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                   const contractor = row.contractors[contractorIndex];
                   const isBlueColumn = contractorIndex % 2 === 0; // 0, 2, 4 (1st, 3rd, 5th columns)
                   return (
-                    <div key={contractorIndex} className={`col-span-1 text-center text-sm font-medium text-gray-900 self-center px-2 border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50/70' : ''}`}>
+                    <div key={contractorIndex} className={`col-span-1 text-center text-sm font-medium text-gray-900 self-center px-2 border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-100'}`}>
                       {contractor?.quote ? formatCurrency(contractor.quote) : ''}
                     </div>
                   );
