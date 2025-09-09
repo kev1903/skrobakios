@@ -62,6 +62,9 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   
   // Load WBS items from database
   const { wbsItems, loading: wbsLoading } = useWBS(projectId);
+  
+  // Debug: ensure we're using the updated code
+  console.log('QuoteMatrix: Using WBS items:', wbsItems.length);
 
   useEffect(() => {
     fetchQuotesAndVendors();
