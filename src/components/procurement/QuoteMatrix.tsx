@@ -9,6 +9,7 @@ import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useWBS } from '@/hooks/useWBS';
 import { WBSItem } from '@/types/wbs';
+import { QuotePopup } from './QuotePopup';
 
 interface RFQ {
   id: string;
@@ -72,6 +73,13 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
     // Initially expand all top-level items (stages)
     return new Set<string>();
   });
+  
+  // Quote popup state
+  const [isQuotePopupOpen, setIsQuotePopupOpen] = useState(false);
+  const [selectedQuoteData, setSelectedQuoteData] = useState<{
+    wbsItem?: WBSRow;
+    contractor?: any;
+  }>({});
   
   // Load WBS items from database
   const { wbsItems, loading: wbsLoading } = useWBS(projectId);
@@ -195,31 +203,8 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
 
   // Handle navigation to quote creation page
   const handleCreateQuote = (wbsItem: WBSRow, contractor: any) => {
-    if (onNavigate) {
-      onNavigate('create-quote', {
-        projectId,
-        wbsId: wbsItem.wbsId,
-        wbsTitle: wbsItem.title,
-        contractorId: contractor.contractorId,
-        contractorName: contractor.contractorName
-      });
-    } else {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        params.set('page', 'create-quote');
-        params.set('projectId', projectId);
-        params.set('wbsCode', wbsItem.wbsId);
-        params.set('wbsTitle', wbsItem.title);
-        if (contractor?.contractorId) params.set('vendorId', contractor.contractorId);
-        if (contractor?.contractorName) params.set('vendorName', contractor.contractorName);
-        const newUrl = `${window.location.pathname}?${params.toString()}`;
-        window.history.pushState({}, '', newUrl);
-        window.dispatchEvent(new PopStateEvent('popstate'));
-      } catch (e) {
-        console.error('Navigation failed', e);
-        toast.error('Unable to open quote page');
-      }
-    }
+    setSelectedQuoteData({ wbsItem, contractor });
+    setIsQuotePopupOpen(true);
   };
 
   if (loading || wbsLoading) {
@@ -332,13 +317,27 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                         </SelectItem>
                       ))}
                     </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+                   </Select>
+                 </div>
+               </div>
+             ))}
+           </div>
+         </div>
+       </div>
+
+       <QuotePopup
+         isOpen={isQuotePopupOpen}
+         onClose={() => setIsQuotePopupOpen(false)}
+         wbsItem={selectedQuoteData.wbsItem ? {
+           wbsId: selectedQuoteData.wbsItem.wbsId,
+           title: selectedQuoteData.wbsItem.title
+         } : undefined}
+         contractor={selectedQuoteData.contractor ? {
+           contractorId: selectedQuoteData.contractor.contractorId,
+           contractorName: selectedQuoteData.contractor.contractorName
+         } : undefined}
+         projectId={projectId}
+       />
+     </div>
+   );
+ };
