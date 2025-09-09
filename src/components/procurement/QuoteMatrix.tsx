@@ -212,11 +212,11 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
           <div className="bg-white border-b border-gray-200">
             <div className="grid grid-cols-7 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
               <div className="col-span-2 px-2">WBS</div>
-              <div className="col-span-1 text-center px-2 bg-blue-50 border-l border-blue-200">Quote 1</div>
-              <div className="col-span-1 text-center px-2 bg-gray-50 border-l border-gray-200">Quote 2</div>
-              <div className="col-span-1 text-center px-2 bg-green-50 border-l border-green-200">Quote 3</div>
-              <div className="col-span-1 text-center px-2 bg-yellow-50 border-l border-yellow-200">Quote 4</div>
-              <div className="col-span-1 text-center px-2 bg-purple-50 border-l border-purple-200">Quote 5</div>
+              <div className="col-span-1 text-center px-2 bg-blue-50 border-l border-gray-200">Quote 1</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 2</div>
+              <div className="col-span-1 text-center px-2 bg-blue-50 border-l border-gray-200">Quote 3</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 4</div>
+              <div className="col-span-1 text-center px-2 bg-blue-50 border-l border-gray-200">Quote 5</div>
             </div>
           </div>
 
@@ -258,15 +258,9 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                 </div>
                 {[0, 1, 2, 3, 4].map((contractorIndex) => {
                   const contractor = row.contractors[contractorIndex];
-                  const columnColors = [
-                    'bg-blue-50/70 border-l border-blue-200',
-                    'bg-gray-50/70 border-l border-gray-200', 
-                    'bg-green-50/70 border-l border-green-200',
-                    'bg-yellow-50/70 border-l border-yellow-200',
-                    'bg-purple-50/70 border-l border-purple-200'
-                  ];
+                  const isBlueColumn = contractorIndex % 2 === 0; // 0, 2, 4 (1st, 3rd, 5th columns)
                   return (
-                    <div key={contractorIndex} className={`col-span-1 text-center text-sm font-medium text-gray-900 self-center px-2 ${columnColors[contractorIndex]}`}>
+                    <div key={contractorIndex} className={`col-span-1 text-center text-sm font-medium text-gray-900 self-center px-2 border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50/70' : ''}`}>
                       {contractor?.quote ? formatCurrency(contractor.quote) : ''}
                     </div>
                   );
