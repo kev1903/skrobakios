@@ -61,9 +61,10 @@ interface QuoteMatrixProps {
   projectId: string;
   rfqs: RFQ[];
   onRFQUpdate: () => void;
+  onNavigate?: (page: string, params?: any) => void;
 }
 
-export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQUpdate }) => {
+export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQUpdate, onNavigate }) => {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -192,6 +193,19 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
 
   const wbsMatrix = buildWBSMatrix();
 
+  // Handle navigation to quote creation page
+  const handleCreateQuote = (wbsItem: WBSRow, contractor: any) => {
+    if (onNavigate) {
+      onNavigate('create-quote', {
+        projectId,
+        wbsId: wbsItem.wbsId,
+        wbsTitle: wbsItem.title,
+        contractorId: contractor.contractorId,
+        contractorName: contractor.contractorName
+      });
+    }
+  };
+
   if (loading || wbsLoading) {
     return (
       <div className="p-6">
@@ -270,6 +284,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                             variant="ghost"
                             size="sm"
                             className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex items-center justify-center"
+                            onClick={() => handleCreateQuote(row, contractor)}
                           >
                             <span className="text-sm font-bold">+</span>
                           </Button>
