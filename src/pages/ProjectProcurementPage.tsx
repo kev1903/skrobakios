@@ -18,6 +18,7 @@ import { ApprovalQueue } from '@/components/procurement/ApprovalQueue';
 import { CommitmentsRegister } from '@/components/procurement/CommitmentsRegister';
 import { RFQForm } from '@/components/procurement/RFQForm';
 import { VendorManagement } from '@/components/procurement/VendorManagement';
+import { projectCache } from '@/utils/projectCache';
 
 const PROCUREMENT_STATUSES = [
   { key: 'RFQ Draft', label: 'RFQ Draft', color: 'bg-gray-100 text-gray-800', icon: FileText },
@@ -58,37 +59,64 @@ export const ProjectProcurementPage = () => {
   const [showRFQForm, setShowRFQForm] = useState(false);
   const [showVendorForm, setShowVendorForm] = useState(false);
 
-  // Navigation handler for ProjectSidebar
+  // Navigation handler for ProjectSidebar - Use client-side navigation instead of page reload
   const handleNavigate = (page: string) => {
     if (page === 'projects') {
       // Navigate to projects list without projectId
-      window.location.href = '/?page=projects';
+      const search = new URLSearchParams();
+      search.set('page', 'projects');
+      const newUrl = `${window.location.pathname}?${search.toString()}`;
+      window.history.pushState({}, '', newUrl);
+      window.location.reload(); // Only projects page needs reload to reset state
       return;
     }
     
+    // Handle client-side navigation
+    let targetPage = page;
+    const search = new URLSearchParams(window.location.search);
+    
     if (page.includes('?')) {
       const [pageName, queryString] = page.split('?');
+      targetPage = pageName;
       const params = new URLSearchParams(queryString);
-      const projectIdFromUrl = params.get('projectId');
-      if (projectIdFromUrl) {
-        window.location.href = `/?page=${pageName}&projectId=${projectIdFromUrl}`;
-      } else {
-        window.location.href = `/?page=${pageName}&projectId=${resolvedProjectId}`;
-      }
-    } else {
-      window.location.href = `/?page=${page}&projectId=${resolvedProjectId}`;
+      params.forEach((value, key) => {
+        search.set(key, value);
+      });
     }
+    
+    // Always preserve projectId for seamless navigation
+    search.set('page', targetPage);
+    if (resolvedProjectId) {
+      search.set('projectId', resolvedProjectId);
+    }
+    
+    // Use pushState for instant navigation without reload
+    const newUrl = `${window.location.pathname}?${search.toString()}`;
+    window.history.pushState({}, '', newUrl);
+    
+    // Trigger page change without reload
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   useEffect(() => {
     if (resolvedProjectId && currentCompany) {
-      fetchProjectData();
+      // Only fetch if we don't have the project data or if projectId changed
+      if (!project || project.id !== resolvedProjectId) {
+        fetchProjectData();
+      }
       fetchRFQs();
     }
   }, [resolvedProjectId, currentCompany]);
 
   const fetchProjectData = async () => {
     if (!resolvedProjectId || !currentCompany) return;
+
+    // Check cache first for instant navigation
+    const cachedProject = projectCache.get(resolvedProjectId);
+    if (cachedProject && cachedProject.company_id === currentCompany.id) {
+      setProject(cachedProject);
+      return;
+    }
 
     try {
       const { data: projectData, error: projectError } = await supabase
@@ -104,6 +132,8 @@ export const ProjectProcurementPage = () => {
         return;
       }
 
+      // Cache the project data for future navigations
+      projectCache.set(resolvedProjectId, projectData);
       setProject(projectData);
     } catch (error) {
       console.error('Error fetching project:', error);
@@ -152,7 +182,7 @@ export const ProjectProcurementPage = () => {
     toast.success('RFQ created successfully');
   };
 
-  if (loading) {
+  if (loading || !currentCompany) {
     return (
       <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="flex-1 flex items-center justify-center">
@@ -166,7 +196,21 @@ export const ProjectProcurementPage = () => {
     );
   }
 
-  if (!project) {
+  // Show proper loading state while project is being fetched
+  if (!project && resolvedProjectId && currentCompany) {
+    return (
+      <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="text-muted-foreground">Loading project...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!project && !loading) {
     return (
       <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="flex-1 flex items-center justify-center">
