@@ -71,75 +71,11 @@ export const QuotePopup: React.FC<QuotePopupProps> = ({
 
         {/* Content with Tabs */}
         <div className="flex-1 overflow-y-auto">
-          <Tabs defaultValue="rfq" className="h-full">
+          <Tabs defaultValue="quote" className="h-full">
             <TabsList className="w-full justify-start px-6 py-0 h-12 bg-muted/30 border-b rounded-none">
-              <TabsTrigger value="rfq" className="px-6 py-3">RFQ</TabsTrigger>
               <TabsTrigger value="quote" className="px-6 py-3">Quote</TabsTrigger>
               <TabsTrigger value="review" className="px-6 py-3">Review</TabsTrigger>
             </TabsList>
-
-            {/* RFQ Tab */}
-            <TabsContent value="rfq" className="p-6 space-y-6 mt-0">
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label>WBS Code</Label>
-                    <Input 
-                      value={wbsItem?.wbsId || ''} 
-                      disabled
-                      className="bg-muted"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Contractor</Label>
-                    <Input 
-                      value={contractor?.contractorName || ''} 
-                      disabled
-                      className="bg-muted"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>RFQ Requirements</Label>
-                  <Textarea
-                    placeholder="Define the scope and requirements for this RFQ..."
-                    rows={4}
-                    className="resize-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label>Due Date</Label>
-                    <Input type="date" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Priority</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select priority" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="urgent">Urgent</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Additional Requirements</Label>
-                  <Textarea
-                    placeholder="Any special requirements, certifications, or conditions..."
-                    rows={3}
-                    className="resize-none"
-                  />
-                </div>
-              </div>
-            </TabsContent>
 
             {/* Quote Tab */}
             <TabsContent value="quote" className="p-6 space-y-6 mt-0">
