@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/lib/utils';
@@ -217,7 +218,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
               <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 3</div>
               <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 4</div>
               <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 5</div>
-              <div className="col-span-1 text-center px-2 border-l border-gray-200">Approved</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200 bg-green-50">Approved</div>
             </div>
           </div>
 
@@ -266,8 +267,28 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                     </div>
                   );
                 })}
-                <div className="col-span-1 text-center text-sm font-medium text-gray-900 self-center px-2 py-3 h-full border-l border-gray-200 hover:bg-gray-100">
-                  {/* Approved column - placeholder for future implementation */}
+                <div className="col-span-1 px-2 py-3 h-full border-l border-gray-200 bg-green-50/30">
+                  <Select>
+                    <SelectTrigger className="w-full h-8 text-xs bg-white border-green-200">
+                      <SelectValue placeholder="Select quote..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+                      {row.contractors.map((contractor, idx) => (
+                        <SelectItem 
+                          key={contractor.contractorId} 
+                          value={contractor.contractorId}
+                          className="text-xs"
+                        >
+                          <div className="flex justify-between items-center w-full">
+                            <span className="truncate">{contractor.contractorName}</span>
+                            <span className="ml-2 text-muted-foreground">
+                              {contractor.quote ? 'Submitted' : 'Pending'}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             ))}
