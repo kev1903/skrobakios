@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useWBS } from '@/hooks/useWBS';
+import { WBSItem } from '@/types/wbs';
 
 interface RFQ {
   id: string;
@@ -42,6 +45,10 @@ interface Quote {
 interface WBSRow {
   wbsId: string;
   title: string;
+  level: number;
+  hasChildren: boolean;
+  isExpanded: boolean;
+  itemId: string;
   contractors: Array<{
     contractorId: string;
     contractorName: string;
@@ -59,12 +66,13 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => {
+    // Initially expand all top-level items (stages)
+    return new Set<string>();
+  });
   
   // Load WBS items from database
   const { wbsItems, loading: wbsLoading } = useWBS(projectId);
-  
-  // Debug: ensure we're using the updated code
-  console.log('QuoteMatrix: Using WBS items:', wbsItems.length);
 
   useEffect(() => {
     fetchQuotesAndVendors();
@@ -117,9 +125,42 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
     .filter(vendor => quotes.some(quote => quote.vendor_id === vendor.id))
     .slice(0, 5);
 
+  // Flatten visible WBS items based on expansion state
+  const flattenVisibleWBS = (items: WBSItem[]): WBSItem[] => {
+    const result: WBSItem[] = [];
+    
+    const traverse = (wbsItems: WBSItem[]) => {
+      wbsItems.forEach(item => {
+        result.push(item);
+        
+        if (item.children && item.children.length > 0 && expandedIds.has(item.id)) {
+          traverse(item.children);
+        }
+      });
+    };
+    
+    traverse(items);
+    return result;
+  };
+
+  const visibleWBSItems = useMemo(() => flattenVisibleWBS(wbsItems), [wbsItems, expandedIds]);
+
+  // Toggle expansion state
+  const toggleExpanded = useCallback((itemId: string) => {
+    setExpandedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
+  }, []);
+
   // Build WBS matrix data
   const buildWBSMatrix = (): WBSRow[] => {
-    return wbsItems.map(wbsItem => {
+    return visibleWBSItems.map(wbsItem => {
       const contractors = activeVendors.map(vendor => {
         // Find RFQ for this WBS item (matching by title or category)
         const rfq = rfqs.find(r => 
@@ -139,7 +180,11 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
       return {
         wbsId: wbsItem.wbs_id,
         title: wbsItem.title,
-        contractors
+        contractors,
+        level: wbsItem.level,
+        hasChildren: wbsItem.children && wbsItem.children.length > 0,
+        isExpanded: expandedIds.has(wbsItem.id),
+        itemId: wbsItem.id
       };
     });
   };
@@ -192,9 +237,31 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                   }`}
                 >
                   <td className="py-4 px-4 font-medium text-foreground">
-                    <div>
-                      <div className="font-medium">{row.wbsId}</div>
-                      <div className="text-sm text-muted-foreground">{row.title}</div>
+                    <div 
+                      className="flex items-center space-x-2" 
+                      style={{ paddingLeft: `${row.level * 20}px` }}
+                    >
+                      {row.hasChildren && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleExpanded(row.itemId)}
+                          className="h-6 w-6 p-0 hover:bg-muted"
+                        >
+                          {row.isExpanded ? (
+                            <ChevronDown className="w-4 h-4" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4" />
+                          )}
+                        </Button>
+                      )}
+                      {!row.hasChildren && (
+                        <div className="w-6" /> /* Spacer for alignment */
+                      )}
+                      <div>
+                        <div className="font-medium">{row.wbsId}</div>
+                        <div className="text-sm text-muted-foreground">{row.title}</div>
+                      </div>
                     </div>
                   </td>
                   {[0, 1, 2, 3, 4].map((contractorIndex) => {
