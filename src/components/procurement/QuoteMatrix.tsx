@@ -225,11 +225,11 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
             {wbsMatrix.map((row, index) => (
               <div 
                 key={row.wbsId} 
-                className={`grid grid-cols-7 px-4 py-3 hover:bg-gray-50 transition-colors ${
+                className={`grid grid-cols-7 px-4 hover:bg-gray-50 transition-colors ${
                   row.level > 0 ? 'bg-blue-50/30' : 'bg-white'
                 }`}
               >
-                <div className="col-span-2 flex items-center px-2">
+                <div className="col-span-2 flex items-center px-2 py-3">
                   <div 
                     className="flex items-center space-x-2" 
                     style={{ paddingLeft: `${row.level * 16}px` }}
@@ -260,7 +260,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                   const contractor = row.contractors[contractorIndex];
                   const isBlueColumn = contractorIndex % 2 === 0; // 0, 2, 4 (1st, 3rd, 5th columns)
                   return (
-                    <div key={contractorIndex} className={`col-span-1 text-center text-sm font-medium text-gray-900 self-center px-2 border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-100'}`}>
+                    <div key={contractorIndex} className={`col-span-1 text-center text-sm font-medium text-gray-900 self-center px-2 py-3 h-full border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-100'}`}>
                       {contractor?.quote ? formatCurrency(contractor.quote) : ''}
                     </div>
                   );
