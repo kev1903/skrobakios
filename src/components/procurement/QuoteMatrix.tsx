@@ -210,17 +210,13 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
         <div className="overflow-x-auto">
           {/* Table Header */}
           <div className="bg-white border-b border-gray-200">
-            <div className="grid grid-cols-11 gap-4 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <div className="grid grid-cols-7 gap-4 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
               <div className="col-span-2">WBS</div>
-              <div className="col-span-1 text-center">Contractor 1</div>
               <div className="col-span-1 text-center">Quote 1</div>
-              <div className="col-span-1 text-center">Contractor 2</div>
               <div className="col-span-1 text-center">Quote 2</div>
-              <div className="col-span-1 text-center">Contractor 3</div>
               <div className="col-span-1 text-center">Quote 3</div>
-              <div className="col-span-1 text-center">Contractor 4</div>
               <div className="col-span-1 text-center">Quote 4</div>
-              <div className="col-span-1 text-center">Contractor 5 / Quote 5</div>
+              <div className="col-span-1 text-center">Quote 5</div>
             </div>
           </div>
 
@@ -229,7 +225,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
             {wbsMatrix.map((row, index) => (
               <div 
                 key={row.wbsId} 
-                className={`grid grid-cols-11 gap-4 px-4 py-3 hover:bg-gray-50 transition-colors ${
+                className={`grid grid-cols-7 gap-4 px-4 py-3 hover:bg-gray-50 transition-colors ${
                   row.level > 0 ? 'bg-blue-50/30' : 'bg-white'
                 }`}
               >
@@ -262,26 +258,10 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                 </div>
                 {[0, 1, 2, 3, 4].map((contractorIndex) => {
                   const contractor = row.contractors[contractorIndex];
-                  if (contractorIndex === 4) {
-                    // Last column combines contractor and quote
-                    return (
-                      <div key={contractorIndex} className="col-span-1 text-center text-sm self-center">
-                        <div className="text-gray-600">{contractor?.contractorName || ''}</div>
-                        {contractor?.quote && (
-                          <div className="font-medium text-gray-900">{formatCurrency(contractor.quote)}</div>
-                        )}
-                      </div>
-                    );
-                  }
                   return (
-                    <React.Fragment key={contractorIndex}>
-                      <div className="col-span-1 text-center text-sm text-gray-600 self-center">
-                        {contractor?.contractorName || ''}
-                      </div>
-                      <div className="col-span-1 text-center text-sm font-medium text-gray-900 self-center">
-                        {contractor?.quote ? formatCurrency(contractor.quote) : ''}
-                      </div>
-                    </React.Fragment>
+                    <div key={contractorIndex} className="col-span-1 text-center text-sm font-medium text-gray-900 self-center">
+                      {contractor?.quote ? formatCurrency(contractor.quote) : ''}
+                    </div>
                   );
                 })}
               </div>
