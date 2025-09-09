@@ -52,7 +52,7 @@ export const QuotePopup: React.FC<QuotePopupProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-2xl font-bold text-foreground">
-                Create Quote
+                {wbsItem?.wbsId} - {wbsItem?.title}
               </DialogTitle>
               <p className="text-muted-foreground mt-1">
                 {wbsItem?.wbsId} - {wbsItem?.title}
