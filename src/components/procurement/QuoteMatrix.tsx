@@ -204,9 +204,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-primary">Quote Matrix</h1>
-      </div>
+      <h1 className="text-3xl font-bold text-primary">Quote Matrix</h1>
 
       <div className="bg-white border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
