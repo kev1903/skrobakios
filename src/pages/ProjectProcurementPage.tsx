@@ -180,7 +180,7 @@ export const ProjectProcurementPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 pt-16">
       {/* Project Sidebar */}
       <ProjectSidebar
         project={project}
@@ -191,8 +191,9 @@ export const ProjectProcurementPage = () => {
       />
 
       {/* Main Content */}
-      <div className="flex-1 ml-48 bg-white/90 backdrop-blur-sm border-l border-gray-200/30 min-h-screen">
-        <div className="p-8">
+      <div className="flex-1 ml-48 bg-white/90 backdrop-blur-sm border-l border-gray-200/30 h-full overflow-hidden">
+        <div className="h-full overflow-y-auto">
+          <div className="p-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -284,6 +285,7 @@ export const ProjectProcurementPage = () => {
               />
             </TabsContent>
           </Tabs>
+          </div>
         </div>
       </div>
 
