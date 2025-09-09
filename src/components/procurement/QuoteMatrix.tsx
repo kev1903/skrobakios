@@ -210,13 +210,14 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
         <div className="overflow-x-auto">
           {/* Table Header */}
           <div className="bg-white border-b border-gray-200">
-            <div className="grid grid-cols-7 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <div className="grid grid-cols-8 px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
               <div className="col-span-2 px-2">WBS</div>
-              <div className="col-span-1 text-center px-2 bg-blue-50 border-l border-gray-200">Quote 1</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 1</div>
               <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 2</div>
-              <div className="col-span-1 text-center px-2 bg-blue-50 border-l border-gray-200">Quote 3</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 3</div>
               <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 4</div>
-              <div className="col-span-1 text-center px-2 bg-blue-50 border-l border-gray-200">Quote 5</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 5</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200">Approved</div>
             </div>
           </div>
 
@@ -225,7 +226,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
             {wbsMatrix.map((row, index) => (
               <div 
                 key={row.wbsId} 
-                className={`grid grid-cols-7 px-4 hover:bg-gray-50 transition-colors ${
+                className={`grid grid-cols-8 px-4 hover:bg-gray-50 transition-colors ${
                   row.level > 0 ? 'bg-blue-50/30' : 'bg-white'
                 }`}
               >
@@ -265,6 +266,9 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                     </div>
                   );
                 })}
+                <div className="col-span-1 text-center text-sm font-medium text-gray-900 self-center px-2 py-3 h-full border-l border-gray-200 hover:bg-gray-100">
+                  {/* Approved column - placeholder for future implementation */}
+                </div>
               </div>
             ))}
           </div>
