@@ -310,9 +310,10 @@ export const ProjectProcurementPage = () => {
             </TabsContent>
 
             <TabsContent value="rfq" className="space-y-6">
-              <EvaluationDashboard 
+              <QuoteMatrix 
                 projectId={resolvedProjectId} 
-                rfqs={rfqs}
+                rfqs={rfqs} 
+                onRFQUpdate={fetchRFQs}
               />
             </TabsContent>
 
