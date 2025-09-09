@@ -180,7 +180,7 @@ export const ProjectProcurementPage = () => {
   }
 
   return (
-    <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 pt-16">
+    <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Project Sidebar */}
       <ProjectSidebar
         project={project}
