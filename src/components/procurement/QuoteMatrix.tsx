@@ -203,6 +203,22 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
         contractorId: contractor.contractorId,
         contractorName: contractor.contractorName
       });
+    } else {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        params.set('page', 'create-quote');
+        params.set('projectId', projectId);
+        params.set('wbsCode', wbsItem.wbsId);
+        params.set('wbsTitle', wbsItem.title);
+        if (contractor?.contractorId) params.set('vendorId', contractor.contractorId);
+        if (contractor?.contractorName) params.set('vendorName', contractor.contractorName);
+        const newUrl = `${window.location.pathname}?${params.toString()}`;
+        window.history.pushState({}, '', newUrl);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      } catch (e) {
+        console.error('Navigation failed', e);
+        toast.error('Unable to open quote page');
+      }
     }
   };
 
@@ -283,6 +299,8 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                           <Button
                             variant="ghost"
                             size="sm"
+                            type="button"
+                            aria-label="Create quote"
                             className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex items-center justify-center"
                             onClick={() => handleCreateQuote(row, contractor)}
                           >
