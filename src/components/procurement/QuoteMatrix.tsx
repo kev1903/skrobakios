@@ -208,79 +208,76 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
         <h1 className="text-3xl font-bold text-primary">Quote Matrix</h1>
       </div>
 
-      <div className="bg-background border rounded-lg overflow-hidden">
+      <div className="bg-white border rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-muted/30">
-                <th className="text-left py-3 px-4 font-medium text-muted-foreground min-w-[200px]">
-                  WBS
-                </th>
-                {[1, 2, 3, 4, 5].map((num) => (
-                  <React.Fragment key={num}>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground min-w-[120px]">
-                      Contractor {num}
-                    </th>
-                    <th className="text-center py-3 px-4 font-medium text-muted-foreground min-w-[130px]">
-                      Quote/ Estimate {num}
-                    </th>
-                  </React.Fragment>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {wbsMatrix.map((row, index) => (
-                <tr 
-                  key={row.wbsId} 
-                  className={`border-b hover:bg-muted/20 transition-colors ${
-                    index % 2 === 0 ? 'bg-background' : 'bg-muted/5'
-                  }`}
+          {/* Table Header */}
+          <div className="bg-gray-100 border-b border-gray-200 sticky top-0 z-10">
+            <div className="grid grid-cols-12 gap-2 p-3 text-sm font-medium text-gray-700">
+              <div className="col-span-3">WBS</div>
+              <div className="col-span-1 text-center">Contractor 1</div>
+              <div className="col-span-1 text-center">Quote 1</div>
+              <div className="col-span-1 text-center">Contractor 2</div>
+              <div className="col-span-1 text-center">Quote 2</div>
+              <div className="col-span-1 text-center">Contractor 3</div>
+              <div className="col-span-1 text-center">Quote 3</div>
+              <div className="col-span-1 text-center">Contractor 4</div>
+              <div className="col-span-1 text-center">Quote 4</div>
+              <div className="col-span-1 text-center">Contractor 5</div>
+              <div className="col-span-1 text-center">Quote 5</div>
+            </div>
+          </div>
+
+          {/* Table Body */}
+          <div className="bg-white">
+            {wbsMatrix.map((row, index) => (
+              <div 
+                key={row.wbsId} 
+                className={`grid grid-cols-12 gap-2 p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+                  row.level > 0 ? 'bg-gray-25' : ''
+                }`}
+              >
+                <div 
+                  className="col-span-3 flex items-center space-x-2" 
+                  style={{ paddingLeft: `${row.level * 20}px` }}
                 >
-                  <td className="py-4 px-4 font-medium text-foreground">
-                    <div 
-                      className="flex items-center space-x-2" 
-                      style={{ paddingLeft: `${row.level * 20}px` }}
+                  {row.hasChildren && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleExpanded(row.itemId)}
+                      className="h-6 w-6 p-0 hover:bg-gray-200"
                     >
-                      {row.hasChildren && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => toggleExpanded(row.itemId)}
-                          className="h-6 w-6 p-0 hover:bg-muted"
-                        >
-                          {row.isExpanded ? (
-                            <ChevronDown className="w-4 h-4" />
-                          ) : (
-                            <ChevronRight className="w-4 h-4" />
-                          )}
-                        </Button>
+                      {row.isExpanded ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
                       )}
-                      {!row.hasChildren && (
-                        <div className="w-6" /> /* Spacer for alignment */
-                      )}
-                      <div>
-                        <div className="font-medium">{row.wbsId}</div>
-                        <div className="text-sm text-muted-foreground">{row.title}</div>
+                    </Button>
+                  )}
+                  {!row.hasChildren && (
+                    <div className="w-6" /> /* Spacer for alignment */
+                  )}
+                  <div>
+                    <div className="text-sm font-mono text-gray-600">{row.wbsId}</div>
+                    <div className="text-sm font-medium">{row.title}</div>
+                  </div>
+                </div>
+                {[0, 1, 2, 3, 4].map((contractorIndex) => {
+                  const contractor = row.contractors[contractorIndex];
+                  return (
+                    <React.Fragment key={contractorIndex}>
+                      <div className="col-span-1 text-center text-sm text-gray-600 self-center">
+                        {contractor?.contractorName || ''}
                       </div>
-                    </div>
-                  </td>
-                  {[0, 1, 2, 3, 4].map((contractorIndex) => {
-                    const contractor = row.contractors[contractorIndex];
-                    return (
-                      <React.Fragment key={contractorIndex}>
-                        <td className="py-4 px-4 text-center text-sm text-foreground">
-                          {contractor?.contractorName || ''}
-                        </td>
-                        <td className="py-4 px-4 text-center text-sm font-medium text-foreground">
-                          {contractor?.quote ? formatCurrency(contractor.quote) : ''}
-                        </td>
-                      </React.Fragment>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      <div className="col-span-1 text-center text-sm font-medium text-gray-900 self-center">
+                        {contractor?.quote ? formatCurrency(contractor.quote) : ''}
+                      </div>
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
