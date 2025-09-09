@@ -263,16 +263,16 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                   const isBlueColumn = contractorIndex % 2 === 0; // 0, 2, 4 (1st, 3rd, 5th columns)
                   const isElementRow = !row.hasChildren; // Only show + button for element rows (leaf nodes)
                   return (
-                    <div key={contractorIndex} className={`col-span-1 text-center text-sm font-medium text-gray-900 self-center px-2 py-3 h-full border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-100'} relative`}>
+                    <div key={contractorIndex} className={`col-span-1 text-center text-sm font-medium text-gray-900 px-2 py-3 h-full border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-100'} relative flex items-center justify-center`}>
                       <div className="flex items-center justify-center space-x-2">
                         <span>{contractor?.quote ? formatCurrency(contractor.quote) : ''}</span>
                         {isElementRow && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-5 w-5 p-0 text-gray-600 hover:text-gray-800"
+                            className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex items-center justify-center"
                           >
-                            <span className="text-xs">+</span>
+                            <span className="text-sm font-bold">+</span>
                           </Button>
                         )}
                       </div>
