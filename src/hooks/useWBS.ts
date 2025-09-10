@@ -9,6 +9,7 @@ import {
   updateItemsRecursively, 
   removeItemRecursively 
 } from '@/utils/wbsUtils';
+import { autoScheduleDependentWBSTasks } from '@/utils/wbsPredecessorUtils';
 
 export const useWBS = (projectId: string) => {
   const { currentCompany } = useCompany();
@@ -111,20 +112,49 @@ export const useWBS = (projectId: string) => {
     }
   };
 
-  // Update a WBS item
-  const updateWBSItem = async (id: string, updates: Partial<WBSItem>) => {
+  // Update a WBS item with optional auto-scheduling
+  const updateWBSItem = async (
+    id: string,
+    updates: Partial<WBSItem>,
+    options?: { skipAutoSchedule?: boolean }
+  ) => {
     try {
       await WBSService.updateWBSItem(id, updates);
 
-      // Update local state
-      setWBSItems(prev => updateItemsRecursively(prev, id, updates));
+      // Update local state and optionally auto-schedule dependents
+      setWBSItems((prev) => {
+        const updated = updateItemsRecursively(prev, id, updates);
+
+        const touchesSchedule =
+          Object.prototype.hasOwnProperty.call(updates, 'duration') ||
+          Object.prototype.hasOwnProperty.call(updates, 'start_date') ||
+          Object.prototype.hasOwnProperty.call(updates, 'end_date');
+
+        if (!options?.skipAutoSchedule && touchesSchedule) {
+          const flatten = (items: WBSItem[]): WBSItem[] =>
+            items.flatMap((i) => [i, ...(i.children ? flatten(i.children) : [])]);
+
+          const allTasks = flatten(updated);
+
+          // Kick off auto-scheduling for dependents (FS/SS/FF/SF handled in utils)
+          autoScheduleDependentWBSTasks(
+            id,
+            allTasks,
+            async (depId, depUpdates) => {
+              // Avoid re-entrancy: skip auto-schedule on these updates
+              await updateWBSItem(depId, depUpdates, { skipAutoSchedule: true });
+            }
+          ).catch((e) => console.error('Auto-schedule error:', e));
+        }
+
+        return updated;
+      });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update WBS item';
       setError(errorMessage);
       console.error('Error updating WBS item:', err);
     }
   };
-
   // Delete a WBS item
   const deleteWBSItem = async (id: string) => {
     try {
