@@ -308,7 +308,7 @@ export const WBSTimeRightPanel = ({
         {items.map((item) => (
           <div
             key={item.id}
-            className={`grid items-center w-full ${
+            className={`grid items-center w-full border-b border-gray-100 ${
               item.level === 0 
                 ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 hover:from-blue-50 hover:to-blue-100 border-l-[6px] border-blue-800 shadow-sm' 
                 : item.level === 1
