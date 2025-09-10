@@ -85,39 +85,56 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
 
           setProject(foundProject);
           
-          // Load and validate banner image from localStorage
-          const savedBanner = localStorage.getItem(`project_banner_${foundProject.id}`);
-          if (savedBanner && savedBanner.trim() !== "") {
-            // Accept both base64 data URIs and URL paths (e.g. /lovable-uploads/... or http urls)
-            const isValidBase64Image = /^data:image\/(jpeg|jpg|png|gif|webp|bmp);base64,/.test(savedBanner);
-            const isUrlImage = /^(https?:\/\/|\/)/.test(savedBanner);
-            
-            if (isValidBase64Image || isUrlImage) {
-              console.log(`Loading valid banner for project ${foundProject.id}`);
-              setBannerImage(savedBanner);
+          // First, try to load banner from database
+          let bannerFromDb = "";
+          let bannerPositionFromDb = { x: 0, y: 0, scale: 1 };
+          
+          if (foundProject.banner_image) {
+            bannerFromDb = foundProject.banner_image;
+            setBannerImage(bannerFromDb);
+            console.log(`Loading banner from database for project ${foundProject.id}`);
+          }
+          
+          if (foundProject.banner_position) {
+            bannerPositionFromDb = foundProject.banner_position;
+            setBannerPosition(bannerPositionFromDb);
+          }
+          
+          // If no banner in database, fallback to localStorage
+          if (!bannerFromDb) {
+            const savedBanner = localStorage.getItem(`project_banner_${foundProject.id}`);
+            if (savedBanner && savedBanner.trim() !== "") {
+              // Accept both base64 data URIs and URL paths (e.g. /lovable-uploads/... or http urls)
+              const isValidBase64Image = /^data:image\/(jpeg|jpg|png|gif|webp|bmp);base64,/.test(savedBanner);
+              const isUrlImage = /^(https?:\/\/|\/)/.test(savedBanner);
+              
+              if (isValidBase64Image || isUrlImage) {
+                console.log(`Loading valid banner from localStorage for project ${foundProject.id}`);
+                setBannerImage(savedBanner);
+              } else {
+                console.warn(`Invalid banner data found for project ${foundProject.id}, clearing...`);
+                // Clear corrupted banner data
+                localStorage.removeItem(`project_banner_${foundProject.id}`);
+                localStorage.removeItem(`project_banner_position_${foundProject.id}`);
+                setBannerImage("");
+              }
             } else {
-              console.warn(`Invalid banner data found for project ${foundProject.id}, clearing...`);
-              // Clear corrupted banner data
-              localStorage.removeItem(`project_banner_${foundProject.id}`);
-              localStorage.removeItem(`project_banner_position_${foundProject.id}`);
+              console.log(`No banner found for project ${foundProject.id}`);
               setBannerImage("");
             }
-          } else {
-            console.log(`No banner found for project ${foundProject.id}`);
-            setBannerImage("");
-          }
 
-          // Load banner position from localStorage (reset if none)
-          const savedBannerPosition = localStorage.getItem(`project_banner_position_${foundProject.id}`);
-          if (savedBannerPosition && savedBanner) {
-            const position = safeJsonParse(savedBannerPosition, { fallback: null });
-            if (position && typeof position.x === "number" && typeof position.y === "number" && typeof position.scale === "number") {
-              setBannerPosition(position);
+            // Load banner position from localStorage only if not from database
+            const savedBannerPosition = localStorage.getItem(`project_banner_position_${foundProject.id}`);
+            if (savedBannerPosition) {
+              const position = safeJsonParse(savedBannerPosition, { fallback: null });
+              if (position && typeof position.x === "number" && typeof position.y === "number" && typeof position.scale === "number") {
+                setBannerPosition(position);
+              } else {
+                setBannerPosition({ x: 0, y: 0, scale: 1 });
+              }
             } else {
               setBannerPosition({ x: 0, y: 0, scale: 1 });
             }
-          } else {
-            setBannerPosition({ x: 0, y: 0, scale: 1 });
           }
         } else {
           // Project not found, clear state
