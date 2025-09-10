@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/contexts/CompanyContext';
+import { convertDbRowToProject } from '@/utils/projectTypeConverter';
 
 export interface Project {
   id: string;
@@ -17,6 +18,8 @@ export interface Project {
   latitude?: number | null;
   longitude?: number | null;
   geocoded_at?: string | null;
+  banner_image?: string | null;
+  banner_position?: { x: number; y: number; scale: number } | null;
   created_at: string;
   updated_at: string;
 }
@@ -116,7 +119,7 @@ export const useProjects = () => {
       globalCache.data = null;
       globalCache.timestamp = 0;
       
-      return data;
+      return convertDbRowToProject(data);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create project';
       setError(errorMessage);
@@ -176,7 +179,7 @@ export const useProjects = () => {
 
       if (error) throw error;
       
-      const freshData = (data || []) as Project[];
+      const freshData = (data || []).map(convertDbRowToProject);
       
       console.log("📊 Raw projects fetched:", freshData.length);
       console.log("🏢 Projects by company:", freshData.reduce((acc, p) => {
@@ -253,7 +256,7 @@ export const useProjects = () => {
         .single();
 
       if (error) throw error;
-      return data;
+      return convertDbRowToProject(data);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch project';
       setError(errorMessage);
@@ -316,7 +319,7 @@ export const useProjects = () => {
       // Update cache
       if (globalCache.data) {
         const updatedProjects = globalCache.data.map(p => 
-          p.id === projectId ? { ...p, ...data } : p
+          p.id === projectId ? convertDbRowToProject({ ...p, ...data }) : p
         );
         globalCache.data = updatedProjects;
         globalCache.timestamp = Date.now();
@@ -328,7 +331,7 @@ export const useProjects = () => {
       }
       
       console.log('Project updated successfully:', projectId);
-      return data;
+      return convertDbRowToProject(data);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update project';
       setError(errorMessage);

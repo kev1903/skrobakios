@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { convertDbRowToProject } from "@/utils/projectTypeConverter";
 import { format } from "date-fns";
 import { Project } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
@@ -83,7 +84,7 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
         description: "Project updated successfully",
       });
 
-      onUpdate(data);
+      onUpdate(convertDbRowToProject(data));
       onClose();
     } catch (error) {
       console.error('Error updating project:', error);

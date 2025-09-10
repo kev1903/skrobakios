@@ -54,10 +54,10 @@ export const ProjectBannerCard = ({ formData, onInputChange }: ProjectBannerCard
   };
 
   const handleFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
+    if (!file.type.includes('jpeg') && !file.type.includes('jpg')) {
       toast({
         title: "Invalid File Type",
-        description: "Please upload an image file (PNG, JPG, GIF, etc.)",
+        description: "Please upload a JPG/JPEG image file only",
         variant: "destructive",
       });
       return;
@@ -136,7 +136,7 @@ export const ProjectBannerCard = ({ formData, onInputChange }: ProjectBannerCard
           Project Banner
         </CardTitle>
         <CardDescription>
-          Upload a banner image for your project (recommended size: 1200x400px)
+          Upload a JPG banner image for your project (recommended size: 1200x400px)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -288,7 +288,7 @@ export const ProjectBannerCard = ({ formData, onInputChange }: ProjectBannerCard
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/jpg"
           onChange={handleFileInput}
           className="hidden"
         />

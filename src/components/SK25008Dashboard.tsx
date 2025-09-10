@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ProjectSidebar } from './ProjectSidebar';
 import { Project } from '@/hooks/useProjects';
+import { convertDbRowToProject } from '@/utils/projectTypeConverter';
 
 import { SK25008FileUpload } from './SK25008FileUpload';
 import { SK25008TaskDetails } from './SK25008TaskDetails';
@@ -67,7 +68,7 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({
           .single();
         
         if (data && !error) {
-          setProject(data);
+          setProject(convertDbRowToProject(data));
           console.log('Found project:', data);
         } else {
           console.log('Project not found with ID, trying project_id lookup');
@@ -79,7 +80,7 @@ export const SK25008Dashboard: React.FC<SK25008DashboardProps> = ({
             .single();
           
           if (fallbackData && !fallbackError) {
-            setProject(fallbackData);
+            setProject(convertDbRowToProject(fallbackData));
             console.log('Found project via project_id:', fallbackData);
           }
         }
