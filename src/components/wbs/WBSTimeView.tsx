@@ -206,7 +206,7 @@ export const WBSTimeView = ({
            >
             <div className="min-w-fit">
               {/* Header Section - Daily Calendar */}
-              <div className="bg-white border-t border-gray-200 border-b border-gray-200 border-l border-gray-200 text-xs font-medium text-gray-700 sticky top-0 z-10 h-[60px]">
+              <div className="bg-white border-t border-gray-200 border-b-2 border-gray-300 border-l border-gray-200 text-xs font-medium text-gray-700 sticky top-0 z-30 h-[60px] shadow-sm">
                 <div className="flex h-full">
                   {(() => {
                     // Use the same date range as the GanttChart
@@ -279,7 +279,7 @@ export const WBSTimeView = ({
                     lag: p.lag
                   })) || []
                 }))} 
-                className="min-w-fit" 
+                className="min-w-fit relative z-10" 
                 hideHeader 
                 hoveredId={hoveredId}
                 onRowHover={setHoveredId}
