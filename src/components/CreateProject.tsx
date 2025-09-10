@@ -248,7 +248,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                     <Input
                       id="contractPrice"
                       type="text"
-                      placeholder="0"
+                      placeholder="0.00"
                       value={displayPrice}
                       onChange={(e) => handlePriceChange(e.target.value)}
                       className="pl-8 pr-16"

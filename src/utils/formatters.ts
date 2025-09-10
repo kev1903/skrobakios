@@ -6,17 +6,17 @@
  * @returns Formatted currency string
  */
 export const formatCurrency = (amount: number | string | null | undefined, currency: string = 'AUD', showSymbol: boolean = true): string => {
-  if (amount === null || amount === undefined || amount === '') return '$0';
+  if (amount === null || amount === undefined || amount === '') return '$0.00';
   
   const numericAmount = typeof amount === 'string' ? parseFloat(amount.replace(/[,$]/g, '')) : amount;
   
-  if (isNaN(numericAmount)) return '$0';
+  if (isNaN(numericAmount)) return '$0.00';
   
   const formatted = numericAmount.toLocaleString('en-AU', {
     style: showSymbol ? 'currency' : 'decimal',
     currency: currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
   
   // If not showing symbol but we got a currency format, remove the symbol
@@ -33,13 +33,16 @@ export const formatCurrency = (amount: number | string | null | undefined, curre
  * @returns Formatted number string with commas
  */
 export const formatNumber = (amount: number | string | null | undefined): string => {
-  if (amount === null || amount === undefined || amount === '') return '0';
+  if (amount === null || amount === undefined || amount === '') return '0.00';
   
   const numericAmount = typeof amount === 'string' ? parseFloat(amount.replace(/[,$]/g, '')) : amount;
   
-  if (isNaN(numericAmount)) return '0';
+  if (isNaN(numericAmount)) return '0.00';
   
-  return numericAmount.toLocaleString('en-AU');
+  return numericAmount.toLocaleString('en-AU', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 };
 
 /**

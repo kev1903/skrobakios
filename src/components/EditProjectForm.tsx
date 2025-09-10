@@ -178,7 +178,7 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
                     value={displayPrice}
                     onChange={(e) => handleInputChange('contract_price', e.target.value)}
                     className="pl-8 pr-16"
-                    placeholder="0"
+                    placeholder="0.00"
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                     <span className="text-gray-500 text-xs">Inc GST</span>
