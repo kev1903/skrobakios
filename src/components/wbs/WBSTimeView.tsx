@@ -201,7 +201,7 @@ export const WBSTimeView = ({
           {/* Combined Header and Content with Single Scroll */}
           <div 
             ref={mainScrollRef}
-            className="flex-1 overflow-x-auto overflow-y-hidden"
+            className="flex-1 overflow-x-auto overflow-y-auto"
             onScroll={handleTimelineScroll}
           >
             <div className="min-w-fit">
