@@ -194,22 +194,33 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
         <div className="flex-shrink-0 backdrop-blur-xl bg-card/95 border-b border-border shadow-sm z-10">
           <div className="px-8 py-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-6">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onNavigate('individual-project-dashboard')}
-                  className="flex items-center space-x-2 text-muted-foreground hover:text-primary hover:bg-accent transition-all duration-200"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  <span className="font-medium">Back</span>
-                </Button>
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                    Project Settings
-                  </h1>
-                  <p className="text-sm text-muted-foreground mt-1">Manage your project configuration and details</p>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center space-x-6">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onNavigate('individual-project-dashboard')}
+                    className="flex items-center space-x-2 text-muted-foreground hover:text-primary hover:bg-accent transition-all duration-200"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    <span className="font-medium">Back</span>
+                  </Button>
+                  <div>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                      Project Settings
+                    </h1>
+                    <p className="text-sm text-muted-foreground mt-1">Manage your project configuration and details</p>
+                  </div>
                 </div>
+                
+                <Button 
+                  onClick={handleSave} 
+                  disabled={loading}
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  <Save className="w-4 h-4" />
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </Button>
               </div>
             </div>
           </div>
@@ -278,18 +289,6 @@ export const ProjectSettingsPage = ({ project, onNavigate }: ProjectSettingsPage
                     loading={loading}
                   />
                 </TabsContent>
-              </div>
-
-              {/* Save Button */}
-              <div className="mt-8 flex justify-end">
-                <Button 
-                  onClick={handleSave} 
-                  disabled={loading}
-                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  <Save className="w-4 h-4" />
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </Button>
               </div>
             </Tabs>
           </div>
