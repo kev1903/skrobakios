@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { convertDbRowToProject } from "@/utils/projectTypeConverter";
 import { format } from "date-fns";
@@ -151,12 +152,23 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
                 <Label htmlFor="contract_price" className="text-sm font-medium text-gray-700 mb-2 block">
                   Contract Price
                 </Label>
-                <Input
-                  id="contract_price"
-                  value={formData.contract_price}
-                  onChange={(e) => handleInputChange('contract_price', e.target.value)}
-                  className="w-full"
-                />
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-gray-500 sm:text-sm">$</span>
+                  </div>
+                  <Input
+                    id="contract_price"
+                    type="number"
+                    step="0.01"
+                    value={formData.contract_price}
+                    onChange={(e) => handleInputChange('contract_price', e.target.value)}
+                    className="pl-8 pr-16"
+                    placeholder="0.00"
+                  />
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <span className="text-gray-500 text-xs">+ GST</span>
+                  </div>
+                </div>
               </div>
 
               {/* Start Date */}
@@ -222,15 +234,16 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
                 <Label className="text-sm font-medium text-gray-700 mb-2 block">
                   Status
                 </Label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => handleInputChange('status', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="running">Running</option>
-                  <option value="completed">Completed</option>
-                </select>
+                <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="running">Running</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Priority */}
@@ -238,17 +251,17 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
                 <Label className="text-sm font-medium text-gray-700 mb-2 block">
                   Priority
                 </Label>
-                <select
-                  value={formData.priority}
-                  onChange={(e) => handleInputChange('priority', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Priority</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
-                </select>
+                <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Low">Low</SelectItem>
+                    <SelectItem value="Medium">Medium</SelectItem>
+                    <SelectItem value="High">High</SelectItem>
+                    <SelectItem value="Urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Description */}
