@@ -5,6 +5,7 @@ import { GanttTaskBar } from './GanttTaskBar';
 import { calculateTaskPosition, generateTimelineData } from '@/utils/ganttUtils';
 import { getDependencyLines } from '@/utils/predecessorUtils';
 import { cn } from '@/lib/utils';
+import '../wbs/dependency-arrows.css';
 
 interface GanttTimelineProps {
   tasks: GanttTask[];

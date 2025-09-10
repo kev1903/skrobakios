@@ -167,8 +167,12 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
   // Calculate dependency lines
   const dependencyLines = useMemo(() => {
     if (ganttTasks.length === 0) return [];
+    console.log('🔗 Calculating dependency lines for', ganttTasks.length, 'tasks');
+    console.log('🔗 Tasks with predecessors:', ganttTasks.filter(t => t.predecessors && t.predecessors.length > 0).map(t => ({ id: t.id, name: t.name, predecessors: t.predecessors })));
     const viewSettings = { dayWidth, rowHeight, viewStart: startDate };
-    return getDependencyLines(ganttTasks, viewSettings);
+    const lines = getDependencyLines(ganttTasks, viewSettings);
+    console.log('🔗 Generated', lines.length, 'dependency lines:', lines);
+    return lines;
   }, [ganttTasks, dayWidth, rowHeight, startDate]);
 
 
@@ -504,6 +508,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
               
               {dependencyLines.map((line) => {
                 const gradientId = `${line.type.toLowerCase()}Gradient`;
+                console.log('🎨 Rendering dependency arrow:', line.id, 'path:', line.path);
                 return (
                   <g key={line.id} className={`dependency-arrow dependency-${line.type.toLowerCase()} group`}>
                     {/* Subtle glow effect background */}
