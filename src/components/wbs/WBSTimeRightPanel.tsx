@@ -4,6 +4,7 @@ import { MoreHorizontal, Edit2, Copy, Trash2, NotebookPen, Calendar } from 'luci
 import { DatePickerCell } from './DatePickerCell';
 import { DurationCell } from './DurationCell';
 import { PredecessorCell } from './PredecessorCell';
+import { DependencyLockIndicator } from './DependencyLockIndicator';
 import { differenceInDays, addDays, subDays, format } from 'date-fns';
 import { WBSItem, WBSPredecessor } from '@/types/wbs';
 import { autoScheduleDependentWBSTasks } from '@/utils/wbsPredecessorUtils';
@@ -161,8 +162,35 @@ export const WBSTimeRightPanel = ({
     }));
   }, [items, parentChildMap.map, onItemUpdate]);
 
-  // Debounced and optimized item update handler with auto-scheduling
+  // Enhanced handler with Finish-to-Start dependency logic
   const handleItemUpdate = React.useCallback(async (itemId: string, updates: any) => {
+    // Check if this task has Finish-to-Start predecessors that should lock its start date
+    const item = items.find(i => i.id === itemId);
+    const hasFinishToStartDeps = item?.predecessors?.some(p => p.type === 'FS');
+    
+    // If trying to update start_date on a task with FS dependencies, validate against constraints
+    if (updates.start_date && hasFinishToStartDeps) {
+      const flatItems = items.reduce<WBSItem[]>((acc, item) => {
+        const flatten = (i: WBSItem): WBSItem[] => [i, ...(i.children || []).flatMap(flatten)];
+        return [...acc, ...flatten(item)];
+      }, []);
+      
+      const { calculateWBSEarliestStartDate } = await import('@/utils/wbsPredecessorUtils');
+      const earliestStart = calculateWBSEarliestStartDate(item!, flatItems);
+      
+      if (earliestStart && new Date(updates.start_date) < earliestStart) {
+        // Show warning and lock to earliest start
+        console.warn(`⚠️ Start date locked due to Finish-to-Start dependency. Earliest start: ${format(earliestStart, 'yyyy-MM-dd')}`);
+        updates.start_date = format(earliestStart, 'yyyy-MM-dd');
+        
+        // Update end date to maintain duration
+        if (item?.duration) {
+          const newEndDate = addDays(earliestStart, item.duration - 1);
+          updates.end_date = format(newEndDate, 'yyyy-MM-dd');
+        }
+      }
+    }
+
     await onItemUpdate(itemId, updates);
     
     // Handle predecessor updates with auto-scheduling
@@ -182,7 +210,7 @@ export const WBSTimeRightPanel = ({
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       
       timeoutRef.current = setTimeout(async () => {
-        // Auto-schedule dependent tasks
+        // Auto-schedule dependent tasks when predecessor finish date changes
         const flatItems = items.reduce<WBSItem[]>((acc, item) => {
           const flatten = (i: WBSItem): WBSItem[] => [i, ...(i.children || []).flatMap(flatten)];
           return [...acc, ...flatten(item)];
@@ -317,17 +345,20 @@ export const WBSTimeRightPanel = ({
                     );
                   }
                   return (
-                    <DatePickerCell
-                      id={item.id}
-                      type={type}
-                      field="start_date"
-                      value={item.start_date}
-                      placeholder="Start date"
-                      className="text-xs text-muted-foreground"
-                      onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
-                      onCalculate={handleDateCalculation}
-                      currentItem={item}
-                    />
+                    <div className="flex items-center w-full">
+                      <DatePickerCell
+                        id={item.id}
+                        type={type}
+                        field="start_date"
+                        value={item.start_date}
+                        placeholder="Start date"
+                        className="text-xs text-muted-foreground"
+                        onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                        onCalculate={handleDateCalculation}
+                        currentItem={item}
+                      />
+                      <DependencyLockIndicator item={item} field="start_date" />
+                    </div>
                   );
                 })()}
             </div>
@@ -346,17 +377,20 @@ export const WBSTimeRightPanel = ({
                   );
                 }
                 return (
-                  <DatePickerCell
-                    id={item.id}
-                    type={type}
-                    field="end_date"
-                    value={item.end_date}
-                    placeholder="End date"
-                    className="text-xs text-muted-foreground"
-                    onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
-                    onCalculate={handleDateCalculation}
-                    currentItem={item}
-                  />
+                  <div className="flex items-center w-full">
+                    <DatePickerCell
+                      id={item.id}
+                      type={type}
+                      field="end_date"
+                      value={item.end_date}
+                      placeholder="End date"
+                      className="text-xs text-muted-foreground"
+                      onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                      onCalculate={handleDateCalculation}
+                      currentItem={item}
+                    />
+                    <DependencyLockIndicator item={item} field="end_date" />
+                  </div>
                 );
               })()}
             </div>

@@ -70,23 +70,32 @@ export const calculateWBSDependencyDate = (
   let constraintDate: Date;
 
   switch (dependencyType) {
-    case 'FS': // Finish-to-Start: dependent starts the day after predecessor finishes
-      constraintDate = addDays(predecessorEnd ?? predecessorStart ?? new Date(), 1);
+    case 'FS': // Finish-to-Start: Successor starts = Predecessor Finish + Lag
+      if (!predecessorEnd) {
+        throw new Error('Predecessor must have an end date for Finish-to-Start dependency');
+      }
+      // Successor starts the day after predecessor finishes (or same day if lag is negative)
+      constraintDate = addDays(predecessorEnd, 1 + lag);
       break;
     case 'SS': // Start-to-Start: dependent starts when predecessor starts
-      constraintDate = predecessorStart ?? predecessorEnd ?? new Date();
+      constraintDate = addDays(predecessorStart ?? predecessorEnd ?? new Date(), lag);
       break;
     case 'FF': // Finish-to-Finish: dependent finishes when predecessor finishes
-      constraintDate = predecessorEnd ?? predecessorStart ?? new Date();
+      constraintDate = addDays(predecessorEnd ?? predecessorStart ?? new Date(), lag);
       break;
     case 'SF': // Start-to-Finish: dependent finishes when predecessor starts
-      constraintDate = predecessorStart ?? predecessorEnd ?? new Date();
+      constraintDate = addDays(predecessorStart ?? predecessorEnd ?? new Date(), lag);
       break;
     default:
-      constraintDate = addDays((predecessorEnd ?? predecessorStart ?? new Date()), 1); // Default to FS behavior
+      // Default to FS behavior
+      if (!predecessorEnd) {
+        constraintDate = addDays(predecessorStart ?? new Date(), 1 + lag);
+      } else {
+        constraintDate = addDays(predecessorEnd, 1 + lag);
+      }
   }
 
-  return addDays(constraintDate, lag);
+  return constraintDate;
 };
 
 /**
@@ -96,6 +105,11 @@ export const autoScheduleWBSTask = (
   task: WBSItem, 
   allTasks: WBSItem[]
 ): Partial<WBSItem> | null => {
+  // Skip if no predecessors
+  if (!task.predecessors || task.predecessors.length === 0) {
+    return null;
+  }
+
   const earliestStart = calculateWBSEarliestStartDate(task, allTasks);
   const duration = task.duration || 1;
 
