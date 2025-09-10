@@ -1453,9 +1453,9 @@ const toggleSection = (taskId: string) => {
                   <defs>
                     <marker
                       id="arrowhead"
-                      markerWidth="10"
+                      markerWidth="11"
                       markerHeight="7"
-                      refX="9"
+                      refX="10"
                       refY="3.5"
                       orient="auto"
                     >

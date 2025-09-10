@@ -460,10 +460,10 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                 {/* Enhanced arrowhead with gradient */}
                 <marker
                   id="arrowhead"
-                  viewBox="0 0 12 8"
-                  refX="11"
+                  viewBox="0 0 13 8"
+                  refX="12"
                   refY="4"
-                  markerWidth="12"
+                  markerWidth="13"
                   markerHeight="8"
                   orient="auto"
                   markerUnits="userSpaceOnUse"

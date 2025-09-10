@@ -112,10 +112,10 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
               {/* Enhanced arrowhead with gradient */}
               <marker
                 id="arrowhead-timeline-fs"
-                viewBox="0 0 12 8"
-                refX="11"
+                viewBox="0 0 13 8"
+                refX="12"
                 refY="4"
-                markerWidth="12"
+                markerWidth="13"
                 markerHeight="8"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
@@ -124,10 +124,10 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
               </marker>
               <marker
                 id="arrowhead-timeline-ss"
-                viewBox="0 0 12 8"
-                refX="11"
+                viewBox="0 0 13 8"
+                refX="12"
                 refY="4"
-                markerWidth="12"
+                markerWidth="13"
                 markerHeight="8"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
@@ -136,10 +136,10 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
               </marker>
               <marker
                 id="arrowhead-timeline-ff"
-                viewBox="0 0 12 8"
-                refX="11"
+                viewBox="0 0 13 8"
+                refX="12"
                 refY="4"
-                markerWidth="12"
+                markerWidth="13"
                 markerHeight="8"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
@@ -148,10 +148,10 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
               </marker>
               <marker
                 id="arrowhead-timeline-sf"
-                viewBox="0 0 12 8"
-                refX="11"
+                viewBox="0 0 13 8"
+                refX="12"
                 refY="4"
-                markerWidth="12"
+                markerWidth="13"
                 markerHeight="8"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
