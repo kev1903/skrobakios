@@ -56,19 +56,37 @@ export const WBSTimeView = ({
   }, [onItemUpdate]);
 
   const handleTimelineScroll = useCallback(() => {
-    if (leftScrollRef.current && mainScrollRef.current) {
+    if (leftInnerRef.current && rightScrollRef.current && mainScrollRef.current) {
       const scrollTop = mainScrollRef.current.scrollTop;
-      if (leftScrollRef.current.scrollTop !== scrollTop) {
-        leftScrollRef.current.scrollTop = scrollTop;
+      if (leftInnerRef.current.scrollTop !== scrollTop) {
+        leftInnerRef.current.scrollTop = scrollTop;
+      }
+      if (rightScrollRef.current.scrollTop !== scrollTop) {
+        rightScrollRef.current.scrollTop = scrollTop;
       }
     }
   }, []);
 
   const handleLeftPanelScroll = useCallback(() => {
-    if (leftScrollRef.current && mainScrollRef.current) {
-      const scrollTop = leftScrollRef.current.scrollTop;
+    if (leftInnerRef.current && mainScrollRef.current && rightScrollRef.current) {
+      const scrollTop = leftInnerRef.current.scrollTop;
       if (mainScrollRef.current.scrollTop !== scrollTop) {
         mainScrollRef.current.scrollTop = scrollTop;
+      }
+      if (rightScrollRef.current.scrollTop !== scrollTop) {
+        rightScrollRef.current.scrollTop = scrollTop;
+      }
+    }
+  }, []);
+
+  const handleMiddlePanelScroll = useCallback(() => {
+    if (rightScrollRef.current && mainScrollRef.current && leftInnerRef.current) {
+      const scrollTop = rightScrollRef.current.scrollTop;
+      if (mainScrollRef.current.scrollTop !== scrollTop) {
+        mainScrollRef.current.scrollTop = scrollTop;
+      }
+      if (leftInnerRef.current.scrollTop !== scrollTop) {
+        leftInnerRef.current.scrollTop = scrollTop;
       }
     }
   }, []);
@@ -131,8 +149,7 @@ export const WBSTimeView = ({
             <div className="w-[420px] flex-shrink-0 bg-white border-r border-gray-200 z-20 overflow-hidden">
               <div 
                 ref={leftScrollRef}
-                className="h-full overflow-y-auto overflow-x-hidden"
-                onScroll={handleLeftPanelScroll}
+                className="h-full overflow-y-hidden overflow-x-hidden"
               >
                 <WBSLeftPanel
                   items={items.map(item => ({
@@ -166,6 +183,7 @@ export const WBSTimeView = ({
                 EditableCell={EditableCell}
                 StatusSelect={StatusSelect}
                 scrollRef={rightScrollRef}
+                onScroll={handleMiddlePanelScroll}
                 hoveredId={hoveredId}
                 onRowHover={setHoveredId}
               />
@@ -183,7 +201,7 @@ export const WBSTimeView = ({
           {/* Combined Header and Content with Single Scroll */}
           <div 
             ref={mainScrollRef}
-            className="flex-1 overflow-auto"
+            className="flex-1 overflow-x-auto overflow-y-hidden"
             onScroll={handleTimelineScroll}
           >
             <div className="min-w-fit">
