@@ -24,6 +24,7 @@ export const ProjectInformationCard = ({ formData, onInputChange }: ProjectInfor
   const [isValidatingAddress, setIsValidatingAddress] = useState(false);
   const [mapboxToken, setMapboxToken] = useState<string>('');
   const [suggestions, setSuggestions] = useState<Array<{ label: string; lat: number; lng: number }>>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -144,6 +145,8 @@ export const ProjectInformationCard = ({ formData, onInputChange }: ProjectInfor
                   id="location"
                   value={formData.location}
                   onChange={(e) => onInputChange("location", e.target.value)}
+                  onFocus={() => setShowDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
                   placeholder="Enter full project address (e.g., 123 Main St, City, State, ZIP)"
                   className="flex-1"
                 />
@@ -159,7 +162,7 @@ export const ProjectInformationCard = ({ formData, onInputChange }: ProjectInfor
                   {isValidatingAddress ? "Validating..." : "Validate"}
                 </Button>
               </div>
-              {suggestions.length > 0 && (
+              {suggestions.length > 0 && showDropdown && (
                 <div className="absolute z-20 mt-1 w-full rounded-md border border-border bg-card shadow-lg">
                   {suggestions.slice(0,5).map((s, idx) => (
                     <button
@@ -169,6 +172,7 @@ export const ProjectInformationCard = ({ formData, onInputChange }: ProjectInfor
                         onInputChange("location", s.label);
                         onInputChange("coordinates", { lat: s.lat, lng: s.lng });
                         setSuggestions([]);
+                        setShowDropdown(false);
                       }}
                       className="block w-full text-left px-3 py-2 hover:bg-accent"
                     >
