@@ -58,14 +58,18 @@ export const WBSTimeView = ({
   const handleTimelineScroll = useCallback(() => {
     if (leftScrollRef.current && mainScrollRef.current) {
       const scrollTop = mainScrollRef.current.scrollTop;
-      leftScrollRef.current.scrollTop = scrollTop;
+      if (leftScrollRef.current.scrollTop !== scrollTop) {
+        leftScrollRef.current.scrollTop = scrollTop;
+      }
     }
   }, []);
 
   const handleLeftPanelScroll = useCallback(() => {
     if (leftScrollRef.current && mainScrollRef.current) {
       const scrollTop = leftScrollRef.current.scrollTop;
-      mainScrollRef.current.scrollTop = scrollTop;
+      if (mainScrollRef.current.scrollTop !== scrollTop) {
+        mainScrollRef.current.scrollTop = scrollTop;
+      }
     }
   }, []);
 
