@@ -302,7 +302,7 @@ export const WBSTimeRightPanel = ({
     handleItemUpdate(id, updates);
   }, [items, handleItemUpdate]);
   return (
-    <div className="bg-white overflow-hidden" style={{ minWidth: '920px' }}>
+    <div className="h-full bg-white overflow-hidden" style={{ minWidth: '920px' }}>
       {/* Content */}
       <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full scrollbar-hide" onScroll={onScroll}>
         {items.map((item) => (

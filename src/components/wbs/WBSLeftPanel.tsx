@@ -51,7 +51,7 @@ export const WBSLeftPanel = ({
   onRowHover
 }: WBSLeftPanelProps) => {
   return (
-    <div className="w-[420px] bg-white border-r border-border flex-shrink-0 overflow-hidden">
+    <div className="w-[420px] h-full bg-white border-r border-border flex-shrink-0 overflow-hidden">
       {/* Content - No separate header since it's now unified */}
       <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden scrollbar-hide" onScroll={onScroll}>
         <DragDropContext onDragEnd={onDragEnd}>

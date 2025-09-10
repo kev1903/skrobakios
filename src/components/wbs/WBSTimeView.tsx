@@ -91,14 +91,6 @@ export const WBSTimeView = ({
     }
   }, []);
 
-  // Wheel anywhere (left/table) scrolls the main timeline container
-  const handleWheelSync = useCallback((e: React.WheelEvent) => {
-    if (mainScrollRef.current) {
-      e.preventDefault();
-      mainScrollRef.current.scrollTop += e.deltaY;
-    }
-  }, []);
-
   // Use actual WBS IDs from database - no fallback computation needed
   // All WBS items should have proper wbs_id values from the database
 
@@ -157,7 +149,6 @@ export const WBSTimeView = ({
               <div 
                 ref={leftScrollRef}
                 className="h-full overflow-y-hidden overflow-x-hidden"
-                onWheel={handleWheelSync}
               >
                  <WBSLeftPanel
                    items={items.map(item => ({
@@ -182,7 +173,7 @@ export const WBSTimeView = ({
             </div>
             
             {/* Scrollable Right Panel - Only this has visible scrollbar */}
-            <div ref={bodyHorizScrollRef} className="flex-1 overflow-x-auto overflow-y-hidden" onScroll={handleLeftPanelHorizontalScroll} onWheel={handleWheelSync}>
+            <div ref={bodyHorizScrollRef} className="flex-1 overflow-x-auto overflow-y-hidden" onScroll={handleLeftPanelHorizontalScroll}>
               <WBSTimeRightPanel
                 items={items}
                 onItemUpdate={handleItemUpdate}
