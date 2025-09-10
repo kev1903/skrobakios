@@ -239,9 +239,49 @@ const getTaskEndX = (task: GanttTask, viewSettings: any) => {
 };
 
 const createArrowPath = (fromX: number, fromY: number, toX: number, toY: number) => {
-  // Simple L-shape: horizontal first, then vertical down
-  // Path: horizontal from start to target X, then vertical down to target Y
-  return `M ${fromX} ${fromY} L ${toX} ${fromY} L ${toX} ${toY}`;
+  const deltaX = toX - fromX;
+  const deltaY = toY - fromY;
+  
+  // Add padding to prevent clipping
+  const paddingX = 20;
+  const paddingY = 10;
+  
+  // Adjust coordinates with padding
+  const adjustedFromX = fromX;
+  const adjustedFromY = fromY;
+  const adjustedToX = toX;
+  const adjustedToY = toY;
+  
+  // For smooth curved arrows
+  if (Math.abs(deltaY) < 5) {
+    // Horizontal connection - simple straight line
+    return `M ${adjustedFromX} ${adjustedFromY} L ${adjustedToX} ${adjustedToY}`;
+  } else if (deltaX > 0) {
+    // Forward connection - smooth S-curve
+    const midX = adjustedFromX + Math.max(50, deltaX * 0.6);
+    const controlX1 = adjustedFromX + 30;
+    const controlX2 = adjustedToX - 30;
+    
+    return `M ${adjustedFromX} ${adjustedFromY} 
+            L ${midX} ${adjustedFromY} 
+            Q ${midX + 20} ${adjustedFromY} ${midX + 20} ${adjustedFromY + (deltaY > 0 ? 15 : -15)}
+            L ${midX + 20} ${adjustedToY + (deltaY > 0 ? -15 : 15)}
+            Q ${midX + 20} ${adjustedToY} ${midX + 40} ${adjustedToY}
+            L ${adjustedToX} ${adjustedToY}`;
+  } else {
+    // Backward connection - arc over with smooth curves
+    const arcHeight = 30;
+    const arcX = Math.max(adjustedFromX + 50, adjustedToX + 50);
+    
+    return `M ${adjustedFromX} ${adjustedFromY} 
+            L ${adjustedFromX + 30} ${adjustedFromY} 
+            Q ${adjustedFromX + 50} ${adjustedFromY} ${adjustedFromX + 50} ${adjustedFromY - arcHeight}
+            L ${arcX} ${adjustedFromY - arcHeight}
+            Q ${arcX + 20} ${adjustedFromY - arcHeight} ${arcX + 20} ${adjustedFromY - arcHeight + 20}
+            L ${arcX + 20} ${adjustedToY - 20}
+            Q ${arcX + 20} ${adjustedToY} ${arcX} ${adjustedToY}
+            L ${adjustedToX} ${adjustedToY}`;
+  }
 };
 
 const getDependencyColor = (type: DependencyType) => {

@@ -103,136 +103,186 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
         {/* Dependency Arrows */}
         {dependencyLines.length > 0 && (
           <svg 
-            className="absolute inset-0 z-[1000] pointer-events-none"
-            width={totalWidth} 
-            height={totalHeight}
-            style={{ overflow: 'visible' }}
+            className="absolute pointer-events-none z-[1000]"
+            width={totalWidth + 200} 
+            height={totalHeight + 100}
+            style={{ 
+              left: '-100px',
+              top: '-50px',
+              overflow: 'visible'
+            }}
           >
             <defs>
-              {/* Enhanced arrowhead with gradient */}
+              {/* Enhanced arrowheads with gradient fills */}
               <marker
                 id="arrowhead-timeline-fs"
-                viewBox="-2 -2 16 12"
-                refX="12"
-                refY="4"
-                markerWidth="16"
-                markerHeight="12"
+                viewBox="0 0 14 10"
+                refX="13"
+                refY="5"
+                markerWidth="14"
+                markerHeight="10"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
               >
-                <path d="M 0 0 L 12 4 L 0 8 z" fill="rgba(59, 130, 246, 0.9)" />
+                <path d="M 0 2 L 12 5 L 0 8 L 2 5 Z" fill="url(#timelineFsArrowGradient)" stroke="rgba(59, 130, 246, 0.3)" strokeWidth="0.5" />
               </marker>
               <marker
                 id="arrowhead-timeline-ss"
-                viewBox="-2 -2 16 12"
-                refX="12"
-                refY="4"
-                markerWidth="16"
-                markerHeight="12"
+                viewBox="0 0 14 10"
+                refX="13"
+                refY="5"
+                markerWidth="14"
+                markerHeight="10"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
               >
-                <path d="M 0 0 L 12 4 L 0 8 z" fill="rgba(16, 185, 129, 0.9)" />
+                <path d="M 0 2 L 12 5 L 0 8 L 2 5 Z" fill="url(#timelineSsArrowGradient)" stroke="rgba(16, 185, 129, 0.3)" strokeWidth="0.5" />
               </marker>
               <marker
                 id="arrowhead-timeline-ff"
-                viewBox="-2 -2 16 12"
-                refX="12"
-                refY="4"
-                markerWidth="16"
-                markerHeight="12"
+                viewBox="0 0 14 10"
+                refX="13"
+                refY="5"
+                markerWidth="14"
+                markerHeight="10"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
               >
-                <path d="M 0 0 L 12 4 L 0 8 z" fill="rgba(245, 158, 11, 0.9)" />
+                <path d="M 0 2 L 12 5 L 0 8 L 2 5 Z" fill="url(#timelineFfArrowGradient)" stroke="rgba(245, 158, 11, 0.3)" strokeWidth="0.5" />
               </marker>
               <marker
                 id="arrowhead-timeline-sf"
-                viewBox="-2 -2 16 12"
-                refX="12"
-                refY="4"
-                markerWidth="16"
-                markerHeight="12"
+                viewBox="0 0 14 10"
+                refX="13"
+                refY="5"
+                markerWidth="14"
+                markerHeight="10"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
               >
-                <path d="M 0 0 L 12 4 L 0 8 z" fill="rgba(239, 68, 68, 0.9)" />
+                <path d="M 0 2 L 12 5 L 0 8 L 2 5 Z" fill="url(#timelineSfArrowGradient)" stroke="rgba(239, 68, 68, 0.3)" strokeWidth="0.5" />
               </marker>
               
-              {/* Gradient definitions */}
-              <linearGradient id="timelineArrowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style={{ stopColor: 'rgba(59, 130, 246, 0.8)' }} />
-                <stop offset="100%" style={{ stopColor: 'rgba(59, 130, 246, 1)' }} />
-              </linearGradient>
-              
+              {/* Line gradient definitions */}
               <linearGradient id="timelineFsGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style={{ stopColor: 'rgba(59, 130, 246, 0.6)' }} />
+                <stop offset="0%" style={{ stopColor: 'rgba(59, 130, 246, 0.5)' }} />
+                <stop offset="50%" style={{ stopColor: 'rgba(59, 130, 246, 0.8)' }} />
                 <stop offset="100%" style={{ stopColor: 'rgba(59, 130, 246, 0.9)' }} />
               </linearGradient>
               
               <linearGradient id="timelineSsGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style={{ stopColor: 'rgba(16, 185, 129, 0.6)' }} />
+                <stop offset="0%" style={{ stopColor: 'rgba(16, 185, 129, 0.5)' }} />
+                <stop offset="50%" style={{ stopColor: 'rgba(16, 185, 129, 0.8)' }} />
                 <stop offset="100%" style={{ stopColor: 'rgba(16, 185, 129, 0.9)' }} />
               </linearGradient>
               
               <linearGradient id="timelineFfGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style={{ stopColor: 'rgba(245, 158, 11, 0.6)' }} />
+                <stop offset="0%" style={{ stopColor: 'rgba(245, 158, 11, 0.5)' }} />
+                <stop offset="50%" style={{ stopColor: 'rgba(245, 158, 11, 0.8)' }} />
                 <stop offset="100%" style={{ stopColor: 'rgba(245, 158, 11, 0.9)' }} />
               </linearGradient>
               
               <linearGradient id="timelineSfGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" style={{ stopColor: 'rgba(239, 68, 68, 0.6)' }} />
+                <stop offset="0%" style={{ stopColor: 'rgba(239, 68, 68, 0.5)' }} />
+                <stop offset="50%" style={{ stopColor: 'rgba(239, 68, 68, 0.8)' }} />
                 <stop offset="100%" style={{ stopColor: 'rgba(239, 68, 68, 0.9)' }} />
               </linearGradient>
               
-              {/* Drop shadow filter */}
-              <filter id="timelineDropShadow" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow dx="1" dy="1" stdDeviation="1.5" floodOpacity="0.2" />
+              {/* Arrowhead gradient definitions */}
+              <linearGradient id="timelineFsArrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{ stopColor: 'rgba(59, 130, 246, 1)' }} />
+                <stop offset="100%" style={{ stopColor: 'rgba(99, 151, 255, 1)' }} />
+              </linearGradient>
+              
+              <linearGradient id="timelineSsArrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{ stopColor: 'rgba(16, 185, 129, 1)' }} />
+                <stop offset="100%" style={{ stopColor: 'rgba(52, 211, 153, 1)' }} />
+              </linearGradient>
+              
+              <linearGradient id="timelineFfArrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{ stopColor: 'rgba(245, 158, 11, 1)' }} />
+                <stop offset="100%" style={{ stopColor: 'rgba(251, 191, 36, 1)' }} />
+              </linearGradient>
+              
+              <linearGradient id="timelineSfArrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{ stopColor: 'rgba(239, 68, 68, 1)' }} />
+                <stop offset="100%" style={{ stopColor: 'rgba(248, 113, 113, 1)' }} />
+              </linearGradient>
+              
+              {/* Enhanced shadow and glow filters */}
+              <filter id="timelineDropShadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+                <feOffset dx="2" dy="2" result="offset"/>
+                <feComponentTransfer>
+                  <feFuncA type="linear" slope="0.3"/>
+                </feComponentTransfer>
+                <feMerge> 
+                  <feMergeNode/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+              
+              <filter id="timelineGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
               </filter>
             </defs>
             
-            {dependencyLines.map((line) => {
-              const gradientId = `timeline${line.type.toLowerCase()}Gradient`;
+            {dependencyLines.map((line, index) => {
+              const gradientId = `timeline${line.type.charAt(0).toUpperCase() + line.type.slice(1).toLowerCase()}Gradient`;
+              const adjustedPath = line.path.split(' ').map((coord, i) => {
+                if (i % 2 === 1 && coord.match(/^\d/)) { // Y coordinates
+                  return (parseFloat(coord) + 50).toString();
+                } else if (i % 2 === 0 && coord.match(/^\d/)) { // X coordinates  
+                  return (parseFloat(coord) + 100).toString();
+                }
+                return coord;
+              }).join(' ');
+              
               return (
-                <g key={line.id} className={`dependency-arrow dependency-${line.type.toLowerCase()} group`}>
-                  {/* Subtle glow effect background */}
+                <g key={line.id} className={`dependency-arrow dependency-${line.type.toLowerCase()}`}>
+                  {/* Background glow for depth */}
                   <path
-                    d={line.path}
+                    d={adjustedPath}
                     stroke={line.color}
-                    strokeWidth="3"
+                    strokeWidth="6"
                     fill="none"
-                    opacity="0.15"
+                    opacity="0.1"
                     className="arrow-glow"
+                    filter="url(#timelineGlow)"
                   />
                   
-                  {/* Main arrow path */}
+                  {/* Main arrow path with enhanced styling */}
                   <path
-                    d={line.path}
+                    d={adjustedPath}
                     stroke={`url(#${gradientId})`}
-                    strokeWidth="2"
+                    strokeWidth="2.5"
                     fill="none"
                     markerEnd={`url(#arrowhead-timeline-${line.type.toLowerCase()})`}
                     filter="url(#timelineDropShadow)"
                     className="arrow-main"
-                    strokeLinecap="butt"
-                    strokeLinejoin="miter"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                   
-                  {/* Animated highlight */}
+                  {/* Subtle animated highlight on hover */}
                   <path
-                    d={line.path}
-                    stroke="rgba(255,255,255,0.4)"
-                    strokeWidth="1"
+                    d={adjustedPath}
+                    stroke="rgba(255,255,255,0.6)"
+                    strokeWidth="0.8"
                     fill="none"
-                    className="arrow-highlight"
-                    strokeDasharray="4,4"
-                    strokeLinecap="square"
-                    strokeLinejoin="miter"
+                    className="arrow-highlight opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    strokeDasharray="3,3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
                     <animate
                       attributeName="stroke-dashoffset"
-                      values="0;8"
-                      dur="1.2s"
+                      values="0;6"
+                      dur="1.5s"
                       repeatCount="indefinite"
                     />
                   </path>
