@@ -151,24 +151,25 @@ export const WBSTimeView = ({
                 ref={leftScrollRef}
                 className="h-full overflow-y-hidden overflow-x-hidden"
               >
-                <WBSLeftPanel
-                  items={items.map(item => ({
-                    ...item,
-                    name: item.title,
-                    wbsNumber: item.wbs_id || '', // Use actual WBS ID from database
-                    status: item.status || 'Not Started'
-                  }))}
-                  onToggleExpanded={onToggleExpanded}
-                  onDragEnd={onDragEnd}
-                  onItemEdit={onItemUpdate}
-                  onAddChild={onAddChild}
-                  dragIndicator={dragIndicator}
-                  EditableCell={EditableCell}
-                  generateWBSNumber={generateWBSNumber}
-                  scrollRef={leftInnerRef}
-                  hoveredId={hoveredId}
-                  onRowHover={setHoveredId}
-                />
+                 <WBSLeftPanel
+                   items={items.map(item => ({
+                     ...item,
+                     name: item.title,
+                     wbsNumber: item.wbs_id || '', // Use actual WBS ID from database
+                     status: item.status || 'Not Started'
+                   }))}
+                   onToggleExpanded={onToggleExpanded}
+                   onDragEnd={onDragEnd}
+                   onItemEdit={onItemUpdate}
+                   onAddChild={onAddChild}
+                   dragIndicator={dragIndicator}
+                   EditableCell={EditableCell}
+                   generateWBSNumber={generateWBSNumber}
+                   scrollRef={leftInnerRef}
+                   onScroll={handleLeftPanelScroll}
+                   hoveredId={hoveredId}
+                   onRowHover={setHoveredId}
+                 />
               </div>
             </div>
             
