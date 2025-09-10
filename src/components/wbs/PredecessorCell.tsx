@@ -97,6 +97,12 @@ export const PredecessorCell = ({
       return;
     }
     
+    // Check if this is an element and already has a dependency
+    if (type === 'element' && selectedPredecessors.length >= 1) {
+      console.warn('⚠️ Elements can only have 1 dependency');
+      return;
+    }
+    
     // Check if this predecessor already exists
     if (selectedPredecessors.some(p => p.id === newPredecessor.id)) {
       console.warn('⚠️ Predecessor already exists:', newPredecessor.id);
@@ -262,12 +268,17 @@ export const PredecessorCell = ({
               
               <Button
                 onClick={handleAddPredecessor}
-                disabled={!newPredecessor.id}
+                disabled={!newPredecessor.id || (type === 'element' && selectedPredecessors.length >= 1)}
                 className="w-full h-8 text-xs"
                 size="sm"
               >
                 Add Dependency
               </Button>
+              {type === 'element' && selectedPredecessors.length >= 1 && (
+                <div className="text-xs text-muted-foreground mt-1 text-center">
+                  Elements can only have 1 dependency
+                </div>
+              )}
             </div>
           </div>
           
