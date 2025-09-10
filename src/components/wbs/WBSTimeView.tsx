@@ -39,6 +39,7 @@ export const WBSTimeView = ({
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
   const mainScrollRef = useRef<HTMLDivElement>(null);
+  const leftInnerRef = useRef<HTMLDivElement>(null);
   const headerHorizScrollRef = useRef<HTMLDivElement>(null);
   const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -55,10 +56,16 @@ export const WBSTimeView = ({
   }, [onItemUpdate]);
 
   const handleTimelineScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current && mainScrollRef.current) {
+    if (leftScrollRef.current && mainScrollRef.current) {
       const scrollTop = mainScrollRef.current.scrollTop;
       leftScrollRef.current.scrollTop = scrollTop;
-      rightScrollRef.current.scrollTop = scrollTop;
+    }
+  }, []);
+
+  const handleLeftPanelScroll = useCallback(() => {
+    if (leftScrollRef.current && mainScrollRef.current) {
+      const scrollTop = leftScrollRef.current.scrollTop;
+      mainScrollRef.current.scrollTop = scrollTop;
     }
   }, []);
 
@@ -117,25 +124,31 @@ export const WBSTimeView = ({
           {/* Content Section */}
           <div className="flex-1 min-h-0 flex overflow-hidden">
             {/* Frozen WBS and NAME Panel */}
-            <div className="w-[420px] flex-shrink-0 bg-white border-r border-gray-200 z-20">
-              <WBSLeftPanel
-                items={items.map(item => ({
-                  ...item,
-                  name: item.title,
-                  wbsNumber: item.wbs_id || '', // Use actual WBS ID from database
-                  status: item.status || 'Not Started'
-                }))}
-                onToggleExpanded={onToggleExpanded}
-                onDragEnd={onDragEnd}
-                onItemEdit={onItemUpdate}
-                onAddChild={onAddChild}
-                dragIndicator={dragIndicator}
-                EditableCell={EditableCell}
-                generateWBSNumber={generateWBSNumber}
-                scrollRef={leftScrollRef}
-                hoveredId={hoveredId}
-                onRowHover={setHoveredId}
-              />
+            <div className="w-[420px] flex-shrink-0 bg-white border-r border-gray-200 z-20 overflow-hidden">
+              <div 
+                ref={leftScrollRef}
+                className="h-full overflow-y-auto overflow-x-hidden"
+                onScroll={handleLeftPanelScroll}
+              >
+                <WBSLeftPanel
+                  items={items.map(item => ({
+                    ...item,
+                    name: item.title,
+                    wbsNumber: item.wbs_id || '', // Use actual WBS ID from database
+                    status: item.status || 'Not Started'
+                  }))}
+                  onToggleExpanded={onToggleExpanded}
+                  onDragEnd={onDragEnd}
+                  onItemEdit={onItemUpdate}
+                  onAddChild={onAddChild}
+                  dragIndicator={dragIndicator}
+                  EditableCell={EditableCell}
+                  generateWBSNumber={generateWBSNumber}
+                  scrollRef={leftInnerRef}
+                  hoveredId={hoveredId}
+                  onRowHover={setHoveredId}
+                />
+              </div>
             </div>
             
             {/* Scrollable Right Panel - Only this has visible scrollbar */}
