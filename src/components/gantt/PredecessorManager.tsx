@@ -100,7 +100,7 @@ export const PredecessorManager: React.FC<PredecessorManagerProps> = ({
         <Button 
           variant="ghost" 
           size="sm" 
-          className="h-6 px-2 text-xs"
+          className="h-6 px-2 text-xs hover:bg-transparent"
           title="Manage Predecessors"
         >
           <Calendar className="w-3 h-3 mr-1" />

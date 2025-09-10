@@ -131,12 +131,12 @@ export const GanttTaskRow: React.FC<GanttTaskRowProps> = ({
       </div>
 
       {/* Start Date */}
-      <div className="px-2 py-2 text-xs text-gray-600 text-center">
+      <div className="px-2 py-2 text-xs text-gray-600 text-center hover:text-gray-600">
         {task.startDate.toLocaleDateString()}
       </div>
 
       {/* End Date */}
-      <div className="px-2 py-2 text-xs text-gray-600 text-center">
+      <div className="px-2 py-2 text-xs text-gray-600 text-center hover:text-gray-600">
         {task.endDate.toLocaleDateString()}
       </div>
 
