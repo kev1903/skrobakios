@@ -72,6 +72,16 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
       return;
     }
 
+    // Validate dates
+    if (startDate && deadline && startDate > deadline) {
+      toast({
+        title: "Invalid Dates",
+        description: "Start date cannot be after the deadline",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -82,8 +92,8 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
         contract_price: formData.contract_price || null,
         priority: formData.priority || null,
         status: formData.status,
-        start_date: startDate?.toISOString().split('T')[0] || null,
-        deadline: deadline?.toISOString().split('T')[0] || null,
+        start_date: startDate ? format(startDate, 'yyyy-MM-dd') : null,
+        deadline: deadline ? format(deadline, 'yyyy-MM-dd') : null,
         updated_at: new Date().toISOString(),
       };
 
@@ -210,6 +220,7 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
                       selected={startDate}
                       onSelect={setStartDate}
                       initialFocus
+                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -239,6 +250,7 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
                       selected={deadline}
                       onSelect={setDeadline}
                       initialFocus
+                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
