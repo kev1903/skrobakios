@@ -71,17 +71,17 @@
 .arrow-main {
   transition: stroke-width 0.15s ease, filter 0.15s ease;
   stroke-linejoin: miter;
-  stroke-linecap: square;
+  stroke-linecap: butt;
 }
 
 .arrow-highlight {
   transition: opacity 0.15s ease;
   stroke-linejoin: miter;
-  stroke-linecap: square;
+  stroke-linecap: butt;
 }
 
 .arrow-glow {
   transition: opacity 0.15s ease, stroke-width 0.15s ease;
   stroke-linejoin: miter;
-  stroke-linecap: square;
+  stroke-linecap: butt;
 }

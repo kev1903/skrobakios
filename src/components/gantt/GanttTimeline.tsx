@@ -214,7 +214,7 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
                     markerEnd={`url(#arrowhead-timeline-${line.type.toLowerCase()})`}
                     filter="url(#timelineDropShadow)"
                     className="arrow-main"
-                    strokeLinecap="square"
+                    strokeLinecap="butt"
                     strokeLinejoin="miter"
                   />
                   

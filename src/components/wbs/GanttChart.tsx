@@ -529,9 +529,9 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                       fill="none"
                       markerEnd="url(#arrowhead)"
                       filter="url(#dropShadow)"
-                      className="arrow-main"
-                      strokeLinecap="square"
-                      strokeLinejoin="miter"
+                       className="arrow-main"
+                       strokeLinecap="butt"
+                       strokeLinejoin="miter"
                     >
                       <title>{`${line.type} Dependency: ${line.fromTask} → ${line.toTask}`}</title>
                     </path>
