@@ -210,6 +210,7 @@ export const WBSTimeRightPanel = ({
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       
       timeoutRef.current = setTimeout(async () => {
+        console.log(`📅 Date change detected for ${itemId}:`, updates);
         // Auto-schedule dependent tasks when predecessor finish date changes
         const flatItems = items.reduce<WBSItem[]>((acc, item) => {
           const flatten = (i: WBSItem): WBSItem[] => [i, ...(i.children || []).flatMap(flatten)];

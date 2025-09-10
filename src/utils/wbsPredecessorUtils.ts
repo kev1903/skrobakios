@@ -74,7 +74,7 @@ export const calculateWBSDependencyDate = (
       if (!predecessorEnd) {
         throw new Error('Predecessor must have an end date for Finish-to-Start dependency');
       }
-      // Successor starts the day after predecessor finishes (or same day if lag is negative)
+      // Successor starts the day after predecessor finishes + lag days
       constraintDate = addDays(predecessorEnd, 1 + lag);
       break;
     case 'SS': // Start-to-Start: dependent starts when predecessor starts
@@ -207,9 +207,11 @@ export const autoScheduleDependentWBSTasks = (
     processedTasks.add(updatedTaskId);
 
     const dependentTasks = findDependentWBSTasks(updatedTaskId, allTasks);
+    console.log(`🔄 Auto-scheduling: Found ${dependentTasks.length} dependent tasks for ${updatedTaskId}`);
     
     for (const dependentTask of dependentTasks) {
       const updates = autoScheduleWBSTask(dependentTask, allTasks);
+      console.log(`📅 Auto-scheduling dependent task ${dependentTask.id}:`, updates);
       
       if (updates) {
         try {
