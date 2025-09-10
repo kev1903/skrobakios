@@ -21,9 +21,9 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   const [bannerImage, setBannerImage] = useState<string>("");
   const [bannerPosition, setBannerPosition] = useState({ x: 0, y: 0, scale: 1 });
   const [localLoading, setLocalLoading] = useState(true);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const { getProject, loading } = useProjects();
   const { currentCompany } = useCompany();
+  const lastFetchedIdRef = useRef<string | null>(null);
   // Reset banner state immediately on project change to avoid showing stale images
   useEffect(() => {
     setBannerImage("");
@@ -54,24 +54,23 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   useEffect(() => {
     let isActive = true;
 
-    // Set timeout for loading state
-    timeoutRef.current = setTimeout(() => {
-      if (!isActive) return;
-      setLocalLoading(false);
-    }, 5000); // Extended timeout to allow for project auto-selection
-
     const fetchProject = async () => {
       if (!isActive) return;
-      setLocalLoading(true);
-      
+
+      // If no projectId yet, stop loading immediately
       if (!projectId) {
-        // No projectId provided - wait a bit for auto-selection to happen
-        setTimeout(() => {
-          if (!isActive) return;
-          setLocalLoading(false);
-        }, 2000); // Wait 2 seconds for auto-selection
+        setLocalLoading(false);
         return;
       }
+
+      // Avoid redundant fetches for the same project
+      if (lastFetchedIdRef.current === projectId && project) {
+        setLocalLoading(false);
+        return;
+      }
+
+      setLocalLoading(true);
+      lastFetchedIdRef.current = projectId;
       
       try {
         const foundProject = await getProject(projectId);
@@ -136,9 +135,6 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       } finally {
         if (!isActive) return;
         setLocalLoading(false);
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-        }
       }
     };
 
@@ -146,11 +142,8 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
 
     return () => {
       isActive = false;
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
     };
-  }, [projectId, getProject]);
+  }, [projectId, getProject, currentCompany?.id, project]);
 
   const handleProjectUpdate = (updatedProject: Project) => {
     setProject(updatedProject);
