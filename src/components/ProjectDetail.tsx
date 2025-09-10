@@ -20,7 +20,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   const [project, setProject] = useState<Project | null>(null);
   const [bannerImage, setBannerImage] = useState<string>("");
   const [bannerPosition, setBannerPosition] = useState({ x: 0, y: 0, scale: 1 });
-  const [localLoading, setLocalLoading] = useState(true);
+  // Removed local loading state; using global 'loading' from useProjects
   const { getProject, loading } = useProjects();
   const { currentCompany } = useCompany();
   const lastFetchedIdRef = useRef<string | null>(null);
@@ -57,19 +57,17 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     const fetchProject = async () => {
       if (!isActive) return;
 
-      // If no projectId yet, stop loading immediately
+      // If no projectId yet, do nothing
       if (!projectId) {
-        setLocalLoading(false);
         return;
       }
 
       // Avoid redundant fetches for the same project
       if (lastFetchedIdRef.current === projectId && project) {
-        setLocalLoading(false);
         return;
       }
 
-      setLocalLoading(true);
+      
       lastFetchedIdRef.current = projectId;
       
       try {
@@ -134,7 +132,6 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
         setProject(null);
       } finally {
         if (!isActive) return;
-        setLocalLoading(false);
       }
     };
 
@@ -186,7 +183,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   };
 
   // Show loading state
-  if (localLoading && !project) {
+  if (loading && !project) {
     return (
       <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50">
         <div className="flex items-center justify-center w-full">
@@ -200,7 +197,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   }
 
   // Show error message if no project found and not loading
-  if (!project && !localLoading) {
+  if (!project && !loading) {
     return (
       <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50">
         <div className="flex items-center justify-center w-full">
