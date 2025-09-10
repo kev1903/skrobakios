@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Project } from "@/hooks/useProjects";
+import { formatCurrency } from "@/utils/formatters";
 
 interface ProjectMetricsProps {
   project: Project;
@@ -16,9 +17,9 @@ export const ProjectMetrics = ({ project }: ProjectMetricsProps) => {
   const contractValue = getContractValue();
   
   const summaryMetrics = [
-    { label: "Contract Price", value: project.contract_price || "$0", trend: "up" },
-    { label: "Paid To Date", value: contractValue > 0 ? `$${(contractValue * 0.65 / 1000000).toFixed(1)}M` : "$0", trend: "up" },
-    { label: "Payment Received", value: contractValue > 0 ? `$${(contractValue * 0.2 / 1000000).toFixed(1)}M` : "$0", trend: "up" }
+    { label: "Contract Price", value: formatCurrency(project.contract_price), trend: "up" },
+    { label: "Paid To Date", value: contractValue > 0 ? formatCurrency(contractValue * 0.65) : "$0", trend: "up" },
+    { label: "Payment Received", value: contractValue > 0 ? formatCurrency(contractValue * 0.2) : "$0", trend: "up" }
   ];
 
   return (

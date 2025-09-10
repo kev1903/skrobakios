@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { Project } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { formatNumber, parseCurrency } from "@/utils/formatters";
 
 interface EditProjectFormProps {
   project: Project;
@@ -30,6 +31,9 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
     priority: project.priority || "",
     status: project.status,
   });
+  const [displayPrice, setDisplayPrice] = useState(
+    project.contract_price ? formatNumber(project.contract_price) : ""
+  );
   const [startDate, setStartDate] = useState<Date | undefined>(
     project.start_date ? new Date(project.start_date) : undefined
   );
@@ -40,10 +44,22 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
   const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    if (field === 'contract_price') {
+      // Remove any non-numeric characters except decimal point
+      const numericValue = value.replace(/[^\d.]/g, '');
+      // Format with commas for display
+      setDisplayPrice(formatNumber(numericValue));
+      // Store raw numeric value
+      setFormData(prev => ({
+        ...prev,
+        [field]: numericValue
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
   };
 
   const handleSave = async () => {
@@ -158,12 +174,11 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
                   </div>
                   <Input
                     id="contract_price"
-                    type="number"
-                    step="0.01"
-                    value={formData.contract_price}
+                    type="text"
+                    value={displayPrice}
                     onChange={(e) => handleInputChange('contract_price', e.target.value)}
                     className="pl-8 pr-16"
-                    placeholder="0.00"
+                    placeholder="0"
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                     <span className="text-gray-500 text-xs">Inc GST</span>

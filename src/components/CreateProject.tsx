@@ -14,6 +14,7 @@ import { useProjects } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 import { LocationInput } from "@/components/create-project/LocationInput";
+import { formatNumber } from "@/utils/formatters";
 
 interface CreateProjectProps {
   onNavigate: (page: string) => void;
@@ -25,6 +26,7 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
   const [projectId, setProjectId] = useState("");
   const [projectName, setProjectName] = useState("");
   const [contractPrice, setContractPrice] = useState("");
+  const [displayPrice, setDisplayPrice] = useState("");
   const [description, setDescription] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("pending");
   const [selectedPriority, setSelectedPriority] = useState("");
@@ -34,6 +36,15 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
   const { createProject, loading } = useProjects();
   const { toast } = useToast();
   const { navigateBack } = useNavigationWithHistory({ onNavigate, currentPage: 'create-project' });
+
+  const handlePriceChange = (value: string) => {
+    // Remove any non-numeric characters except decimal point
+    const numericValue = value.replace(/[^\d.]/g, '');
+    // Format with commas for display
+    setDisplayPrice(formatNumber(numericValue));
+    // Store raw numeric value
+    setContractPrice(numericValue);
+  };
 
   const generateProjectId = () => {
     const timestamp = Date.now();
@@ -230,13 +241,22 @@ export const CreateProject = ({ onNavigate }: CreateProjectProps) => {
                   <Label htmlFor="contractPrice" className="text-sm font-medium text-foreground mb-2 block heading-modern">
                     Contract Price
                   </Label>
-                  <Input
-                    id="contractPrice"
-                    placeholder="Contract Price"
-                    value={contractPrice}
-                    onChange={(e) => setContractPrice(e.target.value)}
-                    className="w-full"
-                  />
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-muted-foreground sm:text-sm">$</span>
+                    </div>
+                    <Input
+                      id="contractPrice"
+                      type="text"
+                      placeholder="0"
+                      value={displayPrice}
+                      onChange={(e) => handlePriceChange(e.target.value)}
+                      className="pl-8 pr-16"
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <span className="text-muted-foreground text-xs">Inc GST</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 

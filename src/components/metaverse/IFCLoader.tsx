@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { Html } from '@react-three/drei';
+import { formatCurrency } from '@/utils/formatters';
 
 interface IFCLoaderProps {
   url?: string;
@@ -152,11 +153,11 @@ export function IFCBuilding({ url, position, scale = 1, onClick, project }: IFCL
           }`}>
             {project.status}
           </div>
-          {project.contract_price && (
-            <div className="text-xs text-muted-foreground mt-1">
-              ${parseFloat(project.contract_price).toLocaleString()}
-            </div>
-          )}
+           {project.contract_price && (
+             <div className="text-xs text-muted-foreground mt-1">
+               {formatCurrency(project.contract_price)}
+             </div>
+           )}
         </div>
       </Html>
 
