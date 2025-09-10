@@ -112,11 +112,11 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
               {/* Enhanced arrowhead with gradient */}
               <marker
                 id="arrowhead-timeline-fs"
-                viewBox="0 0 13 8"
+                viewBox="-2 -2 16 12"
                 refX="12"
                 refY="4"
-                markerWidth="13"
-                markerHeight="8"
+                markerWidth="16"
+                markerHeight="12"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
               >
@@ -124,11 +124,11 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
               </marker>
               <marker
                 id="arrowhead-timeline-ss"
-                viewBox="0 0 13 8"
+                viewBox="-2 -2 16 12"
                 refX="12"
                 refY="4"
-                markerWidth="13"
-                markerHeight="8"
+                markerWidth="16"
+                markerHeight="12"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
               >
@@ -136,11 +136,11 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
               </marker>
               <marker
                 id="arrowhead-timeline-ff"
-                viewBox="0 0 13 8"
+                viewBox="-2 -2 16 12"
                 refX="12"
                 refY="4"
-                markerWidth="13"
-                markerHeight="8"
+                markerWidth="16"
+                markerHeight="12"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
               >
@@ -148,11 +148,11 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
               </marker>
               <marker
                 id="arrowhead-timeline-sf"
-                viewBox="0 0 13 8"
+                viewBox="-2 -2 16 12"
                 refX="12"
                 refY="4"
-                markerWidth="13"
-                markerHeight="8"
+                markerWidth="16"
+                markerHeight="12"
                 orient="auto"
                 markerUnits="userSpaceOnUse"
               >

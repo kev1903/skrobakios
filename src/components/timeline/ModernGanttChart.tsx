@@ -1443,7 +1443,7 @@ const toggleSection = (taskId: string) => {
               {/* Dependency Arrows Overlay */}
               {dependencyArrows.length > 0 && (
                 <svg
-                  className="absolute top-0 left-0 pointer-events-none z-10"
+                  className="absolute top-0 left-0 pointer-events-none z-30"
                   style={{ 
                     width: timelineWidth, 
                     height: visibleTasks.length * rowHeight,
@@ -1453,14 +1453,15 @@ const toggleSection = (taskId: string) => {
                   <defs>
                     <marker
                       id="arrowhead"
-                      markerWidth="11"
-                      markerHeight="7"
-                      refX="10"
-                      refY="3.5"
+                      viewBox="-2 -2 16 12"
+                      markerWidth="16"
+                      markerHeight="12"
+                      refX="12"
+                      refY="4"
                       orient="auto"
                     >
                       <polygon
-                        points="0 0, 10 3.5, 0 7"
+                        points="0 0, 12 4, 0 8"
                         fill="hsl(var(--primary))"
                         opacity="0.7"
                       />
@@ -1476,6 +1477,8 @@ const toggleSection = (taskId: string) => {
                       opacity="0.7"
                       markerEnd="url(#arrowhead)"
                       className="drop-shadow-sm"
+                      strokeLinecap="butt"
+                      strokeLinejoin="miter"
                     />
                   ))}
                 </svg>
