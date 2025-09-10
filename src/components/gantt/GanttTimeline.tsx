@@ -103,7 +103,7 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
         {/* Dependency Arrows */}
         {dependencyLines.length > 0 && (
           <svg 
-            className="absolute inset-0 z-30 pointer-events-none"
+            className="absolute inset-0 z-[1000] pointer-events-none"
             width={totalWidth} 
             height={totalHeight}
             style={{ overflow: 'visible' }}

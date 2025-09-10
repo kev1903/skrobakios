@@ -451,7 +451,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
           {/* Dependency Arrows */}
           {dependencyLines.length > 0 && (
             <svg 
-              className="absolute inset-0 pointer-events-none z-50"
+              className="absolute inset-0 pointer-events-none z-[1000]"
               width={chartWidth} 
               height={items.length * rowHeight}
               style={{ overflow: 'visible' }}

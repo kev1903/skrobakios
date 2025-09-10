@@ -1443,11 +1443,12 @@ const toggleSection = (taskId: string) => {
               {/* Dependency Arrows Overlay */}
               {dependencyArrows.length > 0 && (
                 <svg
-                  className="absolute top-0 left-0 pointer-events-none z-30"
+                  className="absolute top-0 left-0 pointer-events-none z-[1000]"
                   style={{ 
                     width: timelineWidth, 
                     height: visibleTasks.length * rowHeight,
-                    minWidth: timelineWidth 
+                    minWidth: timelineWidth,
+                    overflow: 'visible'
                   }}
                 >
                   <defs>
