@@ -222,6 +222,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   // Convert WBS items to scope data structure (roots are X.0 which we treat as level 0)
   const scopeData: ScopePhase[] = wbsItems
     .filter(item => item.wbs_id?.endsWith('.0') || item.level === 0 || item.parent_id == null)
+    .sort((a, b) => {
+      // Sort by WBS number to ensure proper ordering after drag and drop
+      const aWbs = a.wbs_id?.split('.').map(n => parseInt(n)) || [0];
+      const bWbs = b.wbs_id?.split('.').map(n => parseInt(n)) || [0];
+      return aWbs[0] - bWbs[0];
+    })
     .map(phase => ({
       id: phase.id,
       name: phase.title,
