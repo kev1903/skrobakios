@@ -278,7 +278,6 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
           </Avatar>
           <div>
             <h3 className="font-semibold text-sm">SkAi Assistant</h3>
-            <p className="text-xs text-muted-foreground">Expert General Contractor & Builder - Australian Construction Industry</p>
           </div>
         </div>
       </div>
