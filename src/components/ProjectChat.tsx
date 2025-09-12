@@ -347,41 +347,46 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
 
       {/* Input */}
       <div className="flex-shrink-0 p-4 border-t border-border">
-        <div className="flex gap-2">
+        <div className="space-y-3">
+          {/* Top row: Chat input */}
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Ask about your project..."
-            className="flex-1 text-sm"
+            className="w-full text-sm"
             disabled={isLoading || isRecording || isProcessing}
           />
-          <Button 
-            onClick={handleVoiceRecording}
-            disabled={isLoading || isProcessing}
-            size="sm"
-            variant={isListening ? "default" : "outline"}
-            className={`px-3 ${isListening ? "animate-pulse bg-primary text-primary-foreground" : ""}`}
-          >
-            {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-          </Button>
-          <Button 
-            onClick={handleSpeakToggle}
-            disabled={isLoading || messages.filter(m => m.role === 'assistant').length === 1}
-            size="sm"
-            variant={isSpeaking ? "secondary" : "outline"}
-            className="px-3"
-          >
-            {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-          </Button>
-          <Button 
-            onClick={() => sendMessage()} 
-            disabled={!input.trim() || isLoading || isRecording}
-            size="sm"
-            className="px-3"
-          >
-            <Send className="w-4 h-4" />
-          </Button>
+          
+          {/* Second row: Buttons */}
+          <div className="flex gap-2 justify-center">
+            <Button 
+              onClick={handleVoiceRecording}
+              disabled={isLoading || isProcessing}
+              size="sm"
+              variant={isListening ? "default" : "outline"}
+              className={`px-3 ${isListening ? "animate-pulse bg-primary text-primary-foreground" : ""}`}
+            >
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </Button>
+            <Button 
+              onClick={handleSpeakToggle}
+              disabled={isLoading || messages.filter(m => m.role === 'assistant').length === 1}
+              size="sm"
+              variant={isSpeaking ? "secondary" : "outline"}
+              className="px-3"
+            >
+              {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </Button>
+            <Button 
+              onClick={() => sendMessage()} 
+              disabled={!input.trim() || isLoading || isRecording}
+              size="sm"
+              className="px-3"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
         {(isListening || isRecording || isProcessing) && (
           <div className="mt-2 text-xs text-muted-foreground text-center">
