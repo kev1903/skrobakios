@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, User, Bot, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { Send, User, Bot, Mic, MicOff, Volume2, VolumeX, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -74,6 +74,9 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
@@ -103,13 +106,53 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
     scrollToBottom();
   }, [messages]);
 
+  const handleFileSelect = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    
+    // Check file size (20MB limit)
+    if (file.size > 20 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select a file smaller than 20MB",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setSelectedFile(file);
+  };
+
+  const removeSelectedFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFileSelect(e.dataTransfer.files);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
   const sendMessage = async (messageText?: string, speakResponse: boolean = false) => {
     const textToSend = messageText || input;
-    if (!textToSend.trim() || isLoading) return;
+    if (!textToSend.trim() && !selectedFile) return;
+    if (isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: textToSend.trim(),
+      content: textToSend.trim() || `[File: ${selectedFile?.name}]`,
       role: 'user',
       timestamp: new Date()
     };
@@ -119,6 +162,30 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
     setIsLoading(true);
 
     try {
+      let messageToSend = textToSend.trim();
+      let imageData = null;
+
+      // Handle file upload
+      if (selectedFile) {
+        if (selectedFile.type.startsWith('image/')) {
+          // Convert image to base64 for AI processing
+          const reader = new FileReader();
+          await new Promise((resolve) => {
+            reader.onload = (e) => {
+              imageData = e.target?.result as string;
+              resolve(true);
+            };
+            reader.readAsDataURL(selectedFile);
+          });
+        }
+        
+        // Add file context to message
+        messageToSend = `${textToSend.trim()}\n\n[File uploaded: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(1)}KB)]`;
+        
+        // Clear selected file after use
+        removeSelectedFile();
+      }
+
       // Check if the message contains database operation keywords
       const dbOperationKeywords = [
         'add', 'create', 'insert', 'update', 'modify', 'change', 'edit', 
@@ -126,14 +193,14 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
       ];
       
       const containsDbOperation = dbOperationKeywords.some(keyword => 
-        textToSend.toLowerCase().includes(keyword)
+        messageToSend.toLowerCase().includes(keyword)
       );
 
-      if (containsDbOperation) {
-        // First try the database operation
+      if (containsDbOperation && !imageData) {
+        // First try the database operation (only for text-only requests)
         try {
           const dbResult = await invokeEdge('skai-database-operations', {
-            prompt: textToSend.trim(),
+            prompt: messageToSend,
             projectId: projectId,
             context: {
               currentPage: 'project-control',
@@ -182,9 +249,10 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
         }
       }
 
-      // Regular AI chat (fallback or non-db operations)
+      // Regular AI chat (fallback or non-db operations, or when file is attached)
       const response = await invokeEdge('ai-chat', {
-        message: textToSend.trim(),
+        message: messageToSend,
+        imageData: imageData,
         conversation: messages.map(msg => ({
           role: msg.role,
           content: msg.content
@@ -205,7 +273,7 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
         timestamp: new Date()
       };
 
-        setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => [...prev, assistantMessage]);
 
       // Speak the response if requested
       if (speakResponse && responseText) {
@@ -230,7 +298,9 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage();
+      if (input.trim() || selectedFile) {
+        sendMessage();
+      }
     }
   };
 
@@ -482,20 +552,82 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
       </ScrollArea>
 
       {/* Input */}
-      <div className="flex-shrink-0 p-4 border-t border-border">
+      <div className="flex-shrink-0 p-4 border-t border-border relative"
+           onDrop={handleDrop}
+           onDragOver={handleDragOver}
+           onDragLeave={handleDragLeave}>
         <div className="space-y-3">
-          {/* Top row: Chat input */}
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Ask SkAi about your construction project..."
-            className="w-full text-sm"
-            disabled={isLoading || isRecording || isProcessing}
-          />
+          {/* File upload area */}
+          {selectedFile && (
+            <div className="bg-muted p-3 rounded-lg border">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Upload className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">{selectedFile.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {(selectedFile.size / 1024).toFixed(1)}KB
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={removeSelectedFile}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
           
-          {/* Second row: Buttons */}
+          {/* Drag and drop overlay */}
+          {isDragging && (
+            <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded-lg flex items-center justify-center z-10">
+              <div className="text-center">
+                <Upload className="w-8 h-8 mx-auto mb-2 text-primary" />
+                <p className="text-sm font-medium text-primary">Drop files here</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Chat input */}
+          <div className="relative">
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={selectedFile ? `Ask SkAi about ${selectedFile.name}...` : "Ask SkAi about your construction project..."}
+              className="w-full text-sm"
+              disabled={isLoading || isRecording || isProcessing}
+            />
+            
+            {/* File input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple={false}
+              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.dwg,.txt,.csv,.xlsx,.xls"
+              className="hidden"
+              onChange={(e) => handleFileSelect(e.target.files)}
+            />
+          </div>
+          
+          {/* Action buttons */}
           <div className="flex gap-2 justify-center">
+            {/* Upload button */}
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="outline"
+              size="sm"
+              disabled={isLoading || isRecording || isProcessing}
+              className="px-3"
+              title="Upload document"
+            >
+              <Upload className="w-4 h-4" />
+            </Button>
+            
+            {/* Voice button */}
             <Button 
               onClick={handleVoiceRecording}
               disabled={isLoading || isProcessing}
@@ -505,6 +637,8 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
             >
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </Button>
+            
+            {/* Speak button */}
             <Button 
               onClick={handleSpeakToggle}
               disabled={isLoading || messages.filter(m => m.role === 'assistant').length === 1}
@@ -514,16 +648,25 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
             >
               {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
             </Button>
+            
+            {/* Send button */}
             <Button 
               onClick={() => sendMessage()} 
-              disabled={!input.trim() || isLoading || isRecording}
+              disabled={(!input.trim() && !selectedFile) || isLoading || isRecording}
               size="sm"
               className="px-3"
             >
               <Send className="w-4 h-4" />
             </Button>
           </div>
+          
+          {/* Upload instructions */}
+          <div className="text-xs text-muted-foreground text-center">
+            Drop files here or click Upload • Supports PDF, DOC, DOCX, JPG, PNG, DWG files up to 20MB
+          </div>
         </div>
+        
+        {/* Voice status indicators */}
         {(isListening || isRecording || isProcessing) && (
           <div className="mt-2 text-xs text-muted-foreground text-center">
             {isListening && !isRecording && "🎧 Listening for voice... Speak naturally"}
