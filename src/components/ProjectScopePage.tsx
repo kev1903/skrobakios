@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
+import { ProjectChat } from '@/components/ProjectChat';
 import { Project } from '@/hooks/useProjects';
 import { useScreenSize } from '@/hooks/use-mobile';
 import { createPortal } from 'react-dom';
@@ -1148,74 +1149,76 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       />
 
       <div className={contentClasses[screenSize]}>
-        <div className="h-full w-full flex flex-col bg-background">
-          {/* Tabs Container - moved up to wrap everything */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full w-full flex flex-col">
-            <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
-              <div className="flex items-center justify-between px-6 py-4">
-                <div className="flex items-center gap-6">
-                  <div>
-                    <h1 className="text-2xl font-bold text-foreground font-inter">Project Control</h1>
-                    <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
+        <div className="h-full w-full flex bg-background">
+          {/* Main WBS Content - Left Column */}
+          <div className="flex-1 min-w-0 flex flex-col">
+            {/* Tabs Container - moved up to wrap everything */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full w-full flex flex-col">
+              <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
+                <div className="flex items-center justify-between px-6 py-4">
+                  <div className="flex items-center gap-6">
+                    <div>
+                      <h1 className="text-2xl font-bold text-foreground font-inter">Project Control</h1>
+                      <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
+                    </div>
+                    
+                    {/* Tabs in Header */}
+                    <TabsList className="grid w-fit grid-cols-3">
+                      <TabsTrigger value="scope" className="flex items-center gap-2">
+                        <NotebookPen className="w-4 h-4" />
+                        Scope
+                      </TabsTrigger>
+                      <TabsTrigger value="time" className="flex items-center gap-2">
+                        <Clock className="w-4 h-4" />
+                        Time
+                      </TabsTrigger>
+                      <TabsTrigger value="cost" className="flex items-center gap-2">
+                        <DollarSign className="w-4 h-4" />
+                        Cost
+                      </TabsTrigger>
+                    </TabsList>
                   </div>
                   
-                  {/* Tabs in Header */}
-                  <TabsList className="grid w-fit grid-cols-3">
-                    <TabsTrigger value="scope" className="flex items-center gap-2">
-                      <NotebookPen className="w-4 h-4" />
-                      Scope
-                    </TabsTrigger>
-                    <TabsTrigger value="time" className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Time
-                    </TabsTrigger>
-                    <TabsTrigger value="cost" className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4" />
-                      Cost
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <div className="text-xs text-muted-foreground font-inter">Overall Progress</div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full transition-all duration-300 ${getProgressColor(calculateOverallProgress())}`}
-                          style={{ width: `${calculateOverallProgress()}%` }}
-                        />
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-xs text-muted-foreground font-inter">Overall Progress</div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full transition-all duration-300 ${getProgressColor(calculateOverallProgress())}`}
+                            style={{ width: `${calculateOverallProgress()}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-medium text-foreground font-inter">{calculateOverallProgress()}%</span>
                       </div>
-                      <span className="text-xs font-medium text-foreground font-inter">{calculateOverallProgress()}%</span>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={collapseAll} title="Collapse All">
-                      <ChevronsUp className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={expandAll} title="Expand All">
-                      <ChevronsDown className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => {}} title="Baseline">
-                      <span className="text-xs font-medium">Baseline</span>
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => {}} title="Critical Path">
-                      <span className="text-xs font-medium">Critical Path</span>
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => {}} title="Settings">
-                      <Settings className="w-4 h-4" />
-                    </Button>
-                    <Button size="sm" onClick={() => addNewPhase()}>
-                      <Plus className="w-3 h-3 mr-1" />
-                      Add Phase
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" onClick={collapseAll} title="Collapse All">
+                        <ChevronsUp className="w-4 h-4" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={expandAll} title="Expand All">
+                        <ChevronsDown className="w-4 h-4" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => {}} title="Baseline">
+                        <span className="text-xs font-medium">Baseline</span>
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => {}} title="Critical Path">
+                        <span className="text-xs font-medium">Critical Path</span>
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => {}} title="Settings">
+                        <Settings className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" onClick={() => addNewPhase()}>
+                        <Plus className="w-3 h-3 mr-1" />
+                        Add Phase
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Tab Contents */}
-            <div className="flex-1 w-full overflow-hidden">
+              {/* Tab Contents */}
+              <div className="flex-1 w-full overflow-hidden">
 
               <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex">
                 <div className="h-full w-full flex flex-col">
@@ -1414,38 +1417,44 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                    )}
                  </div>
                </TabsContent>
-             </div>
-           </Tabs>
-         </div>
-       </div>
+              </div>
+            </Tabs>
+          </div>
+          
+          {/* Chat Section - Right Column */}
+          <div className="w-80 flex-shrink-0">
+            <ProjectChat projectId={project.id} projectName={project.name} />
+          </div>
+        </div>
 
-       {/* Notes Dialog */}
-       <Dialog open={notesDialogOpen} onOpenChange={(open) => !open && closeNotesDialog()}>
-         <DialogContent className="sm:max-w-md">
-           <DialogHeader>
-             <DialogTitle>Edit Notes</DialogTitle>
-           </DialogHeader>
-           <div className="space-y-4">
-             <div>
-               <label className="text-sm font-medium">Item: {currentNotesItem?.title}</label>
-             </div>
-             <Textarea
-               placeholder="Enter your notes here..."
-               value={notesValue}
-               onChange={(e) => setNotesValue(e.target.value)}
-               className="min-h-[120px]"
-             />
-             <div className="flex justify-end space-x-2">
-               <Button variant="outline" onClick={closeNotesDialog}>
-                 Cancel
-               </Button>
-               <Button onClick={saveNotes}>
-                 Save Notes
-               </Button>
-             </div>
-           </div>
-         </DialogContent>
-       </Dialog>
-     </div>
+        {/* Notes Dialog */}
+        <Dialog open={notesDialogOpen} onOpenChange={(open) => !open && closeNotesDialog()}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Notes</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Item: {currentNotesItem?.title}</label>
+              </div>
+              <Textarea
+                placeholder="Enter your notes here..."
+                value={notesValue}
+                onChange={(e) => setNotesValue(e.target.value)}
+                className="min-h-[120px]"
+              />
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={closeNotesDialog}>
+                  Cancel
+                </Button>
+                <Button onClick={saveNotes}>
+                  Save Notes
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
    );
  };
