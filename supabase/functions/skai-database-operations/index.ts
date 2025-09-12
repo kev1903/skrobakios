@@ -78,12 +78,26 @@ serve(async (req) => {
       throw new Error('User is not a member of any companies');
     }
 
-    // Get existing WBS items for context
+    // CRITICAL: Verify the project belongs to one of user's companies
+    const { data: projectData, error: projectError } = await supabase
+      .from('projects')
+      .select('id, company_id, name')
+      .eq('id', projectId)
+      .in('company_id', userCompanies)
+      .single();
+
+    if (projectError || !projectData) {
+      throw new Error('Project not found or access denied');
+    }
+
+    const projectCompanyId = projectData.company_id;
+
+    // Get existing WBS items for context - using the project's actual company_id
     const { data: existingWbsItems } = await supabase
       .from('wbs_items')
       .select('id, wbs_id, title, category, level, parent_id')
       .eq('project_id', projectId)
-      .eq('company_id', userCompanies[0])
+      .eq('company_id', projectCompanyId)
       .order('level', { ascending: true })
       .order('wbs_id', { ascending: true });
 
@@ -100,7 +114,8 @@ CRITICAL INSTRUCTIONS:
 5. Always use parameterized queries to prevent SQL injection
 
 AVAILABLE USER COMPANIES: ${userCompanies.join(', ')}
-CURRENT PROJECT ID: ${projectId || 'Not specified'}
+CURRENT PROJECT: ${projectData.name} (ID: ${projectId})
+PROJECT COMPANY: ${projectCompanyId}
 
 EXISTING WBS ITEMS IN PROJECT:
 ${wbsContext.map(item => `- ID: ${item.id}, WBS: ${item.wbs_id}, Title: "${item.title}", Category: ${item.category || 'N/A'}, Level: ${item.level}, Parent: ${item.parent_id || 'None'}`).join('\n')}
@@ -115,7 +130,7 @@ REQUIRED JSON FORMAT (respond with ONLY this structure):
     "title": "exact title",
     "description": "brief description",
     "project_id": "${projectId}",
-    "company_id": "${userCompanies[0]}",
+    "company_id": "${projectCompanyId}",
     "wbs_id": "auto-generate next available like 1.2.X",
     "category": "category name",
     "status": "planned",
@@ -210,10 +225,8 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
     let result;
     const table = operationPlan.table;
     
-    // Add security filtering for company access
-    const securityFilter = userCompanies.length === 1 
-      ? { company_id: userCompanies[0] }
-      : { company_id: { in: userCompanies } };
+    // Add security filtering for company access - use project's company
+    const securityFilter = { company_id: projectCompanyId };
 
     switch (operationPlan.operation.toUpperCase()) {
       case 'SELECT':
@@ -223,17 +236,17 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
             selectQuery.eq(key, value);
           });
         }
-        // Always add company security filter
-        if (operationPlan.table !== 'projects') { // projects might not have company_id directly
-          selectQuery.in('company_id', userCompanies);
+        // Always add company security filter using project's company
+        if (operationPlan.table !== 'projects') {
+          selectQuery.eq('company_id', projectCompanyId);
         }
         result = await selectQuery;
         break;
 
       case 'INSERT':
-        // Ensure company_id is set for security
-        if (!operationPlan.data.company_id && userCompanies.length > 0) {
-          operationPlan.data.company_id = userCompanies[0];
+        // Ensure company_id is set for security using project's company
+        if (!operationPlan.data.company_id) {
+          operationPlan.data.company_id = projectCompanyId;
         }
         result = await supabase.from(table).insert(operationPlan.data).select();
         break;
@@ -246,7 +259,7 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
           });
         }
         // Always add company security filter for updates
-        updateQuery.in('company_id', userCompanies);
+        updateQuery.eq('company_id', projectCompanyId);
         result = await updateQuery.select();
         break;
 
@@ -258,7 +271,7 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
           });
         }
         // Always add company security filter for deletes
-        deleteQuery.in('company_id', userCompanies);
+        deleteQuery.eq('company_id', projectCompanyId);
         result = await deleteQuery;
         break;
 
@@ -274,7 +287,7 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
     // Log the successful operation
     await supabase.from('ai_chat_interactions').insert({
       user_id: user.id,
-      company_id: userCompanies[0],
+      company_id: projectCompanyId,
       project_id: projectId,
       command_text: prompt,
       response_summary: `Database operation: ${operationPlan.operation} on ${operationPlan.table}`,
