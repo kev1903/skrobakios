@@ -40,9 +40,11 @@ export const useSkaiVoiceChat = () => {
   // Seamless voice activation detection
   const startListening = useCallback(async (onTranscription?: (text: string) => void): Promise<void> => {
     try {
+      console.log('🎤 Starting voice listening...');
+      
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
-          sampleRate: 16000,
+          sampleRate: 44100,
           channelCount: 1,
           echoCancellation: true,
           noiseSuppression: true,
@@ -50,14 +52,16 @@ export const useSkaiVoiceChat = () => {
         }
       });
 
+      console.log('🎤 Microphone access granted');
       setMediaStream(stream);
       setIsListening(true);
 
       // Create audio context for VAD
-      const audioContext = new AudioContext();
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
-      analyser.fftSize = 256;
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.3;
       source.connect(analyser);
 
       const bufferLength = analyser.frequencyBinCount;
@@ -68,64 +72,85 @@ export const useSkaiVoiceChat = () => {
       let isCurrentlyRecording = false;
       let currentRecorder: MediaRecorder | null = null;
       let audioChunks: Blob[] = [];
+      let isActive = true;
+
+      const vadThresholdAdjusted = 30; // Lowered threshold for better detection
 
       const checkVoiceActivity = () => {
-        if (!isListening) return;
+        if (!isActive || !isListening) {
+          console.log('🔇 Voice activity check stopped');
+          return;
+        }
 
         analyser.getByteFrequencyData(dataArray);
         
-        // Calculate RMS (Root Mean Square) for voice activity
+        // Calculate average volume
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) {
-          sum += dataArray[i] * dataArray[i];
+          sum += dataArray[i];
         }
-        const rms = Math.sqrt(sum / bufferLength) / 255;
+        const average = sum / bufferLength;
 
-        if (rms > vadThreshold) {
+        // Debug voice levels every 30 frames (~1 second)
+        if (Math.random() < 0.03) {
+          console.log('🔊 Voice level:', average, 'Threshold:', vadThresholdAdjusted);
+        }
+
+        if (average > vadThresholdAdjusted) {
           speechCount++;
           silenceCount = 0;
 
           // Start recording if we detect speech and aren't already recording
-          if (!isCurrentlyRecording && speechCount > 3) {
-            console.log('🎤 Voice detected - starting recording');
+          if (!isCurrentlyRecording && speechCount > 5) {
+            console.log('🎤 Voice detected - starting recording (level:', average, ')');
             isCurrentlyRecording = true;
             audioChunks = [];
             
-            currentRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-            
-            currentRecorder.ondataavailable = (event) => {
-              if (event.data.size > 0) {
-                audioChunks.push(event.data);
-              }
-            };
-            
-            currentRecorder.onstop = async () => {
-              if (audioChunks.length > 0) {
-                setIsProcessing(true);
-                try {
-                  const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                  const transcribedText = await processAudioBlob(audioBlob);
-                  if (transcribedText.trim() && onTranscription) {
-                    console.log('Transcribed text:', transcribedText);
-                    onTranscription(transcribedText);
-                  }
-                } catch (error) {
-                  console.error('Error processing audio:', error);
-                } finally {
-                  setIsProcessing(false);
+            try {
+              currentRecorder = new MediaRecorder(stream, { 
+                mimeType: MediaRecorder.isTypeSupported('audio/webm;codecs=opus') 
+                  ? 'audio/webm;codecs=opus' 
+                  : 'audio/webm' 
+              });
+              
+              currentRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                  audioChunks.push(event.data);
                 }
-              }
-            };
-            
-            currentRecorder.start();
-            setIsRecording(true);
+              };
+              
+              currentRecorder.onstop = async () => {
+                console.log('🎤 Recording stopped, processing audio...');
+                if (audioChunks.length > 0) {
+                  setIsProcessing(true);
+                  try {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    console.log('🔄 Audio blob size:', audioBlob.size, 'bytes');
+                    const transcribedText = await processAudioBlob(audioBlob);
+                    console.log('📝 Transcribed text:', transcribedText);
+                    if (transcribedText.trim() && onTranscription) {
+                      onTranscription(transcribedText);
+                    }
+                  } catch (error) {
+                    console.error('❌ Error processing audio:', error);
+                  } finally {
+                    setIsProcessing(false);
+                  }
+                }
+              };
+              
+              currentRecorder.start(100);
+              setIsRecording(true);
+            } catch (error) {
+              console.error('❌ Error starting MediaRecorder:', error);
+            }
           }
         } else {
           speechCount = 0;
           silenceCount++;
 
           // Stop recording if we detect silence for a while
-          if (isCurrentlyRecording && silenceCount > 30) { // ~1 second of silence at 30fps
+          if (isCurrentlyRecording && silenceCount > 20) { // ~0.7 second of silence
             console.log('🔇 Silence detected - stopping recording');
             isCurrentlyRecording = false;
             if (currentRecorder && currentRecorder.state === 'recording') {
@@ -138,10 +163,27 @@ export const useSkaiVoiceChat = () => {
         requestAnimationFrame(checkVoiceActivity);
       };
 
+      // Store cleanup function
+      const cleanup = () => {
+        isActive = false;
+        if (currentRecorder && currentRecorder.state === 'recording') {
+          currentRecorder.stop();
+        }
+        if (audioContext.state !== 'closed') {
+          audioContext.close();
+        }
+      };
+
+      // Store cleanup in ref for later use
+      (stream as any)._cleanup = cleanup;
+
       checkVoiceActivity();
+      console.log('🎧 Voice activity detection started');
+
     } catch (error) {
-      console.error('Error starting voice listening:', error);
-      throw new Error('Failed to access microphone. Please ensure you have granted microphone permissions.');
+      console.error('❌ Error starting voice listening:', error);
+      setIsListening(false);
+      throw new Error('Failed to access microphone. Please ensure you have granted microphone permissions and try again.');
     }
   }, [processAudioBlob, isListening]);
 
@@ -286,10 +328,18 @@ export const useSkaiVoiceChat = () => {
   }, []);
 
   const stopListening = useCallback(() => {
+    console.log('🔇 Stopping voice listening...');
     setIsListening(false);
     setIsRecording(false);
     if (mediaStream) {
-      mediaStream.getTracks().forEach(track => track.stop());
+      // Call cleanup function if available
+      if ((mediaStream as any)._cleanup) {
+        (mediaStream as any)._cleanup();
+      }
+      mediaStream.getTracks().forEach(track => {
+        console.log('🔇 Stopping track:', track.kind);
+        track.stop();
+      });
       setMediaStream(null);
     }
   }, [mediaStream]);
