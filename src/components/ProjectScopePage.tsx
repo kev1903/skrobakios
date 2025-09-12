@@ -33,6 +33,7 @@ import { useCompany } from '@/contexts/CompanyContext';
 import { renumberAllWBSItems } from '@/utils/wbsUtils';
 import { WBSService } from '@/services/wbsService';
 import { useWBS } from '@/hooks/useWBS';
+import { DocumentUpload } from '@/components/project-documents/DocumentUpload';
 
 interface ProjectScopePageProps {
   project: Project;
@@ -1208,6 +1209,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       <Button variant="outline" size="sm" onClick={() => {}} title="Settings">
                         <Settings className="w-4 h-4" />
                       </Button>
+                      <DocumentUpload projectId={project.id} />
                       <Button size="sm" onClick={() => addNewPhase()}>
                         <Plus className="w-3 h-3 mr-1" />
                         Add Phase
