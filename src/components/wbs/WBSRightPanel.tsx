@@ -56,7 +56,7 @@ export const WBSRightPanel = ({
         {items.map((item) => (
           <div
             key={item.id}
-            className={`grid items-center w-full ${
+            className={`grid items-center w-full border-b border-gray-100 ${
               item.level === 0 
                 ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
                 : item.level === 1
