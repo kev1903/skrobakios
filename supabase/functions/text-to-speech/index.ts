@@ -18,7 +18,21 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    const { text, voice } = await req.json()
+    // Handle empty request body
+    const requestText = await req.text();
+    if (!requestText || requestText.trim() === '') {
+      throw new Error('Empty request body');
+    }
+
+    let requestData;
+    try {
+      requestData = JSON.parse(requestText);
+    } catch (parseError) {
+      console.error('Failed to parse request JSON:', parseError);
+      throw new Error('Invalid JSON in request body');
+    }
+
+    const { text, voice } = requestData;
 
     if (!text) {
       throw new Error('Text is required')

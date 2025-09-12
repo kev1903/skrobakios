@@ -1,6 +1,12 @@
 import { useState, useRef, useCallback } from 'react';
 import { invokeEdge } from '@/lib/invokeEdge';
 
+interface SpeechQueueItem {
+  text: string;
+  voice: string;
+  id: string;
+}
+
 export const useSkaiVoiceChat = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -10,6 +16,8 @@ export const useSkaiVoiceChat = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const speechQueueRef = useRef<SpeechQueueItem[]>([]);
+  const isProcessingSpeechRef = useRef(false);
   const vadThreshold = 0.01;
 
   // Process audio blob for transcription
@@ -278,10 +286,19 @@ export const useSkaiVoiceChat = () => {
     });
   }, []);
 
-  const speakText = useCallback(async (text: string, voice: string = 'alloy') => {
-    try {
-      setIsSpeaking(true);
+  // Process the speech queue
+  const processSpeechQueue = useCallback(async () => {
+    if (isProcessingSpeechRef.current || speechQueueRef.current.length === 0) {
+      return;
+    }
 
+    isProcessingSpeechRef.current = true;
+    setIsSpeaking(true);
+
+    const queueItem = speechQueueRef.current.shift()!;
+    console.log(`🗣️ Processing speech queue item: "${queueItem.text.substring(0, 50)}..."`);
+
+    try {
       // Stop any currently playing audio
       if (currentAudioRef.current) {
         currentAudioRef.current.pause();
@@ -289,8 +306,8 @@ export const useSkaiVoiceChat = () => {
       }
 
       const response = await invokeEdge('text-to-speech', {
-        text,
-        voice
+        text: queueItem.text,
+        voice: queueItem.voice
       });
 
       if (response.error) {
@@ -308,29 +325,77 @@ export const useSkaiVoiceChat = () => {
       currentAudioRef.current = audio;
 
       audio.onended = () => {
-        setIsSpeaking(false);
+        console.log('🗣️ Speech finished, checking for next item in queue');
         URL.revokeObjectURL(audioUrl);
+        isProcessingSpeechRef.current = false;
+        
+        // Check if there are more items in the queue
+        if (speechQueueRef.current.length > 0) {
+          // Process next item
+          processSpeechQueue();
+        } else {
+          // Queue is empty, stop speaking
+          setIsSpeaking(false);
+        }
       };
 
       audio.onerror = () => {
-        setIsSpeaking(false);
+        console.error('🗣️ Audio playback error');
         URL.revokeObjectURL(audioUrl);
+        isProcessingSpeechRef.current = false;
+        
+        // Continue with next item or stop
+        if (speechQueueRef.current.length > 0) {
+          processSpeechQueue();
+        } else {
+          setIsSpeaking(false);
+        }
       };
 
       await audio.play();
     } catch (error) {
-      setIsSpeaking(false);
-      console.error('Error speaking text:', error);
-      throw error;
+      console.error('🗣️ Error processing speech queue:', error);
+      isProcessingSpeechRef.current = false;
+      
+      // Continue with next item or stop
+      if (speechQueueRef.current.length > 0) {
+        processSpeechQueue();
+      } else {
+        setIsSpeaking(false);
+      }
     }
   }, []);
 
+  const speakText = useCallback(async (text: string, voice: string = 'alloy') => {
+    const queueItem: SpeechQueueItem = {
+      text,
+      voice,
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
+    };
+
+    console.log(`🗣️ Adding to speech queue: "${text.substring(0, 50)}..." (Queue length: ${speechQueueRef.current.length})`);
+    
+    // Add to queue
+    speechQueueRef.current.push(queueItem);
+    
+    // Start processing if not already processing
+    processSpeechQueue();
+  }, [processSpeechQueue]);
+
   const stopSpeaking = useCallback(() => {
+    console.log('🗣️ Stopping speech and clearing queue');
+    
+    // Clear the speech queue
+    speechQueueRef.current = [];
+    isProcessingSpeechRef.current = false;
+    
+    // Stop current audio
     if (currentAudioRef.current) {
       currentAudioRef.current.pause();
       currentAudioRef.current.currentTime = 0;
-      setIsSpeaking(false);
     }
+    
+    setIsSpeaking(false);
   }, []);
 
   const stopListening = useCallback(() => {
