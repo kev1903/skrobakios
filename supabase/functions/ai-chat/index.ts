@@ -115,16 +115,48 @@ serve(async (req) => {
       throw new Error('Invalid authentication token');
     }
 
-    const { message, conversation = [], context = {}, imageData } = await req.json();
+    // Parse request body with better error handling
+    let requestBody;
+    try {
+      const bodyText = await req.text();
+      console.log('Request body length:', bodyText.length);
+      
+      if (!bodyText || bodyText.trim() === '') {
+        throw new Error('Empty request body');
+      }
+      
+      requestBody = JSON.parse(bodyText);
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError);
+      throw new Error('Invalid JSON in request body');
+    }
+
+    const { message, conversation = [], context = {}, imageData } = requestBody;
 
     if (!message && !imageData) {
       throw new Error('Message or image data is required');
     }
 
     console.log('Processing AI chat request for user:', user.email);
+    console.log('Project context:', context);
+    
+    // Validate and ensure we have proper project context
+    const validProjectId = context.projectId || context.project_id;
+    if (!validProjectId) {
+      console.warn('No project ID provided in context');
+    }
 
     // Get project data based on context
-    const projectData = await getProjectData(supabase, user.id, context.projectId);
+    const projectData = await getProjectData(supabase, user.id, validProjectId);
+
+    // Find the current project from the data
+    const currentProject = validProjectId 
+      ? projectData.projects?.find(p => p.id === validProjectId) 
+      : projectData.projects?.[0];
+    
+    console.log('Current project found:', currentProject?.name || 'None');
+    console.log('Total projects available:', projectData.projects?.length || 0);
+    console.log('WBS items for project:', projectData.wbsItems?.length || 0);
 
     // Build enhanced system prompt with project context
     const systemPrompt = `You are SkAI, a professional construction management assistant for Skrobaki. 
@@ -132,15 +164,18 @@ serve(async (req) => {
 RESPONSE STYLE: Be conversational, natural, and concise. Respond like a knowledgeable colleague would - direct, helpful, and to the point. Avoid unnecessary formatting, emojis, or bullet points unless specifically requested.
 
 COMPANY: ${projectData.company?.name || 'Unknown'}
-CURRENT PROJECT: ${projectData.projects?.[0]?.name || 'Unknown Project'}
+CURRENT PROJECT: ${currentProject?.name || 'No specific project selected'}
+PROJECT ID: ${validProjectId || 'Not specified'}
 
-AVAILABLE DATA:
-- ${projectData.projects?.length || 0} projects, ${projectData.wbsItems?.length || 0} WBS items, ${projectData.tasks?.length || 0} tasks, ${projectData.costs?.length || 0} cost items
+IMPORTANT: You are currently working within the context of "${currentProject?.name || 'this project'}" ONLY. Do not reference or mention other projects unless specifically asked to compare projects.
+
+AVAILABLE DATA FOR THIS PROJECT:
+- ${projectData.wbsItems?.length || 0} WBS items, ${projectData.tasks?.length || 0} tasks, ${projectData.costs?.length || 0} cost items
 
 PROJECT SCOPE (TOP WBS ITEMS):
 ${projectData.wbsItems?.slice(0, 5).map(item => 
   `${item.wbs_id} - ${item.title} (${item.status}, ${item.progress}%)`
-).join('\n') || 'No WBS items available'}
+).join('\n') || 'No WBS items available for this project'}
 
 CAPABILITIES:
 - Answer questions about project status, progress, costs, and tasks
@@ -250,7 +285,7 @@ When users request data modifications, use the available database operations to 
       .insert({
         user_id: user.id,
         company_id: projectData.company ? null : null,
-        project_id: context.projectId || null,
+        project_id: validProjectId || null,
         command_text: message,
         response_summary: generatedResponse.substring(0, 200),
         context_data: context,
