@@ -369,6 +369,46 @@ ${documentContent}`;
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    // Check for image files in clipboard
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      
+      if (item.type.startsWith('image/')) {
+        e.preventDefault();
+        
+        const file = item.getAsFile();
+        if (file) {
+          // Check file size (20MB limit)
+          if (file.size > 20 * 1024 * 1024) {
+            toast({
+              title: "Image too large",
+              description: "Please paste an image smaller than 20MB",
+              variant: "destructive",
+            });
+            return;
+          }
+          
+          // Create a File object with a proper name
+          const pastedFile = new File([file], `pasted-image-${Date.now()}.${file.type.split('/')[1]}`, {
+            type: file.type,
+          });
+          
+          setSelectedFile(pastedFile);
+          
+          toast({
+            title: "Image pasted",
+            description: `Image ready for analysis (${(pastedFile.size / 1024).toFixed(1)}KB)`,
+          });
+        }
+        break;
+      }
+    }
+  };
+
   const handleVoiceRecording = async () => {
     try {
       if (!isVoiceMode) {
@@ -666,6 +706,7 @@ ${documentContent}`;
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
+              onPaste={handlePaste}
               placeholder={selectedFile ? `Ask SkAi about ${selectedFile.name}...` : "Ask SkAi about your construction project..."}
               className="w-full text-sm"
               disabled={isLoading || isRecording || isProcessing}
