@@ -2594,6 +2594,69 @@ export type Database = {
           },
         ]
       }
+      profile_access_logs: {
+        Row: {
+          access_type: string
+          accessed_profile_id: string
+          accessor_id: string | null
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+        }
+        Insert: {
+          access_type: string
+          accessed_profile_id: string
+          accessor_id?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+        }
+        Update: {
+          access_type?: string
+          accessed_profile_id?: string
+          accessor_id?: string | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      profile_contact_requests: {
+        Row: {
+          contact_reason: string
+          created_at: string | null
+          id: string
+          message: string
+          requester_id: string | null
+          status: string | null
+          target_profile_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          contact_reason: string
+          created_at?: string | null
+          id?: string
+          message: string
+          requester_id?: string | null
+          status?: string | null
+          target_profile_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          contact_reason?: string
+          created_at?: string | null
+          id?: string
+          message?: string
+          requester_id?: string | null
+          status?: string | null
+          target_profile_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_activated: boolean | null
@@ -6292,6 +6355,32 @@ export type Database = {
           slug: string
           status: string
           user_id: string
+        }[]
+      }
+      get_public_profile_safely: {
+        Args: { profile_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          company: string
+          created_at: string
+          first_name: string
+          id: string
+          last_name: string
+          meta_description: string
+          meta_title: string
+          professional_title: string
+          rating: number
+          review_count: number
+          services: string[]
+          skills: string[]
+          slug: string
+          social_links: Json
+          updated_at: string
+          user_id: string
+          verified: boolean
+          website: string
+          years_experience: number
         }[]
       }
       get_safe_profile_data: {
