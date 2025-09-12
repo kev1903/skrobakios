@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { invokeEdge } from '@/lib/invokeEdge';
 import { useToast } from '@/hooks/use-toast';
 import { useSkaiVoiceChat } from '@/hooks/useSkaiVoiceChat';
+import { VoiceUI } from './VoiceUI';
 
 interface Message {
   id: string;
@@ -31,6 +32,7 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isVoiceMode, setIsVoiceMode] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   
@@ -129,9 +131,16 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
 
   const handleVoiceRecording = async () => {
     try {
-      if (isListening) {
+      if (!isVoiceMode) {
+        // Enter voice mode
+        setIsVoiceMode(true);
+        await startListening();
+      } else if (isListening) {
+        // Exit voice mode
         stopListening();
+        setIsVoiceMode(false);
       } else {
+        // Start listening in voice mode
         await startListening();
       }
     } catch (error) {
@@ -142,6 +151,11 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
         variant: "destructive",
       });
     }
+  };
+
+  const exitVoiceMode = () => {
+    stopListening();
+    setIsVoiceMode(false);
   };
 
   const handleSpeakToggle = () => {
@@ -166,6 +180,22 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
   const formatTime = (timestamp: Date) => {
     return timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
+
+  // Render Voice UI when in voice mode
+  if (isVoiceMode) {
+    return (
+      <VoiceUI
+        projectName={projectName}
+        isListening={isListening}
+        isRecording={isRecording}
+        isProcessing={isProcessing}
+        isSpeaking={isSpeaking}
+        onToggleListening={handleVoiceRecording}
+        onExit={exitVoiceMode}
+        onToggleSpeaking={handleSpeakToggle}
+      />
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-background border-l border-border">
