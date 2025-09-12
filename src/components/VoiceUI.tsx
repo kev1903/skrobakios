@@ -134,15 +134,6 @@ export const VoiceUI = ({
           )}
         </div>
 
-        {/* Pulse Effect for Active States */}
-        {(isRecording || isSpeaking) && (
-          <div className="absolute inset-0 pointer-events-none">
-            <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
-              w-64 h-64 rounded-full opacity-20 animate-ping ${
-                isRecording ? 'bg-green-400' : 'bg-purple-400'
-              }`} />
-          </div>
-        )}
       </div>
 
       {/* Controls */}
