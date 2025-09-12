@@ -220,9 +220,10 @@ LANGUAGE ENFORCEMENT: Respond exclusively in English. If any input contains non-
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-5-2025-08-07',
+        model: 'gpt-4o-mini',
         messages: messages,
-        max_completion_tokens: 800,
+        max_tokens: 800,
+        temperature: 0.7,
         top_p: 0.9,
         frequency_penalty: 0.0,
         presence_penalty: 0.0,
@@ -232,11 +233,27 @@ LANGUAGE ENFORCEMENT: Respond exclusively in English. If any input contains non-
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('OpenAI API error:', response.status, errorData);
-      throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+      console.error('OpenAI API error:', response.status, response.statusText, errorData);
+      throw new Error(`OpenAI API error: ${response.status} ${response.statusText} - ${errorData}`);
     }
 
-    const data = await response.json();
+    let data;
+    const responseText = await response.text();
+    console.log('Raw OpenAI response:', responseText.substring(0, 200));
+    
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error('Failed to parse OpenAI response:', parseError);
+      console.error('Response text:', responseText);
+      throw new Error('Failed to parse OpenAI response as JSON');
+    }
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid OpenAI response structure:', data);
+      throw new Error('Invalid response structure from OpenAI');
+    }
+    
     const generatedResponse = data.choices[0].message.content;
 
     console.log('AI response generated successfully');
