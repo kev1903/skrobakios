@@ -79,7 +79,7 @@ serve(async (req) => {
     }
 
     // Enhanced system prompt for database operations
-    const systemPrompt = `You are SkAi, an AI assistant that can perform database operations for construction project management.
+    const systemPrompt = `You are SkAi, an AI assistant that performs database operations for construction project management.
 
 CRITICAL INSTRUCTIONS:
 1. You can ONLY perform operations on these tables: ${ALLOWED_TABLES.join(', ')}
@@ -91,47 +91,30 @@ CRITICAL INSTRUCTIONS:
 AVAILABLE USER COMPANIES: ${userCompanies.join(', ')}
 CURRENT PROJECT ID: ${projectId || 'Not specified'}
 
-When the user asks you to update project data, you should:
-1. Analyze what specific database operation is needed
-2. Determine the exact table and fields to modify
-3. Create the appropriate database query
-4. Return a JSON response with the operation details
+CRITICAL: You MUST respond with ONLY valid JSON. No explanations, no markdown, no code blocks, no extra text.
 
-RESPONSE FORMAT:
+REQUIRED JSON FORMAT (respond with ONLY this structure):
 {
   "operation": "UPDATE|INSERT|DELETE|SELECT",
-  "table": "table_name",
-  "data": {...}, // for INSERT/UPDATE
-  "filters": {...}, // for WHERE conditions
-  "explanation": "Clear explanation of what will be changed",
-  "requiresConfirmation": true|false
-}
-
-EXAMPLE USER REQUEST: "Add a new WBS item called 'Tree Removal' under Demolition"
-EXAMPLE RESPONSE:
-{
-  "operation": "INSERT",
-  "table": "wbs_items",
-  "data": {
-    "title": "Tree Removal",
-    "parent_id": "[parent_wbs_id_for_demolition]",
-    "project_id": "${projectId}",
-    "company_id": "${userCompanies[0]}",
-    "wbs_id": "1.2.7",
-    "description": "Remove existing trees from construction site",
-    "category": "Demolition",
-    "status": "planned",
-    "progress": 0
-  },
-  "explanation": "This will add a new WBS item 'Tree Removal' under the Demolition section",
+  "table": "table_name", 
+  "data": {...},
+  "filters": {...},
+  "explanation": "Brief explanation",
   "requiresConfirmation": false
 }
 
-SECURITY RULES:
-- Never modify data outside user's companies
-- Always validate project access
-- Never perform operations that could compromise data integrity
-- Always include proper foreign key relationships
+For WBS items, use these fields:
+- title: string (required)
+- description: string
+- project_id: "${projectId}"
+- company_id: "${userCompanies[0]}"
+- wbs_id: "auto-generated like 1.2.X"
+- category: string 
+- status: "planned"
+- progress: 0
+- level: number (0 for top level, 1 for sub-items)
+
+For adding to "Demolition", find existing demolition WBS items as parent_id.
 
 Current context: ${JSON.stringify(context)}`;
 
@@ -146,10 +129,12 @@ Current context: ${JSON.stringify(context)}`;
         model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: prompt }
+          { role: 'user', content: `${prompt}
+
+RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
         ],
-        max_tokens: 1000,
-        temperature: 0.1, // Low temperature for consistent, precise responses
+        max_tokens: 500,
+        temperature: 0.0, // Zero temperature for consistent JSON responses
       }),
     });
 
@@ -167,13 +152,30 @@ Current context: ${JSON.stringify(context)}`;
     // Try to parse the AI response as JSON
     let operationPlan;
     try {
-      operationPlan = JSON.parse(aiContent);
+      // Clean the response by removing markdown code blocks and extra text
+      let cleanResponse = aiContent.trim();
+      
+      // Extract JSON from markdown code blocks if present
+      const jsonMatch = cleanResponse.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/);
+      if (jsonMatch) {
+        cleanResponse = jsonMatch[1];
+      }
+      
+      // Find JSON object if it's embedded in other text
+      const jsonObjectMatch = cleanResponse.match(/\{[\s\S]*\}/);
+      if (jsonObjectMatch) {
+        cleanResponse = jsonObjectMatch[0];
+      }
+      
+      operationPlan = JSON.parse(cleanResponse);
     } catch (parseError) {
       console.error('Failed to parse AI response as JSON:', parseError);
+      console.error('Raw AI response:', aiContent);
       return new Response(JSON.stringify({
         success: false,
         error: 'AI response was not in expected JSON format',
-        aiResponse: aiContent
+        aiResponse: aiContent,
+        parseError: parseError.message
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
