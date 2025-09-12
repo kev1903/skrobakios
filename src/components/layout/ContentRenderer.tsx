@@ -98,12 +98,16 @@ export const ContentRenderer = ({
   selectedProject,
   currentProject
 }: ContentRendererProps) => {
+  console.log('🔍 CONTENT-RENDERER: currentPage:', currentPage, 'currentProject:', !!currentProject);
   const { isAuthenticated } = useAuth();
   const { activeContext } = useAppContext();
   
-  const renderProjectNotFound = () => <div className="flex items-center justify-center h-full">
+  const renderProjectNotFound = () => {
+    console.log('🔍 RENDERING: Project not found');
+    return <div className="flex items-center justify-center h-full">
       <p className="text-slate-500">Project not found</p>
     </div>;
+  };
     
   // CRITICAL: Prevent authenticated users from accessing public pages
   const publicPages = ['auth', 'platform-signup'];
@@ -394,6 +398,7 @@ export const ContentRenderer = ({
         </SubscriptionProtectedRoute>
       );
     case "project-specification":
+      console.log('🔍 PROJECT-SPECIFICATION: currentProject exists?', !!currentProject, 'projectId:', currentProject?.id);
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectScopePage project={currentProject} onNavigate={onNavigate} />
