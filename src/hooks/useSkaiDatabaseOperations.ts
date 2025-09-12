@@ -60,6 +60,15 @@ export const useSkaiDatabaseOperations = () => {
 
       if (data.success) {
         toast.success(`Successfully ${data.operation?.toLowerCase()}d data in ${data.table}`);
+        
+        // Trigger refresh for task-related operations
+        if (data.table === 'wbs_items' && data.operation === 'INSERT') {
+          // Dispatch custom event to notify components of new task creation
+          window.dispatchEvent(new CustomEvent('skai-task-created', {
+            detail: { projectId: context?.projectId }
+          }));
+        }
+        
         return data;
       } else {
         toast.error(data.error || 'Database operation failed');

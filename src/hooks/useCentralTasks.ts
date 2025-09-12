@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CentralTask, CentralTaskService, TaskUpdate } from '@/services/centralTaskService';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 // Demo data for testing
 const createDemoTasks = (projectId: string, companyId: string): CentralTask[] => [
@@ -635,8 +636,62 @@ export const useCentralTasks = (projectId: string, companyId: string) => {
     };
   }, [tasks]);
 
-  // Listen for real-time updates
+  // Listen for real-time updates from Supabase and custom events
   useEffect(() => {
+    // Supabase real-time subscription for task changes
+    const channel = supabase
+      .channel('wbs-items-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'wbs_items',
+          filter: `project_id=eq.${projectId}`
+        },
+        (payload) => {
+          console.log('New task inserted:', payload.new);
+          // Add the new task to the state
+          if (payload.new) {
+            setTasks(prev => [...prev, payload.new as CentralTask]);
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'wbs_items',
+          filter: `project_id=eq.${projectId}`
+        },
+        (payload) => {
+          console.log('Task updated:', payload.new);
+          if (payload.new) {
+            setTasks(prev => prev.map(task => 
+              task.id === payload.new.id ? { ...task, ...payload.new } : task
+            ));
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'wbs_items',
+          filter: `project_id=eq.${projectId}`
+        },
+        (payload) => {
+          console.log('Task deleted:', payload.old);
+          if (payload.old) {
+            setTasks(prev => prev.filter(task => task.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    // Custom event handlers for compatibility
     const handleTaskUpdate = (event: CustomEvent) => {
       const { taskId, updates } = event.detail;
       setTasks(prev => prev.map(task => 
@@ -658,16 +713,27 @@ export const useCentralTasks = (projectId: string, companyId: string) => {
       }
     };
 
+    const handleSkaiTaskCreated = () => {
+      // Reload tasks when SkAI creates a new task
+      loadTasks();
+    };
+
     window.addEventListener('task-updated', handleTaskUpdate as EventListener);
     window.addEventListener('task-deleted', handleTaskDelete as EventListener);
     window.addEventListener('stage-updated', handleStageUpdate as EventListener);
+    window.addEventListener('skai-task-created', handleSkaiTaskCreated as EventListener);
 
     return () => {
+      // Clean up Supabase subscription
+      supabase.removeChannel(channel);
+      
+      // Clean up event listeners
       window.removeEventListener('task-updated', handleTaskUpdate as EventListener);
       window.removeEventListener('task-deleted', handleTaskDelete as EventListener);
       window.removeEventListener('stage-updated', handleStageUpdate as EventListener);
+      window.removeEventListener('skai-task-created', handleSkaiTaskCreated as EventListener);
     };
-  }, [projectId]);
+  }, [projectId, loadTasks]);
 
   // Load tasks on mount
   useEffect(() => {
