@@ -19,17 +19,41 @@ export function VoiceInterface({
   onMessage,
   onEnd 
 }: VoiceInterfaceProps) {
-  // Voice interface disabled for now
-  // const { 
-  //   state, 
-  //   settings, 
-  //   initializeVoiceChat, 
-  //   stopCurrentAudio, 
-  //   disconnect, 
-  //   updateSettings,
-  //   startPushToTalk,
-  //   stopPushToTalk
-  // } = useSkaiVoiceChat();
+  // Voice interface stub implementation
+  const state = { 
+    isConnected: false, 
+    isConnecting: false, 
+    error: null,
+    connectionState: 'disconnected',
+    isRecording: false,
+    isPlaying: false,
+    isSpeaking: false,
+    audioLevel: 0,
+    lastTranscript: '',
+    lastResponse: '',
+    conversationId: null,
+    isListening: false,
+    isVoiceActivated: false,
+    isProcessing: false,
+    listeningMode: 'pushToTalk'
+  };
+  const settings = { 
+    voice: 'alloy', 
+    temperature: 0.8, 
+    volume: 0.8,
+    inputGainControl: true,
+    pushToTalk: false,
+    autoSpeak: true,
+    enableVAD: false,
+    sensitivity: 0.5,
+    minimumDuration: 1000
+  };
+  const initializeVoiceChat = (mode?: string) => {};
+  const stopCurrentAudio = () => {};
+  const disconnect = () => {};
+  const updateSettings = (newSettings: any) => {};
+  const startPushToTalk = () => {};
+  const stopPushToTalk = () => {};
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
   const [showSettings, setShowSettings] = useState(false);

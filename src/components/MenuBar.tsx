@@ -68,15 +68,16 @@ export const MenuBar = () => {
 const barRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  // Initialize voice chat functionality - removed for now
-  // const {
-  //   state: voiceState,
-  //   settings: voiceSettings,
-  //   initializeVoiceChat,
-  //   startPushToTalk,
-  //   stopPushToTalk,
-  //   disconnect: disconnectVoice
-  // } = useSkaiVoiceChat();
+  // Initialize voice chat functionality - stub implementation
+  const voiceState = { 
+    isConnected: false,
+    isListening: false
+  };
+  const voiceSettings = {};
+  const initializeVoiceChat = (mode?: string) => {};
+  const startPushToTalk = () => {};
+  const stopPushToTalk = () => {};
+  const disconnectVoice = () => {};
   const [currentDuration, setCurrentDuration] = useState(0);
   const isPaused = activeTimer?.status === 'paused';
 
