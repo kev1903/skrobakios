@@ -83,7 +83,14 @@ export const WBSLeftPanel = ({
                                 gridTemplateColumns: '32px 120px 1fr 40px',
                                 ...dragProvided.draggableProps.style,
                               }}
-                              onClick={() => item.hasChildren && onToggleExpanded(item.id)}
+                              onClick={(e) => {
+                                // Only expand/collapse if clicking outside the name field
+                                const target = e.target as HTMLElement;
+                                const isNameField = target.closest('[data-field="name"]');
+                                if (!isNameField && item.hasChildren) {
+                                  onToggleExpanded(item.id);
+                                }
+                              }}
                               onMouseEnter={() => onRowHover?.(item.id)}
                               onMouseLeave={() => onRowHover?.(null)}
                             >
@@ -142,6 +149,7 @@ export const WBSLeftPanel = ({
                                   value={item.name}
                                   placeholder={item.level === 2 ? "Untitled Element" : "Untitled"}
                                   className={item.level === 0 ? "font-black text-base text-gray-800 tracking-wide" : item.level === 1 ? "font-bold text-sm text-gray-700" : "font-medium text-xs text-muted-foreground"}
+                                  data-field="name"
                                 />
                               </div>
                               
