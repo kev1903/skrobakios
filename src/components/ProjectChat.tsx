@@ -62,11 +62,11 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
 
     try {
       const response = await invokeEdge('ai-chat', {
-        messages: [
-          ...messages,
-          { role: 'user', content: input.trim() }
-        ],
-        projectId: projectId,
+        message: input.trim(),
+        conversation: messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        })),
         context: {
           currentPage: 'project-control',
           projectId: projectId,
