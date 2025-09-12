@@ -1029,6 +1029,24 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     return phaseNumber.toString();
   }
 
+  // Helper function to update WBS IDs recursively for all children
+  const updateChildrenWBSIds = async (parentId: string, newParentWbsId: string) => {
+    const children = wbsItems.filter(item => item.parent_id === parentId);
+    
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i];
+      const newChildWbsId = `${newParentWbsId}.${i + 1}`;
+      
+      // Update the child's WBS ID
+      await updateWBSItem(child.id, { 
+        wbs_id: newChildWbsId 
+      }, { skipAutoSchedule: true });
+      
+      // Recursively update grandchildren
+      await updateChildrenWBSIds(child.id, newChildWbsId);
+    }
+  };
+
   const onDragEnd = async (result: DropResult) => {
     setDragIndicator(null);
     if (!result.destination) return;
@@ -1052,13 +1070,19 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       const [reorderedItem] = flatItems.splice(source.index, 1);
       flatItems.splice(destination.index, 0, reorderedItem);
       
-      // Update WBS numbers to reflect new order
+      // Update WBS numbers for all phases and their children to reflect new order
       for (let i = 0; i < flatItems.length; i++) {
+        const phase = flatItems[i];
         const newWbsId = `${i + 1}.0`;
-        if (flatItems[i].wbs_id !== newWbsId) {
-          await updateWBSItem(flatItems[i].id, { 
+        
+        if (phase.wbs_id !== newWbsId) {
+          // Update the phase WBS ID
+          await updateWBSItem(phase.id, { 
             wbs_id: newWbsId 
           }, { skipAutoSchedule: true });
+          
+          // Update all children recursively with new hierarchy numbering
+          await updateChildrenWBSIds(phase.id, `${i + 1}`);
         }
       }
       
