@@ -476,7 +476,22 @@ ${documentContent}`;
   }
 
   return (
-    <div className="h-full flex flex-col bg-background border-l border-border">
+    <div 
+      className="h-full flex flex-col bg-background border-l border-border relative"
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+    >
+      {/* Drag and drop overlay for entire chat */}
+      {isDragging && (
+        <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded-lg flex items-center justify-center z-50 backdrop-blur-sm">
+          <div className="text-center">
+            <Upload className="w-12 h-12 mx-auto mb-4 text-primary" />
+            <p className="text-lg font-medium text-primary mb-2">Drop files to chat with SkAI</p>
+            <p className="text-sm text-muted-foreground">Supports PDF, DOC, DOCX, JPG, PNG, DWG files up to 20MB</p>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex-shrink-0 p-4 border-b border-border bg-muted/50">
         <div className="flex items-center justify-between">
@@ -524,23 +539,7 @@ ${documentContent}`;
       </div>
 
       {/* Messages */}
-      <ScrollArea 
-        ref={scrollAreaRef} 
-        className="flex-1 p-4 relative"
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-      >
-        {/* Drag and drop overlay for chat area */}
-        {isDragging && (
-          <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded-lg flex items-center justify-center z-50 backdrop-blur-sm">
-            <div className="text-center">
-              <Upload className="w-12 h-12 mx-auto mb-4 text-primary" />
-              <p className="text-lg font-medium text-primary mb-2">Drop files to chat with SkAI</p>
-              <p className="text-sm text-muted-foreground">Supports PDF, DOC, DOCX, JPG, PNG, DWG files up to 20MB</p>
-            </div>
-          </div>
-        )}
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((message) => (
             <div
@@ -602,10 +601,7 @@ ${documentContent}`;
       </ScrollArea>
 
       {/* Input */}
-      <div className="flex-shrink-0 p-4 border-t border-border relative"
-           onDrop={handleDrop}
-           onDragOver={handleDragOver}
-           onDragLeave={handleDragLeave}>
+      <div className="flex-shrink-0 p-4 border-t border-border relative">
         <div className="space-y-3">
           {/* File upload area */}
           {selectedFile && (
@@ -627,16 +623,6 @@ ${documentContent}`;
                 >
                   <X className="w-4 h-4" />
                 </Button>
-              </div>
-            </div>
-          )}
-          
-          {/* Drag and drop overlay */}
-          {isDragging && (
-            <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded-lg flex items-center justify-center z-10">
-              <div className="text-center">
-                <Upload className="w-8 h-8 mx-auto mb-2 text-primary" />
-                <p className="text-sm font-medium text-primary">Drop files here</p>
               </div>
             </div>
           )}
