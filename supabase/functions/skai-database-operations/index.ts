@@ -103,8 +103,15 @@ serve(async (req) => {
 
     const wbsContext = existingWbsItems || [];
 
-    // Enhanced system prompt for database operations
+    // Enhanced system prompt for database operations with STRICT project isolation
     const systemPrompt = `You are SkAi, an AI assistant that performs database operations for construction project management.
+
+CRITICAL PROJECT ISOLATION RULES:
+- You are ONLY working with project: ${projectData.name} (ID: ${projectId})
+- This project is located at: ${projectData.name}
+- Company ID for this project: ${projectCompanyId}
+- You MUST NEVER reference any other project or location
+- You MUST NEVER use data from other projects
 
 CRITICAL INSTRUCTIONS:
 1. You can ONLY perform operations on these tables: ${ALLOWED_TABLES.join(', ')}
@@ -112,12 +119,15 @@ CRITICAL INSTRUCTIONS:
 3. You MUST always include company_id filtering for user security
 4. You MUST validate that the user has access to the project/data
 5. Always use parameterized queries to prevent SQL injection
+6. You MUST ONLY work with data from project: ${projectData.name}
 
-AVAILABLE USER COMPANIES: ${userCompanies.join(', ')}
-CURRENT PROJECT: ${projectData.name} (ID: ${projectId})
-PROJECT COMPANY: ${projectCompanyId}
+CURRENT PROJECT CONTEXT:
+- Project Name: ${projectData.name}
+- Project ID: ${projectId}
+- Company ID: ${projectCompanyId}
+- User Companies: ${userCompanies.join(', ')}
 
-EXISTING WBS ITEMS IN PROJECT:
+EXISTING WBS ITEMS IN THIS PROJECT ONLY:
 ${wbsContext.map(item => `- ID: ${item.id}, WBS: ${item.wbs_id}, Title: "${item.title}", Category: ${item.category || 'N/A'}, Level: ${item.level}, Parent: ${item.parent_id || 'None'}`).join('\n')}
 
 CRITICAL: You MUST respond with ONLY valid JSON. No explanations, no markdown, no code blocks, no extra text.
@@ -138,7 +148,7 @@ REQUIRED JSON FORMAT (respond with ONLY this structure):
     "level": 1,
     "parent_id": "use actual UUID from existing WBS items above, or null for top level"
   },
-  "explanation": "Brief explanation"
+  "explanation": "Brief explanation for project ${projectData.name} only"
 }
 
 RULES FOR PARENT_ID:
@@ -150,7 +160,9 @@ RULES FOR WBS_ID:
 - Generate next sequential number (e.g., if 1.2.1 exists, use 1.2.2)
 - For sub-items under parent, use parent's pattern + next number
 
-Current context: ${JSON.stringify(context)}`;
+Current context: ${JSON.stringify(context)}
+
+REMEMBER: You are ONLY working with project "${projectData.name}" - never reference any other project or location.`;
 
     // Call OpenAI to interpret the database operation request
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -284,17 +296,20 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
       throw new Error(`Database operation failed: ${result.error.message}`);
     }
 
-    // Log the successful operation
+    // Log the successful operation with strict project context
     await supabase.from('ai_chat_interactions').insert({
       user_id: user.id,
       company_id: projectCompanyId,
       project_id: projectId,
       command_text: prompt,
-      response_summary: `Database operation: ${operationPlan.operation} on ${operationPlan.table}`,
+      response_summary: `Database operation for project "${projectData.name}": ${operationPlan.operation} on ${operationPlan.table}`,
       context_data: {
         operation: operationPlan.operation,
         table: operationPlan.table,
-        recordsAffected: result.data?.length || 0
+        recordsAffected: result.data?.length || 0,
+        projectName: projectData.name,
+        projectId: projectId,
+        companyId: projectCompanyId
       },
       success: true,
       execution_time_ms: Date.now()
