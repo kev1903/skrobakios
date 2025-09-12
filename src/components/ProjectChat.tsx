@@ -524,7 +524,23 @@ ${documentContent}`;
       </div>
 
       {/* Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
+      <ScrollArea 
+        ref={scrollAreaRef} 
+        className="flex-1 p-4 relative"
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+      >
+        {/* Drag and drop overlay for chat area */}
+        {isDragging && (
+          <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded-lg flex items-center justify-center z-50 backdrop-blur-sm">
+            <div className="text-center">
+              <Upload className="w-12 h-12 mx-auto mb-4 text-primary" />
+              <p className="text-lg font-medium text-primary mb-2">Drop files to chat with SkAI</p>
+              <p className="text-sm text-muted-foreground">Supports PDF, DOC, DOCX, JPG, PNG, DWG files up to 20MB</p>
+            </div>
+          </div>
+        )}
         <div className="space-y-4">
           {messages.map((message) => (
             <div
