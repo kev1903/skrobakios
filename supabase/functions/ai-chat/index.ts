@@ -23,7 +23,7 @@ async function getProjectData(supabase: any, userId: string, projectId?: string)
       .limit(1);
 
     if (!companyMembers?.length) {
-      return { projects: [], tasks: [], costs: [], leads: [] };
+      return { projects: [], tasks: [], costs: [], leads: [], wbsItems: [] };
     }
 
     const companyId = companyMembers[0].company_id;
@@ -40,6 +40,19 @@ async function getProjectData(supabase: any, userId: string, projectId?: string)
     }
 
     const { data: projects } = await projectsQuery;
+
+    // Get WBS items for the project (this is the main project scope data)
+    let wbsItems = [];
+    if (projectId) {
+      const { data: wbsData } = await supabase
+        .from('wbs_items')
+        .select('id, wbs_id, title, description, status, progress, level, category, priority, assigned_to, start_date, end_date, duration, budgeted_cost, actual_cost, health, progress_status, at_risk')
+        .eq('project_id', projectId)
+        .order('level', { ascending: true })
+        .order('wbs_id', { ascending: true });
+      
+      wbsItems = wbsData || [];
+    }
 
     // Get tasks for projects
     const projectIds = projects?.map(p => p.id) || [];
@@ -63,13 +76,14 @@ async function getProjectData(supabase: any, userId: string, projectId?: string)
     return {
       company: { name: companyName },
       projects: projects || [],
+      wbsItems: wbsItems || [],
       tasks: tasks || [],
       costs: costs || [],
       leads: leads || []
     };
   } catch (error) {
     console.error('Error fetching project data:', error);
-    return { projects: [], tasks: [], costs: [], leads: [] };
+    return { projects: [], tasks: [], costs: [], leads: [], wbsItems: [] };
   }
 }
 
@@ -119,26 +133,43 @@ CRITICAL LANGUAGE REQUIREMENT: You MUST respond ONLY in English language. Never 
 
 COMPANY: ${projectData.company?.name || 'Unknown'}
 
+CURRENT PROJECT: ${projectData.projects?.[0]?.name || 'Unknown Project'}
+PROJECT LOCATION: ${projectData.projects?.[0]?.location || 'Not specified'}
+
 AVAILABLE DATA:
 - ${projectData.projects?.length || 0} projects
+- ${projectData.wbsItems?.length || 0} WBS items (Work Breakdown Structure)
 - ${projectData.tasks?.length || 0} tasks  
 - ${projectData.costs?.length || 0} cost items
 - ${projectData.leads?.length || 0} leads
+
+PROJECT SCOPE (WBS ITEMS):
+${projectData.wbsItems?.map(item => 
+  `${item.wbs_id} - ${item.title} (${item.category}, Status: ${item.status}, Progress: ${item.progress}%)`
+).join('\n') || 'No WBS items available'}
 
 PROJECT DATA:
 ${JSON.stringify(projectData, null, 2)}
 
 CAPABILITIES:
-- Answer questions about projects, tasks, costs, and leads
-- Analyze images and photos related to construction work
-- Provide insights and analysis of project data
-- Help with project planning and management
-- Suggest improvements and optimizations
-- Create summaries and reports
+- Answer questions about the specific project scope, WBS items, and work breakdown structure
+- Analyze current project progress and status
+- Provide insights on project tasks, costs, and timeline
+- Help with project planning and management based on actual project data
+- Suggest improvements and optimizations for the current project
+- Create summaries and reports based on real project information
+- Reference specific WBS items, components, and elements from the project
 
 CURRENT CONTEXT: ${JSON.stringify(context, null, 2)}
 
-Be helpful, professional, and provide actionable insights. If asked about specific projects, tasks, or data, use the provided information. If data is not available, explain what information you would need. 
+When responding:
+- Reference specific WBS items by their ID and title when relevant
+- Use actual project data from the WBS structure
+- Provide actionable insights based on the current project status
+- If asked about specific phases, components, or elements, refer to the actual WBS data
+- Help with project management decisions based on real data
+
+Be helpful, professional, and provide actionable insights. Always use the actual project data when available.
 
 LANGUAGE ENFORCEMENT: Respond exclusively in English. If any input contains non-English text, acknowledge it but respond in English only.`;
 
