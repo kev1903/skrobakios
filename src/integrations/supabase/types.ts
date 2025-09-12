@@ -5129,6 +5129,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["user_id"]
           },
+          {
+            foreignKeyName: "user_access_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "safe_public_profiles"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       user_audit_log: {
@@ -5857,6 +5864,90 @@ export type Database = {
         }
         Relationships: []
       }
+      safe_public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          birth_date: string | null
+          company: string | null
+          created_at: string | null
+          email: string | null
+          first_name: string | null
+          id: string | null
+          last_name: string | null
+          location: string | null
+          meta_description: string | null
+          meta_title: string | null
+          phone: string | null
+          professional_title: string | null
+          rating: number | null
+          review_count: number | null
+          services: string[] | null
+          skills: string[] | null
+          slug: string | null
+          social_links: Json | null
+          updated_at: string | null
+          user_id: string | null
+          verified: boolean | null
+          website: string | null
+          years_experience: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          birth_date?: never
+          company?: string | null
+          created_at?: string | null
+          email?: never
+          first_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          location?: never
+          meta_description?: string | null
+          meta_title?: string | null
+          phone?: never
+          professional_title?: string | null
+          rating?: number | null
+          review_count?: number | null
+          services?: string[] | null
+          skills?: string[] | null
+          slug?: string | null
+          social_links?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+          verified?: boolean | null
+          website?: string | null
+          years_experience?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          birth_date?: never
+          company?: string | null
+          created_at?: string | null
+          email?: never
+          first_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          location?: never
+          meta_description?: string | null
+          meta_title?: string | null
+          phone?: never
+          professional_title?: string | null
+          rating?: number | null
+          review_count?: number | null
+          services?: string[] | null
+          skills?: string[] | null
+          slug?: string | null
+          social_links?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+          verified?: boolean | null
+          website?: string | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
       stakeholder_contacts_safe: {
         Row: {
           created_at: string | null
@@ -5942,8 +6033,16 @@ export type Database = {
         Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
       }
+      can_view_profile_safely: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
       check_contact_access_rate_limit: {
         Args: { operation_type?: string }
+        Returns: boolean
+      }
+      check_profile_access_rate_limit: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
       check_rate_limit: {
