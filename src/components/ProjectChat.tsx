@@ -76,6 +76,7 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
   const [isVoiceMode, setIsVoiceMode] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [dragCounter, setDragCounter] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -132,17 +133,48 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    setDragCounter(0);
     setIsDragging(false);
-    handleFileSelect(e.dataTransfer.files);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelect(files);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragging(true);
+    e.stopPropagation();
+    // Don't set isDragging here to prevent flickering
   };
 
-  const handleDragLeave = () => {
-    setIsDragging(false);
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setDragCounter(prev => {
+      const newCount = prev + 1;
+      if (newCount === 1) {
+        setIsDragging(true);
+      }
+      return newCount;
+    });
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setDragCounter(prev => {
+      const newCount = prev - 1;
+      if (newCount <= 0) {
+        setIsDragging(false);
+        return 0;
+      }
+      return newCount;
+    });
   };
 
   const sendMessage = async (messageText?: string, speakResponse: boolean = false) => {
@@ -480,6 +512,7 @@ ${documentContent}`;
       className="h-full flex flex-col bg-background border-l border-border relative"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
     >
       {/* Drag and drop overlay for entire chat */}
