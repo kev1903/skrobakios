@@ -8,6 +8,7 @@ import { invokeEdge } from '@/lib/invokeEdge';
 import { useToast } from '@/hooks/use-toast';
 import { useSkaiVoiceChat } from '@/hooks/useSkaiVoiceChat';
 import { VoiceUI } from './VoiceUI';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -22,14 +23,47 @@ interface ProjectChatProps {
 }
 
 export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: `Hello! I'm your AI assistant for ${projectName}. I can help you with project management, answer questions about your WBS, tasks, costs, and more. How can I assist you today?`,
-      role: 'assistant',
-      timestamp: new Date()
+  // Project-specific message storage key
+  const storageKey = `projectChat_${projectId}`;
+  
+  const [messages, setMessages] = useState<Message[]>(() => {
+    try {
+      // Try to load project-specific conversation history
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Array<{ id: string; content: string; role: 'user' | 'assistant'; timestamp: string | Date }>;
+        
+        // Filter out any non-English messages to prevent issues
+        const englishMessages = parsed.filter(m => {
+          const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
+          if (hasNonEnglish) {
+            console.warn('Filtered out non-English message:', m.content.substring(0, 50));
+          }
+          return !hasNonEnglish;
+        });
+        
+        // Return parsed messages with proper timestamp conversion
+        if (englishMessages.length > 0) {
+          return englishMessages.map(m => ({ ...m, timestamp: new Date(m.timestamp) }));
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load project chat history', e);
+      // Clear corrupted localStorage for this project
+      localStorage.removeItem(storageKey);
     }
-  ]);
+    
+    // Return default welcome message if no history exists
+    return [
+      {
+        id: 'welcome',
+        content: `Hello! I'm SkAI, your AI assistant for ${projectName}. I can help you with project management, answer questions about your WBS, tasks, costs, and more. How can I assist you today?`,
+        role: 'assistant',
+        timestamp: new Date()
+      }
+    ];
+  });
+  
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isVoiceMode, setIsVoiceMode] = useState(false);
@@ -134,6 +168,17 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
 
             setMessages(prev => [...prev, assistantMessage]);
 
+            // Save updated messages immediately after successful operation
+            try {
+              const englishMessages = [...messages, userMessage, assistantMessage].filter(m => {
+                const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
+                return !hasNonEnglish;
+              });
+              localStorage.setItem(storageKey, JSON.stringify(englishMessages));
+            } catch (e) {
+              console.error('Failed to save messages after database operation', e);
+            }
+
             // Speak the response if requested
             if (speakResponse && responseText) {
               try {
@@ -173,7 +218,18 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+        setMessages(prev => [...prev, assistantMessage]);
+
+        // Save updated messages immediately after AI response
+        try {
+          const englishMessages = [...messages, userMessage, assistantMessage].filter(m => {
+            const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
+            return !hasNonEnglish;
+          });
+          localStorage.setItem(storageKey, JSON.stringify(englishMessages));
+        } catch (e) {
+          console.error('Failed to save messages after AI response', e);
+        }
 
       // Speak the response if requested
       if (speakResponse && responseText) {
@@ -276,6 +332,17 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
 
         setMessages(prev => [...prev, assistantMessage]);
 
+        // Save updated messages immediately after AI response (voice mode)
+        try {
+          const englishMessages = [...messages, userMessage, assistantMessage].filter(m => {
+            const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
+            return !hasNonEnglish;
+          });
+          localStorage.setItem(storageKey, JSON.stringify(englishMessages));
+        } catch (e) {
+          console.error('Failed to save messages after AI response (voice mode)', e);
+        }
+
         // Automatically speak the AI response
         try {
           await speakText(responseText);
@@ -343,14 +410,46 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
     <div className="h-full flex flex-col bg-background border-l border-border">
       {/* Header */}
       <div className="flex-shrink-0 p-4 border-b border-border bg-muted/50">
-        <div className="flex items-center gap-3">
-          <Avatar className="w-8 h-8">
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              <Bot className="w-4 h-4" />
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="font-semibold text-sm">SkAi Assistant</h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Avatar className="w-8 h-8">
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                <Bot className="w-4 h-4" />
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h3 className="font-semibold text-sm">SkAi Assistant</h3>
+              <p className="text-xs text-muted-foreground">Project: {projectName}</p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              onClick={() => {
+                localStorage.removeItem(storageKey);
+                setMessages([{
+                  id: 'welcome',
+                  content: `Hello! I'm SkAI, your AI assistant for ${projectName}. I can help you with project management, answer questions about your WBS, tasks, costs, and more. How can I assist you today?`,
+                  role: 'assistant',
+                  timestamp: new Date()
+                }]);
+                toast({
+                  title: "Conversation cleared",
+                  description: `Cleared conversation history for ${projectName}`
+                });
+              }}
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground hover:text-foreground"
+              title="Clear conversation history"
+            >
+              Clear
+            </Button>
+            {messages.length > 1 && (
+              <div className="text-xs text-green-600 flex items-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                Saved
+              </div>
+            )}
           </div>
         </div>
       </div>
