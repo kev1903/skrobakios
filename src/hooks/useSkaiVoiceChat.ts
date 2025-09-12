@@ -77,7 +77,7 @@ export const useSkaiVoiceChat = () => {
       const vadThresholdAdjusted = 30; // Lowered threshold for better detection
 
       const checkVoiceActivity = () => {
-        if (!isActive || !isListening) {
+        if (!isActive) {
           console.log('🔇 Voice activity check stopped');
           return;
         }
@@ -101,10 +101,11 @@ export const useSkaiVoiceChat = () => {
           silenceCount = 0;
 
           // Start recording if we detect speech and aren't already recording
-          if (!isCurrentlyRecording && speechCount > 5) {
-            console.log('🎤 Voice detected - starting recording (level:', average, ')');
+          if (!isCurrentlyRecording && speechCount > 3) { // Reduced from 5 to 3 for faster detection
+            console.log('🎤 Voice detected - starting recording (level:', average, 'speech count:', speechCount, ')');
             isCurrentlyRecording = true;
             audioChunks = [];
+            speechCount = 0; // Reset counter
             
             try {
               currentRecorder = new MediaRecorder(stream, { 
@@ -137,6 +138,8 @@ export const useSkaiVoiceChat = () => {
                     setIsProcessing(false);
                   }
                 }
+                // Continue listening after processing - don't stop the VAD loop
+                console.log('🎧 Ready for next voice input...');
               };
               
               currentRecorder.start(100);
@@ -150,13 +153,16 @@ export const useSkaiVoiceChat = () => {
           silenceCount++;
 
           // Stop recording if we detect silence for a while
-          if (isCurrentlyRecording && silenceCount > 20) { // ~0.7 second of silence
-            console.log('🔇 Silence detected - stopping recording');
+          if (isCurrentlyRecording && silenceCount > 30) { // Increased to ~1 second of silence
+            console.log('🔇 Silence detected - stopping recording (after', silenceCount, 'silent frames)');
             isCurrentlyRecording = false;
             if (currentRecorder && currentRecorder.state === 'recording') {
               currentRecorder.stop();
             }
             setIsRecording(false);
+            // Reset counters for next detection
+            speechCount = 0;
+            silenceCount = 0;
           }
         }
 
