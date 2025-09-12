@@ -133,7 +133,7 @@ REQUIRED JSON FORMAT (respond with ONLY this structure):
     "company_id": "${projectCompanyId}",
     "wbs_id": "auto-generate next available like 1.2.X",
     "category": "category name",
-    "status": "planned",
+    "status": "Not Started",
     "progress": 0,
     "level": 1,
     "parent_id": "use actual UUID from existing WBS items above, or null for top level"
