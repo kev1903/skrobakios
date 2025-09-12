@@ -134,6 +134,14 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
       if (!isVoiceMode) {
         // Enter voice mode
         setIsVoiceMode(true);
+        
+        // Start with greeting message
+        try {
+          await speakText("Hey Kevin, how can I help?");
+        } catch (speechError) {
+          console.error('Error speaking greeting:', speechError);
+        }
+        
         await startListening(handleVoiceTranscription);
       } else if (isListening) {
         // Exit voice mode
