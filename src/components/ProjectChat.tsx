@@ -38,8 +38,11 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
     isRecording,
     isProcessing,
     isSpeaking,
+    isListening,
     startRecording,
     stopRecording,
+    startListening,
+    stopListening,
     speakText,
     stopSpeaking
   } = useSkaiVoiceChat();
@@ -126,13 +129,10 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
 
   const handleVoiceRecording = async () => {
     try {
-      if (isRecording) {
-        const transcribedText = await stopRecording();
-        if (transcribedText.trim()) {
-          await sendMessage(transcribedText, true); // Auto-speak response for voice messages
-        }
+      if (isListening) {
+        stopListening();
       } else {
-        await startRecording();
+        await startListening();
       }
     } catch (error) {
       console.error('Voice recording error:', error);
@@ -261,10 +261,10 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
             onClick={handleVoiceRecording}
             disabled={isLoading || isProcessing}
             size="sm"
-            variant={isRecording ? "destructive" : "outline"}
-            className={`px-3 ${isRecording ? "animate-pulse" : ""}`}
+            variant={isListening ? "default" : "outline"}
+            className={`px-3 ${isListening ? "animate-pulse bg-primary text-primary-foreground" : ""}`}
           >
-            {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </Button>
           <Button 
             onClick={handleSpeakToggle}
@@ -284,9 +284,10 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
             <Send className="w-4 h-4" />
           </Button>
         </div>
-        {(isRecording || isProcessing) && (
+        {(isListening || isRecording || isProcessing) && (
           <div className="mt-2 text-xs text-muted-foreground text-center">
-            {isRecording && "🎤 Listening... Click mic to stop"}
+            {isListening && !isRecording && "🎧 Listening for voice... Speak naturally"}
+            {isRecording && "🎤 Recording... Keep speaking"}
             {isProcessing && "🔄 Processing your voice..."}
           </div>
         )}
