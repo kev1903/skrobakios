@@ -38,7 +38,7 @@ export const useSkaiVoiceChat = () => {
   }, []);
 
   // Seamless voice activation detection
-  const startListening = useCallback(async (): Promise<void> => {
+  const startListening = useCallback(async (onTranscription?: (text: string) => void): Promise<void> => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -105,9 +105,9 @@ export const useSkaiVoiceChat = () => {
                 try {
                   const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                   const transcribedText = await processAudioBlob(audioBlob);
-                  if (transcribedText.trim()) {
-                    // Trigger callback for seamless conversation
+                  if (transcribedText.trim() && onTranscription) {
                     console.log('Transcribed text:', transcribedText);
+                    onTranscription(transcribedText);
                   }
                 } catch (error) {
                   console.error('Error processing audio:', error);

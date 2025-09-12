@@ -134,14 +134,14 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
       if (!isVoiceMode) {
         // Enter voice mode
         setIsVoiceMode(true);
-        await startListening();
+        await startListening(handleVoiceTranscription);
       } else if (isListening) {
         // Exit voice mode
         stopListening();
         setIsVoiceMode(false);
       } else {
         // Start listening in voice mode
-        await startListening();
+        await startListening(handleVoiceTranscription);
       }
     } catch (error) {
       console.error('Voice recording error:', error);
@@ -150,6 +150,67 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
         description: error instanceof Error ? error.message : "Failed to process voice input",
         variant: "destructive",
       });
+    }
+  };
+
+  // Handle seamless voice transcription callback
+  const handleVoiceTranscription = async (transcribedText: string) => {
+    if (transcribedText.trim()) {
+      console.log('Processing voice input:', transcribedText);
+      
+      // Add user message to conversation
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        content: transcribedText.trim(),
+        role: 'user',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
+      setIsLoading(true);
+
+      try {
+        // Send to AI chat
+        const response = await invokeEdge('ai-chat', {
+          message: transcribedText.trim(),
+          conversation: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
+          context: {
+            currentPage: 'project-control',
+            projectId: projectId,
+            projectName: projectName
+          }
+        });
+
+        const responseText = response.response || response.message || 'Sorry, I encountered an error processing your request.';
+        
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: responseText,
+          role: 'assistant',
+          timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, assistantMessage]);
+
+        // Automatically speak the AI response
+        try {
+          await speakText(responseText);
+        } catch (speechError) {
+          console.error('Error speaking response:', speechError);
+        }
+      } catch (error) {
+        console.error('Error sending message:', error);
+        toast({
+          title: "Error",
+          description: "Failed to send message. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -190,7 +251,7 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
         isRecording={isRecording}
         isProcessing={isProcessing}
         isSpeaking={isSpeaking}
-        onToggleListening={handleVoiceRecording}
+        onToggleListening={() => handleVoiceRecording()}
         onExit={exitVoiceMode}
         onToggleSpeaking={handleSpeakToggle}
       />
