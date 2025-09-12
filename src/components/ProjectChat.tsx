@@ -164,6 +164,7 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
     try {
       let messageToSend = textToSend.trim();
       let imageData = null;
+      let documentContent = null;
 
       // Handle file upload
       if (selectedFile) {
@@ -177,10 +178,41 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
             };
             reader.readAsDataURL(selectedFile);
           });
+        } else if (selectedFile.type === 'application/pdf' || selectedFile.name.toLowerCase().endsWith('.pdf')) {
+          // Parse PDF document for AI analysis using edge function
+          try {
+            console.log('Extracting PDF content:', selectedFile.name);
+            
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            
+            const extractResponse = await invokeEdge('extract-document', formData);
+            
+            if (extractResponse?.success && extractResponse?.content) {
+              documentContent = extractResponse.content;
+              console.log('Successfully extracted PDF content:', documentContent.substring(0, 200));
+              
+              // Enhance the message with document context
+              messageToSend = `${textToSend.trim()}
+
+[PDF Document Analysis]
+Document: ${selectedFile.name}
+
+${documentContent}`;
+            } else {
+              console.warn('Failed to extract PDF content:', extractResponse?.error);
+              messageToSend = `${textToSend.trim()}\n\n[PDF Document: ${selectedFile.name}] - Note: Could not extract text content for analysis. This might be a scanned document or technical drawing.`;
+            }
+          } catch (pdfError) {
+            console.error('Error extracting PDF:', pdfError);
+            messageToSend = `${textToSend.trim()}\n\n[PDF Document: ${selectedFile.name}] - Note: Error processing PDF document. Please ensure the file is not corrupted.`;
+          }
         }
         
-        // Add file context to message
-        messageToSend = `${textToSend.trim()}\n\n[File uploaded: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(1)}KB)]`;
+        // Add basic file context to message if no specific processing was done
+        if (!imageData && !documentContent) {
+          messageToSend = `${textToSend.trim()}\n\n[File uploaded: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(1)}KB)]`;
+        }
         
         // Clear selected file after use
         removeSelectedFile();
@@ -253,6 +285,7 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
       const response = await invokeEdge('ai-chat', {
         message: messageToSend,
         imageData: imageData,
+        documentContent: documentContent,
         conversation: messages.map(msg => ({
           role: msg.role,
           content: msg.content
@@ -356,6 +389,7 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
         // Send to AI chat
         const response = await invokeEdge('ai-chat', {
           message: transcribedText.trim(),
+          documentContent: null, // Voice interactions don't typically include documents
           conversation: messages.map(msg => ({
             role: msg.role,
             content: msg.content

@@ -131,10 +131,10 @@ serve(async (req) => {
       throw new Error('Invalid JSON in request body');
     }
 
-    const { message, conversation = [], context = {}, imageData } = requestBody;
+    const { message, conversation = [], context = {}, imageData, documentContent } = requestBody;
 
-    if (!message && !imageData) {
-      throw new Error('Message or image data is required');
+    if (!message && !imageData && !documentContent) {
+      throw new Error('Message, image data, or document content is required');
     }
 
     console.log('Processing AI chat request for user:', user.email);
@@ -182,6 +182,17 @@ CAPABILITIES:
 - Provide insights and recommendations based on project data
 - Help with project management decisions
 - Execute database changes when requested (add/update/remove items)
+- Analyze uploaded documents, PDFs, and drawings for construction insights
+- Extract scope of work from architectural plans and technical documents
+- Review drawings for construction requirements and specifications
+
+DOCUMENT ANALYSIS CAPABILITIES:
+When analyzing uploaded documents (PDFs, drawings, plans):
+- Extract scope of work items from construction documents
+- Identify key specifications, materials, and requirements
+- Break down complex plans into manageable work packages
+- Suggest WBS items based on document content
+- Analyze drawings for potential risks or considerations
 
 RESPONSE GUIDELINES:
 1. Keep responses brief and focused (typically 2-3 sentences)
@@ -201,7 +212,7 @@ When users request data modifications, use the available database operations to 
       }))
     ];
 
-    // Add user message with optional image
+    // Add user message with optional image or document content
     const userMessage: any = { role: 'user' };
     
     if (imageData) {
@@ -219,6 +230,9 @@ When users request data modifications, use the available database operations to 
           }
         }
       ];
+    } else if (documentContent) {
+      // Handle document content analysis
+      userMessage.content = message || 'Please analyze this document content in the context of construction management.';
     } else {
       // Text only
       userMessage.content = message;
