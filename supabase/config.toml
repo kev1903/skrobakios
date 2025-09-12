@@ -27,6 +27,9 @@ verify_jwt = true
 [functions.ai-chat]
 verify_jwt = true
 
+[functions.skai-database-operations]
+verify_jwt = true
+
 [functions.analyze-activity]
 verify_jwt = false
 

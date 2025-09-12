@@ -78,6 +78,79 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
     setIsLoading(true);
 
     try {
+      // Check if the message contains database operation keywords
+      const dbOperationKeywords = [
+        'add', 'create', 'insert', 'update', 'modify', 'change', 'edit', 
+        'delete', 'remove', 'set', 'move', 'rename', 'copy'
+      ];
+      
+      const containsDbOperation = dbOperationKeywords.some(keyword => 
+        textToSend.toLowerCase().includes(keyword)
+      );
+
+      if (containsDbOperation) {
+        // First try the database operation
+        try {
+          const dbResult = await invokeEdge('skai-database-operations', {
+            prompt: textToSend.trim(),
+            projectId: projectId,
+            context: {
+              currentPage: 'project-control',
+              projectId: projectId,
+              projectName: projectName
+            }
+          });
+
+          if (dbResult?.success) {
+            // Database operation successful, get AI to confirm the change
+            const confirmationPrompt = `Database operation completed successfully: ${dbResult.explanation}. 
+            Operation: ${dbResult.operation} 
+            Table: ${dbResult.table}
+            Records affected: ${dbResult.recordsAffected}
+            
+            Please provide a brief, structured confirmation of what was changed.`;
+
+            const aiResponse = await invokeEdge('ai-chat', {
+              message: confirmationPrompt,
+              conversation: messages.slice(-5).map(msg => ({
+                role: msg.role,
+                content: msg.content
+              })),
+              context: {
+                currentPage: 'project-control',
+                projectId: projectId,
+                projectName: projectName
+              }
+            });
+
+            const responseText = aiResponse.response || aiResponse.message || 'Database operation completed successfully.';
+            
+            const assistantMessage: Message = {
+              id: (Date.now() + 1).toString(),
+              content: responseText,
+              role: 'assistant',
+              timestamp: new Date()
+            };
+
+            setMessages(prev => [...prev, assistantMessage]);
+
+            // Speak the response if requested
+            if (speakResponse && responseText) {
+              try {
+                await speakText(responseText);
+              } catch (speechError) {
+                console.error('Error speaking response:', speechError);
+              }
+            }
+            return;
+          }
+        } catch (dbError) {
+          console.log('Database operation failed, falling back to regular AI chat:', dbError);
+          // Fall through to regular AI chat
+        }
+      }
+
+      // Regular AI chat (fallback or non-db operations)
       const response = await invokeEdge('ai-chat', {
         message: textToSend.trim(),
         conversation: messages.map(msg => ({
