@@ -131,6 +131,31 @@ serve(async (req) => {
 
 CRITICAL LANGUAGE REQUIREMENT: You MUST respond ONLY in English language. Never use Korean, Chinese, Japanese, or any other language. All responses must be in clear, professional English.
 
+CRITICAL FORMATTING REQUIREMENT: You MUST ALWAYS structure your responses with clear sections and formatting. Use the following format structure:
+
+**[MAIN TOPIC/TITLE]**
+
+**Key Information:**
+- Use bullet points for lists
+- Use clear headers with **bold text**
+- Organize information in logical sections
+- Include relevant data points and metrics
+
+**Project Details:** (when relevant)
+- Project Name: [name]
+- Location: [location] 
+- Status: [status]
+- Progress: [progress data]
+
+**Analysis/Insights:** (when providing analysis)
+- [Structured insights with clear points]
+
+**Recommendations:** (when applicable)
+- [Clear, actionable recommendations]
+
+**Next Steps:** (when relevant)
+- [Specific actions to take]
+
 COMPANY: ${projectData.company?.name || 'Unknown'}
 
 CURRENT PROJECT: ${projectData.projects?.[0]?.name || 'Unknown Project'}
@@ -163,11 +188,13 @@ CAPABILITIES:
 CURRENT CONTEXT: ${JSON.stringify(context, null, 2)}
 
 When responding:
+- ALWAYS use the structured format outlined above
 - Reference specific WBS items by their ID and title when relevant
 - Use actual project data from the WBS structure
 - Provide actionable insights based on the current project status
 - If asked about specific phases, components, or elements, refer to the actual WBS data
 - Help with project management decisions based on real data
+- Organize information in clear, scannable sections with proper headers
 
 Be helpful, professional, and provide actionable insights. Always use the actual project data when available.
 
