@@ -1023,12 +1023,43 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     return phaseNumber.toString();
   }
 
-  const onDragEnd = (result: DropResult) => {
+  const onDragEnd = async (result: DropResult) => {
     setDragIndicator(null);
     if (!result.destination) return;
+    
     const { source, destination, type } = result;
     console.log('Reorder request', { source, destination, type });
-    // TODO: Persist ordering to DB (out of scope for this fix). No local state mutation here.
+    
+    if (source.index === destination.index) return;
+    
+    try {
+      // Get the current items in display order
+      const flatItems = wbsItems
+        .filter(item => item.level === 0 || item.parent_id == null)
+        .sort((a, b) => {
+          const aWbs = a.wbs_id?.split('.').map(n => parseInt(n)) || [0];
+          const bWbs = b.wbs_id?.split('.').map(n => parseInt(n)) || [0];
+          return aWbs[0] - bWbs[0];
+        });
+      
+      // Remove the dragged item and insert at new position
+      const [reorderedItem] = flatItems.splice(source.index, 1);
+      flatItems.splice(destination.index, 0, reorderedItem);
+      
+      // Update WBS numbers to reflect new order
+      for (let i = 0; i < flatItems.length; i++) {
+        const newWbsId = `${i + 1}.0`;
+        if (flatItems[i].wbs_id !== newWbsId) {
+          await updateWBSItem(flatItems[i].id, { 
+            wbs_id: newWbsId 
+          }, { skipAutoSchedule: true });
+        }
+      }
+      
+      console.log('Drag and drop reordering completed');
+    } catch (error) {
+      console.error('Error reordering items:', error);
+    }
   };
 
   // Update drop indicator as user drags
