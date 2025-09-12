@@ -78,6 +78,17 @@ serve(async (req) => {
       throw new Error('User is not a member of any companies');
     }
 
+    // Get existing WBS items for context
+    const { data: existingWbsItems } = await supabase
+      .from('wbs_items')
+      .select('id, wbs_id, title, category, level, parent_id')
+      .eq('project_id', projectId)
+      .eq('company_id', userCompanies[0])
+      .order('level', { ascending: true })
+      .order('wbs_id', { ascending: true });
+
+    const wbsContext = existingWbsItems || [];
+
     // Enhanced system prompt for database operations
     const systemPrompt = `You are SkAi, an AI assistant that performs database operations for construction project management.
 
@@ -91,30 +102,38 @@ CRITICAL INSTRUCTIONS:
 AVAILABLE USER COMPANIES: ${userCompanies.join(', ')}
 CURRENT PROJECT ID: ${projectId || 'Not specified'}
 
+EXISTING WBS ITEMS IN PROJECT:
+${wbsContext.map(item => `- ID: ${item.id}, WBS: ${item.wbs_id}, Title: "${item.title}", Category: ${item.category || 'N/A'}, Level: ${item.level}, Parent: ${item.parent_id || 'None'}`).join('\n')}
+
 CRITICAL: You MUST respond with ONLY valid JSON. No explanations, no markdown, no code blocks, no extra text.
 
 REQUIRED JSON FORMAT (respond with ONLY this structure):
 {
-  "operation": "UPDATE|INSERT|DELETE|SELECT",
-  "table": "table_name", 
-  "data": {...},
-  "filters": {...},
-  "explanation": "Brief explanation",
-  "requiresConfirmation": false
+  "operation": "INSERT|UPDATE|DELETE|SELECT",
+  "table": "wbs_items",
+  "data": {
+    "title": "exact title",
+    "description": "brief description",
+    "project_id": "${projectId}",
+    "company_id": "${userCompanies[0]}",
+    "wbs_id": "auto-generate next available like 1.2.X",
+    "category": "category name",
+    "status": "planned",
+    "progress": 0,
+    "level": 1,
+    "parent_id": "use actual UUID from existing WBS items above, or null for top level"
+  },
+  "explanation": "Brief explanation"
 }
 
-For WBS items, use these fields:
-- title: string (required)
-- description: string
-- project_id: "${projectId}"
-- company_id: "${userCompanies[0]}"
-- wbs_id: "auto-generated like 1.2.X"
-- category: string 
-- status: "planned"
-- progress: 0
-- level: number (0 for top level, 1 for sub-items)
+RULES FOR PARENT_ID:
+- If adding to "Demolition", find the demolition WBS item ID from the list above
+- Use the actual UUID, never use SELECT statements
+- If no parent exists, use null for top-level items
 
-For adding to "Demolition", find existing demolition WBS items as parent_id.
+RULES FOR WBS_ID:
+- Generate next sequential number (e.g., if 1.2.1 exists, use 1.2.2)
+- For sub-items under parent, use parent's pattern + next number
 
 Current context: ${JSON.stringify(context)}`;
 
