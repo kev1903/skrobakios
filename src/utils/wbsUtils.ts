@@ -19,7 +19,104 @@ export const findWBSItem = (items: WBSItem[], id: string): WBSItem | null => {
   return null;
 };
 
-// Generate WBS ID for new items
+// Comprehensive WBS renumbering system
+export const renumberAllWBSItems = (items: WBSItem[]): { item: WBSItem; newWbsId: string }[] => {
+  const updates: { item: WBSItem; newWbsId: string }[] = [];
+  
+  // Flatten all items while preserving hierarchy
+  const flatItems = flattenWBSHierarchy(items);
+  
+  // Group items by parent_id to process siblings together
+  const itemsByParent = new Map<string | null, WBSItem[]>();
+  
+  flatItems.forEach(item => {
+    const parentKey = item.parent_id || null;
+    if (!itemsByParent.has(parentKey)) {
+      itemsByParent.set(parentKey, []);
+    }
+    itemsByParent.get(parentKey)!.push(item);
+  });
+  
+  // Sort siblings by their current WBS ID to maintain relative order
+  itemsByParent.forEach(siblings => {
+    siblings.sort((a, b) => {
+      const aWbs = a.wbs_id.split('.').map(n => parseInt(n, 10) || 0);
+      const bWbs = b.wbs_id.split('.').map(n => parseInt(n, 10) || 0);
+      
+      for (let i = 0; i < Math.max(aWbs.length, bWbs.length); i++) {
+        const da = aWbs[i] || 0;
+        const db = bWbs[i] || 0;
+        if (da !== db) return da - db;
+      }
+      return 0;
+    });
+  });
+  
+  // Generate new sequential WBS IDs
+  const generateNewWbsId = (item: WBSItem): string => {
+    if (!item.parent_id) {
+      // Root level items (phases): 1.0, 2.0, 3.0, etc.
+      const siblings = itemsByParent.get(null) || [];
+      const index = siblings.indexOf(item);
+      return `${index + 1}.0`;
+    }
+    
+    // Find parent item and get its new WBS ID
+    const parent = flatItems.find(i => i.id === item.parent_id);
+    if (!parent) return item.wbs_id; // Fallback to original
+    
+    // Get parent's new WBS ID (it should have been processed already)
+    const parentUpdate = updates.find(u => u.item.id === parent.id);
+    const parentWbsId = parentUpdate?.newWbsId || parent.wbs_id;
+    
+    // Generate child WBS ID
+    const siblings = itemsByParent.get(item.parent_id) || [];
+    const index = siblings.indexOf(item);
+    
+    if (parentWbsId.endsWith('.0')) {
+      // Parent is a phase (e.g., "1.0"), child is component (e.g., "1.1")
+      return `${parentWbsId.slice(0, -2)}.${index + 1}`;
+    } else {
+      // Parent is a component (e.g., "1.1"), child is element (e.g., "1.1.1")
+      return `${parentWbsId}.${index + 1}`;
+    }
+  };
+  
+  // Process items level by level to ensure parents are processed before children
+  const processedIds = new Set<string>();
+  let remainingItems = [...flatItems];
+  
+  while (remainingItems.length > 0 && processedIds.size < flatItems.length) {
+    const initialLength = remainingItems.length;
+    
+    remainingItems = remainingItems.filter(item => {
+      // Skip if already processed
+      if (processedIds.has(item.id)) return false;
+      
+      // Check if parent has been processed (or is root)
+      if (!item.parent_id || processedIds.has(item.parent_id)) {
+        const newWbsId = generateNewWbsId(item);
+        if (newWbsId !== item.wbs_id) {
+          updates.push({ item, newWbsId });
+        }
+        processedIds.add(item.id);
+        return false; // Remove from remaining items
+      }
+      
+      return true; // Keep in remaining items
+    });
+    
+    // Prevent infinite loop
+    if (remainingItems.length === initialLength) {
+      console.warn('Circular dependency detected in WBS hierarchy, breaking loop');
+      break;
+    }
+  }
+  
+  return updates;
+};
+
+// Generate WBS ID for new items (improved version)
 export const generateWBSId = (parentId?: string, wbsItems: WBSItem[] = []): string => {
   // Helper to get all items in flat form
   const toFlat = (items: WBSItem[]): WBSItem[] => {
@@ -37,13 +134,30 @@ export const generateWBSId = (parentId?: string, wbsItems: WBSItem[] = []): stri
   const flat = toFlat(wbsItems);
 
   if (!parentId) {
-    // Create a top-level item → find existing top-level indexes and increment
-    const rootItems = flat.filter(i => i.parent_id == null || i.level === 0 || (i.wbs_id && i.wbs_id.endsWith('.0')));
-    const maxTopIndex = rootItems
-      .map(i => parseInt((i.wbs_id || '0.0').split('.')[0], 10))
+    // Create a top-level item → find existing top-level items and get next sequential number
+    const rootItems = flat.filter(i => 
+      i.parent_id == null || 
+      i.level === 0 || 
+      (i.wbs_id && i.wbs_id.endsWith('.0'))
+    );
+    
+    // Sort by WBS number to ensure we get the correct next number
+    const sortedRoots = rootItems
+      .map(item => parseInt((item.wbs_id || '0.0').split('.')[0], 10))
       .filter(n => !isNaN(n))
-      .reduce((max, n) => Math.max(max, n), 0);
-    return `${maxTopIndex + 1}.0`;
+      .sort((a, b) => a - b);
+    
+    // Find the next sequential number
+    let nextNum = 1;
+    for (const num of sortedRoots) {
+      if (num === nextNum) {
+        nextNum++;
+      } else {
+        break;
+      }
+    }
+    
+    return `${nextNum}.0`;
   }
 
   // Find parent to get its WBS ID
@@ -58,10 +172,30 @@ export const generateWBSId = (parentId?: string, wbsItems: WBSItem[] = []): stri
 
   const parent = findParent(wbsItems);
   if (parent) {
-    const existingChildren = flat.filter(i => i.parent_id === parent.id || (i.wbs_id?.startsWith(parent.wbs_id.replace('.0', '') + '.') && (i.wbs_id?.split('.').length || 0) === (parent.wbs_id.split('.').length + 1)));
-    const nextIndex = existingChildren.length + 1;
+    // Get all direct children of this parent
+    const children = flat.filter(i => i.parent_id === parent.id);
+    
+    // Sort children by their WBS IDs to ensure sequential numbering
+    const childNumbers = children
+      .map(child => {
+        const parts = child.wbs_id.split('.');
+        return parseInt(parts[parts.length - 1], 10);
+      })
+      .filter(n => !isNaN(n))
+      .sort((a, b) => a - b);
+    
+    // Find the next sequential number
+    let nextNum = 1;
+    for (const num of childNumbers) {
+      if (num === nextNum) {
+        nextNum++;
+      } else {
+        break;
+      }
+    }
+    
     const parentBase = parent.wbs_id.endsWith('.0') ? parent.wbs_id.slice(0, -2) : parent.wbs_id;
-    return `${parentBase}.${nextIndex}`;
+    return `${parentBase}.${nextNum}`;
   }
 
   return '1.0';

@@ -29,6 +29,7 @@ import { Project } from '@/hooks/useProjects';
 import { useScreenSize } from '@/hooks/use-mobile';
 import { createPortal } from 'react-dom';
 import { useCompany } from '@/contexts/CompanyContext';
+import { renumberAllWBSItems } from '@/utils/wbsUtils';
 import { WBSService } from '@/services/wbsService';
 import { useWBS } from '@/hooks/useWBS';
 
@@ -613,6 +614,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   };
 
+  // Comprehensive WBS renumbering function
+  const renumberWBSHierarchy = async () => {
+    try {
+      const updates = renumberAllWBSItems(wbsItems);
+      
+      // Apply all the WBS ID updates
+      for (const { item, newWbsId } of updates) {
+        await updateWBSItem(item.id, { wbs_id: newWbsId }, { skipAutoSchedule: true });
+      }
+      
+      console.log(`✅ Renumbered ${updates.length} WBS items to ensure sequential hierarchy`);
+    } catch (error) {
+      console.error('❌ Error renumbering WBS hierarchy:', error);
+    }
+  };
+
   const addNewElement = async (componentId: string) => {
     try {
       if (!currentCompany?.id) {
@@ -629,7 +646,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         wbs_id: wbsId,
         title: 'Untitled Element',
         description: '',
-        level: 3,
+        level: 2,
         category: 'Element',
         is_expanded: true,
         progress: 0,
@@ -640,6 +657,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         priority: 'Medium',
         linked_tasks: []
       });
+
+      // Trigger renumbering to ensure all WBS IDs are sequential
+      await renumberWBSHierarchy();
     } catch (error) {
       console.error('Error adding element:', error);
     }
@@ -696,7 +716,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         health: 'Good',
         progress_status: 'On Track',
         at_risk: false,
-        level: 2,
+        level: 1,
         category: 'Component',
         priority: 'Medium',
         is_expanded: true,
@@ -704,6 +724,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       });
 
       console.log('🎉 Component added successfully');
+
+      // Trigger renumbering to ensure all WBS IDs are sequential
+      await renumberWBSHierarchy();
 
     } catch (error) {
       console.error('❌ Error adding component:', error);
@@ -737,12 +760,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         health: 'Good',
         progress_status: 'On Track',
         at_risk: false,
-        level: 1,
+        level: 0,
         category: 'Stage',
         priority: 'Medium',
         is_expanded: true,
         linked_tasks: []
       });
+
+      // Trigger renumbering to ensure all WBS IDs are sequential
+      await renumberWBSHierarchy();
 
       // Set editing mode for the new phase
       if (inserted) {
@@ -1047,6 +1073,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   };
 
+  // Enhanced drag and drop system with comprehensive renumbering
   const onDragEnd = async (result: DropResult) => {
     setDragIndicator(null);
     if (!result.destination) return;
@@ -1057,7 +1084,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     if (source.index === destination.index) return;
     
     try {
-      // Get the current items in display order
+      // Get the current items in display order (only phases for now)
       const flatItems = wbsItems
         .filter(item => item.level === 0 || item.parent_id == null)
         .sort((a, b) => {
@@ -1070,23 +1097,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       const [reorderedItem] = flatItems.splice(source.index, 1);
       flatItems.splice(destination.index, 0, reorderedItem);
       
-      // Update WBS numbers for all phases and their children to reflect new order
-      for (let i = 0; i < flatItems.length; i++) {
-        const phase = flatItems[i];
-        const newWbsId = `${i + 1}.0`;
-        
-        if (phase.wbs_id !== newWbsId) {
-          // Update the phase WBS ID
-          await updateWBSItem(phase.id, { 
-            wbs_id: newWbsId 
-          }, { skipAutoSchedule: true });
-          
-          // Update all children recursively with new hierarchy numbering
-          await updateChildrenWBSIds(phase.id, `${i + 1}`);
-        }
-      }
+      // Use comprehensive renumbering to fix all WBS IDs
+      await renumberWBSHierarchy();
       
-      console.log('Drag and drop reordering completed');
+      console.log('Drag and drop reordering completed with comprehensive renumbering');
     } catch (error) {
       console.error('Error reordering items:', error);
     }
