@@ -30,39 +30,46 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
     try {
       // Try to load project-specific conversation history
       const raw = localStorage.getItem(storageKey);
+      console.log(`Loading messages for project ${projectId}:`, raw ? 'Found saved messages' : 'No saved messages');
+      
       if (raw) {
         const parsed = JSON.parse(raw) as Array<{ id: string; content: string; role: 'user' | 'assistant'; timestamp: string | Date }>;
         
-        // Filter out any non-English messages to prevent issues
-        const englishMessages = parsed.filter(m => {
-          const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
-          if (hasNonEnglish) {
-            console.warn('Filtered out non-English message:', m.content.substring(0, 50));
-          }
-          return !hasNonEnglish;
-        });
-        
-        // Return parsed messages with proper timestamp conversion
-        if (englishMessages.length > 0) {
-          return englishMessages.map(m => ({ ...m, timestamp: new Date(m.timestamp) }));
+        // Return parsed messages with proper timestamp conversion (removed non-English filtering)
+        if (parsed.length > 0) {
+          const restoredMessages = parsed.map(m => ({ ...m, timestamp: new Date(m.timestamp) }));
+          console.log(`Restored ${restoredMessages.length} messages for project ${projectId}`);
+          return restoredMessages;
         }
       }
     } catch (e) {
-      console.error('Failed to load project chat history', e);
+      console.error('Failed to load project chat history for', projectId, e);
       // Clear corrupted localStorage for this project
       localStorage.removeItem(storageKey);
     }
     
     // Return default welcome message if no history exists
-    return [
-      {
-        id: 'welcome',
-        content: `Hello! I'm SkAI, your AI assistant for ${projectName}. I can help you with project management, answer questions about your WBS, tasks, costs, and more. How can I assist you today?`,
-        role: 'assistant',
-        timestamp: new Date()
-      }
-    ];
+    const welcomeMessage = {
+      id: 'welcome',
+      content: `Hello! I'm SkAI, your AI assistant for ${projectName}. I can help you with project management, answer questions about your WBS, tasks, costs, and more. How can I assist you today?`,
+      role: 'assistant' as const,
+      timestamp: new Date()
+    };
+    console.log(`Created welcome message for project ${projectId}`);
+    return [welcomeMessage];
   });
+
+  // Save messages to localStorage whenever messages change
+  useEffect(() => {
+    if (messages.length > 1) { // Don't save just the welcome message
+      try {
+        console.log(`Saving ${messages.length} messages for project ${projectId}`);
+        localStorage.setItem(storageKey, JSON.stringify(messages));
+      } catch (e) {
+        console.error('Failed to save messages for', projectId, e);
+      }
+    }
+  }, [messages, storageKey, projectId]);
   
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -167,26 +174,6 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
             };
 
             setMessages(prev => [...prev, assistantMessage]);
-
-            // Save updated messages immediately after successful operation
-            try {
-              const englishMessages = [...messages, userMessage, assistantMessage].filter(m => {
-                const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
-                return !hasNonEnglish;
-              });
-              localStorage.setItem(storageKey, JSON.stringify(englishMessages));
-            } catch (e) {
-              console.error('Failed to save messages after database operation', e);
-            }
-
-            // Speak the response if requested
-            if (speakResponse && responseText) {
-              try {
-                await speakText(responseText);
-              } catch (speechError) {
-                console.error('Error speaking response:', speechError);
-              }
-            }
             return;
           }
         } catch (dbError) {
@@ -219,17 +206,6 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
       };
 
         setMessages(prev => [...prev, assistantMessage]);
-
-        // Save updated messages immediately after AI response
-        try {
-          const englishMessages = [...messages, userMessage, assistantMessage].filter(m => {
-            const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
-            return !hasNonEnglish;
-          });
-          localStorage.setItem(storageKey, JSON.stringify(englishMessages));
-        } catch (e) {
-          console.error('Failed to save messages after AI response', e);
-        }
 
       // Speak the response if requested
       if (speakResponse && responseText) {
@@ -331,17 +307,6 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
         };
 
         setMessages(prev => [...prev, assistantMessage]);
-
-        // Save updated messages immediately after AI response (voice mode)
-        try {
-          const englishMessages = [...messages, userMessage, assistantMessage].filter(m => {
-            const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
-            return !hasNonEnglish;
-          });
-          localStorage.setItem(storageKey, JSON.stringify(englishMessages));
-        } catch (e) {
-          console.error('Failed to save messages after AI response (voice mode)', e);
-        }
 
         // Automatically speak the AI response
         try {
