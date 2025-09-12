@@ -277,8 +277,8 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-semibold text-sm">Project Assistant</h3>
-            <p className="text-xs text-muted-foreground">AI-powered project support</p>
+            <h3 className="font-semibold text-sm">SkAi Assistant</h3>
+            <p className="text-xs text-muted-foreground">Expert General Contractor & Builder - Australian Construction Industry</p>
           </div>
         </div>
       </div>
@@ -293,8 +293,8 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
             >
               {message.role === 'assistant' && (
                 <Avatar className="w-8 h-8 flex-shrink-0">
-                  <AvatarFallback className="bg-primary text-primary-foreground">
-                    <Bot className="w-4 h-4" />
+                  <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                    SK
                   </AvatarFallback>
                 </Avatar>
               )}
@@ -329,8 +329,8 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
           {isLoading && (
             <div className="flex gap-3 justify-start">
               <Avatar className="w-8 h-8 flex-shrink-0">
-                <AvatarFallback className="bg-primary text-primary-foreground">
-                  <Bot className="w-4 h-4" />
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                  SK
                 </AvatarFallback>
               </Avatar>
               <div className="bg-muted p-3 rounded-lg">
@@ -353,7 +353,7 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask about your project..."
+            placeholder="Ask SkAi about your construction project..."
             className="w-full text-sm"
             disabled={isLoading || isRecording || isProcessing}
           />

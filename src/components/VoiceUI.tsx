@@ -64,12 +64,12 @@ export const VoiceUI = ({
           <div className="flex items-center gap-3">
             <Avatar className="w-10 h-10 ring-2 ring-primary/20">
               <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                AI
+                SK
               </AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="font-semibold text-lg">Voice Chat</h2>
-              <p className="text-sm text-muted-foreground">{projectName}</p>
+              <h2 className="font-semibold text-lg">SkAi Assistant</h2>
+              <p className="text-sm text-muted-foreground">General Contractor & Project Manager</p>
             </div>
           </div>
           <Button
@@ -97,12 +97,12 @@ export const VoiceUI = ({
             isSpeaking ? 'ring-4 ring-purple-400/50 scale-110' :
             isListening ? 'ring-4 ring-primary/50 scale-105' : 'ring-2 ring-border'
           }`}>
-            <AvatarFallback className={`text-2xl font-bold transition-colors duration-300 ${
+            <AvatarFallback className={`text-xl font-bold transition-colors duration-300 ${
               isRecording ? 'bg-green-400 text-white' :
               isSpeaking ? 'bg-purple-400 text-white' :
               isListening ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
             }`}>
-              AI
+              SK
             </AvatarFallback>
           </Avatar>
         </div>
