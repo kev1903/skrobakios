@@ -142,7 +142,7 @@ REQUIRED JSON FORMAT (respond with ONLY this structure):
     "project_id": "${projectId}",
     "company_id": "${projectCompanyId}",
     "wbs_id": "auto-generate next available like 1.2.X",
-    "category": "category name",
+    "category": "Stage|Component|Element",
     "status": "Not Started",
     "progress": 0,
     "level": 1,
@@ -150,6 +150,12 @@ REQUIRED JSON FORMAT (respond with ONLY this structure):
   },
   "explanation": "Brief explanation for project ${projectData.name} only"
 }
+
+CRITICAL WBS CATEGORY RULES:
+- ONLY use these exact category values: "Stage", "Component", "Element"
+- "Stage" = Major project phases (e.g., Planning, Execution, Completion)
+- "Component" = Major building systems (e.g., Structure, MEP, Finishes)  
+- "Element" = Specific work items (e.g., Foundation, Walls, HVAC)
 
 RULES FOR PARENT_ID:
 - If adding to "Demolition", find the demolition WBS item ID from the list above
@@ -256,6 +262,23 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
         break;
 
       case 'INSERT':
+        // Validate category for wbs_items table
+        if (operationPlan.table === 'wbs_items' && operationPlan.data.category) {
+          const validCategories = ['Stage', 'Component', 'Element'];
+          if (!validCategories.includes(operationPlan.data.category)) {
+            // Auto-correct invalid categories to appropriate defaults
+            if (operationPlan.data.title?.toLowerCase().includes('phase') || 
+                operationPlan.data.title?.toLowerCase().includes('stage')) {
+              operationPlan.data.category = 'Stage';
+            } else if (operationPlan.data.level === 1) {
+              operationPlan.data.category = 'Component';  // Top-level items are typically components
+            } else {
+              operationPlan.data.category = 'Element';    // Sub-items are typically elements
+            }
+            console.log(`Auto-corrected invalid category to: ${operationPlan.data.category}`);
+          }
+        }
+        
         // Ensure company_id is set for security using project's company
         if (!operationPlan.data.company_id) {
           operationPlan.data.company_id = projectCompanyId;
@@ -264,6 +287,21 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
         break;
 
       case 'UPDATE':
+        // Validate category for wbs_items table updates
+        if (operationPlan.table === 'wbs_items' && operationPlan.data.category) {
+          const validCategories = ['Stage', 'Component', 'Element'];
+          if (!validCategories.includes(operationPlan.data.category)) {
+            // Auto-correct invalid categories to appropriate defaults
+            if (operationPlan.data.title?.toLowerCase().includes('phase') || 
+                operationPlan.data.title?.toLowerCase().includes('stage')) {
+              operationPlan.data.category = 'Stage';
+            } else {
+              operationPlan.data.category = 'Component';  // Default for updates
+            }
+            console.log(`Auto-corrected invalid category to: ${operationPlan.data.category}`);
+          }
+        }
+        
         const updateQuery = supabase.from(table).update(operationPlan.data);
         if (operationPlan.filters) {
           Object.entries(operationPlan.filters).forEach(([key, value]) => {
