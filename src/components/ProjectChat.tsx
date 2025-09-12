@@ -660,10 +660,6 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
             </Button>
           </div>
           
-          {/* Upload instructions */}
-          <div className="text-xs text-muted-foreground text-center">
-            Drop files here or click Upload • Supports PDF, DOC, DOCX, JPG, PNG, DWG files up to 20MB
-          </div>
         </div>
         
         {/* Voice status indicators */}
