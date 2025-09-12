@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, User, Bot } from 'lucide-react';
+import { Send, User, Bot, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { invokeEdge } from '@/lib/invokeEdge';
 import { useToast } from '@/hooks/use-toast';
+import { useSkaiVoiceChat } from '@/hooks/useSkaiVoiceChat';
 
 interface Message {
   id: string;
@@ -32,6 +33,16 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  
+  const {
+    isRecording,
+    isProcessing,
+    isSpeaking,
+    startRecording,
+    stopRecording,
+    speakText,
+    stopSpeaking
+  } = useSkaiVoiceChat();
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -46,12 +57,13 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
     scrollToBottom();
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (messageText?: string, speakResponse: boolean = false) => {
+    const textToSend = messageText || input;
+    if (!textToSend.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: input.trim(),
+      content: textToSend.trim(),
       role: 'user',
       timestamp: new Date()
     };
@@ -62,7 +74,7 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
 
     try {
       const response = await invokeEdge('ai-chat', {
-        message: input.trim(),
+        message: textToSend.trim(),
         conversation: messages.map(msg => ({
           role: msg.role,
           content: msg.content
@@ -74,14 +86,25 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
         }
       });
 
+      const responseText = response.response || response.message || 'Sorry, I encountered an error processing your request.';
+      
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: response.content || response.message || 'Sorry, I encountered an error processing your request.',
+        content: responseText,
         role: 'assistant',
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+
+      // Speak the response if requested
+      if (speakResponse && responseText) {
+        try {
+          await speakText(responseText);
+        } catch (speechError) {
+          console.error('Error speaking response:', speechError);
+        }
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -98,6 +121,45 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+    }
+  };
+
+  const handleVoiceRecording = async () => {
+    try {
+      if (isRecording) {
+        const transcribedText = await stopRecording();
+        if (transcribedText.trim()) {
+          await sendMessage(transcribedText, true); // Auto-speak response for voice messages
+        }
+      } else {
+        await startRecording();
+      }
+    } catch (error) {
+      console.error('Voice recording error:', error);
+      toast({
+        title: "Voice Error",
+        description: error instanceof Error ? error.message : "Failed to process voice input",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSpeakToggle = () => {
+    if (isSpeaking) {
+      stopSpeaking();
+    } else {
+      // Find the last assistant message and speak it
+      const lastAssistantMessage = [...messages].reverse().find(msg => msg.role === 'assistant');
+      if (lastAssistantMessage) {
+        speakText(lastAssistantMessage.content).catch(error => {
+          console.error('Error speaking message:', error);
+          toast({
+            title: "Speech Error",
+            description: "Failed to speak message",
+            variant: "destructive",
+          });
+        });
+      }
     }
   };
 
@@ -193,17 +255,46 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
             onKeyPress={handleKeyPress}
             placeholder="Ask about your project..."
             className="flex-1 text-sm"
-            disabled={isLoading}
+            disabled={isLoading || isRecording || isProcessing}
           />
           <Button 
-            onClick={sendMessage} 
-            disabled={!input.trim() || isLoading}
+            onClick={handleVoiceRecording}
+            disabled={isLoading || isProcessing}
+            size="sm"
+            variant={isRecording ? "destructive" : "outline"}
+            className={`px-3 ${isRecording ? "animate-pulse" : ""}`}
+          >
+            {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+          </Button>
+          <Button 
+            onClick={handleSpeakToggle}
+            disabled={isLoading || messages.filter(m => m.role === 'assistant').length === 1}
+            size="sm"
+            variant={isSpeaking ? "secondary" : "outline"}
+            className="px-3"
+          >
+            {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </Button>
+          <Button 
+            onClick={() => sendMessage()} 
+            disabled={!input.trim() || isLoading || isRecording}
             size="sm"
             className="px-3"
           >
             <Send className="w-4 h-4" />
           </Button>
         </div>
+        {(isRecording || isProcessing) && (
+          <div className="mt-2 text-xs text-muted-foreground text-center">
+            {isRecording && "🎤 Listening... Click mic to stop"}
+            {isProcessing && "🔄 Processing your voice..."}
+          </div>
+        )}
+        {isSpeaking && (
+          <div className="mt-2 text-xs text-muted-foreground text-center">
+            🔊 Speaking... Click volume button to stop
+          </div>
+        )}
       </div>
     </div>
   );

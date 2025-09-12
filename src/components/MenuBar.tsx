@@ -24,7 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { AiChatSidebar } from '@/components/AiChatSidebar';
 import { VoiceInterface } from '@/components/VoiceInterface';
-import { useVoiceChat } from '@/hooks/useVoiceChat';
+import { useSkaiVoiceChat } from '@/hooks/useSkaiVoiceChat';
 import { useIsMobile } from '@/hooks/use-mobile';
 export const MenuBar = () => {
   const navigate = useNavigate();
@@ -68,15 +68,15 @@ export const MenuBar = () => {
 const barRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
-  // Initialize voice chat functionality
-  const {
-    state: voiceState,
-    settings: voiceSettings,
-    initializeVoiceChat,
-    startPushToTalk,
-    stopPushToTalk,
-    disconnect: disconnectVoice
-  } = useVoiceChat();
+  // Initialize voice chat functionality - removed for now
+  // const {
+  //   state: voiceState,
+  //   settings: voiceSettings,
+  //   initializeVoiceChat,
+  //   startPushToTalk,
+  //   stopPushToTalk,
+  //   disconnect: disconnectVoice
+  // } = useSkaiVoiceChat();
   const [currentDuration, setCurrentDuration] = useState(0);
   const isPaused = activeTimer?.status === 'paused';
 

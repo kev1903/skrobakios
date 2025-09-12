@@ -6,17 +6,34 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Decode a full base64 string into a Uint8Array (do NOT chunk arbitrarily)
-function base64ToUint8Array(base64String: string) {
-  // Remove possible data URL prefix just in case
-  const clean = base64String.includes(',') ? base64String.split(',')[1] : base64String;
-  const binaryString = atob(clean);
-  const len = binaryString.length;
-  const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
+// Process base64 in chunks to prevent memory issues
+function processBase64Chunks(base64String: string, chunkSize = 32768) {
+  const chunks: Uint8Array[] = [];
+  let position = 0;
+  
+  while (position < base64String.length) {
+    const chunk = base64String.slice(position, position + chunkSize);
+    const binaryChunk = atob(chunk);
+    const bytes = new Uint8Array(binaryChunk.length);
+    
+    for (let i = 0; i < binaryChunk.length; i++) {
+      bytes[i] = binaryChunk.charCodeAt(i);
+    }
+    
+    chunks.push(bytes);
+    position += chunkSize;
   }
-  return bytes;
+
+  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
+
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  return result;
 }
 
 serve(async (req) => {
@@ -25,40 +42,29 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Voice transcribe request received')
-    
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY')
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openAIApiKey) {
-      console.error('OPENAI_API_KEY environment variable not set')
-      return new Response(JSON.stringify({ error: 'OpenAI API key not configured' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      throw new Error('OpenAI API key not configured');
     }
 
     const { audio } = await req.json()
-    console.log('Audio data received, length:', audio?.length || 0)
-
+    
     if (!audio) {
-      return new Response(JSON.stringify({ error: 'No audio data provided' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      throw new Error('No audio data provided')
     }
 
-    // Decode audio
-    const binaryAudio = base64ToUint8Array(audio)
-    console.log('Binary audio length:', binaryAudio.length)
+    console.log('Processing voice transcription request');
 
-    // Prepare form data with proper audio format and STRICT English-only settings
+    // Process audio in chunks
+    const binaryAudio = processBase64Chunks(audio)
+    
+    // Prepare form data
     const formData = new FormData()
     const blob = new Blob([binaryAudio], { type: 'audio/webm' })
     formData.append('file', blob, 'audio.webm')
     formData.append('model', 'whisper-1')
-    formData.append('language', 'en')  // Force English language detection
-    formData.append('prompt', 'This is English speech. Transcribe only in English language. Do not use Korean, Chinese, Japanese or any other language.')  // Add prompt to guide transcription
+    formData.append('language', 'en')
 
-    console.log('Sending request to OpenAI...')
     // Send to OpenAI
     const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
@@ -68,83 +74,24 @@ serve(async (req) => {
       body: formData,
     })
 
-    console.log('OpenAI response status:', response.status)
-
     if (!response.ok) {
-      const text = await response.text()
-      console.error('OpenAI API error:', response.status, text)
-      return new Response(JSON.stringify({ 
-        error: `OpenAI API error: ${response.status} - ${text}` 
-      }), {
-        status: response.status,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      const errorText = await response.text();
+      console.error('OpenAI API error:', response.status, errorText);
+      throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
     }
 
     const result = await response.json()
-    let transcribedText = result.text || ''
-    console.log('Raw transcription result:', transcribedText)
-    
-    // CRITICAL: Enhanced filtering for media phrases and non-English content
-    const hasNonEnglish = /[^\x00-\x7F]/.test(transcribedText)
-    if (hasNonEnglish) {
-      console.warn('WARNING: Transcription contains non-English characters!')
-      console.warn('Original text:', transcribedText)
-      
-      // Remove all non-ASCII characters and clean up
-      transcribedText = transcribedText.replace(/[^\x00-\x7F]/g, ' ').replace(/\s+/g, ' ').trim()
-      
-      // If nothing remains after filtering, return empty
-      if (!transcribedText || transcribedText.length < 2) {
-        console.warn('Filtered transcription too short, returning empty')
-        transcribedText = ''
-      }
-      
-      console.log('Filtered text:', transcribedText)
-    }
-
-    // Additional server-side media phrase filtering
-    if (transcribedText) {
-      const mediaPhrases = [
-        'thank you for watching',
-        'like and subscribe', 
-        'hit the bell',
-        'don\'t forget to',
-        'see you next time',
-        'thanks for tuning in',
-        'leave a comment',
-        'share this video',
-        'follow me on',
-        'check out the link',
-        'if you enjoyed',
-        'smash that like button'
-      ];
-
-      const lowerText = transcribedText.toLowerCase().trim();
-      
-      // Check if text contains common media phrases
-      if (mediaPhrases.some(phrase => lowerText.includes(phrase))) {
-        console.log('Server-side: Filtered media phrase:', transcribedText);
-        transcribedText = '';
-      }
-      
-      // Minimum meaningful length check
-      if (transcribedText.trim().split(/\s+/).length < 2) {
-        console.log('Server-side: Text too short, filtering:', transcribedText);
-        transcribedText = '';
-      }
-    }
-    
-    console.log('Final transcription result:', transcribedText)
+    console.log('Transcription successful:', result.text);
 
     return new Response(
-      JSON.stringify({ text: transcribedText }),
+      JSON.stringify({ text: result.text }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
+
   } catch (error) {
-    console.error('Error in voice-transcribe:', error)
+    console.error('Error in voice-transcribe function:', error);
     return new Response(
-      JSON.stringify({ error: error.message || 'Server error' }),
+      JSON.stringify({ error: error.message }),
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

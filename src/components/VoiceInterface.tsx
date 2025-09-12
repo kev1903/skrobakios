@@ -5,7 +5,7 @@ import { Mic, MicOff, X, Volume2, VolumeX, Loader2, Settings, Hand } from 'lucid
 import { VoiceDebugPanel } from './VoiceDebugPanel';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { useVoiceChat } from '@/hooks/useVoiceChat';
+import { useSkaiVoiceChat } from '@/hooks/useSkaiVoiceChat';
 import { Slider } from './ui/slider';
 
 interface VoiceInterfaceProps {
@@ -19,16 +19,17 @@ export function VoiceInterface({
   onMessage,
   onEnd 
 }: VoiceInterfaceProps) {
-  const { 
-    state, 
-    settings, 
-    initializeVoiceChat, 
-    stopCurrentAudio, 
-    disconnect, 
-    updateSettings,
-    startPushToTalk,
-    stopPushToTalk
-  } = useVoiceChat();
+  // Voice interface disabled for now
+  // const { 
+  //   state, 
+  //   settings, 
+  //   initializeVoiceChat, 
+  //   stopCurrentAudio, 
+  //   disconnect, 
+  //   updateSettings,
+  //   startPushToTalk,
+  //   stopPushToTalk
+  // } = useSkaiVoiceChat();
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
