@@ -748,16 +748,6 @@ ${documentContent}`;
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </Button>
             
-            {/* Speak button */}
-            <Button 
-              onClick={handleSpeakToggle}
-              disabled={isLoading || messages.filter(m => m.role === 'assistant').length === 1}
-              size="sm"
-              variant={isSpeaking ? "secondary" : "outline"}
-              className="px-3"
-            >
-              {isSpeaking ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-            </Button>
             
             {/* Send button */}
             <Button 
@@ -778,11 +768,6 @@ ${documentContent}`;
             {isListening && !isRecording && "🎧 Listening for voice... Speak naturally"}
             {isRecording && "🎤 Recording... Keep speaking"}
             {isProcessing && "🔄 Processing your voice..."}
-          </div>
-        )}
-        {isSpeaking && (
-          <div className="mt-2 text-xs text-muted-foreground text-center">
-            🔊 Speaking... Click volume button to stop
           </div>
         )}
       </div>
