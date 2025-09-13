@@ -253,8 +253,7 @@ When users request data modifications, use the available database operations to 
         temperature: 0.7,
         top_p: 0.9,
         frequency_penalty: 0.0,
-        presence_penalty: 0.0,
-        stop: null
+        presence_penalty: 0.0
       }),
     });
 
