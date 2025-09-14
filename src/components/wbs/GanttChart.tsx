@@ -441,15 +441,6 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                   </>
                 )}
 
-                {/* Today indicator - neutral */}
-                {timelineDays.some(day => isSameDay(day, new Date())) && (
-                  <div
-                    className="absolute top-0 bottom-0 border-l-2 border-dashed border-gray-400 z-10"
-                    style={{
-                      left: timelineDays.findIndex(day => isSameDay(day, new Date())) * dayWidth + dayWidth/2
-                    }}
-                  />
-                )}
               </div>
             );
           })}
