@@ -271,13 +271,31 @@ export const ProjectCostPage = ({
                     <div className="text-lg font-semibold text-foreground">{formatCurrency(costSummary.totalActual)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Paid to Date</div>
-                    <div className="text-lg font-semibold text-foreground">{formatCurrency(0)}</div>
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Contingency</div>
+                    <div className="flex items-center">
+                      <input 
+                        type="number" 
+                        min="0" 
+                        max="100" 
+                        step="0.1"
+                        placeholder="0.0"
+                        className="w-16 text-lg font-semibold bg-transparent border-none outline-none text-foreground focus:ring-1 focus:ring-primary rounded px-1"
+                      />
+                      <span className="text-lg font-semibold text-foreground ml-1">%</span>
+                    </div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Variance</div>
-                    <div className={`text-lg font-semibold ${costSummary.variance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatCurrency(Math.abs(costSummary.variance))}
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Markup</div>
+                    <div className="flex items-center">
+                      <input 
+                        type="number" 
+                        min="0" 
+                        max="100" 
+                        step="0.1"
+                        placeholder="0.0"
+                        className="w-16 text-lg font-semibold bg-transparent border-none outline-none text-foreground focus:ring-1 focus:ring-primary rounded px-1"
+                      />
+                      <span className="text-lg font-semibold text-foreground ml-1">%</span>
                     </div>
                   </div>
                 </>
