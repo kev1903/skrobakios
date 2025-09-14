@@ -624,6 +624,7 @@ export type Database = {
           phone: string | null
           portfolio_highlights: string[] | null
           public_page: boolean | null
+          public_profile_enabled: boolean | null
           rating: number | null
           review_count: number | null
           service_areas: string[] | null
@@ -656,6 +657,7 @@ export type Database = {
           phone?: string | null
           portfolio_highlights?: string[] | null
           public_page?: boolean | null
+          public_profile_enabled?: boolean | null
           rating?: number | null
           review_count?: number | null
           service_areas?: string[] | null
@@ -688,6 +690,7 @@ export type Database = {
           phone?: string | null
           portfolio_highlights?: string[] | null
           public_page?: boolean | null
+          public_profile_enabled?: boolean | null
           rating?: number | null
           review_count?: number | null
           service_areas?: string[] | null
@@ -6339,6 +6342,25 @@ export type Database = {
           title: string
           updated_at: string
           wbs_id: string
+        }[]
+      }
+      get_public_company_profile: {
+        Args: { company_slug: string }
+        Returns: {
+          id: string
+          industry: string
+          logo_url: string
+          meta_description: string
+          meta_title: string
+          name: string
+          rating: number
+          review_count: number
+          service_areas: string[]
+          slogan: string
+          slug: string
+          social_links: Json
+          website: string
+          year_established: number
         }[]
       }
       get_public_profile_safe: {
