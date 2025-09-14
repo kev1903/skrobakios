@@ -1432,12 +1432,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                          {/* Left Panel Header */}
                          <div className="w-[420px] text-xs font-medium text-slate-700 border-r border-border">
                            <div className="grid items-center" style={{
-                             gridTemplateColumns: '32px 120px 1fr',
+                             gridTemplateColumns: '32px 120px 1fr 40px',
                              height: '1.75rem',
                            }}>
                              <div></div>
                              <div className="px-2 font-semibold flex items-center h-full">WBS</div>
                              <div className="px-3 font-semibold flex items-center h-full">NAME</div>
+                             <div></div>
                            </div>
                          </div>
                          
