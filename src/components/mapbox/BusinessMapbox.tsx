@@ -355,15 +355,15 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         closeOnClick: false,
         className: 'hover-popup'
       }).setHTML(
-        `<div class="backdrop-blur-md border border-border rounded-lg p-3 shadow-lg bg-transparent">
-          <div class="font-semibold text-foreground cursor-pointer hover:underline" style="color: hsl(var(--primary)); cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</div>
+        `<div style="background: transparent !important; backdrop-filter: blur(8px); border: 1px solid hsl(var(--border)); border-radius: 8px; padding: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+          <div class="font-semibold cursor-pointer hover:underline" style="color: hsl(var(--primary)); cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</div>
         </div>`
       );
 
       // Create simplified click popup
       const clickPopup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-        `<div class="backdrop-blur-md border border-border rounded-lg p-3 shadow-xl bg-transparent">
-          <h3 class="font-semibold text-foreground cursor-pointer hover:underline" style="cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</h3>
+        `<div style="background: transparent !important; backdrop-filter: blur(8px); border: 1px solid hsl(var(--border)); border-radius: 8px; padding: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+          <h3 class="font-semibold cursor-pointer hover:underline" style="cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</h3>
         </div>`
       );
 
@@ -449,9 +449,26 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   }
 
   return (
-    <div className={`w-full h-full bg-background relative overflow-hidden ${className}`}>
-      {/* Map Container */}
-      <div ref={mapContainer} className="w-full h-full" />
-    </div>
+    <>
+      {/* Custom CSS to override Mapbox popup backgrounds */}
+      <style>{`
+        .hover-popup .mapboxgl-popup-content,
+        .mapboxgl-popup-content {
+          background: transparent !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+          border-radius: 0 !important;
+        }
+        .hover-popup .mapboxgl-popup-tip,
+        .mapboxgl-popup-tip {
+          border-top-color: transparent !important;
+          border-bottom-color: transparent !important;
+        }
+      `}</style>
+      <div className={`w-full h-full bg-background relative overflow-hidden ${className}`}>
+        {/* Map Container */}
+        <div ref={mapContainer} className="w-full h-full" />
+      </div>
+    </>
   );
 };
