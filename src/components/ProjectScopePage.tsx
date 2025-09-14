@@ -1440,20 +1440,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                          </div>
                        </div>
                        
-                       {/* Right Panel Header */}
-                       <div className="flex-1 px-2 py-1 text-xs font-medium text-slate-700">
-                         <div className="grid items-center" style={{
-                           gridTemplateColumns: '1fr 120px 120px 120px 100px 140px 84px',
-                         }}>
-                           <div className="px-3 font-semibold">DESCRIPTION</div>
-                           <div className="px-2 font-semibold text-right">BUDGET</div>
-                           <div className="px-2 font-semibold text-right">ACTUAL</div>
-                           <div className="px-2 font-semibold text-right">VARIANCE</div>
-                           <div className="px-2 font-semibold">COST CODE</div>
-                           <div className="px-2 font-semibold">STATUS</div>
-                           <div className="px-2 font-semibold">ACTIONS</div>
-                         </div>
-                       </div>
+                        {/* Right Panel Header */}
+                        <div className="flex-1 px-2 py-1 text-xs font-medium text-slate-700">
+                          <div className="grid items-center" style={{
+                            gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+                          }}>
+                            <div className="px-3 font-semibold">DESCRIPTION</div>
+                            <div className="px-2 font-semibold text-right">BUDGET</div>
+                            <div className="px-2 font-semibold text-right">COMMITTED</div>
+                            <div className="px-2 font-semibold text-right">PAID</div>
+                            <div className="px-2 font-semibold text-right">REMAINING</div>
+                            <div className="px-2 font-semibold text-right">FORECAST FINAL</div>
+                            <div className="px-2 font-semibold text-right">VARIANCE</div>
+                            <div className="px-2 font-semibold">STATUS</div>
+                            <div className="px-2 font-semibold">NOTES</div>
+                          </div>
+                        </div>
                      </div>
                    </div>
 

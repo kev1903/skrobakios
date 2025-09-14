@@ -21,6 +21,11 @@ interface WBSItem {
   end_date?: string | Date | null;
   duration?: number;
   predecessors?: string[];
+  budgeted_cost?: string;
+  committed_cost?: string;
+  paid_cost?: string;
+  forecast_cost?: string;
+  cost_notes?: string;
 }
 
 interface WBSCostRightPanelProps {
@@ -48,108 +53,149 @@ export const WBSCostRightPanel = ({
   hoveredId,
   onRowHover
 }: WBSCostRightPanelProps) => {
+  
+  // Helper function to calculate values
+  const calculateRemaining = (budget: number, paid: number) => {
+    return Math.max(0, budget - paid);
+  };
+
+  const calculateVariance = (budget: number, forecast: number) => {
+    return forecast - budget;
+  };
+
+  const formatCurrency = (value: number | string | undefined) => {
+    const num = typeof value === 'string' ? parseFloat(value) || 0 : value || 0;
+    return new Intl.NumberFormat('en-AU', {
+      style: 'currency',
+      currency: 'AUD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(num);
+  };
+
   return (
     <div className="flex-1 min-w-0 bg-white overflow-hidden">
       {/* Content */}
       <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full" onScroll={onScroll}>
-        {items.map((item) => (
-           <div
-             key={item.id}
-             className={`grid items-center w-full border-b border-gray-100 ${
-               item.level === 0 
-                 ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
-                 : item.level === 1
-                 ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
-                 : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-             } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
-           style={{
-             gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 120px 100px 140px 84px',
-             height: '1.75rem',
-           }}
-           onMouseEnter={() => onRowHover?.(item.id)}
-           onMouseLeave={() => onRowHover?.(null)}
-           >
-             <div className="px-3 flex items-center text-muted-foreground text-xs">
-               <EditableCell
-                 id={item.id}
-                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                 field="description"
-                 value={item.description || ''}
-                 placeholder="Add description..."
-                 className="text-xs text-muted-foreground"
-               />
-             </div>
+        {items.map((item) => {
+          const budget = parseFloat(item.budgeted_cost || '0') || 0;
+          const committed = parseFloat(item.committed_cost || '0') || 0;
+          const paid = parseFloat(item.paid_cost || '0') || 0;
+          const forecast = parseFloat(item.forecast_cost || '0') || budget;
+          const remaining = calculateRemaining(budget, paid);
+          const variance = calculateVariance(budget, forecast);
+          
+          return (
+            <div
+              key={item.id}
+              className={`grid items-center w-full border-b border-gray-100 ${
+                item.level === 0 
+                  ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                  : item.level === 1
+                  ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                  : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+              } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+              style={{
+                gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+                height: '1.75rem',
+              }}
+              onMouseEnter={() => onRowHover?.(item.id)}
+              onMouseLeave={() => onRowHover?.(null)}
+            >
+              {/* Description */}
+              <div className="px-3 flex items-center text-muted-foreground text-xs">
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="description"
+                  value={item.description || ''}
+                  placeholder="Add description..."
+                  className="text-xs text-muted-foreground"
+                />
+              </div>
 
-             <div className="px-2 flex items-center text-xs text-muted-foreground text-right">
-               <EditableCell
-                 id={item.id}
-                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                 field="budgeted_cost"
-                 value=""
-                 placeholder="$0"
-                 className="text-xs text-muted-foreground text-right w-full"
-               />
-             </div>
+              {/* Budget */}
+              <div className="px-2 flex items-center text-xs text-right">
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="budgeted_cost"
+                  value={item.budgeted_cost || ''}
+                  placeholder="0"
+                  className="text-xs text-foreground text-right w-full font-medium"
+                />
+              </div>
 
-             <div className="px-2 flex items-center text-xs text-muted-foreground text-right">
-               <EditableCell
-                 id={item.id}
-                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                 field="actual_cost"
-                 value=""
-                 placeholder="$0"
-                 className="text-xs text-muted-foreground text-right w-full"
-               />
-             </div>
+              {/* Committed */}
+              <div className="px-2 flex items-center text-xs text-right">
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="committed_cost"
+                  value={item.committed_cost || ''}
+                  placeholder="0"
+                  className="text-xs text-amber-600 text-right w-full font-medium"
+                />
+              </div>
 
-             <div className="px-2 flex items-center text-xs text-success text-right">
-               $0
-             </div>
+              {/* Paid */}
+              <div className="px-2 flex items-center text-xs text-right">
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="paid_cost"
+                  value={item.paid_cost || ''}
+                  placeholder="0"
+                  className="text-xs text-green-600 text-right w-full font-medium"
+                />
+              </div>
 
-             <div className="px-2 flex items-center text-xs text-muted-foreground">
-               <EditableCell
-                 id={item.id}
-                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                 field="cost_code"
-                 value=""
-                 placeholder="-"
-                 className="text-xs text-muted-foreground"
-               />
-             </div>
+              {/* Remaining - Calculated */}
+              <div className="px-2 flex items-center text-xs text-blue-600 text-right font-medium">
+                {formatCurrency(remaining)}
+              </div>
 
-             <div className="px-2 flex items-center">
-               <StatusSelect 
-                 value={item.status} 
-                 onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
-               />
-             </div>
+              {/* Forecast Final Cost */}
+              <div className="px-2 flex items-center text-xs text-right">
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="forecast_cost"
+                  value={item.forecast_cost || ''}
+                  placeholder={budget.toString()}
+                  className="text-xs text-purple-600 text-right w-full font-medium"
+                />
+              </div>
 
-             <div className="px-2 flex items-center justify-center">
-               <DropdownMenu>
-                 <DropdownMenuTrigger asChild>
-                   <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                     <MoreHorizontal className="w-3 h-3" />
-                   </Button>
-                 </DropdownMenuTrigger>
-                 <DropdownMenuContent align="end" className="w-40">
-                   <DropdownMenuItem onClick={() => onContextMenuAction('edit', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}>
-                     <Edit2 className="w-3 h-3 mr-2" />
-                     Edit
-                   </DropdownMenuItem>
-                   <DropdownMenuItem onClick={() => onContextMenuAction('duplicate', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}>
-                     <Copy className="w-3 h-3 mr-2" />
-                     Duplicate
-                   </DropdownMenuItem>
-                   <DropdownMenuSeparator />
-                   <DropdownMenuItem onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')} className="text-destructive focus:text-destructive">
-                     <Trash2 className="w-3 h-3 mr-2" />
-                     Delete
-                   </DropdownMenuItem>
-                 </DropdownMenuContent>
-               </DropdownMenu>
-             </div>
-          </div>
-        ))}
+              {/* Variance - Calculated */}
+              <div className={`px-2 flex items-center text-xs text-right font-medium ${
+                variance > 0 ? 'text-red-600' : variance < 0 ? 'text-green-600' : 'text-gray-600'
+              }`}>
+                {variance !== 0 && (variance > 0 ? '+' : '')}{formatCurrency(Math.abs(variance))}
+              </div>
+
+              {/* Status */}
+              <div className="px-2 flex items-center">
+                <StatusSelect 
+                  value={item.status} 
+                  onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
+                />
+              </div>
+
+              {/* Notes */}
+              <div className="px-2 flex items-center text-xs">
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="cost_notes"
+                  value={item.cost_notes || ''}
+                  placeholder="Add notes..."
+                  className="text-xs text-muted-foreground w-full"
+                />
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
