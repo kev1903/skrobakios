@@ -123,7 +123,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
 
   const dayWidth = 32;
   const chartWidth = timelineDays.length * dayWidth;
-  const rowHeight = 28; // Height matching the table rows (1.75rem)
+  const rowHeight = 28; // Exactly 1.75rem (28px) to match WBS row height
 
   // Fallback WBS numbering when wbsNumber is missing
   const computedWbsNumbers = useMemo(() => {
