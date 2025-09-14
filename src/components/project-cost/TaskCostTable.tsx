@@ -178,11 +178,10 @@ export const TaskCostTable = ({
         </div>
       </div>
 
-      {/* Perfect alignment using split-panel approach exactly like SCOPE tab */}
+      {/* Perfect alignment using exact same structure as SCOPE tab */}
       <div className="flex h-full w-full bg-white overflow-hidden">
         {/* Left Panel - WBS and Name columns (420px fixed width) */}
         <div className="w-[420px] bg-white overflow-hidden border-r border-border">
-          {/* Content */}
           <div className="h-full overflow-y-auto overflow-x-hidden w-full">
             {flatWBSItems.length === 0 ? (
               <div className="flex items-center justify-center h-64">
@@ -194,164 +193,178 @@ export const TaskCostTable = ({
                 </div>
               </div>
             ) : (
-              flatWBSItems.map((item) => (
-                <div
-                  key={item.id}
-                  className={`grid items-center ${
-                    item.level === 0 
-                      ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
-                      : item.level === 1
-                      ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
-                      : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-                  } transition-all duration-200 cursor-pointer`}
-                  style={{
-                    gridTemplateColumns: '32px 120px 1fr',
-                  }}
-                  onClick={() => item.level === 0 ? toggleStage(item.id) : undefined}
-                >
-                  {/* Expand/Collapse Icon */}
-                  <div className="px-2 h-[1.75rem] flex items-center justify-center">
-                    {item.level === 0 && (
-                      expandedStages.has(item.id) ? (
-                        <ChevronDown className="w-4 h-4 text-gray-600" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-600" />
-                      )
-                    )}
-                  </div>
+              flatWBSItems.map((item) => {
+                const rowHeight = "28px"; // Exact height: 1.75rem = 28px
+                const isExpanded = expandedStages.has(item.id);
+                
+                return (
+                  <div
+                    key={`left-${item.id}`}
+                    className={`grid items-center ${
+                      item.level === 0 
+                        ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                        : item.level === 1
+                        ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                        : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+                    } transition-all duration-200 cursor-pointer`}
+                    style={{
+                      gridTemplateColumns: '32px 120px 1fr',
+                      height: rowHeight,
+                      minHeight: rowHeight,
+                      maxHeight: rowHeight,
+                    }}
+                    onClick={() => item.level === 0 ? toggleStage(item.id) : undefined}
+                  >
+                    {/* Expand/Collapse Icon */}
+                    <div className="flex items-center justify-center" style={{ height: rowHeight }}>
+                      {item.level === 0 && (
+                        isExpanded ? (
+                          <ChevronDown className="w-4 h-4 text-gray-600" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-gray-600" />
+                        )
+                      )}
+                    </div>
 
-                  {/* WBS Column */}
-                  <div className="px-2 h-[1.75rem] flex items-center text-xs font-mono">
-                    <div style={{ 
-                      paddingLeft: item.level === 0 ? '0px' : item.level === 1 ? '16px' : '32px' 
-                    }}>
-                      {item.wbs_id}
+                    {/* WBS Column */}
+                    <div className="px-2 flex items-center text-xs font-mono" style={{ height: rowHeight }}>
+                      <div style={{ 
+                        paddingLeft: item.level === 0 ? '0px' : item.level === 1 ? '16px' : '32px' 
+                      }}>
+                        {item.wbs_id}
+                      </div>
+                    </div>
+
+                    {/* Name Column */}
+                    <div className="px-3 flex items-center text-xs" style={{ height: rowHeight }}>
+                      <div style={{ 
+                        paddingLeft: item.level === 0 ? '0px' : item.level === 1 ? '8px' : '24px' 
+                      }} className="flex items-center w-full">
+                        {item.level === 1 && (
+                          <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 flex-shrink-0"></div>
+                        )}
+                        {item.level === 2 && (
+                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2 flex-shrink-0"></div>
+                        )}
+                        <span className="font-medium truncate">
+                          {item.title || 'Untitled Phase'}
+                        </span>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Name Column */}
-                  <div className="px-3 h-[1.75rem] flex items-center text-xs">
-                    <div style={{ 
-                      paddingLeft: item.level === 0 ? '0px' : item.level === 1 ? '8px' : '24px' 
-                    }} className="flex items-center">
-                      {item.level === 1 && (
-                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
-                      )}
-                      {item.level === 2 && (
-                        <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2"></div>
-                      )}
-                      <span className="font-medium truncate">
-                        {item.title || 'Untitled Phase'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
 
         {/* Right Panel - Other columns (flex-1) */}
         <div className="flex-1 min-w-0 bg-white overflow-hidden">
-          {/* Content */}
           <div className="h-full overflow-y-auto overflow-x-hidden w-full">
-            {flatWBSItems.map((item) => (
-              <div
-                key={item.id}
-                className={`grid items-center w-full ${
-                  item.level === 0 
-                    ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
-                    : item.level === 1
-                    ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
-                    : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-                } transition-all duration-200`}
-                style={{
-                  gridTemplateColumns: '1fr 120px 120px 120px 100px 140px 84px',
-                }}
-              >
-                {/* Description */}
-                <div className="px-3 h-[1.75rem] flex items-center text-muted-foreground text-xs">
-                  <EditableCell
-                    id={item.id}
-                    field="description"
-                    value={item.description || ''}
-                    placeholder="Add description..."
-                    className="text-xs text-muted-foreground w-full"
-                  />
-                </div>
+            {flatWBSItems.map((item) => {
+              const rowHeight = "28px"; // Exact height: 1.75rem = 28px
+              
+              return (
+                <div
+                  key={`right-${item.id}`}
+                  className={`grid items-center w-full ${
+                    item.level === 0 
+                      ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                      : item.level === 1
+                      ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                      : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+                  } transition-all duration-200`}
+                  style={{
+                    gridTemplateColumns: '1fr 120px 120px 120px 100px 140px 84px',
+                    height: rowHeight,
+                    minHeight: rowHeight,
+                    maxHeight: rowHeight,
+                  }}
+                >
+                  {/* Description */}
+                  <div className="px-3 flex items-center text-muted-foreground text-xs" style={{ height: rowHeight }}>
+                    <EditableCell
+                      id={item.id}
+                      field="description"
+                      value={item.description || ''}
+                      placeholder="Add description..."
+                      className="text-xs text-muted-foreground w-full"
+                    />
+                  </div>
 
-                {/* Budget */}
-                <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground text-right">
-                  <EditableCell
-                    id={item.id}
-                    field="budgeted_cost"
-                    value={item.budgeted_cost || 0}
-                    placeholder="$0"
-                    className="text-xs text-muted-foreground text-right w-full"
-                  />
-                </div>
+                  {/* Budget */}
+                  <div className="px-2 flex items-center justify-end text-xs text-muted-foreground" style={{ height: rowHeight }}>
+                    <EditableCell
+                      id={item.id}
+                      field="budgeted_cost"
+                      value={item.budgeted_cost || 0}
+                      placeholder="$0"
+                      className="text-xs text-muted-foreground text-right w-full"
+                    />
+                  </div>
 
-                {/* Actual */}
-                <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground text-right">
-                  <EditableCell
-                    id={item.id}
-                    field="actual_cost"
-                    value={item.actual_cost || 0}
-                    placeholder="$0"
-                    className="text-xs text-muted-foreground text-right w-full"
-                  />
-                </div>
+                  {/* Actual */}
+                  <div className="px-2 flex items-center justify-end text-xs text-muted-foreground" style={{ height: rowHeight }}>
+                    <EditableCell
+                      id={item.id}
+                      field="actual_cost"
+                      value={item.actual_cost || 0}
+                      placeholder="$0"
+                      className="text-xs text-muted-foreground text-right w-full"
+                    />
+                  </div>
 
-                {/* Variance */}
-                <div className="px-2 h-[1.75rem] flex items-center text-xs text-right">
-                  <span className={`${((item.budgeted_cost || 0) - (item.actual_cost || 0)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {formatCurrency(Math.abs((item.budgeted_cost || 0) - (item.actual_cost || 0)))}
-                  </span>
-                </div>
+                  {/* Variance */}
+                  <div className="px-2 flex items-center justify-end text-xs" style={{ height: rowHeight }}>
+                    <span className={`${((item.budgeted_cost || 0) - (item.actual_cost || 0)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatCurrency(Math.abs((item.budgeted_cost || 0) - (item.actual_cost || 0)))}
+                    </span>
+                  </div>
 
-                {/* Cost Code */}
-                <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
-                  <EditableCell
-                    id={item.id}
-                    field="cost_code"
-                    value={''}
-                    placeholder="-"
-                    className="text-xs text-muted-foreground w-full"
-                  />
-                </div>
+                  {/* Cost Code */}
+                  <div className="px-2 flex items-center text-xs text-muted-foreground" style={{ height: rowHeight }}>
+                    <EditableCell
+                      id={item.id}
+                      field="cost_code"
+                      value={''}
+                      placeholder="-"
+                      className="text-xs text-muted-foreground w-full"
+                    />
+                  </div>
 
-                {/* Status */}
-                <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
-                  <span className="text-green-600">$0</span>
-                </div>
+                  {/* Status */}
+                  <div className="px-2 flex items-center text-xs text-muted-foreground" style={{ height: rowHeight }}>
+                    <span className="text-green-600">$0</span>
+                  </div>
 
-                {/* Actions */}
-                <div className="px-2 h-[1.75rem] flex items-center justify-center">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                        <MoreHorizontal className="w-3 h-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-40">
-                      <DropdownMenuItem>
-                        <Edit2 className="w-3 h-3 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Copy className="w-3 h-3 mr-2" />
-                        Duplicate
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive focus:text-destructive">
-                        <Trash2 className="w-3 h-3 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {/* Actions */}
+                  <div className="px-2 flex items-center justify-center" style={{ height: rowHeight }}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                          <MoreHorizontal className="w-3 h-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-40">
+                        <DropdownMenuItem>
+                          <Edit2 className="w-3 h-3 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Copy className="w-3 h-3 mr-2" />
+                          Duplicate
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-destructive focus:text-destructive">
+                          <Trash2 className="w-3 h-3 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
