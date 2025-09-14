@@ -4317,6 +4317,7 @@ export type Database = {
       }
       stakeholder_addresses: {
         Row: {
+          access_level: string | null
           address_line_1: string
           address_line_2: string | null
           city: string
@@ -4324,14 +4325,18 @@ export type Database = {
           created_at: string
           id: string
           is_primary: boolean | null
+          last_accessed_at: string | null
+          last_accessed_by: string | null
           latitude: number | null
           longitude: number | null
           postal_code: string
+          security_classification: string | null
           stakeholder_id: string
           state: string
           type: string
         }
         Insert: {
+          access_level?: string | null
           address_line_1: string
           address_line_2?: string | null
           city: string
@@ -4339,14 +4344,18 @@ export type Database = {
           created_at?: string
           id?: string
           is_primary?: boolean | null
+          last_accessed_at?: string | null
+          last_accessed_by?: string | null
           latitude?: number | null
           longitude?: number | null
           postal_code: string
+          security_classification?: string | null
           stakeholder_id: string
           state: string
           type: string
         }
         Update: {
+          access_level?: string | null
           address_line_1?: string
           address_line_2?: string | null
           city?: string
@@ -4354,9 +4363,12 @@ export type Database = {
           created_at?: string
           id?: string
           is_primary?: boolean | null
+          last_accessed_at?: string | null
+          last_accessed_by?: string | null
           latitude?: number | null
           longitude?: number | null
           postal_code?: string
+          security_classification?: string | null
           stakeholder_id?: string
           state?: string
           type?: string
@@ -6088,6 +6100,14 @@ export type Database = {
         Args: { project_id_param: string }
         Returns: boolean
       }
+      can_access_stakeholder_address: {
+        Args: {
+          access_type?: string
+          requesting_user_id?: string
+          target_stakeholder_id: string
+        }
+        Returns: boolean
+      }
       can_access_stakeholder_contacts: {
         Args: { target_stakeholder_id: string }
         Returns: boolean
@@ -6492,6 +6512,23 @@ export type Database = {
           verified: boolean
           website: string
           years_experience: number
+        }[]
+      }
+      get_secure_stakeholder_address: {
+        Args: { show_full_address?: boolean; target_stakeholder_id: string }
+        Returns: {
+          address_line_1: string
+          address_line_2: string
+          city: string
+          country: string
+          id: string
+          is_primary: boolean
+          latitude: number
+          longitude: number
+          postal_code: string
+          stakeholder_id: string
+          state: string
+          type: string
         }[]
       }
       get_security_config: {
