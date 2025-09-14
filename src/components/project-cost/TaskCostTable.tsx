@@ -122,7 +122,7 @@ export const TaskCostTable = ({
     return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  // Create flat list for rendering - exactly like WBSCostView
+  // Create flat list for rendering
   const flatWBSItems = Object.values(groupedData)
     .sort((a, b) => (a.stage.wbs_id || '').localeCompare(b.stage.wbs_id || ''))
     .flatMap((stageData) => {
@@ -178,14 +178,41 @@ export const TaskCostTable = ({
         </div>
       </div>
 
-      {/* Perfect alignment using exact same structure as SCOPE tab */}
-      <div className="flex h-full w-full bg-white overflow-hidden">
-        {/* Left Panel - WBS and Name columns (420px fixed width) */}
-        <div className="w-[420px] bg-white overflow-hidden border-r border-border">
-          <div className="h-full overflow-y-auto overflow-x-hidden w-full">
+      {/* Approach 1: Single CSS Grid - Most Reliable */}
+      <div className="w-full overflow-x-auto">
+        <div className="min-w-max">
+          {/* Header Row */}
+          <div 
+            className="bg-slate-100/70 border-b border-slate-200 text-xs font-medium text-slate-700 sticky top-0 z-10"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '32px 120px 200px 200px 120px 120px 120px 100px 140px 84px',
+              height: '32px'
+            }}
+          >
+            <div className="flex items-center justify-center border-r border-slate-200"></div>
+            <div className="flex items-center px-2 font-semibold border-r border-slate-200">WBS</div>
+            <div className="flex items-center px-3 font-semibold border-r border-slate-200">NAME</div>
+            <div className="flex items-center px-3 font-semibold border-r border-slate-200">DESCRIPTION</div>
+            <div className="flex items-center justify-end px-2 font-semibold border-r border-slate-200">BUDGET</div>
+            <div className="flex items-center justify-end px-2 font-semibold border-r border-slate-200">ACTUAL</div>
+            <div className="flex items-center justify-end px-2 font-semibold border-r border-slate-200">VARIANCE</div>
+            <div className="flex items-center px-2 font-semibold border-r border-slate-200">COST CODE</div>
+            <div className="flex items-center px-2 font-semibold border-r border-slate-200">STATUS</div>
+            <div className="flex items-center px-2 font-semibold">ACTIONS</div>
+          </div>
+
+          {/* Content Rows */}
+          <div>
             {flatWBSItems.length === 0 ? (
-              <div className="flex items-center justify-center h-64">
-                <div className="text-center">
+              <div 
+                className="flex items-center justify-center h-64 border-b border-slate-100"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '32px 120px 200px 200px 120px 120px 120px 100px 140px 84px',
+                }}
+              >
+                <div className="col-span-10 flex flex-col items-center justify-center">
                   <p className="text-sm text-muted-foreground mb-2">No cost items found</p>
                   <Button size="sm" variant="outline" className="text-xs bg-white/20 border-white/30 text-foreground hover:bg-white/30">
                     + Add your first cost item
@@ -194,29 +221,30 @@ export const TaskCostTable = ({
               </div>
             ) : (
               flatWBSItems.map((item) => {
-                const rowHeight = "28px"; // Exact height: 1.75rem = 28px
                 const isExpanded = expandedStages.has(item.id);
                 
                 return (
                   <div
-                    key={`left-${item.id}`}
-                    className={`grid items-center ${
+                    key={item.id}
+                    className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${
                       item.level === 0 
-                        ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                        ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800' 
                         : item.level === 1
-                        ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
-                        : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-                    } transition-all duration-200 cursor-pointer`}
+                        ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400'
+                        : 'bg-white border-l-2 border-l-slate-300'
+                    }`}
                     style={{
-                      gridTemplateColumns: '32px 120px 1fr',
-                      height: rowHeight,
-                      minHeight: rowHeight,
-                      maxHeight: rowHeight,
+                      display: 'grid',
+                      gridTemplateColumns: '32px 120px 200px 200px 120px 120px 120px 100px 140px 84px',
+                      height: '32px',
+                      alignItems: 'center'
                     }}
-                    onClick={() => item.level === 0 ? toggleStage(item.id) : undefined}
                   >
                     {/* Expand/Collapse Icon */}
-                    <div className="flex items-center justify-center" style={{ height: rowHeight }}>
+                    <div 
+                      className="flex items-center justify-center cursor-pointer"
+                      onClick={() => item.level === 0 ? toggleStage(item.id) : undefined}
+                    >
                       {item.level === 0 && (
                         isExpanded ? (
                           <ChevronDown className="w-4 h-4 text-gray-600" />
@@ -227,7 +255,7 @@ export const TaskCostTable = ({
                     </div>
 
                     {/* WBS Column */}
-                    <div className="px-2 flex items-center text-xs font-mono" style={{ height: rowHeight }}>
+                    <div className="flex items-center px-2 text-xs font-mono border-r border-slate-100">
                       <div style={{ 
                         paddingLeft: item.level === 0 ? '0px' : item.level === 1 ? '16px' : '32px' 
                       }}>
@@ -236,7 +264,7 @@ export const TaskCostTable = ({
                     </div>
 
                     {/* Name Column */}
-                    <div className="px-3 flex items-center text-xs" style={{ height: rowHeight }}>
+                    <div className="flex items-center px-3 text-xs border-r border-slate-100">
                       <div style={{ 
                         paddingLeft: item.level === 0 ? '0px' : item.level === 1 ? '8px' : '24px' 
                       }} className="flex items-center w-full">
@@ -251,120 +279,92 @@ export const TaskCostTable = ({
                         </span>
                       </div>
                     </div>
+
+                    {/* Description */}
+                    <div className="flex items-center px-3 text-muted-foreground text-xs border-r border-slate-100">
+                      <EditableCell
+                        id={item.id}
+                        field="description"
+                        value={item.description || ''}
+                        placeholder="Add description..."
+                        className="text-xs text-muted-foreground w-full"
+                      />
+                    </div>
+
+                    {/* Budget */}
+                    <div className="flex items-center justify-end px-2 text-xs text-muted-foreground border-r border-slate-100">
+                      <EditableCell
+                        id={item.id}
+                        field="budgeted_cost"
+                        value={item.budgeted_cost || 0}
+                        placeholder="$0"
+                        className="text-xs text-muted-foreground text-right w-full"
+                      />
+                    </div>
+
+                    {/* Actual */}
+                    <div className="flex items-center justify-end px-2 text-xs text-muted-foreground border-r border-slate-100">
+                      <EditableCell
+                        id={item.id}
+                        field="actual_cost"
+                        value={item.actual_cost || 0}
+                        placeholder="$0"
+                        className="text-xs text-muted-foreground text-right w-full"
+                      />
+                    </div>
+
+                    {/* Variance */}
+                    <div className="flex items-center justify-end px-2 text-xs border-r border-slate-100">
+                      <span className={`${((item.budgeted_cost || 0) - (item.actual_cost || 0)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {formatCurrency(Math.abs((item.budgeted_cost || 0) - (item.actual_cost || 0)))}
+                      </span>
+                    </div>
+
+                    {/* Cost Code */}
+                    <div className="flex items-center px-2 text-xs text-muted-foreground border-r border-slate-100">
+                      <EditableCell
+                        id={item.id}
+                        field="cost_code"
+                        value={''}
+                        placeholder="-"
+                        className="text-xs text-muted-foreground w-full"
+                      />
+                    </div>
+
+                    {/* Status */}
+                    <div className="flex items-center px-2 text-xs text-muted-foreground border-r border-slate-100">
+                      <span className="text-green-600">$0</span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-center px-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                            <MoreHorizontal className="w-3 h-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                          <DropdownMenuItem>
+                            <Edit2 className="w-3 h-3 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Copy className="w-3 h-3 mr-2" />
+                            Duplicate
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-destructive focus:text-destructive">
+                            <Trash2 className="w-3 h-3 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 );
               })
             )}
-          </div>
-        </div>
-
-        {/* Right Panel - Other columns (flex-1) */}
-        <div className="flex-1 min-w-0 bg-white overflow-hidden">
-          <div className="h-full overflow-y-auto overflow-x-hidden w-full">
-            {flatWBSItems.map((item) => {
-              const rowHeight = "28px"; // Exact height: 1.75rem = 28px
-              
-              return (
-                <div
-                  key={`right-${item.id}`}
-                  className={`grid items-center w-full ${
-                    item.level === 0 
-                      ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
-                      : item.level === 1
-                      ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
-                      : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-                  } transition-all duration-200`}
-                  style={{
-                    gridTemplateColumns: '1fr 120px 120px 120px 100px 140px 84px',
-                    height: rowHeight,
-                    minHeight: rowHeight,
-                    maxHeight: rowHeight,
-                  }}
-                >
-                  {/* Description */}
-                  <div className="px-3 flex items-center text-muted-foreground text-xs" style={{ height: rowHeight }}>
-                    <EditableCell
-                      id={item.id}
-                      field="description"
-                      value={item.description || ''}
-                      placeholder="Add description..."
-                      className="text-xs text-muted-foreground w-full"
-                    />
-                  </div>
-
-                  {/* Budget */}
-                  <div className="px-2 flex items-center justify-end text-xs text-muted-foreground" style={{ height: rowHeight }}>
-                    <EditableCell
-                      id={item.id}
-                      field="budgeted_cost"
-                      value={item.budgeted_cost || 0}
-                      placeholder="$0"
-                      className="text-xs text-muted-foreground text-right w-full"
-                    />
-                  </div>
-
-                  {/* Actual */}
-                  <div className="px-2 flex items-center justify-end text-xs text-muted-foreground" style={{ height: rowHeight }}>
-                    <EditableCell
-                      id={item.id}
-                      field="actual_cost"
-                      value={item.actual_cost || 0}
-                      placeholder="$0"
-                      className="text-xs text-muted-foreground text-right w-full"
-                    />
-                  </div>
-
-                  {/* Variance */}
-                  <div className="px-2 flex items-center justify-end text-xs" style={{ height: rowHeight }}>
-                    <span className={`${((item.budgeted_cost || 0) - (item.actual_cost || 0)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatCurrency(Math.abs((item.budgeted_cost || 0) - (item.actual_cost || 0)))}
-                    </span>
-                  </div>
-
-                  {/* Cost Code */}
-                  <div className="px-2 flex items-center text-xs text-muted-foreground" style={{ height: rowHeight }}>
-                    <EditableCell
-                      id={item.id}
-                      field="cost_code"
-                      value={''}
-                      placeholder="-"
-                      className="text-xs text-muted-foreground w-full"
-                    />
-                  </div>
-
-                  {/* Status */}
-                  <div className="px-2 flex items-center text-xs text-muted-foreground" style={{ height: rowHeight }}>
-                    <span className="text-green-600">$0</span>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="px-2 flex items-center justify-center" style={{ height: rowHeight }}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                          <MoreHorizontal className="w-3 h-3" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40">
-                        <DropdownMenuItem>
-                          <Edit2 className="w-3 h-3 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Copy className="w-3 h-3 mr-2" />
-                          Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:text-destructive">
-                          <Trash2 className="w-3 h-3 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              );
-            })}
           </div>
         </div>
       </div>
