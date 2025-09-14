@@ -123,7 +123,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
 
   const dayWidth = 32;
   const chartWidth = timelineDays.length * dayWidth;
-  const rowHeight = 28; // Exactly 1.75rem (28px) to match WBS row height
+  const rowHeight = 28; // 1.75rem in pixels
 
   // Fallback WBS numbering when wbsNumber is missing
   const computedWbsNumbers = useMemo(() => {
@@ -222,14 +222,14 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
             return (
               <div
                 key={item.id}
-                className={`relative border-b border-gray-100 transition-colors duration-150 ${
+                className={`relative transition-colors duration-150 ${
                   item.level === 0
-                    ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100'
+                    ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100'
                     : item.level === 1
-                    ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50'
-                    : 'bg-white'
-                } ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 ring-2 ring-gray-300/50' : 'hover:bg-slate-50/50'}`}
-                style={{ height: rowHeight }}
+                    ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                    : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+                } border-b border-gray-100 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+                style={{ height: `${rowHeight}px` }}
                 onMouseEnter={() => onRowHover?.(item.id)}
                 onMouseLeave={() => onRowHover?.(null)}
               >
