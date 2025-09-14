@@ -391,18 +391,18 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                                         opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
                           
                           {/* Modern status indicator */}
-                          <div className={`absolute left-0 top-1 bottom-1 w-1 rounded-full ml-1 ${getStatusColor(item.status)}`} />
+                          <div className={`absolute left-0 top-1 bottom-1 w-1 rounded-full ${getStatusColor(item.status)}`} />
                           
-                          {/* Task content with better spacing */}
+                          {/* Task content with perfect alignment */}
                           {position.width <= 60 ? (
-                            <div className="px-2 flex items-center justify-center h-full relative z-10">
+                            <div className="flex items-center justify-center h-full relative z-10">
                               <span className={`text-[10px] font-semibold ${getLevelFontStyle(item.level)}`}>
                                 {getWbs(item)}
                               </span>
                             </div>
                           ) : (
-                            <div className="px-3 py-1 flex items-center h-full relative z-10 w-full">
-                              <span className={`text-xs font-semibold truncate min-w-0 flex-shrink-0 ${getLevelFontStyle(item.level)}`}>
+                            <div className="flex items-center h-full relative z-10 w-full">
+                              <span className={`text-xs font-semibold truncate min-w-0 flex-shrink-0 ${getLevelFontStyle(item.level)} pl-2`}>
                                 {getWbs(item)}
                               </span>
                               {position.width > 90 && (
