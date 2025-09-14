@@ -1,10 +1,7 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import React, { useState, useRef, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Save, X, ChevronDown, ChevronRight, MoreHorizontal, Edit2, Copy, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, MoreHorizontal, Edit2, Copy, Trash2 } from 'lucide-react';
 import { CentralTask, TaskUpdate } from '@/services/centralTaskService';
 import { WBSItem } from '@/types/wbs';
 import {
@@ -29,46 +26,55 @@ export const TaskCostTable = ({
   const [editingCell, setEditingCell] = useState<{ taskId: string; field: string } | null>(null);
   const [editValue, setEditValue] = useState<string>('');
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set());
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const leftScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
 
-  // Group WBS items by stage using the hierarchical structure (roots are stages)
-  const groupedWBSData = (wbsItems || []).reduce((acc, stage) => {
-    const isStage = stage.level === 0 || (stage.wbs_id?.endsWith('.0'));
-    if (!isStage) return acc;
+  // Create flat list like SCOPE tab
+  const flatWBSItems = (wbsItems || []).filter(item => 
+    item.level === 0 || expandedStages.has(getStageId(item))
+  );
 
-    const key = stage.id || stage.wbs_id || stage.title || Math.random().toString();
-    const components = Array.isArray(stage.children) ? stage.children : [];
-    const elements = components.flatMap((comp) => 
-      Array.isArray(comp.children) ? comp.children.map(el => ({ ...el, parentComponent: comp })) : []
+  const getStageId = (item: WBSItem): string => {
+    if (item.level === 0) return item.id;
+    // Find parent stage for this item
+    const stage = wbsItems.find(stage => 
+      stage.level === 0 && 
+      (item.wbs_id?.startsWith(stage.wbs_id || '') || false)
     );
+    return stage?.id || item.id;
+  };
 
-    acc[key] = {
-      id: key,
-      stage,
-      components,
-      elements
-    };
-    return acc;
-  }, {} as Record<string, { id: string; stage: WBSItem; components: WBSItem[]; elements: (WBSItem & { parentComponent?: WBSItem })[] }>);
-
-  const groupedData = Object.keys(groupedWBSData).length > 0 ? groupedWBSData : {};
-
-  // Auto-expand all stages by default for better UX
+  // Auto-expand all stages by default
   React.useEffect(() => {
-    const hasStages = Object.keys(groupedData).length > 0;
-    if (hasStages && expandedStages.size === 0) {
-      setExpandedStages(new Set(Object.keys(groupedData)));
+    const stageIds = wbsItems.filter(item => item.level === 0).map(item => item.id);
+    if (stageIds.length > 0 && expandedStages.size === 0) {
+      setExpandedStages(new Set(stageIds));
     }
-  }, [Object.keys(groupedData).length]);
+  }, [wbsItems.length]);
 
-  const toggleStage = (stage: string) => {
+  const toggleStage = (stageId: string) => {
     const newExpanded = new Set(expandedStages);
-    if (newExpanded.has(stage)) {
-      newExpanded.delete(stage);
+    if (newExpanded.has(stageId)) {
+      newExpanded.delete(stageId);
     } else {
-      newExpanded.add(stage);
+      newExpanded.add(stageId);
     }
     setExpandedStages(newExpanded);
   };
+
+  // Scroll synchronization like SCOPE tab
+  const handleRightScroll = useCallback(() => {
+    if (leftScrollRef.current && rightScrollRef.current) {
+      leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
+    }
+  }, []);
+
+  const handleLeftScroll = useCallback(() => {
+    if (leftScrollRef.current && rightScrollRef.current) {
+      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
+    }
+  }, []);
 
   const handleCellClick = (itemId: string, field: string, currentValue: any) => {
     setEditingCell({ taskId: itemId, field });
@@ -79,7 +85,6 @@ export const TaskCostTable = ({
     if (!editingCell) return;
     
     try {
-      // For WBS items, we need to update the WBS database
       const updates: any = {};
       if (editingCell.field === 'budgeted_cost') {
         updates.budgeted_cost = parseFloat(editValue) || 0;
@@ -87,17 +92,7 @@ export const TaskCostTable = ({
         updates.actual_cost = parseFloat(editValue) || 0;
       }
       
-      // Find the WBS item to update
-      const wbsItem = wbsItems.find(item => item.id === editingCell.taskId);
-      if (wbsItem) {
-        // Update WBS item in database (you'll need to add this to your WBS service)
-        console.log('Would update WBS item:', editingCell.taskId, updates);
-        // TODO: Add WBS update function when available
-      } else {
-        // Fall back to task update for any actual tasks
-        await onUpdateTask(editingCell.taskId, updates);
-      }
-      
+      console.log('Would update WBS item:', editingCell.taskId, updates);
       setEditingCell(null);
       setEditValue('');
     } catch (error) {
@@ -122,28 +117,9 @@ export const TaskCostTable = ({
     return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  // Create flat list for rendering
-  const flatWBSItems = Object.values(groupedData)
-    .sort((a, b) => (a.stage.wbs_id || '').localeCompare(b.stage.wbs_id || ''))
-    .flatMap((stageData) => {
-      const stageKey = stageData.id;
-      const isExpanded = expandedStages.has(stageKey);
-      
-      const items = [stageData.stage];
-      
-      if (isExpanded) {
-        // Add components
-        stageData.components.forEach(comp => items.push(comp));
-        // Add elements
-        stageData.elements.forEach(elem => items.push(elem));
-      }
-      
-      return items;
-    });
-
   const EditableCell = ({ id, field, value, placeholder, className }: any) => {
     const isEditing = editingCell?.taskId === id && editingCell?.field === field;
-    const currentValue = value || 0;
+    const currentValue = value || (field.includes('cost') ? 0 : '');
 
     if (isEditing) {
       return (
@@ -152,7 +128,7 @@ export const TaskCostTable = ({
           onChange={(e) => setEditValue(e.target.value)}
           onBlur={handleCellSave}
           onKeyDown={handleKeyDown}
-          className="h-6 text-xs p-1 border-blue-300 focus:ring-1 focus:ring-blue-500"
+          className="h-4 text-xs p-1 border-blue-300 focus:ring-1 focus:ring-blue-500"
           autoFocus
           type={field.includes('cost') ? 'number' : 'text'}
         />
@@ -161,7 +137,7 @@ export const TaskCostTable = ({
 
     return (
       <div 
-        className={`cursor-pointer hover:bg-blue-50 rounded px-1 ${className}`}
+        className={`cursor-pointer hover:bg-blue-50 rounded px-1 w-full ${className}`}
         onClick={() => handleCellClick(id, field, currentValue)}
       >
         {field.includes('cost') ? formatCurrency(currentValue) : (value || placeholder)}
@@ -170,202 +146,191 @@ export const TaskCostTable = ({
   };
 
   return (
-    <div className="bg-card border rounded-xl overflow-hidden">
-      {/* Table Header */}
-      <div className="bg-muted/30 border-b px-6 py-3">
-        <div className="flex items-center justify-end">
-          {/* Stage Management button will be added from parent component */}
-        </div>
-      </div>
-
-      {/* Approach 1: Single CSS Grid - Most Reliable */}
-      <div className="w-full overflow-x-auto">
-        <div className="min-w-max">
-          {/* Header Row */}
-          <div 
-            className="bg-slate-100/70 border-b border-slate-200 text-xs font-medium text-slate-700 sticky top-0 z-10"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '32px 120px 200px 200px 120px 120px 120px 100px 140px 84px',
-              height: '32px'
-            }}
-          >
-            <div className="flex items-center justify-center border-r border-slate-200"></div>
-            <div className="flex items-center px-2 font-semibold border-r border-slate-200">WBS</div>
-            <div className="flex items-center px-3 font-semibold border-r border-slate-200">NAME</div>
-            <div className="flex items-center px-3 font-semibold border-r border-slate-200">DESCRIPTION</div>
-            <div className="flex items-center justify-end px-2 font-semibold border-r border-slate-200">BUDGET</div>
-            <div className="flex items-center justify-end px-2 font-semibold border-r border-slate-200">ACTUAL</div>
-            <div className="flex items-center justify-end px-2 font-semibold border-r border-slate-200">VARIANCE</div>
-            <div className="flex items-center px-2 font-semibold border-r border-slate-200">COST CODE</div>
-            <div className="flex items-center px-2 font-semibold border-r border-slate-200">STATUS</div>
-            <div className="flex items-center px-2 font-semibold">ACTIONS</div>
-          </div>
-
-          {/* Content Rows */}
-          <div>
-            {flatWBSItems.length === 0 ? (
-              <div 
-                className="flex items-center justify-center h-64 border-b border-slate-100"
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '32px 120px 200px 200px 120px 120px 120px 100px 140px 84px',
-                }}
-              >
-                <div className="col-span-10 flex flex-col items-center justify-center">
-                  <p className="text-sm text-muted-foreground mb-2">No cost items found</p>
-                  <Button size="sm" variant="outline" className="text-xs bg-white/20 border-white/30 text-foreground hover:bg-white/30">
-                    + Add your first cost item
-                  </Button>
+    <div className="flex h-full w-full bg-white overflow-hidden">
+      {/* Left Panel - WBS and Name */}
+      <div className="w-[420px] h-full bg-white border-r border-border flex-shrink-0 overflow-hidden">
+        <div ref={leftScrollRef} className="h-full overflow-y-auto overflow-x-hidden scrollbar-hide" onScroll={handleLeftScroll}>
+          {flatWBSItems.map((item) => (
+            <div
+              key={item.id}
+              className={`grid items-center border-b border-gray-100 ${
+                item.level === 0 
+                  ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                  : item.level === 1
+                  ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                  : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+              } cursor-pointer transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+              style={{
+                gridTemplateColumns: '32px 120px 1fr 40px',
+              }}
+              onClick={(e) => {
+                const target = e.target as HTMLElement;
+                const isNameField = target.closest('[data-field="name"]');
+                if (!isNameField && item.children && item.children.length > 0 && item.level === 0) {
+                  toggleStage(item.id);
+                }
+              }}
+              onMouseEnter={() => setHoveredId(item.id)}
+              onMouseLeave={() => setHoveredId(null)}
+            >
+              {/* Expand/Collapse */}
+              <div className="px-2 h-[1.75rem] flex items-center justify-center">
+                <div className="flex items-center">
+                  {item.level === 0 && item.children && item.children.length > 0 && (
+                    expandedStages.has(item.id) ? (
+                      <ChevronDown className="w-3 h-3 text-gray-700" />
+                    ) : (
+                      <ChevronRight className="w-3 h-3 text-gray-700" />
+                    )
+                  )}
                 </div>
               </div>
-            ) : (
-              flatWBSItems.map((item) => {
-                const isExpanded = expandedStages.has(item.id);
-                
-                return (
-                  <div
-                    key={item.id}
-                    className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${
-                      item.level === 0 
-                        ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800' 
-                        : item.level === 1
-                        ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400'
-                        : 'bg-white border-l-2 border-l-slate-300'
-                    }`}
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '32px 120px 200px 200px 120px 120px 120px 100px 140px 84px',
-                      height: '32px',
-                      alignItems: 'center'
-                    }}
-                  >
-                    {/* Expand/Collapse Icon */}
-                    <div 
-                      className="flex items-center justify-center cursor-pointer"
-                      onClick={() => item.level === 0 ? toggleStage(item.id) : undefined}
-                    >
-                      {item.level === 0 && (
-                        isExpanded ? (
-                          <ChevronDown className="w-4 h-4 text-gray-600" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4 text-gray-600" />
-                        )
-                      )}
-                    </div>
+              
+              {/* WBS Number */}
+              <div className={`px-2 h-[1.75rem] flex items-center ${
+                item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
+              } ${
+                item.level === 0 
+                  ? 'font-black text-gray-800 text-sm tracking-wide' 
+                  : item.level === 1
+                  ? 'font-bold text-gray-700 text-sm'
+                  : 'font-medium text-gray-600 text-xs'
+              }`}>
+                {item.wbs_id}
+              </div>
+              
+              {/* Name */}
+              <div className={`px-3 h-[1.75rem] flex items-center ${
+                item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
+              } ${
+                item.level === 0 
+                  ? 'font-black text-gray-800 text-base tracking-wide' 
+                  : item.level === 1
+                  ? 'font-bold text-gray-700 text-sm'
+                  : 'font-medium text-foreground text-xs'
+              }`}>
+                <div className="flex items-center w-full">
+                  {item.level === 1 && (
+                    <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 flex-shrink-0"></div>
+                  )}
+                  {item.level === 2 && (
+                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2 flex-shrink-0"></div>
+                  )}
+                  <span className="font-medium truncate" data-field="name">
+                    {item.title || 'Untitled Phase'}
+                  </span>
+                </div>
+              </div>
+              
+              {/* Add Child Button */}
+              <div className="px-2 h-[1.75rem] flex items-center">
+                {/* Add button logic here if needed */}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Right Panel - Cost Data */}
+      <div className="flex-1 min-w-0 bg-white overflow-hidden">
+        <div ref={rightScrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full" onScroll={handleRightScroll}>
+          {flatWBSItems.map((item) => (
+            <div
+              key={item.id}
+              className={`grid items-center w-full border-b border-gray-100 ${
+                item.level === 0 
+                  ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                  : item.level === 1
+                  ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                  : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+              } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+              style={{
+                gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 120px 100px 140px 84px',
+              }}
+              onMouseEnter={() => setHoveredId(item.id)}
+              onMouseLeave={() => setHoveredId(null)}
+            >
+              {/* Description */}
+              <div className="px-3 h-[1.75rem] flex items-center text-muted-foreground text-xs">
+                <EditableCell
+                  id={item.id}
+                  field="description"
+                  value={item.description || ''}
+                  placeholder="Add description..."
+                  className="text-xs text-muted-foreground"
+                />
+              </div>
 
-                    {/* WBS Column */}
-                    <div className="flex items-center px-2 text-xs font-mono border-r border-slate-100">
-                      <div style={{ 
-                        paddingLeft: item.level === 0 ? '0px' : item.level === 1 ? '16px' : '32px' 
-                      }}>
-                        {item.wbs_id}
-                      </div>
-                    </div>
+              {/* Budget */}
+              <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground justify-end">
+                <EditableCell
+                  id={item.id}
+                  field="budgeted_cost"
+                  value={item.budgeted_cost || 0}
+                  placeholder="$0"
+                  className="text-xs text-muted-foreground text-right w-full"
+                />
+              </div>
 
-                    {/* Name Column */}
-                    <div className="flex items-center px-3 text-xs border-r border-slate-100">
-                      <div style={{ 
-                        paddingLeft: item.level === 0 ? '0px' : item.level === 1 ? '8px' : '24px' 
-                      }} className="flex items-center w-full">
-                        {item.level === 1 && (
-                          <div className="w-2 h-2 bg-blue-400 rounded-full mr-2 flex-shrink-0"></div>
-                        )}
-                        {item.level === 2 && (
-                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2 flex-shrink-0"></div>
-                        )}
-                        <span className="font-medium truncate">
-                          {item.title || 'Untitled Phase'}
-                        </span>
-                      </div>
-                    </div>
+              {/* Actual */}
+              <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground justify-end">
+                <EditableCell
+                  id={item.id}
+                  field="actual_cost"
+                  value={item.actual_cost || 0}
+                  placeholder="$0"
+                  className="text-xs text-muted-foreground text-right w-full"
+                />
+              </div>
 
-                    {/* Description */}
-                    <div className="flex items-center px-3 text-muted-foreground text-xs border-r border-slate-100">
-                      <EditableCell
-                        id={item.id}
-                        field="description"
-                        value={item.description || ''}
-                        placeholder="Add description..."
-                        className="text-xs text-muted-foreground w-full"
-                      />
-                    </div>
+              {/* Variance */}
+              <div className="px-2 h-[1.75rem] flex items-center text-xs justify-end">
+                <span className="text-green-600">$0</span>
+              </div>
 
-                    {/* Budget */}
-                    <div className="flex items-center justify-end px-2 text-xs text-muted-foreground border-r border-slate-100">
-                      <EditableCell
-                        id={item.id}
-                        field="budgeted_cost"
-                        value={item.budgeted_cost || 0}
-                        placeholder="$0"
-                        className="text-xs text-muted-foreground text-right w-full"
-                      />
-                    </div>
+              {/* Cost Code */}
+              <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
+                <EditableCell
+                  id={item.id}
+                  field="cost_code"
+                  value=""
+                  placeholder="-"
+                  className="text-xs text-muted-foreground w-full"
+                />
+              </div>
 
-                    {/* Actual */}
-                    <div className="flex items-center justify-end px-2 text-xs text-muted-foreground border-r border-slate-100">
-                      <EditableCell
-                        id={item.id}
-                        field="actual_cost"
-                        value={item.actual_cost || 0}
-                        placeholder="$0"
-                        className="text-xs text-muted-foreground text-right w-full"
-                      />
-                    </div>
+              {/* Status */}
+              <div className="px-2 h-[1.75rem] flex items-center">
+                <span className="text-xs text-muted-foreground">-</span>
+              </div>
 
-                    {/* Variance */}
-                    <div className="flex items-center justify-end px-2 text-xs border-r border-slate-100">
-                      <span className={`${((item.budgeted_cost || 0) - (item.actual_cost || 0)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        {formatCurrency(Math.abs((item.budgeted_cost || 0) - (item.actual_cost || 0)))}
-                      </span>
-                    </div>
-
-                    {/* Cost Code */}
-                    <div className="flex items-center px-2 text-xs text-muted-foreground border-r border-slate-100">
-                      <EditableCell
-                        id={item.id}
-                        field="cost_code"
-                        value={''}
-                        placeholder="-"
-                        className="text-xs text-muted-foreground w-full"
-                      />
-                    </div>
-
-                    {/* Status */}
-                    <div className="flex items-center px-2 text-xs text-muted-foreground border-r border-slate-100">
-                      <span className="text-green-600">$0</span>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center justify-center px-2">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                            <MoreHorizontal className="w-3 h-3" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-40">
-                          <DropdownMenuItem>
-                            <Edit2 className="w-3 h-3 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Copy className="w-3 h-3 mr-2" />
-                            Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive focus:text-destructive">
-                            <Trash2 className="w-3 h-3 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
+              {/* Actions */}
+              <div className="px-2 h-[1.75rem] flex items-center justify-center">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                      <MoreHorizontal className="w-3 h-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-40">
+                    <DropdownMenuItem>
+                      <Edit2 className="w-3 h-3 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Copy className="w-3 h-3 mr-2" />
+                      Duplicate
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="text-destructive focus:text-destructive">
+                      <Trash2 className="w-3 h-3 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
