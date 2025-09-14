@@ -355,14 +355,14 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         closeOnClick: false,
         className: 'hover-popup'
       }).setHTML(
-        `<div class="bg-popover/95 backdrop-blur-md border border-border rounded-lg p-3 shadow-lg">
+        `<div class="backdrop-blur-md border border-border rounded-lg p-3 shadow-lg bg-transparent">
           <div class="font-semibold text-foreground cursor-pointer hover:underline" style="color: hsl(var(--primary)); cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</div>
         </div>`
       );
 
       // Create simplified click popup
       const clickPopup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-        `<div class="bg-popover border border-border rounded-lg p-3 shadow-xl">
+        `<div class="backdrop-blur-md border border-border rounded-lg p-3 shadow-xl bg-transparent">
           <h3 class="font-semibold text-foreground cursor-pointer hover:underline" style="cursor: pointer;" onclick="window.projectNavigate('${project.id}')">${project.name}</h3>
         </div>`
       );
