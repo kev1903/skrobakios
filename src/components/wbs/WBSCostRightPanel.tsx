@@ -103,7 +103,7 @@ export const WBSCostRightPanel = ({
               onMouseLeave={() => onRowHover?.(null)}
             >
               {/* Description */}
-              <div className="px-3 flex items-center text-muted-foreground text-xs">
+              <div className="px-3 flex items-center h-full text-muted-foreground text-xs">
                 <EditableCell
                   id={item.id}
                   type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -115,7 +115,7 @@ export const WBSCostRightPanel = ({
               </div>
 
               {/* Budget */}
-              <div className="px-2 flex items-center text-xs text-right">
+              <div className="px-2 flex items-center justify-end h-full text-xs">
                 <EditableCell
                   id={item.id}
                   type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -127,7 +127,7 @@ export const WBSCostRightPanel = ({
               </div>
 
               {/* Committed */}
-              <div className="px-2 flex items-center text-xs text-right">
+              <div className="px-2 flex items-center justify-end h-full text-xs">
                 <EditableCell
                   id={item.id}
                   type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -139,7 +139,7 @@ export const WBSCostRightPanel = ({
               </div>
 
               {/* Paid */}
-              <div className="px-2 flex items-center text-xs text-right">
+              <div className="px-2 flex items-center justify-end h-full text-xs">
                 <EditableCell
                   id={item.id}
                   type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -151,12 +151,12 @@ export const WBSCostRightPanel = ({
               </div>
 
               {/* Remaining - Calculated */}
-              <div className="px-2 flex items-center text-xs text-blue-600 text-right font-medium">
+              <div className="px-2 flex items-center justify-end h-full text-xs text-blue-600 font-medium">
                 {formatCurrency(remaining)}
               </div>
 
               {/* Forecast Final Cost */}
-              <div className="px-2 flex items-center text-xs text-right">
+              <div className="px-2 flex items-center justify-end h-full text-xs">
                 <EditableCell
                   id={item.id}
                   type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -168,14 +168,14 @@ export const WBSCostRightPanel = ({
               </div>
 
               {/* Variance - Calculated */}
-              <div className={`px-2 flex items-center text-xs text-right font-medium ${
+              <div className={`px-2 flex items-center justify-end h-full text-xs font-medium ${
                 variance > 0 ? 'text-red-600' : variance < 0 ? 'text-green-600' : 'text-gray-600'
               }`}>
                 {variance !== 0 && (variance > 0 ? '+' : '')}{formatCurrency(Math.abs(variance))}
               </div>
 
               {/* Status */}
-              <div className="px-2 flex items-center">
+              <div className="px-2 flex items-center h-full">
                 <StatusSelect 
                   value={item.status} 
                   onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
@@ -183,7 +183,7 @@ export const WBSCostRightPanel = ({
               </div>
 
               {/* Notes */}
-              <div className="px-2 flex items-center text-xs">
+              <div className="px-2 flex items-center h-full text-xs">
                 <EditableCell
                   id={item.id}
                   type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}

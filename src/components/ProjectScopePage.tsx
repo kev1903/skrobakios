@@ -1429,33 +1429,33 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                      
                      {/* Table Headers Row */}
                      <div className="bg-slate-100/70 border-t border-slate-200 flex">
-                       {/* Left Panel Header */}
-                       <div className="w-[420px] px-2 py-1 text-xs font-medium text-slate-700 border-r border-border">
-                         <div className="grid items-center" style={{
-                           gridTemplateColumns: '32px 120px 1fr',
-                         }}>
-                           <div></div>
-                           <div className="px-2 font-semibold">WBS</div>
-                           <div className="px-3 font-semibold">NAME</div>
-                         </div>
-                       </div>
-                       
-                        {/* Right Panel Header */}
-                        <div className="flex-1 px-2 py-1 text-xs font-medium text-slate-700">
-                          <div className="grid items-center" style={{
-                            gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+                        {/* Left Panel Header */}
+                        <div className="w-[420px] py-2 text-xs font-medium text-slate-700 border-r border-border">
+                          <div className="grid items-center h-7" style={{
+                            gridTemplateColumns: '32px 120px 1fr',
                           }}>
-                            <div className="px-3 font-semibold">DESCRIPTION</div>
-                            <div className="px-2 font-semibold text-right">BUDGET</div>
-                            <div className="px-2 font-semibold text-right">COMMITTED</div>
-                            <div className="px-2 font-semibold text-right">PAID</div>
-                            <div className="px-2 font-semibold text-right">REMAINING</div>
-                            <div className="px-2 font-semibold text-right">FORECAST FINAL</div>
-                            <div className="px-2 font-semibold text-right">VARIANCE</div>
-                            <div className="px-2 font-semibold">STATUS</div>
-                            <div className="px-2 font-semibold">NOTES</div>
+                            <div></div>
+                            <div className="px-2 font-semibold flex items-center h-full">WBS</div>
+                            <div className="px-3 font-semibold flex items-center h-full">NAME</div>
                           </div>
                         </div>
+                        
+                         {/* Right Panel Header */}
+                         <div className="flex-1 py-2 text-xs font-medium text-slate-700">
+                           <div className="grid items-center h-7" style={{
+                             gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+                           }}>
+                             <div className="px-3 font-semibold flex items-center h-full">DESCRIPTION</div>
+                             <div className="px-2 font-semibold text-right flex items-center justify-end h-full">BUDGET</div>
+                             <div className="px-2 font-semibold text-right flex items-center justify-end h-full">COMMITTED</div>
+                             <div className="px-2 font-semibold text-right flex items-center justify-end h-full">PAID</div>
+                             <div className="px-2 font-semibold text-right flex items-center justify-end h-full">REMAINING</div>
+                             <div className="px-2 font-semibold text-right flex items-center justify-end h-full">FORECAST FINAL</div>
+                             <div className="px-2 font-semibold text-right flex items-center justify-end h-full">VARIANCE</div>
+                             <div className="px-2 font-semibold flex items-center h-full">STATUS</div>
+                             <div className="px-2 font-semibold flex items-center h-full">NOTES</div>
+                           </div>
+                         </div>
                      </div>
                    </div>
 
