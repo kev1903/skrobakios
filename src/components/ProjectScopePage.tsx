@@ -1192,7 +1192,28 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         <span className="text-xs font-medium text-foreground font-inter">{calculateOverallProgress()}%</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between gap-4 flex-1">
+                    <div className="flex items-center justify-between gap-6 flex-1">
+                      {/* Tab-specific buttons section */}
+                      <div className="flex items-center gap-2">
+                        {activeTab === 'scope' && (
+                          <Button size="sm" onClick={() => addNewPhase()}>
+                            <Plus className="w-3 h-3 mr-1" />
+                            Add Phase
+                          </Button>
+                        )}
+                        {activeTab === 'time' && (
+                          <div className="flex items-center gap-2">
+                            {/* Time-specific buttons can go here */}
+                          </div>
+                        )}
+                        {activeTab === 'cost' && (
+                          <div className="flex items-center gap-2">
+                            {/* Cost-specific buttons can go here */}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Common buttons section */}
                       <div className="flex items-center gap-2">
                         <Button variant="outline" size="sm" onClick={collapseAll} title="Collapse All">
                           <ChevronsUp className="w-4 h-4" />
@@ -1206,14 +1227,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         <Button variant="outline" size="sm" onClick={() => {}} title="Critical Path">
                           <span className="text-xs font-medium">Critical Path</span>
                         </Button>
-                        {activeTab === 'scope' && (
-                          <Button size="sm" onClick={() => addNewPhase()}>
-                            <Plus className="w-3 h-3 mr-1" />
-                            Add Phase
-                          </Button>
-                        )}
-                      </div>
-                      <div className="flex items-center">
                         <Button variant="outline" size="sm" onClick={() => {}} title="Settings">
                           <Settings className="w-4 h-4" />
                         </Button>
