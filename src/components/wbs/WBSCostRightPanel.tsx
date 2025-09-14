@@ -174,13 +174,13 @@ export const WBSCostRightPanel = ({
                 {variance !== 0 && (variance > 0 ? '+' : '')}{formatCurrency(Math.abs(variance))}
               </div>
 
-              {/* Status */}
-              <div className="px-2 flex items-center h-full">
-                <StatusSelect 
-                  value={item.status} 
-                  onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
-                />
-              </div>
+               {/* Status */}
+               <div className="px-2 flex items-center justify-center h-full">
+                 <StatusSelect 
+                   value={item.status} 
+                   onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
+                 />
+               </div>
 
               {/* Notes */}
               <div className="px-2 flex items-center h-full text-xs">
