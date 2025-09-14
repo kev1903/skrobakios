@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronRight, MoreHorizontal, Edit2, Copy, Trash2 } from 'lucide-react';
+import { ChevronDown, ChevronRight, MoreHorizontal, Edit2, Copy, Trash2, GripVertical, Plus } from 'lucide-react';
 import { CentralTask, TaskUpdate } from '@/services/centralTaskService';
 import { WBSItem } from '@/types/wbs';
 import {
@@ -30,7 +30,7 @@ export const TaskCostTable = ({
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
 
-  // Create flat list like SCOPE tab
+  // Create flat list like SCOPE tab - exactly the same filter logic
   const flatWBSItems = (wbsItems || []).filter(item => 
     item.level === 0 || expandedStages.has(getStageId(item))
   );
@@ -63,7 +63,7 @@ export const TaskCostTable = ({
     setExpandedStages(newExpanded);
   };
 
-  // Scroll synchronization like SCOPE tab
+  // Scroll synchronization exactly like SCOPE tab
   const handleRightScroll = useCallback(() => {
     if (leftScrollRef.current && rightScrollRef.current) {
       leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
@@ -147,7 +147,7 @@ export const TaskCostTable = ({
 
   return (
     <div className="flex h-full w-full bg-white overflow-hidden">
-      {/* Left Panel - WBS and Name */}
+      {/* Left Panel - WBS and Name - EXACTLY like WBSLeftPanel */}
       <div className="w-[420px] h-full bg-white border-r border-border flex-shrink-0 overflow-hidden">
         <div ref={leftScrollRef} className="h-full overflow-y-auto overflow-x-hidden scrollbar-hide" onScroll={handleLeftScroll}>
           {flatWBSItems.map((item) => (
@@ -173,9 +173,17 @@ export const TaskCostTable = ({
               onMouseEnter={() => setHoveredId(item.id)}
               onMouseLeave={() => setHoveredId(null)}
             >
-              {/* Expand/Collapse */}
+              {/* Expand/Collapse Icon */}
               <div className="px-2 h-[1.75rem] flex items-center justify-center">
                 <div className="flex items-center">
+                  <div
+                    className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 mr-1 ${
+                      item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-8' : ''
+                    } hover:bg-accent/20`}
+                    title="Drag to reorder"
+                  >
+                    <GripVertical className="w-3 h-3 text-muted-foreground" />
+                  </div>
                   {item.level === 0 && item.children && item.children.length > 0 && (
                     expandedStages.has(item.id) ? (
                       <ChevronDown className="w-3 h-3 text-gray-700" />
@@ -224,14 +232,28 @@ export const TaskCostTable = ({
               
               {/* Add Child Button */}
               <div className="px-2 h-[1.75rem] flex items-center">
-                {/* Add button logic here if needed */}
+                {item.level < 2 && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      // Add child logic here if needed
+                    }}
+                    className="h-6 w-6 p-0 hover:bg-primary/10"
+                    title={item.level === 0 ? "Add Component" : "Add Element"}
+                  >
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                )}
               </div>
             </div>
           ))}
         </div>
       </div>
       
-      {/* Right Panel - Cost Data */}
+      {/* Right Panel - Cost Data - EXACTLY like WBSTimeRightPanel */}
       <div className="flex-1 min-w-0 bg-white overflow-hidden">
         <div ref={rightScrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full" onScroll={handleRightScroll}>
           {flatWBSItems.map((item) => (
