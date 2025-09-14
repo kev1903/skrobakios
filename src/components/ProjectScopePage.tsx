@@ -1422,84 +1422,46 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </div>
               </TabsContent>
 
-              <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex">
-                <div className="h-full w-full flex flex-col min-h-0">
-                   {/* Combined Header with Table Headers */}
-                   <div className="bg-background border-b border-border">
-                     
-                     {/* Table Headers Row */}
-                     <div className="bg-slate-100/70 border-t border-slate-200 flex">
-                         {/* Left Panel Header */}
-                         <div className="w-[420px] text-xs font-medium text-slate-700 border-r border-border">
-                           <div className="grid items-center" style={{
-                             gridTemplateColumns: '32px 120px 1fr 40px',
-                             height: '1.75rem',
-                           }}>
-                             <div></div>
-                             <div className="px-2 font-semibold flex items-center h-full">WBS</div>
-                             <div className="px-3 font-semibold flex items-center h-full">NAME</div>
-                             <div></div>
-                           </div>
-                         </div>
-                         
-                          {/* Right Panel Header */}
-                          <div className="flex-1 text-xs font-medium text-slate-700">
-                            <div className="grid items-center" style={{
-                              gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
-                              height: '1.75rem',
-                            }}>
-                              <div className="px-3 font-semibold flex items-center h-full">DESCRIPTION</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">BUDGET</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">COMMITTED</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">PAID</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">REMAINING</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">FORECAST FINAL</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">VARIANCE</div>
-                              <div className="px-2 font-semibold flex items-center justify-center h-full">STATUS</div>
-                              <div className="px-2 font-semibold flex items-center h-full">NOTES</div>
-                            </div>
-                          </div>
-                     </div>
-                   </div>
-
-                   {loading && wbsItems.length === 0 ? (
-                     <div className="flex items-center justify-center h-64">
-                       <div className="text-center">
-                         <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
-                         <div className="text-sm text-muted-foreground">Loading WBS...</div>
-                       </div>
-                     </div>
-                   ) : error ? (
-                     <div className="flex items-center justify-center h-64">
-                       <div className="text-center">
-                         <div className="text-sm text-destructive mb-2">Error loading WBS</div>
-                         <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                           Retry
-                         </Button>
-                       </div>
-                     </div>
-                   ) : (
-                     <div className="flex-1 min-w-0 overflow-y-auto">
-                      <WBSCostView
-                        items={flatWBSItems}
-                        onToggleExpanded={(itemId) => {
-                          const item = wbsItems.find(i => i.id === itemId);
-                          if (item) {
-                            updateWBSItem(itemId, { is_expanded: !item.is_expanded });
-                          }
-                        }}
-                        onDragEnd={onDragEnd}
-                        onItemUpdate={updateWBSItem}
-                        onAddChild={addChildItem}
-                        onContextMenuAction={handleContextMenuAction}
-                        onOpenNotesDialog={openNotesDialog}
-                        dragIndicator={dragIndicator}
-                        EditableCell={EditableCell}
-                        StatusSelect={StatusSelect}
-                        generateWBSNumber={generateWBSNumber}
-                      />
-                     </div>
-                   )}
+               <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex">
+                 <div className="h-full w-full flex flex-col min-h-0">
+                    {loading && wbsItems.length === 0 ? (
+                      <div className="flex items-center justify-center h-64">
+                        <div className="text-center">
+                          <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
+                          <div className="text-sm text-muted-foreground">Loading WBS...</div>
+                        </div>
+                      </div>
+                    ) : error ? (
+                      <div className="flex items-center justify-center h-64">
+                        <div className="text-center">
+                          <div className="text-sm text-destructive mb-2">Error loading WBS</div>
+                          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                            Retry
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex-1 min-w-0 overflow-y-auto">
+                       <WBSCostView
+                         items={flatWBSItems}
+                         onToggleExpanded={(itemId) => {
+                           const item = wbsItems.find(i => i.id === itemId);
+                           if (item) {
+                             updateWBSItem(itemId, { is_expanded: !item.is_expanded });
+                           }
+                         }}
+                         onDragEnd={onDragEnd}
+                         onItemUpdate={updateWBSItem}
+                         onAddChild={addChildItem}
+                         onContextMenuAction={handleContextMenuAction}
+                         onOpenNotesDialog={openNotesDialog}
+                         dragIndicator={dragIndicator}
+                         EditableCell={EditableCell}
+                         StatusSelect={StatusSelect}
+                         generateWBSNumber={generateWBSNumber}
+                       />
+                      </div>
+                    )}
                  </div>
                </TabsContent>
               </div>

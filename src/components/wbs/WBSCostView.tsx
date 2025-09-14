@@ -78,18 +78,41 @@ export const WBSCostView = ({
         onRowHover={setHoveredId}
       />
       
-      <WBSCostRightPanel
-        items={items}
-        onItemUpdate={onItemUpdate}
-        onContextMenuAction={onContextMenuAction}
-        onOpenNotesDialog={onOpenNotesDialog}
-        EditableCell={EditableCell}
-        StatusSelect={StatusSelect}
-        scrollRef={rightScrollRef}
-        onScroll={handleRightScroll}
-        hoveredId={hoveredId}
-        onRowHover={setHoveredId}
-      />
+      <div className="flex-1 min-w-0 bg-white overflow-hidden">
+        {/* Cost Table Header - matches data row structure exactly */}
+        <div className="sticky top-0 bg-gray-50 border-b border-gray-200 z-10">
+          <div
+            className="grid items-center w-full text-xs font-medium text-gray-600"
+            style={{
+              gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+              height: '1.75rem',
+            }}
+          >
+            <div className="px-3 flex items-center h-full font-semibold">DESCRIPTION</div>
+            <div className="px-2 flex items-center justify-end h-full font-semibold">BUDGET</div>
+            <div className="px-2 flex items-center justify-end h-full font-semibold">COMMITTED</div>
+            <div className="px-2 flex items-center justify-end h-full font-semibold">PAID</div>
+            <div className="px-2 flex items-center justify-end h-full font-semibold">REMAINING</div>
+            <div className="px-2 flex items-center justify-end h-full font-semibold">FORECAST FINAL</div>
+            <div className="px-2 flex items-center justify-end h-full font-semibold">VARIANCE</div>
+            <div className="px-2 flex items-center justify-center h-full font-semibold">STATUS</div>
+            <div className="px-2 flex items-center h-full font-semibold">NOTES</div>
+          </div>
+        </div>
+        
+        <WBSCostRightPanel
+          items={items}
+          onItemUpdate={onItemUpdate}
+          onContextMenuAction={onContextMenuAction}
+          onOpenNotesDialog={onOpenNotesDialog}
+          EditableCell={EditableCell}
+          StatusSelect={StatusSelect}
+          scrollRef={rightScrollRef}
+          onScroll={handleRightScroll}
+          hoveredId={hoveredId}
+          onRowHover={setHoveredId}
+        />
+      </div>
     </div>
   );
 };
