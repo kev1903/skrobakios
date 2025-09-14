@@ -1435,10 +1435,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                              gridTemplateColumns: '32px 120px 1fr 40px',
                              height: '1.75rem',
                            }}>
-                             <div></div>
+                             <div className="px-2 flex items-center justify-center h-full"></div>
                              <div className="px-2 font-semibold flex items-center h-full">WBS</div>
                              <div className="px-3 font-semibold flex items-center h-full">NAME</div>
-                             <div></div>
+                             <div className="flex items-center h-full"></div>
                            </div>
                          </div>
                          
