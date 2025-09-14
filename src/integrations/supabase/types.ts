@@ -2670,6 +2670,7 @@ export type Database = {
           company: string | null
           company_slogan: string | null
           created_at: string
+          data_processing_consent: boolean | null
           email: string | null
           first_login_at: string | null
           first_name: string | null
@@ -2682,12 +2683,14 @@ export type Database = {
           meta_title: string | null
           password_change_required: boolean | null
           phone: string | null
+          privacy_level: string | null
           professional_title: string | null
           public_profile: boolean | null
           qualifications: string[] | null
           rating: number | null
           review_count: number | null
           services: string[] | null
+          show_birth_date: boolean | null
           show_email: boolean | null
           show_location: boolean | null
           show_phone: boolean | null
@@ -2710,6 +2713,7 @@ export type Database = {
           company?: string | null
           company_slogan?: string | null
           created_at?: string
+          data_processing_consent?: boolean | null
           email?: string | null
           first_login_at?: string | null
           first_name?: string | null
@@ -2722,12 +2726,14 @@ export type Database = {
           meta_title?: string | null
           password_change_required?: boolean | null
           phone?: string | null
+          privacy_level?: string | null
           professional_title?: string | null
           public_profile?: boolean | null
           qualifications?: string[] | null
           rating?: number | null
           review_count?: number | null
           services?: string[] | null
+          show_birth_date?: boolean | null
           show_email?: boolean | null
           show_location?: boolean | null
           show_phone?: boolean | null
@@ -2750,6 +2756,7 @@ export type Database = {
           company?: string | null
           company_slogan?: string | null
           created_at?: string
+          data_processing_consent?: boolean | null
           email?: string | null
           first_login_at?: string | null
           first_name?: string | null
@@ -2762,12 +2769,14 @@ export type Database = {
           meta_title?: string | null
           password_change_required?: boolean | null
           phone?: string | null
+          privacy_level?: string | null
           professional_title?: string | null
           public_profile?: boolean | null
           qualifications?: string[] | null
           rating?: number | null
           review_count?: number | null
           services?: string[] | null
+          show_birth_date?: boolean | null
           show_email?: boolean | null
           show_location?: boolean | null
           show_phone?: boolean | null
@@ -6067,6 +6076,14 @@ export type Database = {
         Args: { invitation_token: string }
         Returns: Json
       }
+      can_access_profile_data: {
+        Args: {
+          data_type?: string
+          requesting_user_id?: string
+          target_user_id: string
+        }
+        Returns: boolean
+      }
       can_access_project_contracts: {
         Args: { project_id_param: string }
         Returns: boolean
@@ -6424,6 +6441,33 @@ export type Database = {
         }[]
       }
       get_safe_public_profile_data: {
+        Args: { profile_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          company: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          location: string
+          meta_description: string
+          meta_title: string
+          phone: string
+          professional_title: string
+          rating: number
+          review_count: number
+          services: string[]
+          skills: string[]
+          slug: string
+          social_links: Json
+          user_id: string
+          verified: boolean
+          website: string
+          years_experience: number
+        }[]
+      }
+      get_secure_public_profile: {
         Args: { profile_user_id: string }
         Returns: {
           avatar_url: string
