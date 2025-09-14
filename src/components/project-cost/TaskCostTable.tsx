@@ -125,36 +125,36 @@ export const TaskCostTable = ({
       </div>
 
       {/* Airtable-style Table */}
-      <div className="w-full">
-        <table className="w-full">
+      <div className="w-full overflow-x-auto">
+        <table className="w-full table-fixed">
           {/* Table Headers */}
           <thead className="bg-white/20 border-b border-white/20">
             <tr>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-20">
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-3 border-r border-white/20" style={{ width: '80px' }}>
                 WBS
               </th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-64">
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-3 border-r border-white/20" style={{ width: '200px' }}>
                 NAME
               </th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-40">
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-3 border-r border-white/20" style={{ width: '180px' }}>
                 DESCRIPTION
               </th>
-              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-32">
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-3 border-r border-white/20" style={{ width: '100px' }}>
                 BUDGET
               </th>
-              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-32">
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-3 border-r border-white/20" style={{ width: '100px' }}>
                 ACTUAL
               </th>
-              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-32">
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-3 border-r border-white/20" style={{ width: '100px' }}>
                 VARIANCE
               </th>
-              <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-24">
+              <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-3 border-r border-white/20" style={{ width: '90px' }}>
                 COST CODE
               </th>
-              <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-24">
+              <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-3 border-r border-white/20" style={{ width: '80px' }}>
                 STATUS
               </th>
-              <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 w-24">
+              <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 py-3" style={{ width: '90px' }}>
                 ACTIONS
               </th>
             </tr>
@@ -194,7 +194,7 @@ export const TaskCostTable = ({
                       className="bg-gray-100 border-b border-gray-200 hover:bg-gray-200 cursor-pointer transition-colors"
                       onClick={() => toggleStage(stageKey)}
                     >
-                      <td className="px-4 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 w-20">
+                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200" style={{ width: '80px' }}>
                         <div className="flex items-center">
                           {isExpanded ? (
                             <ChevronDown className="w-4 h-4 mr-2 text-gray-600" />
@@ -204,7 +204,7 @@ export const TaskCostTable = ({
                           <span className="font-mono">{stageData.stage.wbs_id || '1'}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 w-64">
+                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200" style={{ width: '200px' }}>
                         <div className="flex items-center">
                           <span>{stageData.stage.title || 'Untitled Phase'}</span>
                           <span className="ml-2 px-2 py-1 bg-gray-200 rounded text-xs text-gray-600">
@@ -212,27 +212,27 @@ export const TaskCostTable = ({
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-700 border-r border-gray-200 w-40">
+                      <td className="px-3 py-3 text-xs text-gray-700 border-r border-gray-200" style={{ width: '180px' }}>
                         <span className="text-muted-foreground">Add description...</span>
                       </td>
-                      <td className="px-4 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right w-32">
+                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right" style={{ width: '100px' }}>
                         {formatCurrency(stageTotal)}
                       </td>
-                      <td className="px-4 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right w-32">
+                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right" style={{ width: '100px' }}>
                         {formatCurrency(stageActualTotal)}
                       </td>
-                      <td className="px-4 py-3 text-xs font-semibold border-r border-gray-200 text-right w-32">
+                      <td className="px-3 py-3 text-xs font-semibold border-r border-gray-200 text-right" style={{ width: '100px' }}>
                         <span className={`${(stageTotal - stageActualTotal) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {formatCurrency(Math.abs(stageTotal - stageActualTotal))}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-xs text-center border-r border-gray-200 w-24">
+                      <td className="px-3 py-3 text-xs text-center border-r border-gray-200" style={{ width: '90px' }}>
                         <span className="text-muted-foreground">-</span>
                       </td>
-                      <td className="px-4 py-3 text-xs text-center border-r border-gray-200 w-24">
+                      <td className="px-3 py-3 text-xs text-center border-r border-gray-200" style={{ width: '80px' }}>
                         <span className="text-green-600">$0</span>
                       </td>
-                      <td className="px-4 py-3 text-xs text-center w-24">
+                      <td className="px-3 py-3 text-xs text-center" style={{ width: '90px' }}>
                         <span className="text-muted-foreground">-</span>
                       </td>
                     </tr>
@@ -249,26 +249,29 @@ export const TaskCostTable = ({
                       rows.push(
                         <tr key={`component-${component.id}`} className="border-b border-gray-100 hover:bg-blue-50/30 transition-colors group bg-blue-50/10">
                           {/* WBS Code */}
-                          <td className="px-4 py-2 text-xs text-gray-700 border-r border-gray-100 font-mono w-20">
-                            {component.wbs_id}
+                          <td className="px-3 py-2 text-xs text-gray-700 border-r border-gray-100 font-mono" style={{ width: '80px' }}>
+                            <div className="pl-4">
+                              {component.wbs_id}
+                            </div>
                           </td>
 
                           {/* Name */}
-                          <td className="px-4 py-2 border-r border-gray-100 text-xs text-gray-800 font-medium w-64">
-                            <div className="flex items-center">
+                          <td className="px-3 py-2 border-r border-gray-100 text-xs text-gray-800 font-medium" style={{ width: '200px' }}>
+                            <div className="flex items-center pl-2">
                               <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
-                              {component.title || 'Untitled Component'}
+                              <span className="truncate">{component.title || 'Untitled Component'}</span>
                             </div>
                           </td>
 
                           {/* Description */}
-                          <td className="px-4 py-2 text-xs text-gray-700 border-r border-gray-100 w-40">
-                            <span className="text-muted-foreground">Add description...</span>
+                          <td className="px-3 py-2 text-xs text-gray-700 border-r border-gray-100" style={{ width: '180px' }}>
+                            <span className="text-muted-foreground truncate">Add description...</span>
                           </td>
 
                           {/* Budget */}
                           <td 
-                            className="px-4 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors w-32"
+                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors"
+                            style={{ width: '100px' }}
                             onClick={() => handleCellClick(component.id, 'budgeted_cost', budgeted)}
                           >
                             {isEditingBudgeted ? (
@@ -290,7 +293,8 @@ export const TaskCostTable = ({
 
                           {/* Actual */}
                           <td 
-                            className="px-4 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors w-32"
+                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors"
+                            style={{ width: '100px' }}
                             onClick={() => handleCellClick(component.id, 'actual_cost', actual)}
                           >
                             {isEditingActual ? (
@@ -311,24 +315,24 @@ export const TaskCostTable = ({
                           </td>
 
                           {/* Variance */}
-                          <td className="px-4 py-2 text-xs border-r border-gray-100 text-right w-32">
+                          <td className="px-3 py-2 text-xs border-r border-gray-100 text-right" style={{ width: '100px' }}>
                             <span className={`${(budgeted - actual) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                               {formatCurrency(Math.abs(budgeted - actual))}
                             </span>
                           </td>
 
                           {/* Cost Code */}
-                          <td className="px-4 py-2 text-xs text-center border-r border-gray-100 w-24">
+                          <td className="px-3 py-2 text-xs text-center border-r border-gray-100" style={{ width: '90px' }}>
                             <span className="text-muted-foreground">-</span>
                           </td>
 
                           {/* Status */}
-                          <td className="px-4 py-2 text-xs text-center border-r border-gray-100 w-24">
+                          <td className="px-3 py-2 text-xs text-center border-r border-gray-100" style={{ width: '80px' }}>
                             <span className="text-green-600">$0</span>
                           </td>
 
                           {/* Actions */}
-                          <td className="px-4 py-2 text-xs text-center w-24">
+                          <td className="px-3 py-2 text-xs text-center" style={{ width: '90px' }}>
                             <span className="text-muted-foreground">-</span>
                           </td>
                         </tr>
@@ -345,13 +349,15 @@ export const TaskCostTable = ({
                       rows.push(
                         <tr key={`element-${element.id}`} className="border-b border-gray-100 hover:bg-green-50/30 transition-colors group bg-green-50/10">
                           {/* WBS Code */}
-                          <td className="px-4 py-2 text-xs text-gray-600 border-r border-gray-100 font-mono w-20 pl-8">
-                            {element.wbs_id}
+                          <td className="px-3 py-2 text-xs text-gray-600 border-r border-gray-100 font-mono" style={{ width: '80px' }}>
+                            <div className="pl-8">
+                              {element.wbs_id}
+                            </div>
                           </td>
 
                           {/* Name */}
-                          <td className="px-4 py-2 text-xs text-gray-700 border-r border-gray-100 w-64 pl-8">
-                            <div className="flex items-center">
+                          <td className="px-3 py-2 text-xs text-gray-700 border-r border-gray-100" style={{ width: '200px' }}>
+                            <div className="flex items-center pl-6">
                               <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2"></div>
                               <div className="truncate" title={element.title}>
                                 {element.title || 'Untitled Element'}
@@ -360,13 +366,14 @@ export const TaskCostTable = ({
                           </td>
 
                           {/* Description */}
-                          <td className="px-4 py-2 text-xs text-gray-700 border-r border-gray-100 w-40">
-                            <span className="text-muted-foreground">Add description...</span>
+                          <td className="px-3 py-2 text-xs text-gray-700 border-r border-gray-100" style={{ width: '180px' }}>
+                            <span className="text-muted-foreground truncate">Add description...</span>
                           </td>
 
                           {/* Budget */}
                           <td 
-                            className="px-4 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors w-32"
+                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors"
+                            style={{ width: '100px' }}
                             onClick={() => handleCellClick(element.id, 'budgeted_cost', budgeted)}
                           >
                             {isEditingBudgeted ? (
@@ -388,7 +395,8 @@ export const TaskCostTable = ({
 
                           {/* Actual */}
                           <td 
-                            className="px-4 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors w-32"
+                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors"
+                            style={{ width: '100px' }}
                             onClick={() => handleCellClick(element.id, 'actual_cost', actual)}
                           >
                             {isEditingActual ? (
@@ -409,24 +417,24 @@ export const TaskCostTable = ({
                           </td>
 
                           {/* Variance */}
-                          <td className="px-4 py-2 text-xs border-r border-gray-100 text-right w-32">
+                          <td className="px-3 py-2 text-xs border-r border-gray-100 text-right" style={{ width: '100px' }}>
                             <span className={`${(budgeted - actual) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                               {formatCurrency(Math.abs(budgeted - actual))}
                             </span>
                           </td>
 
                           {/* Cost Code */}
-                          <td className="px-4 py-2 text-xs text-center border-r border-gray-100 w-24">
+                          <td className="px-3 py-2 text-xs text-center border-r border-gray-100" style={{ width: '90px' }}>
                             <span className="text-muted-foreground">-</span>
                           </td>
 
                           {/* Status */}
-                          <td className="px-4 py-2 text-xs text-center border-r border-gray-100 w-24">
+                          <td className="px-3 py-2 text-xs text-center border-r border-gray-100" style={{ width: '80px' }}>
                             <span className="text-green-600">$0</span>
                           </td>
 
                           {/* Actions */}
-                          <td className="px-4 py-2 text-xs text-center w-24">
+                          <td className="px-3 py-2 text-xs text-center" style={{ width: '90px' }}>
                             <span className="text-muted-foreground">-</span>
                           </td>
                         </tr>
