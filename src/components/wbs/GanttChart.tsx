@@ -222,14 +222,14 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
             return (
               <div
                 key={item.id}
-                className={`relative transition-colors duration-150 ${
+                className={`grid items-center relative transition-colors duration-150 ${
                   item.level === 0
                     ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100'
                     : item.level === 1
                     ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
                     : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
                 } border-b border-gray-100 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
-                style={{ height: `${rowHeight}px` }}
+                style={{ height: '1.75rem' }}
                 onMouseEnter={() => onRowHover?.(item.id)}
                 onMouseLeave={() => onRowHover?.(null)}
               >
@@ -259,7 +259,8 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                         className="absolute cursor-pointer group z-20"
                         style={{
                           left: position.left + 8,
-                          top: rowHeight / 2 - 8,
+                          top: '50%',
+                          transform: 'translateY(-50%)',
                           width: Math.max(40, position.width - 16),
                           height: 16
                         }}
@@ -312,7 +313,8 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                         className="absolute cursor-pointer group z-20"
                         style={{
                           left: position.left + 8,
-                          top: rowHeight / 2 - 1,
+                          top: '50%',
+                          transform: 'translateY(-50%)',
                           width: Math.max(40, position.width - 16),
                           height: 2
                         }}
@@ -371,7 +373,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                           left: position.left + 4,
                           top: 2,
                           width: Math.max(32, position.width - 8),
-                          height: rowHeight - 4
+                          height: 'calc(1.75rem - 4px)'
                         }}
                         title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
                       >
