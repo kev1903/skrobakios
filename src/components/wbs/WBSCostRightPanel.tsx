@@ -53,100 +53,101 @@ export const WBSCostRightPanel = ({
       {/* Content */}
       <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full" onScroll={onScroll}>
         {items.map((item) => (
-          <div
-            key={item.id}
-            className={`grid items-center w-full border-b border-gray-100 ${
-              item.level === 0 
-                ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
-                : item.level === 1
-                ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
-                : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-            } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
-          style={{
-            gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 120px 100px 140px 84px',
-          }}
-          onMouseEnter={() => onRowHover?.(item.id)}
-          onMouseLeave={() => onRowHover?.(null)}
-          >
-            <div className="px-3 h-[1.75rem] flex items-center text-muted-foreground text-xs">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="description"
-                value={item.description || ''}
-                placeholder="Add description..."
-                className="text-xs text-muted-foreground"
-              />
-            </div>
+           <div
+             key={item.id}
+             className={`grid items-center w-full border-b border-gray-100 ${
+               item.level === 0 
+                 ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                 : item.level === 1
+                 ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                 : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+             } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+           style={{
+             gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 120px 100px 140px 84px',
+             height: '1.75rem',
+           }}
+           onMouseEnter={() => onRowHover?.(item.id)}
+           onMouseLeave={() => onRowHover?.(null)}
+           >
+             <div className="px-3 flex items-center text-muted-foreground text-xs">
+               <EditableCell
+                 id={item.id}
+                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                 field="description"
+                 value={item.description || ''}
+                 placeholder="Add description..."
+                 className="text-xs text-muted-foreground"
+               />
+             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground text-right">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="budgeted_cost"
-                value=""
-                placeholder="$0"
-                className="text-xs text-muted-foreground text-right w-full"
-              />
-            </div>
+             <div className="px-2 flex items-center text-xs text-muted-foreground text-right">
+               <EditableCell
+                 id={item.id}
+                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                 field="budgeted_cost"
+                 value=""
+                 placeholder="$0"
+                 className="text-xs text-muted-foreground text-right w-full"
+               />
+             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground text-right">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="actual_cost"
-                value=""
-                placeholder="$0"
-                className="text-xs text-muted-foreground text-right w-full"
-              />
-            </div>
+             <div className="px-2 flex items-center text-xs text-muted-foreground text-right">
+               <EditableCell
+                 id={item.id}
+                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                 field="actual_cost"
+                 value=""
+                 placeholder="$0"
+                 className="text-xs text-muted-foreground text-right w-full"
+               />
+             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center text-xs text-success text-right">
-              $0
-            </div>
+             <div className="px-2 flex items-center text-xs text-success text-right">
+               $0
+             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="cost_code"
-                value=""
-                placeholder="-"
-                className="text-xs text-muted-foreground"
-              />
-            </div>
+             <div className="px-2 flex items-center text-xs text-muted-foreground">
+               <EditableCell
+                 id={item.id}
+                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                 field="cost_code"
+                 value=""
+                 placeholder="-"
+                 className="text-xs text-muted-foreground"
+               />
+             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center">
-              <StatusSelect 
-                value={item.status} 
-                onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
-              />
-            </div>
+             <div className="px-2 flex items-center">
+               <StatusSelect 
+                 value={item.status} 
+                 onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
+               />
+             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center justify-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                    <MoreHorizontal className="w-3 h-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuItem onClick={() => onContextMenuAction('edit', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}>
-                    <Edit2 className="w-3 h-3 mr-2" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onContextMenuAction('duplicate', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}>
-                    <Copy className="w-3 h-3 mr-2" />
-                    Duplicate
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')} className="text-destructive focus:text-destructive">
-                    <Trash2 className="w-3 h-3 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+             <div className="px-2 flex items-center justify-center">
+               <DropdownMenu>
+                 <DropdownMenuTrigger asChild>
+                   <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                     <MoreHorizontal className="w-3 h-3" />
+                   </Button>
+                 </DropdownMenuTrigger>
+                 <DropdownMenuContent align="end" className="w-40">
+                   <DropdownMenuItem onClick={() => onContextMenuAction('edit', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}>
+                     <Edit2 className="w-3 h-3 mr-2" />
+                     Edit
+                   </DropdownMenuItem>
+                   <DropdownMenuItem onClick={() => onContextMenuAction('duplicate', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}>
+                     <Copy className="w-3 h-3 mr-2" />
+                     Duplicate
+                   </DropdownMenuItem>
+                   <DropdownMenuSeparator />
+                   <DropdownMenuItem onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')} className="text-destructive focus:text-destructive">
+                     <Trash2 className="w-3 h-3 mr-2" />
+                     Delete
+                   </DropdownMenuItem>
+                 </DropdownMenuContent>
+               </DropdownMenu>
+             </div>
           </div>
         ))}
       </div>
