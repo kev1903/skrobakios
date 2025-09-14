@@ -67,22 +67,23 @@ export const WBSLeftPanel = ({
                       <Draggable draggableId={item.id} index={index}>
                         {(dragProvided, snapshot) => (
                           <DragPortalWrapper isDragging={snapshot.isDragging}>
-                            <div
-                              ref={dragProvided.innerRef}
-                              {...dragProvided.draggableProps}
+                             <div
+                               ref={dragProvided.innerRef}
+                               {...dragProvided.draggableProps}
                  className={`grid items-center border-b border-gray-100 ${
-                  item.level === 0 
-                    ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
-                    : item.level === 1
-                    ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
-                    : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-                } cursor-pointer transition-all duration-200 ${
-                  snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
-                } ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
-                              style={{
-                                gridTemplateColumns: '32px 120px 1fr 40px',
-                                ...dragProvided.draggableProps.style,
-                              }}
+                   item.level === 0 
+                     ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                     : item.level === 1
+                     ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                     : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+                 } cursor-pointer transition-all duration-200 ${
+                   snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
+                 } ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+                               style={{
+                                 gridTemplateColumns: '32px 120px 1fr 40px',
+                                 height: '1.75rem',
+                                 ...dragProvided.draggableProps.style,
+                               }}
                               onClick={(e) => {
                                 // Only expand/collapse if clicking outside the name field
                                 const target = e.target as HTMLElement;
@@ -94,21 +95,21 @@ export const WBSLeftPanel = ({
                               onMouseEnter={() => onRowHover?.(item.id)}
                               onMouseLeave={() => onRowHover?.(null)}
                             >
-                              <div className="px-2 h-[1.75rem] flex items-center justify-center">
-                                <div className="flex items-center">
-                                  <div
-                                    {...dragProvided.dragHandleProps}
-                                    className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 mr-1 ${
-                                      item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-8' : ''
-                                    } ${
-                                      snapshot.isDragging ? 'bg-accent/30 shadow-sm' : 'hover:bg-accent/20'
-                                    }`}
-                                    title="Drag to reorder"
-                                  >
-                                    <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                  </div>
-                                   {item.hasChildren && (
-                                     item.isExpanded ? (
+                               <div className="px-2 flex items-center justify-center">
+                                 <div className="flex items-center">
+                                   <div
+                                     {...dragProvided.dragHandleProps}
+                                     className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 mr-1 ${
+                                       item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-8' : ''
+                                     } ${
+                                       snapshot.isDragging ? 'bg-accent/30 shadow-sm' : 'hover:bg-accent/20'
+                                     }`}
+                                     title="Drag to reorder"
+                                   >
+                                     <GripVertical className="w-3 h-3 text-muted-foreground" />
+                                   </div>
+                                    {item.hasChildren && (
+                                      item.isExpanded ? (
                                         <ChevronDown className={`w-3 h-3 ${
                                           item.level === 0 ? 'text-gray-700' : 'text-gray-600'
                                         }`} />
@@ -118,10 +119,10 @@ export const WBSLeftPanel = ({
                                         }`} />
                                      )
                                    )}
-                                </div>
-                              </div>
+                                 </div>
+                               </div>
                               
-                                <div className={`px-2 h-[1.75rem] flex items-center ${
+                                <div className={`px-2 flex items-center ${
                                   item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
                                 } ${
                                   item.level === 0 
@@ -133,7 +134,7 @@ export const WBSLeftPanel = ({
                                 {item.wbsNumber}
                               </div>
                               
-                                <div className={`px-3 h-[1.75rem] flex items-center ${
+                                <div className={`px-3 flex items-center ${
                                   item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
                                 } ${
                                   item.level === 0 
@@ -154,7 +155,7 @@ export const WBSLeftPanel = ({
                               </div>
                               
                               {/* Add Child Button */}
-                              <div className="px-2 h-[1.75rem] flex items-center">
+                              <div className="px-2 flex items-center">
                                 {item.level < 2 && onAddChild && (
                                   <Button
                                     size="sm"
