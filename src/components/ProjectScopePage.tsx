@@ -1427,36 +1427,42 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     {/* Combined Header with Table Headers */}
                     <div className="bg-background border-b border-border">
                       
-                      {/* Table Headers Row */}
+                      {/* Table Headers Row - Exact match to data row structure */}
                       <div className="bg-slate-100/70 border-t border-slate-200 flex">
-                         {/* Left Panel Header */}
+                         {/* Left Panel Header - Matches WBSLeftPanel structure exactly */}
                          <div className="w-[420px] text-xs font-medium text-slate-700 border-r border-border">
-                           <div className="grid items-center" style={{
-                             gridTemplateColumns: '32px 120px 1fr 40px',
-                             height: '1.75rem',
-                           }}>
+                           <div 
+                             className="grid items-center border-b border-gray-100" 
+                             style={{
+                               gridTemplateColumns: '32px 120px 1fr 40px',
+                               height: '1.75rem',
+                             }}
+                           >
                              <div className="px-2 flex items-center justify-center h-full"></div>
-                             <div className="px-2 font-semibold flex items-center h-full">WBS</div>
-                             <div className="px-3 font-semibold flex items-center h-full">NAME</div>
-                             <div className="flex items-center h-full"></div>
+                             <div className="px-2 flex items-center h-full font-semibold">WBS</div>
+                             <div className="px-3 flex items-center h-full font-semibold">NAME</div>
+                             <div className="px-2 flex items-center h-full"></div>
                            </div>
                          </div>
                          
-                          {/* Right Panel Header */}
+                          {/* Right Panel Header - Matches WBSCostRightPanel structure exactly */}
                           <div className="flex-1 text-xs font-medium text-slate-700">
-                            <div className="grid items-center" style={{
-                              gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
-                              height: '1.75rem',
-                            }}>
-                              <div className="px-3 font-semibold flex items-center h-full">DESCRIPTION</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">BUDGET</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">COMMITTED</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">PAID</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">REMAINING</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">FORECAST FINAL</div>
-                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">VARIANCE</div>
-                              <div className="px-2 font-semibold flex items-center justify-center h-full">STATUS</div>
-                              <div className="px-2 font-semibold flex items-center h-full">NOTES</div>
+                            <div 
+                              className="grid items-center w-full border-b border-gray-100" 
+                              style={{
+                                gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+                                height: '1.75rem',
+                              }}
+                            >
+                              <div className="px-3 flex items-center h-full font-semibold">DESCRIPTION</div>
+                              <div className="px-2 flex items-center justify-end h-full font-semibold">BUDGET</div>
+                              <div className="px-2 flex items-center justify-end h-full font-semibold">COMMITTED</div>
+                              <div className="px-2 flex items-center justify-end h-full font-semibold">PAID</div>
+                              <div className="px-2 flex items-center justify-end h-full font-semibold">REMAINING</div>
+                              <div className="px-2 flex items-center justify-end h-full font-semibold">FORECAST FINAL</div>
+                              <div className="px-2 flex items-center justify-end h-full font-semibold">VARIANCE</div>
+                              <div className="px-2 flex items-center justify-center h-full font-semibold">STATUS</div>
+                              <div className="px-2 flex items-center h-full font-semibold">NOTES</div>
                             </div>
                           </div>
                       </div>
