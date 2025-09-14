@@ -1126,6 +1126,68 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     return Math.round(totalProgress / totalPhases);
   };
 
+  const calculateTimelineProgress = () => {
+    // Calculate progress based on current date vs project timeline
+    const projectStartDate = new Date(project.created_at || new Date());
+    
+    // Use the latest end date from WBS items if no project end date is available
+    const wbsEndDates = wbsItems
+      .filter(item => item.end_date)
+      .map(item => new Date(item.end_date!));
+    
+    const projectEndDate = wbsEndDates.length > 0 
+      ? new Date(Math.max(...wbsEndDates.map(d => d.getTime())))
+      : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // Default to 90 days from now
+      
+    const currentDate = new Date();
+    
+    const totalDuration = projectEndDate.getTime() - projectStartDate.getTime();
+    const elapsedDuration = currentDate.getTime() - projectStartDate.getTime();
+    
+    if (totalDuration <= 0) return 0;
+    
+    const timelineProgress = Math.min(Math.max((elapsedDuration / totalDuration) * 100, 0), 100);
+    return Math.round(timelineProgress);
+  };
+
+  const calculateCostProgress = () => {
+    // Calculate progress based on amount paid vs total project cost
+    // For now, return a placeholder calculation based on overall progress
+    // This would typically come from actual cost/payment data
+    const overallProgress = calculateOverallProgress();
+    // Simulate that cost progress is typically slightly behind overall progress
+    return Math.max(0, Math.round(overallProgress * 0.85));
+  };
+
+  const getProgressData = () => {
+    switch (activeTab) {
+      case 'scope':
+        return {
+          label: 'Overall Progress',
+          value: calculateOverallProgress(),
+          suffix: '%'
+        };
+      case 'time':
+        return {
+          label: 'Timeline Progress',
+          value: calculateTimelineProgress(),
+          suffix: '%'
+        };
+      case 'cost':
+        return {
+          label: 'Cost Progress',
+          value: calculateCostProgress(),
+          suffix: '%'
+        };
+      default:
+        return {
+          label: 'Overall Progress',
+          value: calculateOverallProgress(),
+          suffix: '%'
+        };
+    }
+  };
+
   const mainClasses = {
     mobile: "h-screen overflow-hidden",
     tablet: "h-screen overflow-hidden", 
@@ -1181,15 +1243,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <div className="text-xs text-muted-foreground font-inter">Overall Progress</div>
+                      <div className="text-xs text-muted-foreground font-inter">{getProgressData().label}</div>
                       <div className="flex items-center gap-2 mt-1">
                         <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
                           <div 
-                            className={`h-full transition-all duration-300 ${getProgressColor(calculateOverallProgress())}`}
-                            style={{ width: `${calculateOverallProgress()}%` }}
+                            className={`h-full transition-all duration-300 ${getProgressColor(getProgressData().value)}`}
+                            style={{ width: `${getProgressData().value}%` }}
                           />
                         </div>
-                        <span className="text-xs font-medium text-foreground font-inter">{calculateOverallProgress()}%</span>
+                        <span className="text-xs font-medium text-foreground font-inter">{getProgressData().value}{getProgressData().suffix}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between gap-6 flex-1">
