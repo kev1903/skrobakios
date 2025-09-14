@@ -130,40 +130,32 @@ export const TaskCostTable = ({
           {/* Table Headers */}
           <thead className="bg-white/20 border-b border-white/20">
             <tr>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
-              minWidth: '80px'
-            }}>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-20">
                 WBS
               </th>
-              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
-              minWidth: '200px'
-            }}>
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-64">
                 NAME
               </th>
-              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
-              minWidth: '120px'
-            }}>
-                Cost Estimate
+              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-40">
+                DESCRIPTION
               </th>
-              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
-              minWidth: '120px'
-            }}>
-                Project Budget
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-32">
+                BUDGET
               </th>
-              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
-              minWidth: '120px'
-            }}>
-                Cost Committed
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-32">
+                ACTUAL
               </th>
-              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20" style={{
-              minWidth: '120px'
-            }}>
-                Paid to Date
+              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-32">
+                VARIANCE
               </th>
-              <th className="text-right text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3" style={{
-              minWidth: '100px'
-            }}>
-                Cost
+              <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-24">
+                COST CODE
+              </th>
+              <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 border-r border-white/20 w-24">
+                STATUS
+              </th>
+              <th className="text-center text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 w-24">
+                ACTIONS
               </th>
             </tr>
           </thead>
@@ -172,7 +164,7 @@ export const TaskCostTable = ({
           <tbody className="bg-white/5">
             {Object.keys(groupedData).length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-2 py-6 text-center text-muted-foreground">
+                <td colSpan={9} className="px-2 py-6 text-center text-muted-foreground">
                   <div className="flex flex-col items-center">
                     <p className="text-xs mb-2">No cost items found</p>
                     <Button size="sm" variant="outline" className="text-xs bg-white/20 border-white/30 text-foreground hover:bg-white/30">
@@ -202,7 +194,7 @@ export const TaskCostTable = ({
                       className="bg-gray-100 border-b border-gray-200 hover:bg-gray-200 cursor-pointer transition-colors"
                       onClick={() => toggleStage(stageKey)}
                     >
-                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                      <td className="px-4 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 w-20">
                         <div className="flex items-center">
                           {isExpanded ? (
                             <ChevronDown className="w-4 h-4 mr-2 text-gray-600" />
@@ -212,28 +204,36 @@ export const TaskCostTable = ({
                           <span className="font-mono">{stageData.stage.wbs_id || '1'}</span>
                         </div>
                       </td>
-                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200">
+                      <td className="px-4 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 w-64">
                         <div className="flex items-center">
-                          <span>{stageData.stage.title || 'Stage'}</span>
+                          <span>{stageData.stage.title || 'Untitled Phase'}</span>
                           <span className="ml-2 px-2 py-1 bg-gray-200 rounded text-xs text-gray-600">
                             {stageData.components.length + stageData.elements.length} items
                           </span>
                         </div>
                       </td>
-                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
+                      <td className="px-4 py-3 text-xs text-gray-700 border-r border-gray-200 w-40">
+                        <span className="text-muted-foreground">Add description...</span>
+                      </td>
+                      <td className="px-4 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right w-32">
                         {formatCurrency(stageTotal)}
                       </td>
-                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
-                        {formatCurrency(stageTotal)}
-                      </td>
-                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
+                      <td className="px-4 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right w-32">
                         {formatCurrency(stageActualTotal)}
                       </td>
-                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 border-r border-gray-200 text-right">
-                        $0.00
+                      <td className="px-4 py-3 text-xs font-semibold border-r border-gray-200 text-right w-32">
+                        <span className={`${(stageTotal - stageActualTotal) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatCurrency(Math.abs(stageTotal - stageActualTotal))}
+                        </span>
                       </td>
-                      <td className="px-3 py-3 text-xs font-semibold text-gray-900 text-right">
-                        {formatCurrency(stageTotal)}
+                      <td className="px-4 py-3 text-xs text-center border-r border-gray-200 w-24">
+                        <span className="text-muted-foreground">-</span>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-center border-r border-gray-200 w-24">
+                        <span className="text-green-600">$0</span>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-center w-24">
+                        <span className="text-muted-foreground">-</span>
                       </td>
                     </tr>
                   );
@@ -249,21 +249,26 @@ export const TaskCostTable = ({
                       rows.push(
                         <tr key={`component-${component.id}`} className="border-b border-gray-100 hover:bg-blue-50/30 transition-colors group bg-blue-50/10">
                           {/* WBS Code */}
-                          <td className="px-6 py-2 text-xs text-gray-700 border-r border-gray-100 font-mono">
+                          <td className="px-4 py-2 text-xs text-gray-700 border-r border-gray-100 font-mono w-20">
                             {component.wbs_id}
                           </td>
 
                           {/* Name */}
-                          <td className="px-4 py-2 border-r border-gray-100 text-xs text-gray-800 font-medium">
+                          <td className="px-4 py-2 border-r border-gray-100 text-xs text-gray-800 font-medium w-64">
                             <div className="flex items-center">
                               <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
-                              {component.title}
+                              {component.title || 'Untitled Component'}
                             </div>
                           </td>
 
-                          {/* Cost Estimate */}
+                          {/* Description */}
+                          <td className="px-4 py-2 text-xs text-gray-700 border-r border-gray-100 w-40">
+                            <span className="text-muted-foreground">Add description...</span>
+                          </td>
+
+                          {/* Budget */}
                           <td 
-                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors"
+                            className="px-4 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors w-32"
                             onClick={() => handleCellClick(component.id, 'budgeted_cost', budgeted)}
                           >
                             {isEditingBudgeted ? (
@@ -283,14 +288,9 @@ export const TaskCostTable = ({
                             )}
                           </td>
 
-                          {/* Project Budget */}
-                          <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 text-right">
-                            <span className="text-xs">{formatCurrency(budgeted)}</span>
-                          </td>
-
-                          {/* Cost Committed */}
+                          {/* Actual */}
                           <td 
-                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors"
+                            className="px-4 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-blue-100 text-right transition-colors w-32"
                             onClick={() => handleCellClick(component.id, 'actual_cost', actual)}
                           >
                             {isEditingActual ? (
@@ -310,14 +310,26 @@ export const TaskCostTable = ({
                             )}
                           </td>
 
-                          {/* Paid to Date */}
-                          <td className="px-3 py-2 text-xs text-gray-600 border-r border-gray-100 text-right">
-                            <span className="text-xs">$0.00</span>
+                          {/* Variance */}
+                          <td className="px-4 py-2 text-xs border-r border-gray-100 text-right w-32">
+                            <span className={`${(budgeted - actual) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {formatCurrency(Math.abs(budgeted - actual))}
+                            </span>
                           </td>
 
-                          {/* Cost */}
-                          <td className="px-3 py-2 text-xs text-gray-900 text-right">
-                            <span className="text-xs font-medium">{formatCurrency(budgeted)}</span>
+                          {/* Cost Code */}
+                          <td className="px-4 py-2 text-xs text-center border-r border-gray-100 w-24">
+                            <span className="text-muted-foreground">-</span>
+                          </td>
+
+                          {/* Status */}
+                          <td className="px-4 py-2 text-xs text-center border-r border-gray-100 w-24">
+                            <span className="text-green-600">$0</span>
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-4 py-2 text-xs text-center w-24">
+                            <span className="text-muted-foreground">-</span>
                           </td>
                         </tr>
                       );
@@ -333,23 +345,28 @@ export const TaskCostTable = ({
                       rows.push(
                         <tr key={`element-${element.id}`} className="border-b border-gray-100 hover:bg-green-50/30 transition-colors group bg-green-50/10">
                           {/* WBS Code */}
-                          <td className="px-8 py-2 text-xs text-gray-600 border-r border-gray-100 font-mono">
+                          <td className="px-4 py-2 text-xs text-gray-600 border-r border-gray-100 font-mono w-20 pl-8">
                             {element.wbs_id}
                           </td>
 
                           {/* Name */}
-                          <td className="px-6 py-2 text-xs text-gray-700 border-r border-gray-100 max-w-xs">
+                          <td className="px-4 py-2 text-xs text-gray-700 border-r border-gray-100 w-64 pl-8">
                             <div className="flex items-center">
                               <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2"></div>
                               <div className="truncate" title={element.title}>
-                                {element.title}
+                                {element.title || 'Untitled Element'}
                               </div>
                             </div>
                           </td>
 
-                          {/* Cost Estimate */}
+                          {/* Description */}
+                          <td className="px-4 py-2 text-xs text-gray-700 border-r border-gray-100 w-40">
+                            <span className="text-muted-foreground">Add description...</span>
+                          </td>
+
+                          {/* Budget */}
                           <td 
-                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors"
+                            className="px-4 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors w-32"
                             onClick={() => handleCellClick(element.id, 'budgeted_cost', budgeted)}
                           >
                             {isEditingBudgeted ? (
@@ -369,14 +386,9 @@ export const TaskCostTable = ({
                             )}
                           </td>
 
-                          {/* Project Budget */}
-                          <td className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 text-right">
-                            <span className="text-xs">{formatCurrency(budgeted)}</span>
-                          </td>
-
-                          {/* Cost Committed */}
+                          {/* Actual */}
                           <td 
-                            className="px-3 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors"
+                            className="px-4 py-2 text-xs text-gray-900 border-r border-gray-100 cursor-pointer hover:bg-green-100 text-right transition-colors w-32"
                             onClick={() => handleCellClick(element.id, 'actual_cost', actual)}
                           >
                             {isEditingActual ? (
@@ -396,14 +408,26 @@ export const TaskCostTable = ({
                             )}
                           </td>
 
-                          {/* Paid to Date */}
-                          <td className="px-3 py-2 text-xs text-gray-600 border-r border-gray-100 text-right">
-                            <span className="text-xs">$0.00</span>
+                          {/* Variance */}
+                          <td className="px-4 py-2 text-xs border-r border-gray-100 text-right w-32">
+                            <span className={`${(budgeted - actual) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {formatCurrency(Math.abs(budgeted - actual))}
+                            </span>
                           </td>
 
-                          {/* Cost */}
-                          <td className="px-3 py-2 text-xs text-gray-900 text-right">
-                            <span className="text-xs">{formatCurrency(budgeted)}</span>
+                          {/* Cost Code */}
+                          <td className="px-4 py-2 text-xs text-center border-r border-gray-100 w-24">
+                            <span className="text-muted-foreground">-</span>
+                          </td>
+
+                          {/* Status */}
+                          <td className="px-4 py-2 text-xs text-center border-r border-gray-100 w-24">
+                            <span className="text-green-600">$0</span>
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-4 py-2 text-xs text-center w-24">
+                            <span className="text-muted-foreground">-</span>
                           </td>
                         </tr>
                       );
