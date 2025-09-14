@@ -253,19 +253,19 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                 {/* Task bar or summary line based on level */}
                 {position && (
                   <>
-                    {/* Rectangular bar for Phases (level 0) */}
-                    {item.level === 0 && (
-                      <div
-                        className="absolute cursor-pointer group z-20"
-                        style={{
-                          left: position.left + 8,
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          width: Math.max(40, position.width - 16),
-                          height: 16
-                        }}
-                        title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
-                      >
+                     {/* Rectangular bar for Phases (level 0) */}
+                     {item.level === 0 && (
+                       <div
+                         className="absolute cursor-pointer group z-20"
+                         style={{
+                           left: position.left,
+                           top: '50%',
+                           transform: 'translateY(-50%)',
+                           width: Math.max(40, position.width),
+                           height: 16
+                         }}
+                         title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
+                       >
                         {/* Phase bar shape - rectangular with subtle styling */}
                         <div className="relative h-full w-full bg-gray-800 rounded-sm border border-gray-700 shadow-sm">
                           {/* Subtle gradient overlay */}
@@ -307,19 +307,19 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                       </div>
                     )}
 
-                    {/* Summary line for Components (level 1) only */}
-                    {item.level === 1 && (
-                      <div
-                        className="absolute cursor-pointer group z-20"
-                        style={{
-                          left: position.left + 8,
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          width: Math.max(40, position.width - 16),
-                          height: 2
-                        }}
-                        title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
-                      >
+                     {/* Summary line for Components (level 1) only */}
+                     {item.level === 1 && (
+                       <div
+                         className="absolute cursor-pointer group z-20"
+                         style={{
+                           left: position.left,
+                           top: '50%',
+                           transform: 'translateY(-50%)',
+                           width: Math.max(40, position.width),
+                           height: 2
+                         }}
+                         title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
+                       >
                         {/* Summary line with dot endpoints */}
                         <div className="relative h-full">
                           {/* Main summary line */}
@@ -365,18 +365,18 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                       </div>
                     )}
 
-                    {/* Regular task bar for Elements (level 2) */}
-                    {item.level === 2 && (
-                      <div
-                        className="absolute cursor-pointer group z-20"
-                        style={{
-                          left: position.left + 4,
-                          top: 2,
-                          width: Math.max(32, position.width - 8),
-                          height: 'calc(1.75rem - 4px)'
-                        }}
-                        title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
-                      >
+                     {/* Regular task bar for Elements (level 2) */}
+                     {item.level === 2 && (
+                       <div
+                         className="absolute cursor-pointer group z-20"
+                         style={{
+                           left: position.left,
+                           top: 2,
+                           width: Math.max(32, position.width),
+                           height: 'calc(1.75rem - 4px)'
+                         }}
+                         title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
+                       >
                         <div className={`
                           h-full rounded-xl ${getLevelColor(item.level)} 
                           transition-all duration-300 ease-out
