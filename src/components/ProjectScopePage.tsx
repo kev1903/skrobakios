@@ -1424,6 +1424,44 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
                <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex">
                  <div className="h-full w-full flex flex-col min-h-0">
+                    {/* Combined Header with Table Headers */}
+                    <div className="bg-background border-b border-border">
+                      
+                      {/* Table Headers Row */}
+                      <div className="bg-slate-100/70 border-t border-slate-200 flex">
+                         {/* Left Panel Header */}
+                         <div className="w-[420px] text-xs font-medium text-slate-700 border-r border-border">
+                           <div className="grid items-center" style={{
+                             gridTemplateColumns: '32px 120px 1fr 40px',
+                             height: '1.75rem',
+                           }}>
+                             <div></div>
+                             <div className="px-2 font-semibold flex items-center h-full">WBS</div>
+                             <div className="px-3 font-semibold flex items-center h-full">NAME</div>
+                             <div></div>
+                           </div>
+                         </div>
+                         
+                          {/* Right Panel Header */}
+                          <div className="flex-1 text-xs font-medium text-slate-700">
+                            <div className="grid items-center" style={{
+                              gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+                              height: '1.75rem',
+                            }}>
+                              <div className="px-3 font-semibold flex items-center h-full">DESCRIPTION</div>
+                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">BUDGET</div>
+                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">COMMITTED</div>
+                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">PAID</div>
+                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">REMAINING</div>
+                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">FORECAST FINAL</div>
+                              <div className="px-2 font-semibold text-right flex items-center justify-end h-full">VARIANCE</div>
+                              <div className="px-2 font-semibold flex items-center justify-center h-full">STATUS</div>
+                              <div className="px-2 font-semibold flex items-center h-full">NOTES</div>
+                            </div>
+                          </div>
+                      </div>
+                    </div>
+
                     {loading && wbsItems.length === 0 ? (
                       <div className="flex items-center justify-center h-64">
                         <div className="text-center">
