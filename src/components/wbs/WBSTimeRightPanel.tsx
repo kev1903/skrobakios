@@ -317,11 +317,12 @@ export const WBSTimeRightPanel = ({
             } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
             style={{
               gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 120px',
+              height: '1.75rem',
             }}
             onMouseEnter={() => onRowHover?.(item.id)}
             onMouseLeave={() => onRowHover?.(null)}
           >
-            <div className="px-3 h-[1.75rem] flex items-center text-muted-foreground text-xs">
+            <div className="px-3 flex items-center text-muted-foreground text-xs">
               <EditableCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -332,7 +333,7 @@ export const WBSTimeRightPanel = ({
               />
             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
+            <div className="px-2 flex items-center text-xs text-muted-foreground">
                 {(() => {
                   const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
                   const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
@@ -364,7 +365,7 @@ export const WBSTimeRightPanel = ({
                 })()}
             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-end text-xs text-muted-foreground">
+            <div className="px-2 flex items-end text-xs text-muted-foreground">
               {(() => {
                 const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
                 const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
@@ -396,7 +397,7 @@ export const WBSTimeRightPanel = ({
               })()}
             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-end text-xs text-muted-foreground">
+            <div className="px-2 flex items-end text-xs text-muted-foreground">
               {(() => {
                 const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
                 const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
@@ -421,7 +422,7 @@ export const WBSTimeRightPanel = ({
               })()}
             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
+            <div className="px-2 flex items-center text-xs text-muted-foreground">
               <PredecessorCell
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
@@ -516,14 +517,14 @@ export const WBSTimeRightPanel = ({
               />
             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center">
+            <div className="px-2 flex items-center">
               <StatusSelect 
                 value={item.status} 
                 onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
               />
             </div>
 
-            <div className="px-2 h-[1.75rem] flex items-center justify-center">
+            <div className="px-2 flex items-center justify-center">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
