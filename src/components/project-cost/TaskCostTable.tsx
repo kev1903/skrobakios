@@ -4,9 +4,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Save, X, ChevronDown, ChevronRight } from 'lucide-react';
+import { Save, X, ChevronDown, ChevronRight, MoreHorizontal, Edit2, Copy, Trash2 } from 'lucide-react';
 import { CentralTask, TaskUpdate } from '@/services/centralTaskService';
 import { WBSItem } from '@/types/wbs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 interface TaskCostTableProps {
   tasks: CentralTask[];
@@ -115,6 +122,53 @@ export const TaskCostTable = ({
     return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
+  // Create flat list for rendering - exactly like WBSCostView
+  const flatWBSItems = Object.values(groupedData)
+    .sort((a, b) => (a.stage.wbs_id || '').localeCompare(b.stage.wbs_id || ''))
+    .flatMap((stageData) => {
+      const stageKey = stageData.id;
+      const isExpanded = expandedStages.has(stageKey);
+      
+      const items = [stageData.stage];
+      
+      if (isExpanded) {
+        // Add components
+        stageData.components.forEach(comp => items.push(comp));
+        // Add elements
+        stageData.elements.forEach(elem => items.push(elem));
+      }
+      
+      return items;
+    });
+
+  const EditableCell = ({ id, field, value, placeholder, className }: any) => {
+    const isEditing = editingCell?.taskId === id && editingCell?.field === field;
+    const currentValue = value || 0;
+
+    if (isEditing) {
+      return (
+        <Input
+          value={editValue}
+          onChange={(e) => setEditValue(e.target.value)}
+          onBlur={handleCellSave}
+          onKeyDown={handleKeyDown}
+          className="h-6 text-xs p-1 border-blue-300 focus:ring-1 focus:ring-blue-500"
+          autoFocus
+          type={field.includes('cost') ? 'number' : 'text'}
+        />
+      );
+    }
+
+    return (
+      <div 
+        className={`cursor-pointer hover:bg-blue-50 rounded px-1 ${className}`}
+        onClick={() => handleCellClick(id, field, currentValue)}
+      >
+        {field.includes('cost') ? formatCurrency(currentValue) : (value || placeholder)}
+      </div>
+    );
+  };
+
   return (
     <div className="bg-card border rounded-xl overflow-hidden">
       {/* Table Header */}
@@ -124,519 +178,182 @@ export const TaskCostTable = ({
         </div>
       </div>
 
-      {/* Perfectly aligned table using CSS Grid simulation with table elements */}
-      <div className="w-full overflow-x-auto">
-        <style>{`
-          .perfect-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            table-layout: fixed;
-          }
-          .perfect-table th,
-          .perfect-table td {
-            margin: 0;
-            padding: 0;
-            border: none;
-            vertical-align: middle;
-            line-height: 1.2;
-            font-size: 12px;
-          }
-          .perfect-table .cell-content {
-            padding: 12px;
-            border-right: 1px solid rgba(229, 231, 235, 1);
-            border-bottom: 1px solid rgba(229, 231, 235, 0.5);
-            height: 100%;
-            box-sizing: border-box;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            display: block;
-          }
-          .perfect-table .cell-content.no-border-right {
-            border-right: none;
-          }
-          .perfect-table .cell-content.header {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            font-weight: 500;
-            color: hsl(var(--muted-foreground));
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-          }
-          .perfect-table .cell-content.stage {
-            background-color: #f3f4f6;
-            border-bottom: 1px solid #e5e7eb;
-            font-weight: 600;
-            color: #111827;
-            cursor: pointer;
-          }
-          .perfect-table .cell-content.stage:hover {
-            background-color: #e5e7eb;
-          }
-          .perfect-table .cell-content.component {
-            background-color: rgba(59, 130, 246, 0.1);
-            border-bottom: 1px solid #f3f4f6;
-            color: #374151;
-          }
-          .perfect-table .cell-content.component:hover {
-            background-color: rgba(59, 130, 246, 0.2);
-          }
-          .perfect-table .cell-content.element {
-            background-color: rgba(34, 197, 94, 0.1);
-            border-bottom: 1px solid #f3f4f6;
-            color: #374151;
-          }
-          .perfect-table .cell-content.element:hover {
-            background-color: rgba(34, 197, 94, 0.2);
-          }
-          .perfect-table .cell-content.clickable {
-            cursor: pointer;
-          }
-          .perfect-table .cell-content.text-left {
-            text-align: left;
-          }
-          .perfect-table .cell-content.text-right {
-            text-align: right;
-          }
-          .perfect-table .cell-content.text-center {
-            text-align: center;
-          }
-          .perfect-table .wbs-content {
-            font-family: monospace;
-          }
-          .perfect-table .stage-content {
-            position: relative;
-            padding-left: 28px;
-          }
-          .perfect-table .stage-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
-            color: #6b7280;
-          }
-          .perfect-table .component-content {
-            position: relative;
-            padding-left: 32px;
-          }
-          .perfect-table .component-dot {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 8px;
-            height: 8px;
-            background-color: #60a5fa;
-            border-radius: 50%;
-          }
-          .perfect-table .element-content {
-            position: relative;
-            padding-left: 48px;
-          }
-          .perfect-table .element-dot {
-            position: absolute;
-            left: 36px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 6px;
-            height: 6px;
-            background-color: #4ade80;
-            border-radius: 50%;
-          }
-          .perfect-table .total-row .cell-content {
-            background-color: #f9fafb;
-            border-top: 2px solid #e5e7eb;
-            border-bottom: none;
-            font-weight: 700;
-            color: #111827;
-          }
-        `}</style>
-        
-        <table className="perfect-table">
-          <colgroup>
-            <col style={{ width: '80px' }} />
-            <col style={{ width: '200px' }} />
-            <col style={{ width: '180px' }} />
-            <col style={{ width: '100px' }} />
-            <col style={{ width: '100px' }} />
-            <col style={{ width: '100px' }} />
-            <col style={{ width: '90px' }} />
-            <col style={{ width: '80px' }} />
-            <col style={{ width: '90px' }} />
-          </colgroup>
-          
-          <thead>
-            <tr>
-              <th><div className="cell-content header text-left">WBS</div></th>
-              <th><div className="cell-content header text-left">NAME</div></th>
-              <th><div className="cell-content header text-left">DESCRIPTION</div></th>
-              <th><div className="cell-content header text-right">BUDGET</div></th>
-              <th><div className="cell-content header text-right">ACTUAL</div></th>
-              <th><div className="cell-content header text-right">VARIANCE</div></th>
-              <th><div className="cell-content header text-center">COST CODE</div></th>
-              <th><div className="cell-content header text-center">STATUS</div></th>
-              <th><div className="cell-content header text-center no-border-right">ACTIONS</div></th>
-            </tr>
-          </thead>
+      {/* Perfect alignment using split-panel approach exactly like SCOPE tab */}
+      <div className="flex h-full w-full bg-white overflow-hidden">
+        {/* Left Panel - WBS and Name columns (420px fixed width) */}
+        <div className="w-[420px] bg-white overflow-hidden border-r border-border">
+          {/* Content */}
+          <div className="h-full overflow-y-auto overflow-x-hidden w-full">
+            {flatWBSItems.length === 0 ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-2">No cost items found</p>
+                  <Button size="sm" variant="outline" className="text-xs bg-white/20 border-white/30 text-foreground hover:bg-white/30">
+                    + Add your first cost item
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              flatWBSItems.map((item) => (
+                <div
+                  key={item.id}
+                  className={`grid items-center ${
+                    item.level === 0 
+                      ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                      : item.level === 1
+                      ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                      : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+                  } transition-all duration-200 cursor-pointer`}
+                  style={{
+                    gridTemplateColumns: '32px 120px 1fr',
+                  }}
+                  onClick={() => item.level === 0 ? toggleStage(item.id) : undefined}
+                >
+                  {/* Expand/Collapse Icon */}
+                  <div className="px-2 h-[1.75rem] flex items-center justify-center">
+                    {item.level === 0 && (
+                      expandedStages.has(item.id) ? (
+                        <ChevronDown className="w-4 h-4 text-gray-600" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-600" />
+                      )
+                    )}
+                  </div>
 
-          <tbody>
-            {Object.keys(groupedData).length === 0 ? (
-              <tr>
-                <td colSpan={9}>
-                  <div className="cell-content text-center" style={{ padding: '24px', color: 'hsl(var(--muted-foreground))' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <p style={{ marginBottom: '8px' }}>No cost items found</p>
-                      <Button size="sm" variant="outline" className="text-xs bg-white/20 border-white/30 text-foreground hover:bg-white/30">
-                        + Add your first cost item
-                      </Button>
+                  {/* WBS Column */}
+                  <div className="px-2 h-[1.75rem] flex items-center text-xs font-mono">
+                    <div style={{ 
+                      paddingLeft: item.level === 0 ? '0px' : item.level === 1 ? '16px' : '32px' 
+                    }}>
+                      {item.wbs_id}
                     </div>
                   </div>
-                </td>
-              </tr>
-            ) : (
-              Object.values(groupedData)
-                .sort((a, b) => (a.stage.wbs_id || '').localeCompare(b.stage.wbs_id || ''))
-                .flatMap((stageData) => {
-                  const stageKey = stageData.id;
-                  const isExpanded = expandedStages.has(stageKey);
-                  
-                  // Calculate totals from components and elements
-                  const stageTotal = stageData.components.reduce((sum, comp) => sum + (comp.budgeted_cost || 0), 0) +
-                                     stageData.elements.reduce((sum, elem) => sum + (elem.budgeted_cost || 0), 0);
-                  const stageActualTotal = stageData.components.reduce((sum, comp) => sum + (comp.actual_cost || 0), 0) +
-                                           stageData.elements.reduce((sum, elem) => sum + (elem.actual_cost || 0), 0);
 
-                  const rows: JSX.Element[] = [];
-
-                  // Stage row
-                  rows.push(
-                    <tr key={`stage-${stageKey}`}>
-                      <td>
-                        <div className="cell-content stage text-left" onClick={() => toggleStage(stageKey)}>
-                          <div className="stage-content wbs-content">
-                            {isExpanded ? (
-                              <ChevronDown className="stage-icon" />
-                            ) : (
-                              <ChevronRight className="stage-icon" />
-                            )}
-                            {stageData.stage.wbs_id || '1'}
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="cell-content stage text-left" onClick={() => toggleStage(stageKey)}>
-                          {stageData.stage.title || 'Untitled Phase'}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="cell-content stage text-left" onClick={() => toggleStage(stageKey)}>
-                          <span style={{ color: 'hsl(var(--muted-foreground))' }}>Add description...</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="cell-content stage text-right" onClick={() => toggleStage(stageKey)}>
-                          {formatCurrency(stageTotal)}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="cell-content stage text-right" onClick={() => toggleStage(stageKey)}>
-                          {formatCurrency(stageActualTotal)}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="cell-content stage text-right" onClick={() => toggleStage(stageKey)}>
-                          <span style={{ color: (stageTotal - stageActualTotal) >= 0 ? '#059669' : '#dc2626' }}>
-                            {formatCurrency(Math.abs(stageTotal - stageActualTotal))}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="cell-content stage text-center" onClick={() => toggleStage(stageKey)}>
-                          <span style={{ color: 'hsl(var(--muted-foreground))' }}>-</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="cell-content stage text-center" onClick={() => toggleStage(stageKey)}>
-                          <span style={{ color: '#059669' }}>$0</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="cell-content stage text-center no-border-right" onClick={() => toggleStage(stageKey)}>
-                          <span style={{ color: 'hsl(var(--muted-foreground))' }}>-</span>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-
-                  if (isExpanded) {
-                    // Components
-                    stageData.components.forEach((component) => {
-                      const budgeted = component.budgeted_cost || 0;
-                      const actual = component.actual_cost || 0;
-                      const isEditingBudgeted = editingCell?.taskId === component.id && editingCell?.field === 'budgeted_cost';
-                      const isEditingActual = editingCell?.taskId === component.id && editingCell?.field === 'actual_cost';
-
-                      rows.push(
-                        <tr key={`component-${component.id}`}>
-                          <td>
-                            <div className="cell-content component text-left">
-                              <div className="component-content wbs-content">
-                                {component.wbs_id}
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content component text-left">
-                              <div className="component-content">
-                                <div className="component-dot"></div>
-                                {component.title || 'Untitled Component'}
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content component text-left">
-                              <span style={{ color: 'hsl(var(--muted-foreground))' }}>Add description...</span>
-                            </div>
-                          </td>
-                          <td>
-                            <div 
-                              className="cell-content component text-right clickable"
-                              onClick={() => handleCellClick(component.id, 'budgeted_cost', budgeted)}
-                            >
-                              {isEditingBudgeted ? (
-                                <Input 
-                                  type="number" 
-                                  value={editValue} 
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  onKeyDown={handleKeyDown}
-                                  onBlur={handleCellSave}
-                                  style={{ 
-                                    width: '100%', 
-                                    fontSize: '12px', 
-                                    height: '20px', 
-                                    padding: '2px 4px', 
-                                    textAlign: 'right',
-                                    border: '1px solid #3b82f6',
-                                    borderRadius: '2px'
-                                  }}
-                                  autoFocus
-                                />
-                              ) : (
-                                formatCurrency(budgeted)
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <div 
-                              className="cell-content component text-right clickable"
-                              onClick={() => handleCellClick(component.id, 'actual_cost', actual)}
-                            >
-                              {isEditingActual ? (
-                                <Input 
-                                  type="number" 
-                                  value={editValue} 
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  onKeyDown={handleKeyDown}
-                                  onBlur={handleCellSave}
-                                  style={{ 
-                                    width: '100%', 
-                                    fontSize: '12px', 
-                                    height: '20px', 
-                                    padding: '2px 4px', 
-                                    textAlign: 'right',
-                                    border: '1px solid #3b82f6',
-                                    borderRadius: '2px'
-                                  }}
-                                  autoFocus
-                                />
-                              ) : (
-                                formatCurrency(actual)
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content component text-right">
-                              <span style={{ color: (budgeted - actual) >= 0 ? '#059669' : '#dc2626' }}>
-                                {formatCurrency(Math.abs(budgeted - actual))}
-                              </span>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content component text-center">
-                              <span style={{ color: 'hsl(var(--muted-foreground))' }}>-</span>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content component text-center">
-                              <span style={{ color: '#059669' }}>$0</span>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content component text-center no-border-right">
-                              <span style={{ color: 'hsl(var(--muted-foreground))' }}>-</span>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    });
-
-                    // Elements
-                    stageData.elements.forEach((element) => {
-                      const budgeted = element.budgeted_cost || 0;
-                      const actual = element.actual_cost || 0;
-                      const isEditingBudgeted = editingCell?.taskId === element.id && editingCell?.field === 'budgeted_cost';
-                      const isEditingActual = editingCell?.taskId === element.id && editingCell?.field === 'actual_cost';
-
-                      rows.push(
-                        <tr key={`element-${element.id}`}>
-                          <td>
-                            <div className="cell-content element text-left">
-                              <div className="element-content wbs-content">
-                                {element.wbs_id}
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content element text-left">
-                              <div className="element-content">
-                                <div className="element-dot"></div>
-                                {element.title || 'Untitled Element'}
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content element text-left">
-                              <span style={{ color: 'hsl(var(--muted-foreground))' }}>Add description...</span>
-                            </div>
-                          </td>
-                          <td>
-                            <div 
-                              className="cell-content element text-right clickable"
-                              onClick={() => handleCellClick(element.id, 'budgeted_cost', budgeted)}
-                            >
-                              {isEditingBudgeted ? (
-                                <Input 
-                                  type="number" 
-                                  value={editValue} 
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  onKeyDown={handleKeyDown}
-                                  onBlur={handleCellSave}
-                                  style={{ 
-                                    width: '100%', 
-                                    fontSize: '12px', 
-                                    height: '20px', 
-                                    padding: '2px 4px', 
-                                    textAlign: 'right',
-                                    border: '1px solid #3b82f6',
-                                    borderRadius: '2px'
-                                  }}
-                                  autoFocus
-                                />
-                              ) : (
-                                formatCurrency(budgeted)
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <div 
-                              className="cell-content element text-right clickable"
-                              onClick={() => handleCellClick(element.id, 'actual_cost', actual)}
-                            >
-                              {isEditingActual ? (
-                                <Input 
-                                  type="number" 
-                                  value={editValue} 
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  onKeyDown={handleKeyDown}
-                                  onBlur={handleCellSave}
-                                  style={{ 
-                                    width: '100%', 
-                                    fontSize: '12px', 
-                                    height: '20px', 
-                                    padding: '2px 4px', 
-                                    textAlign: 'right',
-                                    border: '1px solid #3b82f6',
-                                    borderRadius: '2px'
-                                  }}
-                                  autoFocus
-                                />
-                              ) : (
-                                formatCurrency(actual)
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content element text-right">
-                              <span style={{ color: (budgeted - actual) >= 0 ? '#059669' : '#dc2626' }}>
-                                {formatCurrency(Math.abs(budgeted - actual))}
-                              </span>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content element text-center">
-                              <span style={{ color: 'hsl(var(--muted-foreground))' }}>-</span>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content element text-center">
-                              <span style={{ color: '#059669' }}>$0</span>
-                            </div>
-                          </td>
-                          <td>
-                            <div className="cell-content element text-center no-border-right">
-                              <span style={{ color: 'hsl(var(--muted-foreground))' }}>-</span>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    });
-                  }
-
-                  return rows;
-                })
+                  {/* Name Column */}
+                  <div className="px-3 h-[1.75rem] flex items-center text-xs">
+                    <div style={{ 
+                      paddingLeft: item.level === 0 ? '0px' : item.level === 1 ? '8px' : '24px' 
+                    }} className="flex items-center">
+                      {item.level === 1 && (
+                        <div className="w-2 h-2 bg-blue-400 rounded-full mr-2"></div>
+                      )}
+                      {item.level === 2 && (
+                        <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2"></div>
+                      )}
+                      <span className="font-medium truncate">
+                        {item.title || 'Untitled Phase'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))
             )}
-          </tbody>
+          </div>
+        </div>
 
-          {/* Table Footer with Totals */}
-          <tfoot>
-            <tr className="total-row">
-              <td colSpan={3}>
-                <div className="cell-content text-left">Total</div>
-              </td>
-              <td>
-                <div className="cell-content text-right">
-                  {formatCurrency(wbsItems.reduce((sum, item) => sum + (item.budgeted_cost || 0), 0))}
+        {/* Right Panel - Other columns (flex-1) */}
+        <div className="flex-1 min-w-0 bg-white overflow-hidden">
+          {/* Content */}
+          <div className="h-full overflow-y-auto overflow-x-hidden w-full">
+            {flatWBSItems.map((item) => (
+              <div
+                key={item.id}
+                className={`grid items-center w-full ${
+                  item.level === 0 
+                    ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                    : item.level === 1
+                    ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                    : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+                } transition-all duration-200`}
+                style={{
+                  gridTemplateColumns: '1fr 120px 120px 120px 100px 140px 84px',
+                }}
+              >
+                {/* Description */}
+                <div className="px-3 h-[1.75rem] flex items-center text-muted-foreground text-xs">
+                  <EditableCell
+                    id={item.id}
+                    field="description"
+                    value={item.description || ''}
+                    placeholder="Add description..."
+                    className="text-xs text-muted-foreground w-full"
+                  />
                 </div>
-              </td>
-              <td>
-                <div className="cell-content text-right">
-                  {formatCurrency(wbsItems.reduce((sum, item) => sum + (item.actual_cost || 0), 0))}
+
+                {/* Budget */}
+                <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground text-right">
+                  <EditableCell
+                    id={item.id}
+                    field="budgeted_cost"
+                    value={item.budgeted_cost || 0}
+                    placeholder="$0"
+                    className="text-xs text-muted-foreground text-right w-full"
+                  />
                 </div>
-              </td>
-              <td>
-                <div className="cell-content text-right">$0.00</div>
-              </td>
-              <td>
-                <div className="cell-content text-center">
-                  <span style={{ color: 'hsl(var(--muted-foreground))' }}>-</span>
+
+                {/* Actual */}
+                <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground text-right">
+                  <EditableCell
+                    id={item.id}
+                    field="actual_cost"
+                    value={item.actual_cost || 0}
+                    placeholder="$0"
+                    className="text-xs text-muted-foreground text-right w-full"
+                  />
                 </div>
-              </td>
-              <td>
-                <div className="cell-content text-center">
-                  <span style={{ color: 'hsl(var(--muted-foreground))' }}>-</span>
+
+                {/* Variance */}
+                <div className="px-2 h-[1.75rem] flex items-center text-xs text-right">
+                  <span className={`${((item.budgeted_cost || 0) - (item.actual_cost || 0)) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {formatCurrency(Math.abs((item.budgeted_cost || 0) - (item.actual_cost || 0)))}
+                  </span>
                 </div>
-              </td>
-              <td>
-                <div className="cell-content text-center no-border-right">
-                  <span style={{ color: 'hsl(var(--muted-foreground))' }}>-</span>
+
+                {/* Cost Code */}
+                <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
+                  <EditableCell
+                    id={item.id}
+                    field="cost_code"
+                    value={''}
+                    placeholder="-"
+                    className="text-xs text-muted-foreground w-full"
+                  />
                 </div>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+
+                {/* Status */}
+                <div className="px-2 h-[1.75rem] flex items-center text-xs text-muted-foreground">
+                  <span className="text-green-600">$0</span>
+                </div>
+
+                {/* Actions */}
+                <div className="px-2 h-[1.75rem] flex items-center justify-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                        <MoreHorizontal className="w-3 h-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-40">
+                      <DropdownMenuItem>
+                        <Edit2 className="w-3 h-3 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Copy className="w-3 h-3 mr-2" />
+                        Duplicate
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="text-destructive focus:text-destructive">
+                        <Trash2 className="w-3 h-3 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
