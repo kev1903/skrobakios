@@ -11,6 +11,7 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { AiChatAuth } from './AiChatAuth';
 import { ChatDebugTools } from './ChatDebugTools';
+import { ChatAttachment, type ChatAttachmentData } from './chat/ChatAttachment';
 import { cn } from '@/lib/utils';
 
 interface ChatMessage {
@@ -19,6 +20,7 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   timestamp: Date;
   imageData?: string; // Optional image data for photo messages
+  attachments?: ChatAttachmentData[];
 }
 
 // Legacy Message interface for backward compatibility
@@ -335,28 +337,44 @@ export function AiChatSidebar({
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `chat-uploads/${fileName}`;
-      const {
-        error: uploadError
-      } = await supabase.storage.from('task-attachments').upload(filePath, file);
+      
+      const { error: uploadError } = await supabase.storage
+        .from('task-attachments')
+        .upload(filePath, file);
+      
       if (uploadError) throw uploadError;
-      const {
-        data: {
-          publicUrl
-        }
-      } = supabase.storage.from('task-attachments').getPublicUrl(filePath);
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('task-attachments')
+        .getPublicUrl(filePath);
+      
+      // Create attachment data
+      const attachmentData: ChatAttachmentData = {
+        id: Date.now().toString(),
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        url: publicUrl,
+        uploadedAt: new Date()
+      };
+      
       const fileMessage: ChatMessage = {
         id: Date.now().toString(),
-        content: `I've uploaded a file: [${file.name}](${publicUrl}). Please analyze this file and help me with any questions about it.`,
+        content: `I've uploaded a file: ${file.name}`,
         role: 'user',
-        timestamp: new Date()
+        timestamp: new Date(),
+        attachments: [attachmentData]
       };
+      
       setMessages(prev => [...prev, fileMessage]);
       setInput(`Please analyze the uploaded file: ${file.name}`);
       setTimeout(() => sendMessage(), 100);
+      
       toast({
         title: "File uploaded",
         description: `${file.name} has been uploaded successfully`
@@ -369,6 +387,7 @@ export function AiChatSidebar({
         variant: "destructive"
       });
     }
+    
     event.target.value = '';
   };
 
@@ -455,23 +474,34 @@ export function AiChatSidebar({
                            </AvatarFallback>
                          </Avatar>}
                        
-                       <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
-                         <div className={`rounded-lg p-3 text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
-                           {message.imageData && (
-                             <div className="mb-2">
-                               <img 
-                                 src={message.imageData} 
-                                 alt="Shared photo" 
-                                 className="max-w-48 max-h-48 rounded-lg object-cover"
-                               />
-                             </div>
-                           )}
-                           {message.content}
-                         </div>
-                         <p className="text-xs text-muted-foreground mt-1 px-1">
-                           {formatTime(message.timestamp)}
-                         </p>
-                       </div>
+                        <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
+                          <div className={`rounded-lg p-3 text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
+                            {message.imageData && (
+                              <div className="mb-2">
+                                <img 
+                                  src={message.imageData} 
+                                  alt="Shared photo" 
+                                  className="max-w-48 max-h-48 rounded-lg object-cover"
+                                />
+                              </div>
+                            )}
+                            {message.attachments && message.attachments.length > 0 && (
+                              <div className="mb-2 space-y-2">
+                                {message.attachments.map((attachment) => (
+                                  <ChatAttachment 
+                                    key={attachment.id} 
+                                    attachment={attachment} 
+                                    className="max-w-xs"
+                                  />
+                                ))}
+                              </div>
+                            )}
+                            {message.content}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 px-1">
+                            {formatTime(message.timestamp)}
+                          </p>
+                        </div>
 
                        {message.role === 'user' && <Avatar className="h-8 w-8 flex-shrink-0">
                            <AvatarFallback>
@@ -513,16 +543,34 @@ export function AiChatSidebar({
                         : 0
                     }}
                   >
-                    <div className="flex gap-2">
-                      <PhotoUploadButton 
-                        onPhotoSelected={handlePhotoSelected}
-                        disabled={isLoading || !isAuthenticated}
-                      />
-                      <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
-                      <Button onClick={() => sendMessage()} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
-                        <Send className="h-4 w-4" />
-                      </Button>
-                    </div>
+                     <div className="flex gap-2">
+                       <PhotoUploadButton 
+                         onPhotoSelected={handlePhotoSelected}
+                         disabled={isLoading || !isAuthenticated}
+                       />
+                       <Button 
+                         variant="outline" 
+                         size="sm" 
+                         onClick={() => fileInputRef.current?.click()}
+                         disabled={isLoading || !isAuthenticated}
+                         className="flex-shrink-0"
+                       >
+                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                         </svg>
+                       </Button>
+                       <input
+                         ref={fileInputRef}
+                         type="file"
+                         accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.mp4,.mov,.avi"
+                         onChange={handleFileUpload}
+                         className="hidden"
+                       />
+                       <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
+                       <Button onClick={() => sendMessage()} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
+                         <Send className="h-4 w-4" />
+                       </Button>
+                     </div>
                   </div>
 
          {/* Debug Tools - Only shown when there might be language issues */}
