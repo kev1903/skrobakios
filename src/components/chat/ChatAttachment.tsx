@@ -59,40 +59,53 @@ export const ChatAttachment: React.FC<ChatAttachmentProps> = ({ attachment, clas
 
   return (
     <div className={cn(
-      "flex items-center gap-3 p-3 border border-border rounded-lg bg-background/50 hover:bg-background/80 transition-colors",
+      "group flex items-center gap-4 p-4 border border-border/50 rounded-xl bg-card/30 hover:bg-card/60 transition-all duration-200 cursor-pointer hover:shadow-lg hover:border-border",
       className
-    )}>
-      <div className="flex-shrink-0">
+    )}
+    onClick={handlePreview}
+    >
+      <div className="flex-shrink-0 p-3 rounded-lg bg-primary/10 border border-primary/20">
         {getFileIcon(attachment.fileType, attachment.fileName)}
       </div>
       
       <div className="flex-1 min-w-0">
-        <div className="font-medium text-sm truncate" title={attachment.fileName}>
+        <div className="font-semibold text-sm text-foreground mb-1 truncate" title={attachment.fileName}>
           {attachment.fileName}
         </div>
-        <div className="text-xs text-muted-foreground">
-          {formatFileSize(attachment.fileSize)}
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span>{formatFileSize(attachment.fileSize)}</span>
+          <span className="w-1 h-1 rounded-full bg-muted-foreground/50"></span>
+          <span className="capitalize">{attachment.fileType.includes('pdf') ? 'PDF Document' : 'File'}</span>
+        </div>
+        <div className="text-xs text-primary/80 mt-1 group-hover:text-primary transition-colors">
+          Click to preview
         </div>
       </div>
       
-      <div className="flex items-center gap-1 flex-shrink-0">
+      <div className="flex items-center gap-2 flex-shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
         <Button
           variant="ghost"
           size="sm"
-          onClick={handlePreview}
-          className="h-8 w-8 p-0"
-          title="Preview"
+          onClick={(e) => {
+            e.stopPropagation();
+            handlePreview();
+          }}
+          className="h-9 w-9 p-0 hover:bg-primary/10 hover:text-primary"
+          title="Preview file"
         >
-          <Eye className="h-3 w-3" />
+          <Eye className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleDownload}
-          className="h-8 w-8 p-0"
-          title="Download"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDownload();
+          }}
+          className="h-9 w-9 p-0 hover:bg-primary/10 hover:text-primary"
+          title="Download file"
         >
-          <Download className="h-3 w-3" />
+          <Download className="h-4 w-4" />
         </Button>
       </div>
     </div>
