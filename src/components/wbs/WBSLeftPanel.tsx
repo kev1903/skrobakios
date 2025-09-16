@@ -148,15 +148,15 @@ export const WBSLeftPanel = ({
                                   type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
                                   field="name"
                                   value={item.name}
-                                  placeholder={item.level === 2 ? "Untitled Element" : "Untitled"}
-                                  className={item.level === 0 ? "font-black text-base text-gray-800 tracking-wide" : item.level === 1 ? "font-bold text-sm text-gray-700" : "font-medium text-xs text-muted-foreground"}
+                                  placeholder={item.level === 3 ? "Untitled Task" : item.level === 2 ? "Untitled Element" : "Untitled"}
+                                  className={item.level === 0 ? "font-black text-base text-gray-800 tracking-wide" : item.level === 1 ? "font-bold text-sm text-gray-700" : item.level === 2 ? "font-medium text-xs text-muted-foreground" : "font-normal text-xs text-muted-foreground/80"}
                                   data-field="name"
                                 />
                               </div>
                               
                               {/* Add Child Button */}
                               <div className="px-2 flex items-center">
-                                {item.level < 2 && onAddChild && (
+                                {item.level < 3 && onAddChild && (
                                   <Button
                                     size="sm"
                                     variant="ghost"
@@ -166,7 +166,7 @@ export const WBSLeftPanel = ({
                                       onAddChild(item.id);
                                     }}
                                     className="h-6 w-6 p-0 hover:bg-primary/10"
-                                    title={item.level === 0 ? "Add Component" : "Add Element"}
+                                    title={item.level === 0 ? "Add Component" : item.level === 1 ? "Add Element" : "Add Task"}
                                   >
                                     <Plus className="w-3 h-3" />
                                   </Button>

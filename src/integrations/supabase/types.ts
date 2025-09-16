@@ -5568,15 +5568,18 @@ export type Database = {
       wbs_items: {
         Row: {
           actual_cost: number | null
+          actual_hours: number | null
           assigned_to: string | null
           at_risk: boolean | null
           budgeted_cost: number | null
           category: string | null
           company_id: string
+          cost_link: string | null
           created_at: string
           description: string | null
           duration: number | null
           end_date: string | null
+          estimated_hours: number | null
           health: string | null
           id: string
           is_expanded: boolean | null
@@ -5588,23 +5591,29 @@ export type Database = {
           progress: number | null
           progress_status: string | null
           project_id: string
+          scope_link: string | null
           start_date: string | null
           status: string | null
+          task_type: string | null
+          time_link: string | null
           title: string
           updated_at: string
           wbs_id: string
         }
         Insert: {
           actual_cost?: number | null
+          actual_hours?: number | null
           assigned_to?: string | null
           at_risk?: boolean | null
           budgeted_cost?: number | null
           category?: string | null
           company_id: string
+          cost_link?: string | null
           created_at?: string
           description?: string | null
           duration?: number | null
           end_date?: string | null
+          estimated_hours?: number | null
           health?: string | null
           id?: string
           is_expanded?: boolean | null
@@ -5616,23 +5625,29 @@ export type Database = {
           progress?: number | null
           progress_status?: string | null
           project_id: string
+          scope_link?: string | null
           start_date?: string | null
           status?: string | null
+          task_type?: string | null
+          time_link?: string | null
           title: string
           updated_at?: string
           wbs_id: string
         }
         Update: {
           actual_cost?: number | null
+          actual_hours?: number | null
           assigned_to?: string | null
           at_risk?: boolean | null
           budgeted_cost?: number | null
           category?: string | null
           company_id?: string
+          cost_link?: string | null
           created_at?: string
           description?: string | null
           duration?: number | null
           end_date?: string | null
+          estimated_hours?: number | null
           health?: string | null
           id?: string
           is_expanded?: boolean | null
@@ -5644,8 +5659,11 @@ export type Database = {
           progress?: number | null
           progress_status?: string | null
           project_id?: string
+          scope_link?: string | null
           start_date?: string | null
           status?: string | null
+          task_type?: string | null
+          time_link?: string | null
           title?: string
           updated_at?: string
           wbs_id?: string

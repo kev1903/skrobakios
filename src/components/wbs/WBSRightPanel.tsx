@@ -73,7 +73,7 @@ export const WBSRightPanel = ({
              <div className="px-3 flex items-center text-muted-foreground text-xs">
                <EditableCell
                  id={item.id}
-                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task'}
                  field="description"
                  value={item.description || ''}
                  placeholder="Add description..."
@@ -96,21 +96,21 @@ export const WBSRightPanel = ({
                      style={{ width: `${item.progress}%` }} 
                    />
                  </div>
-                 {item.level === 2 ? (
-                   <ProgressInput 
-                     value={item.progress} 
-                     onChange={(newProgress: number) => onItemUpdate(item.id, { progress: newProgress })}
-                   />
-                 ) : (
-                   <ProgressDisplay value={item.progress} />
-                 )}
+                  {item.level <= 3 ? (
+                    <ProgressInput 
+                      value={item.progress} 
+                      onChange={(newProgress: number) => onItemUpdate(item.id, { progress: newProgress })}
+                    />
+                  ) : (
+                    <ProgressDisplay value={item.progress} />
+                  )}
                </div>
              </div>
 
              <div className="px-2 flex items-center text-muted-foreground text-xs">
                <EditableCell
                  id={item.id}
-                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task'}
                  field="assignedTo"
                  value={item.assignedTo || ''}
                  placeholder="Assign to..."
@@ -142,7 +142,7 @@ export const WBSRightPanel = ({
                    </Button>
                  </DropdownMenuTrigger>
                  <DropdownMenuContent align="end" className="w-40">
-                   <DropdownMenuItem onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')} className="text-destructive focus:text-destructive">
+                   <DropdownMenuItem onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task')} className="text-destructive focus:text-destructive">
                      <Trash2 className="w-3 h-3 mr-2" />
                      Delete
                    </DropdownMenuItem>

@@ -36,6 +36,14 @@ export interface WBSItem {
 
   // Additional fields to match standardized interface
   priority?: 'High' | 'Medium' | 'Low';
+
+  // Task-specific fields
+  scope_link?: string; // Link to scope documentation or requirements
+  time_link?: string; // Link to time tracking or scheduling information
+  cost_link?: string; // Link to cost tracking or budget information
+  task_type?: string; // Type of task (General, Design, Construction, Review, etc.)
+  estimated_hours?: number; // Estimated hours to complete the task
+  actual_hours?: number; // Actual hours spent on the task
 }
 
 export type WBSItemInput = Omit<WBSItem, 'id' | 'children' | 'created_at' | 'updated_at'>;

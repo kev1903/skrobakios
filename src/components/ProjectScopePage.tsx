@@ -200,7 +200,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('scope');
   const [dragIndicator, setDragIndicator] = useState<{ type: string; droppableId: string; index: number } | null>(null);
-  const [editingItem, setEditingItem] = useState<{ id: string; type: 'phase' | 'component' | 'element'; field: string } | null>(null);
+  const [editingItem, setEditingItem] = useState<{ id: string; type: 'phase' | 'component' | 'element' | 'task'; field: string } | null>(null);
   const [editValue, setEditValue] = useState('');
   const [notesDialogOpen, setNotesDialogOpen] = useState(false);
   const [currentNotesItem, setCurrentNotesItem] = useState<any>(null);
@@ -591,13 +591,16 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     );
   };
 
-  const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element') => {
+  const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element' | 'task') => {
     switch (action) {
       case 'add-component':
         addNewComponent(itemId);
         break;
       case 'add-element':
         addNewElement(itemId);
+        break;
+      case 'add-task':
+        addNewTask(itemId);
         break;
       case 'edit':
         const item = wbsItems.find(i => i.id === itemId);
@@ -667,7 +670,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   // Remove drag and drop and editing functions that use setScopeData
-  const handleEdit = (id: string, type: 'phase' | 'component' | 'element', field: string, currentValue: string) => {
+  const handleEdit = (id: string, type: 'phase' | 'component' | 'element' | 'task', field: string, currentValue: string) => {
     setEditingItem({ id, type, field });
     setEditValue(currentValue);
   };
@@ -684,6 +687,50 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     } else if (parentItem.level === 1) {
       // Parent is component, add element
       await addNewElement(parentId);
+    } else if (parentItem.level === 2) {
+      // Parent is element, add task
+      await addNewTask(parentId);
+    }
+  };
+
+  const addNewTask = async (elementId: string) => {
+    try {
+      if (!currentCompany?.id) {
+        console.error('No active company selected');
+        return;
+      }
+
+      const wbsId = generateWBSId(elementId);
+
+      await createWBSItem({
+        company_id: currentCompany.id,
+        project_id: project.id,
+        parent_id: elementId,
+        wbs_id: wbsId,
+        title: 'Untitled Task',
+        description: '',
+        level: 3,
+        category: 'Task',
+        is_expanded: true,
+        progress: 0,
+        status: 'Not Started',
+        health: 'Good',
+        progress_status: 'On Track',
+        at_risk: false,
+        priority: 'Medium',
+        linked_tasks: [],
+        task_type: 'General',
+        estimated_hours: 0,
+        actual_hours: 0,
+        scope_link: '',
+        time_link: '',
+        cost_link: ''
+      });
+
+      // Trigger renumbering to ensure all WBS IDs are sequential
+      await renumberWBSHierarchy();
+    } catch (error) {
+      console.error('Error adding task:', error);
     }
   };
 
@@ -895,14 +942,18 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const handleKeyDown = async (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && e.shiftKey && editingItem?.type === 'element') {
+    if (e.key === 'Enter' && e.shiftKey && (editingItem?.type === 'element' || editingItem?.type === 'task')) {
       e.preventDefault();
       await saveEdit();
       
-      // Find the parent component of this element
-      const currentElement = wbsItems.find(item => item.id === editingItem.id);
-      if (currentElement?.parent_id) {
-        await addNewElement(currentElement.parent_id);
+      // Find the parent of this item
+      const currentItem = wbsItems.find(item => item.id === editingItem.id);
+      if (currentItem?.parent_id) {
+        if (editingItem.type === 'element') {
+          await addNewElement(currentItem.parent_id);
+        } else if (editingItem.type === 'task') {
+          await addNewTask(currentItem.parent_id);
+        }
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
@@ -943,7 +994,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     className = "" 
   }: { 
     id: string; 
-    type: 'phase' | 'component' | 'element'; 
+    type: 'phase' | 'component' | 'element' | 'task'; 
     field: string; 
     value: string; 
     placeholder: string;
@@ -1002,12 +1053,16 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     };
 
     const onKeyDown = async (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' && e.shiftKey && type === 'element') {
+      if (e.key === 'Enter' && e.shiftKey && (type === 'element' || type === 'task')) {
         e.preventDefault();
         await commitEdit();
-        const currentElement = wbsItems.find(item => item.id === id);
-        if (currentElement?.parent_id) {
-          await addNewElement(currentElement.parent_id);
+        const currentItem = wbsItems.find(item => item.id === id);
+        if (currentItem?.parent_id) {
+          if (type === 'element') {
+            await addNewElement(currentItem.parent_id);
+          } else if (type === 'task') {
+            await addNewTask(currentItem.parent_id);
+          }
         }
       } else if (e.key === 'Enter') {
         e.preventDefault();
