@@ -29,12 +29,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
-import { Search, RefreshCw, MoreHorizontal, Building2, Trash2, Crown, Shield, User, UserPlus } from 'lucide-react';
+import { Search, RefreshCw, MoreHorizontal, Building2, Trash2, Crown, Shield, User, UserPlus, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useCompany } from '@/contexts/CompanyContext';
 import { toast } from '@/hooks/use-toast';
+import { CreateUserForBusinessDialog } from './CreateUserForBusinessDialog';
 
 interface CompanyMember {
   id: string;
@@ -77,6 +78,7 @@ export const EnhancedCompanyUserManagement = ({
   
   // Add existing user state
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
+  const [createUserDialogOpen, setCreateUserDialogOpen] = useState(false);
   const [availableUsers, setAvailableUsers] = useState<AvailableUser[]>([]);
   const [availableUsersLoading, setAvailableUsersLoading] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState('');
@@ -399,9 +401,7 @@ export const EnhancedCompanyUserManagement = ({
                 {companyName} Team Management
               </CardTitle>
               <CardDescription>
-                Manage existing team members, roles, and permissions for this company. {members.length} total members.
-                <br />
-                <em className="text-xs text-muted-foreground">Note: New users must be created through Platform Administration.</em>
+                Manage team members, roles, and permissions for this business. {members.length} total members.
                 <br />
                 <em className="text-xs text-muted-foreground">
                   Current role: {currentUserRole || 'none'} | 
@@ -428,13 +428,21 @@ export const EnhancedCompanyUserManagement = ({
               />
             </div>
             {canManageMembers && (
-              <Dialog open={addUserDialogOpen} onOpenChange={setAddUserDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button onClick={fetchAvailableUsers}>
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Add Existing User
-                  </Button>
-                </DialogTrigger>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => setCreateUserDialogOpen(true)}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create New User
+                </Button>
+                <Dialog open={addUserDialogOpen} onOpenChange={setAddUserDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" onClick={fetchAvailableUsers}>
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Add Existing User
+                    </Button>
+                  </DialogTrigger>
                 <DialogContent className="max-w-2xl">
                   <DialogHeader>
                     <DialogTitle>Add Existing User to Company</DialogTitle>
@@ -540,7 +548,8 @@ export const EnhancedCompanyUserManagement = ({
                     </Button>
                   </DialogFooter>
                 </DialogContent>
-              </Dialog>
+                </Dialog>
+              </div>
             )}
           </div>
 
@@ -663,6 +672,15 @@ export const EnhancedCompanyUserManagement = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Create User Dialog */}
+      <CreateUserForBusinessDialog
+        open={createUserDialogOpen}
+        onOpenChange={setCreateUserDialogOpen}
+        companyId={companyId}
+        companyName={companyName}
+        onUserCreated={fetchMembers}
+      />
     </div>
   );
 };

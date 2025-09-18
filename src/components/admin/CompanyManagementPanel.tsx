@@ -7,10 +7,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building2, Search, MoreHorizontal, Plus } from "lucide-react";
+import { Building2, Search, MoreHorizontal, Plus, Users, UserPlus } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Company } from '@/types/company';
+import { EnhancedCompanyUserManagement } from '@/components/company/EnhancedCompanyUserManagement';
 
 export const CompanyManagementPanel: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -18,6 +19,8 @@ export const CompanyManagementPanel: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
+  const [showTeamManagement, setShowTeamManagement] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     slogan: '',
@@ -271,9 +274,23 @@ export const CompanyManagementPanel: React.FC = () => {
                     <p className="text-xs text-muted-foreground">Projects</p>
                   </div>
                   
-                  <Button variant="outline" size="sm" title="Edit Project Details">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => {
+                        setSelectedCompany(company);
+                        setShowTeamManagement(true);
+                      }}
+                      title="Manage Team"
+                    >
+                      <Users className="h-4 w-4 mr-1" />
+                      Team
+                    </Button>
+                    <Button variant="outline" size="sm" title="More Options">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -371,6 +388,29 @@ export const CompanyManagementPanel: React.FC = () => {
         </form>
       </DialogContent>
     </Dialog>
+
+    {/* Team Management Dialog */}
+    {selectedCompany && (
+      <Dialog open={showTeamManagement} onOpenChange={setShowTeamManagement}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              {selectedCompany.name} - Team Management
+            </DialogTitle>
+            <DialogDescription>
+              Manage team members, assign business admins, and control access for this business.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+            <EnhancedCompanyUserManagement 
+              companyId={selectedCompany.id}
+              companyName={selectedCompany.name}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    )}
     </>
   );
 };
