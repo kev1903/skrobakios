@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Building2, Search, MoreHorizontal } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Building2, Search, MoreHorizontal, Plus } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Company } from '@/types/company';
@@ -13,6 +16,15 @@ export const CompanyManagementPanel: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    slogan: '',
+    phone: '',
+    address: '',
+    website: '',
+  });
   const { toast } = useToast();
 
   const fetchCompanies = async () => {
@@ -58,6 +70,134 @@ export const CompanyManagementPanel: React.FC = () => {
     company.slug.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleCreateBusiness = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Business name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCreating(true);
+
+    try {
+      // Get current user first
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('You must be logged in to create a company');
+      }
+
+      // Generate slug from name
+      const slug = formData.name.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') + 
+        '-' + Date.now();
+
+      const { data: company, error } = await supabase
+        .from('companies')
+        .insert({
+          name: formData.name.trim(),
+          slug,
+          slogan: formData.slogan.trim() || null,
+          phone: formData.phone.trim() || null,
+          address: formData.address.trim() || null,
+          website: formData.website.trim() || null,
+          created_by: user.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Add current user as owner of the new company
+      const { error: memberError } = await supabase
+        .from('company_members')
+        .insert({
+          company_id: company.id,
+          user_id: user.id,
+          role: 'owner',
+          status: 'active',
+        });
+
+      if (memberError) throw memberError;
+
+      // Get all superadmins and add them to the company
+      const { data: superAdmins, error: superAdminError } = await supabase
+        .from('user_roles')
+        .select(`
+          user_id,
+          profiles!inner(
+            user_id,
+            first_name,
+            last_name,
+            email
+          )
+        `)
+        .eq('role', 'superadmin');
+
+      if (superAdminError) {
+        console.error('Error fetching superadmins:', superAdminError);
+      } else if (superAdmins && superAdmins.length > 0) {
+        // Add all superadmins as owners to the company (excluding current user to avoid duplicates)
+        const superAdminMembers = superAdmins
+          .filter(admin => admin.user_id !== user.id)
+          .map(admin => ({
+            company_id: company.id,
+            user_id: admin.user_id,
+            role: 'owner',
+            status: 'active',
+          }));
+
+        if (superAdminMembers.length > 0) {
+          const { error: superAdminMemberError } = await supabase
+            .from('company_members')
+            .insert(superAdminMembers);
+
+          if (superAdminMemberError) {
+            console.error('Error adding superadmins to company:', superAdminMemberError);
+            // Don't throw error here as the main company creation was successful
+          }
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: "Business created successfully!",
+      });
+
+      // Reset form and close dialog
+      setFormData({
+        name: '',
+        slogan: '',
+        phone: '',
+        address: '',
+        website: '',
+      });
+      setIsCreateDialogOpen(false);
+      
+      // Refresh companies list
+      fetchCompanies();
+
+    } catch (error: any) {
+      console.error('Error creating company:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create business",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
 
   if (loading) {
     return (
@@ -76,14 +216,21 @@ export const CompanyManagementPanel: React.FC = () => {
   }
 
   return (
-    <Card className="glass-panel">
+    <>
+      <Card className="glass-panel">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
             Business Management
           </CardTitle>
-          <Badge variant="secondary">{companies.length} Businesses</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">{companies.length} Businesses</Badge>
+            <Button onClick={() => setIsCreateDialogOpen(true)} className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Create Business
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -144,5 +291,86 @@ export const CompanyManagementPanel: React.FC = () => {
         </div>
       </CardContent>
     </Card>
+
+    {/* Create Business Dialog */}
+    <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Create New Business</DialogTitle>
+          <DialogDescription>
+            Create a new business and automatically add all superadmins as owners.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <form onSubmit={handleCreateBusiness} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Business Name *</Label>
+            <Input
+              id="name"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              placeholder="Enter business name"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="slogan">Slogan</Label>
+            <Input
+              id="slogan"
+              value={formData.slogan}
+              onChange={(e) => handleInputChange('slogan', e.target.value)}
+              placeholder="Your business slogan"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone</Label>
+            <Input
+              id="phone"
+              value={formData.phone}
+              onChange={(e) => handleInputChange('phone', e.target.value)}
+              placeholder="+61 4 1234 5678"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="website">Website</Label>
+            <Input
+              id="website"
+              value={formData.website}
+              onChange={(e) => handleInputChange('website', e.target.value)}
+              placeholder="https://example.com"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="address">Address</Label>
+            <Textarea
+              id="address"
+              value={formData.address}
+              onChange={(e) => handleInputChange('address', e.target.value)}
+              placeholder="Business address"
+              rows={3}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsCreateDialogOpen(false)}
+              disabled={isCreating}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isCreating}>
+              {isCreating ? 'Creating...' : 'Create Business'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 };
