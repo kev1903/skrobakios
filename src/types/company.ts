@@ -16,6 +16,12 @@ export interface Company {
   created_at: string;
   updated_at: string;
   created_by?: string;
+  onboarding_completed?: boolean;
+  verified?: boolean;
+  subscription_tier?: string;
+  public_page?: boolean;
+  member_count?: number;
+  project_count?: number;
 }
 
 export interface CompanyMember {

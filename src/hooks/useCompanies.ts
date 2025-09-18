@@ -185,18 +185,61 @@ export const useCompanies = () => {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('User not authenticated');
 
+      // Check for existing companies with same ABN or similar name
+      if (companyData.abn) {
+        const { data: existingByAbn } = await supabase
+          .from('companies')
+          .select('id, name')
+          .eq('abn', companyData.abn)
+          .limit(1);
+        
+        if (existingByAbn && existingByAbn.length > 0) {
+          throw new Error(`A company with ABN ${companyData.abn} already exists: ${existingByAbn[0].name}`);
+        }
+      }
+
+      // Check for similar company names (prevent auto-generated duplicates)
+      const { data: existingSimilar } = await supabase
+        .from('companies')
+        .select('id, name')
+        .ilike('name', `%${companyData.name.split("'s Company")[0]}%`)
+        .limit(3);
+      
+      if (existingSimilar && existingSimilar.length > 0) {
+        console.warn('Similar companies found:', existingSimilar);
+      }
+
+      // Generate a better slug without timestamp if possible
+      let finalSlug = companyData.slug;
+      const { data: existingSlug } = await supabase
+        .from('companies')
+        .select('id')
+        .eq('slug', finalSlug)
+        .limit(1);
+      
+      if (existingSlug && existingSlug.length > 0) {
+        // Only add timestamp if slug already exists
+        finalSlug = `${companyData.slug}-${Date.now()}`;
+      }
+
       // Create company
       const { data: company, error: companyError } = await supabase
         .from('companies')
         .insert([{ 
           name: companyData.name,
-          slug: companyData.slug,
+          slug: finalSlug,
           logo_url: companyData.logo_url,
           website: companyData.website,
           address: companyData.address,
           phone: companyData.phone,
           abn: companyData.abn,
           slogan: companyData.slogan,
+          business_type: (companyData.business_type as 'sole_trader' | 'partnership' | 'company' | 'trust') || 'company',
+          industry: companyData.industry || 'Construction',
+          company_size: companyData.company_size,
+          service_areas: companyData.service_areas,
+          year_established: companyData.year_established,
+          onboarding_completed: companyData.onboarding_completed || false,
           created_by: userData.user.id 
         }])
         .select()

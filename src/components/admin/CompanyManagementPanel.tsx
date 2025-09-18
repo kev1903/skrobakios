@@ -4,23 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Building2, Search, MoreHorizontal, Users, Settings, Ban } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Building2, Search, MoreHorizontal, Users, Settings, Ban, Zap } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
-interface Company {
-  id: string;
-  name: string;
-  slug: string;
-  logo_url: string | null;
-  website: string | null;
-  created_at: string;
-  subscription_tier: string;
-  verified: boolean;
-  public_page: boolean;
-  member_count?: number;
-  project_count?: number;
-}
+import { BusinessCleanupPanel } from './BusinessCleanupPanel';
+import { Company } from '@/types/company';
 
 export const CompanyManagementPanel: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -116,103 +105,129 @@ export const CompanyManagementPanel: React.FC = () => {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
-            Company Management
+            Business Management
           </CardTitle>
-          <Badge variant="secondary">{companies.length} Companies</Badge>
-        </div>
-        <div className="flex items-center gap-4 mt-4">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search companies..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          <Badge variant="secondary">{companies.length} Businesses</Badge>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {filteredCompanies.map((company) => (
-            <div key={company.id} className="border border-border/40 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={company.logo_url || ''} alt={company.name} />
-                    <AvatarFallback>
-                      {company.name.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">{company.name}</h3>
-                      {company.verified && (
-                        <Badge variant="default" className="text-xs">Verified</Badge>
-                      )}
-                      {!company.public_page && (
-                        <Badge variant="secondary" className="text-xs">Private</Badge>
-                      )}
+        <Tabs defaultValue="list" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="list">Business List</TabsTrigger>
+            <TabsTrigger value="cleanup">
+              <Zap className="h-4 w-4 mr-2" />
+              Data Cleanup
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="list" className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search businesses..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div className="space-y-4">
+              {filteredCompanies.map((company) => (
+                <div key={company.id} className="border border-border/40 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={company.logo_url || ''} alt={company.name} />
+                        <AvatarFallback>
+                          {company.name.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold">{company.name}</h3>
+                          {company.verified && (
+                            <Badge variant="default" className="text-xs">Verified</Badge>
+                          )}
+                          {!company.public_page && (
+                            <Badge variant="secondary" className="text-xs">Private</Badge>
+                          )}
+                          {!company.onboarding_completed && (
+                            <Badge variant="outline" className="text-xs">Incomplete</Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">/{company.slug}</p>
+                        {company.website && (
+                          <p className="text-xs text-muted-foreground">{company.website}</p>
+                        )}
+                        {company.abn && (
+                          <p className="text-xs text-muted-foreground">ABN: {company.abn}</p>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">/{company.slug}</p>
-                    {company.website && (
-                      <p className="text-xs text-muted-foreground">{company.website}</p>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-6">
-                  <div className="text-center">
-                    <p className="text-sm font-medium">{company.member_count || 0}</p>
-                    <p className="text-xs text-muted-foreground">Members</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium">{company.project_count || 0}</p>
-                    <p className="text-xs text-muted-foreground">Projects</p>
-                  </div>
-                  <div className="text-center">
-                    <Badge variant="outline" className="text-xs">
-                      {company.subscription_tier || 'FREE'}
-                    </Badge>
+                    
+                    <div className="flex items-center gap-6">
+                      <div className="text-center">
+                        <p className="text-sm font-medium">{company.member_count || 0}</p>
+                        <p className="text-xs text-muted-foreground">Members</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm font-medium">{company.project_count || 0}</p>
+                        <p className="text-xs text-muted-foreground">Projects</p>
+                      </div>
+                      <div className="text-center">
+                        <Badge variant="outline" className="text-xs">
+                          {company.subscription_tier || 'FREE'}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleToggleVerification(company.id, company.verified)}
+                        >
+                          {company.verified ? <Ban className="h-4 w-4" /> : <Badge className="h-4 w-4" />}
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Users className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleToggleVerification(company.id, company.verified)}
-                    >
-                      {company.verified ? <Ban className="h-4 w-4" /> : <Badge className="h-4 w-4" />}
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Users className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Created: {new Date(company.created_at).toLocaleDateString()}</span>
+                    <div className="flex items-center gap-4">
+                      <span>Type: {company.business_type || 'company'}</span>
+                      <span>Onboarded: {company.onboarding_completed ? 'Yes' : 'No'}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              
-              <div className="mt-3 text-xs text-muted-foreground">
-                Created: {new Date(company.created_at).toLocaleDateString()}
-              </div>
-            </div>
-          ))}
+              ))}
 
-          {filteredCompanies.length === 0 && (
-            <div className="text-center py-8">
-              <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Companies Found</h3>
-              <p className="text-muted-foreground">
-                {searchTerm ? 'No companies match your search criteria.' : 'No companies have been created yet.'}
-              </p>
+              {filteredCompanies.length === 0 && (
+                <div className="text-center py-8">
+                  <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Businesses Found</h3>
+                  <p className="text-muted-foreground">
+                    {searchTerm ? 'No businesses match your search criteria.' : 'No businesses have been created yet.'}
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </TabsContent>
+
+          <TabsContent value="cleanup">
+            <BusinessCleanupPanel />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
