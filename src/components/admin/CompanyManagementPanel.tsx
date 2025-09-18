@@ -21,6 +21,7 @@ export const CompanyManagementPanel: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [showTeamManagement, setShowTeamManagement] = useState(false);
+  const [showBusinessAdminDialog, setShowBusinessAdminDialog] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     slogan: '',
@@ -259,9 +260,17 @@ export const CompanyManagementPanel: React.FC = () => {
                       {company.name.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <h3 className="font-semibold">{company.name}</h3>
-                  </div>
+                   <div>
+                     <h3 
+                       className="font-semibold cursor-pointer hover:text-primary transition-colors"
+                       onClick={() => {
+                         setSelectedCompany(company);
+                         setShowBusinessAdminDialog(true);
+                       }}
+                     >
+                       {company.name}
+                     </h3>
+                   </div>
                 </div>
                 
                 <div className="flex items-center gap-8">
@@ -388,6 +397,29 @@ export const CompanyManagementPanel: React.FC = () => {
         </form>
       </DialogContent>
     </Dialog>
+
+    {/* Business Admin Creation Dialog */}
+    {selectedCompany && (
+      <Dialog open={showBusinessAdminDialog} onOpenChange={setShowBusinessAdminDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-5 w-5" />
+              {selectedCompany.name} - Create Business Admins
+            </DialogTitle>
+            <DialogDescription>
+              Create and assign business administrators for this company.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+            <EnhancedCompanyUserManagement 
+              companyId={selectedCompany.id}
+              companyName={selectedCompany.name}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    )}
 
     {/* Team Management Dialog */}
     {selectedCompany && (
