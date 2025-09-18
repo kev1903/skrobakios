@@ -80,7 +80,7 @@ serve(async (req) => {
     const requestBody = await req.json()
     console.log('Request body received:', { ...requestBody, password: '[REDACTED]' })
     
-    const { email, password, firstName, lastName } = requestBody
+    const { email, password, firstName, lastName, companyId, companyRole, appRole } = requestBody
 
     if (!email || !password || !firstName || !lastName) {
       console.error('Missing required fields:', { email: !!email, password: !!password, firstName: !!firstName, lastName: !!lastName })
@@ -173,14 +173,17 @@ serve(async (req) => {
       }
 
       console.log('Profile upserted successfully')
-      console.log('Assigning default user role')
+      
+      // Determine the app-level role
+      const finalAppRole = appRole || (companyRole === 'admin' ? 'business_admin' : 'user')
+      console.log('Assigning app role:', finalAppRole)
 
-      // Assign default 'user' role
+      // Assign app-level role
       const { error: roleUpsertError } = await supabaseAdmin
         .from('user_roles')
         .upsert({
           user_id: createdUserId,
-          role: 'user'
+          role: finalAppRole
         }, { onConflict: 'user_id,role' })
 
       if (roleUpsertError) {
@@ -191,7 +194,31 @@ serve(async (req) => {
         )
       }
 
-      console.log('Role assigned successfully')
+      console.log('App role assigned successfully')
+
+      // Add user to company if companyId and companyRole are provided
+      if (companyId && companyRole) {
+        console.log('Adding user to company:', companyId, 'with role:', companyRole)
+        
+        const { error: companyMemberError } = await supabaseAdmin
+          .from('company_members')
+          .upsert({
+            company_id: companyId,
+            user_id: createdUserId,
+            role: companyRole,
+            status: 'active'
+          }, { onConflict: 'company_id,user_id' })
+
+        if (companyMemberError) {
+          console.error('Failed to add user to company:', companyMemberError)
+          return new Response(
+            JSON.stringify({ success: false, error: 'Failed to add user to company: ' + companyMemberError.message }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        console.log('User added to company successfully')
+      }
       
       // Log the action
       try {
@@ -203,7 +230,9 @@ serve(async (req) => {
             target_user_id: createdUserId,
             details: {
               email,
-              role: 'user',
+              app_role: finalAppRole,
+              company_role: companyRole,
+              company_id: companyId,
               created_by: user.email
             }
           })
@@ -222,7 +251,8 @@ serve(async (req) => {
             id: createdUserId,
             email: createdUserEmail,
             created_at: createdAt,
-            role: 'user'
+            app_role: finalAppRole,
+            company_role: companyRole
           }
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

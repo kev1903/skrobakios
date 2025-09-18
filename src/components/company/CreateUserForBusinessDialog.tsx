@@ -30,7 +30,7 @@ export const CreateUserForBusinessDialog = ({
     password: '',
     firstName: '',
     lastName: '',
-    role: 'manager' as 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'
+    role: 'admin' as 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'
   });
 
   const generatePassword = () => {
@@ -88,7 +88,10 @@ export const CreateUserForBusinessDialog = ({
           email: formData.email,
           password: formData.password,
           firstName: formData.firstName,
-          lastName: formData.lastName
+          lastName: formData.lastName,
+          companyId: companyId,
+          companyRole: formData.role,
+          appRole: formData.role === 'admin' ? 'business_admin' : 'user'
         },
       });
 
@@ -101,30 +104,17 @@ export const CreateUserForBusinessDialog = ({
         throw new Error(errorMsg);
       }
 
-      // Add the new user to the company
-      const { error: memberError } = await supabase
-        .from('company_members')
-        .insert({
-          company_id: companyId,
-          user_id: data.user.id,
-          role: formData.role,
-          status: 'active'
-        });
+      const roleLabel = formData.role === 'admin' ? 'Business Admin' : 
+                       formData.role === 'manager' ? 'Manager' :
+                       formData.role === 'supplier' ? 'Supplier' :
+                       formData.role === 'sub_contractor' ? 'Sub-Contractor' :
+                       formData.role === 'consultant' ? 'Consultant' :
+                       formData.role === 'client' ? 'Client' : formData.role;
 
-      if (memberError) {
-        console.error('Error adding user to company:', memberError);
-        // Still show success for user creation, but warn about company membership
-        toast({
-          title: "User Created",
-          description: `User ${formData.email} created successfully, but there was an issue adding them to the company. Please add them manually.`,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: `User ${formData.email} created and added to ${companyName} as ${formData.role}`,
-        });
-      }
+      toast({
+        title: "Success",
+        description: `${roleLabel} ${formData.email} created and added to ${companyName} successfully`,
+      });
 
       // Reset form and close dialog
       setFormData({
@@ -132,7 +122,7 @@ export const CreateUserForBusinessDialog = ({
         password: '',
         firstName: '',
         lastName: '',
-        role: 'manager'
+        role: 'admin'
       });
       onOpenChange(false);
       onUserCreated();
