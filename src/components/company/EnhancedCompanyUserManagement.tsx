@@ -88,12 +88,17 @@ export const EnhancedCompanyUserManagement = ({
     try {
       setLoading(true);
       
+      console.log('Fetching members for company:', companyId);
+      
       // Step 1: Fetch company members (no joins to avoid FK requirement)
       const { data: memberRows, error: membersError } = await supabase
         .from('company_members')
         .select('*')
         .eq('company_id', companyId)
         .eq('status', 'active');
+
+      console.log('Raw company members data:', memberRows);
+      console.log('Company members error:', membersError);
 
       if (membersError) {
         console.error('Error fetching company members:', membersError);
@@ -106,6 +111,7 @@ export const EnhancedCompanyUserManagement = ({
       }
 
       const userIds = (memberRows || []).map((m: any) => m.user_id).filter(Boolean);
+      console.log('Extracted user IDs:', userIds);
 
       // Step 2: Fetch profiles for those user IDs
       let profilesMap = new Map<string, any>();
@@ -114,6 +120,9 @@ export const EnhancedCompanyUserManagement = ({
           .from('profiles')
           .select('user_id, email, first_name, last_name, avatar_url, phone')
           .in('user_id', userIds);
+
+        console.log('Profiles data:', profiles);
+        console.log('Profiles error:', profilesError);
 
         if (profilesError) {
           console.error('Error fetching profiles:', profilesError);
@@ -144,6 +153,7 @@ export const EnhancedCompanyUserManagement = ({
         } as CompanyMember;
       });
 
+      console.log('Transformed members:', transformedMembers);
       setMembers(transformedMembers);
 
       // Get current user's role in the company
