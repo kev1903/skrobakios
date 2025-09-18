@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Trash2, UserPlus, Mail, Settings, Shield, Users, Clock, UserX, Edit3 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useProjectUsers, formatUserName, getUserInitials, getUserAvatar, ProjectUser } from '@/hooks/useProjectUsers';
+import { useCompanyMembers, formatMemberName, getMemberInitials, CompanyMember } from '@/hooks/useCompanyMembers';
 
 interface ProjectTeamPageProps {
   project: Project;
@@ -68,6 +69,9 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
 
   // Fetch team members with profile information using the new hook
   const { data: teamMembers, isLoading } = useProjectUsers(project.id);
+  
+  // Fetch company members to show who can be added to the project
+  const { data: companyMembers, isLoading: loadingCompanyMembers } = useCompanyMembers(currentCompany?.id || '');
 
   // Invite member mutation
   const inviteMemberMutation = useMutation({
@@ -101,6 +105,44 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
       toast({
         title: "Error",
         description: "Failed to invite member",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Add company member to project mutation
+  const addMemberToProjectMutation = useMutation({
+    mutationFn: async ({ companyMemberId, role }: { companyMemberId: string, role: string }) => {
+      // Get the company member details first
+      const companyMember = companyMembers?.find(m => m.id === companyMemberId);
+      if (!companyMember) throw new Error("Company member not found");
+
+      const { data, error } = await supabase
+        .from("project_members")
+        .insert({
+          project_id: project.id,
+          user_id: companyMember.user_id,
+          email: companyMember.email,
+          role: role,
+          status: 'active',
+          joined_at: new Date().toISOString()
+        });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Company member added to project successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["project-users", project.id] });
+    },
+    onError: (error) => {
+      console.error("Error adding member to project:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add member to project",
         variant: "destructive",
       });
     }
@@ -243,7 +285,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
     }
   };
 
-  if (isLoading) {
+  if (isLoading || loadingCompanyMembers) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -251,11 +293,78 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
     );
   }
 
+  // Get company members who are not yet part of the project
+  const availableCompanyMembers = companyMembers?.filter(companyMember => 
+    !teamMembers?.some(projectMember => projectMember.user_id === companyMember.user_id)
+  ) || [];
+
   return (
     <div className="p-6 space-y-6">
       {/* Action Buttons */}
       <div className="flex justify-end items-center">
         <div className="flex gap-2">
+          {availableCompanyMembers.length > 0 && (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Add Company Members ({availableCompanyMembers.length})
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Add Company Members to Project</DialogTitle>
+                  <DialogDescription>
+                    Select company members to add to this project team.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="max-h-96 overflow-y-auto">
+                  <div className="space-y-3">
+                    {availableCompanyMembers.map((member) => (
+                      <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage src={member.profile?.avatar_url} />
+                            <AvatarFallback>{getMemberInitials(member)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{formatMemberName(member)}</p>
+                            <p className="text-sm text-muted-foreground">{member.email}</p>
+                            {member.profile?.professional_title && (
+                              <p className="text-xs text-muted-foreground">{member.profile.professional_title}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Select
+                            defaultValue="member"
+                            onValueChange={(role) => {
+                              addMemberToProjectMutation.mutate({
+                                companyMemberId: member.id,
+                                role: role
+                              });
+                            }}
+                          >
+                            <SelectTrigger className="w-32">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {roleOptions.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+          
           <Dialog open={isAddMemberDialogOpen} onOpenChange={setIsAddMemberDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
@@ -577,34 +686,22 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
         </Card>
       </div>
 
-      {/* Team Members List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Team Members</CardTitle>
-          <CardDescription>
-            Current members and their roles in this project
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {!teamMembers || teamMembers.length === 0 ? (
-            <div className="text-center py-8">
-              <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium mb-2">No team members yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Start by inviting team members to collaborate on this project.
-              </p>
-              <Button onClick={() => setIsInviteDialogOpen(true)}>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Invite First Member
-              </Button>
-            </div>
-          ) : (
+      {/* Team Members Section */}
+      {teamMembers && teamMembers.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Project Team Members ({teamMembers.length})</CardTitle>
+            <CardDescription>
+              Team members currently assigned to this project.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-4">
               {teamMembers.map((member) => (
                 <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center gap-4">
-                    <Avatar>
-                      <AvatarImage src={member.profile?.avatar_url || undefined} />
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={getUserAvatar(member)} />
                       <AvatarFallback>{getUserInitials(member)}</AvatarFallback>
                     </Avatar>
                     
@@ -612,6 +709,9 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                       <div className="flex items-center gap-2">
                         <h4 className="font-medium">{formatUserName(member)}</h4>
                         {getStatusBadge(member)}
+                        {member.isCurrentUser && (
+                          <Badge variant="outline" className="text-xs">You</Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Mail className="w-3 h-3" />
@@ -620,11 +720,6 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                       {member.profile?.professional_title && (
                         <div className="text-sm text-muted-foreground">
                           {member.profile.professional_title}
-                        </div>
-                      )}
-                      {member.profile?.phone && (
-                        <div className="text-sm text-muted-foreground">
-                          📞 {member.profile.phone}
                         </div>
                       )}
                       {member.profile?.skills && member.profile.skills.length > 0 && (
@@ -643,33 +738,99 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                       )}
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-4">
+                  
+                  <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2">
                       {getRoleIcon(member.role)}
-                      <Badge variant="outline" className="capitalize">
+                      <Badge variant="secondary" className="capitalize">
                         {member.role}
                       </Badge>
                     </div>
-
-                    {member.role !== 'owner' && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeMemberMutation.mutate(member.id)}
-                        disabled={removeMemberMutation.isPending}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeMemberMutation.mutate(member.id)}
+                      className="text-destructive hover:text-destructive"
+                      disabled={removeMemberMutation.isPending}
+                    >
+                      <UserX className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
               ))}
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Users className="w-16 h-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold mb-2">No Team Members Yet</h3>
+            <p className="text-muted-foreground text-center mb-6 max-w-md">
+              This project doesn't have any team members assigned yet. Add company members to the project or invite new members to get started.
+            </p>
+            <div className="flex gap-2">
+              {availableCompanyMembers.length > 0 && (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      Add Company Members ({availableCompanyMembers.length})
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Add Company Members to Project</DialogTitle>
+                      <DialogDescription>
+                        Select company members to add to this project team.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="max-h-96 overflow-y-auto">
+                      <div className="space-y-3">
+                        {availableCompanyMembers.map((member) => (
+                          <div key={member.id} className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <Avatar>
+                                <AvatarImage src={member.profile?.avatar_url} />
+                                <AvatarFallback>{getMemberInitials(member)}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">{formatMemberName(member)}</p>
+                                <p className="text-sm text-muted-foreground">{member.email}</p>
+                                {member.profile?.professional_title && (
+                                  <p className="text-xs text-muted-foreground">{member.profile.professional_title}</p>
+                                )}
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              onClick={() => addMemberToProjectMutation.mutate({
+                                companyMemberId: member.id,
+                                role: 'member'
+                              })}
+                              disabled={addMemberToProjectMutation.isPending}
+                            >
+                              Add to Project
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
+              <Button
+                variant="outline"
+                onClick={() => setIsInviteDialogOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <UserPlus className="w-4 h-4" />
+                Invite New Member
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
