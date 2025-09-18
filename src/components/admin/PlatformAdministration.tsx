@@ -54,7 +54,7 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
           </TabsTrigger>
           <TabsTrigger value="companies" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
-            Companies
+            Businesses
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
