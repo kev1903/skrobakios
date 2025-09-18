@@ -154,34 +154,9 @@ export const WBSLeftPanel = ({
                                 />
                               </div>
                               
-                               {/* Add Child Button */}
+                               {/* Add Child Button - Removed per user request */}
                                <div className="px-2 flex items-center">
-                                 {item.level < 3 && onAddChild && (
-                                   <Button
-                                     size="sm"
-                                     variant="ghost"
-                                     onClick={(e) => {
-                                       console.log('🔧 Add child button clicked for:', { itemId: item.id, level: item.level, name: item.name });
-                                       console.log('🟡 Button render info:', { 
-                                         level: item.level, 
-                                         showButton: item.level < 3 && onAddChild,
-                                         hasOnAddChild: !!onAddChild 
-                                       });
-                                       e.preventDefault();
-                                       e.stopPropagation();
-                                       try {
-                                         onAddChild(item.id);
-                                         console.log('✅ onAddChild called successfully');
-                                       } catch (error) {
-                                         console.error('❌ Error calling onAddChild:', error);
-                                       }
-                                     }}
-                                     className="h-6 w-6 p-0 hover:bg-primary/10"
-                                     title={item.level === 0 ? "Add Component" : item.level === 1 ? "Add Element" : "Add Task"}
-                                   >
-                                     <Plus className="w-3 h-3" />
-                                   </Button>
-                                 )}
+                                 {/* Button removed */}
                                </div>
                             </div>
                           </DragPortalWrapper>
