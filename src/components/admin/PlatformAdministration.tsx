@@ -1,9 +1,9 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings, Flag, Server, Building2, Shield, Activity, AlertTriangle, Users } from "lucide-react";
+import { Settings, Server, Building2, Shield, Activity, AlertTriangle, Users } from "lucide-react";
 import { PlatformSettingsPanel } from './PlatformSettingsPanel';
-import { FeatureFlagsPanel } from './FeatureFlagsPanel';
+
 import { SystemMonitoringPanel } from './SystemMonitoringPanel';
 import { CompanyManagementPanel } from './CompanyManagementPanel';
 import { SecurityOverviewPanel } from './SecurityOverviewPanel';
@@ -43,14 +43,10 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
         </div>
 
       <Tabs defaultValue="settings" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7 bg-card border border-border shadow-lg rounded-lg">
+        <TabsList className="grid w-full grid-cols-6 bg-card border border-border shadow-lg rounded-lg">
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Settings
-          </TabsTrigger>
-          <TabsTrigger value="features" className="flex items-center gap-2">
-            <Flag className="h-4 w-4" />
-            Features
           </TabsTrigger>
           <TabsTrigger value="monitoring" className="flex items-center gap-2">
             <Server className="h-4 w-4" />
@@ -78,9 +74,6 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
           <PlatformSettingsPanel />
         </TabsContent>
 
-        <TabsContent value="features" className="space-y-6">
-          <FeatureFlagsPanel />
-        </TabsContent>
 
         <TabsContent value="monitoring" className="space-y-6">
           <SystemMonitoringPanel />
