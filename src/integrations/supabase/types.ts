@@ -6185,6 +6185,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      cleanup_non_business_accounts: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          company_name: string
+          deleted_company_id: string
+          deletion_result: Json
+        }[]
+      }
       copy_monday_blocks_to_weekdays: {
         Args: { target_user_id: string }
         Returns: undefined
