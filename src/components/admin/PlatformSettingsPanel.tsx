@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Settings, Save, RotateCcw } from "lucide-react";
+import { Settings, Save, RotateCcw, Server, Shield, File, Zap, Users, Lock } from "lucide-react";
 import { usePlatformSettings } from '@/hooks/usePlatformSettings';
 
 export const PlatformSettingsPanel: React.FC = () => {
@@ -48,41 +48,57 @@ export const PlatformSettingsPanel: React.FC = () => {
     });
   };
 
-  const renderSettingInput = (setting: any) => {
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'api': return Server;
+      case 'auth': return Shield;
+      case 'files': return File;
+      case 'limits': return Zap;
+      case 'security': return Lock;
+      case 'users': return Users;
+      default: return Settings;
+    }
+  };
+
+  const renderCompactInput = (setting: any, isEditing: boolean) => {
     const currentValue = editingSettings[setting.setting_key] !== undefined 
       ? editingSettings[setting.setting_key] 
       : setting.setting_value;
 
-    const isEditing = editingSettings[setting.setting_key] !== undefined;
-
     if (typeof currentValue === 'boolean') {
       return (
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">{currentValue ? 'Enabled' : 'Disabled'}</span>
           <Switch
             checked={currentValue}
             onCheckedChange={(checked) => handleSettingChange(setting.setting_key, checked)}
           />
-          <Label>{currentValue ? 'Enabled' : 'Disabled'}</Label>
         </div>
       );
     }
 
     if (typeof currentValue === 'object') {
       return (
-        <Textarea
-          value={JSON.stringify(currentValue, null, 2)}
-          onChange={(e) => {
-            try {
-              const parsed = JSON.parse(e.target.value);
-              handleSettingChange(setting.setting_key, parsed);
-            } catch {
-              // Invalid JSON, keep as string for now
-            }
-          }}
-          placeholder="JSON configuration"
-          className="font-mono text-sm"
-          rows={4}
-        />
+        <div className="space-y-2">
+          <div className="p-2 bg-muted rounded border text-xs font-mono max-h-20 overflow-y-auto">
+            {JSON.stringify(currentValue, null, 1)}
+          </div>
+          {isEditing && (
+            <Textarea
+              value={JSON.stringify(currentValue, null, 2)}
+              onChange={(e) => {
+                try {
+                  const parsed = JSON.parse(e.target.value);
+                  handleSettingChange(setting.setting_key, parsed);
+                } catch {
+                  // Invalid JSON, keep as string for now
+                }
+              }}
+              className="font-mono text-xs"
+              rows={4}
+            />
+          )}
+        </div>
       );
     }
 
@@ -94,7 +110,7 @@ export const PlatformSettingsPanel: React.FC = () => {
           handleSettingChange(setting.setting_key, value);
         }}
         type={setting.setting_type === 'limits' ? 'number' : 'text'}
-        placeholder={`Enter ${setting.setting_key}`}
+        className="h-8 text-sm"
       />
     );
   };
@@ -102,79 +118,97 @@ export const PlatformSettingsPanel: React.FC = () => {
   if (loading) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
             <Settings className="h-5 w-5" />
             Platform Settings
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8">Loading platform settings...</div>
+          <div className="text-center py-4 text-sm text-muted-foreground">Loading platform settings...</div>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {Object.entries(settingsByType).map(([type, typeSettings]) => (
-        <Card key={type}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 capitalize">
-              <Settings className="h-5 w-5" />
-              {type.replace('_', ' ')} Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {typeSettings.map((setting) => {
-              const isEditing = editingSettings[setting.setting_key] !== undefined;
-              return (
-                <div key={setting.setting_key} className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Label className="font-medium">{setting.setting_key}</Label>
-                        {setting.is_sensitive && (
-                          <Badge variant="destructive" className="text-xs">Sensitive</Badge>
-                        )}
-                        {setting.requires_restart && (
-                          <Badge variant="outline" className="text-xs">Requires Restart</Badge>
+    <div className="space-y-4">
+      {Object.entries(settingsByType).map(([type, typeSettings]) => {
+        const IconComponent = getTypeIcon(type);
+        return (
+          <Card key={type} className="shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg capitalize">
+                <IconComponent className="h-5 w-5" />
+                {type.replace('_', ' ')} Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4">
+                {typeSettings.map((setting, index) => {
+                  const isEditing = editingSettings[setting.setting_key] !== undefined;
+                  return (
+                    <div key={setting.setting_key} className="grid grid-cols-1 lg:grid-cols-3 gap-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
+                      {/* Setting Info */}
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Label className="font-medium text-sm">{setting.setting_key.replace(/_/g, ' ')}</Label>
+                          {setting.is_sensitive && (
+                            <Badge variant="destructive" className="text-xs px-1 py-0">Sensitive</Badge>
+                          )}
+                          {setting.requires_restart && (
+                            <Badge variant="outline" className="text-xs px-1 py-0">Restart Required</Badge>
+                          )}
+                        </div>
+                        {setting.description && (
+                          <p className="text-xs text-muted-foreground leading-tight">{setting.description}</p>
                         )}
                       </div>
-                      {setting.description && (
-                        <p className="text-sm text-muted-foreground">{setting.description}</p>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {isEditing && (
-                        <>
+                      
+                      {/* Setting Input */}
+                      <div className="flex items-center">
+                        {renderCompactInput(setting, isEditing)}
+                      </div>
+                      
+                      {/* Action Buttons */}
+                      <div className="flex items-center justify-end gap-1">
+                        {isEditing ? (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleResetSetting(setting.setting_key)}
+                              className="h-7 px-2"
+                            >
+                              <RotateCcw className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => handleSaveSetting(setting.setting_key)}
+                              className="h-7 px-2 bg-primary hover:bg-primary/90"
+                            >
+                              <Save className="h-3 w-3" />
+                            </Button>
+                          </>
+                        ) : (
                           <Button
                             size="sm"
-                            variant="outline"
-                            onClick={() => handleResetSetting(setting.setting_key)}
+                            variant="ghost"
+                            onClick={() => handleSettingChange(setting.setting_key, setting.setting_value)}
+                            className="h-7 px-2 text-xs"
                           >
-                            <RotateCcw className="h-4 w-4" />
+                            Edit
                           </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => handleSaveSetting(setting.setting_key)}
-                          >
-                            <Save className="h-4 w-4" />
-                          </Button>
-                        </>
-                      )}
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div className="max-w-md">
-                    {renderSettingInput(setting)}
-                  </div>
-                  {typeSettings.indexOf(setting) < typeSettings.length - 1 && <Separator />}
-                </div>
-              );
-            })}
-          </CardContent>
-        </Card>
-      ))}
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 };
