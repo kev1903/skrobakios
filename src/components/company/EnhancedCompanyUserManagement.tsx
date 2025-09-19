@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -71,6 +72,7 @@ export const EnhancedCompanyUserManagement = ({
   const { user } = useAuth();
   const { isSuperAdmin } = useUserRole();
   const { refreshCompanies } = useCompany();
+  const queryClient = useQueryClient();
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -92,6 +94,8 @@ export const EnhancedCompanyUserManagement = ({
       
       if (forceRefresh) {
         console.log('Force refreshing company members for company:', companyId);
+        // Invalidate React Query cache to force refetch
+        queryClient.invalidateQueries({ queryKey: ["company-members", companyId] });
       }
       
       console.log('Fetching members for company:', companyId);

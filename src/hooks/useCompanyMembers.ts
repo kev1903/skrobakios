@@ -23,13 +23,17 @@ export const useCompanyMembers = (companyId: string) => {
     queryFn: async () => {
       if (!companyId) return [];
 
-      // Get company members
+      console.log('Fetching company members for company:', companyId);
+      
+      // Get company members with more detailed query for debugging
       const { data: companyMembers, error: companyError } = await supabase
         .from("company_members")
-        .select("id, user_id, role, status")
+        .select("id, user_id, role, status, joined_at, created_at")
         .eq("company_id", companyId)
         .eq("status", "active")
         .order("joined_at", { ascending: false });
+
+      console.log('Company members raw response:', companyMembers, companyError);
 
       if (companyError) {
         console.error("Error fetching company members:", companyError);
@@ -88,7 +92,8 @@ export const useCompanyMembers = (companyId: string) => {
       return members;
     },
     enabled: !!companyId,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 0, // Don't cache after unmounting
   });
 };
 
