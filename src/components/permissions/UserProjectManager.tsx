@@ -149,7 +149,7 @@ export const UserProjectManager: React.FC<UserProjectManagerProps> = ({
       if (error) throw error;
       setCompanies(data || []);
     } catch (error: any) {
-      console.error('Error fetching companies:', error);
+      console.error('Error fetching businesses:', error);
     }
   };
 

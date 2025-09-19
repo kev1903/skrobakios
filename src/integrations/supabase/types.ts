@@ -6610,6 +6610,10 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: string[]
       }
+      get_user_company_memberships: {
+        Args: { target_user_id: string }
+        Returns: string[]
+      }
       get_user_current_company_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -6724,6 +6728,10 @@ export type Database = {
       }
       is_superadmin: {
         Args: { target_user_id?: string }
+        Returns: boolean
+      }
+      is_user_company_admin: {
+        Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
       }
       is_user_member_of_company: {

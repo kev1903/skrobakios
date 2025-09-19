@@ -81,13 +81,13 @@ export const CompanyProvider = ({ children }: { children: ReactNode }) => {
           return prevCompany;
         });
       } else {
-        console.log('⚠️ No companies found');
+        console.log('⚠️ No businesses found');
         setCurrentCompany(null);
         localStorage.removeItem('currentCompanyId');
       }
       
     } catch (err) {
-      console.error('Error fetching companies:', err);
+      console.error('Error fetching businesses:', err);
       // On error, try to fallback to any saved company ID
       const savedCompanyId = localStorage.getItem('currentCompanyId');
       if (savedCompanyId && companies.length > 0) {

@@ -40,7 +40,7 @@ export const CompanyManagementPanel: React.FC = () => {
     try {
       setLoading(true);
       
-      // Fetch companies with basic counts
+      // Fetch businesses with basic counts
       const { data: companiesData, error: companiesError } = await supabase
         .from('companies')
         .select(`
@@ -52,7 +52,7 @@ export const CompanyManagementPanel: React.FC = () => {
 
       if (companiesError) throw companiesError;
 
-      // Fetch business admins for all companies - using separate approach
+      // Fetch business admins for all businesses - using separate approach
       const companyIds = companiesData?.map(c => c.id) || [];
       
       let adminsByCompany = new Map();
@@ -109,10 +109,10 @@ export const CompanyManagementPanel: React.FC = () => {
 
       setCompanies(processedCompanies);
     } catch (error: any) {
-      console.error('Error fetching companies:', error);
+      console.error('Error fetching businesses:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch companies",
+        description: "Failed to fetch businesses",
         variant: "destructive"
       });
     } finally {
@@ -238,7 +238,7 @@ export const CompanyManagementPanel: React.FC = () => {
       });
       setIsCreateDialogOpen(false);
       
-      // Refresh companies list
+      // Refresh businesses list
       fetchCompanies();
 
     } catch (error: any) {
@@ -278,7 +278,7 @@ export const CompanyManagementPanel: React.FC = () => {
         description: `Business "${company.name}" has been deleted successfully`,
       });
 
-      // Refresh companies list
+      // Refresh businesses list
       fetchCompanies();
       setCompanyToDelete(null);
 
@@ -535,7 +535,7 @@ export const CompanyManagementPanel: React.FC = () => {
         setShowBusinessAdminDialog(open);
         if (!open) {
           setTeamManagementKey(prev => prev + 1); // Refresh when closing
-          fetchCompanies(); // Refresh companies list
+          fetchCompanies(); // Refresh businesses list
         }
       }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
@@ -565,7 +565,7 @@ export const CompanyManagementPanel: React.FC = () => {
         setShowTeamManagement(open);
         if (!open) {
           setTeamManagementKey(prev => prev + 1); // Refresh when closing
-          fetchCompanies(); // Refresh companies list
+          fetchCompanies(); // Refresh businesses list
         }
       }}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">

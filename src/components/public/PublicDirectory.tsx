@@ -85,7 +85,7 @@ export const PublicDirectory = () => {
         .limit(50);
 
       if (companiesError) {
-        console.error('Error fetching companies:', companiesError);
+        console.error('Error fetching businesses:', companiesError);
       } else {
         setCompanies(companiesData || []);
       }
