@@ -149,12 +149,18 @@ export const EnhancedCompanyUserManagement = ({
       // Merge members with profile data
       const transformedMembers = (memberRows || []).map((member: any) => {
         const profile = profilesMap.get(member.user_id) || {};
+        
+        // Fallback logic for missing profile data
+        const firstName = profile.first_name || '';
+        const lastName = profile.last_name || '';
+        const email = profile.email || '';
+        
         return {
           id: member.id,
           user_id: member.user_id,
-          email: profile.email || '',
-          first_name: profile.first_name || '',
-          last_name: profile.last_name || '',
+          email: email,
+          first_name: firstName,
+          last_name: lastName,
           avatar_url: profile.avatar_url,
           phone: profile.phone,
           role: member.role,
@@ -599,16 +605,18 @@ export const EnhancedCompanyUserManagement = ({
                               {member.first_name?.charAt(0)}{member.last_name?.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
-                          <div>
-                            <div className="font-medium">
-                              {member.first_name} {member.last_name}
-                            </div>
-                            {member.phone && (
-                              <div className="text-sm text-muted-foreground">
-                                {member.phone}
-                              </div>
-                            )}
-                          </div>
+                           <div>
+                             <div className="font-medium">
+                               {(member.first_name && member.last_name) ? 
+                                 `${member.first_name} ${member.last_name}` : 
+                                 member.email || 'Unknown User'}
+                             </div>
+                             {member.phone && (
+                               <div className="text-sm text-muted-foreground">
+                                 {member.phone}
+                               </div>
+                             )}
+                           </div>
                         </div>
                       </TableCell>
                       <TableCell>{member.email}</TableCell>
