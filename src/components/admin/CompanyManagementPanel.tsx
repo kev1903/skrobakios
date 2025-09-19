@@ -5,9 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building2, Search, MoreHorizontal, Plus, Users, UserPlus } from "lucide-react";
+import { Building2, Search, MoreHorizontal, Plus, Users, UserPlus, Trash2, Edit } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Company } from '@/types/company';
@@ -22,6 +24,8 @@ export const CompanyManagementPanel: React.FC = () => {
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [showTeamManagement, setShowTeamManagement] = useState(false);
   const [showBusinessAdminDialog, setShowBusinessAdminDialog] = useState(false);
+  const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     slogan: '',
@@ -202,6 +206,43 @@ export const CompanyManagementPanel: React.FC = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleDeleteBusiness = async (company: Company) => {
+    setIsDeleting(true);
+    
+    try {
+      const { data, error } = await supabase.rpc('delete_company_completely', {
+        target_company_id: company.id
+      });
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; error?: string; message?: string };
+      
+      if (result && !result.success) {
+        throw new Error(result.error || 'Failed to delete company');
+      }
+
+      toast({
+        title: "Success",
+        description: `Business "${company.name}" has been deleted successfully`,
+      });
+
+      // Refresh companies list
+      fetchCompanies();
+      setCompanyToDelete(null);
+
+    } catch (error: any) {
+      console.error('Error deleting company:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete business",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -296,9 +337,32 @@ export const CompanyManagementPanel: React.FC = () => {
                       <Users className="h-4 w-4 mr-1" />
                       Team
                     </Button>
-                    <Button variant="outline" size="sm" title="More Options">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" title="More Options">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedCompany(company);
+                            setShowBusinessAdminDialog(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit Business
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => setCompanyToDelete(company)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Business
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </div>
@@ -443,6 +507,36 @@ export const CompanyManagementPanel: React.FC = () => {
         </DialogContent>
       </Dialog>
     )}
+
+    {/* Delete Confirmation Dialog */}
+    <AlertDialog open={!!companyToDelete} onOpenChange={() => setCompanyToDelete(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Business</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete <strong>{companyToDelete?.name}</strong>? This action cannot be undone and will:
+            <br /><br />
+            • Delete all company data including projects, members, and related records
+            <br />
+            • Remove all associated user permissions and roles
+            <br />
+            • Permanently destroy all business information
+            <br /><br />
+            <strong>This is a destructive operation that cannot be reversed.</strong>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => companyToDelete && handleDeleteBusiness(companyToDelete)}
+            disabled={isDeleting}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isDeleting ? 'Deleting...' : 'Delete Business'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </>
   );
 };
