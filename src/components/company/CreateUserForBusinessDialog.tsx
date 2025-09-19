@@ -149,7 +149,7 @@ export const CreateUserForBusinessDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
-            Create New User for {companyName}
+            Create New Business Admin for {companyName}
           </DialogTitle>
           <DialogDescription>
             Create a new user account and automatically add them to this business.
