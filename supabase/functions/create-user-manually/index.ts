@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('=== STARTING USER CREATION PROCESS (FIXED VERSION) ===')
+    console.log('=== STARTING USER CREATION PROCESS (LATEST VERSION) ===')
     
     // Create Supabase client with service role key
     const supabaseAdmin = createClient(
@@ -283,24 +283,66 @@ serve(async (req) => {
     if (companyId && companyRole) {
       console.log('20. Adding user to company:', companyId, 'with role:', companyRole)
       
-      const { error: companyMemberError } = await supabaseAdmin
+      // First check if the user is already a member of this company
+      const { data: existingMember, error: checkMemberError } = await supabaseAdmin
         .from('company_members')
-        .insert({
-          company_id: companyId,
-          user_id: createdUserId,
-          role: companyRole,
-          status: 'active'
-        })
+        .select('id, role, status')
+        .eq('company_id', companyId)
+        .eq('user_id', createdUserId)
+        .maybeSingle()
 
-      if (companyMemberError) {
-        console.error('ERROR: Failed to add user to company:', companyMemberError)
+      if (checkMemberError) {
+        console.error('ERROR: Failed to check existing company membership:', checkMemberError)
         return new Response(
-          JSON.stringify({ success: false, error: 'Failed to add user to company: ' + companyMemberError.message }),
+          JSON.stringify({ success: false, error: 'Failed to check company membership: ' + checkMemberError.message }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
-      console.log('21. User added to company successfully')
+      if (existingMember) {
+        console.log('21. User is already a member, updating role and status...')
+        
+        // Update existing membership
+        const { error: updateMemberError } = await supabaseAdmin
+          .from('company_members')
+          .update({
+            role: companyRole,
+            status: 'active'
+          })
+          .eq('id', existingMember.id)
+
+        if (updateMemberError) {
+          console.error('ERROR: Failed to update company membership:', updateMemberError)
+          return new Response(
+            JSON.stringify({ success: false, error: 'Failed to update company membership: ' + updateMemberError.message }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        console.log('22. Company membership updated successfully')
+      } else {
+        console.log('21. User is not a member, creating new membership...')
+        
+        // Create new membership
+        const { error: companyMemberError } = await supabaseAdmin
+          .from('company_members')
+          .insert({
+            company_id: companyId,
+            user_id: createdUserId,
+            role: companyRole,
+            status: 'active'
+          })
+
+        if (companyMemberError) {
+          console.error('ERROR: Failed to add user to company:', companyMemberError)
+          return new Response(
+            JSON.stringify({ success: false, error: 'Failed to add user to company: ' + companyMemberError.message }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        console.log('22. User added to company successfully')
+      }
     }
 
     // Log the action

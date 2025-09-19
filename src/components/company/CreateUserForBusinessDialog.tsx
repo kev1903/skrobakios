@@ -125,7 +125,11 @@ export const CreateUserForBusinessDialog = ({
         role: 'admin'
       });
       onOpenChange(false);
-      onUserCreated();
+      
+      // Add a small delay to ensure database operations are completed
+      setTimeout(() => {
+        onUserCreated();
+      }, 500);
 
     } catch (error: any) {
       console.error('Error creating user:', error);
