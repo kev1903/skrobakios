@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('=== STARTING USER CREATION PROCESS ===')
+    console.log('=== STARTING USER CREATION PROCESS (FIXED VERSION) ===')
     
     // Create Supabase client with service role key
     const supabaseAdmin = createClient(
