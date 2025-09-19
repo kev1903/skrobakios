@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Building2, Search, MoreHorizontal, Plus, Users, UserPlus, Trash2, Edit } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Company } from '@/types/company';
+import { Company, BusinessAdmin } from '@/types/company';
 import { EnhancedCompanyUserManagement } from '@/components/company/EnhancedCompanyUserManagement';
 
 export const CompanyManagementPanel: React.FC = () => {
@@ -38,7 +38,9 @@ export const CompanyManagementPanel: React.FC = () => {
   const fetchCompanies = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch companies with basic counts
+      const { data: companiesData, error: companiesError } = await supabase
         .from('companies')
         .select(`
           *,
@@ -47,13 +49,61 @@ export const CompanyManagementPanel: React.FC = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (companiesError) throw companiesError;
 
-      // Process the data to add counts
-      const processedCompanies = data?.map(company => ({
+      // Fetch business admins for all companies - using separate approach
+      const companyIds = companiesData?.map(c => c.id) || [];
+      
+      let adminsByCompany = new Map();
+      
+      if (companyIds.length > 0) {
+        const { data: memberData, error: memberError } = await supabase
+          .from('company_members')
+          .select('company_id, user_id, role')
+          .eq('status', 'active')
+          .in('role', ['owner', 'admin'])
+          .in('company_id', companyIds);
+
+        if (!memberError && memberData) {
+          const userIds = memberData.map(m => m.user_id);
+          
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('user_id, first_name, last_name, email, avatar_url')
+            .in('user_id', userIds);
+
+          if (!profileError && profileData) {
+            const profileMap = new Map();
+            profileData.forEach(profile => {
+              profileMap.set(profile.user_id, profile);
+            });
+
+            memberData.forEach(member => {
+              const profile = profileMap.get(member.user_id);
+              if (profile) {
+                if (!adminsByCompany.has(member.company_id)) {
+                  adminsByCompany.set(member.company_id, []);
+                }
+                adminsByCompany.get(member.company_id).push({
+                  user_id: member.user_id,
+                  role: member.role,
+                  first_name: profile.first_name,
+                  last_name: profile.last_name,
+                  email: profile.email,
+                  avatar_url: profile.avatar_url
+                });
+              }
+            });
+          }
+        }
+      }
+
+      // Process the data to add counts and business admins
+      const processedCompanies = companiesData?.map(company => ({
         ...company,
         member_count: company.company_members?.[0]?.count || 0,
-        project_count: company.projects?.[0]?.count || 0
+        project_count: company.projects?.[0]?.count || 0,
+        business_admins: adminsByCompany.get(company.id) || []
       })) || [];
 
       setCompanies(processedCompanies);
@@ -294,25 +344,39 @@ export const CompanyManagementPanel: React.FC = () => {
           {filteredCompanies.map((company) => (
             <div key={company.id} className="border border-border/40 rounded-lg p-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={company.logo_url || ''} alt={company.name} />
-                    <AvatarFallback>
-                      {company.name.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                   <div>
-                     <h3 
-                       className="font-semibold cursor-pointer hover:text-primary transition-colors"
-                       onClick={() => {
-                         setSelectedCompany(company);
-                         setShowBusinessAdminDialog(true);
-                       }}
-                     >
-                       {company.name}
-                     </h3>
-                   </div>
-                </div>
+                 <div className="flex items-center space-x-4">
+                   <Avatar className="h-12 w-12">
+                     <AvatarImage src={company.logo_url || ''} alt={company.name} />
+                     <AvatarFallback>
+                       {company.name.substring(0, 2).toUpperCase()}
+                     </AvatarFallback>
+                   </Avatar>
+                    <div className="space-y-2">
+                      <h3 
+                        className="font-semibold cursor-pointer hover:text-primary transition-colors"
+                        onClick={() => {
+                          setSelectedCompany(company);
+                          setShowBusinessAdminDialog(true);
+                        }}
+                      >
+                        {company.name}
+                      </h3>
+                      {company.business_admins && company.business_admins.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {company.business_admins.slice(0, 3).map((admin, index) => (
+                            <Badge key={admin.user_id} variant="secondary" className="text-xs">
+                              {admin.first_name} {admin.last_name} ({admin.role})
+                            </Badge>
+                          ))}
+                          {company.business_admins.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{company.business_admins.length - 3} more
+                            </Badge>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                 </div>
                 
                 <div className="flex items-center gap-8">
                   <div className="text-center">

@@ -22,6 +22,16 @@ export interface Company {
   public_page?: boolean;
   member_count?: number;
   project_count?: number;
+  business_admins?: BusinessAdmin[];
+}
+
+export interface BusinessAdmin {
+  user_id: string;
+  role: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  avatar_url?: string;
 }
 
 export interface CompanyMember {
