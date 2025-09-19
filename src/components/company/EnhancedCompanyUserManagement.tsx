@@ -84,11 +84,15 @@ export const EnhancedCompanyUserManagement = ({
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'>('manager');
 
-  const fetchMembers = async () => {
+  const fetchMembers = async (forceRefresh = false) => {
     if (!companyId) return;
 
     try {
       setLoading(true);
+      
+      if (forceRefresh) {
+        console.log('Force refreshing company members for company:', companyId);
+      }
       
       console.log('Fetching members for company:', companyId);
       
@@ -412,7 +416,7 @@ export const EnhancedCompanyUserManagement = ({
                 </em>
               </CardDescription>
             </div>
-            <Button variant="outline" size="sm" onClick={fetchMembers}>
+            <Button variant="outline" size="sm" onClick={() => fetchMembers(true)}>
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
@@ -681,7 +685,7 @@ export const EnhancedCompanyUserManagement = ({
         onOpenChange={setCreateUserDialogOpen}
         companyId={companyId}
         companyName={companyName}
-        onUserCreated={fetchMembers}
+        onUserCreated={() => fetchMembers(true)}
       />
     </div>
   );

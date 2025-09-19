@@ -126,11 +126,21 @@ export const CreateUserForBusinessDialog = ({
       });
       onOpenChange(false);
       
-      // Refresh immediately and then again after delay to ensure data consistency
+      // Multiple refresh attempts to ensure database consistency
       onUserCreated();
+      
+      // Refresh with increasing delays to handle database replication lag
       setTimeout(() => {
         onUserCreated();
-      }, 1000);
+      }, 500);
+      
+      setTimeout(() => {
+        onUserCreated();
+      }, 1500);
+      
+      setTimeout(() => {
+        onUserCreated();
+      }, 3000);
 
     } catch (error: any) {
       console.error('Error creating user:', error);
