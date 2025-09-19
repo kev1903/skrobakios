@@ -154,54 +154,134 @@ serve(async (req) => {
     const createdUserId = newUser.user.id
     console.log('13. User created successfully with ID:', createdUserId)
 
-    // Create or update profile entry (upsert to handle potential triggers)
-    console.log('14. Creating/updating profile entry...')
-    const { error: profileError } = await supabaseAdmin
+    // Check if profile already exists (likely created by trigger) and update if needed
+    console.log('14. Checking/updating profile entry...')
+    
+    // First check if profile exists
+    const { data: existingProfile, error: checkProfileError } = await supabaseAdmin
       .from('profiles')
-      .upsert({
-        user_id: createdUserId,
-        email: email.trim(),
-        first_name: firstName.trim(),
-        last_name: (lastName || '').trim(),
-        status: 'active'
-      }, {
-        onConflict: 'user_id'
-      })
+      .select('user_id, email, first_name, last_name')
+      .eq('user_id', createdUserId)
+      .maybeSingle()
 
-    if (profileError) {
-      console.error('ERROR: Profile creation/update failed:', profileError)
+    if (checkProfileError) {
+      console.error('ERROR: Failed to check existing profile:', checkProfileError)
       return new Response(
-        JSON.stringify({ success: false, error: 'Failed to create profile: ' + profileError.message }),
+        JSON.stringify({ success: false, error: 'Failed to check profile: ' + checkProfileError.message }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('15. Profile created successfully')
+    if (existingProfile) {
+      console.log('15. Profile already exists (created by trigger), updating with user data...')
+      
+      // Update the existing profile with the provided data
+      const { error: updateError } = await supabaseAdmin
+        .from('profiles')
+        .update({
+          email: email.trim(),
+          first_name: firstName.trim(),
+          last_name: (lastName || '').trim(),
+          status: 'active'
+        })
+        .eq('user_id', createdUserId)
+
+      if (updateError) {
+        console.error('ERROR: Profile update failed:', updateError)
+        return new Response(
+          JSON.stringify({ success: false, error: 'Failed to update profile: ' + updateError.message }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      
+      console.log('16. Profile updated successfully')
+    } else {
+      console.log('15. No existing profile found, creating new one...')
+      
+      // Create new profile
+      const { error: createProfileError } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+          user_id: createdUserId,
+          email: email.trim(),
+          first_name: firstName.trim(),
+          last_name: (lastName || '').trim(),
+          status: 'active'
+        })
+
+      if (createProfileError) {
+        console.error('ERROR: Profile creation failed:', createProfileError)
+        return new Response(
+          JSON.stringify({ success: false, error: 'Failed to create profile: ' + createProfileError.message }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      
+      console.log('16. Profile created successfully')
+    }
 
     // Assign app-level role
     const finalAppRole = appRole || (companyRole === 'admin' ? 'business_admin' : 'user')
-    console.log('16. Assigning app role:', finalAppRole)
+    console.log('17. Assigning app role:', finalAppRole)
 
-    const { error: roleError2 } = await supabaseAdmin
+    // Check if role already exists (might be created by trigger) and handle accordingly
+    const { data: existingRole, error: checkRoleError } = await supabaseAdmin
       .from('user_roles')
-      .insert({
-        user_id: createdUserId,
-        role: finalAppRole
-      })
+      .select('role')
+      .eq('user_id', createdUserId)
+      .maybeSingle()
 
-    if (roleError2) {
-      console.error('ERROR: Role assignment failed:', roleError2)
+    if (checkRoleError) {
+      console.error('ERROR: Failed to check existing role:', checkRoleError)
       return new Response(
-        JSON.stringify({ success: false, error: 'Failed to assign role: ' + roleError2.message }),
+        JSON.stringify({ success: false, error: 'Failed to check role: ' + checkRoleError.message }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    console.log('17. App role assigned successfully')
+    if (existingRole) {
+      console.log('18. Role already exists, updating to desired role...')
+      
+      // Update the existing role
+      const { error: updateRoleError } = await supabaseAdmin
+        .from('user_roles')
+        .update({ role: finalAppRole })
+        .eq('user_id', createdUserId)
+
+      if (updateRoleError) {
+        console.error('ERROR: Role update failed:', updateRoleError)
+        return new Response(
+          JSON.stringify({ success: false, error: 'Failed to update role: ' + updateRoleError.message }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      
+      console.log('19. App role updated successfully')
+    } else {
+      console.log('18. No existing role found, creating new one...')
+      
+      // Create new role
+      const { error: roleError2 } = await supabaseAdmin
+        .from('user_roles')
+        .insert({
+          user_id: createdUserId,
+          role: finalAppRole
+        })
+
+      if (roleError2) {
+        console.error('ERROR: Role assignment failed:', roleError2)
+        return new Response(
+          JSON.stringify({ success: false, error: 'Failed to assign role: ' + roleError2.message }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      
+      console.log('19. App role assigned successfully')
+    }
 
     // Add to company if specified
     if (companyId && companyRole) {
-      console.log('18. Adding user to company:', companyId, 'with role:', companyRole)
+      console.log('20. Adding user to company:', companyId, 'with role:', companyRole)
       
       const { error: companyMemberError } = await supabaseAdmin
         .from('company_members')
@@ -220,7 +300,7 @@ serve(async (req) => {
         )
       }
 
-      console.log('19. User added to company successfully')
+      console.log('21. User added to company successfully')
     }
 
     // Log the action
@@ -239,7 +319,7 @@ serve(async (req) => {
             created_by: user.email
           }
         })
-      console.log('20. Audit log created')
+      console.log('22. Audit log created')
     } catch (auditError) {
       console.error('WARNING: Failed to create audit log:', auditError)
       // Don't fail the entire operation for audit log issues
