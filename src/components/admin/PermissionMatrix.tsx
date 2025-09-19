@@ -17,7 +17,7 @@ export const PermissionMatrix = ({
   const [permissionState, setPermissionState] = useState<Record<string, string[]>>(() => {
     const initial: Record<string, string[]> = {};
     roles.forEach(role => {
-      initial[role.id] = getDefaultPermissions(role.level);
+      initial[role.id] = getDefaultPermissions(role.id);
     });
     return initial;
   });
@@ -55,7 +55,7 @@ export const PermissionMatrix = ({
   const handleReset = () => {
     const initial: Record<string, string[]> = {};
     roles.forEach(role => {
-      initial[role.id] = getDefaultPermissions(role.level);
+      initial[role.id] = getDefaultPermissions(role.id);
     });
     setPermissionState(initial);
     setHasChanges(false);

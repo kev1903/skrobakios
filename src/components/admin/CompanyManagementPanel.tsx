@@ -129,7 +129,7 @@ export const CompanyManagementPanel: React.FC = () => {
 
       if (memberError) throw memberError;
 
-      // Get all superadmins and add them to the company
+      // Get all superadmins and add them to the company with owner access
       const { data: superAdmins, error: superAdminError } = await supabase
         .from('user_roles')
         .select(`
@@ -152,7 +152,7 @@ export const CompanyManagementPanel: React.FC = () => {
           .map(admin => ({
             company_id: company.id,
             user_id: admin.user_id,
-            role: 'owner',
+            role: 'owner', // Superadmins get owner role for full business control
             status: 'active',
           }));
 

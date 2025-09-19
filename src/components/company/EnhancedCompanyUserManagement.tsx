@@ -365,7 +365,9 @@ export const EnhancedCompanyUserManagement = ({
     }
   };
 
-  const canManageMembers = isSuperAdmin() || currentUserRole === 'owner' || currentUserRole === 'admin';
+  // Enhanced permission checks for business admin access
+  const { isBusinessAdmin } = useUserRole();
+  const canManageMembers = isSuperAdmin() || isBusinessAdmin() || currentUserRole === 'owner' || currentUserRole === 'admin';
   const canChangeRoles = isSuperAdmin() || currentUserRole === 'owner';
 
   const filteredMembers = members.filter(member => {
