@@ -26,6 +26,7 @@ export const CompanyManagementPanel: React.FC = () => {
   const [showBusinessAdminDialog, setShowBusinessAdminDialog] = useState(false);
   const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [teamManagementKey, setTeamManagementKey] = useState(0);
   const [formData, setFormData] = useState({
     name: '',
     slogan: '',
@@ -394,6 +395,7 @@ export const CompanyManagementPanel: React.FC = () => {
                       size="sm" 
                       onClick={() => {
                         setSelectedCompany(company);
+                        setTeamManagementKey(prev => prev + 1); // Refresh team management
                         setShowTeamManagement(true);
                       }}
                       title="Manage Team"
@@ -411,6 +413,7 @@ export const CompanyManagementPanel: React.FC = () => {
                         <DropdownMenuItem
                           onClick={() => {
                             setSelectedCompany(company);
+                            setTeamManagementKey(prev => prev + 1); // Refresh team management
                             setShowBusinessAdminDialog(true);
                           }}
                         >
@@ -528,7 +531,13 @@ export const CompanyManagementPanel: React.FC = () => {
 
     {/* Business Admin Creation Dialog */}
     {selectedCompany && (
-      <Dialog open={showBusinessAdminDialog} onOpenChange={setShowBusinessAdminDialog}>
+      <Dialog open={showBusinessAdminDialog} onOpenChange={(open) => {
+        setShowBusinessAdminDialog(open);
+        if (!open) {
+          setTeamManagementKey(prev => prev + 1); // Refresh when closing
+          fetchCompanies(); // Refresh companies list
+        }
+      }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -541,6 +550,7 @@ export const CompanyManagementPanel: React.FC = () => {
           </DialogHeader>
           <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
             <EnhancedCompanyUserManagement 
+              key={teamManagementKey}
               companyId={selectedCompany.id}
               companyName={selectedCompany.name}
             />
@@ -551,7 +561,13 @@ export const CompanyManagementPanel: React.FC = () => {
 
     {/* Team Management Dialog */}
     {selectedCompany && (
-      <Dialog open={showTeamManagement} onOpenChange={setShowTeamManagement}>
+      <Dialog open={showTeamManagement} onOpenChange={(open) => {
+        setShowTeamManagement(open);
+        if (!open) {
+          setTeamManagementKey(prev => prev + 1); // Refresh when closing
+          fetchCompanies(); // Refresh companies list
+        }
+      }}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -564,6 +580,7 @@ export const CompanyManagementPanel: React.FC = () => {
           </DialogHeader>
           <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
             <EnhancedCompanyUserManagement 
+              key={teamManagementKey}
               companyId={selectedCompany.id}
               companyName={selectedCompany.name}
             />
