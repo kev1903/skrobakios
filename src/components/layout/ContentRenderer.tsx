@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { MyTasksPage } from "@/components/MyTasksPage";
 import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
-import { HomePage } from "@/components/HomePage";
+
 import { BusinessMapPage } from "@/components/BusinessMapPage";
 import { ProjectDetail } from "@/components/ProjectDetail";
 import { BusinessMapbox } from "@/components/mapbox/BusinessMapbox";
@@ -125,16 +125,12 @@ export const ContentRenderer = ({
     case "platform-signup":
       return <PlatformSignupPage onNavigate={onNavigate} />;
     case "home":
-      // Show BusinessMapbox for company context, HomePage for other contexts
-      if (activeContext === 'company') {
-        return (
-          <div className="w-full h-full">
-            <BusinessMapbox className="w-full h-full" />
-          </div>
-        );
-      } else {
-        return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
-      }
+      // Show BusinessMapbox for all home page requests
+      return (
+        <div className="w-full h-full">
+          <BusinessMapbox className="w-full h-full" />
+        </div>
+      );
     case "tasks":
       return <TaskManagement onNavigate={onNavigate} />;
     case "my-tasks":
@@ -280,7 +276,11 @@ export const ContentRenderer = ({
     case "business-invitations":
       // Business invitations removed - redirect to home
       onNavigate("home");
-      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+      return (
+        <div className="w-full h-full">
+          <BusinessMapbox className="w-full h-full" />
+        </div>
+      );
     case "team-management":
       return <PermissionManager onNavigate={onNavigate} currentPage={currentPage} />;
     case "platform-admin":
@@ -288,7 +288,11 @@ export const ContentRenderer = ({
     case "invitation-acceptance":
       // Invitation acceptance removed - redirect to home
       onNavigate("home");
-      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+      return (
+        <div className="w-full h-full">
+          <BusinessMapbox className="w-full h-full" />
+        </div>
+      );
     case "project-cost":
       return (
         <SubscriptionProtectedRoute requiredFeature="cost_contracts" onNavigate={onNavigate}>
@@ -448,7 +452,11 @@ export const ContentRenderer = ({
     case "platform":
       // Platform removed - redirect to home
       onNavigate("home");
-      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+      return (
+        <div className="w-full h-full">
+          <BusinessMapbox className="w-full h-full" />
+        </div>
+      );
     case "platform-dashboard":
     case "personal-dashboard":
       return <PersonalAnalyticsDashboard onNavigate={onNavigate} />;
@@ -475,7 +483,11 @@ export const ContentRenderer = ({
     case "user-management":
       // User management removed - redirect to home  
       onNavigate("home");
-      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} currentPage={currentPage} />;
+      return (
+        <div className="w-full h-full">
+          <BusinessMapbox className="w-full h-full" />
+        </div>
+      );
     case "ai-chat":
       return (
         <div className="h-full w-full">
@@ -492,7 +504,11 @@ export const ContentRenderer = ({
     case "schedules":
       // Redirect incomplete pages to home
       onNavigate("home");
-      return <HomePage onNavigate={onNavigate} onSelectProject={onSelectProject} />;
+      return (
+        <div className="w-full h-full">
+          <BusinessMapbox className="w-full h-full" />
+        </div>
+      );
     default:
       return <AuthPage onNavigate={onNavigate} />;
   }
