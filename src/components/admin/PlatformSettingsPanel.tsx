@@ -118,7 +118,7 @@ export const PlatformSettingsPanel: React.FC = () => {
   return (
     <div className="space-y-6">
       {Object.entries(settingsByType).map(([type, typeSettings]) => (
-        <Card key={type} className="glass-panel">
+        <Card key={type}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 capitalize">
               <Settings className="h-5 w-5" />

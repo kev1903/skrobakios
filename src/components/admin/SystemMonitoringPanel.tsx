@@ -47,7 +47,7 @@ export const SystemMonitoringPanel: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* System Metrics */}
-      <Card className="glass-panel">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-primary" />
@@ -88,7 +88,7 @@ export const SystemMonitoringPanel: React.FC = () => {
       </Card>
 
       {/* Maintenance Windows */}
-      <Card className="glass-panel">
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">

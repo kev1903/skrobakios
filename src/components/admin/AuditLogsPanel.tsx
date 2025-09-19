@@ -95,7 +95,7 @@ export const AuditLogsPanel: React.FC = () => {
   }
 
   return (
-    <Card className="glass-panel">
+    <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">

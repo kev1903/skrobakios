@@ -52,7 +52,7 @@ export const SecurityOverviewPanel: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Security Overview */}
-      <Card className="glass-panel">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
@@ -113,7 +113,7 @@ export const SecurityOverviewPanel: React.FC = () => {
       </Card>
 
       {/* Security Checks */}
-      <Card className="glass-panel">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-primary" />
