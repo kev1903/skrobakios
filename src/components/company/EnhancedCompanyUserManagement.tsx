@@ -366,18 +366,18 @@ export const EnhancedCompanyUserManagement = ({
   };
 
   const getRoleIcon = (role: string, isUserSuperAdmin = false) => {
-    // Show crown for superadmins regardless of their company role
+    // Show crown ONLY for superadmins
     if (isUserSuperAdmin) {
       return <Crown className="w-4 h-4" />;
     }
     
     switch (role) {
       case 'owner':
-        return <Crown className="w-4 h-4" />;
+        return <Shield className="w-4 h-4" />; // Owner gets shield, not crown
       case 'platform_admin':
         return <Settings className="w-4 h-4" />;
       case 'director':
-        return <Crown className="w-4 h-4" />;
+        return <Shield className="w-4 h-4" />;
       case 'admin':
         return <Shield className="w-4 h-4" />;
       default:
@@ -386,7 +386,7 @@ export const EnhancedCompanyUserManagement = ({
   };
 
   const getRoleBadgeVariant = (role: string, isUserSuperAdmin = false) => {
-    // Show destructive variant for superadmins regardless of their company role
+    // Show destructive variant for superadmins
     if (isUserSuperAdmin) {
       return 'destructive';
     }
@@ -406,9 +406,17 @@ export const EnhancedCompanyUserManagement = ({
   };
 
   const getDisplayRole = (role: string, isUserSuperAdmin = false) => {
-    // Show "Superadmin" instead of company role for superadmins
+    // Show "Platform Admin" for superadmins in business context
     if (isUserSuperAdmin) {
-      return 'Superadmin';
+      return 'Platform Admin';
+    }
+    return role;
+  };
+
+  const getDropdownValue = (role: string, isUserSuperAdmin = false) => {
+    // For superadmins, use 'platform_admin' as the dropdown value
+    if (isUserSuperAdmin) {
+      return 'platform_admin';
     }
     return role;
   };
@@ -555,7 +563,7 @@ export const EnhancedCompanyUserManagement = ({
                        <TableCell>
                          {canChangeRoles && member.role !== 'owner' ? (
                            <Select
-                             value={member.role}
+                             value={getDropdownValue(member.role, member.isSuperAdmin)}
                              onValueChange={(value: any) => handleRoleChange(member.id, value)}
                            >
                              <SelectTrigger className="w-32">
