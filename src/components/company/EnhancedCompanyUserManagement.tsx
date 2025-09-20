@@ -37,6 +37,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useCompany } from '@/contexts/CompanyContext';
 import { toast } from '@/hooks/use-toast';
 import { CreateUserForBusinessDialog } from './CreateUserForBusinessDialog';
+import { UserPermissionsDialog } from './UserPermissionsDialog';
 
 interface CompanyMember {
   id: string;
@@ -86,6 +87,10 @@ export const EnhancedCompanyUserManagement = ({
   const [availableUsersLoading, setAvailableUsersLoading] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'>('manager');
+  
+  // Permissions dialog state
+  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<CompanyMember | null>(null);
 
   const fetchMembers = async (forceRefresh = false) => {
     if (!companyId) return;
@@ -562,17 +567,29 @@ export const EnhancedCompanyUserManagement = ({
                             </AvatarFallback>
                           </Avatar>
                            <div>
-                             <div className="font-medium">
-                               {(member.first_name && member.last_name) ? 
-                                 `${member.first_name} ${member.last_name}` : 
-                                 member.email || 'Unknown User'}
-                             </div>
-                             {member.phone && (
-                               <div className="text-sm text-muted-foreground">
-                                 {member.phone}
-                               </div>
-                             )}
-                           </div>
+                              <div 
+                                className={`font-medium ${
+                                  currentUserRole === 'admin' || currentUserRole === 'owner' 
+                                    ? 'cursor-pointer hover:text-primary hover:underline' 
+                                    : ''
+                                }`}
+                                onClick={() => {
+                                  if (currentUserRole === 'admin' || currentUserRole === 'owner') {
+                                    setSelectedMember(member);
+                                    setPermissionsDialogOpen(true);
+                                  }
+                                }}
+                              >
+                                {(member.first_name && member.last_name) ? 
+                                  `${member.first_name} ${member.last_name}` : 
+                                  member.email || 'Unknown User'}
+                              </div>
+                              {member.phone && (
+                                <div className="text-sm text-muted-foreground">
+                                  {member.phone}
+                                </div>
+                              )}
+                            </div>
                         </div>
                       </TableCell>
                       <TableCell>{member.email}</TableCell>
@@ -656,6 +673,16 @@ export const EnhancedCompanyUserManagement = ({
         companyName={companyName}
         onUserCreated={() => fetchMembers(true)}
       />
+
+      {/* User Permissions Dialog */}
+      {selectedMember && (
+        <UserPermissionsDialog
+          open={permissionsDialogOpen}
+          onOpenChange={setPermissionsDialogOpen}
+          member={selectedMember}
+          companyId={companyId}
+        />
+      )}
     </div>
   );
 };
