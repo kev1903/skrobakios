@@ -38,6 +38,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useCompany } from '@/contexts/CompanyContext';
 import { toast } from '@/hooks/use-toast';
 import { CreateUserForBusinessDialog } from './CreateUserForBusinessDialog';
+import { UserPermissionsDialog } from './UserPermissionsDialog';
 
 interface CompanyMember {
   id: string;
@@ -88,6 +89,10 @@ export const EnhancedCompanyUserManagement = ({
   const [availableUsersLoading, setAvailableUsersLoading] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'>('manager');
+  
+  // User permissions dialog state
+  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
 
   const fetchMembers = async (forceRefresh = false) => {
     if (!companyId) return;
@@ -572,7 +577,8 @@ export const EnhancedCompanyUserManagement = ({
                                 }`}
                                 onClick={() => {
                                   if (currentUserRole === 'admin' || currentUserRole === 'owner') {
-                                    navigate(`/user-permissions/${member.user_id}/${companyId}`);
+                                    setSelectedUserId(member.user_id);
+                                    setPermissionsDialogOpen(true);
                                   }
                                 }}
                               >
@@ -668,6 +674,14 @@ export const EnhancedCompanyUserManagement = ({
         companyId={companyId}
         companyName={companyName}
         onUserCreated={() => fetchMembers(true)}
+      />
+
+      {/* User Permissions Dialog */}
+      <UserPermissionsDialog
+        open={permissionsDialogOpen}
+        onOpenChange={setPermissionsDialogOpen}
+        userId={selectedUserId}
+        companyId={companyId}
       />
     </div>
   );

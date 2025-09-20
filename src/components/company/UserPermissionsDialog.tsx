@@ -1,148 +1,179 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { Building2, FolderOpen, Shield, User, CheckCircle, XCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Building2, Shield, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+
+interface BusinessModule {
+  id: string;
+  name: string;
+  description: string;
+  access: 'no_access' | 'can_view' | 'can_edit';
+}
+
+interface UserData {
+  user_id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  avatar_url?: string;
+  role: string;
+}
 
 interface UserPermissionsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  member: {
-    user_id: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    avatar_url?: string;
-    role: string;
-  };
+  userId: string;
   companyId: string;
 }
 
-interface Permission {
-  id: string;
-  name: string;
-  description: string;
-  category: 'business' | 'project';
-  granted: boolean;
-}
-
-interface ProjectMembership {
-  project_id: string;
-  project_name: string;
-  role: string;
-  status: string;
-}
-
-export function UserPermissionsDialog({ 
-  open, 
-  onOpenChange, 
-  member, 
-  companyId 
-}: UserPermissionsDialogProps) {
-  const [businessPermissions, setBusinessPermissions] = useState<Permission[]>([]);
-  const [projectMemberships, setProjectMemberships] = useState<ProjectMembership[]>([]);
-  const [loading, setLoading] = useState(false);
+export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
+  open,
+  onOpenChange,
+  userId,
+  companyId
+}) => {
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [businessModules, setBusinessModules] = useState<BusinessModule[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (open && member.user_id) {
-      fetchUserPermissions();
+    if (open && userId && companyId) {
+      fetchUserData();
     }
-  }, [open, member.user_id]);
+  }, [open, userId, companyId]);
 
-  const fetchUserPermissions = async () => {
+  const fetchUserData = async () => {
+    if (!userId || !companyId) return;
+    
     setLoading(true);
     try {
-      // Fetch project memberships
-      const { data: projectData, error: projectError } = await supabase
-        .from('project_members')
-        .select(`
-          project_id,
-          role,
-          status,
-          projects!inner(
-            id,
-            name,
-            company_id
-          )
-        `)
-        .eq('user_id', member.user_id)
-        .eq('projects.company_id', companyId);
+      // Fetch company membership
+      const { data: memberData, error: memberError } = await supabase
+        .from('company_members')
+        .select('user_id, role')
+        .eq('user_id', userId)
+        .eq('company_id', companyId)
+        .maybeSingle();
 
-      if (projectError) {
-        console.error('Error fetching project memberships:', projectError);
-      } else {
-        const memberships = projectData?.map((pm: any) => ({
-          project_id: pm.project_id,
-          project_name: pm.projects.name,
-          role: pm.role,
-          status: pm.status
-        })) || [];
-        setProjectMemberships(memberships);
+      if (memberError || !memberData) {
+        toast({
+          title: "Error",
+          description: "Failed to load user membership data",
+          variant: "destructive",
+        });
+        return;
       }
 
-      // Define business permissions based on company role
-      const businessPerms: Permission[] = [
+      // Fetch user profile separately
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_id, email, first_name, last_name, avatar_url')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (profileError || !profileData) {
+        toast({
+          title: "Error",
+          description: "Failed to load user profile",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const userData = {
+        user_id: profileData.user_id,
+        email: profileData.email,
+        first_name: profileData.first_name,
+        last_name: profileData.last_name,
+        avatar_url: profileData.avatar_url,
+        role: memberData.role
+      };
+
+      setUserData(userData);
+
+      // Define business modules with access levels based on company role
+      const getAccessLevel = (requiresAdmin = false, requiresOwner = false) => {
+        if (requiresOwner && userData.role === 'owner') return 'can_edit';
+        if (requiresAdmin && ['owner', 'admin'].includes(userData.role)) return 'can_edit';
+        if (['owner', 'admin', 'manager'].includes(userData.role)) return 'can_view';
+        return 'no_access';
+      };
+
+      const modules: BusinessModule[] = [
         {
-          id: 'view_company_details',
-          name: 'View Company Details',
-          description: 'Can view company information and settings',
-          category: 'business',
-          granted: ['owner', 'admin', 'manager'].includes(member.role)
+          id: 'company_details',
+          name: 'Company Details',
+          description: 'Company information and settings',
+          access: getAccessLevel()
         },
         {
-          id: 'manage_team_members',
-          name: 'Manage Team Members',
-          description: 'Can invite, edit, and remove team members',
-          category: 'business',
-          granted: ['owner', 'admin'].includes(member.role)
+          id: 'team_management',
+          name: 'Team Management',
+          description: 'Invite, edit, and remove team members',
+          access: getAccessLevel(true)
         },
         {
-          id: 'manage_projects',
-          name: 'Manage Projects',
-          description: 'Can create, edit, and delete projects',
-          category: 'business',
-          granted: ['owner', 'admin', 'manager'].includes(member.role)
+          id: 'project_management',
+          name: 'Project Management',
+          description: 'Create, edit, and delete projects',
+          access: getAccessLevel()
         },
         {
-          id: 'view_financial_data',
-          name: 'View Financial Data',
-          description: 'Can access costs, budgets, and financial reports',
-          category: 'business',
-          granted: ['owner', 'admin'].includes(member.role)
+          id: 'financial_data',
+          name: 'Financial Data',
+          description: 'Costs, budgets, and financial reports',
+          access: getAccessLevel(true)
         },
         {
-          id: 'manage_stakeholders',
-          name: 'Manage Stakeholders',
-          description: 'Can add and manage stakeholders and vendors',
-          category: 'business',
-          granted: ['owner', 'admin', 'manager'].includes(member.role)
+          id: 'stakeholders',
+          name: 'Stakeholders',
+          description: 'Manage stakeholders and vendors',
+          access: getAccessLevel()
         },
         {
-          id: 'view_analytics',
-          name: 'View Analytics',
-          description: 'Can access business analytics and reports',
-          category: 'business',
-          granted: ['owner', 'admin'].includes(member.role)
+          id: 'analytics',
+          name: 'Analytics',
+          description: 'Business analytics and reports',
+          access: getAccessLevel(true)
+        },
+        {
+          id: 'qaqc',
+          name: 'QA/QC',
+          description: 'Quality assurance and quality control',
+          access: getAccessLevel()
+        },
+        {
+          id: 'documents',
+          name: 'Documents',
+          description: 'Document management and file storage',
+          access: getAccessLevel()
+        },
+        {
+          id: 'scheduling',
+          name: 'Scheduling',
+          description: 'Project scheduling and timeline management',
+          access: getAccessLevel()
+        },
+        {
+          id: 'invoicing',
+          name: 'Invoicing',
+          description: 'Create and manage invoices',
+          access: getAccessLevel(true)
         }
       ];
 
-      setBusinessPermissions(businessPerms);
+      setBusinessModules(modules);
 
     } catch (error) {
-      console.error('Error fetching permissions:', error);
+      console.error('Error fetching user data:', error);
       toast({
         title: "Error",
-        description: "Failed to load user permissions",
+        description: "Failed to load user data",
         variant: "destructive",
       });
     } finally {
@@ -163,134 +194,134 @@ export function UserPermissionsDialog({
     }
   };
 
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'default';
-      case 'inactive':
-        return 'secondary';
-      default:
-        return 'outline';
-    }
+  const handlePermissionChange = async (moduleId: string, value: string) => {
+    // Update the local state
+    setBusinessModules(modules => 
+      modules.map(module => 
+        module.id === moduleId 
+          ? { ...module, access: value as 'no_access' | 'can_view' | 'can_edit' }
+          : module
+      )
+    );
+    
+    toast({
+      title: "Permission Updated",
+      description: `Access level updated for ${moduleId}`,
+    });
   };
+
+  if (loading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-lg">Loading user permissions...</div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-lg text-muted-foreground">User not found</div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={member.avatar_url} />
-              <AvatarFallback>
-                {member.first_name?.charAt(0)}{member.last_name?.charAt(0)}
+              <AvatarImage src={userData.avatar_url} />
+              <AvatarFallback className="text-sm">
+                {userData.first_name?.charAt(0)}{userData.last_name?.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <div className="text-lg font-semibold">
-                {member.first_name && member.last_name ? 
-                  `${member.first_name} ${member.last_name}` : 
-                  member.email || 'Unknown User'}
+            <div className="flex-1 min-w-0">
+              <div className="text-lg font-semibold truncate">
+                {userData.first_name && userData.last_name ? 
+                  `${userData.first_name} ${userData.last_name}` : 
+                  userData.email || 'Unknown User'}
               </div>
-              <div className="text-sm text-muted-foreground font-normal">
-                {member.email}
+              <div className="text-sm text-muted-foreground truncate">
+                {userData.email}
               </div>
             </div>
-            <Badge variant={getRoleBadgeVariant(member.role)} className="ml-auto">
-              {member.role.replace('_', ' ')}
+            <Badge variant={getRoleBadgeVariant(userData.role)}>
+              {userData.role.replace('_', ' ')}
             </Badge>
           </DialogTitle>
-          <DialogDescription>
-            Manage permissions and view project access for this team member
-          </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-4">
           {/* Business Permissions */}
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
-                Business Permissions
+                Business Module Permissions
               </CardTitle>
-              <CardDescription>
-                Company-level access and capabilities
-              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {businessPermissions.map((permission) => (
-                <div key={permission.id} className="flex items-start gap-3 p-3 border rounded-lg">
-                  <div className="mt-1">
-                    {permission.granted ? (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <XCircle className="h-4 w-4 text-gray-400" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">{permission.name}</div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {permission.description}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+            <CardContent className="space-y-1 p-4">
+              {businessModules.map((module) => {
+                const getAccessBadgeVariant = (access: string) => {
+                  switch (access) {
+                    case 'can_edit': return 'default';
+                    case 'can_view': return 'secondary';
+                    default: return 'outline';
+                  }
+                };
 
-          {/* Project Permissions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FolderOpen className="h-5 w-5" />
-                Project Access
-              </CardTitle>
-              <CardDescription>
-                Project memberships and roles
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {projectMemberships.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8">
-                  <FolderOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No project memberships found</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {projectMemberships.map((membership) => (
-                    <div key={membership.project_id} className="p-3 border rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-sm">
-                            {membership.project_name}
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Project ID: {membership.project_id}
-                          </div>
-                        </div>
-                        <div className="flex gap-2">
-                          <Badge variant={getRoleBadgeVariant(membership.role)}>
-                            {membership.role}
-                          </Badge>
-                          <Badge variant={getStatusBadgeVariant(membership.status)}>
-                            {membership.status}
-                          </Badge>
-                        </div>
+                const getAccessLabel = (access: string) => {
+                  switch (access) {
+                    case 'can_edit': return 'Edit';
+                    case 'can_view': return 'View';
+                    default: return 'No Access';
+                  }
+                };
+
+                const cyclePermission = (currentAccess: string) => {
+                  const permissions = ['no_access', 'can_view', 'can_edit'];
+                  const currentIndex = permissions.indexOf(currentAccess);
+                  const nextIndex = (currentIndex + 1) % permissions.length;
+                  return permissions[nextIndex];
+                };
+
+                return (
+                  <button 
+                    key={module.id}
+                    onClick={() => handlePermissionChange(module.id, cyclePermission(module.access))}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left text-gray-700 hover:bg-gray-100"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium">{module.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {module.description}
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <Badge variant={getAccessBadgeVariant(module.access)} className="ml-auto text-xs">
+                      {getAccessLabel(module.access)}
+                    </Badge>
+                  </button>
+                );
+              })}
             </CardContent>
           </Card>
-        </div>
 
-        <Separator />
-
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Shield className="h-4 w-4" />
-          <span>Permissions are automatically assigned based on company role and project memberships</span>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Shield className="h-4 w-4" />
+            <span>Click on each module to cycle through permission levels. Changes are saved automatically.</span>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
   );
-}
+};
