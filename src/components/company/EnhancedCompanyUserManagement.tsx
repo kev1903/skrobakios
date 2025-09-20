@@ -418,7 +418,19 @@ export const EnhancedCompanyUserManagement = ({
     if (isUserSuperAdmin) {
       return 'Admin';
     }
-    return role;
+    // Capitalize role names properly
+    switch (role) {
+      case 'director':
+        return 'Director';
+      case 'platform_admin':
+        return 'Platform Admin';
+      case 'admin':
+        return 'Admin';
+      case 'owner':
+        return 'Owner';
+      default:
+        return role;
+    }
   };
 
   const getDropdownValue = (role: string, isUserSuperAdmin = false) => {
