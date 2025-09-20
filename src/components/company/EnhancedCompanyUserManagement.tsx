@@ -475,15 +475,13 @@ export const EnhancedCompanyUserManagement = ({
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="w-5 h-5" />
-                {companyName} Team Management
+                {companyName} - Team Management
               </CardTitle>
               <CardDescription>
-                Manage team members, roles, and permissions for this business. {members.length} total members.
+                Manage team members, roles, and permissions for {companyName}. {members.length} active {members.length === 1 ? 'member' : 'members'}.
                 <br />
                 <em className="text-xs text-muted-foreground">
-                  Current role: {currentUserRole || 'none'} | 
-                  Can manage: {canManageMembers ? 'yes' : 'no'} | 
-                  Is superadmin: {isSuperAdmin() ? 'yes' : 'no'}
+                  Access Level: {currentUserRole || 'Guest'} • Management Access: {canManageMembers ? 'Enabled' : 'Limited'} • System Admin: {isSuperAdmin() ? 'Yes' : 'No'}
                 </em>
               </CardDescription>
             </div>

@@ -537,9 +537,9 @@ export const BusinessAdminManagement: React.FC<BusinessAdminManagementProps> = (
       }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Add Business Administrator</DialogTitle>
+            <DialogTitle>Manage Team Members</DialogTitle>
             <DialogDescription>
-              Add an existing user or create a new user as business administrator for {companyName}.
+              Add, manage, and assign roles to team members for {companyName}.
             </DialogDescription>
           </DialogHeader>
           
