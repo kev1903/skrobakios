@@ -47,7 +47,7 @@ export const CreateUserForBusinessDialog = ({
     password: '',
     firstName: '',
     lastName: '',
-    role: 'admin' as 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'
+    role: 'manager' as 'manager' | 'project_admin' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'
   });
 
   useEffect(() => {
@@ -159,7 +159,7 @@ export const CreateUserForBusinessDialog = ({
           lastName: formData.lastName,
           companyId: companyId,
           companyRole: formData.role,
-          appRole: formData.role === 'admin' ? 'business_admin' : 'user'
+          appRole: formData.role === 'manager' ? 'business_admin' : 'user'
         },
       });
 
@@ -172,8 +172,8 @@ export const CreateUserForBusinessDialog = ({
         throw new Error(errorMsg);
       }
 
-      const roleLabel = formData.role === 'admin' ? 'Business Admin' : 
-                       formData.role === 'manager' ? 'Manager' :
+      const roleLabel = formData.role === 'manager' ? 'Manager' : 
+                       formData.role === 'project_admin' ? 'Project Admin' :
                        formData.role === 'supplier' ? 'Supplier' :
                        formData.role === 'sub_contractor' ? 'Sub-Contractor' :
                        formData.role === 'consultant' ? 'Consultant' :
@@ -190,7 +190,7 @@ export const CreateUserForBusinessDialog = ({
         password: '',
         firstName: '',
         lastName: '',
-        role: 'admin'
+        role: 'manager'
       });
       onOpenChange(false);
       
@@ -236,8 +236,8 @@ export const CreateUserForBusinessDialog = ({
         throw new Error('Failed to assign user to company');
       }
 
-      // If assigning as business admin, also update their app role
-      if (formData.role === 'admin') {
+      // If assigning as manager, also update their app role
+      if (formData.role === 'manager') {
         const { data: roleResult, error: roleError } = await supabase.rpc('set_user_primary_role', {
           target_user_id: selectedUser,
           new_role: 'business_admin'
@@ -250,8 +250,8 @@ export const CreateUserForBusinessDialog = ({
       }
 
       const selectedUserInfo = availableUsers.find(u => u.user_id === selectedUser);
-      const roleLabel = formData.role === 'admin' ? 'Business Admin' : 
-                       formData.role === 'manager' ? 'Manager' :
+      const roleLabel = formData.role === 'manager' ? 'Manager' : 
+                       formData.role === 'project_admin' ? 'Project Admin' :
                        formData.role === 'supplier' ? 'Supplier' :
                        formData.role === 'sub_contractor' ? 'Sub-Contractor' :
                        formData.role === 'consultant' ? 'Consultant' :
@@ -269,7 +269,7 @@ export const CreateUserForBusinessDialog = ({
         password: '',
         firstName: '',
         lastName: '',
-        role: 'admin'
+        role: 'manager'
       });
       onOpenChange(false);
       
@@ -339,7 +339,7 @@ export const CreateUserForBusinessDialog = ({
           password: '',
           firstName: '',
           lastName: '',
-          role: 'admin'
+          role: 'manager'
         });
         setMatchingUsers([]);
         setEmailSearched(false);
@@ -477,11 +477,11 @@ export const CreateUserForBusinessDialog = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">Business Admin</SelectItem>
                   <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="supplier">Supplier</SelectItem>
+                  <SelectItem value="project_admin">Project Admin</SelectItem>
                   <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
                   <SelectItem value="consultant">Consultant</SelectItem>
+                  <SelectItem value="supplier">Supplier</SelectItem>
                   <SelectItem value="client">Client</SelectItem>
                 </SelectContent>
               </Select>
