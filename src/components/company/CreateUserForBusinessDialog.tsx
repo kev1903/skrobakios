@@ -468,8 +468,8 @@ export const CreateUserForBusinessDialog = ({
             </form>
           )}
 
-          {/* Role selection - always show when email is entered */}
-          {formData.email && (
+          {/* Role selection - show when creating new user or assigning existing user */}
+          {(formData.email || (!emailSearched || matchingUsers.length === 0)) && (
             <div>
               <Label htmlFor="role">Role in Company</Label>
               <Select value={formData.role} onValueChange={(value: any) => handleInputChange('role', value)}>
