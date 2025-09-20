@@ -234,7 +234,8 @@ export default function UserPermissionsPage() {
   };
 
   const handleBack = () => {
-    navigate(`/?page=team`);
+    // Navigate to the team page for the current company
+    navigate(`/?page=team&company_id=${companyId}`);
   };
 
 
