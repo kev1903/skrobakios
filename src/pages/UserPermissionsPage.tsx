@@ -328,44 +328,44 @@ export default function UserPermissionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-16"> {/* Added pt-16 to avoid menu bar clash */}
-      <div className="container mx-auto py-8 space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-background pt-16">
+      <div className="container mx-auto py-6 space-y-4">
+        {/* Header with User Info */}
+        <div className="flex items-center justify-between">
           <Button variant="outline" size="sm" onClick={handleBack}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Team
           </Button>
         </div>
 
-        {/* User Info Header */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
+        {/* Compact User Info */}
+        <Card className="border-0 shadow-none bg-muted/50">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-12 w-12">
                 <AvatarImage src={userData.avatar_url} />
-                <AvatarFallback className="text-lg">
+                <AvatarFallback className="text-sm">
                   {userData.first_name?.charAt(0)}{userData.last_name?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1">
-                <div className="text-2xl font-bold">
+              <div className="flex-1 min-w-0">
+                <div className="text-xl font-semibold truncate">
                   {userData.first_name && userData.last_name ? 
                     `${userData.first_name} ${userData.last_name}` : 
                     userData.email || 'Unknown User'}
                 </div>
-                <div className="text-muted-foreground">
+                <div className="text-sm text-muted-foreground truncate">
                   {userData.email}
                 </div>
-                <Badge variant={getRoleBadgeVariant(userData.role)} className="mt-2">
-                  {userData.role.replace('_', ' ')}
-                </Badge>
               </div>
+              <Badge variant={getRoleBadgeVariant(userData.role)}>
+                {userData.role.replace('_', ' ')}
+              </Badge>
             </div>
           </CardHeader>
         </Card>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Business Permissions */}
           <Card>
             <CardHeader>
