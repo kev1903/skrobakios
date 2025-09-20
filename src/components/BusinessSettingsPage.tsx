@@ -37,6 +37,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
     slogan: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const { currentCompany } = useCompany();
   const isMobile = useIsMobile();
 
@@ -46,34 +47,87 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
     }
   }, [activeSection]);
 
-  // Load business details when company changes
+  // Load complete business details from database when company changes
   useEffect(() => {
     if (currentCompany) {
-      setBusinessForm({
-        name: currentCompany.name || '',
-        business_type: ((currentCompany as any).business_type as 'company' | 'sole_trader' | 'partnership' | 'trust') || 'company',
-        abn: (currentCompany as any).abn || '',
-        phone: (currentCompany as any).phone || '',
-        address: (currentCompany as any).address || '',
-        website: (currentCompany as any).website || '',
-        slogan: (currentCompany as any).slogan || ''
-      });
+      loadCompleteBusinessDetails();
     }
   }, [currentCompany]);
 
+  const loadCompleteBusinessDetails = async () => {
+    if (!currentCompany) return;
+    
+    setIsLoadingData(true);
+    try {
+      const { data, error } = await supabase
+        .from('companies')
+        .select('name, business_type, abn, phone, address, website, slogan')
+        .eq('id', currentCompany.id)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setBusinessForm({
+          name: data.name || '',
+          business_type: data.business_type || 'company',
+          abn: data.abn || '',
+          phone: data.phone || '',
+          address: data.address || '',
+          website: data.website || '',
+          slogan: data.slogan || ''
+        });
+      }
+    } catch (error) {
+      console.error('Error loading business details:', error);
+      toast.error('Failed to load business details');
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+
   const handleBusinessFormSave = async () => {
     if (!currentCompany) return;
+
+    // Basic validation
+    if (!businessForm.name.trim()) {
+      toast.error('Business name is required');
+      return;
+    }
+
+    // Validate ABN format if provided
+    if (businessForm.abn && businessForm.abn.replace(/\s/g, '').length !== 11) {
+      toast.error('ABN must be 11 digits');
+      return;
+    }
+
+    // Validate website URL if provided
+    if (businessForm.website && businessForm.website.trim() && !businessForm.website.match(/^https?:\/\/.+/)) {
+      toast.error('Website must start with http:// or https://');
+      return;
+    }
     
     setIsLoading(true);
     try {
       const { error } = await supabase
         .from('companies')
-        .update(businessForm)
+        .update({
+          name: businessForm.name.trim(),
+          business_type: businessForm.business_type,
+          abn: businessForm.abn?.trim() || null,
+          phone: businessForm.phone?.trim() || null,
+          address: businessForm.address?.trim() || null,
+          website: businessForm.website?.trim() || null,
+          slogan: businessForm.slogan?.trim() || null
+        })
         .eq('id', currentCompany.id);
 
       if (error) throw error;
       
       toast.success('Business details updated successfully');
+      
+      // Reload the data to ensure consistency
+      await loadCompleteBusinessDetails();
     } catch (error) {
       console.error('Error updating business details:', error);
       toast.error('Failed to update business details');
@@ -249,6 +303,12 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
             </CardHeader>
             <CardContent className="space-y-6">
               {currentCompany ? (
+                isLoadingData ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-muted-foreground">Loading business details...</p>
+                  </div>
+                ) : (
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -280,9 +340,15 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
                         <input 
                           className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
                           value={businessForm.abn}
-                          onChange={(e) => handleBusinessFormChange('abn', e.target.value)}
-                          placeholder="Enter ABN"
+                          onChange={(e) => {
+                            // Format ABN with spaces for better readability
+                            const formatted = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4');
+                            handleBusinessFormChange('abn', formatted);
+                          }}
+                          placeholder="12 345 678 901"
+                          maxLength={13} // 11 digits + 2 spaces
                         />
+                        <p className="text-xs text-muted-foreground mt-1">Australian Business Number (11 digits)</p>
                       </div>
                       <div>
                         <label className="text-sm font-medium text-foreground">Phone</label>
@@ -306,15 +372,17 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
                       />
                     </div>
                     
-                    <div>
-                      <label className="text-sm font-medium text-foreground">Website</label>
-                      <input 
-                        className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
-                        value={businessForm.website}
-                        onChange={(e) => handleBusinessFormChange('website', e.target.value)}
-                        placeholder="https://yourcompany.com"
-                      />
-                    </div>
+                      <div>
+                        <label className="text-sm font-medium text-foreground">Website</label>
+                        <input 
+                          className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                          value={businessForm.website}
+                          onChange={(e) => handleBusinessFormChange('website', e.target.value)}
+                          placeholder="https://yourcompany.com"
+                          type="url"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">Include http:// or https://</p>
+                      </div>
                     
                     <div>
                       <label className="text-sm font-medium text-foreground">Business Slogan</label>
@@ -329,12 +397,13 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
                     <div className="pt-4">
                       <Button 
                         onClick={handleBusinessFormSave}
-                        disabled={isLoading}
+                        disabled={isLoading || isLoadingData}
                       >
                         {isLoading ? 'Saving...' : 'Save Changes'}
                       </Button>
                     </div>
                   </div>
+                )
               ) : (
                 <div className="text-center py-8">
                   <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
