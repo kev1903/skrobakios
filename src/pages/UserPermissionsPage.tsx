@@ -240,12 +240,9 @@ export default function UserPermissionsPage() {
     console.log('🔍 userId:', userId);
     console.log('🔍 companyId:', companyId);
     
-    // Try direct navigation to the team management route
-    console.log('🔍 Attempting direct navigation to team-management');
-    const targetUrl = `/?page=team-management`;
-    console.log('🔍 Navigating to:', targetUrl);
-    
-    navigate(targetUrl, { replace: false });
+    // Navigate to root and let it redirect to team-management
+    console.log('🔍 Navigating to root with team-management page');
+    window.location.href = '/?page=team-management';
   };
 
 
