@@ -18,12 +18,6 @@ interface BusinessModule {
   access: 'no_access' | 'can_view' | 'can_edit';
 }
 
-interface ProjectMembership {
-  project_id: string;
-  project_name: string;
-  role: string;
-  status: string;
-}
 
 interface UserData {
   user_id: string;
@@ -40,7 +34,7 @@ export default function UserPermissionsPage() {
   const { user } = useAuth();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [businessModules, setBusinessModules] = useState<BusinessModule[]>([]);
-  const [projectMemberships, setProjectMemberships] = useState<ProjectMembership[]>([]);
+  
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -123,33 +117,6 @@ export default function UserPermissionsPage() {
 
       setUserData(userData);
 
-      // Fetch project memberships
-      const { data: projectData, error: projectError } = await supabase
-        .from('project_members')
-        .select(`
-          project_id,
-          role,
-          status,
-          projects!inner(
-            id,
-            name,
-            company_id
-          )
-        `)
-        .eq('user_id', userId)
-        .eq('projects.company_id', companyId);
-
-      if (projectError) {
-        console.error('Error fetching project memberships:', projectError);
-      } else {
-        const memberships = projectData?.map((pm: any) => ({
-          project_id: pm.project_id,
-          project_name: pm.projects.name,
-          role: pm.role,
-          status: pm.status
-        })) || [];
-        setProjectMemberships(memberships);
-      }
 
       // Define business modules with access levels based on company role
       const getAccessLevel = (requiresAdmin = false, requiresOwner = false) => {
@@ -412,50 +379,6 @@ export default function UserPermissionsPage() {
             </CardContent>
           </Card>
 
-          {/* Project Access */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FolderOpen className="h-5 w-5" />
-                Project Access
-              </CardTitle>
-              <CardDescription>
-                Project memberships and roles
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {projectMemberships.length === 0 ? (
-                <div className="text-center text-muted-foreground py-12">
-                  <FolderOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-lg font-medium">No project memberships found</p>
-                  <p className="text-sm mt-1">This user is not assigned to any projects</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {projectMemberships.map((membership) => (
-                    <div key={membership.project_id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium">
-                          {membership.project_name}
-                        </div>
-                        <div className="text-sm text-muted-foreground mt-1">
-                          Project ID: {membership.project_id}
-                        </div>
-                      </div>
-                      <div className="flex gap-2 ml-4">
-                        <Badge variant={getRoleBadgeVariant(membership.role)}>
-                          {membership.role}
-                        </Badge>
-                        <Badge variant={getStatusBadgeVariant(membership.status)}>
-                          {membership.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </div>
 
         <Separator />
