@@ -30,7 +30,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Label } from '@/components/ui/label';
-import { Search, RefreshCw, MoreHorizontal, Building2, Trash2, Crown, Shield, User, UserPlus, Plus } from 'lucide-react';
+import { Search, RefreshCw, MoreHorizontal, Building2, Trash2, Crown, Shield, User, UserPlus, Plus, Settings } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -350,6 +350,10 @@ export const EnhancedCompanyUserManagement = ({
     switch (role) {
       case 'owner':
         return <Crown className="w-4 h-4" />;
+      case 'platform_admin':
+        return <Settings className="w-4 h-4" />;
+      case 'director':
+        return <Crown className="w-4 h-4" />;
       case 'admin':
         return <Shield className="w-4 h-4" />;
       default:
@@ -360,6 +364,10 @@ export const EnhancedCompanyUserManagement = ({
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
       case 'owner':
+        return 'destructive';
+      case 'platform_admin':
+        return 'destructive';
+      case 'director':
         return 'destructive';
       case 'admin':
         return 'default';
@@ -524,12 +532,9 @@ export const EnhancedCompanyUserManagement = ({
                               </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
+                              <SelectItem value="platform_admin">Platform Admin</SelectItem>
+                              <SelectItem value="director">Director</SelectItem>
                               <SelectItem value="admin">Admin</SelectItem>
-                              <SelectItem value="manager">Manager</SelectItem>
-                              <SelectItem value="supplier">Supplier</SelectItem>
-                              <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
-                              <SelectItem value="consultant">Consultant</SelectItem>
-                              <SelectItem value="client">Client</SelectItem>
                             </SelectContent>
                           </Select>
                         ) : (
