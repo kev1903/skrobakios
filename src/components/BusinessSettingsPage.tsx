@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, User, CreditCard, Settings, Users, Bell, FileText, Plug, CheckCircle, XCircle, ExternalLink, Menu, X } from 'lucide-react';
+import { ArrowLeft, Building2, CreditCard, Settings, Users, Bell, FileText, Plug, CheckCircle, XCircle, ExternalLink, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -14,11 +14,29 @@ interface BusinessSettingsPageProps {
 }
 
 export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) => {
-  const [activeSection, setActiveSection] = useState('my-info');
+  const [activeSection, setActiveSection] = useState('business-details');
   const [isConnecting, setIsConnecting] = useState(false);
   const [hasXeroConnection, setHasXeroConnection] = useState(false);
   const [xeroConnection, setXeroConnection] = useState<any>(null);
   const [showMobileNav, setShowMobileNav] = useState(false);
+  const [businessForm, setBusinessForm] = useState<{
+    name: string;
+    business_type: 'company' | 'sole_trader' | 'partnership' | 'trust';
+    abn: string;
+    phone: string;
+    address: string;
+    website: string;
+    slogan: string;
+  }>({
+    name: '',
+    business_type: 'company',
+    abn: '',
+    phone: '',
+    address: '',
+    website: '',
+    slogan: ''
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const { currentCompany } = useCompany();
   const isMobile = useIsMobile();
 
@@ -27,6 +45,49 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
       checkXeroConnectionStatus();
     }
   }, [activeSection]);
+
+  // Load business details when company changes
+  useEffect(() => {
+    if (currentCompany) {
+      setBusinessForm({
+        name: currentCompany.name || '',
+        business_type: ((currentCompany as any).business_type as 'company' | 'sole_trader' | 'partnership' | 'trust') || 'company',
+        abn: (currentCompany as any).abn || '',
+        phone: (currentCompany as any).phone || '',
+        address: (currentCompany as any).address || '',
+        website: (currentCompany as any).website || '',
+        slogan: (currentCompany as any).slogan || ''
+      });
+    }
+  }, [currentCompany]);
+
+  const handleBusinessFormSave = async () => {
+    if (!currentCompany) return;
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('companies')
+        .update(businessForm)
+        .eq('id', currentCompany.id);
+
+      if (error) throw error;
+      
+      toast.success('Business details updated successfully');
+    } catch (error) {
+      console.error('Error updating business details:', error);
+      toast.error('Failed to update business details');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBusinessFormChange = (field: keyof typeof businessForm, value: string | ('company' | 'sole_trader' | 'partnership' | 'trust')) => {
+    setBusinessForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   const checkXeroConnection = async () => {
     try {
@@ -168,7 +229,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
   };
 
   const navigationItems = [
-    { id: 'my-info', label: 'My info', icon: User },
+    { id: 'business-details', label: 'Business Details', icon: Building2 },
     { id: 'billing-payments', label: 'Billing & Payments', icon: CreditCard },
     { id: 'membership-settings', label: 'Membership Settings', icon: Settings },
     { id: 'teams', label: 'Teams', icon: Users },
@@ -179,29 +240,108 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
 
   const renderContent = () => {
     switch (activeSection) {
-      case 'my-info':
+      case 'business-details':
         return (
           <Card className="backdrop-blur-sm bg-card/60 border-border/30">
             <CardHeader>
-              <CardTitle>My Info</CardTitle>
-              <CardDescription>Manage your personal information and profile settings</CardDescription>
+              <CardTitle>Business Details</CardTitle>
+              <CardDescription>Manage your company information and business settings</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-foreground">First Name</label>
-                  <input className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" />
+            <CardContent className="space-y-6">
+              {currentCompany ? (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-foreground">Business Name</label>
+                        <input 
+                          className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                          value={businessForm.name}
+                          onChange={(e) => handleBusinessFormChange('name', e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-foreground">Business Type</label>
+                        <select 
+                          className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground"
+                          value={businessForm.business_type}
+                          onChange={(e) => handleBusinessFormChange('business_type', e.target.value as 'company' | 'sole_trader' | 'partnership' | 'trust')}
+                        >
+                          <option value="company">Company</option>
+                          <option value="sole_trader">Sole Trader</option>
+                          <option value="partnership">Partnership</option>
+                          <option value="trust">Trust</option>
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-foreground">ABN</label>
+                        <input 
+                          className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                          value={businessForm.abn}
+                          onChange={(e) => handleBusinessFormChange('abn', e.target.value)}
+                          placeholder="Enter ABN"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-foreground">Phone</label>
+                        <input 
+                          className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                          value={businessForm.phone}
+                          onChange={(e) => handleBusinessFormChange('phone', e.target.value)}
+                          placeholder="Enter phone number"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-foreground">Business Address</label>
+                      <textarea 
+                        className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                        rows={3}
+                        value={businessForm.address}
+                        onChange={(e) => handleBusinessFormChange('address', e.target.value)}
+                        placeholder="Enter business address"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-foreground">Website</label>
+                      <input 
+                        className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                        value={businessForm.website}
+                        onChange={(e) => handleBusinessFormChange('website', e.target.value)}
+                        placeholder="https://yourcompany.com"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="text-sm font-medium text-foreground">Business Slogan</label>
+                      <input 
+                        className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                        value={businessForm.slogan}
+                        onChange={(e) => handleBusinessFormChange('slogan', e.target.value)}
+                        placeholder="Enter your business slogan"
+                      />
+                    </div>
+                    
+                    <div className="pt-4">
+                      <Button 
+                        onClick={handleBusinessFormSave}
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Saving...' : 'Save Changes'}
+                      </Button>
+                    </div>
+                  </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">No Company Selected</h3>
+                  <p className="text-muted-foreground">Please select a company to manage business details.</p>
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-foreground">Last Name</label>
-                  <input className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">Email</label>
-                <input className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" />
-              </div>
-              <Button>Save Changes</Button>
+              )}
             </CardContent>
           </Card>
         );
