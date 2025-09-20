@@ -59,26 +59,39 @@ export const CreateUserForBusinessDialog = ({
     if (!user) return;
 
     try {
-      // Get users who can be assigned to companies
-      const { data, error } = await supabase.rpc('get_manageable_users_for_user', {
-        requesting_user_id: user.id,
-      });
+      // Get all users from the platform
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('user_id, email, first_name, last_name, avatar_url, status')
+        .eq('status', 'active')
+        .order('first_name', { ascending: true });
 
       if (error) {
         console.error('Error fetching available users:', error);
         return;
       }
 
-      // Filter users who are not already company admins and can be assigned
-      const eligibleUsers = (data || []).filter((u: any) => {
-        return u.app_role !== 'business_admin' && u.can_assign_to_companies;
-      }).map((u: any) => ({
-        user_id: u.user_id,
-        email: u.email,
-        first_name: u.first_name,
-        last_name: u.last_name,
-        avatar_url: u.avatar_url,
-        current_role: u.app_role || 'user'
+      // Get user roles for all users
+      const userIds = profiles?.map(p => p.user_id).filter(Boolean) || [];
+      const { data: userRoles } = await supabase
+        .from('user_roles')
+        .select('user_id, role')
+        .in('user_id', userIds);
+
+      // Map roles by user_id for easier lookup
+      const roleMap = new Map();
+      (userRoles || []).forEach(ur => {
+        roleMap.set(ur.user_id, ur.role);
+      });
+
+      // Transform profiles to available users format
+      const eligibleUsers = (profiles || []).map((profile) => ({
+        user_id: profile.user_id,
+        email: profile.email,
+        first_name: profile.first_name,
+        last_name: profile.last_name,
+        avatar_url: profile.avatar_url,
+        current_role: roleMap.get(profile.user_id) || 'user'
       }));
 
       setAvailableUsers(eligibleUsers);
