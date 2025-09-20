@@ -306,7 +306,7 @@ export const CreateUserForBusinessDialog = ({
         setActiveTab('existing');
       }
     }}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
