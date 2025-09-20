@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Eye, EyeOff, RefreshCw, UserPlus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,9 +38,10 @@ export const CreateUserForBusinessDialog = ({
   const { user } = useAuth();
   const [isCreating, setIsCreating] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [activeTab, setActiveTab] = useState<'new' | 'existing'>('existing');
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [availableUsers, setAvailableUsers] = useState<AvailableUser[]>([]);
+  const [matchingUsers, setMatchingUsers] = useState<AvailableUser[]>([]);
+  const [emailSearched, setEmailSearched] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -289,6 +290,43 @@ export const CreateUserForBusinessDialog = ({
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // If email field is being changed, search for existing users
+    if (field === 'email') {
+      handleEmailSearch(value);
+    }
+  };
+
+  const handleEmailSearch = (email: string) => {
+    if (!email.trim()) {
+      setMatchingUsers([]);
+      setEmailSearched(false);
+      setSelectedUser('');
+      return;
+    }
+
+    const matches = availableUsers.filter(user => 
+      user.email.toLowerCase() === email.toLowerCase().trim()
+    );
+    
+    setMatchingUsers(matches);
+    setEmailSearched(true);
+    
+    // If we have matches, clear new user fields and auto-select if only one match
+    if (matches.length > 0) {
+      if (matches.length === 1) {
+        setSelectedUser(matches[0].user_id);
+      }
+      // Clear new user fields since we found existing users
+      setFormData(prev => ({ 
+        ...prev, 
+        firstName: '', 
+        lastName: '', 
+        password: '' 
+      }));
+    } else {
+      setSelectedUser('');
+    }
   };
 
   return (
@@ -303,7 +341,8 @@ export const CreateUserForBusinessDialog = ({
           lastName: '',
           role: 'admin'
         });
-        setActiveTab('existing');
+        setMatchingUsers([]);
+        setEmailSearched(false);
       }
     }}>
       <DialogContent className="sm:max-w-4xl">
@@ -317,21 +356,34 @@ export const CreateUserForBusinessDialog = ({
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'new' | 'existing')} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="existing">Add Existing User</TabsTrigger>
-            <TabsTrigger value="new">Create New User</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="existing" className="space-y-4">
-            <div>
-              <Label>Select User</Label>
+        <div className="space-y-4">
+          {/* Email field at the top */}
+          <div>
+            <Label htmlFor="email">Email *</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              placeholder="Enter email address"
+              required
+            />
+          </div>
+
+          {/* Show existing users if found */}
+          {emailSearched && matchingUsers.length > 0 && (
+            <div className="border rounded-lg p-4 bg-blue-50 dark:bg-blue-950/20">
+              <Label className="text-blue-700 dark:text-blue-300">Existing Users Found</Label>
+              <p className="text-sm text-blue-600 dark:text-blue-400 mb-3">
+                We found existing users with this email. Select one to add them to the company:
+              </p>
+              
               <Select value={selectedUser} onValueChange={setSelectedUser}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Choose a user to add" />
+                  <SelectValue placeholder="Choose an existing user" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableUsers.map((user) => (
+                  {matchingUsers.map((user) => (
                     <SelectItem key={user.user_id} value={user.user_id}>
                       <div className="flex items-center gap-2">
                         <Avatar className="h-6 w-6">
@@ -350,35 +402,20 @@ export const CreateUserForBusinessDialog = ({
                 </SelectContent>
               </Select>
             </div>
+          )}
 
-            <div>
-              <Label htmlFor="existingRole">Role in Company</Label>
-              <Select value={formData.role} onValueChange={(value: any) => handleInputChange('role', value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="admin">Business Admin</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="supplier">Supplier</SelectItem>
-                  <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
-                  <SelectItem value="consultant">Consultant</SelectItem>
-                  <SelectItem value="client">Client</SelectItem>
-                </SelectContent>
-              </Select>
+          {/* Show new user form if no matches found or email not entered yet */}
+          {emailSearched && matchingUsers.length === 0 && (
+            <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-950/20">
+              <Label className="text-green-700 dark:text-green-300">Create New User</Label>
+              <p className="text-sm text-green-600 dark:text-green-400 mb-3">
+                No existing user found with this email. Fill in the details below to create a new user account:
+              </p>
             </div>
-            
-            <DialogFooter>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button onClick={assignExistingUser} disabled={!selectedUser || isCreating}>
-                {isCreating ? 'Adding...' : 'Add User'}
-              </Button>
-            </DialogFooter>
-          </TabsContent>
-          
-          <TabsContent value="new" className="space-y-4">
+          )}
+
+          {/* New user fields - show if no email entered yet OR no matching users found */}
+          {(!emailSearched || matchingUsers.length === 0) && (
             <form onSubmit={handleCreateUser} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -388,7 +425,7 @@ export const CreateUserForBusinessDialog = ({
                     value={formData.firstName}
                     onChange={(e) => handleInputChange('firstName', e.target.value)}
                     placeholder="John"
-                    required
+                    required={emailSearched && matchingUsers.length === 0}
                   />
                 </div>
                 <div>
@@ -403,18 +440,6 @@ export const CreateUserForBusinessDialog = ({
               </div>
               
               <div>
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="john.doe@example.com"
-                  required
-                />
-              </div>
-              
-              <div>
                 <Label htmlFor="password">Password *</Label>
                 <div className="relative">
                   <Input
@@ -424,7 +449,7 @@ export const CreateUserForBusinessDialog = ({
                     onChange={(e) => handleInputChange('password', e.target.value)}
                     placeholder="Enter secure password"
                     className="pr-20"
-                    required
+                    required={emailSearched && matchingUsers.length === 0}
                   />
                   <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
                     <Button
@@ -450,40 +475,50 @@ export const CreateUserForBusinessDialog = ({
                   </div>
                 </div>
               </div>
-
-              <div>
-                <Label htmlFor="role">Role in Company</Label>
-                <Select value={formData.role} onValueChange={(value: any) => handleInputChange('role', value)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="admin">Business Admin</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
-                    <SelectItem value="supplier">Supplier</SelectItem>
-                    <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
-                    <SelectItem value="consultant">Consultant</SelectItem>
-                    <SelectItem value="client">Client</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                  disabled={isCreating}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isCreating}>
-                  {isCreating ? 'Creating...' : 'Create User'}
-                </Button>
-              </DialogFooter>
             </form>
-          </TabsContent>
-        </Tabs>
+          )}
+
+          {/* Role selection - always show when email is entered */}
+          {formData.email && (
+            <div>
+              <Label htmlFor="role">Role in Company</Label>
+              <Select value={formData.role} onValueChange={(value: any) => handleInputChange('role', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Business Admin</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
+                  <SelectItem value="supplier">Supplier</SelectItem>
+                  <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
+                  <SelectItem value="consultant">Consultant</SelectItem>
+                  <SelectItem value="client">Client</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Action buttons */}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            
+            {/* Show appropriate action button based on context */}
+            {emailSearched && matchingUsers.length > 0 ? (
+              <Button onClick={assignExistingUser} disabled={!selectedUser || isCreating}>
+                {isCreating ? 'Adding...' : 'Add User'}
+              </Button>
+            ) : (
+              <Button 
+                onClick={handleCreateUser} 
+                disabled={isCreating || !formData.email || (emailSearched && matchingUsers.length === 0 && (!formData.firstName || !formData.password))}
+              >
+                {isCreating ? 'Creating...' : 'Create User'}
+              </Button>
+            )}
+          </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
