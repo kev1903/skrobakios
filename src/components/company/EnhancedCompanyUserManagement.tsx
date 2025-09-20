@@ -46,7 +46,7 @@ interface CompanyMember {
   last_name: string;
   avatar_url?: string;
   phone?: string;
-  role: 'owner' | 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client';
+  role: 'owner' | 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client' | 'team_member';
   status: 'active' | 'invited' | 'inactive';
   joined_at: string;
   isSuperAdmin?: boolean;
@@ -577,7 +577,7 @@ export const EnhancedCompanyUserManagement = ({
                       </TableCell>
                       <TableCell>{member.email}</TableCell>
                         <TableCell className="align-middle">
-                         {canChangeRoles && member.role !== 'owner' ? (
+                         {canChangeRoles && member.role !== 'owner' && member.role !== 'team_member' ? (
                            <Select
                              value={getDropdownValue(member.role, member.isSuperAdmin)}
                              onValueChange={(value: any) => handleRoleChange(member.id, value)}
