@@ -9,6 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useProjects as useProjectsHook } from '@/hooks/useProjects';
+import { cleanupDigitalObjectsCache } from '@/utils/cacheCleanup';
+import { toast } from '@/utils/toastFilters';
 
 interface Project {
   id: string;
@@ -36,6 +38,11 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   const navigate = useNavigate();
   
 
+  // Clean up any potential digital objects cache on component mount
+  useEffect(() => {
+    cleanupDigitalObjectsCache();
+  }, []);
+
   // Fetch Mapbox token from edge function
   useEffect(() => {
     const fetchMapboxToken = async () => {
@@ -45,13 +52,16 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
         
         if (data?.token) {
           setMapboxToken(data.token);
+          console.log('✅ Mapbox token loaded successfully');
         } else {
           console.error('No Mapbox token found');
+          toast.error('Map configuration missing. Please contact support.');
         }
       } catch (error) {
         console.error('Error fetching Mapbox token:', error);
         // Fallback: use the token directly (for development)
         setMapboxToken('pk.eyJ1Ijoia2V2aW4xOTAzMTk5NCIsImEiOiJjbWR2YndyNjgweDd1MmxvYWppd3ZueWlnIn0.dwNrOhknOccJL9BFNT6gmg');
+        console.log('Using fallback Mapbox token');
       } finally {
         setLoading(false);
       }

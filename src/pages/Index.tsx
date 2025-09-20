@@ -16,6 +16,7 @@ import { useProjectState } from "@/hooks/useProjectState";
 import { useNavigationWithHistory } from "@/hooks/useNavigationWithHistory";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cleanupDigitalObjectsCache } from "@/utils/cacheCleanup";
 import { MobileBottomBar } from "@/components/MobileBottomBar";
 
 const Index = () => {
@@ -101,6 +102,11 @@ const Index = () => {
       handleSelectProject(projectIdParam);
     }
   }, [searchParams, selectedProject, handleSelectProject]);
+
+  // Clean up digital objects cache on app start
+  useEffect(() => {
+    cleanupDigitalObjectsCache();
+  }, []);
 
   // Redirect authenticated users away from public pages
   useEffect(() => {

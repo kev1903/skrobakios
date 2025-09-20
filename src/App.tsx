@@ -2,6 +2,8 @@ import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+// Import error handler to filter deprecated errors
+import "@/utils/errorHandler";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation, useSearchParams } from "react-router-dom";
 import Index from "./pages/Index";
