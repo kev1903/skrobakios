@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building2, FolderOpen, Shield, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
+import { Building2, Shield, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -216,16 +216,6 @@ export default function UserPermissionsPage() {
     }
   };
 
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'default';
-      case 'inactive':
-        return 'secondary';
-      default:
-        return 'outline';
-    }
-  };
 
   const handlePermissionChange = async (moduleId: string, value: string) => {
     // Update the local state
@@ -248,21 +238,6 @@ export default function UserPermissionsPage() {
     navigate(-1);
   };
 
-  const getAccessLabel = (access: string) => {
-    switch (access) {
-      case 'can_edit': return 'Edit';
-      case 'can_view': return 'View';
-      default: return 'No Access';
-    }
-  };
-
-  const getAccessVariant = (access: string) => {
-    switch (access) {
-      case 'can_edit': return 'default';
-      case 'can_view': return 'secondary';
-      default: return 'outline';
-    }
-  };
 
   if (!user) {
     return (
