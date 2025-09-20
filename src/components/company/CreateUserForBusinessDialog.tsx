@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Eye, EyeOff, RefreshCw, UserPlus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
 interface CreateUserForBusinessDialogProps {
@@ -16,6 +19,15 @@ interface CreateUserForBusinessDialogProps {
   onUserCreated: () => void;
 }
 
+interface AvailableUser {
+  user_id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  avatar_url?: string;
+  current_role: string;
+}
+
 export const CreateUserForBusinessDialog = ({ 
   open, 
   onOpenChange, 
@@ -23,8 +35,12 @@ export const CreateUserForBusinessDialog = ({
   companyName,
   onUserCreated 
 }: CreateUserForBusinessDialogProps) => {
+  const { user } = useAuth();
   const [isCreating, setIsCreating] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState<'new' | 'existing'>('existing');
+  const [selectedUser, setSelectedUser] = useState<string>('');
+  const [availableUsers, setAvailableUsers] = useState<AvailableUser[]>([]);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -32,6 +48,44 @@ export const CreateUserForBusinessDialog = ({
     lastName: '',
     role: 'admin' as 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'
   });
+
+  useEffect(() => {
+    if (open) {
+      fetchAvailableUsers();
+    }
+  }, [open]);
+
+  const fetchAvailableUsers = async () => {
+    if (!user) return;
+
+    try {
+      // Get users who can be assigned to companies
+      const { data, error } = await supabase.rpc('get_manageable_users_for_user', {
+        requesting_user_id: user.id,
+      });
+
+      if (error) {
+        console.error('Error fetching available users:', error);
+        return;
+      }
+
+      // Filter users who are not already company admins and can be assigned
+      const eligibleUsers = (data || []).filter((u: any) => {
+        return u.app_role !== 'business_admin' && u.can_assign_to_companies;
+      }).map((u: any) => ({
+        user_id: u.user_id,
+        email: u.email,
+        first_name: u.first_name,
+        last_name: u.last_name,
+        avatar_url: u.avatar_url,
+        current_role: u.app_role || 'user'
+      }));
+
+      setAvailableUsers(eligibleUsers);
+    } catch (error) {
+      console.error('Error fetching available users:', error);
+    }
+  };
 
   const generatePassword = () => {
     const length = 12;
@@ -141,126 +195,282 @@ export const CreateUserForBusinessDialog = ({
     }
   };
 
+  const assignExistingUser = async () => {
+    if (!selectedUser) {
+      toast({
+        title: "Error",
+        description: "Please select a user to assign",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCreating(true);
+
+    try {
+      // Add user to company as admin
+      const { error: companyError } = await supabase
+        .from('company_members')
+        .upsert({
+          company_id: companyId,
+          user_id: selectedUser,
+          role: formData.role,
+          status: 'active'
+        });
+
+      if (companyError) {
+        throw new Error('Failed to assign user to company');
+      }
+
+      // If assigning as business admin, also update their app role
+      if (formData.role === 'admin') {
+        const { data: roleResult, error: roleError } = await supabase.rpc('set_user_primary_role', {
+          target_user_id: selectedUser,
+          new_role: 'business_admin'
+        });
+
+        const result = roleResult as any;
+        if (roleError || !result?.success) {
+          console.warn('Failed to update app role, but assigned to company');
+        }
+      }
+
+      const selectedUserInfo = availableUsers.find(u => u.user_id === selectedUser);
+      const roleLabel = formData.role === 'admin' ? 'Business Admin' : 
+                       formData.role === 'manager' ? 'Manager' :
+                       formData.role === 'supplier' ? 'Supplier' :
+                       formData.role === 'sub_contractor' ? 'Sub-Contractor' :
+                       formData.role === 'consultant' ? 'Consultant' :
+                       formData.role === 'client' ? 'Client' : formData.role;
+
+      toast({
+        title: "Success",
+        description: `${selectedUserInfo?.first_name} ${selectedUserInfo?.last_name} assigned as ${roleLabel} to ${companyName}`,
+      });
+
+      // Reset form and close dialog
+      setSelectedUser('');
+      setFormData({
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        role: 'admin'
+      });
+      onOpenChange(false);
+      
+      // Trigger immediate refresh 
+      onUserCreated();
+
+    } catch (error: any) {
+      console.error('Error assigning user:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to assign user",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={(open) => {
+      onOpenChange(open);
+      if (!open) {
+        setSelectedUser('');
+        setFormData({
+          email: '',
+          password: '',
+          firstName: '',
+          lastName: '',
+          role: 'admin'
+        });
+        setActiveTab('existing');
+      }
+    }}>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
-            Create New Business Admin for {companyName}
+            Add Team Member to {companyName}
           </DialogTitle>
           <DialogDescription>
-            Create a new user account and automatically add them to this business.
+            Add an existing user or create a new user account for this business.
           </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleCreateUser} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="firstName">First Name *</Label>
-              <Input
-                id="firstName"
-                value={formData.firstName}
-                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                placeholder="John"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                value={formData.lastName}
-                onChange={(e) => handleInputChange('lastName', e.target.value)}
-                placeholder="Doe"
-              />
-            </div>
-          </div>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'new' | 'existing')} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="existing">Add Existing User</TabsTrigger>
+            <TabsTrigger value="new">Create New User</TabsTrigger>
+          </TabsList>
           
-          <div>
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              placeholder="john.doe@example.com"
-              required
-            />
-          </div>
+          <TabsContent value="existing" className="space-y-4">
+            <div>
+              <Label>Select User</Label>
+              <Select value={selectedUser} onValueChange={setSelectedUser}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a user to add" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableUsers.map((user) => (
+                    <SelectItem key={user.user_id} value={user.user_id}>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={user.avatar_url || ''} />
+                          <AvatarFallback className="text-xs">
+                            {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{user.first_name} {user.last_name}</div>
+                          <div className="text-xs text-muted-foreground">{user.email}</div>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="existingRole">Role in Company</Label>
+              <Select value={formData.role} onValueChange={(value: any) => handleInputChange('role', value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Business Admin</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
+                  <SelectItem value="supplier">Supplier</SelectItem>
+                  <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
+                  <SelectItem value="consultant">Consultant</SelectItem>
+                  <SelectItem value="client">Client</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button onClick={assignExistingUser} disabled={!selectedUser || isCreating}>
+                {isCreating ? 'Adding...' : 'Add User'}
+              </Button>
+            </DialogFooter>
+          </TabsContent>
           
-          <div>
-            <Label htmlFor="password">Password *</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={formData.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                placeholder="Enter secure password"
-                className="pr-20"
-                required
-              />
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="h-8 w-8 p-0"
-                  title={showPassword ? "Hide Password" : "Show Password"}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={generatePassword}
-                  className="h-8 w-8 p-0"
-                  title="Generate Password"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
+          <TabsContent value="new" className="space-y-4">
+            <form onSubmit={handleCreateUser} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">First Name *</Label>
+                  <Input
+                    id="firstName"
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    placeholder="John"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    placeholder="Doe"
+                  />
+                </div>
               </div>
-            </div>
-          </div>
+              
+              <div>
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder="john.doe@example.com"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="password">Password *</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    placeholder="Enter secure password"
+                    className="pr-20"
+                    required
+                  />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="h-8 w-8 p-0"
+                      title={showPassword ? "Hide Password" : "Show Password"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={generatePassword}
+                      className="h-8 w-8 p-0"
+                      title="Generate Password"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
 
-          <div>
-            <Label htmlFor="role">Role in Company</Label>
-            <Select value={formData.role} onValueChange={(value: any) => handleInputChange('role', value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">Business Admin</SelectItem>
-                <SelectItem value="manager">Manager</SelectItem>
-                <SelectItem value="supplier">Supplier</SelectItem>
-                <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
-                <SelectItem value="consultant">Consultant</SelectItem>
-                <SelectItem value="client">Client</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+              <div>
+                <Label htmlFor="role">Role in Company</Label>
+                <Select value={formData.role} onValueChange={(value: any) => handleInputChange('role', value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">Business Admin</SelectItem>
+                    <SelectItem value="manager">Manager</SelectItem>
+                    <SelectItem value="supplier">Supplier</SelectItem>
+                    <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
+                    <SelectItem value="consultant">Consultant</SelectItem>
+                    <SelectItem value="client">Client</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isCreating}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isCreating}>
-              {isCreating ? 'Creating...' : 'Create User'}
-            </Button>
-          </DialogFooter>
-        </form>
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isCreating}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isCreating}>
+                  {isCreating ? 'Creating...' : 'Create User'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
