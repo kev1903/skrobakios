@@ -47,6 +47,7 @@ import { ReviewsPage } from "./components/review/ReviewsPage";
 import { InvitePage } from "./pages/InvitePage";
 import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
 import { InvoiceFormPage } from "./components/invoices/InvoiceFormPage";
+import UserPermissionsPage from "./pages/UserPermissionsPage";
 
 import { MenuBar } from "./components/MenuBar";
 import PDFExtractionDocs from "./pages/PDFExtractionDocs";
@@ -374,6 +375,7 @@ const AppContent = () => {
 } />
         <Route path="/company/:companyId/edit" element={<CompanyEditPageWrapper />} />
         <Route path="/admin/user/:userId" element={<UserDetailsPage />} />
+        <Route path="/user-permissions/:userId/:companyId" element={<UserPermissionsPage />} />
         {/* Profile edit route removed */}
         <Route path="/impersonate" element={<Index />} />
         

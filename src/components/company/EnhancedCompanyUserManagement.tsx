@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,7 +38,6 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useCompany } from '@/contexts/CompanyContext';
 import { toast } from '@/hooks/use-toast';
 import { CreateUserForBusinessDialog } from './CreateUserForBusinessDialog';
-import { UserPermissionsDialog } from './UserPermissionsDialog';
 
 interface CompanyMember {
   id: string;
@@ -75,6 +75,7 @@ export const EnhancedCompanyUserManagement = ({
   const { isSuperAdmin } = useUserRole();
   const { refreshCompanies } = useCompany();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -87,10 +88,6 @@ export const EnhancedCompanyUserManagement = ({
   const [availableUsersLoading, setAvailableUsersLoading] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'>('manager');
-  
-  // Permissions dialog state
-  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<CompanyMember | null>(null);
 
   const fetchMembers = async (forceRefresh = false) => {
     if (!companyId) return;
@@ -575,8 +572,7 @@ export const EnhancedCompanyUserManagement = ({
                                 }`}
                                 onClick={() => {
                                   if (currentUserRole === 'admin' || currentUserRole === 'owner') {
-                                    setSelectedMember(member);
-                                    setPermissionsDialogOpen(true);
+                                    navigate(`/user-permissions/${member.user_id}/${companyId}`);
                                   }
                                 }}
                               >
@@ -673,16 +669,6 @@ export const EnhancedCompanyUserManagement = ({
         companyName={companyName}
         onUserCreated={() => fetchMembers(true)}
       />
-
-      {/* User Permissions Dialog */}
-      {selectedMember && (
-        <UserPermissionsDialog
-          open={permissionsDialogOpen}
-          onOpenChange={setPermissionsDialogOpen}
-          member={selectedMember}
-          companyId={companyId}
-        />
-      )}
     </div>
   );
 };
