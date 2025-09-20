@@ -8,8 +8,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import { Search, RefreshCw, MoreHorizontal, Building2, Crown, Shield, User, UserPlus, AlertTriangle } from 'lucide-react';
+import { Search, RefreshCw, MoreHorizontal, Building2, Crown, Shield, User, UserPlus, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -56,6 +57,15 @@ export const BusinessAdminManagement: React.FC<BusinessAdminManagementProps> = (
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string>('');
   const [assigningRole, setAssigningRole] = useState<'admin'>('admin');
+  const [activeTab, setActiveTab] = useState<'existing' | 'new'>('existing');
+  const [isCreating, setIsCreating] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [newUserForm, setNewUserForm] = useState({
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+  });
 
   const fetchBusinessAdmins = async () => {
     if (!isSuperAdmin()) return;
@@ -254,6 +264,103 @@ export const BusinessAdminManagement: React.FC<BusinessAdminManagementProps> = (
     }
   };
 
+  const generatePassword = () => {
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+    let password = "";
+    
+    // Ensure at least one character from each type
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const numbers = "0123456789";
+    const symbols = "!@#$%^&*";
+    
+    password += lowercase[Math.floor(Math.random() * lowercase.length)];
+    password += uppercase[Math.floor(Math.random() * uppercase.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    password += symbols[Math.floor(Math.random() * symbols.length)];
+    
+    // Fill the rest randomly
+    for (let i = 4; i < length; i++) {
+      password += charset[Math.floor(Math.random() * charset.length)];
+    }
+    
+    // Shuffle the password
+    password = password.split('').sort(() => Math.random() - 0.5).join('');
+    
+    setNewUserForm(prev => ({ ...prev, password }));
+    toast({
+      title: "Password Generated",
+      description: "A secure password has been generated",
+    });
+  };
+
+  const createNewBusinessAdmin = async () => {
+    if (!newUserForm.email || !newUserForm.password || !newUserForm.firstName) {
+      toast({
+        title: "Error",
+        description: "Email, password, and first name are required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCreating(true);
+
+    try {
+      // Create user through edge function
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('No session found. Please login again.');
+
+      const { data, error } = await supabase.functions.invoke('create-user-manually', {
+        body: {
+          email: newUserForm.email,
+          password: newUserForm.password,
+          firstName: newUserForm.firstName,
+          lastName: newUserForm.lastName,
+          companyId: companyId,
+          companyRole: 'admin',
+          appRole: 'business_admin'
+        },
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Failed to create user');
+      }
+
+      if (!data || !data.success) {
+        const errorMsg = data?.error || 'User creation failed';
+        throw new Error(errorMsg);
+      }
+
+      toast({
+        title: "Success",
+        description: `Business Admin ${newUserForm.email} created and added to ${companyName} successfully`,
+      });
+
+      // Reset form and close dialog
+      setNewUserForm({
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+      });
+      setAssignDialogOpen(false);
+      fetchBusinessAdmins();
+      fetchAvailableUsers();
+
+    } catch (error: any) {
+      console.error('Error creating user:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create user",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const filteredAdmins = businessAdmins.filter(admin => {
     const searchLower = searchTerm.toLowerCase();
     return (
@@ -306,7 +413,7 @@ export const BusinessAdminManagement: React.FC<BusinessAdminManagementProps> = (
               {companyId && (
                 <Button onClick={() => setAssignDialogOpen(true)}>
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Assign Business Admin
+                  Add Business Admin
                 </Button>
               )}
             </div>
@@ -415,52 +522,156 @@ export const BusinessAdminManagement: React.FC<BusinessAdminManagementProps> = (
       </Card>
 
       {/* Assign Business Admin Dialog */}
-      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={assignDialogOpen} onOpenChange={(open) => {
+        setAssignDialogOpen(open);
+        if (!open) {
+          setSelectedUser('');
+          setNewUserForm({
+            email: '',
+            password: '',
+            firstName: '',
+            lastName: '',
+          });
+          setActiveTab('existing');
+        }
+      }}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Assign Business Administrator</DialogTitle>
+            <DialogTitle>Add Business Administrator</DialogTitle>
             <DialogDescription>
-              Select a user to promote as business administrator for {companyName}.
+              Add an existing user or create a new user as business administrator for {companyName}.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4">
-            <div>
-              <Label>Select User</Label>
-              <Select value={selectedUser} onValueChange={setSelectedUser}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a user to promote" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableUsers.map((user) => (
-                    <SelectItem key={user.user_id} value={user.user_id}>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={user.avatar_url || ''} />
-                          <AvatarFallback className="text-xs">
-                            {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{user.first_name} {user.last_name}</div>
-                          <div className="text-xs text-muted-foreground">{user.email}</div>
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'existing' | 'new')} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="existing">Add Existing User</TabsTrigger>
+              <TabsTrigger value="new">Create New User</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="existing" className="space-y-4">
+              <div>
+                <Label>Select User</Label>
+                <Select value={selectedUser} onValueChange={setSelectedUser}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a user to promote" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableUsers.map((user) => (
+                      <SelectItem key={user.user_id} value={user.user_id}>
+                        <div className="flex items-center gap-2">
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src={user.avatar_url || ''} />
+                            <AvatarFallback className="text-xs">
+                              {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">{user.first_name} {user.last_name}</div>
+                            <div className="text-xs text-muted-foreground">{user.email}</div>
+                          </div>
                         </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={assignBusinessAdmin} disabled={!selectedUser}>
-              Assign Administrator
-            </Button>
-          </DialogFooter>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={assignBusinessAdmin} disabled={!selectedUser}>
+                  Assign Administrator
+                </Button>
+              </DialogFooter>
+            </TabsContent>
+            
+            <TabsContent value="new" className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">First Name *</Label>
+                  <Input
+                    id="firstName"
+                    value={newUserForm.firstName}
+                    onChange={(e) => setNewUserForm(prev => ({ ...prev, firstName: e.target.value }))}
+                    placeholder="John"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    value={newUserForm.lastName}
+                    onChange={(e) => setNewUserForm(prev => ({ ...prev, lastName: e.target.value }))}
+                    placeholder="Doe"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={newUserForm.email}
+                  onChange={(e) => setNewUserForm(prev => ({ ...prev, email: e.target.value }))}
+                  placeholder="john.doe@example.com"
+                  required
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="password">Password *</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={newUserForm.password}
+                    onChange={(e) => setNewUserForm(prev => ({ ...prev, password: e.target.value }))}
+                    placeholder="Enter secure password"
+                    className="pr-20"
+                    required
+                  />
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="h-8 w-8 p-0"
+                      title={showPassword ? "Hide Password" : "Show Password"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={generatePassword}
+                      className="h-8 w-8 p-0"
+                      title="Generate Password"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setAssignDialogOpen(false)}
+                  disabled={isCreating}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={createNewBusinessAdmin} disabled={isCreating}>
+                  {isCreating ? 'Creating...' : 'Create Business Admin'}
+                </Button>
+              </DialogFooter>
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
     </div>
