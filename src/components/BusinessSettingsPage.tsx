@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Building2, CreditCard, Settings, Users, Bell, FileText, Plug, CheckCircle, XCircle, ExternalLink, Menu, X } from 'lucide-react';
+import { ArrowLeft, Building2, Settings, Users, Plug, CheckCircle, XCircle, ExternalLink, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -284,11 +284,8 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
 
   const navigationItems = [
     { id: 'business-details', label: 'Business Details', icon: Building2 },
-    { id: 'billing-payments', label: 'Billing & Payments', icon: CreditCard },
     { id: 'membership-settings', label: 'Membership Settings', icon: Settings },
     { id: 'teams', label: 'Teams', icon: Users },
-    { id: 'notification-settings', label: 'Notification Settings', icon: Bell },
-    { id: 'tax-information', label: 'Tax Information', icon: FileText },
     { id: 'connected-services', label: 'Connected Services', icon: Plug },
   ];
 
@@ -415,18 +412,6 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
           </Card>
         );
 
-      case 'billing-payments':
-        return (
-          <Card className="backdrop-blur-sm bg-card/60 border-border/30">
-            <CardHeader>
-              <CardTitle>Billing & Payments</CardTitle>
-              <CardDescription>Manage your billing information and payment methods</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Billing and payment settings will be displayed here.</p>
-            </CardContent>
-          </Card>
-        );
 
       case 'membership-settings':
         return (
