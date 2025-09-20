@@ -388,21 +388,29 @@ export const EnhancedCompanyUserManagement = ({
   const getRoleBadgeVariant = (role: string, isUserSuperAdmin = false) => {
     // Show destructive variant for superadmins
     if (isUserSuperAdmin) {
-      return 'destructive';
+      return 'destructive'; // Red for superadmins
     }
     
     switch (role) {
       case 'owner':
         return 'destructive';
       case 'platform_admin':
-        return 'destructive';
+        return 'destructive'; // Red for Platform Admin
       case 'director':
-        return 'destructive';
+        return 'secondary'; // This will be overridden with custom blue styling
       case 'admin':
         return 'default';
       default:
         return 'secondary';
     }
+  };
+
+  const getCustomBadgeClasses = (role: string, isUserSuperAdmin = false) => {
+    // Custom classes for specific role colors
+    if (role === 'director') {
+      return 'bg-blue-500 text-white hover:bg-blue-600'; // Blue for Director
+    }
+    return ''; // Use default variant styling
   };
 
   const getDisplayRole = (role: string, isUserSuperAdmin = false) => {
@@ -560,7 +568,7 @@ export const EnhancedCompanyUserManagement = ({
                         </div>
                       </TableCell>
                       <TableCell>{member.email}</TableCell>
-                       <TableCell>
+                        <TableCell className="align-middle">
                          {canChangeRoles && member.role !== 'owner' ? (
                            <Select
                              value={getDropdownValue(member.role, member.isSuperAdmin)}
@@ -570,9 +578,12 @@ export const EnhancedCompanyUserManagement = ({
                                <SelectValue>
                                  <div className="flex items-center gap-2">
                                    {getRoleIcon(member.role, member.isSuperAdmin)}
-                                   <Badge variant={getRoleBadgeVariant(member.role, member.isSuperAdmin)}>
-                                     {getDisplayRole(member.role, member.isSuperAdmin)}
-                                   </Badge>
+                                    <Badge 
+                                      variant={getRoleBadgeVariant(member.role, member.isSuperAdmin)}
+                                      className={getCustomBadgeClasses(member.role, member.isSuperAdmin)}
+                                    >
+                                      {getDisplayRole(member.role, member.isSuperAdmin)}
+                                    </Badge>
                                  </div>
                                </SelectValue>
                              </SelectTrigger>
@@ -585,7 +596,10 @@ export const EnhancedCompanyUserManagement = ({
                          ) : (
                            <div className="flex items-center gap-2">
                              {getRoleIcon(member.role, member.isSuperAdmin)}
-                              <Badge variant={getRoleBadgeVariant(member.role, member.isSuperAdmin)}>{getDisplayRole(member.role, member.isSuperAdmin)}</Badge>
+                              <Badge 
+                                variant={getRoleBadgeVariant(member.role, member.isSuperAdmin)}
+                                className={getCustomBadgeClasses(member.role, member.isSuperAdmin)}
+                              >{getDisplayRole(member.role, member.isSuperAdmin)}</Badge>
                            </div>
                          )}
                        </TableCell>
