@@ -44,13 +44,18 @@ export default function UserPermissionsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) {
+      navigate('/');
+      return;
+    }
+    
     if (userId && companyId) {
       fetchUserData();
     }
-  }, [userId, companyId]);
+  }, [userId, companyId, user, navigate]);
 
   const fetchUserData = async () => {
-    if (!userId || !companyId) return;
+    if (!userId || !companyId || !user) return;
     
     setLoading(true);
     try {
@@ -60,13 +65,22 @@ export default function UserPermissionsPage() {
         .select('user_id, role')
         .eq('user_id', userId)
         .eq('company_id', companyId)
-        .single();
+        .maybeSingle();
 
-      if (memberError || !memberData) {
+      if (memberError) {
         console.error('Error fetching member data:', memberError);
         toast({
           title: "Error",
-          description: "Failed to load user data",
+          description: "Failed to load user membership data",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!memberData) {
+        toast({
+          title: "Error",
+          description: "User is not a member of this company",
           variant: "destructive",
         });
         return;
@@ -77,13 +91,22 @@ export default function UserPermissionsPage() {
         .from('profiles')
         .select('user_id, email, first_name, last_name, avatar_url')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
-      if (profileError || !profileData) {
+      if (profileError) {
         console.error('Error fetching profile data:', profileError);
         toast({
           title: "Error",
           description: "Failed to load user profile",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!profileData) {
+        toast({
+          title: "Error",
+          description: "User profile not found",
           variant: "destructive",
         });
         return;
@@ -273,6 +296,16 @@ export default function UserPermissionsPage() {
       default: return 'outline';
     }
   };
+
+  if (!user) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg">Please log in to view user permissions</div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
