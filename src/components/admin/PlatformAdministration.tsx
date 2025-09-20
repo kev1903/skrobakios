@@ -30,12 +30,10 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
 
   const fetchUserCount = async () => {
     try {
-      const { count, error } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
+      const { data, error } = await supabase.rpc('get_user_count');
       
       if (error) throw error;
-      setUserCount(count || 0);
+      setUserCount(data || 0);
     } catch (error) {
       console.error('Error fetching user count:', error);
       setUserCount(0);
