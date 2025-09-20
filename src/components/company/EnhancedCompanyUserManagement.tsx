@@ -585,9 +585,7 @@ export const EnhancedCompanyUserManagement = ({
                          ) : (
                            <div className="flex items-center gap-2">
                              {getRoleIcon(member.role, member.isSuperAdmin)}
-                             <Badge variant={getRoleBadgeVariant(member.role, member.isSuperAdmin)}>
-                               {getDisplayRole(member.role, member.isSuperAdmin)}
-                             </Badge>
+                              <Badge variant={getRoleBadgeVariant(member.role, member.isSuperAdmin)}>{getDisplayRole(member.role, member.isSuperAdmin)}</Badge>
                            </div>
                          )}
                        </TableCell>
