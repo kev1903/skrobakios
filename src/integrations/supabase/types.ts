@@ -6275,6 +6275,22 @@ export type Database = {
         Args: { project_id_param: string }
         Returns: string
       }
+      get_all_users_for_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar_url: string
+          company: string
+          created_at: string
+          email: string
+          first_name: string
+          last_name: string
+          phone: string
+          status: string
+          updated_at: string
+          user_id: string
+          user_roles: Json
+        }[]
+      }
       get_calendar_tokens: {
         Args: { integration_id: string }
         Returns: {

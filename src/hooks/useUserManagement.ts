@@ -12,23 +12,12 @@ export const useUserManagement = () => {
     try {
       setLoading(true);
       
-      // Get profiles first
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*');
+      // Use the secure RPC function to get all users for superadmins
+      const { data: usersData, error: usersError } = await supabase
+        .rpc('get_all_users_for_admin');
 
-      if (profilesError) {
-        console.error('Error fetching profiles:', profilesError);
-        return;
-      }
-
-      // Get user roles separately
-      const { data: rolesData, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (rolesError) {
-        console.error('Error fetching roles:', rolesError);
+      if (usersError) {
+        console.error('Error fetching users:', usersError);
         return;
       }
 
@@ -48,34 +37,34 @@ export const useUserManagement = () => {
         }
       };
 
-      // Create a map of user_id to roles for quick lookup
-      const rolesMap = new Map<string, UserRole[]>();
-      rolesData?.forEach(roleRecord => {
-        const existing = rolesMap.get(roleRecord.user_id) || [];
-        const mappedRole = mapOldRoleToNew(roleRecord.role);
-        rolesMap.set(roleRecord.user_id, [...existing, mappedRole]);
-      });
-
-      const formattedUsers: AccessUser[] = profilesData?.map(profile => {
-        const userRoles = rolesMap.get(profile.user_id) || ['user'];
+      const formattedUsers: AccessUser[] = usersData?.map(userData => {
+        // Parse the JSON roles array from the RPC function
+        const roleStrings = Array.isArray(userData.user_roles) ? userData.user_roles : [];
+        const userRoles: UserRole[] = roleStrings.map((role: string) => mapOldRoleToNew(role));
+        
+        // If no roles found, default to 'user'
+        if (userRoles.length === 0) {
+          userRoles.push('user');
+        }
+        
         const roleHierarchy = { superadmin: 5, business_admin: 4, project_admin: 3, user: 2, client: 1 };
         const primaryRole = userRoles.reduce((highest, current) => 
           roleHierarchy[current] > roleHierarchy[highest] ? current : highest
         );
         
         return {
-          id: profile.user_id || profile.id, // Use user_id (auth ID) for operations, fallback to profile id
-          first_name: profile.first_name || '',
-          last_name: profile.last_name || '',
-          email: profile.email || '',
-          company: profile.company || '',
-          phone: profile.phone || '',
-          avatar_url: profile.avatar_url || '',
+          id: userData.user_id, 
+          first_name: userData.first_name || '',
+          last_name: userData.last_name || '',
+          email: userData.email || '',
+          company: userData.company || '',
+          phone: userData.phone || '',
+          avatar_url: userData.avatar_url || '',
           role: primaryRole,
           roles: userRoles,
-          status: profile.status === 'active' ? 'Active' : 'Inactive',
-          created_at: profile.created_at,
-          updated_at: profile.updated_at
+          status: userData.status === 'active' ? 'Active' : 'Inactive',
+          created_at: userData.created_at,
+          updated_at: userData.updated_at
         };
       }) || [];
 
