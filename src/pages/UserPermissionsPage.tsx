@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, Shield, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -324,33 +323,49 @@ export default function UserPermissionsPage() {
                 Business Module Permissions
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {businessModules.map((module) => (
-                <div key={module.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm">{module.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {module.description}
+            <CardContent className="space-y-1 p-4">
+              {businessModules.map((module) => {
+                const getAccessBadgeVariant = (access: string) => {
+                  switch (access) {
+                    case 'can_edit': return 'default';
+                    case 'can_view': return 'secondary';
+                    default: return 'outline';
+                  }
+                };
+
+                const getAccessLabel = (access: string) => {
+                  switch (access) {
+                    case 'can_edit': return 'Edit';
+                    case 'can_view': return 'View';
+                    default: return 'No Access';
+                  }
+                };
+
+                const cyclePermission = (currentAccess: string) => {
+                  const permissions = ['no_access', 'can_view', 'can_edit'];
+                  const currentIndex = permissions.indexOf(currentAccess);
+                  const nextIndex = (currentIndex + 1) % permissions.length;
+                  return permissions[nextIndex];
+                };
+
+                return (
+                  <button 
+                    key={module.id}
+                    onClick={() => handlePermissionChange(module.id, cyclePermission(module.access))}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left text-gray-700 hover:bg-gray-100"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium">{module.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {module.description}
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="ml-4 flex-shrink-0">
-                    <Select
-                      value={module.access}
-                      onValueChange={(value) => handlePermissionChange(module.id, value)}
-                    >
-                      <SelectTrigger className="w-[120px] h-8 bg-background border shadow-sm text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background border shadow-lg z-50">
-                        <SelectItem value="no_access">No Access</SelectItem>
-                        <SelectItem value="can_view">View</SelectItem>
-                        <SelectItem value="can_edit">Edit</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              ))}
+                    <Badge variant={getAccessBadgeVariant(module.access)} className="ml-auto text-xs">
+                      {getAccessLabel(module.access)}
+                    </Badge>
+                  </button>
+                );
+              })}
             </CardContent>
           </Card>
 
