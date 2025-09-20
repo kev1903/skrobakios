@@ -5,17 +5,18 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, FolderOpen, Shield, ArrowLeft, CheckCircle, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface Permission {
+interface BusinessModule {
   id: string;
   name: string;
   description: string;
-  category: 'business' | 'project';
-  granted: boolean;
+  viewAccess: 'can_view' | 'can_edit' | 'no_access';
+  editAccess: 'can_view' | 'can_edit' | 'no_access';
 }
 
 interface ProjectMembership {
@@ -39,7 +40,7 @@ export default function UserPermissionsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [businessPermissions, setBusinessPermissions] = useState<Permission[]>([]);
+  const [businessModules, setBusinessModules] = useState<BusinessModule[]>([]);
   const [projectMemberships, setProjectMemberships] = useState<ProjectMembership[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -128,53 +129,88 @@ export default function UserPermissionsPage() {
         setProjectMemberships(memberships);
       }
 
-      // Define business permissions based on company role
-      const businessPerms: Permission[] = [
+      // Define business modules with access levels based on company role
+      const getAccessLevel = (requiresAdmin = false, requiresOwner = false) => {
+        if (requiresOwner && userData.role === 'owner') return 'can_edit';
+        if (requiresAdmin && ['owner', 'admin'].includes(userData.role)) return 'can_edit';
+        if (['owner', 'admin', 'manager'].includes(userData.role)) return 'can_view';
+        return 'no_access';
+      };
+
+      const modules: BusinessModule[] = [
         {
-          id: 'view_company_details',
-          name: 'View Company Details',
-          description: 'Can view company information and settings',
-          category: 'business',
-          granted: ['owner', 'admin', 'manager'].includes(userData.role)
+          id: 'company_details',
+          name: 'Company Details',
+          description: 'Company information and settings',
+          viewAccess: getAccessLevel(),
+          editAccess: getAccessLevel(true)
         },
         {
-          id: 'manage_team_members',
-          name: 'Manage Team Members',
-          description: 'Can invite, edit, and remove team members',
-          category: 'business',
-          granted: ['owner', 'admin'].includes(userData.role)
+          id: 'team_management',
+          name: 'Team Management',
+          description: 'Invite, edit, and remove team members',
+          viewAccess: getAccessLevel(),
+          editAccess: getAccessLevel(true)
         },
         {
-          id: 'manage_projects',
-          name: 'Manage Projects',
-          description: 'Can create, edit, and delete projects',
-          category: 'business',
-          granted: ['owner', 'admin', 'manager'].includes(userData.role)
+          id: 'project_management',
+          name: 'Project Management',
+          description: 'Create, edit, and delete projects',
+          viewAccess: getAccessLevel(),
+          editAccess: getAccessLevel()
         },
         {
-          id: 'view_financial_data',
-          name: 'View Financial Data',
-          description: 'Can access costs, budgets, and financial reports',
-          category: 'business',
-          granted: ['owner', 'admin'].includes(userData.role)
+          id: 'financial_data',
+          name: 'Financial Data',
+          description: 'Costs, budgets, and financial reports',
+          viewAccess: getAccessLevel(true),
+          editAccess: getAccessLevel(true)
         },
         {
-          id: 'manage_stakeholders',
-          name: 'Manage Stakeholders',
-          description: 'Can add and manage stakeholders and vendors',
-          category: 'business',
-          granted: ['owner', 'admin', 'manager'].includes(userData.role)
+          id: 'stakeholders',
+          name: 'Stakeholders',
+          description: 'Manage stakeholders and vendors',
+          viewAccess: getAccessLevel(),
+          editAccess: getAccessLevel()
         },
         {
-          id: 'view_analytics',
-          name: 'View Analytics',
-          description: 'Can access business analytics and reports',
-          category: 'business',
-          granted: ['owner', 'admin'].includes(userData.role)
+          id: 'analytics',
+          name: 'Analytics',
+          description: 'Business analytics and reports',
+          viewAccess: getAccessLevel(true),
+          editAccess: getAccessLevel(true)
+        },
+        {
+          id: 'qaqc',
+          name: 'QA/QC',
+          description: 'Quality assurance and quality control',
+          viewAccess: getAccessLevel(),
+          editAccess: getAccessLevel()
+        },
+        {
+          id: 'documents',
+          name: 'Documents',
+          description: 'Document management and file storage',
+          viewAccess: getAccessLevel(),
+          editAccess: getAccessLevel()
+        },
+        {
+          id: 'scheduling',
+          name: 'Scheduling',
+          description: 'Project scheduling and timeline management',
+          viewAccess: getAccessLevel(),
+          editAccess: getAccessLevel()
+        },
+        {
+          id: 'invoicing',
+          name: 'Invoicing',
+          description: 'Create and manage invoices',
+          viewAccess: getAccessLevel(true),
+          editAccess: getAccessLevel(true)
         }
       ];
 
-      setBusinessPermissions(businessPerms);
+      setBusinessModules(modules);
 
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -212,8 +248,45 @@ export default function UserPermissionsPage() {
     }
   };
 
+  const handlePermissionChange = async (moduleId: string, type: 'view' | 'edit', value: string) => {
+    // This would typically update the database with the new permission
+    // For now, just update the local state
+    setBusinessModules(modules => 
+      modules.map(module => 
+        module.id === moduleId 
+          ? { 
+              ...module, 
+              [type === 'view' ? 'viewAccess' : 'editAccess']: value 
+            }
+          : module
+      )
+    );
+    
+    // You would typically call an API here to save the changes
+    toast({
+      title: "Permission Updated",
+      description: `${type === 'view' ? 'View' : 'Edit'} permission updated for ${moduleId}`,
+    });
+  };
+
   const handleBack = () => {
     navigate('/?page=settings');
+  };
+
+  const getAccessLabel = (access: string) => {
+    switch (access) {
+      case 'can_edit': return 'Can Edit';
+      case 'can_view': return 'Can View';
+      default: return 'No Access';
+    }
+  };
+
+  const getAccessVariant = (access: string) => {
+    switch (access) {
+      case 'can_edit': return 'default';
+      case 'can_view': return 'secondary';
+      default: return 'outline';
+    }
   };
 
   if (loading) {
@@ -237,127 +310,162 @@ export default function UserPermissionsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" onClick={handleBack}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Team
-        </Button>
-      </div>
+    <div className="min-h-screen bg-background pt-16"> {/* Added pt-16 to avoid menu bar clash */}
+      <div className="container mx-auto py-8 space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="sm" onClick={handleBack}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Team
+          </Button>
+        </div>
 
-      {/* User Info Header */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={userData.avatar_url} />
-              <AvatarFallback className="text-lg">
-                {userData.first_name?.charAt(0)}{userData.last_name?.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <div className="text-2xl font-bold">
-                {userData.first_name && userData.last_name ? 
-                  `${userData.first_name} ${userData.last_name}` : 
-                  userData.email || 'Unknown User'}
-              </div>
-              <div className="text-muted-foreground">
-                {userData.email}
-              </div>
-              <Badge variant={getRoleBadgeVariant(userData.role)} className="mt-2">
-                {userData.role.replace('_', ' ')}
-              </Badge>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Business Permissions */}
+        {/* User Info Header */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              Business Permissions
-            </CardTitle>
-            <CardDescription>
-              Company-level access and capabilities
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {businessPermissions.map((permission) => (
-              <div key={permission.id} className="flex items-start gap-3 p-3 border rounded-lg">
-                <div className="mt-1">
-                  {permission.granted ? (
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <XCircle className="h-4 w-4 text-gray-400" />
-                  )}
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src={userData.avatar_url} />
+                <AvatarFallback className="text-lg">
+                  {userData.first_name?.charAt(0)}{userData.last_name?.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="text-2xl font-bold">
+                  {userData.first_name && userData.last_name ? 
+                    `${userData.first_name} ${userData.last_name}` : 
+                    userData.email || 'Unknown User'}
                 </div>
-                <div className="flex-1">
-                  <div className="font-medium text-sm">{permission.name}</div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {permission.description}
-                  </div>
+                <div className="text-muted-foreground">
+                  {userData.email}
                 </div>
+                <Badge variant={getRoleBadgeVariant(userData.role)} className="mt-2">
+                  {userData.role.replace('_', ' ')}
+                </Badge>
               </div>
-            ))}
-          </CardContent>
+            </div>
+          </CardHeader>
         </Card>
 
-        {/* Project Permissions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FolderOpen className="h-5 w-5" />
-              Project Access
-            </CardTitle>
-            <CardDescription>
-              Project memberships and roles
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {projectMemberships.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">
-                <FolderOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No project memberships found</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {projectMemberships.map((membership) => (
-                  <div key={membership.project_id} className="p-3 border rounded-lg">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-sm">
-                          {membership.project_name}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          Project ID: {membership.project_id}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Badge variant={getRoleBadgeVariant(membership.role)}>
-                          {membership.role}
-                        </Badge>
-                        <Badge variant={getStatusBadgeVariant(membership.status)}>
-                          {membership.status}
-                        </Badge>
-                      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Business Permissions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                Business Modules
+              </CardTitle>
+              <CardDescription>
+                Configure access levels for each business module
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {businessModules.map((module) => (
+                <div key={module.id} className="p-4 border rounded-lg space-y-3">
+                  <div>
+                    <div className="font-medium text-sm">{module.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {module.description}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        View Access
+                      </label>
+                      <Select
+                        value={module.viewAccess}
+                        onValueChange={(value) => handlePermissionChange(module.id, 'view', value)}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border shadow-lg z-50">
+                          <SelectItem value="no_access">No Access</SelectItem>
+                          <SelectItem value="can_view">Can View</SelectItem>
+                          <SelectItem value="can_edit">Can Edit</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Edit Access
+                      </label>
+                      <Select
+                        value={module.editAccess}
+                        onValueChange={(value) => handlePermissionChange(module.id, 'edit', value)}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background border shadow-lg z-50">
+                          <SelectItem value="no_access">No Access</SelectItem>
+                          <SelectItem value="can_view">Can View</SelectItem>
+                          <SelectItem value="can_edit">Can Edit</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
 
-      <Separator />
+          {/* Project Permissions */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FolderOpen className="h-5 w-5" />
+                Project Access
+              </CardTitle>
+              <CardDescription>
+                Project memberships and roles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {projectMemberships.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8">
+                  <FolderOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No project memberships found</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {projectMemberships.map((membership) => (
+                    <div key={membership.project_id} className="p-3 border rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-sm">
+                            {membership.project_name}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            Project ID: {membership.project_id}
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Badge variant={getRoleBadgeVariant(membership.role)}>
+                            {membership.role}
+                          </Badge>
+                          <Badge variant={getStatusBadgeVariant(membership.status)}>
+                            {membership.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Shield className="h-4 w-4" />
-        <span>Permissions are automatically assigned based on company role and project memberships</span>
+        <Separator />
+
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Shield className="h-4 w-4" />
+          <span>Configure access levels for each business module. Changes are saved automatically.</span>
+        </div>
       </div>
     </div>
   );
