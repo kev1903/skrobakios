@@ -404,16 +404,6 @@ export const CreateUserForBusinessDialog = ({
             </div>
           )}
 
-          {/* Show new user form if no matches found or email not entered yet */}
-          {emailSearched && matchingUsers.length === 0 && (
-            <div className="border rounded-lg p-4 bg-green-50 dark:bg-green-950/20">
-              <Label className="text-green-700 dark:text-green-300">Create New User</Label>
-              <p className="text-sm text-green-600 dark:text-green-400 mb-3">
-                No existing user found with this email. Fill in the details below to create a new user account:
-              </p>
-            </div>
-          )}
-
           {/* New user fields - show if no email entered yet OR no matching users found */}
           {(!emailSearched || matchingUsers.length === 0) && (
             <form onSubmit={handleCreateUser} className="space-y-4">
