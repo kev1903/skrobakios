@@ -376,21 +376,18 @@ export default function UserPermissionsPage() {
         <div className="space-y-4">
           {/* Business Permissions */}
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
                 Business Module Permissions
               </CardTitle>
-              <CardDescription>
-                Configure access levels for each business module
-              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2">
               {businessModules.map((module) => (
-                <div key={module.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div key={module.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium">{module.name}</div>
-                    <div className="text-sm text-muted-foreground mt-1">
+                    <div className="font-medium text-sm">{module.name}</div>
+                    <div className="text-xs text-muted-foreground">
                       {module.description}
                     </div>
                   </div>
@@ -400,7 +397,7 @@ export default function UserPermissionsPage() {
                       value={module.access}
                       onValueChange={(value) => handlePermissionChange(module.id, value)}
                     >
-                      <SelectTrigger className="w-[140px] bg-background border shadow-sm">
+                      <SelectTrigger className="w-[120px] h-8 bg-background border shadow-sm text-xs">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-background border shadow-lg z-50">
