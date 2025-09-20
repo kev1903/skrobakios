@@ -37,7 +37,9 @@ export default function UserPermissionsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔍 UserPermissionsPage mounted, params:', { userId, companyId });
     if (!user) {
+      console.log('❌ No user, redirecting to /');
       navigate('/');
       return;
     }
@@ -234,8 +236,16 @@ export default function UserPermissionsPage() {
   };
 
   const handleBack = () => {
-    // Navigate to the team management page for the current company
-    navigate(`/?page=team-management&company_id=${companyId}`);
+    console.log('🔍 NAVIGATION DEBUG: handleBack called');
+    console.log('🔍 userId:', userId);
+    console.log('🔍 companyId:', companyId);
+    
+    // Try direct navigation to the team management route
+    console.log('🔍 Attempting direct navigation to team-management');
+    const targetUrl = `/?page=team-management`;
+    console.log('🔍 Navigating to:', targetUrl);
+    
+    navigate(targetUrl, { replace: false });
   };
 
 
