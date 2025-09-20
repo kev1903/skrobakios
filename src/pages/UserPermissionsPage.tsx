@@ -255,7 +255,7 @@ export default function UserPermissionsPage() {
   };
 
   const handleBack = () => {
-    navigate('/?page=settings');
+    navigate('/?page=team');
   };
 
   const getAccessLabel = (access: string) => {
