@@ -49,6 +49,7 @@ interface CompanyMember {
   role: 'owner' | 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client';
   status: 'active' | 'invited' | 'inactive';
   joined_at: string;
+  isSuperAdmin?: boolean;
 }
 
 interface AvailableUser {
@@ -146,9 +147,26 @@ export const EnhancedCompanyUserManagement = ({
         }
       }
 
-      // Merge members with profile data
+      // Step 3: Fetch user roles for all members to check for superadmins
+      let userRolesMap = new Map<string, string[]>();
+      if (userIds.length > 0) {
+        const { data: userRoles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('user_id, role')
+          .in('user_id', userIds);
+
+        if (!rolesError && userRoles) {
+          userRoles.forEach((ur: any) => {
+            const existingRoles = userRolesMap.get(ur.user_id) || [];
+            userRolesMap.set(ur.user_id, [...existingRoles, ur.role]);
+          });
+        }
+      }
+
+      // Merge members with profile data and role data
       const transformedMembers = (memberRows || []).map((member: any) => {
         const profile = profilesMap.get(member.user_id) || {};
+        const userRoles = userRolesMap.get(member.user_id) || [];
         
         // Fallback logic for missing profile data
         const firstName = profile.first_name || '';
@@ -166,7 +184,8 @@ export const EnhancedCompanyUserManagement = ({
           role: member.role,
           status: member.status,
           joined_at: member.joined_at,
-        } as CompanyMember;
+          isSuperAdmin: userRoles.includes('superadmin'),
+        } as CompanyMember & { isSuperAdmin: boolean };
       });
 
       console.log('Transformed members:', transformedMembers);
@@ -346,7 +365,12 @@ export const EnhancedCompanyUserManagement = ({
     }
   };
 
-  const getRoleIcon = (role: string) => {
+  const getRoleIcon = (role: string, isUserSuperAdmin = false) => {
+    // Show crown for superadmins regardless of their company role
+    if (isUserSuperAdmin) {
+      return <Crown className="w-4 h-4" />;
+    }
+    
     switch (role) {
       case 'owner':
         return <Crown className="w-4 h-4" />;
@@ -361,7 +385,12 @@ export const EnhancedCompanyUserManagement = ({
     }
   };
 
-  const getRoleBadgeVariant = (role: string) => {
+  const getRoleBadgeVariant = (role: string, isUserSuperAdmin = false) => {
+    // Show destructive variant for superadmins regardless of their company role
+    if (isUserSuperAdmin) {
+      return 'destructive';
+    }
+    
     switch (role) {
       case 'owner':
         return 'destructive';
@@ -374,6 +403,14 @@ export const EnhancedCompanyUserManagement = ({
       default:
         return 'secondary';
     }
+  };
+
+  const getDisplayRole = (role: string, isUserSuperAdmin = false) => {
+    // Show "Superadmin" instead of company role for superadmins
+    if (isUserSuperAdmin) {
+      return 'Superadmin';
+    }
+    return role;
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -515,37 +552,37 @@ export const EnhancedCompanyUserManagement = ({
                         </div>
                       </TableCell>
                       <TableCell>{member.email}</TableCell>
-                      <TableCell>
-                        {canChangeRoles && member.role !== 'owner' ? (
-                          <Select
-                            value={member.role}
-                            onValueChange={(value: any) => handleRoleChange(member.id, value)}
-                          >
-                            <SelectTrigger className="w-32">
-                              <SelectValue>
-                                <div className="flex items-center gap-2">
-                                  {getRoleIcon(member.role)}
-                                  <Badge variant={getRoleBadgeVariant(member.role)}>
-                                    {member.role}
-                                  </Badge>
-                                </div>
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="platform_admin">Platform Admin</SelectItem>
-                              <SelectItem value="director">Director</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            {getRoleIcon(member.role)}
-                            <Badge variant={getRoleBadgeVariant(member.role)}>
-                              {member.role}
-                            </Badge>
-                          </div>
-                        )}
-                      </TableCell>
+                       <TableCell>
+                         {canChangeRoles && member.role !== 'owner' && !member.isSuperAdmin ? (
+                           <Select
+                             value={member.role}
+                             onValueChange={(value: any) => handleRoleChange(member.id, value)}
+                           >
+                             <SelectTrigger className="w-32">
+                               <SelectValue>
+                                 <div className="flex items-center gap-2">
+                                   {getRoleIcon(member.role, member.isSuperAdmin)}
+                                   <Badge variant={getRoleBadgeVariant(member.role, member.isSuperAdmin)}>
+                                     {getDisplayRole(member.role, member.isSuperAdmin)}
+                                   </Badge>
+                                 </div>
+                               </SelectValue>
+                             </SelectTrigger>
+                             <SelectContent>
+                               <SelectItem value="platform_admin">Platform Admin</SelectItem>
+                               <SelectItem value="director">Director</SelectItem>
+                               <SelectItem value="admin">Admin</SelectItem>
+                             </SelectContent>
+                           </Select>
+                         ) : (
+                           <div className="flex items-center gap-2">
+                             {getRoleIcon(member.role, member.isSuperAdmin)}
+                             <Badge variant={getRoleBadgeVariant(member.role, member.isSuperAdmin)}>
+                               {getDisplayRole(member.role, member.isSuperAdmin)}
+                             </Badge>
+                           </div>
+                         )}
+                       </TableCell>
                       <TableCell>
                         <Badge variant={getStatusBadgeVariant(member.status)}>
                           {member.status}
