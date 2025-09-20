@@ -47,7 +47,7 @@ export const CreateUserForBusinessDialog = ({
     password: '',
     firstName: '',
     lastName: '',
-    role: 'manager' as 'manager' | 'project_admin' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'
+    role: 'manager' as string
   });
 
   useEffect(() => {
@@ -472,19 +472,13 @@ export const CreateUserForBusinessDialog = ({
           {(formData.email || (!emailSearched || matchingUsers.length === 0)) && (
             <div>
               <Label htmlFor="role">Role in Company</Label>
-              <Select value={formData.role} onValueChange={(value: any) => handleInputChange('role', value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="project_admin">Project Admin</SelectItem>
-                  <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
-                  <SelectItem value="consultant">Consultant</SelectItem>
-                  <SelectItem value="supplier">Supplier</SelectItem>
-                  <SelectItem value="client">Client</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                id="role"
+                value={formData.role}
+                onChange={(e) => handleInputChange('role', e.target.value)}
+                placeholder="Job Role"
+                className="w-full"
+              />
             </div>
           )}
 
