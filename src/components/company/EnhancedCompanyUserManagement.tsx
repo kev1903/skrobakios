@@ -620,7 +620,7 @@ export const EnhancedCompanyUserManagement = ({
                         {new Date(member.joined_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell>
-                        {canManageMembers && member.role !== 'owner' && member.user_id !== user?.id && (
+                        {canManageMembers && member.role !== 'owner' && member.role !== 'admin' && member.user_id !== user?.id && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="sm">
