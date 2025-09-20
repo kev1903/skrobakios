@@ -577,7 +577,7 @@ export const EnhancedCompanyUserManagement = ({
                       </TableCell>
                       <TableCell>{member.email}</TableCell>
                         <TableCell className="align-middle">
-                         {canChangeRoles && member.role !== 'owner' ? (
+                         {canChangeRoles && member.role !== 'owner' && member.role !== 'admin' ? (
                            <Select
                              value={getDropdownValue(member.role, member.isSuperAdmin)}
                              onValueChange={(value: any) => handleRoleChange(member.id, value)}
@@ -619,8 +619,8 @@ export const EnhancedCompanyUserManagement = ({
                       <TableCell className="text-muted-foreground">
                         {new Date(member.joined_at).toLocaleDateString()}
                       </TableCell>
-                      <TableCell>
-                        {canManageMembers && member.role !== 'owner' && member.user_id !== user?.id && (
+                       <TableCell>
+                         {canManageMembers && member.role !== 'owner' && member.role !== 'admin' && member.user_id !== user?.id && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="sm">
