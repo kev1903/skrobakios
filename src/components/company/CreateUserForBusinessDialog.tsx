@@ -47,7 +47,7 @@ export const CreateUserForBusinessDialog = ({
     password: '',
     firstName: '',
     lastName: '',
-    role: 'manager' as 'manager' | 'project_admin' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'
+    role: 'team_member'
   });
 
   useEffect(() => {
@@ -159,7 +159,7 @@ export const CreateUserForBusinessDialog = ({
           lastName: formData.lastName,
           companyId: companyId,
           companyRole: formData.role,
-          appRole: formData.role === 'manager' ? 'business_admin' : 'user'
+          appRole: 'user'
         },
       });
 
@@ -172,12 +172,7 @@ export const CreateUserForBusinessDialog = ({
         throw new Error(errorMsg);
       }
 
-      const roleLabel = formData.role === 'manager' ? 'Manager' : 
-                       formData.role === 'project_admin' ? 'Project Admin' :
-                       formData.role === 'supplier' ? 'Supplier' :
-                       formData.role === 'sub_contractor' ? 'Sub-Contractor' :
-                       formData.role === 'consultant' ? 'Consultant' :
-                       formData.role === 'client' ? 'Client' : formData.role;
+      const roleLabel = 'Team Member';
 
       toast({
         title: "Success",
@@ -190,7 +185,7 @@ export const CreateUserForBusinessDialog = ({
         password: '',
         firstName: '',
         lastName: '',
-        role: 'manager'
+        role: 'team_member'
       });
       onOpenChange(false);
       
@@ -236,26 +231,19 @@ export const CreateUserForBusinessDialog = ({
         throw new Error('Failed to assign user to company');
       }
 
-      // If assigning as manager, also update their app role
-      if (formData.role === 'manager') {
-        const { data: roleResult, error: roleError } = await supabase.rpc('set_user_primary_role', {
-          target_user_id: selectedUser,
-          new_role: 'business_admin'
-        });
+      // All assigned users get "user" app role
+      const { data: roleResult, error: roleError } = await supabase.rpc('set_user_primary_role', {
+        target_user_id: selectedUser,
+        new_role: 'user'
+      });
 
-        const result = roleResult as any;
-        if (roleError || !result?.success) {
-          console.warn('Failed to update app role, but assigned to company');
-        }
+      const result = roleResult as any;
+      if (roleError || !result?.success) {
+        console.warn('Failed to update app role, but assigned to company');
       }
 
       const selectedUserInfo = availableUsers.find(u => u.user_id === selectedUser);
-      const roleLabel = formData.role === 'manager' ? 'Manager' : 
-                       formData.role === 'project_admin' ? 'Project Admin' :
-                       formData.role === 'supplier' ? 'Supplier' :
-                       formData.role === 'sub_contractor' ? 'Sub-Contractor' :
-                       formData.role === 'consultant' ? 'Consultant' :
-                       formData.role === 'client' ? 'Client' : formData.role;
+      const roleLabel = 'Team Member';
 
       toast({
         title: "Success",
@@ -269,7 +257,7 @@ export const CreateUserForBusinessDialog = ({
         password: '',
         firstName: '',
         lastName: '',
-        role: 'manager'
+        role: 'team_member'
       });
       onOpenChange(false);
       
@@ -335,11 +323,11 @@ export const CreateUserForBusinessDialog = ({
       if (!open) {
         setSelectedUser('');
         setFormData({
-          email: '',
-          password: '',
-          firstName: '',
-          lastName: '',
-          role: 'manager'
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        role: 'team_member'
         });
         setMatchingUsers([]);
         setEmailSearched(false);
@@ -468,25 +456,7 @@ export const CreateUserForBusinessDialog = ({
             </form>
           )}
 
-          {/* Role selection - show when creating new user or assigning existing user */}
-          {(formData.email || (!emailSearched || matchingUsers.length === 0)) && (
-            <div>
-              <Label htmlFor="role">Role in Company</Label>
-              <Select value={formData.role} onValueChange={(value: any) => handleInputChange('role', value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="project_admin">Project Admin</SelectItem>
-                  <SelectItem value="sub_contractor">Sub-Contractor</SelectItem>
-                  <SelectItem value="consultant">Consultant</SelectItem>
-                  <SelectItem value="supplier">Supplier</SelectItem>
-                  <SelectItem value="client">Client</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          {/* All users will be added as Team Members with USER app role */}
 
           {/* Action buttons */}
           <DialogFooter>
