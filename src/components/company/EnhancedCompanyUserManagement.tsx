@@ -487,14 +487,12 @@ export const EnhancedCompanyUserManagement = ({
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="w-5 h-5" />
-                {companyName} - Team Management
+                Team Management
               </CardTitle>
               <CardDescription>
-                Manage team members, roles, and permissions for {companyName}. {members.length} active {members.length === 1 ? 'member' : 'members'}.
-                <br />
-                <em className="text-xs text-muted-foreground">
-                  Access Level: {currentUserRole || 'Guest'} • Management Access: {canManageMembers ? 'Enabled' : 'Limited'} • System Admin: {isSuperAdmin() ? 'Yes' : 'No'}
-                </em>
+                <div className="space-y-1">
+                  <div>{members.length} active {members.length === 1 ? 'member' : 'members'} • Access: {currentUserRole || 'Guest'} • {canManageMembers ? 'Management Enabled' : 'Limited Access'} {isSuperAdmin() ? '• System Admin' : ''}</div>
+                </div>
               </CardDescription>
             </div>
             <Button variant="outline" size="sm" onClick={() => fetchMembers(true)}>

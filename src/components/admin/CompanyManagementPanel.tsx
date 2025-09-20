@@ -542,10 +542,10 @@ export const CompanyManagementPanel: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <UserPlus className="h-5 w-5" />
-              {selectedCompany.name} - Create Business Admins
+              {selectedCompany.name} - Admin Management
             </DialogTitle>
             <DialogDescription>
-              Create and assign business administrators for this company.
+              Create and manage business administrators for {selectedCompany.name}.
             </DialogDescription>
           </DialogHeader>
           <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
