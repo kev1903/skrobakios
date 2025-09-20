@@ -234,7 +234,7 @@ export default function UserPermissionsPage() {
   };
 
   const handleBack = () => {
-    navigate(-1);
+    navigate(`/?page=team`);
   };
 
 
