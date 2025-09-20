@@ -110,14 +110,9 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
           if (error) throw error;
 
           let rows = data || [];
+          // SECURITY: Never fetch all projects - only show projects for the resolved company
           if (!rows.length) {
-            console.log('🧯 No projects for resolved company yet, falling back to RLS fetch to ensure pins render');
-            const { data: allData, error: allErr } = await supabase
-              .from('projects')
-              .select('id,name,location,latitude,longitude,status,company_id')
-              .order('created_at', { ascending: false });
-            if (allErr) throw allErr;
-            rows = allData || [];
+            console.log('✅ No projects found for company. This is correct - showing empty map.');
           }
 
           const projectsWithCompanyInfo = rows.map(p => ({
@@ -129,15 +124,9 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
           console.log(`✅ ${geocodedCount} projects have coordinates, ${projectsWithCompanyInfo.length - geocodedCount} using fallback`);
           setProjects(projectsWithCompanyInfo);
         } else {
-          // Final fallback: rely on RLS to only return accessible projects
-          console.log('🪢 No company resolved yet — fetching accessible projects via RLS');
-          const { data, error } = await supabase
-            .from('projects')
-            .select('id,name,location,latitude,longitude,status,company_id')
-            .order('created_at', { ascending: false });
-          if (error) throw error;
-
-          setProjects((data || []).map(p => ({ ...p, company_name: 'Accessible Company' })));
+          // SECURITY: Never fetch all projects - only show empty map if no company is resolved
+          console.log('🔒 No company resolved - showing empty map for security');
+          setProjects([]);
         }
       } catch (error) {
         console.error('Error fetching business projects:', error);

@@ -169,11 +169,17 @@ export const useProjects = () => {
       
       console.log("👥 User memberships:", membershipData);
 
-      // Fetch projects - RLS will handle filtering by company membership
-      // The RLS policy `can_view_company_projects` checks if user is active member of company
+      // SECURITY: Only fetch projects for the current company - never fetch all projects
+      if (!currentCompany) {
+        console.log("🚫 No current company - cannot fetch projects");
+        return [];
+      }
+
+      // Fetch projects with explicit company filtering for security
       const { data, error } = await supabase
         .from('projects')
         .select('*')
+        .eq('company_id', currentCompany.id)
         .order('created_at', { ascending: false })
         .abortSignal(abortControllerRef.current.signal);
 
@@ -181,28 +187,17 @@ export const useProjects = () => {
       
       const freshData = (data || []).map(convertDbRowToProject);
       
-      console.log("📊 Raw projects fetched:", freshData.length);
-      console.log("🏢 Projects by company:", freshData.reduce((acc, p) => {
-        acc[p.company_id] = (acc[p.company_id] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>));
-      
-      // Filter projects for current company if we have one
-      const filteredProjects = currentCompany 
-        ? freshData.filter(p => p.company_id === currentCompany.id)
-        : freshData;
-      
-      console.log("🎯 Projects for current company:", filteredProjects.length);
-      console.log("📝 Filtered projects:", filteredProjects.map(p => ({ id: p.id, name: p.name, company_id: p.company_id })));
+      console.log("📊 Projects fetched for company:", freshData.length);
+      console.log("🎯 Company projects:", freshData.map(p => ({ id: p.id, name: p.name, company_id: p.company_id })));
       
       // Update cache
-      globalCache.data = filteredProjects;
+      globalCache.data = freshData;
       globalCache.timestamp = Date.now();
       
       // Save to localStorage
-      saveToLocalStorage(filteredProjects);
+      saveToLocalStorage(freshData);
       
-      return filteredProjects;
+      return freshData;
     } catch (err) {
       if (err.name !== 'AbortError') {
         const errorMessage = err instanceof Error ? err.message : 'Failed to fetch projects';
