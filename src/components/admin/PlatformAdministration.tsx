@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { Settings, Server, Building2, Shield, Activity, AlertTriangle, Users } from "lucide-react";
 import { PlatformSettingsPanel } from './PlatformSettingsPanel';
 
@@ -11,6 +12,7 @@ import { UserManagementPanel } from './UserManagementPanel';
 import { AuditLogsPanel } from './AuditLogsPanel';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { supabase } from '@/integrations/supabase/client';
 
 interface PlatformAdministrationProps {
   onNavigate: (page: string) => void;
@@ -18,6 +20,27 @@ interface PlatformAdministrationProps {
 
 export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ onNavigate }) => {
   const { isSuperAdmin } = useUserRole();
+  const [userCount, setUserCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (isSuperAdmin()) {
+      fetchUserCount();
+    }
+  }, [isSuperAdmin]);
+
+  const fetchUserCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      if (error) throw error;
+      setUserCount(count || 0);
+    } catch (error) {
+      console.error('Error fetching user count:', error);
+      setUserCount(0);
+    }
+  };
 
   if (!isSuperAdmin()) {
     return (
@@ -59,6 +82,11 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Users
+            {userCount > 0 && (
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {userCount}
+              </Badge>
+            )}
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
