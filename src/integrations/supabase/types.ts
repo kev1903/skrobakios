@@ -1751,7 +1751,6 @@ export type Database = {
           account_id: string | null
           allocated_amount: number | null
           created_at: string
-          digital_object_id: string | null
           id: string
           invoice_id: string
           notes: string | null
@@ -1763,7 +1762,6 @@ export type Database = {
           account_id?: string | null
           allocated_amount?: number | null
           created_at?: string
-          digital_object_id?: string | null
           id?: string
           invoice_id: string
           notes?: string | null
@@ -1775,7 +1773,6 @@ export type Database = {
           account_id?: string | null
           allocated_amount?: number | null
           created_at?: string
-          digital_object_id?: string | null
           id?: string
           invoice_id?: string
           notes?: string | null
@@ -4907,7 +4904,6 @@ export type Database = {
           company_id: string | null
           created_at: string
           description: string | null
-          digital_object_id: string | null
           due_date: string | null
           estimated_duration: number | null
           id: string
@@ -4931,7 +4927,6 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           description?: string | null
-          digital_object_id?: string | null
           due_date?: string | null
           estimated_duration?: number | null
           id?: string
@@ -4955,7 +4950,6 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           description?: string | null
-          digital_object_id?: string | null
           due_date?: string | null
           estimated_duration?: number | null
           id?: string

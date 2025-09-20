@@ -99,7 +99,6 @@ export const RolesTab = () => {
         { id: 'cost', name: 'Cost & Contracts', description: 'Manage project finances', enabled: true },
         { id: 'team', name: 'Team', description: 'Manage project team', enabled: true },
         { id: 'digital-twin', name: 'Digital Twin', description: 'Manage digital twin features', enabled: true },
-        { id: 'digital-objects', name: 'Digital Objects', description: 'Manage digital objects', enabled: true },
       ]
     },
     {
@@ -131,7 +130,6 @@ export const RolesTab = () => {
         { id: 'cost', name: 'Cost & Contracts', description: 'Full financial control', enabled: true },
         { id: 'team', name: 'Team', description: 'Full team management', enabled: true },
         { id: 'digital-twin', name: 'Digital Twin', description: 'Full digital twin control', enabled: true },
-        { id: 'digital-objects', name: 'Digital Objects', description: 'Full digital objects control', enabled: true },
       ]
     },
     {
@@ -163,7 +161,6 @@ export const RolesTab = () => {
         { id: 'cost', name: 'Cost & Contracts', description: 'No access to financial data', enabled: false },
         { id: 'team', name: 'Team', description: 'View team members only', enabled: true },
         { id: 'digital-twin', name: 'Digital Twin', description: 'View digital twin only', enabled: false },
-        { id: 'digital-objects', name: 'Digital Objects', description: 'View digital objects only', enabled: false },
       ]
     }
   ]);
@@ -238,7 +235,6 @@ export const RolesTab = () => {
       'cost': DollarSign,
       'team': Users,
       'digital-twin': Box,
-      'digital-objects': Box,
     };
     
     return iconMap[permissionId] || Eye;

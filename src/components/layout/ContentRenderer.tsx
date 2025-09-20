@@ -414,13 +414,6 @@ export const ContentRenderer = ({
           <ProjectProcurementPage />
         </SubscriptionProtectedRoute>
       ) : renderProjectNotFound();
-    case "bim":
-      return currentProject ? (
-          <div className="p-8">
-            <h1 className="text-2xl font-bold text-white">Digital Objects</h1>
-            <p className="text-white/70">This feature has been removed.</p>
-          </div>
-      ) : renderProjectNotFound();
     case "3d-environment":
       return <Mapbox3DEnvironment onNavigate={onNavigate} currentProject={null} />;
     case "support":
