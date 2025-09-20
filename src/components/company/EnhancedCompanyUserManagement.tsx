@@ -577,7 +577,7 @@ export const EnhancedCompanyUserManagement = ({
                       </TableCell>
                       <TableCell>{member.email}</TableCell>
                         <TableCell className="align-middle">
-                         {canChangeRoles && member.role !== 'owner' && member.role !== 'team_member' ? (
+                         {canChangeRoles && member.role !== 'owner' && member.role !== 'team_member' && member.role !== 'admin' ? (
                            <Select
                              value={getDropdownValue(member.role, member.isSuperAdmin)}
                              onValueChange={(value: any) => handleRoleChange(member.id, value)}
