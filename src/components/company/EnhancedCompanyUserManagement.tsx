@@ -577,31 +577,18 @@ export const EnhancedCompanyUserManagement = ({
                       </TableCell>
                       <TableCell>{member.email}</TableCell>
                         <TableCell className="align-middle">
-                         {canChangeRoles && member.role !== 'owner' ? (
-                           <Select
-                             value={getDropdownValue(member.role, member.isSuperAdmin)}
-                             onValueChange={(value: any) => handleRoleChange(member.id, value)}
-                           >
-                             <SelectTrigger className="w-40">
-                               <SelectValue>
-                                 <div className="flex items-center gap-2">
-                                   {getRoleIcon(member.role, member.isSuperAdmin)}
-                                    <Badge 
-                                      variant={getRoleBadgeVariant(member.role, member.isSuperAdmin)}
-                                      className={getCustomBadgeClasses(member.role, member.isSuperAdmin)}
-                                    >
-                                      {getDisplayRole(member.role, member.isSuperAdmin)}
-                                    </Badge>
-                                 </div>
-                               </SelectValue>
-                             </SelectTrigger>
-                             <SelectContent>
-                               <SelectItem value="platform_admin">Platform Admin</SelectItem>
-                               <SelectItem value="director">Director</SelectItem>
-                               <SelectItem value="admin">Admin</SelectItem>
-                             </SelectContent>
-                           </Select>
-                         ) : (
+                          {canChangeRoles && member.role !== 'owner' ? (
+                            <Input
+                              value={getDisplayRole(member.role, member.isSuperAdmin)}
+                              onChange={(e) => {
+                                // Simple text field for job role/status
+                                const newRole = e.target.value.toLowerCase().replace(/\s+/g, '_') as 'owner' | 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client';
+                                handleRoleChange(member.id, newRole);
+                              }}
+                              className="w-32 h-8 text-xs"
+                              placeholder="Job Role"
+                            />
+                          ) : (
                            <div className="flex items-center gap-2">
                              {getRoleIcon(member.role, member.isSuperAdmin)}
                               <Badge 
