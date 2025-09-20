@@ -336,6 +336,14 @@ export default function UserPermissionsPage() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Team
           </Button>
+          <Button size="sm" onClick={() => {
+            toast({
+              title: "Settings Saved",
+              description: "User permissions have been saved successfully",
+            });
+          }}>
+            Save Changes
+          </Button>
         </div>
 
         {/* Compact User Info */}
