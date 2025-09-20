@@ -298,28 +298,28 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
               <CardTitle>Business Details</CardTitle>
               <CardDescription>Manage your company information and business settings</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-3 p-4">
               {currentCompany ? (
                 isLoadingData ? (
-                  <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-muted-foreground">Loading business details...</p>
+                  <div className="text-center py-6">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-3"></div>
+                    <p className="text-sm text-muted-foreground">Loading business details...</p>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
                         <label className="text-sm font-medium text-foreground">Business Name</label>
                         <input 
-                          className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                          className="block w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-background text-foreground" 
                           value={businessForm.name}
                           onChange={(e) => handleBusinessFormChange('name', e.target.value)}
                         />
                       </div>
-                      <div>
+                      <div className="space-y-1.5">
                         <label className="text-sm font-medium text-foreground">Business Type</label>
                         <select 
-                          className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground"
+                          className="block w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-background text-foreground"
                           value={businessForm.business_type}
                           onChange={(e) => handleBusinessFormChange('business_type', e.target.value as 'company' | 'sole_trader' | 'partnership' | 'trust')}
                         >
@@ -331,26 +331,25 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
                         <label className="text-sm font-medium text-foreground">ABN</label>
                         <input 
-                          className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                          className="block w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-background text-foreground" 
                           value={businessForm.abn}
                           onChange={(e) => {
-                            // Format ABN with spaces for better readability
                             const formatted = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4');
                             handleBusinessFormChange('abn', formatted);
                           }}
                           placeholder="12 345 678 901"
-                          maxLength={13} // 11 digits + 2 spaces
+                          maxLength={13}
                         />
-                        <p className="text-xs text-muted-foreground mt-1">Australian Business Number (11 digits)</p>
+                        <p className="text-xs text-muted-foreground">Australian Business Number (11 digits)</p>
                       </div>
-                      <div>
+                      <div className="space-y-1.5">
                         <label className="text-sm font-medium text-foreground">Phone</label>
                         <input 
-                          className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                          className="block w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-background text-foreground" 
                           value={businessForm.phone}
                           onChange={(e) => handleBusinessFormChange('phone', e.target.value)}
                           placeholder="Enter phone number"
@@ -358,43 +357,45 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
                       </div>
                     </div>
                     
-                    <div>
-                      <label className="text-sm font-medium text-foreground">Business Address</label>
-                      <textarea 
-                        className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
-                        rows={3}
-                        value={businessForm.address}
-                        onChange={(e) => handleBusinessFormChange('address', e.target.value)}
-                        placeholder="Enter business address"
-                      />
-                    </div>
-                    
-                      <div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-foreground">Business Address</label>
+                        <textarea 
+                          className="block w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-background text-foreground resize-none" 
+                          rows={2}
+                          value={businessForm.address}
+                          onChange={(e) => handleBusinessFormChange('address', e.target.value)}
+                          placeholder="Enter business address"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
                         <label className="text-sm font-medium text-foreground">Website</label>
                         <input 
-                          className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                          className="block w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-background text-foreground" 
                           value={businessForm.website}
                           onChange={(e) => handleBusinessFormChange('website', e.target.value)}
                           placeholder="https://yourcompany.com"
                           type="url"
                         />
-                        <p className="text-xs text-muted-foreground mt-1">Include http:// or https://</p>
+                        <p className="text-xs text-muted-foreground">Include http:// or https://</p>
                       </div>
+                    </div>
                     
-                    <div>
+                    <div className="space-y-1.5">
                       <label className="text-sm font-medium text-foreground">Business Slogan</label>
                       <input 
-                        className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-background text-foreground" 
+                        className="block w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-background text-foreground" 
                         value={businessForm.slogan}
                         onChange={(e) => handleBusinessFormChange('slogan', e.target.value)}
                         placeholder="Enter your business slogan"
                       />
                     </div>
                     
-                    <div className="pt-4">
+                    <div className="pt-2">
                       <Button 
                         onClick={handleBusinessFormSave}
                         disabled={isLoading || isLoadingData}
+                        size="sm"
                       >
                         {isLoading ? 'Saving...' : 'Save Changes'}
                       </Button>
