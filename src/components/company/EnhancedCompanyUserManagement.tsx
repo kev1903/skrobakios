@@ -406,9 +406,9 @@ export const EnhancedCompanyUserManagement = ({
   };
 
   const getDisplayRole = (role: string, isUserSuperAdmin = false) => {
-    // Show "Platform Admin" for superadmins in business context
+    // Show "Admin" for superadmins in business context (shorter text)
     if (isUserSuperAdmin) {
-      return 'Platform Admin';
+      return 'Admin';
     }
     return role;
   };
@@ -566,7 +566,7 @@ export const EnhancedCompanyUserManagement = ({
                              value={getDropdownValue(member.role, member.isSuperAdmin)}
                              onValueChange={(value: any) => handleRoleChange(member.id, value)}
                            >
-                             <SelectTrigger className="w-32">
+                             <SelectTrigger className="w-40">
                                <SelectValue>
                                  <div className="flex items-center gap-2">
                                    {getRoleIcon(member.role, member.isSuperAdmin)}
