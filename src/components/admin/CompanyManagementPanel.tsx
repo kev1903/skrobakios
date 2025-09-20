@@ -362,20 +362,6 @@ export const CompanyManagementPanel: React.FC = () => {
                       >
                         {company.name}
                       </h3>
-                      {company.business_admins && company.business_admins.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                          {company.business_admins.slice(0, 3).map((admin, index) => (
-                            <Badge key={admin.user_id} variant="secondary" className="text-xs">
-                              {admin.first_name} {admin.last_name} ({admin.role})
-                            </Badge>
-                          ))}
-                          {company.business_admins.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{company.business_admins.length - 3} more
-                            </Badge>
-                          )}
-                        </div>
-                      )}
                     </div>
                  </div>
                 
