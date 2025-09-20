@@ -6608,6 +6608,10 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: string[]
       }
+      get_user_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       get_user_current_company_id: {
         Args: Record<PropertyKey, never>
         Returns: string
