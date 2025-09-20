@@ -15,8 +15,7 @@ interface BusinessModule {
   id: string;
   name: string;
   description: string;
-  viewAccess: 'can_view' | 'can_edit' | 'no_access';
-  editAccess: 'can_view' | 'can_edit' | 'no_access';
+  access: 'no_access' | 'can_view' | 'can_edit';
 }
 
 interface ProjectMembership {
@@ -142,71 +141,61 @@ export default function UserPermissionsPage() {
           id: 'company_details',
           name: 'Company Details',
           description: 'Company information and settings',
-          viewAccess: getAccessLevel(),
-          editAccess: getAccessLevel(true)
+          access: getAccessLevel()
         },
         {
           id: 'team_management',
           name: 'Team Management',
           description: 'Invite, edit, and remove team members',
-          viewAccess: getAccessLevel(),
-          editAccess: getAccessLevel(true)
+          access: getAccessLevel(true)
         },
         {
           id: 'project_management',
           name: 'Project Management',
           description: 'Create, edit, and delete projects',
-          viewAccess: getAccessLevel(),
-          editAccess: getAccessLevel()
+          access: getAccessLevel()
         },
         {
           id: 'financial_data',
           name: 'Financial Data',
           description: 'Costs, budgets, and financial reports',
-          viewAccess: getAccessLevel(true),
-          editAccess: getAccessLevel(true)
+          access: getAccessLevel(true)
         },
         {
           id: 'stakeholders',
           name: 'Stakeholders',
           description: 'Manage stakeholders and vendors',
-          viewAccess: getAccessLevel(),
-          editAccess: getAccessLevel()
+          access: getAccessLevel()
         },
         {
           id: 'analytics',
           name: 'Analytics',
           description: 'Business analytics and reports',
-          viewAccess: getAccessLevel(true),
-          editAccess: getAccessLevel(true)
+          access: getAccessLevel(true)
         },
         {
           id: 'qaqc',
           name: 'QA/QC',
           description: 'Quality assurance and quality control',
-          viewAccess: getAccessLevel(),
-          editAccess: getAccessLevel()
+          access: getAccessLevel()
         },
         {
           id: 'documents',
           name: 'Documents',
           description: 'Document management and file storage',
-          viewAccess: getAccessLevel(),
-          editAccess: getAccessLevel()
+          access: getAccessLevel()
         },
         {
           id: 'scheduling',
           name: 'Scheduling',
           description: 'Project scheduling and timeline management',
-          viewAccess: getAccessLevel(),
-          editAccess: getAccessLevel()
+          access: getAccessLevel()
         },
         {
           id: 'invoicing',
           name: 'Invoicing',
           description: 'Create and manage invoices',
-          viewAccess: getAccessLevel(true),
-          editAccess: getAccessLevel(true)
+          access: getAccessLevel(true)
         }
       ];
 
@@ -248,16 +237,12 @@ export default function UserPermissionsPage() {
     }
   };
 
-  const handlePermissionChange = async (moduleId: string, type: 'view' | 'edit', value: string) => {
-    // This would typically update the database with the new permission
-    // For now, just update the local state
+  const handlePermissionChange = async (moduleId: string, value: string) => {
+    // Update the local state
     setBusinessModules(modules => 
       modules.map(module => 
         module.id === moduleId 
-          ? { 
-              ...module, 
-              [type === 'view' ? 'viewAccess' : 'editAccess']: value 
-            }
+          ? { ...module, access: value as 'no_access' | 'can_view' | 'can_edit' }
           : module
       )
     );
@@ -265,7 +250,7 @@ export default function UserPermissionsPage() {
     // You would typically call an API here to save the changes
     toast({
       title: "Permission Updated",
-      description: `${type === 'view' ? 'View' : 'Edit'} permission updated for ${moduleId}`,
+      description: `Access level updated for ${moduleId}`,
     });
   };
 
@@ -275,8 +260,8 @@ export default function UserPermissionsPage() {
 
   const getAccessLabel = (access: string) => {
     switch (access) {
-      case 'can_edit': return 'Can Edit';
-      case 'can_view': return 'Can View';
+      case 'can_edit': return 'Edit';
+      case 'can_view': return 'View';
       default: return 'No Access';
     }
   };
@@ -347,73 +332,49 @@ export default function UserPermissionsPage() {
           </CardHeader>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-6">
           {/* Business Permissions */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
-                Business Modules
+                Business Module Permissions
               </CardTitle>
               <CardDescription>
                 Configure access levels for each business module
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {businessModules.map((module) => (
-                <div key={module.id} className="p-4 border rounded-lg space-y-3">
-                  <div>
-                    <div className="font-medium text-sm">{module.name}</div>
-                    <div className="text-xs text-muted-foreground">
+                <div key={module.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium">{module.name}</div>
+                    <div className="text-sm text-muted-foreground mt-1">
                       {module.description}
                     </div>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-muted-foreground">
-                        View Access
-                      </label>
-                      <Select
-                        value={module.viewAccess}
-                        onValueChange={(value) => handlePermissionChange(module.id, 'view', value)}
-                      >
-                        <SelectTrigger className="h-8 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-background border shadow-lg z-50">
-                          <SelectItem value="no_access">No Access</SelectItem>
-                          <SelectItem value="can_view">Can View</SelectItem>
-                          <SelectItem value="can_edit">Can Edit</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium text-muted-foreground">
-                        Edit Access
-                      </label>
-                      <Select
-                        value={module.editAccess}
-                        onValueChange={(value) => handlePermissionChange(module.id, 'edit', value)}
-                      >
-                        <SelectTrigger className="h-8 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-background border shadow-lg z-50">
-                          <SelectItem value="no_access">No Access</SelectItem>
-                          <SelectItem value="can_view">Can View</SelectItem>
-                          <SelectItem value="can_edit">Can Edit</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div className="ml-4 flex-shrink-0">
+                    <Select
+                      value={module.access}
+                      onValueChange={(value) => handlePermissionChange(module.id, value)}
+                    >
+                      <SelectTrigger className="w-[140px] bg-background border shadow-sm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background border shadow-lg z-50">
+                        <SelectItem value="no_access">No Access</SelectItem>
+                        <SelectItem value="can_view">View</SelectItem>
+                        <SelectItem value="can_edit">Edit</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               ))}
             </CardContent>
           </Card>
 
-          {/* Project Permissions */}
+          {/* Project Access */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -426,31 +387,30 @@ export default function UserPermissionsPage() {
             </CardHeader>
             <CardContent>
               {projectMemberships.length === 0 ? (
-                <div className="text-center text-muted-foreground py-8">
+                <div className="text-center text-muted-foreground py-12">
                   <FolderOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No project memberships found</p>
+                  <p className="text-lg font-medium">No project memberships found</p>
+                  <p className="text-sm mt-1">This user is not assigned to any projects</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {projectMemberships.map((membership) => (
-                    <div key={membership.project_id} className="p-3 border rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-sm">
-                            {membership.project_name}
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Project ID: {membership.project_id}
-                          </div>
+                    <div key={membership.project_id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium">
+                          {membership.project_name}
                         </div>
-                        <div className="flex gap-2">
-                          <Badge variant={getRoleBadgeVariant(membership.role)}>
-                            {membership.role}
-                          </Badge>
-                          <Badge variant={getStatusBadgeVariant(membership.status)}>
-                            {membership.status}
-                          </Badge>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          Project ID: {membership.project_id}
                         </div>
+                      </div>
+                      <div className="flex gap-2 ml-4">
+                        <Badge variant={getRoleBadgeVariant(membership.role)}>
+                          {membership.role}
+                        </Badge>
+                        <Badge variant={getStatusBadgeVariant(membership.status)}>
+                          {membership.status}
+                        </Badge>
                       </div>
                     </div>
                   ))}
