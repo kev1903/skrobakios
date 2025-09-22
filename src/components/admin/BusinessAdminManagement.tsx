@@ -73,38 +73,22 @@ export const BusinessAdminManagement: React.FC<BusinessAdminManagementProps> = (
     try {
       setLoading(true);
       
-      // Query to get business admins with their company assignments
-      const query = supabase
+      // First get company members
+      const membersQuery = supabase
         .from('company_members')
-        .select(`
-          user_id,
-          role,
-          status,
-          joined_at,
-          companies!inner(
-            id,
-            name
-          ),
-          profiles!inner(
-            user_id,
-            email,
-            first_name,
-            last_name,
-            avatar_url
-          )
-        `)
+        .select('user_id, role, status, joined_at, company_id')
         .eq('role', 'admin')
         .eq('status', 'active');
 
       // If specific company, filter by company
       if (companyId) {
-        query.eq('company_id', companyId);
+        membersQuery.eq('company_id', companyId);
       }
 
-      const { data, error } = await query;
+      const { data: membersData, error: membersError } = await membersQuery;
 
-      if (error) {
-        console.error('Error fetching business admins:', error);
+      if (membersError) {
+        console.error('Error fetching company members:', membersError);
         toast({
           title: "Error",
           description: "Failed to fetch business administrators",
@@ -113,18 +97,74 @@ export const BusinessAdminManagement: React.FC<BusinessAdminManagementProps> = (
         return;
       }
 
-      const formattedAdmins = (data || []).map((item: any) => ({
+      if (!membersData || membersData.length === 0) {
+        setBusinessAdmins([]);
+        return;
+      }
+
+      // Get unique user IDs and company IDs
+      const userIds = [...new Set(membersData.map(m => m.user_id))];
+      const companyIds = [...new Set(membersData.map(m => m.company_id))];
+
+      // Fetch profiles separately
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, email, first_name, last_name, avatar_url')
+        .in('user_id', userIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        toast({
+          title: "Error", 
+          description: "Failed to fetch user profiles",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Fetch companies separately
+      const { data: companiesData, error: companiesError } = await supabase
+        .from('companies')
+        .select('id, name')
+        .in('id', companyIds);
+
+      if (companiesError) {
+        console.error('Error fetching companies:', companiesError);
+        toast({
+          title: "Error",
+          description: "Failed to fetch company information", 
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create lookup maps
+      const profilesMap = (profilesData || []).reduce((acc, profile) => {
+        acc[profile.user_id] = profile;
+        return acc;
+      }, {} as Record<string, any>);
+
+      const companiesMap = (companiesData || []).reduce((acc, company) => {
+        acc[company.id] = company;
+        return acc;
+      }, {} as Record<string, any>);
+
+      const formattedAdmins = (membersData || []).map((item: any) => {
+        const profile = profilesMap[item.user_id] || {};
+        const company = companiesMap[item.company_id] || {};
+        
+        return {
         user_id: item.user_id,
-        email: item.profiles?.email || '',
-        first_name: item.profiles?.first_name || '',
-        last_name: item.profiles?.last_name || '',
-        avatar_url: item.profiles?.avatar_url,
-        company_name: item.companies?.name || '',
-        company_id: item.companies?.id || '',
+        email: profile.email || '',
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
+        avatar_url: profile.avatar_url || '',
+        company_name: company.name || '',
+        company_id: company.id || '',
         role: item.role,
         status: item.status,
         assigned_at: item.joined_at,
-      }));
+      }});
 
       setBusinessAdmins(formattedAdmins);
     } catch (error) {
