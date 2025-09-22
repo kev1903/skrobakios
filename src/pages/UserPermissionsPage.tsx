@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Crown, Shield, User, Eye, Edit, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageShell } from '@/components/layout/PageShell';
 
 interface BusinessModule {
   id: string;
@@ -233,130 +234,136 @@ export const UserPermissionsPage = () => {
 
   if (loading) {
     return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-20 px-6 pb-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-4 mb-6">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="backdrop-blur-xl bg-white/80"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div className="h-8 w-64 bg-muted animate-pulse rounded" />
-          </div>
-          <div className="space-y-4">
-            {[1, 2, 3, 4, 5].map(i => (
-              <Card key={i} className="backdrop-blur-xl bg-white/80">
-                <CardContent className="p-6">
-                  <div className="h-6 bg-muted animate-pulse rounded mb-2" />
-                  <div className="h-4 bg-muted animate-pulse rounded w-2/3" />
-                </CardContent>
-              </Card>
-            ))}
+      <PageShell>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 px-6 pb-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-4 mb-6">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigate(-1)}
+                className="backdrop-blur-xl bg-white/80"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div className="h-8 w-64 bg-muted animate-pulse rounded" />
+            </div>
+            <div className="space-y-4">
+              {[1, 2, 3, 4, 5].map(i => (
+                <Card key={i} className="backdrop-blur-xl bg-white/80">
+                  <CardContent className="p-6">
+                    <div className="h-6 bg-muted animate-pulse rounded mb-2" />
+                    <div className="h-4 bg-muted animate-pulse rounded w-2/3" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      </PageShell>
     );
   }
 
   if (!userData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pt-20 px-6 pb-6">
+      <PageShell>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 px-6 pb-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-4 mb-6">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => navigate(-1)}
+                className="backdrop-blur-xl bg-white/80"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <h1 className="text-2xl font-bold text-foreground">User Not Found</h1>
+            </div>
+            <Card className="backdrop-blur-xl bg-white/80">
+              <CardContent className="text-center py-12">
+                <p className="text-muted-foreground">The requested user could not be found.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
+
+  return (
+    <PageShell>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
         <div className="max-w-4xl mx-auto">
+          {/* Header */}
           <div className="flex items-center gap-4 mb-6">
             <Button
               variant="outline"
               size="icon"
               onClick={() => navigate(-1)}
-              className="backdrop-blur-xl bg-white/80"
+              className="backdrop-blur-xl bg-white/80 border-border/50"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-2xl font-bold text-foreground">User Not Found</h1>
+            <h1 className="text-2xl font-bold text-foreground">User Permissions</h1>
           </div>
-          <Card className="backdrop-blur-xl bg-white/80">
-            <CardContent className="text-center py-12">
-              <p className="text-muted-foreground">The requested user could not be found.</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(-1)}
-            className="backdrop-blur-xl bg-white/80 border-border/50"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <h1 className="text-2xl font-bold text-foreground">User Permissions</h1>
-        </div>
-
-        {/* User Info Card */}
-        <Card className="backdrop-blur-xl bg-white/80 border-border/50 mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-4">
-              <Avatar className="w-16 h-16">
-                <AvatarImage src={userData.avatar} alt={userData.name} />
-                <AvatarFallback className="text-lg font-semibold">
-                  {userData.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">{userData.name}</h2>
-                <p className="text-muted-foreground">{userData.email}</p>
-                <Badge variant={getRoleBadgeVariant(userData.role)} className="mt-2">
-                  {getRoleIcon(userData.role)}
-                  <span className="ml-1 capitalize">{userData.role.replace('_', ' ')}</span>
-                </Badge>
-              </div>
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        {/* Business Modules */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-foreground mb-4">Business Module Access</h3>
-          {businessModules.map((module) => (
-            <Card 
-              key={module.id} 
-              className="backdrop-blur-xl bg-white/80 border-border/50 cursor-pointer transition-all hover:shadow-md"
-              onClick={() => handlePermissionChange(module.id)}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      {getAccessIcon(module.accessLevel)}
-                      <h4 className="font-semibold text-foreground">{module.name}</h4>
-                      <Badge variant={getAccessBadgeVariant(module.accessLevel)}>
-                        {getAccessText(module.accessLevel)}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{module.description}</p>
-                  </div>
+          {/* User Info Card */}
+          <Card className="backdrop-blur-xl bg-white/80 border-border/50 mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-4">
+                <Avatar className="w-16 h-16">
+                  <AvatarImage src={userData.avatar} alt={userData.name} />
+                  <AvatarFallback className="text-lg font-semibold">
+                    {userData.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground">{userData.name}</h2>
+                  <p className="text-muted-foreground">{userData.email}</p>
+                  <Badge variant={getRoleBadgeVariant(userData.role)} className="mt-2">
+                    {getRoleIcon(userData.role)}
+                    <span className="ml-1 capitalize">{userData.role.replace('_', ' ')}</span>
+                  </Badge>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              </CardTitle>
+            </CardHeader>
+          </Card>
 
-        <div className="mt-8 p-4 bg-muted/50 rounded-lg backdrop-blur-xl">
-          <p className="text-sm text-muted-foreground text-center">
-            Click on any module to cycle through permission levels: No Access → View Only → Full Access
-          </p>
+          {/* Business Modules */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground mb-4">Business Module Access</h3>
+            {businessModules.map((module) => (
+              <Card 
+                key={module.id} 
+                className="backdrop-blur-xl bg-white/80 border-border/50 cursor-pointer transition-all hover:shadow-md"
+                onClick={() => handlePermissionChange(module.id)}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        {getAccessIcon(module.accessLevel)}
+                        <h4 className="font-semibold text-foreground">{module.name}</h4>
+                        <Badge variant={getAccessBadgeVariant(module.accessLevel)}>
+                          {getAccessText(module.accessLevel)}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{module.description}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          <div className="mt-8 p-4 bg-muted/50 rounded-lg backdrop-blur-xl">
+            <p className="text-sm text-muted-foreground text-center">
+              Click on any module to cycle through permission levels: No Access → View Only → Full Access
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </PageShell>
   );
 };
