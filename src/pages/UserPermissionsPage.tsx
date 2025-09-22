@@ -64,38 +64,38 @@ const getRoleIcon = (role: string) => {
 const getAccessIcon = (accessLevel: string) => {
   switch (accessLevel) {
     case 'can_edit':
-      return <Edit className="w-4 h-4 text-emerald-600" />;
+      return <Edit className="w-4 h-4 text-success" />;
     case 'can_view':
-      return <Eye className="w-4 h-4 text-blue-600" />;
+      return <Eye className="w-4 h-4 text-primary" />;
     default:
-      return <X className="w-4 h-4 text-red-500" />;
+      return <X className="w-4 h-4 text-destructive" />;
   }
 };
 
 const getModuleIcon = (iconName: string) => {
   const iconMap: { [key: string]: React.ReactNode } = {
-    'Map': <Map className="w-5 h-5 text-blue-600" />,
-    'Building2': <Building2 className="w-5 h-5 text-blue-600" />,
-    'TrendingUp': <TrendingUp className="w-5 h-5 text-green-600" />,
-    'DollarSign': <DollarSign className="w-5 h-5 text-emerald-600" />,
-    'Users': <Users className="w-5 h-5 text-violet-600" />,
-    'CheckSquare': <CheckSquare className="w-5 h-5 text-green-600" />,
-    'FileText': <FileText className="w-5 h-5 text-purple-600" />,
-    'Calendar': <Calendar className="w-5 h-5 text-indigo-600" />,
-    'Shield': <Shield className="w-5 h-5 text-orange-600" />,
-    'Package': <Package className="w-5 h-5 text-amber-600" />,
-    'AlertTriangle': <AlertTriangle className="w-5 h-5 text-red-600" />,
-    'ShoppingCart': <ShoppingCart className="w-5 h-5 text-teal-600" />,
-    'Archive': <Archive className="w-5 h-5 text-slate-600" />,
-    'FileCheck': <FileCheck className="w-5 h-5 text-cyan-600" />,
-    'MessageCircle': <MessageCircle className="w-5 h-5 text-pink-600" />,
-    'Clock': <Clock className="w-5 h-5 text-rose-600" />,
-    'BarChart3': <BarChart3 className="w-5 h-5 text-blue-700" />,
-    'UserCheck': <UserCheck className="w-5 h-5 text-green-700" />,
-    'Settings': <Settings className="w-5 h-5 text-gray-600" />
+    'Map': <Map className="w-5 h-5 text-primary" />,
+    'Building2': <Building2 className="w-5 h-5 text-primary" />,
+    'TrendingUp': <TrendingUp className="w-5 h-5 text-success" />,
+    'DollarSign': <DollarSign className="w-5 h-5 text-success" />,
+    'Users': <Users className="w-5 h-5 text-accent-foreground" />,
+    'CheckSquare': <CheckSquare className="w-5 h-5 text-success" />,
+    'FileText': <FileText className="w-5 h-5 text-foreground" />,
+    'Calendar': <Calendar className="w-5 h-5 text-primary" />,
+    'Shield': <Shield className="w-5 h-5 text-warning" />,
+    'Package': <Package className="w-5 h-5 text-muted-foreground" />,
+    'AlertTriangle': <AlertTriangle className="w-5 h-5 text-destructive" />,
+    'ShoppingCart': <ShoppingCart className="w-5 h-5 text-accent-foreground" />,
+    'Archive': <Archive className="w-5 h-5 text-muted-foreground" />,
+    'FileCheck': <FileCheck className="w-5 h-5 text-success" />,
+    'MessageCircle': <MessageCircle className="w-5 h-5 text-accent-foreground" />,
+    'Clock': <Clock className="w-5 h-5 text-warning" />,
+    'BarChart3': <BarChart3 className="w-5 h-5 text-primary" />,
+    'UserCheck': <UserCheck className="w-5 h-5 text-success" />,
+    'Settings': <Settings className="w-5 h-5 text-muted-foreground" />
   };
   
-  return iconMap[iconName] || <FileText className="w-5 h-5 text-gray-600" />;
+  return iconMap[iconName] || <FileText className="w-5 h-5 text-muted-foreground" />;
 };
 
 const getAccessText = (accessLevel: string) => {
@@ -253,7 +253,7 @@ export const UserPermissionsPage = () => {
   if (loading) {
     return (
       <PageShell>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 px-6 pb-6">
+        <div className="min-h-screen bg-background p-6">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-4 mb-6">
             <Button
@@ -262,7 +262,7 @@ export const UserPermissionsPage = () => {
               onClick={() => {
                 window.location.href = '/?page=settings&section=teams';
               }}
-              className="backdrop-blur-xl bg-white/80"
+              className="glass button-ghost"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
@@ -270,7 +270,7 @@ export const UserPermissionsPage = () => {
             </div>
             <div className="space-y-4">
               {[1, 2, 3, 4, 5].map(i => (
-                <Card key={i} className="backdrop-blur-xl bg-white/80">
+                <Card key={i} className="glass-card">
                   <CardContent className="p-6">
                     <div className="h-16 bg-muted animate-pulse rounded" />
                   </CardContent>
@@ -286,7 +286,7 @@ export const UserPermissionsPage = () => {
   if (!userData && !loading) {
     return (
       <PageShell>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 px-6 pb-6">
+        <div className="min-h-screen bg-background p-6">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-4 mb-6">
             <Button
@@ -295,13 +295,13 @@ export const UserPermissionsPage = () => {
               onClick={() => {
                 window.location.href = '/?page=settings&section=teams';
               }}
-              className="backdrop-blur-xl bg-white/80"
+              className="glass button-ghost"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-              <h1 className="text-2xl font-bold text-foreground">User Not Found</h1>
+              <h1 className="heading-md text-foreground">User Not Found</h1>
             </div>
-            <Card className="backdrop-blur-xl bg-white/80">
+            <Card className="glass-card">
               <CardContent className="text-center py-12">
                 <p className="text-muted-foreground">{error || 'The requested user could not be found or you don\'t have permission to view their details.'}</p>
               </CardContent>
@@ -314,7 +314,7 @@ export const UserPermissionsPage = () => {
 
   return (
     <PageShell>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50/50 via-white to-slate-100/50 p-6">
+      <div className="min-h-screen bg-background p-6">
         <div className="max-w-5xl mx-auto">
           {/* Header */}
           <div className="flex items-center gap-4 mb-8">
@@ -324,35 +324,35 @@ export const UserPermissionsPage = () => {
               onClick={() => {
                 window.location.href = '/?page=settings&section=teams';
               }}
-              className="backdrop-blur-xl bg-white/90 border-border/50 hover:bg-white shadow-sm"
+              className="glass button-ghost interactive-minimal"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-foreground">User Permissions</h1>
-              <p className="text-muted-foreground mt-1">Manage access levels for business modules</p>
+              <h1 className="heading-lg text-foreground">User Permissions</h1>
+              <p className="text-muted-foreground mt-1 body-md">Manage access levels for business modules</p>
             </div>
           </div>
 
           {/* User Info Card */}
-          <Card className="backdrop-blur-xl bg-white/90 border-border/50 mb-8 shadow-sm">
+          <Card className="glass-card mb-8 interactive-minimal">
             <CardContent className="p-8">
               <div className="flex items-start gap-6">
-                <Avatar className="w-20 h-20 border-4 border-white shadow-lg">
+                <Avatar className="w-20 h-20 border-4 border-background shadow-lg">
                   <AvatarImage src={userData.avatar} alt={userData.name} />
-                  <AvatarFallback className="text-xl font-bold bg-gradient-to-br from-primary/20 to-primary/10">
+                  <AvatarFallback className="text-xl font-bold bg-primary/10 text-primary">
                     {userData.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex items-center gap-4 mb-3">
-                    <h2 className="text-2xl font-bold text-foreground">{userData.name}</h2>
+                    <h2 className="heading-md text-foreground">{userData.name}</h2>
                     <Badge variant={getRoleBadgeVariant(userData.role)} className="flex items-center gap-2 text-sm font-medium px-3 py-1">
                       {getRoleIcon(userData.role)}
                       {userData.role.charAt(0).toUpperCase() + userData.role.slice(1).replace('_', ' ')}
                     </Badge>
                   </div>
-                  <p className="text-muted-foreground text-lg mb-2">{userData.email}</p>
+                  <p className="text-muted-foreground text-lg mb-2 body-md">{userData.email}</p>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <span>Member since</span>
                     <span className="font-medium">March 2024</span>
@@ -365,7 +365,7 @@ export const UserPermissionsPage = () => {
           {/* Business Modules */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-foreground">Business Module Access</h3>
+              <h3 className="heading-md text-foreground">Business Module Access</h3>
               <div className="text-sm text-muted-foreground">
                 {businessModules.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
                 {businessModules.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
@@ -377,11 +377,11 @@ export const UserPermissionsPage = () => {
               {businessModules.map((module) => (
                 <Card 
                   key={module.id} 
-                  className="backdrop-blur-xl bg-white/90 border-border/50 hover:bg-white/95 transition-all duration-200 hover:shadow-lg hover:shadow-primary/5"
+                  className="glass-card interactive-minimal"
                 >
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
-                      <div className="p-3 rounded-xl bg-background/80 border border-border/50">
+                      <div className="p-3 rounded-xl bg-card border">
                         {getModuleIcon(module.icon)}
                       </div>
                       
@@ -395,7 +395,7 @@ export const UserPermissionsPage = () => {
                             {getAccessText(module.accessLevel)}
                           </Badge>
                         </div>
-                        <p className="text-muted-foreground leading-relaxed">{module.description}</p>
+                        <p className="text-muted-foreground leading-relaxed body-md">{module.description}</p>
                       </div>
                       
                       <div className="flex items-center">
@@ -408,14 +408,14 @@ export const UserPermissionsPage = () => {
             </div>
           </div>
 
-          <div className="mt-8 p-6 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-xl backdrop-blur-xl border border-blue-100/50">
+          <div className="mt-8 p-6 bg-accent/50 rounded-xl glass border">
             <div className="flex items-start gap-4">
-              <div className="p-2 rounded-lg bg-blue-100/50">
-                <Shield className="w-5 h-5 text-blue-600" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Shield className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <h4 className="font-semibold text-foreground mb-2">Permission Management</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-sm text-muted-foreground leading-relaxed body-md">
                   Access levels are automatically determined by the user's role within the company. 
                   Contact your system administrator to modify user permissions or change role assignments.
                 </p>
