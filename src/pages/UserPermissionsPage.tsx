@@ -365,7 +365,7 @@ export const UserPermissionsPage = () => {
           {/* Business Modules */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="font-inter text-2xl font-semibold text-foreground">Business Module Access</h3>
+              <h3 className="heading-md text-foreground">Business Module Access</h3>
               <div className="text-sm text-muted-foreground">
                 {businessModules.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
                 {businessModules.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
