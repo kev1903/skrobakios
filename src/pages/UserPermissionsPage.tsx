@@ -353,7 +353,7 @@ export const UserPermissionsPage = () => {
                     </Badge>
                   </div>
                   <p className="text-muted-foreground text-lg mb-2 body-md">{userData.email}</p>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground font-inter">
                     <span>Member since</span>
                     <span className="font-medium">March 2024</span>
                   </div>
@@ -365,7 +365,7 @@ export const UserPermissionsPage = () => {
           {/* Business Modules */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="heading-md text-foreground">Business Module Access</h3>
+              <h3 className="font-inter text-2xl font-semibold text-foreground">Business Module Access</h3>
               <div className="text-sm text-muted-foreground">
                 {businessModules.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
                 {businessModules.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
@@ -387,10 +387,10 @@ export const UserPermissionsPage = () => {
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
-                          <h4 className="font-semibold text-foreground text-lg">{module.name}</h4>
+                          <h4 className="font-inter font-semibold text-foreground text-lg">{module.name}</h4>
                           <Badge 
                             variant={getAccessBadgeVariant(module.accessLevel)}
-                            className="font-medium"
+                            className="font-inter font-medium"
                           >
                             {getAccessText(module.accessLevel)}
                           </Badge>
@@ -414,7 +414,7 @@ export const UserPermissionsPage = () => {
                 <Shield className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h4 className="font-semibold text-foreground mb-2">Permission Management</h4>
+                <h4 className="font-inter font-semibold text-foreground mb-2">Permission Management</h4>
                 <p className="text-sm text-muted-foreground leading-relaxed body-md">
                   Access levels are automatically determined by the user's role within the company. 
                   Contact your system administrator to modify user permissions or change role assignments.
