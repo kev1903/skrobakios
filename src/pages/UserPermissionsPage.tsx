@@ -5,7 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Crown, Shield, User, Eye, Edit, X } from 'lucide-react';
+import { ArrowLeft, Crown, Shield, User, Eye, Edit, X, 
+         Building2, CheckSquare, FileText, DollarSign, Calendar, 
+         Package, AlertTriangle, ShoppingCart, Archive, FileCheck, 
+         MessageCircle, Users, Clock, BarChart3, UserCheck, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageShell } from '@/components/layout/PageShell';
 
@@ -60,12 +63,36 @@ const getRoleIcon = (role: string) => {
 const getAccessIcon = (accessLevel: string) => {
   switch (accessLevel) {
     case 'can_edit':
-      return <Edit className="w-4 h-4 text-green-600" />;
+      return <Edit className="w-4 h-4 text-emerald-600" />;
     case 'can_view':
       return <Eye className="w-4 h-4 text-blue-600" />;
     default:
-      return <X className="w-4 h-4 text-red-600" />;
+      return <X className="w-4 h-4 text-red-500" />;
   }
+};
+
+const getModuleIcon = (iconName: string) => {
+  const iconMap: { [key: string]: React.ReactNode } = {
+    'Building2': <Building2 className="w-5 h-5 text-blue-600" />,
+    'CheckSquare': <CheckSquare className="w-5 h-5 text-green-600" />,
+    'FileText': <FileText className="w-5 h-5 text-purple-600" />,
+    'DollarSign': <DollarSign className="w-5 h-5 text-emerald-600" />,
+    'Shield': <Shield className="w-5 h-5 text-orange-600" />,
+    'Calendar': <Calendar className="w-5 h-5 text-indigo-600" />,
+    'Package': <Package className="w-5 h-5 text-amber-600" />,
+    'AlertTriangle': <AlertTriangle className="w-5 h-5 text-red-600" />,
+    'ShoppingCart': <ShoppingCart className="w-5 h-5 text-teal-600" />,
+    'Archive': <Archive className="w-5 h-5 text-slate-600" />,
+    'FileCheck': <FileCheck className="w-5 h-5 text-cyan-600" />,
+    'MessageCircle': <MessageCircle className="w-5 h-5 text-pink-600" />,
+    'Users': <Users className="w-5 h-5 text-violet-600" />,
+    'Clock': <Clock className="w-5 h-5 text-rose-600" />,
+    'BarChart3': <BarChart3 className="w-5 h-5 text-blue-700" />,
+    'UserCheck': <UserCheck className="w-5 h-5 text-green-700" />,
+    'Settings': <Settings className="w-5 h-5 text-gray-600" />
+  };
+  
+  return iconMap[iconName] || <FileText className="w-5 h-5 text-gray-600" />;
 };
 
 const getAccessText = (accessLevel: string) => {
@@ -101,7 +128,7 @@ export const UserPermissionsPage = () => {
     }
   }, [error]);
 
-  // Memoized business modules for better performance
+  // Comprehensive business modules for construction management
   const businessModules = useMemo(() => {
     if (!userData) return [];
     
@@ -110,48 +137,119 @@ export const UserPermissionsPage = () => {
         id: 'projects',
         name: 'Project Management',
         description: 'Manage construction projects, timelines, and resources',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member'])
+        icon: 'Building2',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])
       },
       {
         id: 'tasks',
-        name: 'Task Management',
+        name: 'Task Management', 
         description: 'Create, assign, and track project tasks',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member'])
+        icon: 'CheckSquare',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])
       },
       {
         id: 'documents',
         name: 'Document Management',
         description: 'Upload, organize, and share project documents',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member'])
-      },
-      {
-        id: 'qaqc',
-        name: 'Quality Assurance',
-        description: 'Manage quality control processes and inspections',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+        icon: 'FileText',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])
       },
       {
         id: 'finance',
         name: 'Financial Management',
         description: 'Handle invoicing, estimates, and financial reporting',
+        icon: 'DollarSign',
         accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
       },
       {
-        id: 'team',
-        name: 'Team Management',
-        description: 'Manage team members, roles, and permissions',
-        accessLevel: getAccessLevel(userData.role, ['owner'])
+        id: 'qaqc',
+        name: 'Quality Assurance',
+        description: 'Manage quality control processes and inspections',
+        icon: 'Shield',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+      },
+      {
+        id: 'scheduling',
+        name: 'Scheduling & Planning',
+        description: 'Create and manage project schedules and timelines',
+        icon: 'Calendar',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
+      },
+      {
+        id: 'resources',
+        name: 'Resource Management',
+        description: 'Manage equipment, materials, and workforce allocation',
+        icon: 'Package',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+      },
+      {
+        id: 'safety',
+        name: 'Safety Management',
+        description: 'Track safety incidents, compliance, and protocols',
+        icon: 'AlertTriangle',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+      },
+      {
+        id: 'procurement',
+        name: 'Procurement & Purchasing',
+        description: 'Manage vendor relationships and purchase orders',
+        icon: 'ShoppingCart',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+      },
+      {
+        id: 'inventory',
+        name: 'Inventory Management',
+        description: 'Track materials, tools, and equipment inventory',
+        icon: 'Archive',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
+      },
+      {
+        id: 'compliance',
+        name: 'Compliance & Permits',
+        description: 'Manage regulatory compliance and permit tracking',
+        icon: 'FileCheck',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+      },
+      {
+        id: 'communications',
+        name: 'Communications',
+        description: 'Manage client communications and correspondence',
+        icon: 'MessageCircle',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
+      },
+      {
+        id: 'crm',
+        name: 'Customer Relations',
+        description: 'Manage leads, clients, and business relationships',
+        icon: 'Users',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+      },
+      {
+        id: 'timetracking',
+        name: 'Time Tracking',
+        description: 'Track work hours and project time allocation',
+        icon: 'Clock',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
       },
       {
         id: 'analytics',
         name: 'Analytics & Reporting',
         description: 'View project analytics and generate reports',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member'])
+        icon: 'BarChart3',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+      },
+      {
+        id: 'team',
+        name: 'Team Management',
+        description: 'Manage team members, roles, and permissions',
+        icon: 'UserCheck',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
       },
       {
         id: 'settings',
         name: 'Company Settings',
         description: 'Configure company-wide settings and preferences',
+        icon: 'Settings',
         accessLevel: getAccessLevel(userData.role, ['owner'])
       }
     ];
@@ -234,78 +332,113 @@ export const UserPermissionsPage = () => {
 
   return (
     <PageShell>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
-        <div className="max-w-4xl mx-auto">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50/50 via-white to-slate-100/50 p-6">
+        <div className="max-w-5xl mx-auto">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-8">
             <Button
               variant="outline"
               size="icon"  
               onClick={() => {
                 window.location.href = '/?page=settings&section=teams';
               }}
-              className="backdrop-blur-xl bg-white/80 border-border/50"
+              className="backdrop-blur-xl bg-white/90 border-border/50 hover:bg-white shadow-sm"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-2xl font-bold text-foreground">User Permissions</h1>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">User Permissions</h1>
+              <p className="text-muted-foreground mt-1">Manage access levels for business modules</p>
+            </div>
           </div>
 
           {/* User Info Card */}
-          <Card className="backdrop-blur-xl bg-white/80 border-border/50 mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-4">
-                <Avatar className="w-16 h-16">
+          <Card className="backdrop-blur-xl bg-white/90 border-border/50 mb-8 shadow-sm">
+            <CardContent className="p-8">
+              <div className="flex items-start gap-6">
+                <Avatar className="w-20 h-20 border-4 border-white shadow-lg">
                   <AvatarImage src={userData.avatar} alt={userData.name} />
-                  <AvatarFallback className="text-lg font-semibold">
+                  <AvatarFallback className="text-xl font-bold bg-gradient-to-br from-primary/20 to-primary/10">
                     {userData.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h2 className="text-xl font-semibold text-foreground">{userData.name}</h2>
-                    <Badge variant={getRoleBadgeVariant(userData.role)} className="flex items-center gap-1">
+                  <div className="flex items-center gap-4 mb-3">
+                    <h2 className="text-2xl font-bold text-foreground">{userData.name}</h2>
+                    <Badge variant={getRoleBadgeVariant(userData.role)} className="flex items-center gap-2 text-sm font-medium px-3 py-1">
                       {getRoleIcon(userData.role)}
                       {userData.role.charAt(0).toUpperCase() + userData.role.slice(1).replace('_', ' ')}
                     </Badge>
                   </div>
-                  <p className="text-muted-foreground">{userData.email}</p>
+                  <p className="text-muted-foreground text-lg mb-2">{userData.email}</p>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>Member since</span>
+                    <span className="font-medium">March 2024</span>
+                  </div>
                 </div>
-              </CardTitle>
-            </CardHeader>
+              </div>
+            </CardContent>
           </Card>
 
           {/* Business Modules */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Business Module Access</h3>
-            {businessModules.map((module) => (
-              <Card 
-                key={module.id} 
-                className="backdrop-blur-xl bg-white/80 border-border/50 cursor-pointer transition-all hover:shadow-md"
-                onClick={() => handlePermissionChange(module.id)}
-              >
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        {getAccessIcon(module.accessLevel)}
-                        <h4 className="font-semibold text-foreground">{module.name}</h4>
-                        <Badge variant={getAccessBadgeVariant(module.accessLevel)}>
-                          {getAccessText(module.accessLevel)}
-                        </Badge>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-foreground">Business Module Access</h3>
+              <div className="text-sm text-muted-foreground">
+                {businessModules.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
+                {businessModules.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
+                {businessModules.filter(m => m.accessLevel === 'no_access').length} No Access
+              </div>
+            </div>
+            
+            <div className="grid gap-4">
+              {businessModules.map((module) => (
+                <Card 
+                  key={module.id} 
+                  className="backdrop-blur-xl bg-white/90 border-border/50 hover:bg-white/95 transition-all duration-200 hover:shadow-lg hover:shadow-primary/5"
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 rounded-xl bg-background/80 border border-border/50">
+                        {getModuleIcon(module.icon)}
                       </div>
-                      <p className="text-sm text-muted-foreground">{module.description}</p>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h4 className="font-semibold text-foreground text-lg">{module.name}</h4>
+                          <Badge 
+                            variant={getAccessBadgeVariant(module.accessLevel)}
+                            className="font-medium"
+                          >
+                            {getAccessText(module.accessLevel)}
+                          </Badge>
+                        </div>
+                        <p className="text-muted-foreground leading-relaxed">{module.description}</p>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        {getAccessIcon(module.accessLevel)}
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-8 p-4 bg-muted/50 rounded-lg backdrop-blur-xl">
-            <p className="text-sm text-muted-foreground text-center">
-              Click on any module to cycle through permission levels: No Access → View Only → Full Access
-            </p>
+          <div className="mt-8 p-6 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-xl backdrop-blur-xl border border-blue-100/50">
+            <div className="flex items-start gap-4">
+              <div className="p-2 rounded-lg bg-blue-100/50">
+                <Shield className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground mb-2">Permission Management</h4>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Access levels are automatically determined by the user's role within the company. 
+                  Contact your system administrator to modify user permissions or change role assignments.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
