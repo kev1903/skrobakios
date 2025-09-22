@@ -13,7 +13,7 @@ export interface UserPermission {
 // Legacy permission constants for backward compatibility
 export const PERMISSIONS = {
   MANAGE_COMPANY_USERS: 'manage_company_users',
-  MANAGE_COMPANY_SETTINGS: 'manage_company_settings',
+  MANAGE_COMPANY_SETTINGS: 'manage_company_settings', 
   VIEW_COMPANY_ANALYTICS: 'view_company_analytics',
   MANAGE_PROJECTS: 'manage_projects',
   MANAGE_PROJECT_FILES: 'manage_project_files',
