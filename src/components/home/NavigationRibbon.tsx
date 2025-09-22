@@ -175,13 +175,13 @@ const handleNavigateAndClose = (page: string) => {
                 <button 
                   key={item.id} 
                   onMouseDown={(e) => { e.preventDefault(); handleNavigateAndClose(item.id); }}
-                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
-                    isActive 
-                      ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left ${
+                        isActive 
+                          ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
+                          : "text-gray-700 hover:bg-gray-100"
+                      }`}
                 >
-                  <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
                   {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                 </button>
               );
@@ -215,13 +215,13 @@ const handleNavigateAndClose = (page: string) => {
                           handleNavigateAndClose(item.id);
                         }
                       }}
-                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                      className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left ${
                         isActive 
                           ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
                           : "text-gray-700 hover:bg-gray-100"
                       }`}
                     >
-                      <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
+                      <Icon className={`w-4 h-4 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
                       {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                     </button>
                   </ModuleWrapper>
@@ -241,13 +241,13 @@ const handleNavigateAndClose = (page: string) => {
                   <button 
                     key={item.id} 
                     onMouseDown={(e) => { e.preventDefault(); handleNavigateAndClose(item.id); }} 
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left ${
                       isActive 
                         ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
                         : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
-                    <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
                     {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
                   </button>
                 );
@@ -270,13 +270,13 @@ const handleNavigateAndClose = (page: string) => {
               <button 
                 key={item.id}
                 onMouseDown={(e) => { e.preventDefault(); handleNavigateAndClose(item.id); }} 
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left ${
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left ${
                   isActive 
                     ? "bg-gradient-to-r from-blue-500/30 to-blue-600/30 text-white font-medium backdrop-blur-sm border border-blue-400/30 shadow-lg" 
                     : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
-                <Icon className={`w-4 h-4 transition-all duration-200 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
+                <Icon className={`w-4 h-4 ${isActive ? "text-blue-200" : "text-gray-600"}`} />
                 {!isCollapsed && <span className="text-sm font-medium">{item.label}</span>}
               </button>
             );
@@ -299,7 +299,7 @@ const handleNavigateAndClose = (page: string) => {
   } else {
     // Embedded mode - use SidebarContent wrapper
     return (
-      <div className={`h-full transition-all duration-300 ${open ? 'bg-white' : 'bg-transparent'}`}>
+      <div className={`h-full ${open ? 'bg-white' : 'bg-transparent'}`}>
         <div className="flex flex-col h-full">
           {sidebarContent}
         </div>
