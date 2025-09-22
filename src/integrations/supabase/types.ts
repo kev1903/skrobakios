@@ -6683,6 +6683,16 @@ export type Database = {
           trial_ends_at: string
         }[]
       }
+      handle_user_permission_upsert: {
+        Args: {
+          p_access_level: string
+          p_company_id: string
+          p_module_id: string
+          p_sub_module_id: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args:
           | { _role: Database["public"]["Enums"]["app_role"]; _user_id: string }

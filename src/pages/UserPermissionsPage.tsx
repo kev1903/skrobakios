@@ -341,7 +341,7 @@ export const UserPermissionsPage = () => {
 
     setIsSaving(true);
     try {
-      // Process each permission change using RPC or direct SQL
+      // Process each permission change using the database function
       for (const [subModuleId, accessLevel] of Object.entries(permissionChanges)) {
         // Find the module that contains this submodule
         let moduleId = '';
@@ -351,8 +351,8 @@ export const UserPermissionsPage = () => {
           }
         });
 
-        // Use raw SQL to handle the upsert due to type conflicts
-        const { error } = await supabase.rpc('handle_user_permission_upsert', {
+        // Use the RPC function (cast to any to bypass TypeScript type issue)
+        const { error } = await (supabase as any).rpc('handle_user_permission_upsert', {
           p_user_id: userId,
           p_company_id: companyId,
           p_module_id: moduleId,
@@ -466,6 +466,19 @@ export const UserPermissionsPage = () => {
           {/* User Info Card */}
           <Card className="glass-card mb-8">
             <CardContent className="p-8">
+              {/* Save Button */}
+              <div className="flex justify-end mb-6">
+                <Button
+                  onClick={savePermissions}
+                  disabled={!hasUnsavedChanges || isSaving}
+                  className="flex items-center gap-2"
+                  variant={hasUnsavedChanges ? "default" : "outline"}
+                >
+                  <Save className="w-4 h-4" />
+                  {isSaving ? 'Saving...' : 'Save Permissions'}
+                </Button>
+              </div>
+              
               <div className="flex items-start gap-6">
                 <Avatar className="w-20 h-20 border-4 border-background shadow-lg">
                   <AvatarImage src={userData.avatar} alt={userData.name} />
@@ -552,9 +565,9 @@ export const UserPermissionsPage = () => {
                                 <p className="text-muted-foreground text-xs">{subModule.description}</p>
                               </div>
                               <div className="flex items-center gap-2">
-                                {getAccessIcon(subModule.accessLevel)}
+                                {getAccessIcon(permissionChanges[subModule.id] || subModule.accessLevel)}
                                 <Select 
-                                  value={subModule.accessLevel} 
+                                  value={permissionChanges[subModule.id] || subModule.accessLevel} 
                                   onValueChange={(value: 'no_access' | 'can_view' | 'can_edit') => 
                                     handleSubModulePermissionChange(subModule.id, value)
                                   }
