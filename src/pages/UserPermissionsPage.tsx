@@ -283,7 +283,7 @@ export const UserPermissionsPage = () => {
                 </Avatar>
                 <div className="flex-1">
                   <div className="flex items-center gap-4 mb-3">
-                    <h2 className="heading-md text-foreground">{userData.name}</h2>
+                    <h2 className="font-inter text-xl font-semibold text-foreground">{userData.name}</h2>
                     <Badge variant={getRoleBadgeVariant(userData.role)} className="flex items-center gap-2 text-sm font-medium px-3 py-1">
                       {getRoleIcon(userData.role)}
                       {userData.role.charAt(0).toUpperCase() + userData.role.slice(1).replace('_', ' ')}
