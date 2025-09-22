@@ -47,7 +47,7 @@ export const UserPermissionsPage = () => {
         .select('role')
         .eq('user_id', userId)
         .eq('company_id', companyId)
-        .single();
+        .maybeSingle();
 
       if (membershipError) {
         console.error('Error fetching membership data:', membershipError);
@@ -60,7 +60,7 @@ export const UserPermissionsPage = () => {
         .from('profiles')
         .select('user_id, email, first_name, last_name, avatar_url')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error('Error fetching profile data:', profileError);
@@ -68,14 +68,19 @@ export const UserPermissionsPage = () => {
         return;
       }
 
-      if (!membershipData || !profileData) {
-        toast.error('User not found in company');
+      if (!membershipData) {
+        toast.error('User is not a member of this company');
+        return;
+      }
+
+      if (!profileData) {
+        toast.error('User profile not found');
         return;
       }
 
       const user: UserData = {
         id: profileData.user_id,
-        email: profileData.email,
+        email: profileData.email || 'No email provided',
         name: `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || 'Unknown User',
         avatar: profileData.avatar_url,
         role: membershipData.role as 'owner' | 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client' | 'team_member' | 'viewer'
