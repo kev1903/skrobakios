@@ -168,22 +168,52 @@ export const UserPermissionsPage = () => {
         accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager']),
         subModules: [
           {
-            id: 'project_management',
-            name: 'Project Management',
-            description: 'Create and manage construction projects',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
-          },
-          {
-            id: 'timelines',
-            name: 'Timelines',
-            description: 'Project scheduling and milestones',
+            id: 'dashboard',
+            name: 'Dashboard',
+            description: 'Project overview and key metrics',
             accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])
           },
           {
-            id: 'resources',
-            name: 'Resources',
-            description: 'Manage project resources and assignments',
+            id: 'project_control',
+            name: 'Project Control',
+            description: 'Project planning and control systems',
             accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+          },
+          {
+            id: 'cost',
+            name: 'Cost',
+            description: 'Project cost management and tracking',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+          },
+          {
+            id: 'qa_qc',
+            name: 'QA/QC',
+            description: 'Quality assurance and quality control',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
+          },
+          {
+            id: 'task',
+            name: 'Task',
+            description: 'Task management and assignments',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
+          },
+          {
+            id: 'team',
+            name: 'Team',
+            description: 'Team management and collaboration',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+          },
+          {
+            id: 'procurement',
+            name: 'Procurement',
+            description: 'Procurement and purchasing management',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+          },
+          {
+            id: 'contracts',
+            name: 'Contracts',
+            description: 'Contract management and administration',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
           }
         ]
       },
