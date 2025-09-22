@@ -246,7 +246,9 @@ export const UserPermissionsPage = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => navigate('/?page=settings#teams')}
+              onClick={() => {
+                navigate('/?page=settings&section=teams');
+              }}
               className="backdrop-blur-xl bg-white/80"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -278,7 +280,9 @@ export const UserPermissionsPage = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => navigate('/?page=settings#teams')}
+              onClick={() => {
+                navigate('/?page=settings&section=teams');
+              }}
               className="backdrop-blur-xl bg-white/80"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -304,8 +308,10 @@ export const UserPermissionsPage = () => {
           <div className="flex items-center gap-4 mb-6">
             <Button
               variant="outline"
-              size="icon"
-              onClick={() => navigate('/?page=settings#teams')}
+              size="icon"  
+              onClick={() => {
+                navigate('/?page=settings&section=teams');
+              }}
               className="backdrop-blur-xl bg-white/80 border-border/50"
             >
               <ArrowLeft className="w-4 h-4" />

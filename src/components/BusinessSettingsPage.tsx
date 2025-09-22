@@ -44,7 +44,12 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
   // Handle hash navigation for direct links to sections
   useEffect(() => {
     const hash = window.location.hash.replace('#', '');
-    if (hash && ['business-details', 'membership-settings', 'teams', 'connected-services'].includes(hash)) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const sectionParam = searchParams.get('section');
+    
+    if (sectionParam && ['business-details', 'membership-settings', 'teams', 'connected-services'].includes(sectionParam)) {
+      setActiveSection(sectionParam);
+    } else if (hash && ['business-details', 'membership-settings', 'teams', 'connected-services'].includes(hash)) {
       setActiveSection(hash);
     }
   }, []);
@@ -296,6 +301,21 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
     { id: 'teams', label: 'Teams', icon: Users },
     { id: 'connected-services', label: 'Connected Services', icon: Plug },
   ];
+
+  // Auto-activate teams section when component mounts and hash is present
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash === 'teams') {
+        setActiveSection('teams');
+      }
+    };
+    
+    handleHashChange(); // Check on mount
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -631,6 +651,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
                       return (
                         <button
                           key={item.id}
+                          data-section={item.id}
                           onClick={() => {
                             setActiveSection(item.id);
                             setShowMobileNav(false);
@@ -663,6 +684,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
                     return (
                       <button
                         key={item.id}
+                        data-section={item.id}
                         onClick={() => setActiveSection(item.id)}
                         className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                           isActive
