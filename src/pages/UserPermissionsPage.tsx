@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -24,11 +24,83 @@ interface UserData {
   role: 'owner' | 'admin' | 'team_member' | 'viewer' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client';
 }
 
+// Helper functions moved outside component for better performance
+const getAccessLevel = (userRole: string, allowedRoles: string[]): 'no_access' | 'can_view' | 'can_edit' => {
+  if (!allowedRoles.includes(userRole)) {
+    return 'no_access';
+  }
+  
+  // Owners and admins typically have edit access, others have view access
+  if (userRole === 'owner' || userRole === 'admin') {
+    return 'can_edit';
+  }
+  
+  return 'can_view';
+};
+
+const getRoleBadgeVariant = (role: string) => {
+  switch (role) {
+    case 'owner':
+      return 'default';
+    case 'admin':
+      return 'secondary';
+    case 'team_member':
+      return 'outline';
+    case 'viewer':
+      return 'outline';
+    default:
+      return 'outline';
+  }
+};
+
+const getRoleIcon = (role: string) => {
+  switch (role) {
+    case 'owner':
+      return <Crown className="w-3 h-3" />;
+    case 'admin':
+      return <Shield className="w-3 h-3" />;
+    default:
+      return <User className="w-3 h-3" />;
+  }
+};
+
+const getAccessIcon = (accessLevel: string) => {
+  switch (accessLevel) {
+    case 'can_edit':
+      return <Edit className="w-4 h-4 text-green-600" />;
+    case 'can_view':
+      return <Eye className="w-4 h-4 text-blue-600" />;
+    default:
+      return <X className="w-4 h-4 text-red-600" />;
+  }
+};
+
+const getAccessText = (accessLevel: string) => {
+  switch (accessLevel) {
+    case 'can_edit':
+      return 'Full Access';
+    case 'can_view':
+      return 'View Only';
+    default:
+      return 'No Access';
+  }
+};
+
+const getAccessBadgeVariant = (accessLevel: string) => {
+  switch (accessLevel) {
+    case 'can_edit':
+      return 'default';
+    case 'can_view':
+      return 'secondary';
+    default:
+      return 'destructive';
+  }
+};
+
 export const UserPermissionsPage = () => {
   const { userId, companyId } = useParams<{ userId: string; companyId: string }>();
   const navigate = useNavigate();
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [businessModules, setBusinessModules] = useState<BusinessModule[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,26 +113,29 @@ export const UserPermissionsPage = () => {
     try {
       setLoading(true);
 
-      // First get the company membership data using company_members table
-      const { data: membershipData, error: membershipError } = await supabase
-        .from('company_members')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('company_id', companyId)
-        .maybeSingle();
+      // Optimized: Run both queries in parallel for faster loading
+      const [membershipResult, profileResult] = await Promise.all([
+        supabase
+          .from('company_members')
+          .select('role')
+          .eq('user_id', userId)
+          .eq('company_id', companyId)
+          .maybeSingle(),
+        supabase
+          .from('profiles')
+          .select('user_id, email, first_name, last_name, avatar_url')
+          .eq('user_id', userId)
+          .maybeSingle()
+      ]);
+
+      const { data: membershipData, error: membershipError } = membershipResult;
+      const { data: profileData, error: profileError } = profileResult;
 
       if (membershipError) {
         console.error('Error fetching membership data:', membershipError);
         toast.error('Failed to load user membership');
         return;
       }
-
-      // Then get the user profile data
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('user_id, email, first_name, last_name, avatar_url')
-        .eq('user_id', userId)
-        .maybeSingle();
 
       if (profileError) {
         console.error('Error fetching profile data:', profileError);
@@ -87,60 +162,6 @@ export const UserPermissionsPage = () => {
       };
 
       setUserData(user);
-
-      // Define business modules with access levels based on role
-      const modules: BusinessModule[] = [
-        {
-          id: 'projects',
-          name: 'Project Management',
-          description: 'Manage construction projects, timelines, and resources',
-          accessLevel: getAccessLevel(user.role, ['owner', 'admin', 'team_member'])
-        },
-        {
-          id: 'tasks',
-          name: 'Task Management',
-          description: 'Create, assign, and track project tasks',
-          accessLevel: getAccessLevel(user.role, ['owner', 'admin', 'team_member'])
-        },
-        {
-          id: 'documents',
-          name: 'Document Management',
-          description: 'Upload, organize, and share project documents',
-          accessLevel: getAccessLevel(user.role, ['owner', 'admin', 'team_member'])
-        },
-        {
-          id: 'qaqc',
-          name: 'Quality Assurance',
-          description: 'Manage quality control processes and inspections',
-          accessLevel: getAccessLevel(user.role, ['owner', 'admin'])
-        },
-        {
-          id: 'finance',
-          name: 'Financial Management',
-          description: 'Handle invoicing, estimates, and financial reporting',
-          accessLevel: getAccessLevel(user.role, ['owner', 'admin'])
-        },
-        {
-          id: 'team',
-          name: 'Team Management',
-          description: 'Manage team members, roles, and permissions',
-          accessLevel: getAccessLevel(user.role, ['owner'])
-        },
-        {
-          id: 'analytics',
-          name: 'Analytics & Reporting',
-          description: 'View project analytics and generate reports',
-          accessLevel: getAccessLevel(user.role, ['owner', 'admin', 'team_member'])
-        },
-        {
-          id: 'settings',
-          name: 'Company Settings',
-          description: 'Configure company-wide settings and preferences',
-          accessLevel: getAccessLevel(user.role, ['owner'])
-        }
-      ];
-
-      setBusinessModules(modules);
     } catch (error) {
       console.error('Error fetching user data:', error);
       toast.error('Failed to load user permissions');
@@ -149,92 +170,73 @@ export const UserPermissionsPage = () => {
     }
   };
 
-  const getAccessLevel = (userRole: string, allowedRoles: string[]): 'no_access' | 'can_view' | 'can_edit' => {
-    if (!allowedRoles.includes(userRole)) {
-      return 'no_access';
-    }
+  // Memoized business modules for better performance
+  const businessModules = useMemo(() => {
+    if (!userData) return [];
     
-    // Owners and admins typically have edit access, others have view access
-    if (userRole === 'owner' || userRole === 'admin') {
-      return 'can_edit';
-    }
-    
-    return 'can_view';
-  };
-
-  const getRoleBadgeVariant = (role: string) => {
-    switch (role) {
-      case 'owner':
-        return 'default';
-      case 'admin':
-        return 'secondary';
-      case 'team_member':
-        return 'outline';
-      case 'viewer':
-        return 'outline';
-      default:
-        return 'outline';
-    }
-  };
-
-  const getRoleIcon = (role: string) => {
-    switch (role) {
-      case 'owner':
-        return <Crown className="w-3 h-3" />;
-      case 'admin':
-        return <Shield className="w-3 h-3" />;
-      default:
-        return <User className="w-3 h-3" />;
-    }
-  };
-
-  const getAccessIcon = (accessLevel: string) => {
-    switch (accessLevel) {
-      case 'can_edit':
-        return <Edit className="w-4 h-4 text-green-600" />;
-      case 'can_view':
-        return <Eye className="w-4 h-4 text-blue-600" />;
-      default:
-        return <X className="w-4 h-4 text-red-600" />;
-    }
-  };
-
-  const getAccessText = (accessLevel: string) => {
-    switch (accessLevel) {
-      case 'can_edit':
-        return 'Full Access';
-      case 'can_view':
-        return 'View Only';
-      default:
-        return 'No Access';
-    }
-  };
-
-  const getAccessBadgeVariant = (accessLevel: string) => {
-    switch (accessLevel) {
-      case 'can_edit':
-        return 'default';
-      case 'can_view':
-        return 'secondary';
-      default:
-        return 'destructive';
-    }
-  };
+    return [
+      {
+        id: 'projects',
+        name: 'Project Management',
+        description: 'Manage construction projects, timelines, and resources',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member'])
+      },
+      {
+        id: 'tasks',
+        name: 'Task Management',
+        description: 'Create, assign, and track project tasks',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member'])
+      },
+      {
+        id: 'documents',
+        name: 'Document Management',
+        description: 'Upload, organize, and share project documents',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member'])
+      },
+      {
+        id: 'qaqc',
+        name: 'Quality Assurance',
+        description: 'Manage quality control processes and inspections',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+      },
+      {
+        id: 'finance',
+        name: 'Financial Management',
+        description: 'Handle invoicing, estimates, and financial reporting',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+      },
+      {
+        id: 'team',
+        name: 'Team Management',
+        description: 'Manage team members, roles, and permissions',
+        accessLevel: getAccessLevel(userData.role, ['owner'])
+      },
+      {
+        id: 'analytics',
+        name: 'Analytics & Reporting',
+        description: 'View project analytics and generate reports',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member'])
+      },
+      {
+        id: 'settings',
+        name: 'Company Settings',
+        description: 'Configure company-wide settings and preferences',
+        accessLevel: getAccessLevel(userData.role, ['owner'])
+      }
+    ];
+  }, [userData]);
 
   const handlePermissionChange = (moduleId: string) => {
-    setBusinessModules(prev => prev.map(module => {
-      if (module.id === moduleId) {
-        const levels: ('no_access' | 'can_view' | 'can_edit')[] = ['no_access', 'can_view', 'can_edit'];
-        const currentIndex = levels.indexOf(module.accessLevel);
-        const nextIndex = (currentIndex + 1) % levels.length;
-        const newLevel = levels[nextIndex];
-        
-        toast.success(`${module.name} access updated to ${getAccessText(newLevel)}`);
-        
-        return { ...module, accessLevel: newLevel };
-      }
-      return module;
-    }));
+    // For demo purposes - in a real app this would update the database
+    const module = businessModules.find(m => m.id === moduleId);
+    if (module) {
+      const levels: ('no_access' | 'can_view' | 'can_edit')[] = ['no_access', 'can_view', 'can_edit'];
+      const currentIndex = levels.indexOf(module.accessLevel);
+      const nextIndex = (currentIndex + 1) % levels.length;
+      const newLevel = levels[nextIndex];
+      
+      toast.success(`${module.name} access updated to ${getAccessText(newLevel)}`);
+    }
   };
 
   if (loading) {
@@ -259,8 +261,7 @@ export const UserPermissionsPage = () => {
               {[1, 2, 3, 4, 5].map(i => (
                 <Card key={i} className="backdrop-blur-xl bg-white/80">
                   <CardContent className="p-6">
-                    <div className="h-6 bg-muted animate-pulse rounded mb-2" />
-                    <div className="h-4 bg-muted animate-pulse rounded w-2/3" />
+                    <div className="h-16 bg-muted animate-pulse rounded" />
                   </CardContent>
                 </Card>
               ))}
@@ -291,7 +292,7 @@ export const UserPermissionsPage = () => {
             </div>
             <Card className="backdrop-blur-xl bg-white/80">
               <CardContent className="text-center py-12">
-                <p className="text-muted-foreground">The requested user could not be found.</p>
+                <p className="text-muted-foreground">The requested user could not be found or you don't have permission to view their details.</p>
               </CardContent>
             </Card>
           </div>
@@ -320,22 +321,24 @@ export const UserPermissionsPage = () => {
           </div>
 
           {/* User Info Card */}
-          <Card className="backdrop-blur-xl bg-white/80 border-border/50 mb-6">
+          <Card className="backdrop-blur-xl bg-white/80 border-border/50 mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-4">
                 <Avatar className="w-16 h-16">
                   <AvatarImage src={userData.avatar} alt={userData.name} />
                   <AvatarFallback className="text-lg font-semibold">
-                    {userData.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    {userData.name.split(' ').map(n => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <h2 className="text-xl font-semibold text-foreground">{userData.name}</h2>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h2 className="text-xl font-semibold text-foreground">{userData.name}</h2>
+                    <Badge variant={getRoleBadgeVariant(userData.role)} className="flex items-center gap-1">
+                      {getRoleIcon(userData.role)}
+                      {userData.role.charAt(0).toUpperCase() + userData.role.slice(1).replace('_', ' ')}
+                    </Badge>
+                  </div>
                   <p className="text-muted-foreground">{userData.email}</p>
-                  <Badge variant={getRoleBadgeVariant(userData.role)} className="mt-2">
-                    {getRoleIcon(userData.role)}
-                    <span className="ml-1 capitalize">{userData.role.replace('_', ' ')}</span>
-                  </Badge>
                 </div>
               </CardTitle>
             </CardHeader>
