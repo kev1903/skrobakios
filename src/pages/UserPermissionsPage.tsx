@@ -133,7 +133,7 @@ const getAccessBadgeVariant = (accessLevel: string) => {
 export const UserPermissionsPage = () => {
   const { userId, companyId } = useParams<{ userId: string; companyId: string }>();
   const { userData, loading: userLoading, error } = useUserDetails(userId || '', companyId || '');
-  const { permissions, loading: permissionsLoading, hasSubModuleAccess } = useUserPermissions(companyId || '', userId || '');
+  const { permissions, loading: permissionsLoading, hasSubModuleAccess, refetch: refetchPermissions } = useUserPermissions(companyId || '', userId || '');
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [permissionChanges, setPermissionChanges] = useState<Record<string, 'no_access' | 'can_view' | 'can_edit'>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -389,6 +389,10 @@ export const UserPermissionsPage = () => {
 
       // Clear the changes after successful save
       setPermissionChanges({});
+      
+      // Refetch permissions to get the updated data
+      await refetchPermissions();
+      
       toast.success('Permissions saved successfully');
     } catch (error) {
       console.error('Error saving permissions:', error);
