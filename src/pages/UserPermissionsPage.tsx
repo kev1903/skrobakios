@@ -261,7 +261,7 @@ export const UserPermissionsPage = () => {
               onClick={() => {
                 window.location.href = '/?page=settings&section=teams';
               }}
-              className="glass button-ghost interactive-minimal"
+              className="glass button-ghost"
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
@@ -272,7 +272,7 @@ export const UserPermissionsPage = () => {
           </div>
 
           {/* User Info Card */}
-          <Card className="glass-card mb-8 interactive-minimal">
+          <Card className="glass-card mb-8">
             <CardContent className="p-8">
               <div className="flex items-start gap-6">
                 <Avatar className="w-20 h-20 border-4 border-background shadow-lg">
@@ -314,7 +314,7 @@ export const UserPermissionsPage = () => {
               {businessModules.map((module) => (
                 <Card 
                   key={module.id} 
-                  className="glass-card interactive-minimal"
+                  className="glass-card"
                 >
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
