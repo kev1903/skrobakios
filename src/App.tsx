@@ -27,9 +27,9 @@ import { CompanyProvider } from "@/contexts/CompanyContext";
 import { TimeTrackingProvider } from "./contexts/TimeTrackingContext";
 
 import { AppContextProvider } from "./contexts/AppContextProvider";
+import { useIsMobile } from "@/hooks/use-mobile.tsx";
 import { UserPermissionsProvider } from "@/contexts/UserPermissionsContext";
 import { useCompany } from "@/contexts/CompanyContext";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 
 import { InvoicesPage } from "./components/InvoicesPage";
