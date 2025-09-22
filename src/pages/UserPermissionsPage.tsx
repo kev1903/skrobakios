@@ -11,9 +11,10 @@ import { ArrowLeft, Crown, Shield, User, Eye, Edit, X,
          Building2, CheckSquare, FileText, DollarSign, Calendar, 
          Package, AlertTriangle, ShoppingCart, Archive, FileCheck, 
          MessageCircle, Users, Clock, BarChart3, UserCheck, Settings, 
-         Map, TrendingUp, ChevronDown } from 'lucide-react';
+         Map, TrendingUp, ChevronDown, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageShell } from '@/components/layout/PageShell';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BusinessModule {
   id: string;
@@ -132,6 +133,8 @@ export const UserPermissionsPage = () => {
   const { userId, companyId } = useParams<{ userId: string; companyId: string }>();
   const { userData, loading, error } = useUserDetails(userId || '', companyId || '');
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+  const [permissionChanges, setPermissionChanges] = useState<Record<string, 'no_access' | 'can_view' | 'can_edit'>>({});
+  const [isSaving, setIsSaving] = useState(false);
 
   // Show error toast if there's an error
   React.useEffect(() => {
@@ -321,9 +324,60 @@ export const UserPermissionsPage = () => {
   };
 
   const handleSubModulePermissionChange = (subModuleId: string, newLevel: 'no_access' | 'can_view' | 'can_edit') => {
-    // For demo purposes - in a real app this would update the database
-    toast.success(`Submodule access updated to ${getAccessText(newLevel)}`);
+    // Track the change locally
+    setPermissionChanges(prev => ({
+      ...prev,
+      [subModuleId]: newLevel
+    }));
+    
+    toast.success(`Submodule access will be updated to ${getAccessText(newLevel)} when saved`);
   };
+
+  const savePermissions = async () => {
+    if (!userId || !companyId || Object.keys(permissionChanges).length === 0) {
+      toast.error('No changes to save');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // Process each permission change using RPC or direct SQL
+      for (const [subModuleId, accessLevel] of Object.entries(permissionChanges)) {
+        // Find the module that contains this submodule
+        let moduleId = '';
+        businessModules.forEach(module => {
+          if (module.subModules?.some(sub => sub.id === subModuleId)) {
+            moduleId = module.id;
+          }
+        });
+
+        // Use raw SQL to handle the upsert due to type conflicts
+        const { error } = await supabase.rpc('handle_user_permission_upsert', {
+          p_user_id: userId,
+          p_company_id: companyId,
+          p_module_id: moduleId,
+          p_sub_module_id: subModuleId,
+          p_access_level: accessLevel
+        });
+
+        if (error) {
+          console.error('Error saving permission:', error);
+          throw error;
+        }
+      }
+
+      // Clear the changes after successful save
+      setPermissionChanges({});
+      toast.success('Permissions saved successfully');
+    } catch (error) {
+      console.error('Error saving permissions:', error);
+      toast.error('Failed to save permissions');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const hasUnsavedChanges = Object.keys(permissionChanges).length > 0;
 
   if (loading) {
     return (
