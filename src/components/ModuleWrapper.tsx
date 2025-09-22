@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { useUserPermissionsContext } from '@/contexts/UserPermissionsContext';
 
 interface ModuleWrapperProps {
   children: React.ReactNode;
@@ -34,7 +34,7 @@ export const ModuleWrapper: React.FC<ModuleWrapperProps> = ({
   loadingComponent = <div className="animate-pulse bg-muted rounded h-8 w-32" />,
   requireEditAccess = false
 }) => {
-  const { hasModuleAccess, hasSubModuleAccess, canEditSubModule, canViewSubModule, loading } = useUserPermissions(companyId);
+  const { hasModuleAccess, hasSubModuleAccess, canEditSubModule, canViewSubModule, loading } = useUserPermissionsContext();
 
   if (loading && showLoading) {
     return <>{loadingComponent}</>;
@@ -74,7 +74,7 @@ interface UseModulePermissionProps {
 }
 
 export const useModulePermission = ({ moduleId, subModuleId, companyId }: UseModulePermissionProps) => {
-  const { hasModuleAccess, hasSubModuleAccess, canEditSubModule, canViewSubModule, loading } = useUserPermissions(companyId);
+  const { hasModuleAccess, hasSubModuleAccess, canEditSubModule, canViewSubModule, loading } = useUserPermissionsContext();
   
   const accessLevel = subModuleId ? hasSubModuleAccess(moduleId, subModuleId) : 'can_view';
   
@@ -103,7 +103,7 @@ export const withModulePermission = <P extends object>(
   { moduleId, subModuleId, companyId, requireEditAccess = false, fallback: Fallback }: WithModulePermissionProps
 ) => {
   const WithModulePermissionComponent: React.FC<P> = (props) => {
-    const { hasAccess, canEdit, loading } = useModulePermission({ moduleId, subModuleId, companyId });
+    const { hasAccess, canEdit, loading } = useModulePermission({ moduleId, subModuleId, companyId: '' });
 
     if (loading) {
       return (

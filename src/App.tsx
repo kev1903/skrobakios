@@ -27,8 +27,9 @@ import { CompanyProvider } from "@/contexts/CompanyContext";
 import { TimeTrackingProvider } from "./contexts/TimeTrackingContext";
 
 import { AppContextProvider } from "./contexts/AppContextProvider";
+import { UserPermissionsProvider } from "@/contexts/UserPermissionsContext";
+import { useCompany } from "@/contexts/CompanyContext";
 import { useIsMobile } from "@/hooks/use-mobile";
-
 
 
 import { InvoicesPage } from "./components/InvoicesPage";
@@ -261,6 +262,21 @@ const IssueEditPageWrapper = () => {
   return <IssueEditPage onNavigate={handleNavigate} />;
 };
 
+// Wrapper to provide UserPermissions with company context
+const UserPermissionsProviderWrapper = ({ children }: { children: React.ReactNode }) => {
+  const { currentCompany } = useCompany();
+  
+  if (!currentCompany?.id) {
+    return <>{children}</>;
+  }
+  
+  return (
+    <UserPermissionsProvider companyId={currentCompany.id}>
+      {children}
+    </UserPermissionsProvider>
+  );
+};
+
 const App = () => {
   // Create QueryClient inside the component to ensure React is initialized
   const [queryClient] = React.useState(() => new QueryClient({
@@ -337,7 +353,8 @@ const AppContent = () => {
       <UserProvider>
         <CompanyProvider>
           <TimeTrackingProvider>
-          <>
+            <UserPermissionsProviderWrapper>
+              <>
             {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
               <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
             )}
@@ -429,8 +446,9 @@ const AppContent = () => {
       </Routes>
       </div>
       <GlobalSidebar currentPage={currentPageForSidebar} onNavigate={handleSidebarNavigate} />
-          </>
-        </TimeTrackingProvider>
+              </>
+            </UserPermissionsProviderWrapper>
+          </TimeTrackingProvider>
       </CompanyProvider>
     </UserProvider>
   </AppContextProvider>
