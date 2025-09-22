@@ -49,6 +49,7 @@ import { InvitePage } from "./pages/InvitePage";
 import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
 import { InvoiceFormPage } from "./components/invoices/InvoiceFormPage";
 import { UserPermissionsPage } from "./pages/UserPermissionsPage";
+import { BusinessAdminManagement } from "./components/admin/BusinessAdminManagement";
 
 
 import { MenuBar } from "./components/MenuBar";
@@ -163,6 +164,17 @@ const ReviewsPageWrapper = () => {
   };
 
   return <ReviewsPage onNavigate={handleNavigate} />;
+};
+
+// Wrapper component for Company Team Management
+const CompanyTeamPageWrapper = () => {
+  const { companyId } = useParams<{ companyId: string }>();
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <BusinessAdminManagement companyId={companyId} />
+    </div>
+  );
 };
 
 // Wrapper component for SubscriptionPage with proper navigation
@@ -376,6 +388,7 @@ const AppContent = () => {
   </EstimateProvider>
 } />
         <Route path="/company/:companyId/edit" element={<CompanyEditPageWrapper />} />
+        <Route path="/company/:companyId/team" element={<CompanyTeamPageWrapper />} />
         <Route path="/admin/user/:userId" element={<UserDetailsPage />} />
         <Route path="/user-permissions/:userId/:companyId" element={<UserPermissionsPage />} />
         
