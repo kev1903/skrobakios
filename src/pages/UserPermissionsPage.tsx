@@ -243,14 +243,14 @@ export const UserPermissionsPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 px-6 pb-6">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-4 mb-6">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => navigate(`/company/${companyId}/team`)}
-                className="backdrop-blur-xl bg-white/80"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate('/?page=settings#teams')}
+              className="backdrop-blur-xl bg-white/80"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
               <div className="h-8 w-64 bg-muted animate-pulse rounded" />
             </div>
             <div className="space-y-4">
@@ -275,14 +275,14 @@ export const UserPermissionsPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 px-6 pb-6">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-4 mb-6">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => navigate(`/company/${companyId}/team`)}
-                className="backdrop-blur-xl bg-white/80"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate('/?page=settings#teams')}
+              className="backdrop-blur-xl bg-white/80"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
               <h1 className="text-2xl font-bold text-foreground">User Not Found</h1>
             </div>
             <Card className="backdrop-blur-xl bg-white/80">
@@ -305,7 +305,7 @@ export const UserPermissionsPage = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => navigate(`/company/${companyId}/team`)}
+              onClick={() => navigate('/?page=settings#teams')}
               className="backdrop-blur-xl bg-white/80 border-border/50"
             >
               <ArrowLeft className="w-4 h-4" />

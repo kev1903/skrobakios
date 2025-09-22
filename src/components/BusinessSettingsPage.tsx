@@ -41,6 +41,14 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
   const { currentCompany } = useCompany();
   const isMobile = useIsMobile();
 
+  // Handle hash navigation for direct links to sections
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && ['business-details', 'membership-settings', 'teams', 'connected-services'].includes(hash)) {
+      setActiveSection(hash);
+    }
+  }, []);
+
   useEffect(() => {
     if (activeSection === 'connected-services') {
       checkXeroConnectionStatus();

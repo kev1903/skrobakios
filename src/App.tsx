@@ -49,11 +49,6 @@ import { InvitePage } from "./pages/InvitePage";
 import { InvitationSignupPage } from "./components/auth/InvitationSignupPage";
 import { InvoiceFormPage } from "./components/invoices/InvoiceFormPage";
 import { UserPermissionsPage } from "./pages/UserPermissionsPage";
-import { CompanyTeamManagement } from "./components/team/CompanyTeamManagement";
-import { CompanyTeamAccess } from "./components/team/CompanyTeamAccess";
-import { PageShell } from "./components/layout/PageShell";
-import { TeamBreadcrumb } from "./components/navigation/TeamBreadcrumb";
-import { TeamManagementErrorBoundary } from "./components/error/TeamManagementErrorBoundary";
 import { supabase } from '@/integrations/supabase/client';
 import { RefreshCw, AlertTriangle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -174,110 +169,6 @@ const ReviewsPageWrapper = () => {
   return <ReviewsPage onNavigate={handleNavigate} />;
 };
 
-// Wrapper component for Company Team Management
-const CompanyTeamPageWrapper = () => {
-  const { companyId } = useParams<{ companyId: string }>();
-  const [companyName, setCompanyName] = React.useState<string>('');
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-  
-  React.useEffect(() => {
-    const fetchCompanyData = async () => {
-      if (!companyId) {
-        setError('No company ID provided');
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const { data, error: companyError } = await supabase
-          .from('companies')
-          .select('name')
-          .eq('id', companyId)
-          .maybeSingle();
-        
-        if (companyError) {
-          console.error('Error fetching company:', companyError);
-          setError('Failed to load company information');
-          return;
-        }
-        
-        if (!data) {
-          setError('Company not found');
-          return;
-        }
-        
-        setCompanyName(data.name);
-      } catch (error) {
-        console.error('Error fetching company data:', error);
-        setError('Failed to load company data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchCompanyData();
-  }, [companyId]);
-  
-  if (loading) {
-    return (
-      <PageShell>
-        <div className="max-w-6xl mx-auto p-6">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-muted-foreground" />
-              <p className="text-muted-foreground">Loading team management...</p>
-            </div>
-          </div>
-        </div>
-      </PageShell>
-    );
-  }
-  
-  if (error) {
-    return (
-      <PageShell>
-        <div className="max-w-6xl mx-auto p-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 text-destructive mb-4">
-                <AlertTriangle className="h-5 w-5" />
-                <p className="font-medium">Error Loading Team Management</p>
-              </div>
-              <p className="text-muted-foreground mb-4">{error}</p>
-              <div className="flex gap-2">
-                <Button onClick={() => window.location.reload()}>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Try Again
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => window.history.back()}
-                >
-                  Go Back
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </PageShell>
-    );
-  }
-  
-  return (
-    <TeamManagementErrorBoundary>
-      <PageShell>
-        <div className="max-w-6xl mx-auto p-6">
-          <TeamBreadcrumb companyId={companyId || ''} companyName={companyName} />
-          <CompanyTeamManagement companyId={companyId || ''} companyName={companyName} />
-        </div>
-      </PageShell>
-    </TeamManagementErrorBoundary>
-  );
-};
 
 // Wrapper component for SubscriptionPage with proper navigation
 const SubscriptionPageWrapper = () => {
@@ -490,7 +381,7 @@ const AppContent = () => {
   </EstimateProvider>
 } />
         <Route path="/company/:companyId/edit" element={<CompanyEditPageWrapper />} />
-        <Route path="/company/:companyId/team" element={<CompanyTeamPageWrapper />} />
+        
         <Route path="/admin/user/:userId" element={<UserDetailsPage />} />
         <Route path="/user-permissions/:userId/:companyId" element={<UserPermissionsPage />} />
         
