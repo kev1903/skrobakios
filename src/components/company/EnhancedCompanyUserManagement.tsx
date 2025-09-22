@@ -38,7 +38,6 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useCompany } from '@/contexts/CompanyContext';
 import { toast } from '@/hooks/use-toast';
 import { CreateUserForBusinessDialog } from './CreateUserForBusinessDialog';
-import { UserPermissionsDialog } from './UserPermissionsDialog';
 
 interface CompanyMember {
   id: string;
@@ -90,9 +89,9 @@ export const EnhancedCompanyUserManagement = ({
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client'>('manager');
   
-  // User permissions dialog state
-  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const handleMemberClick = (userId: string) => {
+    navigate(`/user-permissions/${userId}/${companyId}`);
+  };
 
   const fetchMembers = async (forceRefresh = false) => {
     if (!companyId) return;
@@ -569,19 +568,18 @@ export const EnhancedCompanyUserManagement = ({
                             </AvatarFallback>
                           </Avatar>
                            <div>
-                              <div 
-                                className={`font-medium ${
-                                  currentUserRole === 'admin' || currentUserRole === 'owner' 
-                                    ? 'cursor-pointer hover:text-primary hover:underline' 
-                                    : ''
-                                }`}
-                                onClick={() => {
-                                  if (currentUserRole === 'admin' || currentUserRole === 'owner') {
-                                    setSelectedUserId(member.user_id);
-                                    setPermissionsDialogOpen(true);
-                                  }
-                                }}
-                              >
+                               <div 
+                                 className={`font-medium ${
+                                   currentUserRole === 'admin' || currentUserRole === 'owner' 
+                                     ? 'cursor-pointer hover:text-primary hover:underline' 
+                                     : ''
+                                 }`}
+                                 onClick={() => {
+                                   if (currentUserRole === 'admin' || currentUserRole === 'owner') {
+                                     handleMemberClick(member.user_id);
+                                   }
+                                 }}
+                               >
                                 {(member.first_name && member.last_name) ? 
                                   `${member.first_name} ${member.last_name}` : 
                                   member.email || 'Unknown User'}
@@ -674,14 +672,6 @@ export const EnhancedCompanyUserManagement = ({
         companyId={companyId}
         companyName={companyName}
         onUserCreated={() => fetchMembers(true)}
-      />
-
-      {/* User Permissions Dialog */}
-      <UserPermissionsDialog
-        open={permissionsDialogOpen}
-        onOpenChange={setPermissionsDialogOpen}
-        userId={selectedUserId}
-        companyId={companyId}
       />
     </div>
   );
