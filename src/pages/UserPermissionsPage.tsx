@@ -247,7 +247,7 @@ export const UserPermissionsPage = () => {
               variant="outline"
               size="icon"
               onClick={() => {
-                navigate('/?page=settings&section=teams');
+                window.location.href = '/?page=settings&section=teams';
               }}
               className="backdrop-blur-xl bg-white/80"
             >
@@ -281,7 +281,7 @@ export const UserPermissionsPage = () => {
               variant="outline"
               size="icon"
               onClick={() => {
-                navigate('/?page=settings&section=teams');
+                window.location.href = '/?page=settings&section=teams';
               }}
               className="backdrop-blur-xl bg-white/80"
             >
@@ -310,7 +310,7 @@ export const UserPermissionsPage = () => {
               variant="outline"
               size="icon"  
               onClick={() => {
-                navigate('/?page=settings&section=teams');
+                window.location.href = '/?page=settings&section=teams';
               }}
               className="backdrop-blur-xl bg-white/80 border-border/50"
             >
