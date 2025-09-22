@@ -170,69 +170,6 @@ export const UserPermissionsPage = () => {
         description: 'Manage vendors, clients, and business relationships',
         icon: 'Users',
         accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
-      },
-      {
-        id: 'tasks',
-        name: 'Task Management', 
-        description: 'Create, assign, and track project tasks',
-        icon: 'CheckSquare',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])
-      },
-      {
-        id: 'documents',
-        name: 'Document Management',
-        description: 'Upload, organize, and share project documents',
-        icon: 'FileText',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])
-      },
-      {
-        id: 'scheduling',
-        name: 'Scheduling & Planning',
-        description: 'Create and manage project schedules and timelines',
-        icon: 'Calendar',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
-      },
-      {
-        id: 'qaqc',
-        name: 'Quality Assurance',
-        description: 'Manage quality control processes and inspections',
-        icon: 'Shield',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
-      },
-      {
-        id: 'compliance',
-        name: 'Compliance & Permits',
-        description: 'Manage regulatory compliance and permit tracking',
-        icon: 'FileCheck',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
-      },
-      {
-        id: 'timetracking',
-        name: 'Time Tracking',
-        description: 'Track work hours and project time allocation',
-        icon: 'Clock',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
-      },
-      {
-        id: 'analytics',
-        name: 'Analytics & Reporting',
-        description: 'View project analytics and generate reports',
-        icon: 'BarChart3',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
-      },
-      {
-        id: 'team',
-        name: 'Team Management',
-        description: 'Manage team members, roles, and permissions',
-        icon: 'UserCheck',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
-      },
-      {
-        id: 'settings',
-        name: 'Settings',
-        description: 'Configure company-wide settings and preferences',
-        icon: 'Settings',
-        accessLevel: getAccessLevel(userData.role, ['owner'])
       }
     ];
   }, [userData]);
@@ -329,7 +266,7 @@ export const UserPermissionsPage = () => {
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div>
-              <h1 className="heading-lg text-foreground">User Permissions</h1>
+              <h1 className="font-inter text-3xl font-bold text-foreground">User Permissions</h1>
               <p className="text-muted-foreground mt-1 body-md">Manage access levels for business modules</p>
             </div>
           </div>
