@@ -8,6 +8,7 @@ import { useCompany } from '@/contexts/CompanyContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 interface BusinessSettingsPageProps {
   onNavigate: (page: string) => void;
@@ -40,19 +41,20 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
   const [isLoadingData, setIsLoadingData] = useState(false);
   const { currentCompany } = useCompany();
   const isMobile = useIsMobile();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
 
-  // Handle hash navigation for direct links to sections
+  // Handle section navigation from URL parameters
   useEffect(() => {
-    const hash = window.location.hash.replace('#', '');
-    const searchParams = new URLSearchParams(window.location.search);
     const sectionParam = searchParams.get('section');
+    const hash = location.hash.replace('#', '');
     
     if (sectionParam && ['business-details', 'membership-settings', 'teams', 'connected-services'].includes(sectionParam)) {
       setActiveSection(sectionParam);
     } else if (hash && ['business-details', 'membership-settings', 'teams', 'connected-services'].includes(hash)) {
       setActiveSection(hash);
     }
-  }, []);
+  }, [searchParams, location.hash, location.pathname]);
 
   useEffect(() => {
     if (activeSection === 'connected-services') {
