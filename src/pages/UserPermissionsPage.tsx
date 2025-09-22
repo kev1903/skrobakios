@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useUserDetails } from '@/hooks/useUserDetails';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -131,10 +132,13 @@ const getAccessBadgeVariant = (accessLevel: string) => {
 
 export const UserPermissionsPage = () => {
   const { userId, companyId } = useParams<{ userId: string; companyId: string }>();
-  const { userData, loading, error } = useUserDetails(userId || '', companyId || '');
+  const { userData, loading: userLoading, error } = useUserDetails(userId || '', companyId || '');
+  const { permissions, loading: permissionsLoading, hasSubModuleAccess } = useUserPermissions(companyId || '', userId || '');
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [permissionChanges, setPermissionChanges] = useState<Record<string, 'no_access' | 'can_view' | 'can_edit'>>({});
   const [isSaving, setIsSaving] = useState(false);
+
+  const loading = userLoading || permissionsLoading;
 
   // Show error toast if there's an error
   React.useEffect(() => {
@@ -147,19 +151,36 @@ export const UserPermissionsPage = () => {
   const businessModules = useMemo(() => {
     if (!userData) return [];
     
+    // Helper function to get effective access level (stored permission or role-based default)
+    const getEffectiveAccessLevel = (moduleId: string, subModuleId: string, roleBasedLevel: 'no_access' | 'can_view' | 'can_edit') => {
+      // Check if there are any pending changes
+      if (permissionChanges[subModuleId]) {
+        return permissionChanges[subModuleId];
+      }
+      
+      // Check stored permissions
+      const storedLevel = hasSubModuleAccess(moduleId, subModuleId);
+      if (storedLevel !== 'can_view' || permissions.length > 0) {
+        return storedLevel;
+      }
+      
+      // Fall back to role-based level
+      return roleBasedLevel;
+    };
+    
     return [
       {
         id: 'business_map',
         name: 'Business Map',
         description: 'Dashboard overview and business intelligence',
         icon: 'Map',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']),
+        accessLevel: getEffectiveAccessLevel('business_map', 'business_map', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])),
         subModules: [
           {
             id: 'business_map',
             name: 'Business Map',
             description: 'Dashboard overview and business intelligence',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
+            accessLevel: getEffectiveAccessLevel('business_map', 'business_map', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
           }
         ]
       },
@@ -168,61 +189,61 @@ export const UserPermissionsPage = () => {
         name: 'Projects',
         description: 'Manage construction projects, timelines, and resources',
         icon: 'Building2',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager']),
+        accessLevel: getEffectiveAccessLevel('projects', 'dashboard', getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])), // Use first submodule for main level
         subModules: [
           {
             id: 'dashboard',
             name: 'Dashboard',
             description: 'Project overview and key metrics',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])
+            accessLevel: getEffectiveAccessLevel('projects', 'dashboard', getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager']))
           },
           {
             id: 'project_control',
             name: 'Project Control',
             description: 'Project planning and control systems',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+            accessLevel: getEffectiveAccessLevel('projects', 'project_control', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
           },
           {
             id: 'cost',
             name: 'Cost',
             description: 'Project cost management and tracking',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+            accessLevel: getEffectiveAccessLevel('projects', 'cost', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
           },
           {
             id: 'qa_qc',
             name: 'QA/QC',
             description: 'Quality assurance and quality control',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
+            accessLevel: getEffectiveAccessLevel('projects', 'qa_qc', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
           },
           {
             id: 'task',
             name: 'Task',
             description: 'Task management and assignments',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
+            accessLevel: getEffectiveAccessLevel('projects', 'task', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
           },
           {
             id: 'team',
             name: 'Team',
             description: 'Team management and collaboration',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+            accessLevel: getEffectiveAccessLevel('projects', 'team', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
           },
           {
             id: 'procurement',
             name: 'Procurement',
             description: 'Procurement and purchasing management',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+            accessLevel: getEffectiveAccessLevel('projects', 'procurement', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
           },
           {
             id: 'contracts',
             name: 'Contracts',
             description: 'Contract management and administration',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+            accessLevel: getEffectiveAccessLevel('projects', 'contracts', getAccessLevel(userData.role, ['owner', 'admin']))
           },
           {
             id: 'settings',
             name: 'Settings',
             description: 'Project configuration and settings',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+            accessLevel: getEffectiveAccessLevel('projects', 'settings', getAccessLevel(userData.role, ['owner', 'admin']))
           }
         ]
       },
@@ -231,19 +252,19 @@ export const UserPermissionsPage = () => {
         name: 'Sales',  
         description: 'Lead management and customer relationship management',
         icon: 'TrendingUp',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager']),
+        accessLevel: getEffectiveAccessLevel('sales', 'leads', getAccessLevel(userData.role, ['owner', 'admin', 'manager'])),
         subModules: [
           {
             id: 'leads',
             name: 'Leads',
             description: 'Manage sales leads and opportunities',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+            accessLevel: getEffectiveAccessLevel('sales', 'leads', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
           },
           {
             id: 'crm',
             name: 'CRM',
             description: 'Customer relationship management',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+            accessLevel: getEffectiveAccessLevel('sales', 'crm', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
           }
         ]
       },
@@ -252,25 +273,25 @@ export const UserPermissionsPage = () => {
         name: 'Finance',
         description: 'Invoicing, estimates, costs, and financial reporting',
         icon: 'DollarSign',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin']),
+        accessLevel: getEffectiveAccessLevel('finance', 'invoicing', getAccessLevel(userData.role, ['owner', 'admin'])),
         subModules: [
           {
             id: 'invoicing',
             name: 'Invoicing',
             description: 'Create and manage invoices',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+            accessLevel: getEffectiveAccessLevel('finance', 'invoicing', getAccessLevel(userData.role, ['owner', 'admin']))
           },
           {
             id: 'estimates',
             name: 'Estimates',
             description: 'Project cost estimation',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+            accessLevel: getEffectiveAccessLevel('finance', 'estimates', getAccessLevel(userData.role, ['owner', 'admin']))
           },
           {
             id: 'reporting',
             name: 'Financial Reporting',
             description: 'Financial analysis and reports',
-            accessLevel: getAccessLevel(userData.role, ['owner'])
+            accessLevel: getEffectiveAccessLevel('finance', 'reporting', getAccessLevel(userData.role, ['owner']))
           }
         ]
       },
@@ -279,24 +300,24 @@ export const UserPermissionsPage = () => {
         name: 'Stakeholders',
         description: 'Manage vendors, clients, and business relationships',
         icon: 'Users',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager']),
+        accessLevel: getEffectiveAccessLevel('stakeholders', 'clients', getAccessLevel(userData.role, ['owner', 'admin', 'manager'])),
         subModules: [
           {
             id: 'clients',
             name: 'Clients',
             description: 'Manage client relationships',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+            accessLevel: getEffectiveAccessLevel('stakeholders', 'clients', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
           },
           {
             id: 'vendors',
             name: 'Vendors',
             description: 'Manage vendor relationships',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+            accessLevel: getEffectiveAccessLevel('stakeholders', 'vendors', getAccessLevel(userData.role, ['owner', 'admin']))
           }
         ]
       }
     ];
-  }, [userData]);
+  }, [userData, permissions, permissionChanges, hasSubModuleAccess]);
 
   const toggleModule = (moduleId: string) => {
     setExpandedModules(prev => {
@@ -599,11 +620,21 @@ export const UserPermissionsPage = () => {
                 <Shield className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h4 className="font-inter font-semibold text-foreground mb-2">Permission Management</h4>
-                <p className="text-sm text-muted-foreground leading-relaxed body-md">
-                  Access levels are automatically determined by the user's role within the company. 
-                  Contact your system administrator to modify user permissions or change role assignments.
-                </p>
+                <h4 className="font-inter font-semibold text-foreground mb-2">Permission Management & Module Visibility</h4>
+                <div className="space-y-2 text-sm text-muted-foreground leading-relaxed body-md">
+                  <p>
+                    <strong>How it works:</strong> When you set permissions for a user, it controls what they see in their interface:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li><strong>No Access:</strong> The module is completely hidden from the user's navigation ribbon</li>
+                    <li><strong>View Only:</strong> The module appears but with read-only functionality</li>
+                    <li><strong>Full Access:</strong> The module appears with all features enabled</li>
+                  </ul>
+                  <p className="mt-3">
+                    For example, if you set "Business Map" to "No Access", that user will not see the Business Map 
+                    module in their interface at all. This ensures users only see the tools they're authorized to use.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
