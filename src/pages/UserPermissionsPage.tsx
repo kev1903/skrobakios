@@ -319,6 +319,147 @@ export const UserPermissionsPage = () => {
     ];
   }, [userData, permissions, permissionChanges, hasSubModuleAccess]);
 
+  // Other features that don't fit into main business modules
+  const otherFeatures = useMemo(() => {
+    if (!userData) return [];
+    
+    const getEffectiveAccessLevel = (moduleId: string, subModuleId: string, roleBasedLevel: 'no_access' | 'can_view' | 'can_edit') => {
+      if (permissionChanges[subModuleId]) {
+        return permissionChanges[subModuleId];
+      }
+      
+      const storedLevel = hasSubModuleAccess(moduleId, subModuleId);
+      if (storedLevel !== 'can_view' || permissions.length > 0) {
+        return storedLevel;
+      }
+      
+      return roleBasedLevel;
+    };
+
+    return [
+      {
+        id: 'notifications',
+        name: 'Notifications',
+        description: 'Email and push notification settings',
+        icon: 'MessageCircle',
+        accessLevel: getEffectiveAccessLevel('other_features', 'notifications', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])),
+        subModules: [
+          {
+            id: 'notifications',
+            name: 'Notifications',
+            description: 'Email and push notification settings',
+            accessLevel: getEffectiveAccessLevel('other_features', 'notifications', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
+          }
+        ]
+      },
+      {
+        id: 'integrations',
+        name: 'Integrations',
+        description: 'Third-party app connections and APIs',
+        icon: 'Settings',
+        accessLevel: getEffectiveAccessLevel('other_features', 'integrations', getAccessLevel(userData.role, ['owner', 'admin'])),
+        subModules: [
+          {
+            id: 'integrations',
+            name: 'Integrations',
+            description: 'Third-party app connections and APIs',
+            accessLevel: getEffectiveAccessLevel('other_features', 'integrations', getAccessLevel(userData.role, ['owner', 'admin']))
+          }
+        ]
+      },
+      {
+        id: 'backup_restore',
+        name: 'Backup & Restore',
+        description: 'Data backup and restoration tools',
+        icon: 'Archive',
+        accessLevel: getEffectiveAccessLevel('other_features', 'backup_restore', getAccessLevel(userData.role, ['owner', 'admin'])),
+        subModules: [
+          {
+            id: 'backup_restore',
+            name: 'Backup & Restore',
+            description: 'Data backup and restoration tools',
+            accessLevel: getEffectiveAccessLevel('other_features', 'backup_restore', getAccessLevel(userData.role, ['owner', 'admin']))
+          }
+        ]
+      },
+      {
+        id: 'audit_logs',
+        name: 'Audit Logs',
+        description: 'System activity and security logs',
+        icon: 'FileCheck',
+        accessLevel: getEffectiveAccessLevel('other_features', 'audit_logs', getAccessLevel(userData.role, ['owner', 'admin'])),
+        subModules: [
+          {
+            id: 'audit_logs',
+            name: 'Audit Logs',
+            description: 'System activity and security logs',
+            accessLevel: getEffectiveAccessLevel('other_features', 'audit_logs', getAccessLevel(userData.role, ['owner', 'admin']))
+          }
+        ]
+      },
+      {
+        id: 'custom_fields',
+        name: 'Custom Fields',
+        description: 'Create and manage custom data fields',
+        icon: 'Settings',
+        accessLevel: getEffectiveAccessLevel('other_features', 'custom_fields', getAccessLevel(userData.role, ['owner', 'admin', 'manager'])),
+        subModules: [
+          {
+            id: 'custom_fields',
+            name: 'Custom Fields',
+            description: 'Create and manage custom data fields',
+            accessLevel: getEffectiveAccessLevel('other_features', 'custom_fields', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
+          }
+        ]
+      },
+      {
+        id: 'templates',
+        name: 'Templates',
+        description: 'Document and project templates',
+        icon: 'FileText',
+        accessLevel: getEffectiveAccessLevel('other_features', 'templates', getAccessLevel(userData.role, ['owner', 'admin', 'manager'])),
+        subModules: [
+          {
+            id: 'templates',
+            name: 'Templates',
+            description: 'Document and project templates',
+            accessLevel: getEffectiveAccessLevel('other_features', 'templates', getAccessLevel(userData.role, ['owner', 'admin', 'manager']))
+          }
+        ]
+      },
+      {
+        id: 'mobile_app',
+        name: 'Mobile App Access',
+        description: 'Access to mobile applications',
+        icon: 'Settings',
+        accessLevel: getEffectiveAccessLevel('other_features', 'mobile_app', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])),
+        subModules: [
+          {
+            id: 'mobile_app',
+            name: 'Mobile App Access',
+            description: 'Access to mobile applications',
+            accessLevel: getEffectiveAccessLevel('other_features', 'mobile_app', getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']))
+          }
+        ]
+      },
+      {
+        id: 'api_access',
+        name: 'API Access',
+        description: 'Programmatic access via REST API',
+        icon: 'Settings',
+        accessLevel: getEffectiveAccessLevel('other_features', 'api_access', getAccessLevel(userData.role, ['owner', 'admin'])),
+        subModules: [
+          {
+            id: 'api_access',
+            name: 'API Access',
+            description: 'Programmatic access via REST API',
+            accessLevel: getEffectiveAccessLevel('other_features', 'api_access', getAccessLevel(userData.role, ['owner', 'admin']))
+          }
+        ]
+      }
+    ];
+  }, [userData, permissions, permissionChanges, hasSubModuleAccess]);
+
   const toggleModule = (moduleId: string) => {
     setExpandedModules(prev => {
       const newSet = new Set(prev);
@@ -582,6 +723,95 @@ export const UserPermissionsPage = () => {
                       <div className="px-4 pb-4">
                         <div className="ml-11 space-y-2 border-l border-border pl-4">
                           {module.subModules?.map((subModule) => (
+                            <div key={subModule.id} className="flex items-center gap-3 py-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-3 mb-1">
+                                  <h5 className="font-inter font-medium text-foreground text-sm">{subModule.name}</h5>
+                                </div>
+                                <p className="text-muted-foreground text-xs">{subModule.description}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {getAccessIcon(permissionChanges[subModule.id] || subModule.accessLevel)}
+                                <Select 
+                                  value={permissionChanges[subModule.id] || subModule.accessLevel} 
+                                  onValueChange={(value: 'no_access' | 'can_view' | 'can_edit') => 
+                                    handleSubModulePermissionChange(subModule.id, value)
+                                  }
+                                >
+                                  <SelectTrigger className="w-32 h-8 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-popover">
+                                    <SelectItem value="no_access">No Access</SelectItem>
+                                    <SelectItem value="can_view">View Only</SelectItem>
+                                    <SelectItem value="can_edit">Full Access</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
+              ))}
+            </div>
+          </div>
+
+          {/* Other Features */}
+          <div className="space-y-6 mt-8">
+            <div className="flex items-center justify-between">
+              <h3 className="font-inter text-xl font-semibold text-foreground">Other Features</h3>
+              <div className="text-sm text-muted-foreground">
+                {otherFeatures.filter(m => m.accessLevel === 'can_edit').length} Full Access • {' '}
+                {otherFeatures.filter(m => m.accessLevel === 'can_view').length} View Only • {' '} 
+                {otherFeatures.filter(m => m.accessLevel === 'no_access').length} No Access
+              </div>
+            </div>
+            
+            <div className="grid gap-2">
+              {otherFeatures.map((feature) => (
+                <Collapsible
+                  key={feature.id}
+                  open={expandedModules.has(feature.id)}
+                  onOpenChange={() => toggleModule(feature.id)}
+                >
+                  <Card className="glass-card">
+                    <CollapsibleTrigger asChild>
+                      <CardContent className="p-4 cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-card border">
+                            {getModuleIcon(feature.icon)}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-1">
+                              <h4 className="font-inter font-semibold text-foreground">{feature.name}</h4>
+                              <Badge 
+                                variant={getAccessBadgeVariant(feature.accessLevel)}
+                                className="font-inter font-medium text-xs"
+                              >
+                                {getAccessText(feature.accessLevel)}
+                              </Badge>
+                            </div>
+                            <p className="text-muted-foreground text-sm body-md">{feature.description}</p>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            {getAccessIcon(feature.accessLevel)}
+                            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${
+                              expandedModules.has(feature.id) ? 'rotate-180' : ''
+                            }`} />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </CollapsibleTrigger>
+                    
+                    <CollapsibleContent>
+                      <div className="px-4 pb-4">
+                        <div className="ml-11 space-y-2 border-l border-border pl-4">
+                          {feature.subModules?.map((subModule) => (
                             <div key={subModule.id} className="flex items-center gap-3 py-2">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-3 mb-1">

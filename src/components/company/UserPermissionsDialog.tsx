@@ -43,12 +43,14 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Dialog effect - open:', open, 'userId:', userId, 'companyId:', companyId);
     if (open && userId && companyId) {
       fetchUserData();
     }
   }, [open, userId, companyId]);
 
   const fetchUserData = async () => {
+    console.log('fetchUserData called with userId:', userId, 'companyId:', companyId);
     if (!userId || !companyId) return;
     
     setLoading(true);
@@ -223,6 +225,7 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
       ];
 
       setOtherFeatures(features);
+      console.log('Other features populated:', features);
 
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -392,7 +395,7 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5" />
-                Other Features
+                Other Features ({otherFeatures.length} features)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-1 p-4">
