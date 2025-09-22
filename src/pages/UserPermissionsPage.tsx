@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Crown, Shield, User, Eye, Edit, X, 
          Building2, CheckSquare, FileText, DollarSign, Calendar, 
          Package, AlertTriangle, ShoppingCart, Archive, FileCheck, 
@@ -283,6 +284,11 @@ export const UserPermissionsPage = () => {
     }
   };
 
+  const handleSubModulePermissionChange = (subModuleId: string, newLevel: 'no_access' | 'can_view' | 'can_edit') => {
+    // For demo purposes - in a real app this would update the database
+    toast.success(`Submodule access updated to ${getAccessText(newLevel)}`);
+  };
+
   if (loading) {
     return (
       <PageShell>
@@ -452,17 +458,26 @@ export const UserPermissionsPage = () => {
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-3 mb-1">
                                   <h5 className="font-inter font-medium text-foreground text-sm">{subModule.name}</h5>
-                                  <Badge 
-                                    variant={getAccessBadgeVariant(subModule.accessLevel)}
-                                    className="font-inter font-medium text-xs"
-                                  >
-                                    {getAccessText(subModule.accessLevel)}
-                                  </Badge>
                                 </div>
                                 <p className="text-muted-foreground text-xs">{subModule.description}</p>
                               </div>
-                              <div className="flex items-center">
+                              <div className="flex items-center gap-2">
                                 {getAccessIcon(subModule.accessLevel)}
+                                <Select 
+                                  value={subModule.accessLevel} 
+                                  onValueChange={(value: 'no_access' | 'can_view' | 'can_edit') => 
+                                    handleSubModulePermissionChange(subModule.id, value)
+                                  }
+                                >
+                                  <SelectTrigger className="w-32 h-8 text-xs">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-popover">
+                                    <SelectItem value="no_access">No Access</SelectItem>
+                                    <SelectItem value="can_view">View Only</SelectItem>
+                                    <SelectItem value="can_edit">Full Access</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
                             </div>
                           ))}
