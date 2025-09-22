@@ -310,29 +310,29 @@ export const UserPermissionsPage = () => {
               </div>
             </div>
             
-            <div className="grid gap-4">
+            <div className="grid gap-2">
               {businessModules.map((module) => (
                 <Card 
                   key={module.id} 
                   className="glass-card"
                 >
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
-                      <div className="p-3 rounded-xl bg-card border">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-card border">
                         {getModuleIcon(module.icon)}
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h4 className="font-inter font-semibold text-foreground text-lg">{module.name}</h4>
+                        <div className="flex items-center gap-3 mb-1">
+                          <h4 className="font-inter font-semibold text-foreground">{module.name}</h4>
                           <Badge 
                             variant={getAccessBadgeVariant(module.accessLevel)}
-                            className="font-inter font-medium"
+                            className="font-inter font-medium text-xs"
                           >
                             {getAccessText(module.accessLevel)}
                           </Badge>
                         </div>
-                        <p className="text-muted-foreground leading-relaxed body-md">{module.description}</p>
+                        <p className="text-muted-foreground text-sm body-md">{module.description}</p>
                       </div>
                       
                       <div className="flex items-center">
