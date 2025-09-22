@@ -147,7 +147,7 @@ export const EnhancedNavigationSection = ({
                     }
                   }}
                   className={cn(
-                    "w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg transition-all duration-200 text-sm font-inter group relative",
+                    "w-full flex items-center space-x-3 px-3 py-2 text-left rounded-lg text-sm font-inter group relative",
                     isActive && isAccessible
                       ? "bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-700 font-medium backdrop-blur-sm border border-blue-500/20 shadow-lg"
                       : isAccessible
@@ -158,7 +158,7 @@ export const EnhancedNavigationSection = ({
                   disabled={!isAccessible}
                 >
                   <Icon className={cn(
-                    "w-4 h-4 transition-all duration-200 flex-shrink-0",
+                    "w-4 h-4 flex-shrink-0",
                     isActive && isAccessible 
                       ? "text-blue-600" 
                       : isAccessible
@@ -188,7 +188,7 @@ export const EnhancedNavigationSection = ({
                 
                 {/* Tooltip for collapsed state */}
                 {isCollapsed && !isAccessible && (
-                  <div className="absolute left-full ml-2 px-2 py-1 bg-red-500/20 text-red-300 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 whitespace-nowrap">
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-red-500/20 text-red-300 text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none z-50 whitespace-nowrap">
                     Access restricted
                   </div>
                 )}

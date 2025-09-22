@@ -134,8 +134,8 @@ const preClose = () => {
 const handleNavigateAndClose = (page: string) => {
   // Close immediately on pointer down; this is a safety for click-only paths
   preClose();
-  // Navigate on next frame so the close paint happens first
-  requestAnimationFrame(() => onNavigate(page));
+  // Navigate immediately
+  onNavigate(page);
 };
 
   // If not open and onClose function exists, don't render (floating mode)

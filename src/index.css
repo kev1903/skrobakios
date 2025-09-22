@@ -450,7 +450,7 @@ div[data-rbd-drag-handle-draggable-id] {
   }
 
   .slide-in {
-    animation: slideIn 0.3s ease-out;
+    /* animation disabled */
   }
 
   @keyframes slideIn {

@@ -131,7 +131,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
     const hasChildren = item.children.length > 0;
 
     return (
-      <div key={item.id} className="animate-fade-in">
+      <div key={item.id}>
         <div 
           className={`grid grid-cols-12 gap-2 p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
             item.level > 0 ? 'bg-gray-25' : ''
