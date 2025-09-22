@@ -241,7 +241,7 @@ export const UserPermissionsPage = () => {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate(`/company/${companyId}/team`)}
                 className="backdrop-blur-xl bg-white/80"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -273,7 +273,7 @@ export const UserPermissionsPage = () => {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => navigate(-1)}
+                onClick={() => navigate(`/company/${companyId}/team`)}
                 className="backdrop-blur-xl bg-white/80"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -300,7 +300,7 @@ export const UserPermissionsPage = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => navigate(-1)}
+              onClick={() => navigate(`/company/${companyId}/team`)}
               className="backdrop-blur-xl bg-white/80 border-border/50"
             >
               <ArrowLeft className="w-4 h-4" />
