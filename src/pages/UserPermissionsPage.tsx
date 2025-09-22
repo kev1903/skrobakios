@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { useUserDetails } from '@/hooks/useUserDetails';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -16,13 +16,6 @@ interface BusinessModule {
   accessLevel: 'no_access' | 'can_view' | 'can_edit';
 }
 
-interface UserData {
-  id: string;
-  email: string;
-  name: string;
-  avatar?: string;
-  role: 'owner' | 'admin' | 'team_member' | 'viewer' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client';
-}
 
 // Helper functions moved outside component for better performance
 const getAccessLevel = (userRole: string, allowedRoles: string[]): 'no_access' | 'can_view' | 'can_edit' => {
@@ -99,76 +92,14 @@ const getAccessBadgeVariant = (accessLevel: string) => {
 
 export const UserPermissionsPage = () => {
   const { userId, companyId } = useParams<{ userId: string; companyId: string }>();
-  const navigate = useNavigate();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { userData, loading, error } = useUserDetails(userId || '', companyId || '');
 
-  useEffect(() => {
-    if (userId && companyId) {
-      fetchUserData();
+  // Show error toast if there's an error
+  React.useEffect(() => {
+    if (error) {
+      toast.error(error);
     }
-  }, [userId, companyId]);
-
-  const fetchUserData = async () => {
-    try {
-      setLoading(true);
-
-      // Optimized: Run both queries in parallel for faster loading
-      const [membershipResult, profileResult] = await Promise.all([
-        supabase
-          .from('company_members')
-          .select('role')
-          .eq('user_id', userId)
-          .eq('company_id', companyId)
-          .maybeSingle(),
-        supabase
-          .from('profiles')
-          .select('user_id, email, first_name, last_name, avatar_url')
-          .eq('user_id', userId)
-          .maybeSingle()
-      ]);
-
-      const { data: membershipData, error: membershipError } = membershipResult;
-      const { data: profileData, error: profileError } = profileResult;
-
-      if (membershipError) {
-        console.error('Error fetching membership data:', membershipError);
-        toast.error('Failed to load user membership');
-        return;
-      }
-
-      if (profileError) {
-        console.error('Error fetching profile data:', profileError);
-        toast.error('Failed to load user profile');
-        return;
-      }
-
-      if (!membershipData) {
-        toast.error('User is not a member of this company');
-        return;
-      }
-
-      if (!profileData) {
-        toast.error('User profile not found');
-        return;
-      }
-
-      const user: UserData = {
-        id: profileData.user_id,
-        email: profileData.email || 'No email provided',
-        name: `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim() || 'Unknown User',
-        avatar: profileData.avatar_url,
-        role: membershipData.role as 'owner' | 'admin' | 'manager' | 'supplier' | 'sub_contractor' | 'consultant' | 'client' | 'team_member' | 'viewer'
-      };
-
-      setUserData(user);
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      toast.error('Failed to load user permissions');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [error]);
 
   // Memoized business modules for better performance
   const businessModules = useMemo(() => {
@@ -272,7 +203,7 @@ export const UserPermissionsPage = () => {
     );
   }
 
-  if (!userData) {
+  if (!userData && !loading) {
     return (
       <PageShell>
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 px-6 pb-6">
@@ -292,7 +223,7 @@ export const UserPermissionsPage = () => {
             </div>
             <Card className="backdrop-blur-xl bg-white/80">
               <CardContent className="text-center py-12">
-                <p className="text-muted-foreground">The requested user could not be found or you don't have permission to view their details.</p>
+                <p className="text-muted-foreground">{error || 'The requested user could not be found or you don\'t have permission to view their details.'}</p>
               </CardContent>
             </Card>
           </div>
