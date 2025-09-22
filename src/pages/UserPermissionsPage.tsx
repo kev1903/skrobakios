@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Crown, Shield, User, Eye, Edit, X, 
          Building2, CheckSquare, FileText, DollarSign, Calendar, 
          Package, AlertTriangle, ShoppingCart, Archive, FileCheck, 
-         MessageCircle, Users, Clock, BarChart3, UserCheck, Settings } from 'lucide-react';
+         MessageCircle, Users, Clock, BarChart3, UserCheck, Settings, 
+         Map, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageShell } from '@/components/layout/PageShell';
 
@@ -73,19 +74,21 @@ const getAccessIcon = (accessLevel: string) => {
 
 const getModuleIcon = (iconName: string) => {
   const iconMap: { [key: string]: React.ReactNode } = {
+    'Map': <Map className="w-5 h-5 text-blue-600" />,
     'Building2': <Building2 className="w-5 h-5 text-blue-600" />,
+    'TrendingUp': <TrendingUp className="w-5 h-5 text-green-600" />,
+    'DollarSign': <DollarSign className="w-5 h-5 text-emerald-600" />,
+    'Users': <Users className="w-5 h-5 text-violet-600" />,
     'CheckSquare': <CheckSquare className="w-5 h-5 text-green-600" />,
     'FileText': <FileText className="w-5 h-5 text-purple-600" />,
-    'DollarSign': <DollarSign className="w-5 h-5 text-emerald-600" />,
-    'Shield': <Shield className="w-5 h-5 text-orange-600" />,
     'Calendar': <Calendar className="w-5 h-5 text-indigo-600" />,
+    'Shield': <Shield className="w-5 h-5 text-orange-600" />,
     'Package': <Package className="w-5 h-5 text-amber-600" />,
     'AlertTriangle': <AlertTriangle className="w-5 h-5 text-red-600" />,
     'ShoppingCart': <ShoppingCart className="w-5 h-5 text-teal-600" />,
     'Archive': <Archive className="w-5 h-5 text-slate-600" />,
     'FileCheck': <FileCheck className="w-5 h-5 text-cyan-600" />,
     'MessageCircle': <MessageCircle className="w-5 h-5 text-pink-600" />,
-    'Users': <Users className="w-5 h-5 text-violet-600" />,
     'Clock': <Clock className="w-5 h-5 text-rose-600" />,
     'BarChart3': <BarChart3 className="w-5 h-5 text-blue-700" />,
     'UserCheck': <UserCheck className="w-5 h-5 text-green-700" />,
@@ -128,17 +131,45 @@ export const UserPermissionsPage = () => {
     }
   }, [error]);
 
-  // Comprehensive business modules for construction management
+  // Business modules aligned with database schema and actual functionality
   const businessModules = useMemo(() => {
     if (!userData) return [];
     
     return [
       {
+        id: 'business_map',
+        name: 'Business Map',
+        description: 'Dashboard overview and business intelligence',
+        icon: 'Map',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
+      },
+      {
         id: 'projects',
-        name: 'Project Management',
+        name: 'Projects',
         description: 'Manage construction projects, timelines, and resources',
         icon: 'Building2',
         accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])
+      },
+      {
+        id: 'sales',
+        name: 'Sales',
+        description: 'Lead management and customer relationship management',
+        icon: 'TrendingUp',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+      },
+      {
+        id: 'finance',
+        name: 'Finance',
+        description: 'Invoicing, estimates, costs, and financial reporting',
+        icon: 'DollarSign',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+      },
+      {
+        id: 'stakeholders',
+        name: 'Stakeholders',
+        description: 'Manage vendors, clients, and business relationships',
+        icon: 'Users',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
       },
       {
         id: 'tasks',
@@ -155,11 +186,11 @@ export const UserPermissionsPage = () => {
         accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])
       },
       {
-        id: 'finance',
-        name: 'Financial Management',
-        description: 'Handle invoicing, estimates, and financial reporting',
-        icon: 'DollarSign',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+        id: 'scheduling',
+        name: 'Scheduling & Planning',
+        description: 'Create and manage project schedules and timelines',
+        icon: 'Calendar',
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
       },
       {
         id: 'qaqc',
@@ -169,59 +200,10 @@ export const UserPermissionsPage = () => {
         accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
       },
       {
-        id: 'scheduling',
-        name: 'Scheduling & Planning',
-        description: 'Create and manage project schedules and timelines',
-        icon: 'Calendar',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
-      },
-      {
-        id: 'resources',
-        name: 'Resource Management',
-        description: 'Manage equipment, materials, and workforce allocation',
-        icon: 'Package',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
-      },
-      {
-        id: 'safety',
-        name: 'Safety Management',
-        description: 'Track safety incidents, compliance, and protocols',
-        icon: 'AlertTriangle',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
-      },
-      {
-        id: 'procurement',
-        name: 'Procurement & Purchasing',
-        description: 'Manage vendor relationships and purchase orders',
-        icon: 'ShoppingCart',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
-      },
-      {
-        id: 'inventory',
-        name: 'Inventory Management',
-        description: 'Track materials, tools, and equipment inventory',
-        icon: 'Archive',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
-      },
-      {
         id: 'compliance',
         name: 'Compliance & Permits',
         description: 'Manage regulatory compliance and permit tracking',
         icon: 'FileCheck',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
-      },
-      {
-        id: 'communications',
-        name: 'Communications',
-        description: 'Manage client communications and correspondence',
-        icon: 'MessageCircle',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
-      },
-      {
-        id: 'crm',
-        name: 'Customer Relations',
-        description: 'Manage leads, clients, and business relationships',
-        icon: 'Users',
         accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
       },
       {
@@ -247,7 +229,7 @@ export const UserPermissionsPage = () => {
       },
       {
         id: 'settings',
-        name: 'Company Settings',
+        name: 'Settings',
         description: 'Configure company-wide settings and preferences',
         icon: 'Settings',
         accessLevel: getAccessLevel(userData.role, ['owner'])
