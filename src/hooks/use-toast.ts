@@ -139,7 +139,34 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">
 
+// List of deprecated error messages to filter
+const DEPRECATED_TOAST_PATTERNS = [
+  'failed to load digital objects',
+  'failed to load digital',
+  'digital objects',
+  'digitalobjects',
+  'digital_objects',
+  'digital object'
+];
+
+const shouldFilterToastMessage = (message: string): boolean => {
+  const lowerMessage = String(message || '').toLowerCase();
+  return DEPRECATED_TOAST_PATTERNS.some(pattern => 
+    lowerMessage.includes(pattern.toLowerCase())
+  );
+};
+
 function toast({ ...props }: Toast) {
+  // Filter deprecated messages
+  if (props.title && shouldFilterToastMessage(String(props.title))) {
+    console.warn('Filtered deprecated toast:', props.title);
+    return { id: '', dismiss: () => {}, update: () => {} };
+  }
+  if (props.description && shouldFilterToastMessage(String(props.description))) {
+    console.warn('Filtered deprecated toast:', props.description);
+    return { id: '', dismiss: () => {}, update: () => {} };
+  }
+
   const id = genId()
 
   const update = (props: ToasterToast) =>
