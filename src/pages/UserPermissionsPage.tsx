@@ -152,16 +152,10 @@ export const UserPermissionsPage = () => {
         accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']),
         subModules: [
           {
-            id: 'dashboard',
-            name: 'Dashboard',
-            description: 'Main business overview and KPIs',
+            id: 'business_map',
+            name: 'Business Map',
+            description: 'Dashboard overview and business intelligence',
             accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
-          },
-          {
-            id: 'analytics',
-            name: 'Analytics',
-            description: 'Business intelligence and reporting',
-            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
           }
         ]
       },
