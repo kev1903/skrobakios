@@ -1,15 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useUserDetails } from '@/hooks/useUserDetails';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ArrowLeft, Crown, Shield, User, Eye, Edit, X, 
          Building2, CheckSquare, FileText, DollarSign, Calendar, 
          Package, AlertTriangle, ShoppingCart, Archive, FileCheck, 
          MessageCircle, Users, Clock, BarChart3, UserCheck, Settings, 
-         Map, TrendingUp } from 'lucide-react';
+         Map, TrendingUp, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageShell } from '@/components/layout/PageShell';
 
@@ -18,6 +19,12 @@ interface BusinessModule {
   name: string;
   description: string;
   accessLevel: 'no_access' | 'can_view' | 'can_edit';
+  subModules?: {
+    id: string;
+    name: string;
+    description: string;
+    accessLevel: 'no_access' | 'can_view' | 'can_edit';
+  }[];
 }
 
 
@@ -123,6 +130,7 @@ const getAccessBadgeVariant = (accessLevel: string) => {
 export const UserPermissionsPage = () => {
   const { userId, companyId } = useParams<{ userId: string; companyId: string }>();
   const { userData, loading, error } = useUserDetails(userId || '', companyId || '');
+  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
 
   // Show error toast if there's an error
   React.useEffect(() => {
@@ -141,38 +149,132 @@ export const UserPermissionsPage = () => {
         name: 'Business Map',
         description: 'Dashboard overview and business intelligence',
         icon: 'Map',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member']),
+        subModules: [
+          {
+            id: 'dashboard',
+            name: 'Dashboard',
+            description: 'Main business overview and KPIs',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager', 'team_member'])
+          },
+          {
+            id: 'analytics',
+            name: 'Analytics',
+            description: 'Business intelligence and reporting',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+          }
+        ]
       },
       {
         id: 'projects',
         name: 'Projects',
         description: 'Manage construction projects, timelines, and resources',
         icon: 'Building2',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager']),
+        subModules: [
+          {
+            id: 'project_management',
+            name: 'Project Management',
+            description: 'Create and manage construction projects',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+          },
+          {
+            id: 'timelines',
+            name: 'Timelines',
+            description: 'Project scheduling and milestones',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'team_member', 'manager'])
+          },
+          {
+            id: 'resources',
+            name: 'Resources',
+            description: 'Manage project resources and assignments',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+          }
+        ]
       },
       {
         id: 'sales',
-        name: 'Sales',
+        name: 'Sales',  
         description: 'Lead management and customer relationship management',
         icon: 'TrendingUp',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager']),
+        subModules: [
+          {
+            id: 'leads',
+            name: 'Leads',
+            description: 'Manage sales leads and opportunities',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+          },
+          {
+            id: 'crm',
+            name: 'CRM',
+            description: 'Customer relationship management',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+          }
+        ]
       },
       {
         id: 'finance',
         name: 'Finance',
         description: 'Invoicing, estimates, costs, and financial reporting',
         icon: 'DollarSign',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin']),
+        subModules: [
+          {
+            id: 'invoicing',
+            name: 'Invoicing',
+            description: 'Create and manage invoices',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+          },
+          {
+            id: 'estimates',
+            name: 'Estimates',
+            description: 'Project cost estimation',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+          },
+          {
+            id: 'reporting',
+            name: 'Financial Reporting',
+            description: 'Financial analysis and reports',
+            accessLevel: getAccessLevel(userData.role, ['owner'])
+          }
+        ]
       },
       {
         id: 'stakeholders',
         name: 'Stakeholders',
         description: 'Manage vendors, clients, and business relationships',
         icon: 'Users',
-        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+        accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager']),
+        subModules: [
+          {
+            id: 'clients',
+            name: 'Clients',
+            description: 'Manage client relationships',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin', 'manager'])
+          },
+          {
+            id: 'vendors',
+            name: 'Vendors',
+            description: 'Manage vendor relationships',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+          }
+        ]
       }
     ];
   }, [userData]);
+
+  const toggleModule = (moduleId: string) => {
+    setExpandedModules(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(moduleId)) {
+        newSet.delete(moduleId);
+      } else {
+        newSet.add(moduleId);
+      }
+      return newSet;
+    });
+  };
 
   const handlePermissionChange = (moduleId: string) => {
     // For demo purposes - in a real app this would update the database
@@ -312,35 +414,69 @@ export const UserPermissionsPage = () => {
             
             <div className="grid gap-2">
               {businessModules.map((module) => (
-                <Card 
-                  key={module.id} 
-                  className="glass-card"
+                <Collapsible
+                  key={module.id}
+                  open={expandedModules.has(module.id)}
+                  onOpenChange={() => toggleModule(module.id)}
                 >
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-card border">
-                        {getModuleIcon(module.icon)}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-1">
-                          <h4 className="font-inter font-semibold text-foreground">{module.name}</h4>
-                          <Badge 
-                            variant={getAccessBadgeVariant(module.accessLevel)}
-                            className="font-inter font-medium text-xs"
-                          >
-                            {getAccessText(module.accessLevel)}
-                          </Badge>
+                  <Card className="glass-card">
+                    <CollapsibleTrigger asChild>
+                      <CardContent className="p-4 cursor-pointer">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-card border">
+                            {getModuleIcon(module.icon)}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3 mb-1">
+                              <h4 className="font-inter font-semibold text-foreground">{module.name}</h4>
+                              <Badge 
+                                variant={getAccessBadgeVariant(module.accessLevel)}
+                                className="font-inter font-medium text-xs"
+                              >
+                                {getAccessText(module.accessLevel)}
+                              </Badge>
+                            </div>
+                            <p className="text-muted-foreground text-sm body-md">{module.description}</p>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            {getAccessIcon(module.accessLevel)}
+                            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${
+                              expandedModules.has(module.id) ? 'rotate-180' : ''
+                            }`} />
+                          </div>
                         </div>
-                        <p className="text-muted-foreground text-sm body-md">{module.description}</p>
+                      </CardContent>
+                    </CollapsibleTrigger>
+                    
+                    <CollapsibleContent>
+                      <div className="px-4 pb-4">
+                        <div className="ml-11 space-y-2 border-l border-border pl-4">
+                          {module.subModules?.map((subModule) => (
+                            <div key={subModule.id} className="flex items-center gap-3 py-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-3 mb-1">
+                                  <h5 className="font-inter font-medium text-foreground text-sm">{subModule.name}</h5>
+                                  <Badge 
+                                    variant={getAccessBadgeVariant(subModule.accessLevel)}
+                                    className="font-inter font-medium text-xs"
+                                  >
+                                    {getAccessText(subModule.accessLevel)}
+                                  </Badge>
+                                </div>
+                                <p className="text-muted-foreground text-xs">{subModule.description}</p>
+                              </div>
+                              <div className="flex items-center">
+                                {getAccessIcon(subModule.accessLevel)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      
-                      <div className="flex items-center">
-                        {getAccessIcon(module.accessLevel)}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
               ))}
             </div>
           </div>
