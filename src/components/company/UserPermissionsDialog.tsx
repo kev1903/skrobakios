@@ -39,6 +39,7 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
 }) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [businessModules, setBusinessModules] = useState<BusinessModule[]>([]);
+  const [otherFeatures, setOtherFeatures] = useState<BusinessModule[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -169,6 +170,60 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
 
       setBusinessModules(modules);
 
+      // Define other features with access levels
+      const features: BusinessModule[] = [
+        {
+          id: 'notifications',
+          name: 'Notifications',
+          description: 'Email and push notification settings',
+          access: getAccessLevel()
+        },
+        {
+          id: 'integrations',
+          name: 'Integrations',
+          description: 'Third-party app connections and APIs',
+          access: getAccessLevel(true)
+        },
+        {
+          id: 'backup_restore',
+          name: 'Backup & Restore',
+          description: 'Data backup and restoration tools',
+          access: getAccessLevel(true)
+        },
+        {
+          id: 'audit_logs',
+          name: 'Audit Logs',
+          description: 'System activity and security logs',
+          access: getAccessLevel(true)
+        },
+        {
+          id: 'custom_fields',
+          name: 'Custom Fields',
+          description: 'Create and manage custom data fields',
+          access: getAccessLevel()
+        },
+        {
+          id: 'templates',
+          name: 'Templates',
+          description: 'Document and project templates',
+          access: getAccessLevel()
+        },
+        {
+          id: 'mobile_app',
+          name: 'Mobile App Access',
+          description: 'Access to mobile applications',
+          access: getAccessLevel()
+        },
+        {
+          id: 'api_access',
+          name: 'API Access',
+          description: 'Programmatic access via REST API',
+          access: getAccessLevel(true)
+        }
+      ];
+
+      setOtherFeatures(features);
+
     } catch (error) {
       console.error('Error fetching user data:', error);
       toast({
@@ -195,7 +250,7 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
   };
 
   const handlePermissionChange = async (moduleId: string, value: string) => {
-    // Update the local state
+    // Update the local state for business modules
     setBusinessModules(modules => 
       modules.map(module => 
         module.id === moduleId 
@@ -207,6 +262,22 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
     toast({
       title: "Permission Updated",
       description: `Access level updated for ${moduleId}`,
+    });
+  };
+
+  const handleFeaturePermissionChange = async (featureId: string, value: string) => {
+    // Update the local state for other features
+    setOtherFeatures(features => 
+      features.map(feature => 
+        feature.id === featureId 
+          ? { ...feature, access: value as 'no_access' | 'can_view' | 'can_edit' }
+          : feature
+      )
+    );
+    
+    toast({
+      title: "Permission Updated",
+      description: `Access level updated for ${featureId}`,
     });
   };
 
@@ -309,6 +380,60 @@ export const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({
                     </div>
                     <Badge variant={getAccessBadgeVariant(module.access)} className="ml-auto text-xs">
                       {getAccessLabel(module.access)}
+                    </Badge>
+                  </button>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+          {/* Other Features */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Other Features
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-1 p-4">
+              {otherFeatures.map((feature) => {
+                const getAccessBadgeVariant = (access: string) => {
+                  switch (access) {
+                    case 'can_edit': return 'default';
+                    case 'can_view': return 'secondary';
+                    default: return 'outline';
+                  }
+                };
+
+                const getAccessLabel = (access: string) => {
+                  switch (access) {
+                    case 'can_edit': return 'Edit';
+                    case 'can_view': return 'View';
+                    default: return 'No Access';
+                  }
+                };
+
+                const cyclePermission = (currentAccess: string) => {
+                  const permissions = ['no_access', 'can_view', 'can_edit'];
+                  const currentIndex = permissions.indexOf(currentAccess);
+                  const nextIndex = (currentIndex + 1) % permissions.length;
+                  return permissions[nextIndex];
+                };
+
+                return (
+                  <button 
+                    key={feature.id}
+                    onClick={() => handleFeaturePermissionChange(feature.id, cyclePermission(feature.access))}
+                    className="w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 text-left text-gray-700 hover:bg-gray-100"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium">{feature.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {feature.description}
+                      </div>
+                    </div>
+                    <Badge variant={getAccessBadgeVariant(feature.access)} className="ml-auto text-xs">
+                      {getAccessLabel(feature.access)}
                     </Badge>
                   </button>
                 );
