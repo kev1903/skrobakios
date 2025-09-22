@@ -214,6 +214,12 @@ export const UserPermissionsPage = () => {
             name: 'Contracts',
             description: 'Contract management and administration',
             accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
+          },
+          {
+            id: 'settings',
+            name: 'Settings',
+            description: 'Project configuration and settings',
+            accessLevel: getAccessLevel(userData.role, ['owner', 'admin'])
           }
         ]
       },
