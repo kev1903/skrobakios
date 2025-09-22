@@ -51,9 +51,9 @@ export const useUserPermissions = (companyId?: string, userId?: string) => {
         return;
       }
 
-      // Try to fetch from the new user_permissions table
+      // Try to fetch from the new user_module_permissions table
       const { data, error } = await (supabase as any)
-        .from('user_permissions')
+        .from('user_module_permissions')
         .select('*')
         .eq('user_id', currentUserId)
         .eq('company_id', companyId);

@@ -5327,6 +5327,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_module_permissions: {
+        Row: {
+          access_level: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          module_id: string
+          sub_module_id: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          access_level: string
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          module_id: string
+          sub_module_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          access_level?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          module_id?: string
+          sub_module_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_permissions: {
         Row: {
           company_id: string | null
