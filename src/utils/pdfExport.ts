@@ -137,17 +137,31 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
 
     if (reportError) throw reportError;
 
-    // Fetch project data with company details
+    // Fetch project data with company details and project members
     const { data: project, error: projectError } = await supabase
       .from('projects')
       .select(`
-        id, name, description, banner_image, banner_position,
+        id, name, description, project_id, banner_image, banner_position,
         companies!projects_company_id_fkey (
           id, name, logo_url, address, abn
         )
       `)
       .eq('id', projectId)
       .single();
+
+    if (projectError) throw projectError;
+
+    // Fetch project members/assignees
+    const { data: projectMembers, error: membersError } = await supabase
+      .from('project_members')
+      .select(`
+        id, role, status,
+        profiles!project_members_user_id_fkey (
+          first_name, last_name
+        )
+      `)
+      .eq('project_id', projectId)
+      .eq('status', 'active');
 
     if (projectError) throw projectError;
 
@@ -373,6 +387,48 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     pdf.text(`Total Issues: ${totalIssues}`, pageWidth / 2, yPos, { align: 'center' });
     yPos += 10;
     pdf.text(`Open: ${openIssues} | Closed: ${closedIssues}`, pageWidth / 2, yPos, { align: 'center' });
+
+    // Project details at bottom of cover page
+    const bottomMargin = 60;
+    let bottomYPos = pageHeight - bottomMargin;
+    
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(80, 80, 80);
+    
+    // Project Name
+    pdf.text('Project Name:', 30, bottomYPos);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(project.name, 90, bottomYPos);
+    bottomYPos += 12;
+    
+    // Project Number
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Project Number:', 30, bottomYPos);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(project.project_id || 'N/A', 100, bottomYPos);
+    bottomYPos += 12;
+    
+    // Assignees
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Assignees:', 30, bottomYPos);
+    pdf.setFont('helvetica', 'normal');
+    const assigneeNames = membersError ? [] : (projectMembers || [])
+      .map((member: any) => {
+        const profile = member.profiles;
+        return profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : '';
+      })
+      .filter(name => name.length > 0);
+    const assigneesText = assigneeNames.length > 0 ? assigneeNames.join(', ') : 'No assignees';
+    pdf.text(assigneesText, 80, bottomYPos);
+    bottomYPos += 12;
+    
+    // Register Version / Date
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('Register Version / Date:', 30, bottomYPos);
+    pdf.setFont('helvetica', 'normal');
+    const registerVersion = `v1.0 / ${exportDate}`;
+    pdf.text(registerVersion, 130, bottomYPos);
 
     // Start new page for issue summary table
     pdf.addPage();
