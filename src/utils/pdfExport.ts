@@ -352,36 +352,44 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       }
     }
 
-    // Cover page content - Company Information Section
-    const addressText = fullCompanyData?.address?.toString().trim();
-    const addressLooksLikeEmail = addressText ? /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/.test(addressText) : false;
+    // Cover page content - Clean professional layout
     
-    // Company ABN (if available)
+    // Company ABN at top (if available) 
     if (fullCompanyData?.abn) {
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(60, 60, 60);
       pdf.text(`ABN: ${fullCompanyData.abn}`, pageWidth / 2, yPos, { align: 'center' });
-      yPos += 25;
+      yPos += 30;
     }
 
-    // Project Address/Location (centered)
+    // Project Address/Location - Main title (centered and prominent)
+    const addressText = fullCompanyData?.address?.toString().trim();
+    const addressLooksLikeEmail = addressText ? /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/.test(addressText) : false;
+    
     if (addressText && !addressLooksLikeEmail) {
-      pdf.setFontSize(18);
+      pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(30, 30, 30);
       pdf.text(addressText, pageWidth / 2, yPos, { align: 'center' });
-      yPos += 25;
+      yPos += 30;
+    } else {
+      // Fallback to project name if no address
+      pdf.setFontSize(20);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(30, 30, 30);
+      pdf.text(project.name, pageWidth / 2, yPos, { align: 'center' });
+      yPos += 30;
     }
 
-    // Report Title (centered)
+    // Report Title - Secondary title (centered)
     pdf.setFontSize(16);
     pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(40, 40, 40);
+    pdf.setTextColor(50, 50, 50);
     pdf.text(report.title, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 30;
+    yPos += 50;
 
-    // Issue Statistics Section (centered in a box)
+    // Issue Statistics Section - Clean centered box
     const numberedIssues = typedIssues.map((issue, index) => ({
       ...issue,
       auto_number: index + 1
@@ -391,52 +399,48 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     const openIssues = numberedIssues.filter(issue => issue.status === 'open').length;
     const closedIssues = numberedIssues.filter(issue => issue.status === 'closed').length;
 
-    // Statistics box background
-    const statsBoxY = yPos;
-    const statsBoxHeight = 50;
-    pdf.setFillColor(248, 250, 252);
-    pdf.roundedRect(60, statsBoxY - 10, pageWidth - 120, statsBoxHeight, 5, 5, 'F');
+    // Total Issues - Large prominent display
+    pdf.setFontSize(18);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(30, 30, 30);
+    pdf.text(`Total Issues: ${totalIssues}`, pageWidth / 2, yPos, { align: 'center' });
+    yPos += 20;
     
+    // Open/Closed breakdown
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(60, 60, 60);
+    pdf.text(`Open: ${openIssues} | Closed: ${closedIssues}`, pageWidth / 2, yPos, { align: 'center' });
+    
+    // Project Details Section - Clean table at bottom
+    const detailsStartY = pageHeight - 140;
+    const leftMargin = 50;
+    const labelWidth = 120;
+    const valueStartX = leftMargin + labelWidth;
+    
+    // Section header with line
     pdf.setFontSize(14);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(30, 30, 30);
-    pdf.text(`Total Issues: ${totalIssues}`, pageWidth / 2, yPos + 10, { align: 'center' });
+    pdf.text('PROJECT DETAILS', leftMargin, detailsStartY);
     
-    pdf.setFontSize(12);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(40, 40, 40);
-    pdf.text(`Open: ${openIssues} | Closed: ${closedIssues}`, pageWidth / 2, yPos + 25, { align: 'center' });
+    // Header underline
+    pdf.setDrawColor(150, 150, 150);
+    pdf.setLineWidth(1);
+    pdf.line(leftMargin, detailsStartY + 5, pageWidth - leftMargin, detailsStartY + 5);
     
-    yPos += statsBoxHeight + 20;
-
-    // Project Details Section - Professional Layout
-    const detailsStartY = pageHeight - 120;
-    const leftMargin = 40;
-    const rightMargin = pageWidth - 40;
-    const labelWidth = 90;
-    
-    // Section title
-    pdf.setFontSize(12);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(30, 30, 30);
-    pdf.text('PROJECT DETAILS', leftMargin, detailsStartY - 15);
-    
-    // Separator line
-    pdf.setDrawColor(180, 180, 180);
-    pdf.setLineWidth(0.5);
-    pdf.line(leftMargin, detailsStartY - 10, rightMargin, detailsStartY - 10);
-    
-    let detailsY = detailsStartY;
+    let detailsY = detailsStartY + 25;
+    const lineHeight = 18;
     
     // Project Name
-    pdf.setFontSize(10);
+    pdf.setFontSize(11);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(70, 70, 70);
     pdf.text('Project Name:', leftMargin, detailsY);
     pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(40, 40, 40);
-    pdf.text(project.name, leftMargin + labelWidth, detailsY);
-    detailsY += 15;
+    pdf.text(project.name, valueStartX, detailsY);
+    detailsY += lineHeight;
     
     // Project Number
     pdf.setFont('helvetica', 'bold');
@@ -444,8 +448,8 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     pdf.text('Project Number:', leftMargin, detailsY);
     pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(40, 40, 40);
-    pdf.text(project.project_id || 'N/A', leftMargin + labelWidth, detailsY);
-    detailsY += 15;
+    pdf.text(project.project_id || 'N/A', valueStartX, detailsY);
+    detailsY += lineHeight;
     
     // Assignees
     pdf.setFont('helvetica', 'bold');
@@ -460,8 +464,8 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       })
       .filter(name => name.length > 0);
     const assigneesText = assigneeNames.length > 0 ? assigneeNames.join(', ') : 'No assignees';
-    pdf.text(assigneesText, leftMargin + labelWidth, detailsY);
-    detailsY += 15;
+    pdf.text(assigneesText, valueStartX, detailsY);
+    detailsY += lineHeight;
     
     // Register Version / Date
     pdf.setFont('helvetica', 'bold');
@@ -470,7 +474,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(40, 40, 40);
     const registerVersion = `v1.0 / ${exportDate}`;
-    pdf.text(registerVersion, leftMargin + labelWidth, detailsY);
+    pdf.text(registerVersion, valueStartX, detailsY);
 
     // Start new page for issue summary table
     pdf.addPage();
