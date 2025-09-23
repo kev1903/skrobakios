@@ -64,27 +64,35 @@ export const IssuesPage = ({ onNavigate }: IssuesPageProps) => {
           activeSection="qaqc"
         />
 
-        <div className="flex-1 ml-48 p-6 overflow-auto">
-          <div className="max-w-7xl mx-auto h-full">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-4">
+        <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
+          {/* Header Section */}
+          <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground font-inter">QA/QC - Issues & Non-Conformance Reports</h1>
+                <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
+                {project.location && (
+                  <p className="text-muted-foreground text-xs font-inter">{project.location}</p>
+                )}
+              </div>
+              <div className="flex items-center gap-4">
                 <Button variant="ghost" onClick={handleBackToQAQC}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to QA/QC
                 </Button>
-                <div className="flex items-center space-x-2">
-                  <AlertTriangle className="w-6 h-6 text-red-600" />
-                  <h1 className="text-2xl font-bold text-foreground">Issues & Non-Conformance Reports</h1>
-                </div>
+                <Button onClick={() => navigate(`/qaqc/issues/create?projectId=${projectId}`)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Issue/NCR
+                </Button>
               </div>
-              <Button onClick={() => navigate(`/qaqc/issues/create?projectId=${projectId}`)}>
-                <Plus className="w-4 h-4 mr-2" />
-                New Issue/NCR
-              </Button>
             </div>
-
-            <div className="bg-white rounded-lg shadow flex-1">
-              <QAQCTable data={issues || []} type="issues" isLoading={isLoading} />
+          </div>
+          
+          <div className="p-6 min-h-full">
+            <div className="max-w-7xl mx-auto h-full">
+              <div className="bg-white rounded-lg shadow flex-1">
+                <QAQCTable data={issues || []} type="issues" isLoading={isLoading} />
+              </div>
             </div>
           </div>
         </div>
