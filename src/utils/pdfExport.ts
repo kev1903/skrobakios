@@ -239,26 +239,26 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         
         const aspectRatio = img.naturalWidth / img.naturalHeight;
         
-        // Start with a reasonable height and calculate width to maintain aspect ratio
-        logoHeight = 24;
+        // Reduce size and maintain proper aspect ratio
+        logoHeight = 18; // Smaller height
         logoWidth = logoHeight * aspectRatio;
         
         // If width exceeds maximum, constrain by width and recalculate height
-        const maxWidth = 80;
+        const maxWidth = 60; // Reduced max width
         if (logoWidth > maxWidth) {
           logoWidth = maxWidth;
           logoHeight = logoWidth / aspectRatio;
         }
         
         // Ensure minimum readable size
-        if (logoHeight < 16) {
-          logoHeight = 16;
+        if (logoHeight < 14) {
+          logoHeight = 14;
           logoWidth = logoHeight * aspectRatio;
         }
       } catch (error) {
         console.warn('Could not get logo dimensions, using default:', error);
-        logoWidth = 60;
-        logoHeight = 24;
+        logoWidth = 50;
+        logoHeight = 18;
         logoHeight = 20;
       }
     }
@@ -271,33 +271,36 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         if (fullCompanyData?.logo_url) {
           // Process logo with white background for better PDF appearance
           const processedLogo = await loadImageAsDataUrl(fullCompanyData.logo_url, true);
-          pdf.addImage(processedLogo, 'JPEG', 20, 10, logoWidth, logoHeight);
+          // Center logo vertically in header space (header is ~28px high)
+          const logoY = 10 + (18 - logoHeight) / 2; // Center within available space
+          pdf.addImage(processedLogo, 'JPEG', 20, logoY, logoWidth, logoHeight);
           
-          // Company details next to logo
+          // Company details next to logo with proper spacing
           pdf.setFontSize(12);
           pdf.setFont('helvetica', 'bold');
           pdf.setTextColor(40, 40, 40);
-          pdf.text(fullCompanyData.name, 25 + logoWidth, 17);
+          pdf.text(fullCompanyData.name, 25 + logoWidth, 20); // Centered vertically with logo
         } else if (customLogoDataUrl) {
-          // Use fallback Skrobaki logo with proper aspect ratio
+          // Use fallback Skrobaki logo with proper aspect ratio and alignment
           const processedLogo = await loadImageAsDataUrl(customLogoDataUrl, true);
-          // Skrobaki logo dimensions for proper aspect ratio (wider logo)
-          const skrobakiWidth = 80;
-          const skrobakiHeight = 24;
-          pdf.addImage(processedLogo, 'JPEG', 20, 10, skrobakiWidth, skrobakiHeight);
+          // Skrobaki logo dimensions for proper aspect ratio (wider logo, smaller size)
+          const skrobakiWidth = 65;
+          const skrobakiHeight = 18;
+          const logoY = 10 + (18 - skrobakiHeight) / 2; // Center vertically
+          pdf.addImage(processedLogo, 'JPEG', 20, logoY, skrobakiWidth, skrobakiHeight);
         } else {
           // Fallback with company name
           pdf.setFontSize(12);
           pdf.setFont('helvetica', 'bold');
           pdf.setTextColor(40, 40, 40);
-          pdf.text(fullCompanyData?.name || 'Company', 20, 17);
+          pdf.text(fullCompanyData?.name || 'Company', 20, 20); // Centered vertically
         }
       } catch (logoError) {
         console.warn('Could not process logo, using company name:', logoError);
         pdf.setFontSize(12);
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(40, 40, 40);
-        pdf.text(fullCompanyData?.name || 'Company', 20, 17);
+        pdf.text(fullCompanyData?.name || 'Company', 20, 20); // Centered vertically
       }
       
       // Header title on right side
