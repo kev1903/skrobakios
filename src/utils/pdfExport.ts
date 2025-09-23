@@ -311,51 +311,11 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       pdf.setTextColor(0, 0, 0);
     };
 
-    // Cover Page
+    // Cover Page - Clean Professional Layout
     await addHeaderFooter(pdf, pageNumber, true);
     
-    // Add project banner if available from database
-    let yPos = 50;
-    
-    if (project.banner_image) {
-      try {
-        const getBannerDimensions = (url: string): Promise<{width: number, height: number}> => {
-          return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
-            img.onerror = reject;
-            img.src = url;
-          });
-        };
-        
-        const bannerDimensions = await getBannerDimensions(project.banner_image);
-        const bannerAspectRatio = bannerDimensions.width / bannerDimensions.height;
-        
-        const bannerMargin = 20;
-        const bannerWidth = pageWidth - (2 * bannerMargin);
-        const bannerHeight = bannerWidth / bannerAspectRatio;
-        
-        // Compress banner image
-        const compressedBanner = await loadImageAsDataUrl(project.banner_image);
-        pdf.addImage(
-          compressedBanner, 
-          'JPEG', 
-          bannerMargin, 
-          yPos, 
-          bannerWidth, 
-          bannerHeight
-        );
-        
-        yPos += bannerHeight + 20;
-      } catch (bannerError) {
-        console.warn('Could not add project banner to PDF:', bannerError);
-      }
-    }
-
-    // Cover page - Completely clean professional layout
-    
     // Start with proper spacing after header
-    yPos = 50;
+    let yPos = 50;
     
     // Company ABN - small, right-aligned if available
     if (fullCompanyData?.abn) {
@@ -363,10 +323,10 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(100, 100, 100);
       pdf.text(`ABN: ${fullCompanyData.abn}`, pageWidth - 30, yPos, { align: 'right' });
-      yPos += 20;
+      yPos += 25;
     }
     
-    // Project banner image (if available) - properly sized and positioned
+    // Project banner image (single instance, properly positioned)
     if (project.banner_image) {
       try {
         const getBannerDimensions = (url: string): Promise<{width: number, height: number}> => {
@@ -383,7 +343,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         
         const coverBannerMargin = 30;
         const coverBannerWidth = pageWidth - (2 * coverBannerMargin);
-        const bannerHeight = Math.min(coverBannerWidth / bannerAspectRatio, 120); // Max height of 120
+        const bannerHeight = Math.min(coverBannerWidth / bannerAspectRatio, 120);
         const actualBannerWidth = bannerHeight * bannerAspectRatio;
         
         // Center the banner horizontally
@@ -399,13 +359,13 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
           bannerHeight
         );
         
-        yPos += bannerHeight + 30;
+        yPos += bannerHeight + 35;
       } catch (bannerError) {
         console.warn('Could not add project banner to PDF:', bannerError);
-        yPos += 20;
+        yPos += 25;
       }
     } else {
-      yPos += 20;
+      yPos += 25;
     }
 
     // Main project title - prominent and centered
@@ -425,7 +385,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(80, 80, 80);
     pdf.text(report.title, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 40;
+    yPos += 50;
 
     // Issue statistics - prominently displayed in center
     const numberedIssues = typedIssues.map((issue, index) => ({
@@ -449,12 +409,10 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(100, 100, 100);
     pdf.text(`Open: ${openIssues} | Closed: ${closedIssues}`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 40;
     
     // Project Details Table - Clean and organized at bottom
     const coverTableStartY = pageHeight - 120;
     const coverTableMargin = 40;
-    const coverTableWidth = pageWidth - (2 * coverTableMargin);
     
     // Table header
     pdf.setFontSize(12);
