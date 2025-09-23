@@ -464,18 +464,20 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     
     // Table setup
     const rowHeight = 30;
-    const previewSize = 20;
+    const previewSize = 16; // Reduced from 20 to fit narrower preview column
     const tableMargin = 20;
     const tableWidth = pageWidth - (2 * tableMargin);
     
-    // Column positions and widths - # column first, then Preview column, all center aligned
+    // Column positions and widths - expanded to include Description, Assigned To, Due Date
     const columns = [
-      { header: '#', x: tableMargin, width: tableWidth * 0.08, align: 'center' as const },
-      { header: 'Preview', x: tableMargin + (tableWidth * 0.08), width: tableWidth * 0.12, align: 'center' as const },
-      { header: 'Issue Title', x: tableMargin + (tableWidth * 0.2), width: tableWidth * 0.4, align: 'center' as const },
-      { header: 'Category', x: tableMargin + (tableWidth * 0.6), width: tableWidth * 0.15, align: 'center' as const },
-      { header: 'Status', x: tableMargin + (tableWidth * 0.75), width: tableWidth * 0.15, align: 'center' as const },
-      { header: 'Created By', x: tableMargin + (tableWidth * 0.9), width: tableWidth * 0.1, align: 'center' as const }
+      { header: '#', x: tableMargin, width: tableWidth * 0.05, align: 'center' as const },
+      { header: 'Preview', x: tableMargin + (tableWidth * 0.05), width: tableWidth * 0.08, align: 'center' as const },
+      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.13), width: tableWidth * 0.18, align: 'center' as const },
+      { header: 'Description', x: tableMargin + (tableWidth * 0.31), width: tableWidth * 0.2, align: 'center' as const },
+      { header: 'Category', x: tableMargin + (tableWidth * 0.51), width: tableWidth * 0.1, align: 'center' as const },
+      { header: 'Status', x: tableMargin + (tableWidth * 0.61), width: tableWidth * 0.1, align: 'center' as const },
+      { header: 'Assigned To', x: tableMargin + (tableWidth * 0.71), width: tableWidth * 0.14, align: 'center' as const },
+      { header: 'Due Date', x: tableMargin + (tableWidth * 0.85), width: tableWidth * 0.15, align: 'center' as const }
     ];
     
     // Draw table headers with background
@@ -592,30 +594,39 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       }
       
       // Draw issue data
-      pdf.setFontSize(9);
+      pdf.setFontSize(8); // Smaller font to fit more columns
       pdf.setTextColor(40, 40, 40);
       
       const issueNumber = issue.auto_number?.toString() || `${i + 1}`;
-      const issueTitle = issue.title.length > 45 ? issue.title.substring(0, 45) + '...' : issue.title;
+      const issueTitle = issue.title.length > 25 ? issue.title.substring(0, 25) + '...' : issue.title;
+      const description = issue.description ? (issue.description.length > 35 ? issue.description.substring(0, 35) + '...' : issue.description) : 'No description';
       const category = issue.category || 'N/A';
       const createdByProfile = profileMap.get(issue.created_by);
-      const createdByName = createdByProfile ? `${createdByProfile.first_name || ''} ${createdByProfile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
+      const assignedToName = createdByProfile ? `${createdByProfile.first_name || ''} ${createdByProfile.last_name || ''}`.trim() || 'Unassigned' : 'Unassigned';
+      
+      // Format due date - for now using created date + 30 days as placeholder since due_date field may not exist
+      const createdDate = new Date(issue.created_at);
+      const dueDate = new Date(createdDate);
+      dueDate.setDate(dueDate.getDate() + 30); // Default to 30 days after creation
+      const dueDateStr = dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       
       const textY = yPosition + 15; // Center text vertically in row
       pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
       pdf.text(issueTitle, columns[2].x + columns[2].width/2, textY, { align: 'center' });
-      pdf.text(category, columns[3].x + columns[3].width/2, textY, { align: 'center' });
+      pdf.text(description, columns[3].x + columns[3].width/2, textY, { align: 'center' });
+      pdf.text(category, columns[4].x + columns[4].width/2, textY, { align: 'center' });
       
       // Status with color coding
       const statusColor = issue.status === 'closed' ? [22, 163, 74] :
                          issue.status === 'in_progress' ? [59, 130, 246] :
                          issue.status === 'open' ? [220, 38, 38] : [107, 114, 128];
       pdf.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-      pdf.text(issue.status, columns[4].x + columns[4].width/2, textY, { align: 'center' });
+      pdf.text(issue.status, columns[5].x + columns[5].width/2, textY, { align: 'center' });
       
-      // Reset text color for created by
-      pdf.setTextColor(0, 0, 0);
-      pdf.text(createdByName, columns[5].x + columns[5].width/2, textY, { align: 'center' });
+      // Reset text color for remaining columns
+      pdf.setTextColor(40, 40, 40);
+      pdf.text(assignedToName, columns[6].x + columns[6].width/2, textY, { align: 'center' });
+      pdf.text(dueDateStr, columns[7].x + columns[7].width/2, textY, { align: 'center' });
       
       // Draw subtle row separator
       pdf.setDrawColor(240, 240, 240);
