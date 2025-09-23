@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,13 +8,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
-import { ArrowLeft, Save, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Save, AlertTriangle, Upload, Paperclip, X, FileText, Download } from 'lucide-react';
 import { useIssueReport } from '@/hooks/useQAQCData';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface IssueReportEditPageProps {
   onNavigate: (page: string) => void;
+}
+
+interface AttachmentType {
+  id: string | number;
+  name: string;
+  size?: number;
+  type?: string;
+  url?: string;
+  path?: string;
+  uploaded_at?: string;
+  [key: string]: any; // Add index signature for JSON compatibility
 }
 
 export const IssueReportEditPage = ({ onNavigate }: IssueReportEditPageProps) => {
@@ -34,6 +45,14 @@ export const IssueReportEditPage = ({ onNavigate }: IssueReportEditPageProps) =>
     description: ''
   });
 
+  // Attachment state
+  const [attachments, setAttachments] = useState<File[]>([]);
+  const [existingAttachments, setExistingAttachments] = useState<AttachmentType[]>([]);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (projectId) {
       getProject(projectId).then(setProject).catch(console.error);
@@ -47,10 +66,176 @@ export const IssueReportEditPage = ({ onNavigate }: IssueReportEditPageProps) =>
         status: report.status || 'active',
         description: report.description || ''
       });
+
+      // Load existing attachments
+      if (report.attachments && Array.isArray(report.attachments)) {
+        const attachmentsWithUrls = report.attachments.map((attachment: any) => {
+          const attachmentObj = attachment as AttachmentType;
+          
+          // Generate public URL if needed
+          let publicUrl = attachmentObj.url;
+          if (attachmentObj.path) {
+            const { data: urlData } = supabase.storage
+              .from('issue-report-attachments')
+              .getPublicUrl(attachmentObj.path);
+            publicUrl = urlData.publicUrl;
+          } else if (attachmentObj.url && !attachmentObj.url.startsWith('http')) {
+            const { data: urlData } = supabase.storage
+              .from('issue-report-attachments') 
+              .getPublicUrl(attachmentObj.url);
+            publicUrl = urlData.publicUrl;
+          }
+          
+          return {
+            ...attachmentObj,
+            url: publicUrl
+          };
+        });
+        setExistingAttachments(attachmentsWithUrls);
+      }
     }
   }, [report]);
 
   const handleBack = () => onNavigate(`qaqc-issue-report-detail?projectId=${projectId}&reportId=${reportId}`);
+
+  // Attachment handlers
+  const handleFileSelect = useCallback((files: FileList | null) => {
+    if (files) {
+      const newFiles = Array.from(files);
+      setAttachments(prev => [...prev, ...newFiles]);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    handleFileSelect(e.dataTransfer.files);
+  }, [handleFileSelect]);
+
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const deleteExistingAttachment = async (attachment: AttachmentType) => {
+    try {
+      // Remove from storage if path exists
+      if (attachment.path) {
+        await supabase.storage
+          .from('issue-report-attachments')
+          .remove([attachment.path]);
+      }
+
+      // Update the report's attachments array
+      const updatedAttachments = existingAttachments.filter(a => a.id !== attachment.id);
+      const { error } = await supabase
+        .from('issue_reports')
+        .update({
+          attachments: updatedAttachments,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      setExistingAttachments(updatedAttachments);
+      
+      toast({
+        title: "Success",
+        description: "Attachment deleted successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting attachment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete attachment",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const uploadAttachments = async () => {
+    if (attachments.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      const uploadedAttachments = [];
+
+      for (const file of attachments) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${reportId}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('issue-report-attachments')
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('issue-report-attachments')
+          .getPublicUrl(fileName);
+
+        uploadedAttachments.push({
+          id: Date.now() + Math.random(),
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          url: urlData.publicUrl,
+          path: fileName,
+          uploaded_at: new Date().toISOString()
+        });
+      }
+
+      // Update the report with new attachments
+      const allAttachments = [...existingAttachments, ...uploadedAttachments];
+      const { error } = await supabase
+        .from('issue_reports')
+        .update({
+          attachments: allAttachments,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      setExistingAttachments(allAttachments);
+      setAttachments([]);
+
+      toast({
+        title: "Success",
+        description: `${uploadedAttachments.length} attachment(s) uploaded successfully`
+      });
+    } catch (error) {
+      console.error('Error uploading attachments:', error);
+      toast({
+        title: "Error", 
+        description: "Failed to upload attachments",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
 
   const handleSave = async () => {
     if (!reportId || !formData.title.trim()) {
@@ -64,6 +249,11 @@ export const IssueReportEditPage = ({ onNavigate }: IssueReportEditPageProps) =>
 
     setLoading(true);
     try {
+      // Upload new attachments first if any
+      if (attachments.length > 0) {
+        await uploadAttachments();
+      }
+
       const { error } = await supabase
         .from('issue_reports')
         .update({
@@ -123,7 +313,7 @@ export const IssueReportEditPage = ({ onNavigate }: IssueReportEditPageProps) =>
         activeSection="qaqc"
       />
 
-      <div className="flex-1 ml-48 p-6 overflow-auto">
+      <div className="flex-1 ml-48 p-6">
         <div className="w-full">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
@@ -187,6 +377,128 @@ export const IssueReportEditPage = ({ onNavigate }: IssueReportEditPageProps) =>
                   placeholder="Enter report description (optional)"
                   rows={4}
                 />
+              </div>
+
+              {/* Attachments Section */}
+              <div className="space-y-2">
+                <Label>Attachments</Label>
+                
+                {/* Upload Area */}
+                <div
+                  ref={dropZoneRef}
+                  className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
+                    isDragOver 
+                      ? 'border-blue-400 bg-blue-50' 
+                      : 'border-gray-300 hover:border-gray-400'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <Upload className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                  <p className="text-sm text-gray-600 mb-2">
+                    Drag & drop files here or click to browse
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Paperclip className="w-4 h-4 mr-2" />
+                    Browse Files
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => handleFileSelect(e.target.files)}
+                  />
+                  <p className="text-xs text-gray-500 mt-2">
+                    Supports images, documents, and other files up to 10MB
+                  </p>
+                </div>
+
+                {/* Selected Files to Upload */}
+                {attachments.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Files to Upload:</h4>
+                    {attachments.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                        <div className="flex items-center space-x-2">
+                          <FileText className="w-4 h-4" />
+                          <span className="text-sm">{file.name}</span>
+                          <span className="text-xs text-gray-500">({formatFileSize(file.size)})</span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeAttachment(index)}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      onClick={uploadAttachments}
+                      disabled={isUploading}
+                      className="w-full"
+                    >
+                      {isUploading ? 'Uploading...' : `Upload ${attachments.length} file(s)`}
+                    </Button>
+                  </div>
+                )}
+
+                {/* Existing Attachments */}
+                {existingAttachments.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Attachments ({existingAttachments.length}):</h4>
+                    {existingAttachments.map((attachment) => (
+                      <div key={attachment.id} className="flex items-center justify-between bg-gray-50 p-3 rounded">
+                        <div className="flex items-center space-x-3">
+                          {/* File Preview */}
+                          {attachment.type?.startsWith('image/') ? (
+                            <img 
+                              src={attachment.url} 
+                              alt={attachment.name}
+                              className="w-12 h-12 object-cover rounded border"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 bg-gray-200 rounded border flex items-center justify-center">
+                              <FileText className="w-6 h-6 text-gray-500" />
+                            </div>
+                          )}
+                          <div>
+                            <div className="text-sm font-medium">{attachment.name}</div>
+                            <div className="text-xs text-gray-500">
+                              {attachment.size ? formatFileSize(attachment.size) : 'Unknown size'}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => window.open(attachment.url, '_blank')}
+                          >
+                            <Download className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteExistingAttachment(attachment)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

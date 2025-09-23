@@ -1954,6 +1954,7 @@ export type Database = {
       }
       issue_reports: {
         Row: {
+          attachments: Json | null
           company_id: string
           created_at: string
           created_by: string | null
@@ -1965,6 +1966,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          attachments?: Json | null
           company_id: string
           created_at?: string
           created_by?: string | null
@@ -1976,6 +1978,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          attachments?: Json | null
           company_id?: string
           created_at?: string
           created_by?: string | null
