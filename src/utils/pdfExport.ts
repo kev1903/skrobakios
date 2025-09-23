@@ -239,8 +239,8 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         
         const aspectRatio = img.naturalWidth / img.naturalHeight;
         
-        // Reduce size and maintain proper aspect ratio
-        logoHeight = 18; // Smaller height
+        // Reduce size by 50% and maintain proper aspect ratio
+        logoHeight = 9; // 50% smaller height
         logoWidth = logoHeight * aspectRatio;
         
         // If width exceeds maximum, constrain by width and recalculate height
@@ -275,39 +275,24 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
           const logoY = 10 + (18 - logoHeight) / 2; // Center within available space
           pdf.addImage(processedLogo, 'JPEG', 20, logoY, logoWidth, logoHeight);
           
-          // Company details next to logo with proper spacing
-          pdf.setFontSize(12);
-          pdf.setFont('helvetica', 'bold');
-          pdf.setTextColor(40, 40, 40);
-          pdf.text(fullCompanyData.name, 25 + logoWidth, 20); // Centered vertically with logo
+          // Company logo only - no text
         } else if (customLogoDataUrl) {
           // Use fallback Skrobaki logo with proper aspect ratio and alignment
           const processedLogo = await loadImageAsDataUrl(customLogoDataUrl, true);
           // Skrobaki logo dimensions for proper aspect ratio (wider logo, smaller size)
-          const skrobakiWidth = 65;
-          const skrobakiHeight = 18;
+          const skrobakiWidth = 32.5; // 50% smaller
+          const skrobakiHeight = 9; // 50% smaller
           const logoY = 10 + (18 - skrobakiHeight) / 2; // Center vertically
           pdf.addImage(processedLogo, 'JPEG', 20, logoY, skrobakiWidth, skrobakiHeight);
-        } else {
-          // Fallback with company name
-          pdf.setFontSize(12);
-          pdf.setFont('helvetica', 'bold');
-          pdf.setTextColor(40, 40, 40);
-          pdf.text(fullCompanyData?.name || 'Company', 20, 20); // Centered vertically
         }
       } catch (logoError) {
         console.warn('Could not process logo, using company name:', logoError);
+        // Show minimal company name as fallback only
         pdf.setFontSize(12);
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(40, 40, 40);
         pdf.text(fullCompanyData?.name || 'Company', 20, 20); // Centered vertically
       }
-      
-      // Header title on right side
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(40, 40, 40);
-      pdf.text('Issue Report Export', pageWidth - 20, 17, { align: 'right' });
       
       // Reset text color
       pdf.setTextColor(0, 0, 0);
