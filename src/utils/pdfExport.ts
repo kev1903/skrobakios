@@ -108,6 +108,7 @@ interface IssueData {
   description?: string;
   location?: string;
   created_by: string;
+  assigned_to?: string;
   created_at: string;
   auto_number?: number;
   attachments?: IssueAttachment[];
@@ -184,8 +185,11 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     // Type the issues properly
     const typedIssues = (issues || []) as unknown as IssueData[];
 
-    // Build profile map by user_id for created_by
-    const userIds = Array.from(new Set(typedIssues.map(i => i.created_by).filter(Boolean)));
+    // Build profile map by user_id for created_by and assigned_to
+    const userIds = Array.from(new Set([
+      ...typedIssues.map(i => i.created_by).filter(Boolean),
+      ...typedIssues.map(i => i.assigned_to).filter(Boolean)
+    ]));
     const profileMap = new Map<string, { first_name?: string; last_name?: string; professional_title?: string }>();
     if (userIds.length > 0) {
       const { data: profileRows } = await supabase
@@ -598,8 +602,8 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       const issueNumber = issue.auto_number?.toString() || `${i + 1}`;
       const issueTitle = issue.title.length > 50 ? issue.title.substring(0, 50) + '...' : issue.title;
       const category = issue.category || 'N/A';
-      const createdByProfile = profileMap.get(issue.created_by);
-      const assignedToName = createdByProfile ? `${createdByProfile.first_name || ''} ${createdByProfile.last_name || ''}`.trim() || 'Unassigned' : 'Unassigned';
+      const assignedToProfile = profileMap.get(issue.assigned_to);
+      const assignedToName = assignedToProfile ? `${assignedToProfile.first_name || ''} ${assignedToProfile.last_name || ''}`.trim() || 'Unassigned' : 'Unassigned';
       
       const textY = yPosition + 18; // Better vertical centering in taller rows
       
@@ -842,7 +846,7 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      const assignedToProfile = profileMap.get(issue.created_by); // Using created_by as assignee for now
+      const assignedToProfile = profileMap.get(issue.assigned_to);
       const assignedToName = assignedToProfile ? `${assignedToProfile.first_name || ''} ${assignedToProfile.last_name || ''}`.trim() || 'Unassigned' : 'Unassigned';
       pdf.text(assignedToName, detailsX, detailsY);
       detailsY += 10;
