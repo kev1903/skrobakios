@@ -454,11 +454,11 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     pageNumber++;
     await addHeaderFooter(pdf, pageNumber);
     
-    // Issue table header
+    // RFI table header
     pdf.setFontSize(18);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(30, 30, 30);
-    pdf.text('Issue Summary', 20, 40);
+    pdf.text('RFI Summary', 20, 40);
     
     let yPosition = 55;
     
