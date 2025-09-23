@@ -219,7 +219,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
             <Tabs defaultValue={defaultTab} className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="checklists">Checklists</TabsTrigger>
-                <TabsTrigger value="issues">Project Issues</TabsTrigger>
+                <TabsTrigger value="issues">Project RFIs</TabsTrigger>
                 <TabsTrigger value="inspections">Inspections</TabsTrigger>
                 <TabsTrigger value="itps">Quality Plans</TabsTrigger>
               </TabsList>
