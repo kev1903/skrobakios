@@ -141,7 +141,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     const { data: project, error: projectError } = await supabase
       .from('projects')
       .select(`
-        id, name, description,
+        id, name, description, banner_image, banner_position,
         companies!projects_company_id_fkey (
           id, name, logo_url, address, abn
         )
@@ -287,11 +287,10 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     // Cover Page
     addHeaderFooter(pdf, pageNumber, true);
     
-    // Add project banner if available
-    const projectBanner = localStorage.getItem(`project_banner_${project.id}`);
+    // Add project banner if available from database
     let yPos = 50;
     
-    if (projectBanner) {
+    if (project.banner_image) {
       try {
         const getBannerDimensions = (url: string): Promise<{width: number, height: number}> => {
           return new Promise((resolve, reject) => {
@@ -302,7 +301,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
           });
         };
         
-        const bannerDimensions = await getBannerDimensions(projectBanner);
+        const bannerDimensions = await getBannerDimensions(project.banner_image);
         const bannerAspectRatio = bannerDimensions.width / bannerDimensions.height;
         
         const bannerMargin = 20;
@@ -310,7 +309,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         const bannerHeight = bannerWidth / bannerAspectRatio;
         
         // Compress banner image
-        const compressedBanner = await loadImageAsDataUrl(projectBanner);
+        const compressedBanner = await loadImageAsDataUrl(project.banner_image);
         pdf.addImage(
           compressedBanner, 
           'JPEG', 
