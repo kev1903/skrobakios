@@ -43,6 +43,12 @@ const CORE_MODULES = [{
   label: 'QA/QC',
   icon: Shield,
   page: 'project-qaqc'
+}, {
+  id: 'docs',
+  key: 'docs',
+  label: 'Docs',
+  icon: FileText,
+  page: 'project-docs'
 }];
 
 const DELIVERY_SUPPORT = [{
