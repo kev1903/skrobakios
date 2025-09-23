@@ -358,13 +358,13 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       yPos += 30;
     }
 
-    // Project Information Table - Compact format
+    // Project Information Table - Ultra compact format
     const coverTableStartY = yPos;
     const coverTableMargin = 40;
     const coverTableWidth = pageWidth - (2 * coverTableMargin);
     const leftColWidth = coverTableWidth * 0.4;
     const rightColWidth = coverTableWidth * 0.6;
-    const coverRowHeight = 12; // Much smaller row height
+    const coverRowHeight = 8; // Even smaller row height
     
     // Table header
     pdf.setFontSize(12);
@@ -377,28 +377,26 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     pdf.setLineWidth(0.8);
     pdf.line(coverTableMargin, coverTableStartY - 3, pageWidth - coverTableMargin, coverTableStartY - 3);
     
-    let currentY = coverTableStartY + 5;
+    let currentY = coverTableStartY + 3;
     
-    // Helper function to draw compact table row
+    // Helper function to draw ultra compact table row
     const drawTableRow = (label: string, value: string) => {
-      // Tight alternating row backgrounds
-      pdf.setFillColor(248, 250, 252);
-      pdf.rect(coverTableMargin, currentY - 2, coverTableWidth, coverRowHeight, 'F');
+      // No background - just plain white
       
-      // Label column - compact text
-      pdf.setFontSize(9);
+      // Label column - very compact text
+      pdf.setFontSize(8);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(70, 70, 70);
-      pdf.text(label, coverTableMargin + 5, currentY + 6);
+      pdf.text(label, coverTableMargin + 3, currentY + 5);
       
-      // Value column - compact text
+      // Value column - very compact text
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(40, 40, 40);
-      pdf.text(value, coverTableMargin + leftColWidth + 5, currentY + 6);
+      pdf.text(value, coverTableMargin + leftColWidth + 3, currentY + 5);
       
-      // Thin separator line
-      pdf.setDrawColor(230, 230, 230);
-      pdf.setLineWidth(0.2);
+      // Very thin separator line
+      pdf.setDrawColor(240, 240, 240);
+      pdf.setLineWidth(0.1);
       pdf.line(coverTableMargin, currentY + coverRowHeight, pageWidth - coverTableMargin, currentY + coverRowHeight);
       
       currentY += coverRowHeight;
@@ -418,20 +416,29 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     const openIssues = numberedIssues.filter(issue => issue.status === 'open').length;
     const closedIssues = numberedIssues.filter(issue => issue.status === 'closed').length;
     
-    // Assignee data
-    const assigneeNames = membersError ? [] : (projectMembers || [])
-      .map((member: any) => {
-        const profile = member.profiles;
-        return profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : '';
-      })
-      .filter(name => name.length > 0);
-    const assigneesText = assigneeNames.length > 0 ? assigneeNames.join(', ') : 'No assignees';
+    // Assignee data - Get assignees from RFIs/issues, not just project members
+    const rfiAssigneeIds = new Set<string>();
+    typedIssues.forEach(issue => {
+      if (issue.created_by) rfiAssigneeIds.add(issue.created_by);
+      // Add any other assignee fields if they exist in the issue data
+    });
+    
+    const rfiAssigneeNames: string[] = [];
+    for (const userId of rfiAssigneeIds) {
+      const profile = profileMap.get(userId);
+      if (profile) {
+        const name = `${profile.first_name || ''} ${profile.last_name || ''}`.trim();
+        if (name) rfiAssigneeNames.push(name);
+      }
+    }
+    
+    const rfiAssigneesText = rfiAssigneeNames.length > 0 ? rfiAssigneeNames.join(', ') : 'No assignees';
     
     // Draw table rows
     drawTableRow('Project Name:', mainTitle);
     drawTableRow('Project Number:', project.project_id || 'N/A');
     drawTableRow('Report Type:', report.title);
-    drawTableRow('Assignees:', assigneesText);
+    drawTableRow('Assignees:', rfiAssigneesText);
     drawTableRow('Total Issues:', totalIssues.toString());
     drawTableRow('Open Issues:', openIssues.toString());
     drawTableRow('Closed Issues:', closedIssues.toString());
