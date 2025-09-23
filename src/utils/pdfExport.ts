@@ -238,16 +238,27 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         });
         
         const aspectRatio = img.naturalWidth / img.naturalHeight;
-        logoHeight = 20;
+        
+        // Start with a reasonable height and calculate width to maintain aspect ratio
+        logoHeight = 24;
         logoWidth = logoHeight * aspectRatio;
         
-        if (logoWidth > 60) {
-          logoWidth = 60;
+        // If width exceeds maximum, constrain by width and recalculate height
+        const maxWidth = 80;
+        if (logoWidth > maxWidth) {
+          logoWidth = maxWidth;
           logoHeight = logoWidth / aspectRatio;
+        }
+        
+        // Ensure minimum readable size
+        if (logoHeight < 16) {
+          logoHeight = 16;
+          logoWidth = logoHeight * aspectRatio;
         }
       } catch (error) {
         console.warn('Could not get logo dimensions, using default:', error);
-        logoWidth = 40;
+        logoWidth = 60;
+        logoHeight = 24;
         logoHeight = 20;
       }
     }
@@ -268,9 +279,12 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
           pdf.setTextColor(40, 40, 40);
           pdf.text(fullCompanyData.name, 25 + logoWidth, 17);
         } else if (customLogoDataUrl) {
-          // Use fallback Skrobaki logo if provided - also process it
+          // Use fallback Skrobaki logo with proper aspect ratio
           const processedLogo = await loadImageAsDataUrl(customLogoDataUrl, true);
-          pdf.addImage(processedLogo, 'JPEG', 20, 10, 60, 26);
+          // Skrobaki logo dimensions for proper aspect ratio (wider logo)
+          const skrobakiWidth = 80;
+          const skrobakiHeight = 24;
+          pdf.addImage(processedLogo, 'JPEG', 20, 10, skrobakiWidth, skrobakiHeight);
         } else {
           // Fallback with company name
           pdf.setFontSize(12);
