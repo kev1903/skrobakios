@@ -1,8 +1,8 @@
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
 
-// Helper function to load images and convert to data URL
-const loadImageAsDataUrl = (url: string): Promise<string> => {
+// Helper function to load images and convert to data URL with background handling
+const loadImageAsDataUrl = (url: string, isLogo: boolean = false): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous'; // Handle CORS
@@ -20,10 +20,17 @@ const loadImageAsDataUrl = (url: string): Promise<string> => {
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
         
+        // For logos, add white background to handle transparency issues
+        if (isLogo) {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
         ctx.drawImage(img, 0, 0);
         
-        // Convert to data URL with lower quality for smaller file size
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+        // Use higher quality for logos, lower for other images
+        const quality = isLogo ? 0.9 : 0.5;
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
         resolve(dataUrl);
       } catch (error) {
         reject(error);
@@ -215,7 +222,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     let customLogoDataUrl: string | null = null;
     if (!fullCompanyData?.logo_url) {
       try {
-        customLogoDataUrl = await loadImageAsDataUrl('/lovable-uploads/0ebb3672-15b3-4c91-8157-7c45f2f190ac.png');
+        customLogoDataUrl = await loadImageAsDataUrl('/lovable-uploads/0ebb3672-15b3-4c91-8157-7c45f2f190ac.png', true);
       } catch (e) {
         console.warn('Fallback Skrobaki logo not available:', e);
       }
@@ -247,11 +254,13 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
 
 
     // Header and footer helper function
-    const addHeaderFooter = (pdf: jsPDF, pageNum: number, isFirstPage = false) => {
+    const addHeaderFooter = async (pdf: jsPDF, pageNum: number, isFirstPage = false) => {
       // Header with company logo and info
       try {
         if (fullCompanyData?.logo_url) {
-          pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, 10, logoWidth, logoHeight);
+          // Process logo with white background for better PDF appearance
+          const processedLogo = await loadImageAsDataUrl(fullCompanyData.logo_url, true);
+          pdf.addImage(processedLogo, 'JPEG', 20, 10, logoWidth, logoHeight);
           
           // Company details next to logo
           pdf.setFontSize(12);
@@ -259,8 +268,9 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
           pdf.setTextColor(40, 40, 40);
           pdf.text(fullCompanyData.name, 25 + logoWidth, 17);
         } else if (customLogoDataUrl) {
-          // Use fallback Skrobaki logo if provided
-          pdf.addImage(customLogoDataUrl, 'PNG', 20, 10, 60, 26);
+          // Use fallback Skrobaki logo if provided - also process it
+          const processedLogo = await loadImageAsDataUrl(customLogoDataUrl, true);
+          pdf.addImage(processedLogo, 'JPEG', 20, 10, 60, 26);
         } else {
           // Fallback with company name
           pdf.setFontSize(12);
@@ -269,6 +279,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
           pdf.text(fullCompanyData?.name || 'Company', 20, 17);
         }
       } catch (logoError) {
+        console.warn('Could not process logo, using company name:', logoError);
         pdf.setFontSize(12);
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(40, 40, 40);
@@ -299,7 +310,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     };
 
     // Cover Page
-    addHeaderFooter(pdf, pageNumber, true);
+    await addHeaderFooter(pdf, pageNumber, true);
     
     // Add project banner if available from database
     let yPos = 50;
@@ -433,7 +444,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     // Start new page for issue summary table
     pdf.addPage();
     pageNumber++;
-    addHeaderFooter(pdf, pageNumber);
+    await addHeaderFooter(pdf, pageNumber);
     
     // Issue table header
     pdf.setFontSize(18);
@@ -490,7 +501,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       if (yPosition + rowHeight > pageHeight - 40) {
         pdf.addPage();
         pageNumber++;
-        addHeaderFooter(pdf, pageNumber);
+        await addHeaderFooter(pdf, pageNumber);
         yPosition = 40;
         
         // Re-draw table headers
@@ -612,7 +623,7 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       
       pdf.addPage();
       pageNumber++;
-      addHeaderFooter(pdf, pageNumber);
+      await addHeaderFooter(pdf, pageNumber);
       
       // Issue header
       pdf.setFontSize(16);
