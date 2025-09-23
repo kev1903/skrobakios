@@ -617,9 +617,11 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
                          issue.status === 'in_progress' ? [59, 130, 246] :
                          issue.status === 'open' ? [220, 38, 38] : [107, 114, 128];
       pdf.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-      pdf.text(issue.status, columns[4].x + columns[4].width/2, textY, { align: 'center' });
+      pdf.setFont('helvetica', 'bold'); // Make status text bold
+      pdf.text(issue.status.toUpperCase(), columns[4].x + columns[4].width/2, textY, { align: 'center' });
       
-      // Reset text color for assigned to
+      // Reset font and text color for assigned to
+      pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(40, 40, 40);
       pdf.text(assignedToName, columns[5].x + 3, textY, { align: 'left' });
       
@@ -648,12 +650,12 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       
       // Issue status badge
       pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'normal');
+      pdf.setFont('helvetica', 'bold'); // Make status text bold
       const statusColor = issue.status === 'closed' ? [22, 163, 74] :
                          issue.status === 'in_progress' ? [59, 130, 246] :
                          issue.status === 'open' ? [220, 38, 38] : [107, 114, 128];
       pdf.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-      pdf.text(issue.status, pageWidth - 20, 45, { align: 'right' });
+      pdf.text(issue.status.toUpperCase(), pageWidth - 20, 45, { align: 'right' });
       
       // Reset text color
       pdf.setTextColor(0, 0, 0);
