@@ -185,11 +185,8 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     // Type the issues properly
     const typedIssues = (issues || []) as unknown as IssueData[];
 
-    // Build profile map by user_id for created_by and assigned_to
-    const userIds = Array.from(new Set([
-      ...typedIssues.map(i => i.created_by).filter(Boolean),
-      ...typedIssues.map(i => i.assigned_to).filter(Boolean)
-    ]));
+    // Build profile map by user_id for created_by only
+    const userIds = Array.from(new Set(typedIssues.map(i => i.created_by).filter(Boolean)));
     const profileMap = new Map<string, { first_name?: string; last_name?: string; professional_title?: string }>();
     if (userIds.length > 0) {
       const { data: profileRows } = await supabase
@@ -602,8 +599,7 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       const issueNumber = issue.auto_number?.toString() || `${i + 1}`;
       const issueTitle = issue.title.length > 50 ? issue.title.substring(0, 50) + '...' : issue.title;
       const category = issue.category || 'N/A';
-      const assignedToProfile = profileMap.get(issue.assigned_to);
-      const assignedToName = assignedToProfile ? `${assignedToProfile.first_name || ''} ${assignedToProfile.last_name || ''}`.trim() || 'Unassigned' : 'Unassigned';
+      const assignedToName = issue.assigned_to || 'Unassigned';
       
       const textY = yPosition + 18; // Better vertical centering in taller rows
       
@@ -848,8 +844,7 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      const assignedToProfile = profileMap.get(issue.assigned_to);
-      const assignedToName = assignedToProfile ? `${assignedToProfile.first_name || ''} ${assignedToProfile.last_name || ''}`.trim() || 'Unassigned' : 'Unassigned';
+      const assignedToName = issue.assigned_to || 'Unassigned';
       pdf.text(assignedToName, detailsX, detailsY);
       detailsY += 10;
       
