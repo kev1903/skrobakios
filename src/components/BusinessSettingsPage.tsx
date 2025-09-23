@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Building2, Settings, Users, Plug, CheckCircle, XCircle, ExternalLink, Menu, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Building2, Settings, Users, Plug, CheckCircle, XCircle, ExternalLink, Menu, X, Upload, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -28,6 +28,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
     address: string;
     website: string;
     slogan: string;
+    logo_url: string;
   }>({
     name: '',
     business_type: 'company',
@@ -35,10 +36,13 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
     phone: '',
     address: '',
     website: '',
-    slogan: ''
+    slogan: '',
+    logo_url: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { currentCompany } = useCompany();
   const isMobile = useIsMobile();
   const location = useLocation();
@@ -76,7 +80,7 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
     try {
       const { data, error } = await supabase
         .from('companies')
-        .select('name, business_type, abn, phone, address, website, slogan')
+        .select('name, business_type, abn, phone, address, website, slogan, logo_url')
         .eq('id', currentCompany.id)
         .single();
 
@@ -90,7 +94,8 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
           phone: data.phone || '',
           address: data.address || '',
           website: data.website || '',
-          slogan: data.slogan || ''
+          slogan: data.slogan || '',
+          logo_url: data.logo_url || ''
         });
       }
     } catch (error) {
@@ -133,7 +138,8 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
           phone: businessForm.phone?.trim() || null,
           address: businessForm.address?.trim() || null,
           website: businessForm.website?.trim() || null,
-          slogan: businessForm.slogan?.trim() || null
+          slogan: businessForm.slogan?.trim() || null,
+          logo_url: businessForm.logo_url?.trim() || null
         })
         .eq('id', currentCompany.id);
 
@@ -156,6 +162,90 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleLogoUpload = async (file: File) => {
+    if (!currentCompany) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB');
+      return;
+    }
+
+    setIsUploadingLogo(true);
+    try {
+      // Create file path with company ID
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${currentCompany.id}-${Date.now()}.${fileExt}`;
+      const filePath = `company-logos/${fileName}`;
+
+      // Upload file to storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update business form with new logo URL
+      handleBusinessFormChange('logo_url', publicUrl);
+
+      toast.success('Logo uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast.error('Failed to upload logo');
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  };
+
+  const handleLogoRemove = async () => {
+    if (!currentCompany || !businessForm.logo_url) return;
+
+    try {
+      // Extract file path from URL for deletion
+      if (businessForm.logo_url.includes('company-logos/')) {
+        const urlParts = businessForm.logo_url.split('/');
+        const fileName = urlParts[urlParts.length - 1];
+        const filePath = `company-logos/${fileName}`;
+
+        // Delete from storage
+        await supabase.storage
+          .from('avatars')
+          .remove([filePath]);
+      }
+
+      // Update business form to remove logo URL
+      handleBusinessFormChange('logo_url', '');
+
+      toast.success('Logo removed successfully');
+    } catch (error) {
+      console.error('Error removing logo:', error);
+      toast.error('Failed to remove logo');
+    }
+  };
+
+  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleLogoUpload(file);
+    }
+    // Reset input value so same file can be selected again
+    event.target.value = '';
   };
 
   const checkXeroConnection = async () => {
@@ -359,6 +449,85 @@ export const BusinessSettingsPage = ({ onNavigate }: BusinessSettingsPageProps) 
                           <option value="trust">Trust</option>
                         </select>
                       </div>
+                    </div>
+                    
+                    {/* Company Logo Section */}
+                    <div className="space-y-3 p-4 border border-border rounded-lg bg-muted/20">
+                      <label className="text-sm font-medium text-foreground">Company Logo</label>
+                      
+                      <div className="flex items-center gap-4">
+                        {businessForm.logo_url ? (
+                          <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 rounded-lg border-2 border-border overflow-hidden bg-background">
+                              <img 
+                                src={businessForm.logo_url} 
+                                alt="Company logo" 
+                                className="w-full h-full object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.src = '/placeholder.svg';
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm text-muted-foreground mb-2">Current logo uploaded</p>
+                              <div className="flex gap-2">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => fileInputRef.current?.click()}
+                                  disabled={isUploadingLogo}
+                                >
+                                  <Upload className="w-4 h-4 mr-2" />
+                                  {isUploadingLogo ? 'Uploading...' : 'Change Logo'}
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={handleLogoRemove}
+                                  disabled={isUploadingLogo}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Remove
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-4 w-full">
+                            <div className="w-16 h-16 rounded-lg border-2 border-dashed border-border flex items-center justify-center bg-muted/50">
+                              <Building2 className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm text-muted-foreground mb-2">No logo uploaded</p>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploadingLogo}
+                              >
+                                <Upload className="w-4 h-4 mr-2" />
+                                {isUploadingLogo ? 'Uploading...' : 'Upload Logo'}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <p className="text-xs text-muted-foreground">
+                        Recommended: Square image, max 5MB. Supported formats: PNG, JPG, JPEG
+                      </p>
+                      
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg"
+                        onChange={handleFileInputChange}
+                        className="hidden"
+                      />
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
