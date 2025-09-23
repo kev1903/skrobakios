@@ -468,14 +468,13 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     const tableMargin = 20;
     const tableWidth = pageWidth - (2 * tableMargin);
     
-    // Column positions and widths - better balanced for readability
+    // Column positions and widths - removed Description column for cleaner layout
     const columns = [
-      { header: '#', x: tableMargin, width: tableWidth * 0.04, align: 'center' as const },
-      { header: 'Preview', x: tableMargin + (tableWidth * 0.04), width: tableWidth * 0.08, align: 'center' as const },
-      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.12), width: tableWidth * 0.24, align: 'left' as const },
-      { header: 'Description', x: tableMargin + (tableWidth * 0.36), width: tableWidth * 0.25, align: 'left' as const },
-      { header: 'Category', x: tableMargin + (tableWidth * 0.61), width: tableWidth * 0.12, align: 'center' as const },
-      { header: 'Status', x: tableMargin + (tableWidth * 0.73), width: tableWidth * 0.09, align: 'center' as const },
+      { header: '#', x: tableMargin, width: tableWidth * 0.05, align: 'center' as const },
+      { header: 'Preview', x: tableMargin + (tableWidth * 0.05), width: tableWidth * 0.1, align: 'center' as const },
+      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.15), width: tableWidth * 0.4, align: 'left' as const },
+      { header: 'Category', x: tableMargin + (tableWidth * 0.55), width: tableWidth * 0.15, align: 'center' as const },
+      { header: 'Status', x: tableMargin + (tableWidth * 0.7), width: tableWidth * 0.12, align: 'center' as const },
       { header: 'Assigned To', x: tableMargin + (tableWidth * 0.82), width: tableWidth * 0.18, align: 'left' as const }
     ];
     
@@ -597,8 +596,7 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       pdf.setTextColor(40, 40, 40);
       
       const issueNumber = issue.auto_number?.toString() || `${i + 1}`;
-      const issueTitle = issue.title.length > 35 ? issue.title.substring(0, 35) + '...' : issue.title;
-      const description = issue.description ? (issue.description.length > 45 ? issue.description.substring(0, 45) + '...' : issue.description) : 'No description';
+      const issueTitle = issue.title.length > 50 ? issue.title.substring(0, 50) + '...' : issue.title;
       const category = issue.category || 'N/A';
       const createdByProfile = profileMap.get(issue.created_by);
       const assignedToName = createdByProfile ? `${createdByProfile.first_name || ''} ${createdByProfile.last_name || ''}`.trim() || 'Unassigned' : 'Unassigned';
@@ -608,19 +606,18 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       // Draw text with proper alignment
       pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
       pdf.text(issueTitle, columns[2].x + 3, textY, { align: 'left' });
-      pdf.text(description, columns[3].x + 3, textY, { align: 'left' });
-      pdf.text(category, columns[4].x + columns[4].width/2, textY, { align: 'center' });
+      pdf.text(category, columns[3].x + columns[3].width/2, textY, { align: 'center' });
       
       // Status with color coding
       const statusColor = issue.status === 'closed' ? [22, 163, 74] :
                          issue.status === 'in_progress' ? [59, 130, 246] :
                          issue.status === 'open' ? [220, 38, 38] : [107, 114, 128];
       pdf.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-      pdf.text(issue.status, columns[5].x + columns[5].width/2, textY, { align: 'center' });
+      pdf.text(issue.status, columns[4].x + columns[4].width/2, textY, { align: 'center' });
       
       // Reset text color for assigned to
       pdf.setTextColor(40, 40, 40);
-      pdf.text(assignedToName, columns[6].x + 3, textY, { align: 'left' });
+      pdf.text(assignedToName, columns[5].x + 3, textY, { align: 'left' });
       
       // Draw subtle row separator
       pdf.setDrawColor(240, 240, 240);
