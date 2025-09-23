@@ -646,6 +646,9 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                                           e.currentTarget.style.display = 'none';
                                           e.currentTarget.nextElementSibling?.classList.remove('hidden');
                                         }}
+                                        onLoad={() => {
+                                          console.log('Image loaded successfully:', attachment.url);
+                                        }}
                                       />
                                       <div className="hidden flex items-center justify-center h-32 bg-muted rounded border">
                                         <Paperclip className="w-8 h-8 text-muted-foreground" />
