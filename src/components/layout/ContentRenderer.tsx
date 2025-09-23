@@ -66,6 +66,7 @@ import NewTaskPage from "@/pages/NewTaskPage";
 
 import { SK25008Dashboard } from "@/components/SK25008Dashboard";
 import { ProjectQAQCPage } from "@/components/project/ProjectQAQCPage";
+import { ProjectDocsPage } from "@/components/project/ProjectDocsPage";
 import { ChecklistsPage } from "@/pages/qaqc/ChecklistsPage";
 import { RFIsPage } from "@/pages/qaqc/RFIsPage";
 import { IssuesPage } from "@/pages/qaqc/IssuesPage";
@@ -315,6 +316,12 @@ export const ContentRenderer = ({
       return (
         <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
           <ProjectQAQCPage onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      );
+    case "project-docs":
+      return (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <ProjectDocsPage onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
     case "qaqc-checklists":
