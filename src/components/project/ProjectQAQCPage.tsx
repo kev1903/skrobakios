@@ -181,7 +181,7 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
                 <div className="flex items-center">
                   <AlertTriangle className="w-8 h-8 text-red-600" />
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-muted-foreground">Issues/NCRs</p>
+                    <p className="text-sm font-medium text-muted-foreground">RFIs/NCRs</p>
                     <p className="text-2xl font-bold text-foreground">{issueReports?.length || 0}</p>
                   </div>
                 </div>
