@@ -438,9 +438,9 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
               <CardTitle>Issue Details</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-1">
                     <Label htmlFor="title">Issue Title *</Label>
                     <Input
                       id="title"
@@ -451,7 +451,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <Label htmlFor="status">Status</Label>
                     <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
                       <SelectTrigger>
@@ -466,7 +466,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <Label htmlFor="category">Category</Label>
                     <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
                       <SelectTrigger>
@@ -483,7 +483,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <Label htmlFor="priority">Priority</Label>
                     <Select value={formData.priority} onValueChange={(value) => handleInputChange('priority', value)}>
                       <SelectTrigger>
@@ -498,7 +498,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <Label htmlFor="location">Location</Label>
                     <Input
                       id="location"
@@ -508,7 +508,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <Label htmlFor="assigned_to">Assigned To</Label>
                     <Input
                       id="assigned_to"
@@ -518,7 +518,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <Label htmlFor="due_date">Due Date</Label>
                     <Input
                       id="due_date"
@@ -529,7 +529,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1">
                   <Label htmlFor="description">Description</Label>
                   <Textarea
                     id="description"
@@ -541,7 +541,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                 </div>
 
                 {/* File Upload Section */}
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <Label>Attachments</Label>
                   
                   {/* Upload Actions */}
