@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
+import { useProjectLinks, ProjectLink } from '@/hooks/useProjectLinks';
+import { ProjectLinkDialog } from './ProjectLinkDialog';
 import { 
   Plus, 
   FileText,
@@ -29,8 +32,16 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
   const defaultTab = (['files', 'links'] as const).includes(tabParam as any) ? (tabParam as any) : 'files';
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
+  
+  // Project links management
+  const { links, loading: linksLoading, createLink, updateLink, deleteLink } = useProjectLinks(projectId || undefined);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [linkDialogMode, setLinkDialogMode] = useState<'create' | 'edit'>('create');
+  const [selectedLink, setSelectedLink] = useState<ProjectLink | undefined>();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [linkToDelete, setLinkToDelete] = useState<ProjectLink | undefined>();
 
-  // Mock data for demonstration - replace with actual data fetching
+  // Mock data for files (keeping existing for now)
   const [files] = useState([
     {
       id: '1',
@@ -61,36 +72,6 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
     }
   ]);
 
-  const [links] = useState([
-    {
-      id: '1',
-      title: 'Company Portal',
-      url: 'https://company.com/portal',
-      description: 'Main company portal for project resources',
-      category: 'Portal',
-      addedBy: 'John Doe',
-      addedAt: '2024-01-15'
-    },
-    {
-      id: '2',
-      title: 'Supplier Database',
-      url: 'https://suppliers.example.com',
-      description: 'Access to approved suppliers and materials',
-      category: 'Suppliers',
-      addedBy: 'Jane Smith',
-      addedAt: '2024-01-14'
-    },
-    {
-      id: '3',
-      title: 'Project Guidelines',
-      url: 'https://guidelines.company.com',
-      description: 'Standard operating procedures and guidelines',
-      category: 'Guidelines',
-      addedBy: 'Mike Johnson',
-      addedAt: '2024-01-13'
-    }
-  ]);
-
   useEffect(() => {
     if (projectId) {
       const fetchProject = async () => {
@@ -107,6 +88,43 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
 
   const getFileIcon = (type: string) => {
     return <FileText className="w-5 h-5 text-blue-600" />;
+  };
+
+  const handleAddLink = () => {
+    setLinkDialogMode('create');
+    setSelectedLink(undefined);
+    setLinkDialogOpen(true);
+  };
+
+  const handleEditLink = (link: ProjectLink) => {
+    setLinkDialogMode('edit');
+    setSelectedLink(link);
+    setLinkDialogOpen(true);
+  };
+
+  const handleDeleteLink = (link: ProjectLink) => {
+    setLinkToDelete(link);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteLink = async () => {
+    if (linkToDelete) {
+      await deleteLink(linkToDelete.id);
+      setDeleteDialogOpen(false);
+      setLinkToDelete(undefined);
+    }
+  };
+
+  const handleLinkSubmit = async (data: any) => {
+    if (linkDialogMode === 'create') {
+      await createLink(data);
+    } else if (selectedLink) {
+      await updateLink(selectedLink.id, data);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
   };
 
   if (!project) {
@@ -175,7 +193,14 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
 
                   {/* Right side - Action buttons */}
                   <div className="flex items-center gap-4">
-                    <Button>
+                    <Button onClick={() => {
+                      if (defaultTab === 'links') {
+                        handleAddLink();
+                      } else {
+                        // TODO: Handle file upload when implemented
+                        console.log('File upload not implemented yet');
+                      }
+                    }}>
                       <Plus className="w-4 h-4 mr-2" />
                       Add New
                     </Button>
@@ -238,53 +263,104 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                 <TabsContent value="links" className="space-y-4 mt-0">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold">Project Links</h3>
-                    <Button>
+                    <Button onClick={handleAddLink}>
                       <Plus className="w-4 h-4 mr-2" />
                       Add Link
                     </Button>
                   </div>
                   
-                  <div className="grid gap-4">
-                    {links.map((link) => (
-                      <Card key={link.id} className="hover:shadow-md transition-shadow">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <Link className="w-5 h-5 text-green-600" />
-                              <div>
-                                <h4 className="font-medium text-foreground">{link.title}</h4>
-                                <p className="text-sm text-muted-foreground mb-1">{link.description}</p>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                  <span>{link.category}</span>
-                                  <span>•</span>
-                                  <span>Added by {link.addedBy}</span>
-                                  <span>•</span>
-                                  <span>{link.addedAt}</span>
+                  {linksLoading ? (
+                    <div className="text-center py-8">Loading links...</div>
+                  ) : links.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No links added yet. Click "Add Link" to get started.
+                    </div>
+                  ) : (
+                    <div className="grid gap-4">
+                      {links.map((link) => (
+                        <Card key={link.id} className="hover:shadow-md transition-shadow">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <Link className="w-5 h-5 text-green-600" />
+                                <div>
+                                  <h4 className="font-medium text-foreground">{link.title}</h4>
+                                  {link.description && (
+                                    <p className="text-sm text-muted-foreground mb-1">{link.description}</p>
+                                  )}
+                                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                    <span>{link.category}</span>
+                                    <span>•</span>
+                                    <span>Added {formatDate(link.created_at)}</span>
+                                  </div>
                                 </div>
                               </div>
+                              <div className="flex items-center gap-2">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  onClick={() => window.open(link.url, '_blank')}
+                                  title="Open link"
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => handleEditLink(link)}
+                                  title="Edit link"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => handleDeleteLink(link)}
+                                  title="Delete link"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" onClick={() => window.open(link.url, '_blank')}>
-                                <ExternalLink className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
                 </TabsContent>
               </div>
             </Tabs>
           </div>
         </div>
       </div>
+
+      {/* Link Dialog */}
+      {projectId && (
+        <ProjectLinkDialog
+          open={linkDialogOpen}
+          onOpenChange={setLinkDialogOpen}
+          onSubmit={handleLinkSubmit}
+          link={selectedLink}
+          projectId={projectId}
+          mode={linkDialogMode}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Link</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{linkToDelete?.title}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteLink}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
