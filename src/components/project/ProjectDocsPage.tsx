@@ -276,54 +276,53 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                       No links added yet. Click "Add Link" to get started.
                     </div>
                   ) : (
-                    <div className="grid gap-4">
+                    <div className="space-y-2">
                       {links.map((link) => (
-                        <Card key={link.id} className="hover:shadow-md transition-shadow">
-                          <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <Link className="w-5 h-5 text-green-600" />
-                                <div>
-                                  <h4 className="font-medium text-foreground">{link.title}</h4>
-                                  {link.description && (
-                                    <p className="text-sm text-muted-foreground mb-1">{link.description}</p>
-                                  )}
-                                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                    <span>{link.category}</span>
-                                    <span>•</span>
-                                    <span>Added {formatDate(link.created_at)}</span>
-                                  </div>
-                                </div>
+                        <div key={link.id} className="group flex items-center justify-between p-3 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200">
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="w-2 h-2 rounded-full bg-primary/60 flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-medium text-foreground truncate">{link.title}</h4>
+                                <span className="text-xs text-muted-foreground/70 bg-muted/30 px-2 py-0.5 rounded-full flex-shrink-0">
+                                  {link.category}
+                                </span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  onClick={() => window.open(link.url, '_blank')}
-                                  title="Open link"
-                                >
-                                  <ExternalLink className="w-4 h-4" />
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => handleEditLink(link)}
-                                  title="Edit link"
-                                >
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => handleDeleteLink(link)}
-                                  title="Delete link"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
+                              {link.description && (
+                                <p className="text-sm text-muted-foreground/80 truncate">{link.description}</p>
+                              )}
                             </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 hover:bg-primary/10"
+                              onClick={() => window.open(link.url, '_blank')}
+                              title="Open link"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 w-8 p-0 hover:bg-primary/10"
+                              onClick={() => handleEditLink(link)}
+                              title="Edit link"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                              onClick={() => handleDeleteLink(link)}
+                              title="Delete link"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   )}
