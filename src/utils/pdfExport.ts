@@ -352,39 +352,36 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       }
     }
 
-    // Cover page content
+    // Cover page content - Company Information Section
     const addressText = fullCompanyData?.address?.toString().trim();
     const addressLooksLikeEmail = addressText ? /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/.test(addressText) : false;
-    if (addressText && !addressLooksLikeEmail) {
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(80, 80, 80);
-      pdf.text(addressText, pageWidth / 2, yPos, { align: 'center' });
-      yPos += 15;
-    }
     
+    // Company ABN (if available)
     if (fullCompanyData?.abn) {
       pdf.setFontSize(11);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(60, 60, 60);
       pdf.text(`ABN: ${fullCompanyData.abn}`, pageWidth / 2, yPos, { align: 'center' });
-      yPos += 20;
+      yPos += 25;
     }
 
-    // Project and Report Information
-    pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(30, 30, 30);
-    pdf.text(project.name, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 15;
+    // Project Address/Location (centered)
+    if (addressText && !addressLooksLikeEmail) {
+      pdf.setFontSize(18);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(30, 30, 30);
+      pdf.text(addressText, pageWidth / 2, yPos, { align: 'center' });
+      yPos += 25;
+    }
 
-    pdf.setFontSize(14);
+    // Report Title (centered)
+    pdf.setFontSize(16);
     pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(40, 40, 40);
     pdf.text(report.title, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 20;
+    yPos += 30;
 
-    // Export metadata
+    // Issue Statistics Section (centered in a box)
     const numberedIssues = typedIssues.map((issue, index) => ({
       ...issue,
       auto_number: index + 1
@@ -394,38 +391,68 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     const openIssues = numberedIssues.filter(issue => issue.status === 'open').length;
     const closedIssues = numberedIssues.filter(issue => issue.status === 'closed').length;
 
+    // Statistics box background
+    const statsBoxY = yPos;
+    const statsBoxHeight = 50;
+    pdf.setFillColor(248, 250, 252);
+    pdf.roundedRect(60, statsBoxY - 10, pageWidth - 120, statsBoxHeight, 5, 5, 'F');
+    
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(30, 30, 30);
+    pdf.text(`Total Issues: ${totalIssues}`, pageWidth / 2, yPos + 10, { align: 'center' });
+    
     pdf.setFontSize(12);
     pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(40, 40, 40);
-    pdf.text(`Total Issues: ${totalIssues}`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 10;
-    pdf.text(`Open: ${openIssues} | Closed: ${closedIssues}`, pageWidth / 2, yPos, { align: 'center' });
-
-    // Project details at bottom of cover page
-    const bottomMargin = 60;
-    let bottomYPos = pageHeight - bottomMargin;
+    pdf.text(`Open: ${openIssues} | Closed: ${closedIssues}`, pageWidth / 2, yPos + 25, { align: 'center' });
     
-    pdf.setFontSize(10);
+    yPos += statsBoxHeight + 20;
+
+    // Project Details Section - Professional Layout
+    const detailsStartY = pageHeight - 120;
+    const leftMargin = 40;
+    const rightMargin = pageWidth - 40;
+    const labelWidth = 90;
+    
+    // Section title
+    pdf.setFontSize(12);
     pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(80, 80, 80);
+    pdf.setTextColor(30, 30, 30);
+    pdf.text('PROJECT DETAILS', leftMargin, detailsStartY - 15);
+    
+    // Separator line
+    pdf.setDrawColor(180, 180, 180);
+    pdf.setLineWidth(0.5);
+    pdf.line(leftMargin, detailsStartY - 10, rightMargin, detailsStartY - 10);
+    
+    let detailsY = detailsStartY;
     
     // Project Name
-    pdf.text('Project Name:', 30, bottomYPos);
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(70, 70, 70);
+    pdf.text('Project Name:', leftMargin, detailsY);
     pdf.setFont('helvetica', 'normal');
-    pdf.text(project.name, 90, bottomYPos);
-    bottomYPos += 12;
+    pdf.setTextColor(40, 40, 40);
+    pdf.text(project.name, leftMargin + labelWidth, detailsY);
+    detailsY += 15;
     
     // Project Number
     pdf.setFont('helvetica', 'bold');
-    pdf.text('Project Number:', 30, bottomYPos);
+    pdf.setTextColor(70, 70, 70);
+    pdf.text('Project Number:', leftMargin, detailsY);
     pdf.setFont('helvetica', 'normal');
-    pdf.text(project.project_id || 'N/A', 100, bottomYPos);
-    bottomYPos += 12;
+    pdf.setTextColor(40, 40, 40);
+    pdf.text(project.project_id || 'N/A', leftMargin + labelWidth, detailsY);
+    detailsY += 15;
     
     // Assignees
     pdf.setFont('helvetica', 'bold');
-    pdf.text('Assignees:', 30, bottomYPos);
+    pdf.setTextColor(70, 70, 70);
+    pdf.text('Assignees:', leftMargin, detailsY);
     pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(40, 40, 40);
     const assigneeNames = membersError ? [] : (projectMembers || [])
       .map((member: any) => {
         const profile = member.profiles;
@@ -433,15 +460,17 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       })
       .filter(name => name.length > 0);
     const assigneesText = assigneeNames.length > 0 ? assigneeNames.join(', ') : 'No assignees';
-    pdf.text(assigneesText, 80, bottomYPos);
-    bottomYPos += 12;
+    pdf.text(assigneesText, leftMargin + labelWidth, detailsY);
+    detailsY += 15;
     
     // Register Version / Date
     pdf.setFont('helvetica', 'bold');
-    pdf.text('Register Version / Date:', 30, bottomYPos);
+    pdf.setTextColor(70, 70, 70);
+    pdf.text('Register Version / Date:', leftMargin, detailsY);
     pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(40, 40, 40);
     const registerVersion = `v1.0 / ${exportDate}`;
-    pdf.text(registerVersion, 130, bottomYPos);
+    pdf.text(registerVersion, leftMargin + labelWidth, detailsY);
 
     // Start new page for issue summary table
     pdf.addPage();
