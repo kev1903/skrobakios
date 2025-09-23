@@ -313,17 +313,8 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     // Cover Page - Clean Table Format Layout
     await addHeaderFooter(pdf, pageNumber, true);
     
-    // Start with proper spacing after header
-    let yPos = 50;
-    
-    // Company ABN - small, right-aligned if available
-    if (fullCompanyData?.abn) {
-      pdf.setFontSize(10);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(100, 100, 100);
-      pdf.text(`ABN: ${fullCompanyData.abn}`, pageWidth - 30, yPos, { align: 'right' });
-      yPos += 25;
-    }
+    // Start with proper spacing after header - moved banner up
+    let yPos = 35; // Moved up from 50
     
     // Project banner image - centered and properly sized
     if (project.banner_image) {
