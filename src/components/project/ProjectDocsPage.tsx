@@ -122,7 +122,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
   }
 
   return (
-    <div className="h-screen flex bg-background">
+    <div className="flex bg-background min-h-screen">
       {/* Fixed Project Sidebar */}
       <div className="fixed left-0 top-0 h-full w-40 z-40">
         <ProjectSidebar 
@@ -135,9 +135,9 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 ml-40 h-screen overflow-y-auto bg-background">
+      <div className="flex-1 ml-40 bg-background">
         {/* Header Section */}
-        <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
+        <div className="sticky top-0 z-30 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-foreground font-inter">Project Documents</h1>
@@ -146,7 +146,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
           </div>
         </div>
         
-        <div className="p-6 min-h-full">
+        <div className="p-6">
           {/* Main Content with Tabs */}
           <div className="bg-card border rounded-lg">
             <Tabs defaultValue={defaultTab} className="w-full">
