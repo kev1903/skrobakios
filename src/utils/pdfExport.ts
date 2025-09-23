@@ -836,7 +836,19 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       const createdByProfile2 = profileMap.get(issue.created_by);
       const createdByName2 = createdByProfile2 ? `${createdByProfile2.first_name || ''} ${createdByProfile2.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
       pdf.text(createdByName2, detailsX, detailsY);
+      detailsY += 10;
+      
+      // Assigned to
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Assigned to:', detailsX, detailsY);
       detailsY += 5;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      const assignedToProfile = profileMap.get(issue.created_by); // Using created_by as assignee for now
+      const assignedToName = assignedToProfile ? `${assignedToProfile.first_name || ''} ${assignedToProfile.last_name || ''}`.trim() || 'Unassigned' : 'Unassigned';
+      pdf.text(assignedToName, detailsX, detailsY);
+      detailsY += 10;
       
       // Created date
       pdf.setFont('helvetica', 'bold');
