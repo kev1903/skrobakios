@@ -24,10 +24,25 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   const { getProject, loading } = useProjects();
   const { currentCompany } = useCompany();
   const lastFetchedIdRef = useRef<string | null>(null);
-  // Reset banner state immediately on project change to avoid showing stale images
+  // Reset banner state immediately on project change and clear any stale cache
   useEffect(() => {
+    console.log(`🔄 Project ID changed to: ${projectId}`);
     setBannerImage("");
     setBannerPosition({ x: 0, y: 0, scale: 1 });
+    
+    // Clear lastFetchedIdRef to force fresh fetch
+    lastFetchedIdRef.current = null;
+    
+    // Clear any stale localStorage entries from previous projects to prevent cross-contamination
+    if (projectId) {
+      // Only clear if we have a new project ID
+      const keys = Object.keys(localStorage);
+      const bannerKeys = keys.filter(key => key.startsWith('project_banner_') && !key.includes(projectId));
+      bannerKeys.forEach(key => {
+        console.log(`🗑️ Clearing stale localStorage key: ${key}`);
+        localStorage.removeItem(key);
+      });
+    }
   }, [projectId]);
 
   // Always call useMemo hooks before any conditional logic
@@ -63,11 +78,11 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       }
 
       // Avoid redundant fetches for the same project
-      if (lastFetchedIdRef.current === projectId && project) {
+      if (lastFetchedIdRef.current === projectId) {
         return;
       }
 
-      
+      console.log(`🔄 Fetching project data for: ${projectId}`);
       lastFetchedIdRef.current = projectId;
       
       try {
@@ -85,56 +100,31 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
 
           setProject(foundProject);
           
-          // First, try to load banner from database
-          let bannerFromDb = "";
-          let bannerPositionFromDb = { x: 0, y: 0, scale: 1 };
+          // Clear any previous project's banner data first to avoid cross-contamination
+          setBannerImage("");
+          setBannerPosition({ x: 0, y: 0, scale: 1 });
           
+          // Load banner from database if available
           if (foundProject.banner_image) {
-            bannerFromDb = foundProject.banner_image;
-            setBannerImage(bannerFromDb);
-            console.log(`Loading banner from database for project ${foundProject.id}`);
-          }
-          
-          if (foundProject.banner_position) {
-            bannerPositionFromDb = foundProject.banner_position;
-            setBannerPosition(bannerPositionFromDb);
-          }
-          
-          // If no banner in database, fallback to localStorage
-          if (!bannerFromDb) {
-            const savedBanner = localStorage.getItem(`project_banner_${foundProject.id}`);
-            if (savedBanner && savedBanner.trim() !== "") {
-              // Accept both base64 data URIs and URL paths (e.g. /lovable-uploads/... or http urls)
-              const isValidBase64Image = /^data:image\/(jpeg|jpg|png|gif|webp|bmp);base64,/.test(savedBanner);
-              const isUrlImage = /^(https?:\/\/|\/)/.test(savedBanner);
-              
-              if (isValidBase64Image || isUrlImage) {
-                console.log(`Loading valid banner from localStorage for project ${foundProject.id}`);
-                setBannerImage(savedBanner);
-              } else {
-                console.warn(`Invalid banner data found for project ${foundProject.id}, clearing...`);
-                // Clear corrupted banner data
-                localStorage.removeItem(`project_banner_${foundProject.id}`);
-                localStorage.removeItem(`project_banner_position_${foundProject.id}`);
-                setBannerImage("");
-              }
-            } else {
-              console.log(`No banner found for project ${foundProject.id}`);
-              setBannerImage("");
+            console.log(`✅ Loading banner from database for project ${foundProject.id}`);
+            setBannerImage(foundProject.banner_image);
+            
+            if (foundProject.banner_position) {
+              setBannerPosition(foundProject.banner_position);
             }
-
-            // Load banner position from localStorage only if not from database
-            const savedBannerPosition = localStorage.getItem(`project_banner_position_${foundProject.id}`);
-            if (savedBannerPosition) {
-              const position = safeJsonParse(savedBannerPosition, { fallback: null });
-              if (position && typeof position.x === "number" && typeof position.y === "number" && typeof position.scale === "number") {
-                setBannerPosition(position);
-              } else {
-                setBannerPosition({ x: 0, y: 0, scale: 1 });
-              }
-            } else {
-              setBannerPosition({ x: 0, y: 0, scale: 1 });
-            }
+          } else {
+            console.log(`ℹ️ No banner in database for project ${foundProject.id}`);
+            // Clear any stale localStorage data for this project to prevent cross-contamination
+            const localStorageKey = `project_banner_${foundProject.id}`;
+            const positionKey = `project_banner_position_${foundProject.id}`;
+            
+            // Remove any existing localStorage entries to ensure clean state
+            localStorage.removeItem(localStorageKey);
+            localStorage.removeItem(positionKey);
+            
+            // Explicitly set empty banner
+            setBannerImage("");
+            setBannerPosition({ x: 0, y: 0, scale: 1 });
           }
         } else {
           // Project not found, clear state
@@ -157,7 +147,7 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     return () => {
       isActive = false;
     };
-  }, [projectId, getProject, currentCompany?.id, project]);
+  }, [projectId, getProject, currentCompany?.id]); // Removed 'project' to prevent infinite loops
 
   const handleProjectUpdate = (updatedProject: Project) => {
     setProject(updatedProject);
