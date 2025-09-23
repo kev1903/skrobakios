@@ -149,8 +149,22 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
       />
 
       {/* Main Content */}
-      <div className="flex-1 ml-48 p-6 overflow-auto">
-        <div className="max-w-7xl mx-auto">
+      <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
+        {/* Header Section */}
+        <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground font-inter">QA/QC</h1>
+              <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
+              {project.location && (
+                <p className="text-muted-foreground text-xs font-inter">{project.location}</p>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        <div className="p-6 min-h-full">
+          <div className="max-w-7xl mx-auto">
           {/* Quick Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
             <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onNavigate(`qaqc-checklists?projectId=${projectId}`)}>
@@ -268,7 +282,8 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
             </Tabs>
           </div>
         </div>
+          </div>
+        </div>
       </div>
-    </div>
   );
 };
