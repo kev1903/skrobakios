@@ -311,7 +311,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       pdf.setTextColor(0, 0, 0);
     };
 
-    // Cover Page - Clean Professional Layout
+    // Cover Page - Clean Table Format Layout
     await addHeaderFooter(pdf, pageNumber, true);
     
     // Start with proper spacing after header
@@ -326,7 +326,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       yPos += 25;
     }
     
-    // Project banner image (single instance, properly positioned)
+    // Project banner image - centered and properly sized
     if (project.banner_image) {
       try {
         const getBannerDimensions = (url: string): Promise<{width: number, height: number}> => {
@@ -343,7 +343,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         
         const coverBannerMargin = 30;
         const coverBannerWidth = pageWidth - (2 * coverBannerMargin);
-        const bannerHeight = Math.min(coverBannerWidth / bannerAspectRatio, 120);
+        const bannerHeight = Math.min(coverBannerWidth / bannerAspectRatio, 150);
         const actualBannerWidth = bannerHeight * bannerAspectRatio;
         
         // Center the banner horizontally
@@ -359,102 +359,78 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
           bannerHeight
         );
         
-        yPos += bannerHeight + 35;
+        yPos += bannerHeight + 40;
       } catch (bannerError) {
         console.warn('Could not add project banner to PDF:', bannerError);
-        yPos += 25;
+        yPos += 30;
       }
     } else {
-      yPos += 25;
+      yPos += 30;
     }
 
-    // Main project title - prominent and centered
+    // Project Information Table - Structured format
+    const coverTableStartY = yPos;
+    const coverTableMargin = 40;
+    const coverTableWidth = pageWidth - (2 * coverTableMargin);
+    const leftColWidth = coverTableWidth * 0.4;
+    const rightColWidth = coverTableWidth * 0.6;
+    const coverRowHeight = 25;
+    
+    // Table header
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(40, 40, 40);
+    pdf.text('PROJECT DETAILS', coverTableMargin, coverTableStartY - 10);
+    
+    // Header underline
+    pdf.setDrawColor(150, 150, 150);
+    pdf.setLineWidth(1);
+    pdf.line(coverTableMargin, coverTableStartY - 5, pageWidth - coverTableMargin, coverTableStartY - 5);
+    
+    let currentY = coverTableStartY + 15;
+    
+    // Helper function to draw table row
+    const drawTableRow = (label: string, value: string, isHeader = false) => {
+      // Alternate row backgrounds
+      if (!isHeader) {
+        pdf.setFillColor(248, 250, 252);
+        pdf.rect(coverTableMargin, currentY - 8, coverTableWidth, coverRowHeight - 2, 'F');
+      }
+      
+      // Label column
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(70, 70, 70);
+      pdf.text(label, coverTableMargin + 10, currentY + 5);
+      
+      // Value column
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(40, 40, 40);
+      pdf.text(value, coverTableMargin + leftColWidth + 10, currentY + 5);
+      
+      // Row separator line
+      pdf.setDrawColor(220, 220, 220);
+      pdf.setLineWidth(0.3);
+      pdf.line(coverTableMargin, currentY + coverRowHeight - 10, pageWidth - coverTableMargin, currentY + coverRowHeight - 10);
+      
+      currentY += coverRowHeight;
+    };
+
+    // Get project data
     const addressText = fullCompanyData?.address?.toString().trim();
     const addressLooksLikeEmail = addressText ? /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/.test(addressText) : false;
-    
     const mainTitle = (addressText && !addressLooksLikeEmail) ? addressText : project.name;
     
-    pdf.setFontSize(24);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(20, 20, 20);
-    pdf.text(mainTitle, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 35;
-
-    // Report type/title - secondary, centered
-    pdf.setFontSize(18);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(80, 80, 80);
-    pdf.text(report.title, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 50;
-
-    // Issue statistics - prominently displayed in center
+    // Issue statistics
     const numberedIssues = typedIssues.map((issue, index) => ({
       ...issue,
       auto_number: index + 1
     }));
-
     const totalIssues = numberedIssues.length;
     const openIssues = numberedIssues.filter(issue => issue.status === 'open').length;
     const closedIssues = numberedIssues.filter(issue => issue.status === 'closed').length;
-
-    // Total Issues - Large and prominent
-    pdf.setFontSize(22);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(30, 30, 30);
-    pdf.text(`Total Issues: ${totalIssues}`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 25;
     
-    // Open/Closed breakdown - secondary info
-    pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(100, 100, 100);
-    pdf.text(`Open: ${openIssues} | Closed: ${closedIssues}`, pageWidth / 2, yPos, { align: 'center' });
-    
-    // Project Details Table - Clean and organized at bottom
-    const coverTableStartY = pageHeight - 120;
-    const coverTableMargin = 40;
-    
-    // Table header
-    pdf.setFontSize(12);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(40, 40, 40);
-    pdf.text('PROJECT DETAILS', coverTableMargin, coverTableStartY - 20);
-    
-    // Header line
-    pdf.setDrawColor(180, 180, 180);
-    pdf.setLineWidth(0.8);
-    pdf.line(coverTableMargin, coverTableStartY - 15, pageWidth - coverTableMargin, coverTableStartY - 15);
-    
-    // Table content with consistent spacing
-    let coverTableY = coverTableStartY;
-    const coverRowHeight = 15;
-    const coverLabelWidth = 110;
-    
-    // Row 1: Project Name
-    pdf.setFontSize(10);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(80, 80, 80);
-    pdf.text('Project Name:', coverTableMargin, coverTableY);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(40, 40, 40);
-    pdf.text(project.name, coverTableMargin + coverLabelWidth, coverTableY);
-    coverTableY += coverRowHeight;
-    
-    // Row 2: Project Number
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(80, 80, 80);
-    pdf.text('Project Number:', coverTableMargin, coverTableY);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(40, 40, 40);
-    pdf.text(project.project_id || 'N/A', coverTableMargin + coverLabelWidth, coverTableY);
-    coverTableY += coverRowHeight;
-    
-    // Row 3: Assignees
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(80, 80, 80);
-    pdf.text('Assignees:', coverTableMargin, coverTableY);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(40, 40, 40);
+    // Assignee data
     const assigneeNames = membersError ? [] : (projectMembers || [])
       .map((member: any) => {
         const profile = member.profiles;
@@ -462,17 +438,21 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       })
       .filter(name => name.length > 0);
     const assigneesText = assigneeNames.length > 0 ? assigneeNames.join(', ') : 'No assignees';
-    pdf.text(assigneesText, coverTableMargin + coverLabelWidth, coverTableY);
-    coverTableY += coverRowHeight;
     
-    // Row 4: Version/Date
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(80, 80, 80);
-    pdf.text('Register Version / Date:', coverTableMargin, coverTableY);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(40, 40, 40);
-    const registerVersion = `v1.0 / ${exportDate}`;
-    pdf.text(registerVersion, coverTableMargin + coverLabelWidth, coverTableY);
+    // Draw table rows
+    drawTableRow('Project Name:', mainTitle);
+    drawTableRow('Project Number:', project.project_id || 'N/A');
+    drawTableRow('Report Type:', report.title);
+    drawTableRow('Assignees:', assigneesText);
+    drawTableRow('Total Issues:', totalIssues.toString());
+    drawTableRow('Open Issues:', openIssues.toString());
+    drawTableRow('Closed Issues:', closedIssues.toString());
+    drawTableRow('Register Version / Date:', `v1.0 / ${exportDate}`);
+    
+    // Remove the last separator line
+    pdf.setDrawColor(150, 150, 150);
+    pdf.setLineWidth(1);
+    pdf.line(coverTableMargin, currentY - coverRowHeight + 15, pageWidth - coverTableMargin, currentY - coverRowHeight + 15);
 
     // Start new page for issue summary table
     pdf.addPage();
