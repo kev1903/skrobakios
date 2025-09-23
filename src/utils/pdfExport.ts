@@ -368,50 +368,48 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       yPos += 30;
     }
 
-    // Project Information Table - Structured format
+    // Project Information Table - Compact format
     const coverTableStartY = yPos;
     const coverTableMargin = 40;
     const coverTableWidth = pageWidth - (2 * coverTableMargin);
     const leftColWidth = coverTableWidth * 0.4;
     const rightColWidth = coverTableWidth * 0.6;
-    const coverRowHeight = 25;
+    const coverRowHeight = 12; // Much smaller row height
     
     // Table header
-    pdf.setFontSize(14);
+    pdf.setFontSize(12);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(40, 40, 40);
-    pdf.text('PROJECT DETAILS', coverTableMargin, coverTableStartY - 10);
+    pdf.text('PROJECT DETAILS', coverTableMargin, coverTableStartY - 8);
     
     // Header underline
     pdf.setDrawColor(150, 150, 150);
-    pdf.setLineWidth(1);
-    pdf.line(coverTableMargin, coverTableStartY - 5, pageWidth - coverTableMargin, coverTableStartY - 5);
+    pdf.setLineWidth(0.8);
+    pdf.line(coverTableMargin, coverTableStartY - 3, pageWidth - coverTableMargin, coverTableStartY - 3);
     
-    let currentY = coverTableStartY + 15;
+    let currentY = coverTableStartY + 5;
     
-    // Helper function to draw table row
-    const drawTableRow = (label: string, value: string, isHeader = false) => {
-      // Alternate row backgrounds
-      if (!isHeader) {
-        pdf.setFillColor(248, 250, 252);
-        pdf.rect(coverTableMargin, currentY - 8, coverTableWidth, coverRowHeight - 2, 'F');
-      }
+    // Helper function to draw compact table row
+    const drawTableRow = (label: string, value: string) => {
+      // Tight alternating row backgrounds
+      pdf.setFillColor(248, 250, 252);
+      pdf.rect(coverTableMargin, currentY - 2, coverTableWidth, coverRowHeight, 'F');
       
-      // Label column
-      pdf.setFontSize(11);
+      // Label column - compact text
+      pdf.setFontSize(9);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(70, 70, 70);
-      pdf.text(label, coverTableMargin + 10, currentY + 5);
+      pdf.text(label, coverTableMargin + 5, currentY + 6);
       
-      // Value column
+      // Value column - compact text
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(40, 40, 40);
-      pdf.text(value, coverTableMargin + leftColWidth + 10, currentY + 5);
+      pdf.text(value, coverTableMargin + leftColWidth + 5, currentY + 6);
       
-      // Row separator line
-      pdf.setDrawColor(220, 220, 220);
-      pdf.setLineWidth(0.3);
-      pdf.line(coverTableMargin, currentY + coverRowHeight - 10, pageWidth - coverTableMargin, currentY + coverRowHeight - 10);
+      // Thin separator line
+      pdf.setDrawColor(230, 230, 230);
+      pdf.setLineWidth(0.2);
+      pdf.line(coverTableMargin, currentY + coverRowHeight, pageWidth - coverTableMargin, currentY + coverRowHeight);
       
       currentY += coverRowHeight;
     };
@@ -449,10 +447,10 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     drawTableRow('Closed Issues:', closedIssues.toString());
     drawTableRow('Register Version / Date:', `v1.0 / ${exportDate}`);
     
-    // Remove the last separator line
+    // Final table border
     pdf.setDrawColor(150, 150, 150);
-    pdf.setLineWidth(1);
-    pdf.line(coverTableMargin, currentY - coverRowHeight + 15, pageWidth - coverTableMargin, currentY - coverRowHeight + 15);
+    pdf.setLineWidth(0.8);
+    pdf.line(coverTableMargin, currentY, pageWidth - coverTableMargin, currentY);
 
     // Start new page for issue summary table
     pdf.addPage();
