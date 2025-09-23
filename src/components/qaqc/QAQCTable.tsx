@@ -347,14 +347,14 @@ export const QAQCTable = ({
       
       case 'issues':
         return (
-          <TableRow key={item.id}>
-            <TableCell>
+          <TableRow key={item.id} className="h-10">
+            <TableCell className="py-1 px-2">
               <Checkbox
                 checked={selectedItems.includes(item.id)}
                 onCheckedChange={(checked) => handleSelectItem(item.id, checked as boolean)}
               />
             </TableCell>
-            <TableCell className="font-medium">
+            <TableCell className="font-medium py-1 px-2">
               <button 
                 className="text-blue-600 hover:text-blue-800 hover:underline"
                 onClick={() => onNavigate?.(`qaqc-issue-report-detail?projectId=${item.project_id}&reportId=${item.report_id}`)}
@@ -362,7 +362,7 @@ export const QAQCTable = ({
                 {item.auto_number || item.issue_number || '-'}
               </button>
             </TableCell>
-            <TableCell>
+            <TableCell className="py-1 px-2">
               <button 
                 className="text-left hover:text-blue-600 hover:underline transition-colors"
                 onClick={() => onNavigate?.(`qaqc-issue-edit?projectId=${item.project_id}&issueId=${item.id}`)}
@@ -370,20 +370,20 @@ export const QAQCTable = ({
                 {item.title}
               </button>
             </TableCell>
-            <TableCell className="capitalize">{item.type?.replace('_', ' ') || '-'}</TableCell>
-            <TableCell>
+            <TableCell className="capitalize py-1 px-2">{item.type?.replace('_', ' ') || '-'}</TableCell>
+            <TableCell className="py-1 px-2">
               <Badge className={getSeverityColor(item.severity)}>{item.severity}</Badge>
             </TableCell>
-            <TableCell>
+            <TableCell className="py-1 px-2">
               <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
             </TableCell>
-            <TableCell>{item.reported_by}</TableCell>
-            <TableCell>{format(new Date(item.created_at), 'MMM dd, yyyy')}</TableCell>
-            <TableCell>
+            <TableCell className="py-1 px-2">{item.reported_by}</TableCell>
+            <TableCell className="py-1 px-2">{format(new Date(item.created_at), 'MMM dd, yyyy')}</TableCell>
+            <TableCell className="py-1 px-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="w-4 h-4" />
+                  <Button variant="ghost" size="icon" className="h-6 w-6">
+                    <MoreHorizontal className="w-3 h-3" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-white border border-border shadow-lg z-50">
