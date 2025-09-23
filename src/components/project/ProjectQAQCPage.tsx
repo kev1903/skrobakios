@@ -156,9 +156,6 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
             <div>
               <h1 className="text-2xl font-bold text-foreground font-inter">QA/QC</h1>
               <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
-              {project.location && (
-                <p className="text-muted-foreground text-xs font-inter">{project.location}</p>
-              )}
             </div>
           </div>
         </div>
