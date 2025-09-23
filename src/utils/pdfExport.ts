@@ -239,8 +239,8 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         
         const aspectRatio = img.naturalWidth / img.naturalHeight;
         
-        // Reduce size by 50% and maintain proper aspect ratio
-        logoHeight = 9; // 50% smaller height
+        // Reduce size by 50% then another 30% (total ~65% reduction) and maintain proper aspect ratio
+        logoHeight = 6.3; // 30% smaller than current 9px height
         logoWidth = logoHeight * aspectRatio;
         
         // If width exceeds maximum, constrain by width and recalculate height
@@ -279,9 +279,9 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         } else if (customLogoDataUrl) {
           // Use fallback Skrobaki logo with proper aspect ratio and alignment
           const processedLogo = await loadImageAsDataUrl(customLogoDataUrl, true);
-          // Skrobaki logo dimensions for proper aspect ratio (wider logo, smaller size)
-          const skrobakiWidth = 32.5; // 50% smaller
-          const skrobakiHeight = 9; // 50% smaller
+          // Skrobaki logo dimensions for proper aspect ratio (wider logo, reduced by 30%)
+          const skrobakiWidth = 22.75; // 30% smaller
+          const skrobakiHeight = 6.3; // 30% smaller
           const logoY = 10 + (18 - skrobakiHeight) / 2; // Center vertically
           pdf.addImage(processedLogo, 'JPEG', 20, logoY, skrobakiWidth, skrobakiHeight);
         }
