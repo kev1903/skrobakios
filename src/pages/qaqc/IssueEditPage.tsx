@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
@@ -53,6 +54,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
   const [existingAttachments, setExistingAttachments] = useState<AttachmentType[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
@@ -630,29 +632,30 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                                 <X className="w-4 h-4" />
                               </Button>
                               
-                              {/* File preview */}
-                              <div className="space-y-2">
-                                 {isImage ? (
-                                   <div className="relative">
-                                     <img
-                                       src={attachment.url}
-                                       alt={attachment.name}
-                                       className="w-full h-32 object-cover rounded border"
-                                       onError={(e) => {
-                                         console.error('Failed to load image:', attachment.url);
-                                         e.currentTarget.style.display = 'none';
-                                         e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                                       }}
-                                     />
-                                     <div className="hidden flex items-center justify-center h-32 bg-muted rounded border">
-                                       <Paperclip className="w-8 h-8 text-muted-foreground" />
-                                     </div>
+                               {/* File preview */}
+                               <div className="space-y-2">
+                                  {isImage ? (
+                                    <div className="relative">
+                                      <img
+                                        src={attachment.url}
+                                        alt={attachment.name}
+                                        className="w-full h-32 object-cover rounded border cursor-pointer hover:opacity-80 transition-opacity"
+                                        onClick={() => setPreviewImage(attachment.url)}
+                                        onError={(e) => {
+                                          console.error('Failed to load image:', attachment.url);
+                                          e.currentTarget.style.display = 'none';
+                                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                                        }}
+                                      />
+                                      <div className="hidden flex items-center justify-center h-32 bg-muted rounded border">
+                                        <Paperclip className="w-8 h-8 text-muted-foreground" />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                   <div className="flex items-center justify-center h-32 bg-muted rounded border">
+                                     <Paperclip className="w-8 h-8 text-muted-foreground" />
                                    </div>
-                                 ) : (
-                                  <div className="flex items-center justify-center h-32 bg-muted rounded border">
-                                    <Paperclip className="w-8 h-8 text-muted-foreground" />
-                                  </div>
-                                )}
+                                 )}
                                 
                                 {/* File info */}
                                 <div className="space-y-1">
@@ -689,22 +692,23 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                                 <X className="w-4 h-4" />
                               </Button>
                               
-                              {/* File preview */}
-                              <div className="space-y-2">
-                                {isImage ? (
-                                  <div className="relative">
-                                    <img
-                                      src={fileUrl}
-                                      alt={file.name}
-                                      className="w-full h-32 object-cover rounded border"
-                                      onLoad={() => URL.revokeObjectURL(fileUrl)}
-                                    />
-                                  </div>
-                                ) : (
-                                  <div className="flex items-center justify-center h-32 bg-muted rounded border">
-                                    <Paperclip className="w-8 h-8 text-muted-foreground" />
-                                  </div>
-                                )}
+                               {/* File preview */}
+                               <div className="space-y-2">
+                                 {isImage ? (
+                                   <div className="relative">
+                                     <img
+                                       src={fileUrl}
+                                       alt={file.name}
+                                       className="w-full h-32 object-cover rounded border cursor-pointer hover:opacity-80 transition-opacity"
+                                       onClick={() => setPreviewImage(fileUrl)}
+                                       onLoad={() => URL.revokeObjectURL(fileUrl)}
+                                     />
+                                   </div>
+                                 ) : (
+                                   <div className="flex items-center justify-center h-32 bg-muted rounded border">
+                                     <Paperclip className="w-8 h-8 text-muted-foreground" />
+                                   </div>
+                                 )}
                                 
                                 {/* File info */}
                                 <div className="space-y-1">
@@ -739,6 +743,21 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
           </div>
         </div>
       </div>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-center">
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="max-w-full max-h-[80vh] object-contain"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
