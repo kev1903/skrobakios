@@ -214,9 +214,9 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
 
     const fullCompanyData = project?.companies;
     
-    // Logo dimensions calculation
-    let logoWidth = 40;
-    let logoHeight = 20;
+    // Logo dimensions calculation (reduced by 30%)
+    let logoWidth = 28; // 30% smaller than 40
+    let logoHeight = 14; // 30% smaller than 20
     
     // Try to use company logo if available, otherwise preload Skrobaki logo from uploads
     let customLogoDataUrl: string | null = null;
@@ -250,16 +250,15 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
           logoHeight = logoWidth / aspectRatio;
         }
         
-        // Ensure minimum readable size
-        if (logoHeight < 14) {
-          logoHeight = 14;
+        // Ensure minimum readable size (reduced by 30%)
+        if (logoHeight < 9.8) { // 30% smaller than original 14
+          logoHeight = 9.8;
           logoWidth = logoHeight * aspectRatio;
         }
       } catch (error) {
         console.warn('Could not get logo dimensions, using default:', error);
-        logoWidth = 50;
-        logoHeight = 18;
-        logoHeight = 20;
+        logoWidth = 35; // 30% smaller than 50
+        logoHeight = 12.6; // 30% smaller than 18
       }
     }
 
