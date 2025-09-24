@@ -97,39 +97,22 @@ export const WBSTimeView = ({
         {/* Left Panel - WBS Structure and Data Columns */}
         <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
           <div className="h-full bg-white">
-            {/* Single Unified Header */}
-            <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm">
-              <ResizablePanelGroup direction="horizontal" className="h-full">
-                <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
-                  <div className="h-full grid items-center" style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
-                    <div className="px-2 text-center"></div>
-                    <div className="px-2">WBS</div>
-                    <div className="px-3">NAME</div>
-                    <div></div>
+            <ResizablePanelGroup direction="horizontal" className="h-full">
+              {/* WBS Structure Column */}
+              <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
+                <div className="h-full flex flex-col border-r border-gray-200 bg-white">
+                  {/* WBS Structure Header */}
+                  <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm">
+                    <div className="h-full grid items-center" style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
+                      <div className="px-2 text-center"></div>
+                      <div className="px-2">WBS</div>
+                      <div className="px-3">NAME</div>
+                      <div></div>
+                    </div>
                   </div>
-                </ResizablePanel>
-                
-                <ResizableHandle />
-                
-                <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
-                  <div className="h-full grid items-center" style={{ gridTemplateColumns: '120px 120px 100px 140px 140px 120px' }}>
-                    <div className="px-2 text-center">START DATE</div>
-                    <div className="px-2 text-center">END DATE</div>
-                    <div className="px-2 text-center">DURATION</div>
-                    <div className="px-2 text-center">PREDECESSORS</div>
-                    <div className="px-2 text-center">STATUS</div>
-                    <div className="px-2 text-center">ACTIONS</div>
-                  </div>
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </div>
-
-            {/* Content Area */}
-            <div className="h-[calc(100%-60px)]">
-              <ResizablePanelGroup direction="horizontal" className="h-full">
-                {/* WBS Structure Column */}
-                <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
-                  <div className="h-full border-r border-gray-200 bg-white overflow-hidden">
+                  
+                  {/* WBS Structure Content */}
+                  <div className="flex-1 overflow-hidden">
                     <WBSLeftPanel
                       items={items.map(item => ({
                         ...item,
@@ -150,13 +133,28 @@ export const WBSTimeView = ({
                       onRowHover={setHoveredId}
                     />
                   </div>
-                </ResizablePanel>
+                </div>
+              </ResizablePanel>
 
-                <ResizableHandle />
+              <ResizableHandle />
 
-                {/* Data Columns */}
-                <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
-                  <div className="h-full border-r border-gray-200 bg-white overflow-hidden">
+              {/* Data Columns */}
+              <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
+                <div className="h-full flex flex-col border-r border-gray-200 bg-white">
+                  {/* Data Columns Header */}
+                  <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm">
+                    <div className="h-full grid items-center" style={{ gridTemplateColumns: '120px 120px 100px 140px 140px 120px' }}>
+                      <div className="px-2 text-center">START DATE</div>
+                      <div className="px-2 text-center">END DATE</div>
+                      <div className="px-2 text-center">DURATION</div>
+                      <div className="px-2 text-center">PREDECESSORS</div>
+                      <div className="px-2 text-center">STATUS</div>
+                      <div className="px-2 text-center">ACTIONS</div>
+                    </div>
+                  </div>
+                  
+                  {/* Data Columns Content */}
+                  <div className="flex-1 overflow-hidden">
                     <WBSTimeRightPanel
                       items={items}
                       onItemUpdate={handleItemUpdate}
@@ -171,9 +169,9 @@ export const WBSTimeView = ({
                       onRowHover={setHoveredId}
                     />
                   </div>
-                </ResizablePanel>
-              </ResizablePanelGroup>
-            </div>
+                </div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
           </div>
         </ResizablePanel>
 
