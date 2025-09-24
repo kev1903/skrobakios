@@ -96,77 +96,85 @@ export const WBSTimeView = ({
       <ResizablePanelGroup direction="horizontal" className="h-full w-full">
         {/* Left Panel - WBS Structure and Data Columns */}
         <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-          <ResizablePanelGroup direction="horizontal" className="h-full">
-            {/* WBS Structure Column */}
-            <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
-              <div className="h-full border-r border-gray-200 bg-white overflow-hidden">
-                {/* Header */}
-                <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 grid items-center text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm"
-                     style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
-                  <div className="px-2 text-center">WBS</div>
-                  <div className="px-2">WBS</div>
-                  <div className="px-3">NAME</div>
-                  <div></div>
-                </div>
+          <div className="h-full bg-white">
+            {/* Single Unified Header */}
+            <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm">
+              <ResizablePanelGroup direction="horizontal" className="h-full">
+                <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
+                  <div className="h-full grid items-center" style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
+                    <div className="px-2 text-center">WBS</div>
+                    <div className="px-2">WBS</div>
+                    <div className="px-3">NAME</div>
+                    <div></div>
+                  </div>
+                </ResizablePanel>
                 
-                <div className="h-[calc(100%-60px)] overflow-hidden">
-                  <WBSLeftPanel
-                    items={items.map(item => ({
-                      ...item,
-                      name: item.title,
-                      wbsNumber: item.wbs_id || '',
-                      status: item.status || 'Not Started'
-                    }))}
-                    onToggleExpanded={onToggleExpanded}
-                    onDragEnd={onDragEnd}
-                    onItemEdit={onItemUpdate}
-                    onAddChild={onAddChild}
-                    dragIndicator={dragIndicator}
-                    EditableCell={EditableCell}
-                    generateWBSNumber={generateWBSNumber}
-                    scrollRef={leftInnerRef}
-                    onScroll={handleLeftPanelScroll}
-                    hoveredId={hoveredId}
-                    onRowHover={setHoveredId}
-                  />
-                </div>
-              </div>
-            </ResizablePanel>
-
-            <ResizableHandle />
-
-            {/* Data Columns */}
-            <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
-              <div className="h-full border-r border-gray-200 bg-white overflow-hidden">
-                {/* Header */}
-                <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 grid items-center text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm"
-                     style={{ gridTemplateColumns: '120px 120px 100px 140px 140px 120px' }}>
-                  <div className="px-2 text-center">START DATE</div>
-                  <div className="px-2 text-center">END DATE</div>
-                  <div className="px-2 text-center">DURATION</div>
-                  <div className="px-2 text-center">PREDECESSORS</div>
-                  <div className="px-2 text-center">STATUS</div>
-                  <div className="px-2 text-center">ACTIONS</div>
-                </div>
+                <ResizableHandle />
                 
-                <div className="h-[calc(100%-60px)] overflow-hidden">
-                  <WBSTimeRightPanel
-                    items={items}
-                    onItemUpdate={handleItemUpdate}
-                    onContextMenuAction={onContextMenuAction}
-                    onOpenNotesDialog={onOpenNotesDialog}
-                    onClearAllDates={onClearAllDates}
-                    EditableCell={EditableCell}
-                    StatusSelect={StatusSelect}
-                    scrollRef={rightScrollRef}
-                    onScroll={handleMiddlePanelScroll}
-                    hoveredId={hoveredId}
-                    onRowHover={setHoveredId}
-                  />
-                </div>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+                <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
+                  <div className="h-full grid items-center" style={{ gridTemplateColumns: '120px 120px 100px 140px 140px 120px' }}>
+                    <div className="px-2 text-center">START DATE</div>
+                    <div className="px-2 text-center">END DATE</div>
+                    <div className="px-2 text-center">DURATION</div>
+                    <div className="px-2 text-center">PREDECESSORS</div>
+                    <div className="px-2 text-center">STATUS</div>
+                    <div className="px-2 text-center">ACTIONS</div>
+                  </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </div>
+
+            {/* Content Area */}
+            <div className="h-[calc(100%-60px)]">
+              <ResizablePanelGroup direction="horizontal" className="h-full">
+                {/* WBS Structure Column */}
+                <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
+                  <div className="h-full border-r border-gray-200 bg-white overflow-hidden">
+                    <WBSLeftPanel
+                      items={items.map(item => ({
+                        ...item,
+                        name: item.title,
+                        wbsNumber: item.wbs_id || '',
+                        status: item.status || 'Not Started'
+                      }))}
+                      onToggleExpanded={onToggleExpanded}
+                      onDragEnd={onDragEnd}
+                      onItemEdit={onItemUpdate}
+                      onAddChild={onAddChild}
+                      dragIndicator={dragIndicator}
+                      EditableCell={EditableCell}
+                      generateWBSNumber={generateWBSNumber}
+                      scrollRef={leftInnerRef}
+                      onScroll={handleLeftPanelScroll}
+                      hoveredId={hoveredId}
+                      onRowHover={setHoveredId}
+                    />
+                  </div>
+                </ResizablePanel>
+
+                <ResizableHandle />
+
+                {/* Data Columns */}
+                <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
+                  <div className="h-full border-r border-gray-200 bg-white overflow-hidden">
+                    <WBSTimeRightPanel
+                      items={items}
+                      onItemUpdate={handleItemUpdate}
+                      onContextMenuAction={onContextMenuAction}
+                      onOpenNotesDialog={onOpenNotesDialog}
+                      onClearAllDates={onClearAllDates}
+                      EditableCell={EditableCell}
+                      StatusSelect={StatusSelect}
+                      scrollRef={rightScrollRef}
+                      onScroll={handleMiddlePanelScroll}
+                      hoveredId={hoveredId}
+                      onRowHover={setHoveredId}
+                    />
+                  </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </div>
+          </div>
         </ResizablePanel>
 
         <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
@@ -215,6 +223,7 @@ export const WBSTimeView = ({
                     return days.map((day, index) => {
                       const isToday = format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
                       const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                      const isFirstDayOfMonth = day.getDate() === 1;
                       
                       return (
                         <div 
@@ -225,6 +234,11 @@ export const WBSTimeView = ({
                           }`}
                           style={{ width: dayWidth }}
                         >
+                          {isFirstDayOfMonth && (
+                            <div className="text-[8px] font-bold mb-0.5 text-blue-600">
+                              {format(day, 'MMM').toUpperCase()}
+                            </div>
+                          )}
                           <div className="text-[9px] font-medium mb-0.5">
                             {format(day, 'EEE').toUpperCase()}
                           </div>
