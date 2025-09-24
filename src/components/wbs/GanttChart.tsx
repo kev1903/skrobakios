@@ -229,7 +229,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                     ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
                     : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
                 } border-b border-gray-100 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
-                style={{ height: '1.75rem' }}
+                style={{ height: '28px' }}
                 onMouseEnter={() => onRowHover?.(item.id)}
                 onMouseLeave={() => onRowHover?.(null)}
               >
@@ -373,7 +373,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
                            left: position.left,
                            top: 2,
                            width: Math.max(32, position.width),
-                           height: 'calc(1.75rem - 4px)'
+                           height: 'calc(28px - 4px)'
                          }}
                          title={`${getWbs(item)} - ${item.name}\n${format(position.startDate, 'MMM dd')} to ${format(position.endDate, 'MMM dd')}`}
                        >

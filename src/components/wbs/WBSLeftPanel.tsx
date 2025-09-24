@@ -81,7 +81,7 @@ export const WBSLeftPanel = ({
                  } ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
                                style={{
                                  gridTemplateColumns: '32px 120px 1fr 40px',
-                                 height: '1.75rem',
+                                 height: '28px', // Exact pixel match with GanttChart
                                  ...dragProvided.draggableProps.style,
                                }}
                               onClick={(e) => {
@@ -95,7 +95,7 @@ export const WBSLeftPanel = ({
                               onMouseEnter={() => onRowHover?.(item.id)}
                               onMouseLeave={() => onRowHover?.(null)}
                             >
-                               <div className="px-2 flex items-center justify-center">
+                               <div className="px-2 flex items-center justify-center h-full">
                                  <div className="flex items-center">
                                    <div
                                      {...dragProvided.dragHandleProps}
@@ -122,7 +122,7 @@ export const WBSLeftPanel = ({
                                  </div>
                                </div>
                               
-                                <div className={`px-2 flex items-center ${
+                                <div className={`px-2 flex items-center h-full ${
                                   item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
                                 } ${
                                   item.level === 0 
@@ -134,7 +134,7 @@ export const WBSLeftPanel = ({
                                 {item.wbsNumber}
                               </div>
                               
-                                <div className={`px-3 flex items-center ${
+                                <div className={`px-3 flex items-center h-full ${
                                   item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
                                 } ${
                                   item.level === 0 
@@ -155,7 +155,7 @@ export const WBSLeftPanel = ({
                               </div>
                               
                                {/* Add Child Button */}
-                               <div className="px-2 flex items-center justify-center">
+                               <div className="px-2 flex items-center justify-center h-full">
                                  {onAddChild && item.level < 2 && (
                                    <Button
                                      variant="ghost"
