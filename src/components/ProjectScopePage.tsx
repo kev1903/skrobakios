@@ -1442,45 +1442,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
               <TabsContent value="time" className="h-full w-full m-0 p-0 data-[state=active]:flex">
                 <div className="h-full w-full flex flex-col">
-                  {/* Combined Header with Table Headers */}
-                  <div className="bg-background border-b border-border">
-                    
-                    {/* Table Headers Row - Integrated with Resizable Panels */}
-                    <div className="bg-slate-100/70 border-t border-slate-200">
-                      <ResizablePanelGroup direction="horizontal" className="h-8">
-                        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-                          <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
-                            <div className="grid items-center h-full" style={{
-                              gridTemplateColumns: '32px 120px 1fr 40px',
-                            }}>
-                              <div></div>
-                              <div className="px-2 font-semibold">WBS</div>
-                              <div className="px-3 font-semibold">NAME</div>
-                              <div></div>
-                            </div>
-                          </div>
-                        </ResizablePanel>
-                        
-                        <ResizableHandle />
-                        
-                        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-                          <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
-                            <div className="grid items-center h-full" style={{
-                              gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
-                            }}>
-                              <div className="px-2 font-semibold">START DATE</div>
-                              <div className="px-2 font-semibold">END DATE</div>
-                              <div className="px-2 font-semibold">DURATION</div>
-                              <div className="px-2 font-semibold">PREDECESSORS</div>
-                              <div className="px-2 font-semibold">STATUS</div>
-                              <div className="px-2 font-semibold">ACTIONS</div>
-                            </div>
-                          </div>
-                        </ResizablePanel>
-                      </ResizablePanelGroup>
-                    </div>
-                  </div>
-
                   {loading && wbsItems.length === 0 ? (
                     <div className="flex items-center justify-center h-64">
                       <div className="text-center">
