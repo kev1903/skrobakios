@@ -1,6 +1,7 @@
 import React, { useRef, useCallback, useState } from 'react';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSRightPanel } from './WBSRightPanel';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { DropResult } from 'react-beautiful-dnd';
 
 interface WBSItem {
@@ -66,7 +67,8 @@ export const WBSSplitView = ({
   }, []);
 
   return (
-    <div className="flex h-full w-full bg-white overflow-hidden">
+    <ResizablePanelGroup direction="horizontal" className="h-full w-full bg-white">
+      <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
         <WBSLeftPanel
           items={items}
           onToggleExpanded={onToggleExpanded}
@@ -81,22 +83,27 @@ export const WBSSplitView = ({
           hoveredId={hoveredId}
           onRowHover={setHoveredId}
         />
+      </ResizablePanel>
       
-      <WBSRightPanel
-        items={items}
-        onItemUpdate={onItemUpdate}
-        onContextMenuAction={onContextMenuAction}
-        onOpenNotesDialog={onOpenNotesDialog}
-        EditableCell={EditableCell}
-        StatusSelect={StatusSelect}
-        ProgressInput={ProgressInput}
-        ProgressDisplay={ProgressDisplay}
-        getProgressColor={getProgressColor}
-        scrollRef={rightScrollRef}
-        onScroll={handleRightScroll}
-        hoveredId={hoveredId}
-        onRowHover={setHoveredId}
-      />
-    </div>
+      <ResizableHandle withHandle />
+      
+      <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+        <WBSRightPanel
+          items={items}
+          onItemUpdate={onItemUpdate}
+          onContextMenuAction={onContextMenuAction}
+          onOpenNotesDialog={onOpenNotesDialog}
+          EditableCell={EditableCell}
+          StatusSelect={StatusSelect}
+          ProgressInput={ProgressInput}
+          ProgressDisplay={ProgressDisplay}
+          getProgressColor={getProgressColor}
+          scrollRef={rightScrollRef}
+          onScroll={handleRightScroll}
+          hoveredId={hoveredId}
+          onRowHover={setHoveredId}
+        />
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 };
