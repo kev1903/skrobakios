@@ -1358,87 +1358,49 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
               <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex">
                 <div className="h-full w-full flex flex-col">
-                  {/* Combined Header with Table Headers */}
-                  <div className="bg-background border-b border-border">
-                    
-                    {/* Table Headers Row - Integrated with Resizable Panels */}
-                    <div className="bg-slate-100/70 border-t border-slate-200">
-                      <ResizablePanelGroup direction="horizontal" className="h-8">
-                        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-                          <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
-                            <div className="grid items-center h-full" style={{
-                              gridTemplateColumns: '32px 120px 1fr 40px',
-                            }}>
-                              <div></div>
-                              <div className="px-2 font-semibold">WBS</div>
-                              <div className="px-3 font-semibold">NAME</div>
-                              <div></div>
-                            </div>
-                          </div>
-                        </ResizablePanel>
-                        
-                        <ResizableHandle />
-                        
-                        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-                          <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
-                            <div className="grid items-center h-full" style={{
-                              gridTemplateColumns: '140px 120px 160px 40px 84px',
-                            }}>
-                              <div className="px-2 font-semibold">STATUS</div>
-                              <div className="px-2 font-semibold">PROGRESS</div>
-                              <div className="px-2 font-semibold">ASSIGNED TO</div>
-                              <div className="px-1 font-semibold text-center">NOTE</div>
-                              <div className="px-2 font-semibold">ACTIONS</div>
-                            </div>
-                          </div>
-                        </ResizablePanel>
-                      </ResizablePanelGroup>
-                    </div>
-                  </div>
-
-                  {loading && wbsItems.length === 0 ? (
-                    <div className="flex items-center justify-center h-64">
-                      <div className="text-center">
-                        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
-                        <div className="text-sm text-muted-foreground">Loading WBS...</div>
-                      </div>
-                    </div>
-                  ) : error ? (
-                    <div className="flex items-center justify-center h-64">
-                      <div className="text-center">
-                        <div className="text-sm text-destructive mb-2">Error loading WBS</div>
-                        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                          Retry
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex-1 min-w-0 overflow-y-auto">
-                      <WBSSplitView
-                        items={flatWBSItems}
-                        onToggleExpanded={(itemId) => {
-                          const item = wbsItems.find(i => i.id === itemId);
-                          if (item) {
-                            updateWBSItem(itemId, { is_expanded: !item.is_expanded });
-                          }
-                        }}
-                        onDragEnd={onDragEnd}
-                        onItemUpdate={updateWBSItem}
-                        onAddChild={addChildItem}
-                        onContextMenuAction={handleContextMenuAction}
-                        onOpenNotesDialog={openNotesDialog}
-                        dragIndicator={dragIndicator}
-                        EditableCell={EditableCell}
-                        StatusSelect={StatusSelect}
-                        ProgressInput={ProgressInput}
-                        ProgressDisplay={ProgressDisplay}
-                        getProgressColor={getProgressColor}
-                        generateWBSNumber={generateWBSNumber}
-                      />
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
+                   {loading && wbsItems.length === 0 ? (
+                     <div className="flex items-center justify-center h-64">
+                       <div className="text-center">
+                         <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
+                         <div className="text-sm text-muted-foreground">Loading WBS...</div>
+                       </div>
+                     </div>
+                   ) : error ? (
+                     <div className="flex items-center justify-center h-64">
+                       <div className="text-center">
+                         <div className="text-sm text-destructive mb-2">Error loading WBS</div>
+                         <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                           Retry
+                         </Button>
+                       </div>
+                     </div>
+                   ) : (
+                     <div className="flex-1 min-w-0 overflow-y-hidden">
+                       <WBSSplitView
+                         items={flatWBSItems}
+                         onToggleExpanded={(itemId) => {
+                           const item = wbsItems.find(i => i.id === itemId);
+                           if (item) {
+                             updateWBSItem(itemId, { is_expanded: !item.is_expanded });
+                           }
+                         }}
+                         onDragEnd={onDragEnd}
+                         onItemUpdate={updateWBSItem}
+                         onAddChild={addChildItem}
+                         onContextMenuAction={handleContextMenuAction}
+                         onOpenNotesDialog={openNotesDialog}
+                         dragIndicator={dragIndicator}
+                         EditableCell={EditableCell}
+                         StatusSelect={StatusSelect}
+                         ProgressInput={ProgressInput}
+                         ProgressDisplay={ProgressDisplay}
+                         getProgressColor={getProgressColor}
+                         generateWBSNumber={generateWBSNumber}
+                       />
+                     </div>
+                   )}
+                 </div>
+               </TabsContent>
 
               <TabsContent value="time" className="h-full w-full m-0 p-0 data-[state=active]:flex">
                 <div className="h-full w-full flex flex-col">
@@ -1486,48 +1448,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
                <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex">
                  <div className="h-full w-full flex flex-col">
-                    {/* Combined Header with Table Headers */}
-                    <div className="bg-background border-b border-border">
-                      
-                      {/* Table Headers Row - Integrated with Resizable Panels */}
-                      <div className="bg-slate-100/70 border-t border-slate-200">
-                        <ResizablePanelGroup direction="horizontal" className="h-8">
-                          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-                            <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
-                              <div className="grid items-center h-full" style={{
-                                gridTemplateColumns: '32px 120px 1fr 40px',
-                              }}>
-                                <div></div>
-                                <div className="px-2 font-semibold">WBS</div>
-                                <div className="px-3 font-semibold">NAME</div>
-                                <div></div>
-                              </div>
-                            </div>
-                          </ResizablePanel>
-                          
-                          <ResizableHandle />
-                          
-                          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-                            <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
-                              <div className="grid items-center h-full" style={{
-                                gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
-                              }}>
-                                <div className="px-3 font-semibold">DESCRIPTION</div>
-                                <div className="px-2 font-semibold text-right">BUDGET</div>
-                                <div className="px-2 font-semibold text-right">COMMITTED</div>
-                                <div className="px-2 font-semibold text-right">PAID</div>
-                                <div className="px-2 font-semibold text-right">REMAINING</div>
-                                <div className="px-2 font-semibold text-right">FORECAST FINAL</div>
-                                <div className="px-2 font-semibold text-right">VARIANCE</div>
-                                <div className="px-2 font-semibold text-center">STATUS</div>
-                                <div className="px-2 font-semibold">NOTES</div>
-                              </div>
-                            </div>
-                          </ResizablePanel>
-                        </ResizablePanelGroup>
-                      </div>
-                    </div>
-
                     {loading && wbsItems.length === 0 ? (
                       <div className="flex items-center justify-center h-64">
                         <div className="text-center">
@@ -1545,7 +1465,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         </div>
                       </div>
                     ) : (
-                      <div className="flex-1 min-w-0 overflow-y-auto">
+                      <div className="flex-1 min-w-0 overflow-y-hidden">
                        <WBSCostView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
@@ -1566,8 +1486,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        />
                       </div>
                     )}
-                 </div>
-               </TabsContent>
+                  </div>
+                </TabsContent>
               </div>
             </Tabs>
           </div>

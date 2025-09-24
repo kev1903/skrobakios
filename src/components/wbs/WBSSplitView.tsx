@@ -67,43 +67,84 @@ export const WBSSplitView = ({
   }, []);
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="h-full w-full bg-white">
-      <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-        <WBSLeftPanel
-          items={items}
-          onToggleExpanded={onToggleExpanded}
-          onDragEnd={onDragEnd}
-          onItemEdit={onItemUpdate}
-          onAddChild={onAddChild}
-          dragIndicator={dragIndicator}
-          EditableCell={EditableCell}
-          generateWBSNumber={generateWBSNumber}
-          scrollRef={leftScrollRef}
-          onScroll={handleLeftScroll}
-          hoveredId={hoveredId}
-          onRowHover={setHoveredId}
-        />
-      </ResizablePanel>
-      
-      <ResizableHandle />
-      
-      <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-        <WBSRightPanel
-          items={items}
-          onItemUpdate={onItemUpdate}
-          onContextMenuAction={onContextMenuAction}
-          onOpenNotesDialog={onOpenNotesDialog}
-          EditableCell={EditableCell}
-          StatusSelect={StatusSelect}
-          ProgressInput={ProgressInput}
-          ProgressDisplay={ProgressDisplay}
-          getProgressColor={getProgressColor}
-          scrollRef={rightScrollRef}
-          onScroll={handleRightScroll}
-          hoveredId={hoveredId}
-          onRowHover={setHoveredId}
-        />
-      </ResizablePanel>
-    </ResizablePanelGroup>
+    <div className="h-full w-full bg-white">
+      <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+          <div className="h-full flex flex-col">
+            {/* Left Header */}
+            <div className="h-8 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200">
+              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+                <div className="grid items-center h-full" style={{
+                  gridTemplateColumns: '32px 120px 1fr 40px',
+                }}>
+                  <div></div>
+                  <div className="px-2 font-semibold">WBS</div>
+                  <div className="px-3 font-semibold">NAME</div>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Left Content */}
+            <div className="flex-1">
+              <WBSLeftPanel
+                items={items}
+                onToggleExpanded={onToggleExpanded}
+                onDragEnd={onDragEnd}
+                onItemEdit={onItemUpdate}
+                onAddChild={onAddChild}
+                dragIndicator={dragIndicator}
+                EditableCell={EditableCell}
+                generateWBSNumber={generateWBSNumber}
+                scrollRef={leftScrollRef}
+                onScroll={handleLeftScroll}
+                hoveredId={hoveredId}
+                onRowHover={setHoveredId}
+              />
+            </div>
+          </div>
+        </ResizablePanel>
+        
+        <ResizableHandle />
+        
+        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+          <div className="h-full flex flex-col">
+            {/* Right Header */}
+            <div className="h-8 bg-slate-100/70 border-b border-slate-200">
+              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+                <div className="grid items-center h-full" style={{
+                  gridTemplateColumns: '140px 120px 160px 40px 84px',
+                }}>
+                  <div className="px-2 font-semibold">STATUS</div>
+                  <div className="px-2 font-semibold">PROGRESS</div>
+                  <div className="px-2 font-semibold">ASSIGNED TO</div>
+                  <div className="px-1 font-semibold text-center">NOTE</div>
+                  <div className="px-2 font-semibold">ACTIONS</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right Content */}
+            <div className="flex-1">
+              <WBSRightPanel
+                items={items}
+                onItemUpdate={onItemUpdate}
+                onContextMenuAction={onContextMenuAction}
+                onOpenNotesDialog={onOpenNotesDialog}
+                EditableCell={EditableCell}
+                StatusSelect={StatusSelect}
+                ProgressInput={ProgressInput}
+                ProgressDisplay={ProgressDisplay}
+                getProgressColor={getProgressColor}
+                scrollRef={rightScrollRef}
+                onScroll={handleRightScroll}
+                hoveredId={hoveredId}
+                onRowHover={setHoveredId}
+              />
+            </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </div>
   );
 };
