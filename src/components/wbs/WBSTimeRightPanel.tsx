@@ -302,7 +302,7 @@ export const WBSTimeRightPanel = ({
     handleItemUpdate(id, updates);
   }, [items, handleItemUpdate]);
   return (
-    <div className="h-full bg-white overflow-hidden" style={{ minWidth: '920px' }}>
+    <div className="h-full bg-white overflow-hidden" style={{ minWidth: '720px' }}>
       {/* Content */}
       <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full scrollbar-hide" onScroll={onScroll}>
         {items.map((item) => (
@@ -316,22 +316,12 @@ export const WBSTimeRightPanel = ({
                 : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
             } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
             style={{
-              gridTemplateColumns: 'minmax(200px, 1fr) 120px 120px 100px 140px 140px 120px',
+              gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
               height: '1.75rem',
             }}
             onMouseEnter={() => onRowHover?.(item.id)}
             onMouseLeave={() => onRowHover?.(null)}
           >
-            <div className="px-3 flex items-center text-muted-foreground text-xs">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="description"
-                value={item.description || ''}
-                placeholder="Add description..."
-                className="text-xs text-muted-foreground"
-              />
-            </div>
 
             <div className="px-2 flex items-center text-xs text-muted-foreground">
                 {(() => {
