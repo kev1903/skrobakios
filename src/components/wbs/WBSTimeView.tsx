@@ -102,7 +102,7 @@ export const WBSTimeView = ({
               <ResizablePanelGroup direction="horizontal" className="h-full">
                 <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
                   <div className="h-full grid items-center" style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
-                    <div className="px-2 text-center">WBS</div>
+                    <div className="px-2 text-center"></div>
                     <div className="px-2">WBS</div>
                     <div className="px-3">NAME</div>
                     <div></div>

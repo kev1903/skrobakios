@@ -317,7 +317,7 @@ export const WBSTimeRightPanel = ({
             } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
             style={{
               gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
-              height: '1.75rem',
+              height: '28px', // Match WBSLeftPanel exactly
             }}
             onMouseEnter={() => onRowHover?.(item.id)}
             onMouseLeave={() => onRowHover?.(null)}
