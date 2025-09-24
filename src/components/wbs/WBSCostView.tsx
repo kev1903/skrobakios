@@ -82,7 +82,7 @@ export const WBSCostView = ({
           />
         </ResizablePanel>
         
-        <ResizableHandle className="w-px bg-border hover:bg-accent transition-colors shadow-lg" />
+        <ResizableHandle />
         
         <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
           <WBSCostRightPanel

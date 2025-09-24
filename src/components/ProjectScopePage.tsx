@@ -1377,7 +1377,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           </div>
                         </ResizablePanel>
                         
-                        <ResizableHandle className="w-px bg-border hover:bg-accent transition-colors" />
+                        <ResizableHandle />
                         
                         <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
                           <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
@@ -1461,7 +1461,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           </div>
                         </ResizablePanel>
                         
-                        <ResizableHandle className="w-px bg-border hover:bg-accent transition-colors shadow-lg" />
+                        <ResizableHandle />
                         
                         <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
                           <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
@@ -1544,7 +1544,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                             </div>
                           </ResizablePanel>
                           
-                          <ResizableHandle className="w-px bg-border hover:bg-accent transition-colors shadow-lg" />
+                          <ResizableHandle />
                           
                           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
                             <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">

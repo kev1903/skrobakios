@@ -129,7 +129,7 @@ export const WBSTimeView = ({
           </div>
         </ResizablePanel>
 
-        <ResizableHandle className="w-px bg-border hover:bg-accent transition-colors shadow-lg" />
+        <ResizableHandle />
 
         <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
           <div className="h-full flex flex-col">
