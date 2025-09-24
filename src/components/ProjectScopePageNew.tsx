@@ -537,7 +537,7 @@ export const ProjectScopePageNew = ({ project, onNavigate }: ProjectScopePageNew
           ) : (
             <div className="space-y-6">
               {wbsItems
-                .filter(item => item.level === 1) // Only show root stages (level 1)
+                .filter(item => item.level === 0) // Only show root stages (level 0)
                 .map(renderStage)}
             </div>
           )}
