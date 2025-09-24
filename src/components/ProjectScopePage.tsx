@@ -1376,9 +1376,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       {/* Right Panel Header */}
                        <div className="flex-1 px-2 py-1 text-xs font-medium text-slate-700">
                           <div className="grid items-center w-full" style={{
-                            gridTemplateColumns: '1fr 140px 120px 160px 40px 84px',
+                            gridTemplateColumns: '140px 120px 160px 40px 84px',
                           }}>
-                           <div className="px-3 font-semibold">DESCRIPTION</div>
                            <div className="px-2 font-semibold">STATUS</div>
                            <div className="px-2 font-semibold">PROGRESS</div>
                            <div className="px-2 font-semibold">ASSIGNED TO</div>
