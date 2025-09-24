@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WBSSplitView } from '@/components/wbs/WBSSplitView';
 import { WBSTimeView } from '@/components/wbs/WBSTimeView';
 import { WBSCostView } from '@/components/wbs/WBSCostView';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import {
   Dialog,
   DialogContent,
@@ -1360,31 +1361,38 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   {/* Combined Header with Table Headers */}
                   <div className="bg-background border-b border-border">
                     
-                    {/* Table Headers Row */}
-                    <div className="bg-slate-100/70 border-t border-slate-200 flex">
-                      {/* Left Panel Header */}
-                       <div className="w-[420px] px-2 py-1 text-xs font-medium text-slate-700 border-r border-border">
-                        <div className="grid items-center" style={{
-                          gridTemplateColumns: '32px 120px 1fr',
-                        }}>
-                          <div></div>
-                          <div className="px-2 font-semibold">WBS</div>
-                          <div className="px-3 font-semibold">NAME</div>
-                        </div>
-                      </div>
-                      
-                      {/* Right Panel Header */}
-                       <div className="flex-1 px-2 py-1 text-xs font-medium text-slate-700">
-                          <div className="grid items-center w-full" style={{
-                            gridTemplateColumns: '140px 120px 160px 40px 84px',
-                          }}>
-                           <div className="px-2 font-semibold">STATUS</div>
-                           <div className="px-2 font-semibold">PROGRESS</div>
-                           <div className="px-2 font-semibold">ASSIGNED TO</div>
-                           <div className="px-1 font-semibold text-center">NOTE</div>
-                           <div className="px-2 font-semibold">ACTIONS</div>
-                         </div>
-                      </div>
+                    {/* Table Headers Row - Integrated with Resizable Panels */}
+                    <div className="bg-slate-100/70 border-t border-slate-200">
+                      <ResizablePanelGroup direction="horizontal" className="h-8">
+                        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+                          <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+                            <div className="grid items-center h-full" style={{
+                              gridTemplateColumns: '32px 120px 1fr 40px',
+                            }}>
+                              <div></div>
+                              <div className="px-2 font-semibold">WBS</div>
+                              <div className="px-3 font-semibold">NAME</div>
+                              <div></div>
+                            </div>
+                          </div>
+                        </ResizablePanel>
+                        
+                        <ResizableHandle className="w-px bg-border hover:bg-accent transition-colors" />
+                        
+                        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+                          <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+                            <div className="grid items-center h-full" style={{
+                              gridTemplateColumns: '140px 120px 160px 40px 84px',
+                            }}>
+                              <div className="px-2 font-semibold">STATUS</div>
+                              <div className="px-2 font-semibold">PROGRESS</div>
+                              <div className="px-2 font-semibold">ASSIGNED TO</div>
+                              <div className="px-1 font-semibold text-center">NOTE</div>
+                              <div className="px-2 font-semibold">ACTIONS</div>
+                            </div>
+                          </div>
+                        </ResizablePanel>
+                      </ResizablePanelGroup>
                     </div>
                   </div>
 
