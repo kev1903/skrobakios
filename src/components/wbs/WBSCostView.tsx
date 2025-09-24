@@ -1,6 +1,7 @@
 import React, { useRef, useCallback, useState } from 'react';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSCostRightPanel } from './WBSCostRightPanel';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { DropResult } from 'react-beautiful-dnd';
 
 interface WBSItem {
@@ -62,34 +63,42 @@ export const WBSCostView = ({
     }
   }, []);
   return (
-    <div className="flex h-full w-full bg-white overflow-hidden">
-      <WBSLeftPanel
-        items={items}
-        onToggleExpanded={onToggleExpanded}
-        onDragEnd={onDragEnd}
-        onItemEdit={onItemUpdate}
-        onAddChild={onAddChild}
-        dragIndicator={dragIndicator}
-        EditableCell={EditableCell}
-        generateWBSNumber={generateWBSNumber}
-        scrollRef={leftScrollRef}
-        onScroll={handleLeftScroll}
-        hoveredId={hoveredId}
-        onRowHover={setHoveredId}
-      />
-      
-      <WBSCostRightPanel
-        items={items}
-        onItemUpdate={onItemUpdate}
-        onContextMenuAction={onContextMenuAction}
-        onOpenNotesDialog={onOpenNotesDialog}
-        EditableCell={EditableCell}
-        StatusSelect={StatusSelect}
-        scrollRef={rightScrollRef}
-        onScroll={handleRightScroll}
-        hoveredId={hoveredId}
-        onRowHover={setHoveredId}
-      />
+    <div className="h-full w-full bg-white">
+      <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+          <WBSLeftPanel
+            items={items}
+            onToggleExpanded={onToggleExpanded}
+            onDragEnd={onDragEnd}
+            onItemEdit={onItemUpdate}
+            onAddChild={onAddChild}
+            dragIndicator={dragIndicator}
+            EditableCell={EditableCell}
+            generateWBSNumber={generateWBSNumber}
+            scrollRef={leftScrollRef}
+            onScroll={handleLeftScroll}
+            hoveredId={hoveredId}
+            onRowHover={setHoveredId}
+          />
+        </ResizablePanel>
+        
+        <ResizableHandle className="w-px bg-border hover:bg-accent transition-colors shadow-lg" />
+        
+        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+          <WBSCostRightPanel
+            items={items}
+            onItemUpdate={onItemUpdate}
+            onContextMenuAction={onContextMenuAction}
+            onOpenNotesDialog={onOpenNotesDialog}
+            EditableCell={EditableCell}
+            StatusSelect={StatusSelect}
+            scrollRef={rightScrollRef}
+            onScroll={handleRightScroll}
+            hoveredId={hoveredId}
+            onRowHover={setHoveredId}
+          />
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
