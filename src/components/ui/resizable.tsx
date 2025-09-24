@@ -27,14 +27,14 @@ const ResizableHandle = ({
 }) => (
   <ResizablePrimitive.PanelResizeHandle
     className={cn(
-      "relative flex w-px items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-1 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0 [&[data-panel-group-direction=vertical]>div]:rotate-90 hover:bg-accent transition-colors shadow-[2px_0_4px_rgba(0,0,0,0.1)] hover:shadow-[3px_0_6px_rgba(0,0,0,0.15)]",
+      "relative flex w-px items-center justify-center bg-border after:absolute after:inset-y-0 after:left-1/2 after:w-1 after:-translate-x-1/2 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 data-[panel-group-direction=vertical]:h-px data-[panel-group-direction=vertical]:w-full data-[panel-group-direction=vertical]:after:left-0 data-[panel-group-direction=vertical]:after:h-1 data-[panel-group-direction=vertical]:after:w-full data-[panel-group-direction=vertical]:after:-translate-y-1/2 data-[panel-group-direction=vertical]:after:translate-x-0 [&[data-panel-group-direction=vertical]>div]:rotate-90 hover:bg-blue-500/20 transition-all duration-200 shadow-[2px_0_4px_rgba(0,0,0,0.1)] hover:shadow-[3px_0_6px_rgba(59,130,246,0.25)]",
       className
     )}
     {...props}
   >
     {withHandle && (
-      <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border bg-border shadow-sm">
-        <GripVertical className="h-2.5 w-2.5" />
+      <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border bg-border shadow-sm hover:bg-blue-50 hover:border-blue-300 transition-colors">
+        <GripVertical className="h-2.5 w-2.5 hover:text-blue-600 transition-colors" />
       </div>
     )}
   </ResizablePrimitive.PanelResizeHandle>
