@@ -55,8 +55,32 @@ export const WBSTimeView = ({
     await onItemUpdate(itemId, updates);
   }, [onItemUpdate]);
 
-  const handleTimelineScroll = useCallback(() => {
+  const handleLeftPanelScroll = useCallback(() => {
     if (leftInnerRef.current && rightScrollRef.current && mainScrollRef.current) {
+      const scrollTop = leftInnerRef.current.scrollTop;
+      if (rightScrollRef.current.scrollTop !== scrollTop) {
+        rightScrollRef.current.scrollTop = scrollTop;
+      }
+      if (mainScrollRef.current.scrollTop !== scrollTop) {
+        mainScrollRef.current.scrollTop = scrollTop;
+      }
+    }
+  }, []);
+
+  const handleMiddlePanelScroll = useCallback(() => {
+    if (rightScrollRef.current && leftInnerRef.current && mainScrollRef.current) {
+      const scrollTop = rightScrollRef.current.scrollTop;
+      if (leftInnerRef.current.scrollTop !== scrollTop) {
+        leftInnerRef.current.scrollTop = scrollTop;
+      }
+      if (mainScrollRef.current.scrollTop !== scrollTop) {
+        mainScrollRef.current.scrollTop = scrollTop;
+      }
+    }
+  }, []);
+
+  const handleTimelineScroll = useCallback(() => {
+    if (mainScrollRef.current && leftInnerRef.current && rightScrollRef.current) {
       const scrollTop = mainScrollRef.current.scrollTop;
       if (leftInnerRef.current.scrollTop !== scrollTop) {
         leftInnerRef.current.scrollTop = scrollTop;
@@ -67,46 +91,29 @@ export const WBSTimeView = ({
     }
   }, []);
 
-  const handleLeftPanelScroll = useCallback(() => {
-    if (leftInnerRef.current && mainScrollRef.current && rightScrollRef.current) {
-      const scrollTop = leftInnerRef.current.scrollTop;
-      if (mainScrollRef.current.scrollTop !== scrollTop) {
-        mainScrollRef.current.scrollTop = scrollTop;
-      }
-      if (rightScrollRef.current.scrollTop !== scrollTop) {
-        rightScrollRef.current.scrollTop = scrollTop;
-      }
-    }
-  }, []);
-
-  const handleMiddlePanelScroll = useCallback(() => {
-    if (rightScrollRef.current && mainScrollRef.current && leftInnerRef.current) {
-      const scrollTop = rightScrollRef.current.scrollTop;
-      if (mainScrollRef.current.scrollTop !== scrollTop) {
-        mainScrollRef.current.scrollTop = scrollTop;
-      }
-      if (leftInnerRef.current.scrollTop !== scrollTop) {
-        leftInnerRef.current.scrollTop = scrollTop;
-      }
-    }
-  }, []);
-
   return (
     <div className="h-full w-full bg-white">
       <ResizablePanelGroup direction="horizontal" className="h-full w-full">
-        {/* Left Panel - WBS Structure */}
-        <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
-          <div className="h-full flex flex-col bg-white">
-            <div className="h-full overflow-hidden">
-              <div 
-                ref={leftScrollRef}
-                className="h-full overflow-y-auto overflow-x-hidden"
-              >
+        {/* Left Panel - WBS Structure and Data Columns */}
+        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+          <div className="h-full flex bg-white">
+            {/* WBS Structure Column */}
+            <div className="w-[300px] h-full border-r border-gray-200 bg-white overflow-hidden">
+              {/* Header */}
+              <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 grid items-center text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm"
+                   style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
+                <div className="px-2 text-center">WBS</div>
+                <div className="px-2">WBS</div>
+                <div className="px-3">NAME</div>
+                <div></div>
+              </div>
+              
+              <div className="h-[calc(100%-60px)] overflow-hidden">
                 <WBSLeftPanel
                   items={items.map(item => ({
                     ...item,
                     name: item.title,
-                    wbsNumber: item.wbs_id || '', // Use actual WBS ID from database
+                    wbsNumber: item.wbs_id || '',
                     status: item.status || 'Not Started'
                   }))}
                   onToggleExpanded={onToggleExpanded}
@@ -123,16 +130,46 @@ export const WBSTimeView = ({
                 />
               </div>
             </div>
+
+            {/* Data Columns */}
+            <div className="flex-1 h-full border-r border-gray-200 bg-white overflow-hidden">
+              {/* Header */}
+              <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 grid items-center text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm"
+                   style={{ gridTemplateColumns: '120px 120px 100px 140px 140px 120px' }}>
+                <div className="px-2 text-center">START DATE</div>
+                <div className="px-2 text-center">END DATE</div>
+                <div className="px-2 text-center">DURATION</div>
+                <div className="px-2 text-center">PREDECESSORS</div>
+                <div className="px-2 text-center">STATUS</div>
+                <div className="px-2 text-center">ACTIONS</div>
+              </div>
+              
+              <div className="h-[calc(100%-60px)] overflow-hidden">
+                <WBSTimeRightPanel
+                  items={items}
+                  onItemUpdate={handleItemUpdate}
+                  onContextMenuAction={onContextMenuAction}
+                  onOpenNotesDialog={onOpenNotesDialog}
+                  onClearAllDates={onClearAllDates}
+                  EditableCell={EditableCell}
+                  StatusSelect={StatusSelect}
+                  scrollRef={rightScrollRef}
+                  onScroll={handleMiddlePanelScroll}
+                  hoveredId={hoveredId}
+                  onRowHover={setHoveredId}
+                />
+              </div>
+            </div>
           </div>
         </ResizablePanel>
 
         <ResizableHandle />
 
         {/* Right Panel - Calendar Timeline View */}
-        <ResizablePanel defaultSize={65} minSize={50} maxSize={75}>
+        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
           <div className="h-full flex flex-col bg-white">
             {/* Calendar Header */}
-            <div className="bg-white border-b-2 border-gray-300 text-xs font-medium text-gray-700 sticky top-0 z-30 h-[60px] shadow-sm">
+            <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 text-xs font-medium text-gray-700 sticky top-0 z-30 shadow-sm overflow-hidden">
               <div 
                 ref={headerHorizScrollRef}
                 className="h-full overflow-x-auto overflow-y-hidden"
@@ -140,7 +177,6 @@ export const WBSTimeView = ({
               >
                 <div className="flex h-full min-w-fit">
                   {(() => {
-                    // Use the same date range as the GanttChart
                     const itemsWithDates = items.filter(item => item.start_date || item.end_date);
                     let days: Date[] = [];
                     
@@ -161,7 +197,6 @@ export const WBSTimeView = ({
                       }
                     }
                     
-                    // Fallback to current month if no dates
                     if (days.length === 0) {
                       const currentDate = new Date();
                       const monthStart = startOfMonth(currentDate);
@@ -169,7 +204,7 @@ export const WBSTimeView = ({
                       days = eachDayOfInterval({ start: monthStart, end: monthEnd });
                     }
                     
-                    const dayWidth = 32; // Match GanttChart dayWidth
+                    const dayWidth = 32;
                     
                     return days.map((day, index) => {
                       const isToday = format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
@@ -209,7 +244,7 @@ export const WBSTimeView = ({
                   items={items.map(item => ({
                     ...item,
                     name: item.title,
-                    wbsNumber: item.wbs_id || '', // Use actual WBS ID from database
+                    wbsNumber: item.wbs_id || '',
                     status: item.status || 'Not Started',
                     predecessors: item.predecessors?.map(p => ({
                       predecessorId: p.id,
