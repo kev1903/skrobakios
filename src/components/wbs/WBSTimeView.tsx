@@ -256,7 +256,7 @@ export const WBSTimeView = ({
             {/* Timeline Content */}
             <div 
               ref={bodyHorizScrollRef}
-              className="flex-1 overflow-x-auto overflow-y-auto"
+              className="flex-1 overflow-x-hidden overflow-y-auto"
               onScroll={handleLeftPanelHorizontalScroll}
             >
               <div className="min-w-fit">
