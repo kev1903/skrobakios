@@ -50,7 +50,7 @@ export const WBSRightPanel = ({
   onRowHover
 }: WBSRightPanelProps) => {
   return (
-    <div className="flex-1 min-w-0 bg-white overflow-hidden">
+    <div className="h-full bg-white overflow-hidden">
       {/* Content - No separate header since it's now unified */}
       <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full" onScroll={onScroll}>
         {items.map((item) => (

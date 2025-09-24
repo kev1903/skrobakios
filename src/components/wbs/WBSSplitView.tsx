@@ -85,7 +85,7 @@ export const WBSSplitView = ({
         />
       </ResizablePanel>
       
-      <ResizableHandle withHandle />
+      <ResizableHandle className="w-px bg-border hover:bg-accent transition-colors" />
       
       <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
         <WBSRightPanel
