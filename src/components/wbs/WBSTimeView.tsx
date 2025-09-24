@@ -96,74 +96,80 @@ export const WBSTimeView = ({
       <ResizablePanelGroup direction="horizontal" className="h-full w-full">
         {/* Left Panel - WBS Structure and Data Columns */}
         <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-          <div className="h-full flex bg-white">
+          <ResizablePanelGroup direction="horizontal" className="h-full">
             {/* WBS Structure Column */}
-            <div className="w-[300px] h-full border-r border-gray-200 bg-white overflow-hidden">
-              {/* Header */}
-              <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 grid items-center text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm"
-                   style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
-                <div className="px-2 text-center">WBS</div>
-                <div className="px-2">WBS</div>
-                <div className="px-3">NAME</div>
-                <div></div>
+            <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
+              <div className="h-full border-r border-gray-200 bg-white overflow-hidden">
+                {/* Header */}
+                <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 grid items-center text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm"
+                     style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
+                  <div className="px-2 text-center">WBS</div>
+                  <div className="px-2">WBS</div>
+                  <div className="px-3">NAME</div>
+                  <div></div>
+                </div>
+                
+                <div className="h-[calc(100%-60px)] overflow-hidden">
+                  <WBSLeftPanel
+                    items={items.map(item => ({
+                      ...item,
+                      name: item.title,
+                      wbsNumber: item.wbs_id || '',
+                      status: item.status || 'Not Started'
+                    }))}
+                    onToggleExpanded={onToggleExpanded}
+                    onDragEnd={onDragEnd}
+                    onItemEdit={onItemUpdate}
+                    onAddChild={onAddChild}
+                    dragIndicator={dragIndicator}
+                    EditableCell={EditableCell}
+                    generateWBSNumber={generateWBSNumber}
+                    scrollRef={leftInnerRef}
+                    onScroll={handleLeftPanelScroll}
+                    hoveredId={hoveredId}
+                    onRowHover={setHoveredId}
+                  />
+                </div>
               </div>
-              
-              <div className="h-[calc(100%-60px)] overflow-hidden">
-                <WBSLeftPanel
-                  items={items.map(item => ({
-                    ...item,
-                    name: item.title,
-                    wbsNumber: item.wbs_id || '',
-                    status: item.status || 'Not Started'
-                  }))}
-                  onToggleExpanded={onToggleExpanded}
-                  onDragEnd={onDragEnd}
-                  onItemEdit={onItemUpdate}
-                  onAddChild={onAddChild}
-                  dragIndicator={dragIndicator}
-                  EditableCell={EditableCell}
-                  generateWBSNumber={generateWBSNumber}
-                  scrollRef={leftInnerRef}
-                  onScroll={handleLeftPanelScroll}
-                  hoveredId={hoveredId}
-                  onRowHover={setHoveredId}
-                />
-              </div>
-            </div>
+            </ResizablePanel>
+
+            <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
 
             {/* Data Columns */}
-            <div className="flex-1 h-full border-r border-gray-200 bg-white overflow-hidden">
-              {/* Header */}
-              <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 grid items-center text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm"
-                   style={{ gridTemplateColumns: '120px 120px 100px 140px 140px 120px' }}>
-                <div className="px-2 text-center">START DATE</div>
-                <div className="px-2 text-center">END DATE</div>
-                <div className="px-2 text-center">DURATION</div>
-                <div className="px-2 text-center">PREDECESSORS</div>
-                <div className="px-2 text-center">STATUS</div>
-                <div className="px-2 text-center">ACTIONS</div>
+            <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
+              <div className="h-full border-r border-gray-200 bg-white overflow-hidden">
+                {/* Header */}
+                <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 grid items-center text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm"
+                     style={{ gridTemplateColumns: '120px 120px 100px 140px 140px 120px' }}>
+                  <div className="px-2 text-center">START DATE</div>
+                  <div className="px-2 text-center">END DATE</div>
+                  <div className="px-2 text-center">DURATION</div>
+                  <div className="px-2 text-center">PREDECESSORS</div>
+                  <div className="px-2 text-center">STATUS</div>
+                  <div className="px-2 text-center">ACTIONS</div>
+                </div>
+                
+                <div className="h-[calc(100%-60px)] overflow-hidden">
+                  <WBSTimeRightPanel
+                    items={items}
+                    onItemUpdate={handleItemUpdate}
+                    onContextMenuAction={onContextMenuAction}
+                    onOpenNotesDialog={onOpenNotesDialog}
+                    onClearAllDates={onClearAllDates}
+                    EditableCell={EditableCell}
+                    StatusSelect={StatusSelect}
+                    scrollRef={rightScrollRef}
+                    onScroll={handleMiddlePanelScroll}
+                    hoveredId={hoveredId}
+                    onRowHover={setHoveredId}
+                  />
+                </div>
               </div>
-              
-              <div className="h-[calc(100%-60px)] overflow-hidden">
-                <WBSTimeRightPanel
-                  items={items}
-                  onItemUpdate={handleItemUpdate}
-                  onContextMenuAction={onContextMenuAction}
-                  onOpenNotesDialog={onOpenNotesDialog}
-                  onClearAllDates={onClearAllDates}
-                  EditableCell={EditableCell}
-                  StatusSelect={StatusSelect}
-                  scrollRef={rightScrollRef}
-                  onScroll={handleMiddlePanelScroll}
-                  hoveredId={hoveredId}
-                  onRowHover={setHoveredId}
-                />
-              </div>
-            </div>
-          </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
         </ResizablePanel>
 
-        <ResizableHandle />
+        <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
 
         {/* Right Panel - Calendar Timeline View */}
         <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
