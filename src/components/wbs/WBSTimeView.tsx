@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useState } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, startOfWeek, endOfWeek, addDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, startOfWeek, endOfWeek, addDays, isSameDay } from 'date-fns';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
 import { GanttChart } from './GanttChart';
@@ -224,7 +224,8 @@ export const WBSTimeView = ({
                       const dayWidth = 32;
                       
                       return days.map((day, index) => {
-                        const isToday = format(day, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+                        const targetDate = new Date(2024, 10, 27); // November 27, 2024 (month is 0-indexed)
+                        const isToday = isSameDay(day, targetDate);
                         const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                         const isFirstDayOfMonth = day.getDate() === 1;
                         

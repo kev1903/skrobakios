@@ -539,15 +539,18 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
           )}
 
           {/* Enhanced today indicator for the entire chart */}
-          {timelineDays.some(day => isSameDay(day, new Date())) && (
-            <div
-              className="absolute top-0 w-0.5 bg-gradient-to-b from-primary/40 via-primary to-primary/40 z-30 pointer-events-none"
-              style={{
-                height: items.length * rowHeight,
-                left: timelineDays.findIndex(day => isSameDay(day, new Date())) * dayWidth + dayWidth/2
-              }}
-            />
-          )}
+          {(() => {
+            const targetDate = new Date(2024, 10, 27); // November 27, 2024 (month is 0-indexed)
+            return timelineDays.some(day => isSameDay(day, targetDate)) && (
+              <div
+                className="absolute top-0 w-0.5 bg-gradient-to-b from-primary/40 via-primary to-primary/40 z-30 pointer-events-none"
+                style={{
+                  height: items.length * rowHeight,
+                  left: timelineDays.findIndex(day => isSameDay(day, targetDate)) * dayWidth + dayWidth/2
+                }}
+              />
+            );
+          })()}
 
           {/* Weekend highlight overlay */}
           {timelineDays.map((day, dayIndex) => {
