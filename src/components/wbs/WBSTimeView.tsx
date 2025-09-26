@@ -223,9 +223,20 @@ export const WBSTimeView = ({
                       
                       const dayWidth = 32;
                       
+                      console.log('Timeline days range:', days.length > 0 ? `${format(days[0], 'MMM dd, yyyy')} to ${format(days[days.length - 1], 'MMM dd, yyyy')}` : 'No days');
+                      
                       return days.map((day, index) => {
+                        // Set current date based on what's visible in the timeline
+                        // If November 27, 2024 is in the range, use it, otherwise use the actual current date
                         const targetDate = new Date(2024, 10, 27); // November 27, 2024 (month is 0-indexed)
-                        const isToday = isSameDay(day, targetDate);
+                        const actualCurrentDate = new Date();
+                        
+                        // Check if our target date is in the timeline, otherwise use actual current date
+                        const dateToUse = days.some(d => isSameDay(d, targetDate)) ? targetDate : actualCurrentDate;
+                        const isToday = isSameDay(day, dateToUse);
+                        
+                        console.log(`Day ${format(day, 'MMM dd')}: isToday=${isToday}, targetInRange=${days.some(d => isSameDay(d, targetDate))}`);
+                        
                         const isWeekend = day.getDay() === 0 || day.getDay() === 6;
                         const isFirstDayOfMonth = day.getDate() === 1;
                         

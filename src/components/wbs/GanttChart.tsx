@@ -541,12 +541,26 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
           {/* Enhanced today indicator for the entire chart */}
           {(() => {
             const targetDate = new Date(2024, 10, 27); // November 27, 2024 (month is 0-indexed)
-            return timelineDays.some(day => isSameDay(day, targetDate)) && (
+            const actualCurrentDate = new Date();
+            
+            // Check if our target date is in the timeline, otherwise use actual current date
+            const dateToUse = timelineDays.some(d => isSameDay(d, targetDate)) ? targetDate : actualCurrentDate;
+            const todayIndex = timelineDays.findIndex(day => isSameDay(day, dateToUse));
+            
+            console.log('GanttChart timeline range:', timelineDays.length > 0 ? `${format(timelineDays[0], 'MMM dd, yyyy')} to ${format(timelineDays[timelineDays.length - 1], 'MMM dd, yyyy')}` : 'No days');
+            console.log('GanttChart today indicator:', { 
+              targetInRange: timelineDays.some(d => isSameDay(d, targetDate)), 
+              dateToUse: format(dateToUse, 'MMM dd, yyyy'),
+              todayIndex,
+              willShow: todayIndex >= 0 
+            });
+            
+            return todayIndex >= 0 && (
               <div
                 className="absolute top-0 w-0.5 bg-gradient-to-b from-primary/40 via-primary to-primary/40 z-30 pointer-events-none"
                 style={{
                   height: items.length * rowHeight,
-                  left: timelineDays.findIndex(day => isSameDay(day, targetDate)) * dayWidth + dayWidth/2
+                  left: todayIndex * dayWidth + dayWidth/2
                 }}
               />
             );
