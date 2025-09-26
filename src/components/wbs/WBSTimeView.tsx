@@ -282,6 +282,36 @@ export const WBSTimeView = ({
                           lag: p.lag
                         })) || []
                       }))} 
+                      timelineDays={(() => {
+                        const itemsWithDates = items.filter(item => item.start_date || item.end_date);
+                        let days: Date[] = [];
+                        
+                        if (itemsWithDates.length > 0) {
+                          const dates = itemsWithDates
+                            .flatMap(item => [
+                              item.start_date ? (typeof item.start_date === 'string' ? new Date(item.start_date) : item.start_date) : null,
+                              item.end_date ? (typeof item.end_date === 'string' ? new Date(item.end_date) : item.end_date) : null
+                            ])
+                            .filter(Boolean) as Date[];
+                          
+                          if (dates.length > 0) {
+                            const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+                            const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+                            const chartStart = startOfWeek(minDate);
+                            const chartEnd = endOfWeek(addDays(maxDate, 14));
+                            days = eachDayOfInterval({ start: chartStart, end: chartEnd });
+                          }
+                        }
+                        
+                        if (days.length === 0) {
+                          const currentDate = new Date();
+                          const monthStart = startOfMonth(currentDate);
+                          const monthEnd = endOfMonth(currentDate);
+                          days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+                        }
+                        
+                        return days;
+                      })()} 
                       className="relative z-10" 
                       hideHeader 
                       hoveredId={hoveredId}

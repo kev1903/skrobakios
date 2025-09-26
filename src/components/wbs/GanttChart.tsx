@@ -26,11 +26,22 @@ interface GanttChartProps {
   hideHeader?: boolean;
   hoveredId?: string | null;
   onRowHover?: (id: string | null) => void;
+  timelineDays?: Date[];
 }
 
-export const GanttChart = ({ items, className = "", hideHeader = false, hoveredId, onRowHover }: GanttChartProps) => {
+export const GanttChart = ({ items, className = "", hideHeader = false, hoveredId, onRowHover, timelineDays: providedTimelineDays }: GanttChartProps) => {
   // Calculate the date range for the chart
   const { startDate, endDate, timelineDays } = useMemo(() => {
+    // Use provided timeline days if available (for alignment with parent calendar)
+    if (providedTimelineDays && providedTimelineDays.length > 0) {
+      return {
+        startDate: providedTimelineDays[0],
+        endDate: providedTimelineDays[providedTimelineDays.length - 1],
+        timelineDays: providedTimelineDays
+      };
+    }
+
+    // Fallback to internal calculation if no timeline provided
     const dates = items
       .filter(item => item.start_date || item.end_date)
       .flatMap(item => [
@@ -61,7 +72,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
       endDate: chartEnd,
       timelineDays: eachDayOfInterval({ start: chartStart, end: chartEnd })
     };
-  }, [items]);
+  }, [items, providedTimelineDays]);
 
   const getTaskPosition = (item: WBSItem) => {
     if (!item.start_date && !item.end_date) return null;
