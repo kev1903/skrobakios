@@ -42,13 +42,14 @@ export const WBSTimeView = ({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const isSyncingRef = useRef(false);
 
-  // Master scroll handler - Gantt section controls all scrolling
-  const handleMasterScroll = useCallback(() => {
+  // Master scroll handler - Timeline section controls all scrolling
+  const handleMasterScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     if (isSyncingRef.current) return;
     isSyncingRef.current = true;
     
-    if (wbsContentScrollRef.current && timelineContentScrollRef.current) {
-      wbsContentScrollRef.current.scrollTop = timelineContentScrollRef.current.scrollTop;
+    const scrollTop = e.currentTarget.scrollTop;
+    if (wbsContentScrollRef.current) {
+      wbsContentScrollRef.current.scrollTop = scrollTop;
     }
     
     requestAnimationFrame(() => {
@@ -182,16 +183,15 @@ export const WBSTimeView = ({
               </ResizablePanelGroup>
             </div>
             
-            {/* Right Content - Master scroll controller */}
+            {/* Right Content - Container only, no scrolling */}
             <div 
               ref={timelineContentScrollRef}
-              className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin"
-              onScroll={handleMasterScroll}
+              className="flex-1 overflow-hidden"
             >
               <ResizablePanelGroup direction="horizontal" className="h-full">
-                {/* Data Columns Section */}
+                {/* Data Columns Section - no independent scrolling */}
                 <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
-                  <div className="h-full overflow-x-auto">
+                  <div className="h-full overflow-hidden">
                     <WBSTimeRightPanel
                       items={items}
                       onItemUpdate={handleItemUpdate}
@@ -208,10 +208,11 @@ export const WBSTimeView = ({
                 
                 <ResizableHandle />
                 
-                {/* Timeline Section */}
+                {/* Timeline Section - Master scroll controller */}
                 <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
                   <div 
-                    className="h-full overflow-x-auto"
+                    className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
+                    onScroll={handleMasterScroll}
                     ref={timelineHeaderScrollRef}
                   >
                     <div 
