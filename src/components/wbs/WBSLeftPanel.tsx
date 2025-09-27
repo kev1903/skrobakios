@@ -22,7 +22,7 @@ interface WBSLeftPanelProps {
   dragIndicator: any;
   EditableCell: any;
   generateWBSNumber: (phaseIndex: number, componentIndex?: number, elementIndex?: number) => string;
-  scrollRef: React.RefObject<HTMLDivElement>;
+  scrollRef?: React.RefObject<HTMLDivElement>;
   onScroll?: () => void;
   hoveredId?: string | null;
   onRowHover?: (id: string | null) => void;

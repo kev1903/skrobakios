@@ -29,7 +29,7 @@ interface WBSTimeRightPanelProps {
   onClearAllDates?: () => void;
   EditableCell: any;
   StatusSelect: any;
-  scrollRef: React.RefObject<HTMLDivElement>;
+  scrollRef?: React.RefObject<HTMLDivElement>;
   onScroll?: () => void;
   hoveredId?: string | null;
   onRowHover?: (id: string | null) => void;
