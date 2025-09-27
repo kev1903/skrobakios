@@ -1482,11 +1482,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                      </div>
                      ) : (
                        <div 
-                         className="flex-1 min-w-0"
                          style={{
-                           height: 'calc(100vh - 200px)',
-                           overflow: 'auto',
-                           border: '1px solid #e5e7eb'
+                           width: '100%',
+                           height: '500px',
+                           border: '2px solid #e5e7eb',
+                           backgroundColor: 'white',
+                           overflow: 'scroll',
+                           overflowX: 'auto',
+                           overflowY: 'scroll'
                          }}
                        >
                         <WBSSplitView
