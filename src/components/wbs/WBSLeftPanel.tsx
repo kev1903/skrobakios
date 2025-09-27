@@ -26,6 +26,8 @@ interface WBSLeftPanelProps {
   onScroll?: () => void;
   hoveredId?: string | null;
   onRowHover?: (id: string | null) => void;
+  selectedItems?: string[];
+  onRowClick?: (itemId: string, ctrlKey?: boolean) => void;
 }
 
 // Portal wrapper to avoid transform/fixed offset issues during drag
@@ -48,7 +50,9 @@ export const WBSLeftPanel = ({
   scrollRef,
   onScroll,
   hoveredId,
-  onRowHover
+  onRowHover,
+  selectedItems = [],
+  onRowClick
 }: WBSLeftPanelProps) => {
   
   const content = (
@@ -67,9 +71,13 @@ export const WBSLeftPanel = ({
                     <div
                       ref={dragProvided.innerRef}
                       {...dragProvided.draggableProps}
-                      className={`grid items-center border-b border-gray-100 bg-white hover:bg-slate-50/50 cursor-pointer transition-all duration-200 ${
-                        snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''
-                      } ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+                      className={`grid items-center border-b border-gray-100 cursor-pointer transition-all duration-200 ${
+                        selectedItems.includes(item.id) 
+                          ? 'bg-primary/10 border-l-4 border-l-primary shadow-sm' 
+                          : hoveredId === item.id 
+                            ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' 
+                            : 'bg-white hover:bg-slate-50/50'
+                      } ${snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''}`}
                       style={{
                         gridTemplateColumns: '32px 120px 1fr 40px',
                         height: '28px',
@@ -77,6 +85,7 @@ export const WBSLeftPanel = ({
                       }}
                       onMouseEnter={() => onRowHover?.(item.id)}
                       onMouseLeave={() => onRowHover?.(null)}
+                      onClick={(e) => onRowClick?.(item.id, e.ctrlKey || e.metaKey)}
                     >
                       <div className="px-2 flex items-center justify-center h-full">
                         <div

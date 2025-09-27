@@ -33,6 +33,8 @@ interface WBSTimeRightPanelProps {
   onScroll?: () => void;
   hoveredId?: string | null;
   onRowHover?: (id: string | null) => void;
+  selectedItems?: string[];
+  onRowClick?: (itemId: string, ctrlKey?: boolean) => void;
 }
 
 export const WBSTimeRightPanel = ({
@@ -46,7 +48,9 @@ export const WBSTimeRightPanel = ({
   scrollRef,
   onScroll,
   hoveredId,
-  onRowHover
+  onRowHover,
+  selectedItems = [],
+  onRowClick
 }: WBSTimeRightPanelProps) => {
 
   const timeoutRef = React.useRef<NodeJS.Timeout>();
@@ -164,13 +168,20 @@ export const WBSTimeRightPanel = ({
       {items.map((item) => (
         <div
           key={item.id}
-          className={`grid items-center w-full border-b border-gray-100 bg-white hover:bg-slate-50/50 transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+          className={`grid items-center w-full border-b border-gray-100 cursor-pointer transition-all duration-200 ${
+            selectedItems.includes(item.id) 
+              ? 'bg-primary/10 border-l-4 border-l-primary shadow-sm' 
+              : hoveredId === item.id 
+                ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' 
+                : 'bg-white hover:bg-slate-50/50'
+          }`}
           style={{
             gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
             height: '28px', // Match WBSLeftPanel exactly
           }}
           onMouseEnter={() => onRowHover?.(item.id)}
           onMouseLeave={() => onRowHover?.(null)}
+          onClick={(e) => onRowClick?.(item.id, e.ctrlKey || e.metaKey)}
         >
             <div className="px-2 flex items-center text-xs text-muted-foreground">
               <div className="flex items-center w-full">

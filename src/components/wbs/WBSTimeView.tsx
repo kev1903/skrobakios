@@ -2,6 +2,7 @@ import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, startOfWeek, endOfWeek, addDays, isSameDay } from 'date-fns';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
+import { WBSToolbar } from './WBSToolbar';
 import { GanttChart } from './GanttChart';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { DropResult } from 'react-beautiful-dnd';
@@ -16,6 +17,7 @@ interface WBSTimeViewProps {
   onContextMenuAction: (action: string, itemId: string, type: string) => void;
   onOpenNotesDialog: (item: any) => void;
   onClearAllDates?: () => void;
+  onAddRow?: () => void;
   dragIndicator: any;
   EditableCell: any;
   StatusSelect: any;
@@ -31,6 +33,7 @@ export const WBSTimeView = ({
   onContextMenuAction,
   onOpenNotesDialog,
   onClearAllDates,
+  onAddRow,
   dragIndicator,
   EditableCell,
   StatusSelect,
@@ -43,6 +46,13 @@ export const WBSTimeView = ({
   const timelineHeaderHorizontalScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [rightPanelSizes, setRightPanelSizes] = useState([50, 50]); // [dataColumns, timeline]
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [currentFormatting, setCurrentFormatting] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    fontSize: "12"
+  });
   const isSyncingRef = useRef(false);
   const isHorizontalSyncingRef = useRef(false);
 
@@ -98,6 +108,75 @@ export const WBSTimeView = ({
     await onItemUpdate(itemId, updates);
   }, [onItemUpdate]);
 
+  // Toolbar handlers
+  const handleAddRow = useCallback(() => {
+    if (onAddRow) {
+      onAddRow();
+    }
+  }, [onAddRow]);
+
+  const handleIndent = useCallback(() => {
+    // For flat structure, we could implement visual indentation
+    console.log('Indent selected items:', selectedItems);
+  }, [selectedItems]);
+
+  const handleOutdent = useCallback(() => {
+    // For flat structure, we could implement visual outdentation  
+    console.log('Outdent selected items:', selectedItems);
+  }, [selectedItems]);
+
+  const handleBold = useCallback(() => {
+    setCurrentFormatting(prev => ({ ...prev, bold: !prev.bold }));
+    // Apply bold formatting to selected items
+    selectedItems.forEach(itemId => {
+      // Could implement text formatting logic here
+      console.log('Toggle bold for item:', itemId);
+    });
+  }, [selectedItems]);
+
+  const handleItalic = useCallback(() => {
+    setCurrentFormatting(prev => ({ ...prev, italic: !prev.italic }));
+    // Apply italic formatting to selected items
+    selectedItems.forEach(itemId => {
+      console.log('Toggle italic for item:', itemId);
+    });
+  }, [selectedItems]);
+
+  const handleUnderline = useCallback(() => {
+    setCurrentFormatting(prev => ({ ...prev, underline: !prev.underline }));
+    // Apply underline formatting to selected items
+    selectedItems.forEach(itemId => {
+      console.log('Toggle underline for item:', itemId);
+    });
+  }, [selectedItems]);
+
+  const handleFontSizeChange = useCallback((size: string) => {
+    setCurrentFormatting(prev => ({ ...prev, fontSize: size }));
+    // Apply font size to selected items
+    selectedItems.forEach(itemId => {
+      console.log('Change font size for item:', itemId, 'to:', size);
+    });
+  }, [selectedItems]);
+
+  // Enhanced row hover handler to support selection
+  const handleRowHover = useCallback((id: string | null) => {
+    setHoveredId(id);
+  }, []);
+
+  const handleRowClick = useCallback((itemId: string, ctrlKey: boolean = false) => {
+    if (ctrlKey) {
+      // Multi-select with Ctrl
+      setSelectedItems(prev => 
+        prev.includes(itemId) 
+          ? prev.filter(id => id !== itemId)
+          : [...prev, itemId]
+      );
+    } else {
+      // Single select
+      setSelectedItems([itemId]);
+    }
+  }, []);
+
   // Generate timeline days for consistent layout
   const timelineDays = (() => {
     const itemsWithDates = items.filter(item => item.start_date || item.end_date);
@@ -137,8 +216,23 @@ export const WBSTimeView = ({
 
   return (
     <div className="h-full w-full bg-white flex flex-col">
+      {/* Toolbar */}
+      <WBSToolbar
+        onAddRow={handleAddRow}
+        onIndent={handleIndent}
+        onOutdent={handleOutdent}
+        onBold={handleBold}
+        onItalic={handleItalic}
+        onUnderline={handleUnderline}
+        onFontSizeChange={handleFontSizeChange}
+        selectedItems={selectedItems}
+        canIndent={selectedItems.length > 0}
+        canOutdent={selectedItems.length > 0}
+        currentFormatting={currentFormatting}
+      />
+      
       {/* Single ResizablePanelGroup controlling both header and content */}
-      <ResizablePanelGroup direction="horizontal" className="h-full">
+      <ResizablePanelGroup direction="horizontal" className="flex-1">
         {/* Left Column (WBS + Names) */}
         <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
           <div className="h-full flex flex-col">
@@ -176,7 +270,9 @@ export const WBSTimeView = ({
                 EditableCell={EditableCell}
                 generateWBSNumber={generateWBSNumber}
                 hoveredId={hoveredId}
-                onRowHover={setHoveredId}
+                onRowHover={handleRowHover}
+                selectedItems={selectedItems}
+                onRowClick={handleRowClick}
               />
             </div>
           </div>
@@ -293,7 +389,9 @@ export const WBSTimeView = ({
                       EditableCell={EditableCell}
                       StatusSelect={StatusSelect}
                       hoveredId={hoveredId}
-                      onRowHover={setHoveredId}
+                      onRowHover={handleRowHover}
+                      selectedItems={selectedItems}
+                      onRowClick={handleRowClick}
                     />
                   </div>
                 </ResizablePanel>
@@ -333,7 +431,7 @@ export const WBSTimeView = ({
                         className="w-full" 
                         hideHeader 
                         hoveredId={hoveredId}
-                        onRowHover={setHoveredId}
+                        onRowHover={handleRowHover}
                       />
                     </div>
                   </div>
