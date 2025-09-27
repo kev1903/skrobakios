@@ -44,51 +44,26 @@ export const WBSTimeView = ({
   const timelineContentScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  // Unified horizontal scroll synchronization for all sections
-  const syncAllScrollPositions = useCallback((scrollLeft: number, excludeRef?: React.RefObject<HTMLDivElement>) => {
-    // Sync all header scroll positions
-    if (wbsHeaderScrollRef.current && wbsHeaderScrollRef !== excludeRef) {
-      wbsHeaderScrollRef.current.scrollLeft = scrollLeft;
-    }
-    if (dataHeaderScrollRef.current && dataHeaderScrollRef !== excludeRef) {
-      dataHeaderScrollRef.current.scrollLeft = scrollLeft;
-    }
-    if (timelineHeaderScrollRef.current && timelineHeaderScrollRef !== excludeRef) {
-      timelineHeaderScrollRef.current.scrollLeft = scrollLeft;
-    }
-    
-    // Sync all content scroll positions
-    if (wbsContentScrollRef.current && wbsContentScrollRef !== excludeRef) {
-      wbsContentScrollRef.current.scrollLeft = scrollLeft;
-    }
-    if (dataContentScrollRef.current && dataContentScrollRef !== excludeRef) {
-      dataContentScrollRef.current.scrollLeft = scrollLeft;
-    }
-    if (timelineContentScrollRef.current && timelineContentScrollRef !== excludeRef) {
-      timelineContentScrollRef.current.scrollLeft = scrollLeft;
+  // Sync WBS horizontal scrolling
+  const handleWBSContentScroll = useCallback(() => {
+    if (wbsHeaderScrollRef.current && wbsContentScrollRef.current) {
+      wbsHeaderScrollRef.current.scrollLeft = wbsContentScrollRef.current.scrollLeft;
     }
   }, []);
 
-  // Sync WBS horizontal scrolling
-  const handleWBSContentScroll = useCallback(() => {
-    if (wbsContentScrollRef.current) {
-      syncAllScrollPositions(wbsContentScrollRef.current.scrollLeft, wbsContentScrollRef);
-    }
-  }, [syncAllScrollPositions]);
-
   // Sync Data Columns horizontal scrolling
   const handleDataContentScroll = useCallback(() => {
-    if (dataContentScrollRef.current) {
-      syncAllScrollPositions(dataContentScrollRef.current.scrollLeft, dataContentScrollRef);
+    if (dataHeaderScrollRef.current && dataContentScrollRef.current) {
+      dataHeaderScrollRef.current.scrollLeft = dataContentScrollRef.current.scrollLeft;
     }
-  }, [syncAllScrollPositions]);
+  }, []);
 
   // Sync Timeline horizontal scrolling
   const handleTimelineContentScroll = useCallback(() => {
-    if (timelineContentScrollRef.current) {
-      syncAllScrollPositions(timelineContentScrollRef.current.scrollLeft, timelineContentScrollRef);
+    if (timelineHeaderScrollRef.current && timelineContentScrollRef.current) {
+      timelineHeaderScrollRef.current.scrollLeft = timelineContentScrollRef.current.scrollLeft;
     }
-  }, [syncAllScrollPositions]);
+  }, []);
 
   // Simplified item update handler
   const handleItemUpdate = useCallback(async (itemId: string, updates: any) => {
