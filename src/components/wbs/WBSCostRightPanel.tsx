@@ -78,7 +78,7 @@ export const WBSCostRightPanel = ({
   const useUnifiedScroll = true; // Enable unified scrolling for Cost tab
 
   const content = (
-    <div style={{ minWidth: '880px' }}> {/* Match header minimum width */}
+    <div style={{ minWidth: '720px' }}> {/* Reasonable minimum width for cost columns */}
       {items.map((item) => {
         const budget = parseFloat(item.budgeted_cost || '0') || 0;
         const committed = parseFloat(item.committed_cost || '0') || 0;

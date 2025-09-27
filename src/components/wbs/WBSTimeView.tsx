@@ -134,13 +134,18 @@ export const WBSTimeView = ({
         const chartStart = startOfWeek(minDate);
         const chartEnd = endOfWeek(addDays(maxDate, 14));
         days = eachDayOfInterval({ start: chartStart, end: chartEnd });
+        
+        // Limit to maximum 90 days to prevent excessive width
+        if (days.length > 90) {
+          days = days.slice(0, 90);
+        }
       }
     }
     
     if (days.length === 0) {
       const currentDate = new Date();
       const monthStart = startOfMonth(currentDate);
-      const monthEnd = endOfMonth(currentDate);
+      const monthEnd = endOfMonth(addMonths(currentDate, 1)); // Show 2 months by default
       days = eachDayOfInterval({ start: monthStart, end: monthEnd });
     }
     
@@ -153,8 +158,8 @@ export const WBSTimeView = ({
       <div 
         className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-visible" 
         style={{ 
-          maxHeight: '100%',
-          height: '100%'
+          height: 'calc(100vh - 200px)',
+          maxHeight: 'calc(100vh - 200px)'
         }}
       >
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
@@ -270,11 +275,9 @@ export const WBSTimeView = ({
                     style={{ width: '100%', maxWidth: '100%' }}
                   >
                     <div 
-                      className="h-full text-xs font-medium text-gray-700 shadow-sm"
+                      className="h-full text-xs font-medium text-gray-700 shadow-sm flex"
                       style={{ 
-                        width: `${timelineDays.length * 32}px`, 
-                        minWidth: `${Math.min(timelineDays.length * 32, 800)}px`,
-                        maxWidth: 'none'
+                        minWidth: `${timelineDays.length * 32}px`
                       }}
                     >
                       <div className="flex h-full">
@@ -293,7 +296,7 @@ export const WBSTimeView = ({
                                 isToday ? 'bg-blue-100 text-blue-800 font-bold' : 
                                 isWeekend ? 'bg-gray-50 text-gray-500' : 'text-gray-700'
                               }`}
-                              style={{ width: 32 }}
+                              style={{ width: 32, minWidth: 32 }}
                             >
                               {isFirstDayOfMonth && (
                                 <div className="text-[8px] font-bold mb-0.5 text-blue-600">
@@ -316,9 +319,7 @@ export const WBSTimeView = ({
                 
                 {/* Timeline Content */}
                 <div style={{ 
-                  width: `${timelineDays.length * 32}px`, 
-                  minWidth: `${Math.min(timelineDays.length * 32, 800)}px`,
-                  maxWidth: 'none'
+                  minWidth: `${timelineDays.length * 32}px`
                 }}>
                   <GanttChart 
                     items={items.map(item => ({

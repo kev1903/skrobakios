@@ -64,9 +64,9 @@ export const WBSCostView = ({
       <div 
         className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-visible" 
         style={{ 
-          maxHeight: '100%',
-          height: '100%'
-        }}
+          height: 'calc(100vh - 200px)',
+          maxHeight: 'calc(100vh - 200px)'
+        }}  
       >
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           {/* Left Section - WBS Structure */}
@@ -118,7 +118,7 @@ export const WBSCostView = ({
                     style={{
                       gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
                       width: '100%',
-                      minWidth: '880px' // Ensure header has minimum width for all columns
+                      minWidth: '720px' // Reduced minimum width for cost columns
                     }}
                   >
                     <div className="px-3 font-semibold">DESCRIPTION</div>
