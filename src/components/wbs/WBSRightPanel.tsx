@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, NotebookPen } from 'lucide-react';
+import { MoreHorizontal, Trash2, NotebookPen, ListTodo, Unlink } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +17,8 @@ interface WBSItem {
   assignedTo?: string;
   level: number;
   hasChildren?: boolean;
+  is_task_enabled?: boolean;
+  linked_task_id?: string;
 }
 
 interface WBSRightPanelProps {
@@ -102,15 +104,20 @@ export const WBSRightPanel = ({
               </div>
             </div>
 
-           <div className="px-2 flex items-center justify-start h-full text-muted-foreground text-xs">
-             <EditableCell
-               id={item.id}
-               type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task'}
-               field="assignedTo"
-               value={item.assignedTo || ''}
-               placeholder="Assign to..."
-               className="text-xs text-muted-foreground w-full"
-             />
+            <div className="px-2 flex items-center justify-start h-full text-muted-foreground text-xs">
+              <div className="flex items-center gap-1 w-full">
+                {item.is_task_enabled && (
+                  <ListTodo className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                )}
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task'}
+                  field="assignedTo"
+                  value={item.assignedTo || ''}
+                  placeholder="Assign to..."
+                  className="text-xs text-muted-foreground flex-1"
+                />
+              </div>
            </div>
 
            <div className="px-1 flex items-center justify-center h-full">
@@ -136,12 +143,35 @@ export const WBSRightPanel = ({
                    <MoreHorizontal className="w-3 h-3" />
                  </Button>
                </DropdownMenuTrigger>
-               <DropdownMenuContent align="end" className="w-40">
-                 <DropdownMenuItem onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task')} className="text-destructive focus:text-destructive">
-                   <Trash2 className="w-3 h-3 mr-2" />
-                   Delete
-                 </DropdownMenuItem>
-               </DropdownMenuContent>
+                <DropdownMenuContent align="end" className="w-48">
+                  {!item.is_task_enabled ? (
+                    <DropdownMenuItem 
+                      onClick={() => onContextMenuAction('convert_to_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task')}
+                    >
+                      <ListTodo className="w-3 h-3 mr-2" />
+                      Convert to Task
+                    </DropdownMenuItem>
+                  ) : (
+                    <>
+                      <DropdownMenuItem 
+                        onClick={() => onContextMenuAction('view_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task')}
+                      >
+                        <ListTodo className="w-3 h-3 mr-2" />
+                        View Task Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => onContextMenuAction('unlink_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task')}
+                      >
+                        <Unlink className="w-3 h-3 mr-2" />
+                        Remove Task Link
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuItem onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task')} className="text-destructive focus:text-destructive">
+                    <Trash2 className="w-3 h-3 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
              </DropdownMenu>
            </div>
         </div>

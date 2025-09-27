@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal, ChevronsDown, ChevronsUp, NotebookPen, Clock, DollarSign, Settings } from 'lucide-react';
+import { WBSTaskConversionService } from '@/services/wbsTaskConversionService';
+import { TaskDetailPanel } from '@/components/tasks/TaskDetailPanel';
+import { createTaskConversionHandlers } from '@/components/ProjectScopePage_TaskHandlers';
+import { toast } from 'sonner';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -217,6 +221,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   const [currentNotesItem, setCurrentNotesItem] = useState<any>(null);
   const [notesValue, setNotesValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [isTaskDetailOpen, setIsTaskDetailOpen] = useState(false);
 
   // Use WBS hook for database operations
   const { 
@@ -692,7 +698,24 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     );
   };
 
-  const handleContextMenuAction = (action: string, itemId: string, type: 'phase' | 'component' | 'element' | 'task') => {
+  // Create task conversion handlers
+  const taskHandlers = createTaskConversionHandlers(
+    project,
+    findWBSItem,
+    setSelectedTask,
+    setIsTaskDetailOpen,
+    () => {
+      // Reload WBS items
+      if (project?.id && currentCompany?.id) {
+        WBSService.loadWBSItems(project.id, currentCompany.id).then((items) => {
+          // Update local state with refreshed data
+          window.location.reload(); // Simple reload for now
+        }).catch(console.error);
+      }
+    }
+  );
+
+  const handleContextMenuAction = async (action: string, itemId: string, type: 'phase' | 'component' | 'element' | 'task') => {
     switch (action) {
       case 'add-component':
         addNewComponent(itemId);
@@ -715,6 +738,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         break;
       case 'delete':
         deleteWBSItem(itemId);
+        break;
+      case 'convert_to_task':
+        await taskHandlers.handleConvertToTask(itemId);
+        break;
+      case 'view_task':
+        await taskHandlers.handleViewTaskDetails(itemId);
+        break;
+      case 'unlink_task':
+        await taskHandlers.handleUnlinkTask(itemId);
         break;
     }
   };
@@ -1637,6 +1669,21 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             </Tabs>
           </div>
         </div>
+
+        {/* Task Detail Panel */}
+        <TaskDetailPanel
+          task={selectedTask}
+          isOpen={isTaskDetailOpen}
+          onClose={() => {
+            setIsTaskDetailOpen(false);
+            setSelectedTask(null);
+          }}
+          onTaskUpdate={(taskId, updates) => {
+            // Handle task updates if needed
+            console.log('Task updated:', taskId, updates);
+          }}
+          wbsItemId={selectedTask?.wbs_item_id}
+        />
 
         {/* Notes Dialog */}
         <Dialog open={notesDialogOpen} onOpenChange={(open) => !open && closeNotesDialog()}>
