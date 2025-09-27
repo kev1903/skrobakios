@@ -158,12 +158,12 @@ export const WBSTimeView = ({
       <div 
         className="flex-1 min-h-0 overflow-y-scroll overflow-x-hidden scrollbar-always-visible" 
       >
-        <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+        <ResizablePanelGroup direction="horizontal" className="h-full w-full" style={{ minHeight: '800px' }}>
           {/* Left Side - WBS Structure + Data Columns */}
-          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+          <ResizablePanel defaultSize={60} minSize={40} maxSize={75} style={{ minHeight: '800px' }}>
+            <ResizablePanelGroup direction="horizontal" className="h-full w-full" style={{ minHeight: '800px' }}>
               {/* WBS Section */}
-              <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
+              <ResizablePanel defaultSize={45} minSize={25} maxSize={65} style={{ minHeight: '800px' }}>
                 <div className="h-full border-r border-gray-200">
                   <div 
                     ref={wbsContentScrollRef}
@@ -210,7 +210,7 @@ export const WBSTimeView = ({
               <ResizableHandle />
 
               {/* Data Columns Section */}
-              <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
+              <ResizablePanel defaultSize={55} minSize={35} maxSize={75} style={{ minHeight: '800px' }}>
                 <div className="h-full border-r border-gray-200">
                   <div 
                     ref={dataContentScrollRef}
@@ -255,7 +255,7 @@ export const WBSTimeView = ({
           <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
 
           {/* Timeline Section */}
-          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+          <ResizablePanel defaultSize={40} minSize={25} maxSize={60} style={{ minHeight: '800px' }}>
             <div className="h-full relative overflow-hidden">
               <div 
                 ref={timelineContentScrollRef}

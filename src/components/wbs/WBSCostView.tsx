@@ -64,9 +64,9 @@ export const WBSCostView = ({
       <div 
         className="flex-1 min-h-0 overflow-y-scroll overflow-x-hidden scrollbar-always-visible" 
       >
-        <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+        <ResizablePanelGroup direction="horizontal" className="h-full w-full" style={{ minHeight: '800px' }}>
           {/* Left Section - WBS Structure */}
-          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+          <ResizablePanel defaultSize={40} minSize={25} maxSize={60} style={{ minHeight: '800px' }}>
             <div className="h-full border-r border-gray-200">
               {/* Left Header */}
               <div className="h-[60px] bg-slate-100/70 border-b border-slate-200 sticky top-0 z-30">
@@ -101,7 +101,7 @@ export const WBSCostView = ({
           <ResizableHandle />
           
           {/* Right Section - Cost Data */}
-          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+          <ResizablePanel defaultSize={60} minSize={40} maxSize={75} style={{ minHeight: '800px' }}>
             <div className="h-full overflow-hidden">
               {/* Right Header */}
               <div className="h-[60px] bg-slate-100/70 border-b border-slate-200 sticky top-0 z-30">
