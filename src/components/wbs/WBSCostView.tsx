@@ -95,7 +95,7 @@ export const WBSCostView = ({
       {/* Content with single scroll */}
       <div 
         ref={mainScrollRef} 
-        className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+        className="flex-1 overflow-y-auto overflow-x-hidden"
         onScroll={handleScroll}
       >
         <div className="flex">
