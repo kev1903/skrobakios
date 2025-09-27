@@ -1482,13 +1482,19 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                      </div>
                      ) : (
                        <div 
-                         className="flex-1 min-w-0 h-[600px] border border-red-500 bg-white"
                          style={{
+                           position: 'fixed',
+                           top: '200px',
+                           left: '160px',
+                           right: '20px',
+                           bottom: '20px',
+                           backgroundColor: 'white',
+                           border: '3px solid red',
                            overflow: 'auto',
-                           scrollbarWidth: 'auto',
-                           scrollbarColor: '#666 #f0f0f0'
+                           zIndex: 1000
                          }}
                        >
+                        <div style={{ height: '2000px', width: '2000px', padding: '20px' }}>
                         <WBSSplitView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
@@ -1509,8 +1515,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                          ProgressDisplay={ProgressDisplay}
                          getProgressColor={getProgressColor}
                          generateWBSNumber={generateWBSNumber}
-                       />
-                     </div>
+                        />
+                        </div>
+                       </div>
                    )}
                  </div>
                </TabsContent>
