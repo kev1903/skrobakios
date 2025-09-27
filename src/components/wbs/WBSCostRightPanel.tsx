@@ -77,7 +77,7 @@ export const WBSCostRightPanel = ({
   return (
     <div className="flex-1 min-w-0 bg-white">
       {/* Content */}
-      <div className="h-full overflow-hidden w-full">{scrollRef && onScroll ? null : null}
+      <div className="h-full overflow-hidden w-full">
         {items.map((item) => {
           const budget = parseFloat(item.budgeted_cost || '0') || 0;
           const committed = parseFloat(item.committed_cost || '0') || 0;
@@ -97,13 +97,23 @@ export const WBSCostRightPanel = ({
                   : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
               } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
               style={{
-                gridTemplateColumns: '2fr 80px 80px 80px 80px 100px 80px 80px 1fr',
+                gridTemplateColumns: '2fr 60px 60px 60px 60px 80px 60px 60px 1fr',
                 height: '1.75rem',
               }}
               onMouseEnter={() => onRowHover?.(item.id)}
               onMouseLeave={() => onRowHover?.(null)}
             >
-
+              {/* Description */}
+              <div className="px-3 flex items-center h-full text-xs">
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="description"
+                  value={item.description || ''}
+                  placeholder="Add description..."
+                  className="text-xs text-muted-foreground w-full"
+                />
+              </div>
               {/* Budget */}
               <div className="px-2 flex items-center justify-end h-full text-xs">
                 <EditableCell

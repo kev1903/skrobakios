@@ -53,7 +53,7 @@ export const WBSLeftPanel = ({
   return (
     <div className="h-full bg-white flex-shrink-0">
       {/* Content - No separate header since it's now unified */}
-      <div className="h-full overflow-hidden">{scrollRef && onScroll ? null : null}
+      <div className="h-full overflow-hidden">
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="wbs-phases" type="phase">
             {(provided) => (
