@@ -4,16 +4,14 @@ import { WBSCostRightPanel } from './WBSCostRightPanel';
 import { WBSToolbar } from './WBSToolbar';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { DropResult } from 'react-beautiful-dnd';
+import { WBSItem } from '@/types/wbs';
 
-interface WBSItem {
-  id: string;
+
+// Extended WBS Item interface that includes legacy properties
+interface ExtendedWBSItem extends Omit<WBSItem, 'start_date' | 'end_date'> {
   name: string;
-  description?: string;
-  status: string;
-  progress: number;
-  assignedTo?: string;
-  level: number;
   wbsNumber: string;
+  assignedTo?: string;
   isExpanded?: boolean;
   hasChildren?: boolean;
   start_date?: string | Date | null;
@@ -22,7 +20,7 @@ interface WBSItem {
 }
 
 interface WBSCostViewProps {
-  items: WBSItem[];
+  items: ExtendedWBSItem[];
   onToggleExpanded: (itemId: string) => void;
   onDragEnd: (result: DropResult) => void;
   onItemUpdate: (itemId: string, updates: any) => void;
@@ -70,13 +68,58 @@ export const WBSCostView = ({
     }
   }, [onAddRow]);
 
-  const handleIndent = useCallback(() => {
-    console.log('Indent selected items:', selectedItems);
-  }, [selectedItems]);
+  const handleIndent = useCallback(async () => {
+    if (selectedItems.length === 0) return;
+    
+    try {
+      for (const itemId of selectedItems) {
+        const item = items.find(i => i.id === itemId);
+        if (!item) continue;
+        
+        // Find the item directly above this one in the flat list
+        const currentIndex = items.findIndex(i => i.id === itemId);
+        if (currentIndex <= 0) continue; // Can't indent the first item
+        
+        const itemAbove = items[currentIndex - 1];
+        
+        // Set the item above as the new parent and increase level
+        await onItemUpdate(itemId, {
+          parent_id: itemAbove.id,
+          level: item.level + 1
+        });
+      }
+      
+      // Clear selection after indent
+      setSelectedItems([]);
+    } catch (error) {
+      console.error('Error indenting items:', error);
+    }
+  }, [selectedItems, items, onItemUpdate]);
 
-  const handleOutdent = useCallback(() => {
-    console.log('Outdent selected items:', selectedItems);
-  }, [selectedItems]);
+  const handleOutdent = useCallback(async () => {
+    if (selectedItems.length === 0) return;
+    
+    try {
+      for (const itemId of selectedItems) {
+        const item = items.find(i => i.id === itemId);
+        if (!item || item.level <= 0) continue; // Can't outdent beyond level 0
+        
+        // Find the current parent to get its parent
+        const currentParent = items.find(i => i.id === item.parent_id);
+        
+        // Set new parent and decrease level
+        await onItemUpdate(itemId, {
+          parent_id: currentParent?.parent_id || null,
+          level: Math.max(0, item.level - 1)
+        });
+      }
+      
+      // Clear selection after outdent
+      setSelectedItems([]);
+    } catch (error) {
+      console.error('Error outdenting items:', error);
+    }
+  }, [selectedItems, items, onItemUpdate]);
 
   const handleBold = useCallback(() => {
     setCurrentFormatting(prev => ({ ...prev, bold: !prev.bold }));
@@ -188,7 +231,7 @@ export const WBSCostView = ({
               onScroll={handleWBSContentScroll}
             >
               <WBSLeftPanel
-                items={items}
+                items={items as any}
                 onToggleExpanded={onToggleExpanded}
                 onDragEnd={onDragEnd}
                 onItemEdit={onItemUpdate}
@@ -244,7 +287,7 @@ export const WBSCostView = ({
               onScroll={handleCostContentScroll}
             >
               <WBSCostRightPanel
-                items={items}
+                items={items as any}
                 onItemUpdate={onItemUpdate}
                 onContextMenuAction={onContextMenuAction}
                 onOpenNotesDialog={onOpenNotesDialog}

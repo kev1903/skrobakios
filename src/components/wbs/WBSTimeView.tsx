@@ -115,10 +115,33 @@ export const WBSTimeView = ({
     }
   }, [onAddRow]);
 
-  const handleIndent = useCallback(() => {
-    // For flat structure, we could implement visual indentation
-    console.log('Indent selected items:', selectedItems);
-  }, [selectedItems]);
+  const handleIndent = useCallback(async () => {
+    if (selectedItems.length === 0) return;
+    
+    try {
+      for (const itemId of selectedItems) {
+        const item = items.find(i => i.id === itemId);
+        if (!item) continue;
+        
+        // Find the item directly above this one in the flat list
+        const currentIndex = items.findIndex(i => i.id === itemId);
+        if (currentIndex <= 0) continue; // Can't indent the first item
+        
+        const itemAbove = items[currentIndex - 1];
+        
+        // Set the item above as the new parent and increase level
+        await onItemUpdate(itemId, {
+          parent_id: itemAbove.id,
+          level: item.level + 1
+        });
+      }
+      
+      // Clear selection after indent
+      setSelectedItems([]);
+    } catch (error) {
+      console.error('Error indenting items:', error);
+    }
+  }, [selectedItems, items, onItemUpdate]);
 
   const handleOutdent = useCallback(() => {
     // For flat structure, we could implement visual outdentation  

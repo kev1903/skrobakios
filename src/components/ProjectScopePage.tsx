@@ -1489,7 +1489,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                             }
                           }}
                           onDragEnd={onDragEnd}
-                          onItemUpdate={updateWBSItem}
+                          onItemUpdate={async (itemId, updates) => {
+                            await updateWBSItem(itemId, updates);
+                            // Trigger renumbering after hierarchy changes
+                            if (updates.parent_id !== undefined || updates.level !== undefined) {
+                              await renumberWBSHierarchy();
+                            }
+                          }}
                           onAddChild={addChildItem}
                           onContextMenuAction={handleContextMenuAction}
                           onOpenNotesDialog={openNotesDialog}
@@ -1536,7 +1542,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           }
                         }}
                         onDragEnd={onDragEnd}
-                        onItemUpdate={updateWBSItem}
+                        onItemUpdate={async (itemId, updates) => {
+                          await updateWBSItem(itemId, updates);
+                          // Trigger renumbering after hierarchy changes
+                          if (updates.parent_id !== undefined || updates.level !== undefined) {
+                            await renumberWBSHierarchy();
+                          }
+                        }}
                         onAddChild={addChildItem}
                         onContextMenuAction={handleContextMenuAction}
                         onOpenNotesDialog={openNotesDialog}
@@ -1580,7 +1592,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                              }
                            }}
                            onDragEnd={onDragEnd}
-                           onItemUpdate={updateWBSItem}
+                           onItemUpdate={async (itemId, updates) => {
+                             await updateWBSItem(itemId, updates);
+                             // Trigger renumbering after hierarchy changes
+                             if (updates.parent_id !== undefined || updates.level !== undefined) {
+                               await renumberWBSHierarchy();
+                             }
+                           }}
                            onAddChild={addChildItem}
                            onContextMenuAction={handleContextMenuAction}
                            onOpenNotesDialog={openNotesDialog}
