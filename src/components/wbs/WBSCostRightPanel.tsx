@@ -17,6 +17,7 @@ interface WBSItem {
   progress: number;
   assignedTo?: string;
   level: number;
+  hasChildren?: boolean;
   start_date?: string | Date | null;
   end_date?: string | Date | null;
   duration?: number;
@@ -168,6 +169,7 @@ export const WBSCostRightPanel = ({
                  <StatusSelect 
                    value={item.status} 
                    onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
+                   disabled={item.hasChildren}
                  />
                </div>
 

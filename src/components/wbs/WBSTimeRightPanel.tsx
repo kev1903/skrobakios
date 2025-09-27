@@ -511,6 +511,7 @@ export const WBSTimeRightPanel = ({
               <StatusSelect 
                 value={item.status} 
                 onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
+                disabled={item.hasChildren}
               />
             </div>
 

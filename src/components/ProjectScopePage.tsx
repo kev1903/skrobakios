@@ -534,14 +534,27 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   const ProgressInput = ({ 
     value, 
     onChange, 
-    className = "" 
+    className = "",
+    disabled = false
   }: { 
     value: number; 
     onChange: (value: number) => void;
     className?: string;
+    disabled?: boolean;
   }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [inputValue, setInputValue] = useState(value.toString());
+
+    if (disabled) {
+      return (
+        <span 
+          className={`text-xs text-muted-foreground font-medium ${className}`}
+          title="Calculated from child items"
+        >
+          {value}%
+        </span>
+      );
+    }
 
     const handleSave = () => {
       const numValue = Math.max(0, Math.min(100, parseInt(inputValue) || 0));
@@ -609,14 +622,30 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   const StatusSelect = ({
     value, 
     onChange, 
-    className = "" 
+    className = "",
+    disabled = false
   }: { 
     value: string; 
     onChange: (value: string) => void;
     className?: string;
+    disabled?: boolean;
   }) => {
     const currentStatus = statusOptions.find(s => s.value === value);
     
+    
+    if (disabled) {
+      return (
+        <div className={`h-7 w-16 text-xs border-0 bg-transparent p-1 ${className}`}>
+          <div className="flex items-center gap-1.5">
+            <div className={`w-2 h-2 rounded-full ${currentStatus?.color || 'bg-slate-400'}`} />
+            <span className="text-xs font-medium text-muted-foreground" title="Calculated from child items">
+              {currentStatus?.short || 'NS'}
+            </span>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger className={`h-7 w-16 text-xs border-0 bg-transparent hover:bg-accent/30 focus:ring-0 focus:ring-offset-0 p-1 ${className}`}>

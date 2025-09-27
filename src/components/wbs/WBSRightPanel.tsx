@@ -16,6 +16,7 @@ interface WBSItem {
   progress: number;
   assignedTo?: string;
   level: number;
+  hasChildren?: boolean;
 }
 
 interface WBSRightPanelProps {
@@ -71,31 +72,29 @@ export const WBSRightPanel = ({
              onMouseLeave={() => onRowHover?.(null)}
            >
 
-             <div className="px-2 flex items-center">
-               <StatusSelect 
-                 value={item.status} 
-                 onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
-               />
-             </div>
+              <div className="px-2 flex items-center">
+                <StatusSelect 
+                  value={item.status} 
+                  onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
+                  disabled={item.hasChildren}
+                />
+              </div>
 
-             <div className="px-2 flex items-center">
-               <div className="flex items-center gap-1">
-                 <div className="w-8 h-1 bg-muted rounded-full overflow-hidden">
-                   <div 
-                     className={`h-full transition-all duration-300 ${getProgressColor(item.progress)}`} 
-                     style={{ width: `${item.progress}%` }} 
-                   />
-                 </div>
-                  {item.level <= 3 ? (
-                    <ProgressInput 
-                      value={item.progress} 
-                      onChange={(newProgress: number) => onItemUpdate(item.id, { progress: newProgress })}
+              <div className="px-2 flex items-center">
+                <div className="flex items-center gap-1">
+                  <div className="w-8 h-1 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-300 ${getProgressColor(item.progress)}`} 
+                      style={{ width: `${item.progress}%` }} 
                     />
-                  ) : (
-                    <ProgressDisplay value={item.progress} />
-                  )}
-               </div>
-             </div>
+                  </div>
+                  <ProgressInput 
+                    value={item.progress} 
+                    onChange={(newProgress: number) => onItemUpdate(item.id, { progress: newProgress })}
+                    disabled={item.hasChildren}
+                  />
+                </div>
+              </div>
 
              <div className="px-2 flex items-center text-muted-foreground text-xs">
                <EditableCell

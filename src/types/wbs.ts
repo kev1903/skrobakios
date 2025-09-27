@@ -31,6 +31,7 @@ export interface WBSItem {
   linked_tasks: string[]; // Legacy field for backwards compatibility
   predecessors?: WBSPredecessor[]; // New structured predecessor data
   children: WBSItem[];
+  hasChildren?: boolean; // Derived property to check if item has children
   created_at: string;
   updated_at: string;
 
