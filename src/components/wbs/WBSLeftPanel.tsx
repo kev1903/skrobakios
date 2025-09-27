@@ -169,16 +169,16 @@ export const WBSLeftPanel = ({
                                     <div className="flex gap-1">
                                       {item.level < 3 && (
                                         <Button
-                                          variant={item.level === 0 ? "default" : item.level === 1 ? "outline" : "secondary"}
+                                          variant="ghost"
                                           size="sm"
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             onAddChild(item.id);
                                           }}
-                                          className={`h-6 w-6 p-0 ${
-                                            item.level === 0 ? 'hover:bg-blue-600 bg-blue-500' : 
-                                            item.level === 1 ? 'hover:bg-green-50 border-green-500 text-green-600' :
-                                            'hover:bg-orange-50 bg-orange-100 text-orange-600'
+                                          className={`h-6 w-6 p-0 hover:scale-110 transition-transform ${
+                                            item.level === 0 ? 'hover:bg-blue-50 text-blue-600' : 
+                                            item.level === 1 ? 'hover:bg-green-50 text-green-600' :
+                                            'hover:bg-orange-50 text-orange-600'
                                           }`}
                                           title={
                                             item.level === 0 ? "Add Component" : 
@@ -187,11 +187,11 @@ export const WBSLeftPanel = ({
                                           }
                                         >
                                           {item.level === 0 ? (
-                                            <PlusCircle className="w-3 h-3" />
+                                            <PlusCircle className="w-3.5 h-3.5" />
                                           ) : item.level === 1 ? (
-                                            <PlusSquare className="w-3 h-3" />
+                                            <Plus className="w-3.5 h-3.5" />
                                           ) : (
-                                            <CheckSquare className="w-3 h-3" />
+                                            <Plus className="w-3 h-3" />
                                           )}
                                         </Button>
                                       )}
