@@ -127,6 +127,9 @@ export const useWBS = (projectId: string) => {
       } else if (updates.progress === 100 && updates.status !== 'Completed') {
         updates.status = 'Completed';
         console.log('🔄 Auto-setting status to Completed for 100% progress task');
+      } else if (updates.status === 'Not Started' && updates.progress !== 0) {
+        updates.progress = 0;
+        console.log('🔄 Auto-setting progress to 0% for not started task');
       }
 
       await WBSService.updateWBSItem(id, updates);
