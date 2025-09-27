@@ -28,6 +28,7 @@ interface WBSCostViewProps {
   onAddChild?: (parentId: string) => void;
   onContextMenuAction: (action: string, itemId: string, type: string) => void;
   onOpenNotesDialog: (item: any) => void;
+  onAddRow?: () => void;
   dragIndicator: any;
   EditableCell: any;
   StatusSelect: any;
@@ -42,16 +43,79 @@ export const WBSCostView = ({
   onAddChild,
   onContextMenuAction,
   onOpenNotesDialog,
+  onAddRow,
   dragIndicator,
   EditableCell,
   StatusSelect,
   generateWBSNumber
 }: WBSCostViewProps) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [currentFormatting, setCurrentFormatting] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    fontSize: "12"
+  });
   const costHeaderScrollRef = useRef<HTMLDivElement>(null);
   const wbsContentScrollRef = useRef<HTMLDivElement>(null);
   const costContentScrollRef = useRef<HTMLDivElement>(null);
   const isSyncingRef = useRef(false);
+
+  // Toolbar handlers
+  const handleAddRow = useCallback(() => {
+    if (onAddRow) {
+      onAddRow();
+    }
+  }, [onAddRow]);
+
+  const handleIndent = useCallback(() => {
+    console.log('Indent selected items:', selectedItems);
+  }, [selectedItems]);
+
+  const handleOutdent = useCallback(() => {
+    console.log('Outdent selected items:', selectedItems);
+  }, [selectedItems]);
+
+  const handleBold = useCallback(() => {
+    setCurrentFormatting(prev => ({ ...prev, bold: !prev.bold }));
+    selectedItems.forEach(itemId => {
+      console.log('Toggle bold for item:', itemId);
+    });
+  }, [selectedItems]);
+
+  const handleItalic = useCallback(() => {
+    setCurrentFormatting(prev => ({ ...prev, italic: !prev.italic }));
+    selectedItems.forEach(itemId => {
+      console.log('Toggle italic for item:', itemId);
+    });
+  }, [selectedItems]);
+
+  const handleUnderline = useCallback(() => {
+    setCurrentFormatting(prev => ({ ...prev, underline: !prev.underline }));
+    selectedItems.forEach(itemId => {
+      console.log('Toggle underline for item:', itemId);
+    });
+  }, [selectedItems]);
+
+  const handleFontSizeChange = useCallback((size: string) => {
+    setCurrentFormatting(prev => ({ ...prev, fontSize: size }));
+    selectedItems.forEach(itemId => {
+      console.log('Change font size for item:', itemId, 'to:', size);
+    });
+  }, [selectedItems]);
+
+  const handleRowClick = useCallback((itemId: string, ctrlKey: boolean = false) => {
+    if (ctrlKey) {
+      setSelectedItems(prev => 
+        prev.includes(itemId) 
+          ? prev.filter(id => id !== itemId)
+          : [...prev, itemId]
+      );
+    } else {
+      setSelectedItems([itemId]);
+    }
+  }, []);
 
   // Synchronize scrolling between left and right panels (matching Scope tab pattern)
   const handleWBSContentScroll = useCallback(() => {
@@ -118,6 +182,8 @@ export const WBSCostView = ({
                 generateWBSNumber={generateWBSNumber}
                 hoveredId={hoveredId}
                 onRowHover={setHoveredId}
+                selectedItems={selectedItems}
+                onRowClick={handleRowClick}
               />
             </div>
           </div>
@@ -170,6 +236,8 @@ export const WBSCostView = ({
                 StatusSelect={StatusSelect}
                 hoveredId={hoveredId}
                 onRowHover={setHoveredId}
+                selectedItems={selectedItems}
+                onRowClick={handleRowClick}
               />
             </div>
           </div>

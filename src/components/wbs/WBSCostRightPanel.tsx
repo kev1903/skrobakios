@@ -40,6 +40,8 @@ interface WBSCostRightPanelProps {
   onScroll?: () => void;
   hoveredId?: string | null;
   onRowHover?: (id: string | null) => void;
+  selectedItems?: string[];
+  onRowClick?: (itemId: string, ctrlKey?: boolean) => void;
 }
 
 export const WBSCostRightPanel = ({
@@ -52,7 +54,9 @@ export const WBSCostRightPanel = ({
   scrollRef,
   onScroll,
   hoveredId,
-  onRowHover
+  onRowHover,
+  selectedItems = [],
+  onRowClick
 }: WBSCostRightPanelProps) => {
   
   // Helper function to calculate values
@@ -90,20 +94,21 @@ export const WBSCostRightPanel = ({
         return (
           <div
             key={item.id}
-            className={`grid items-center w-full border-b border-gray-100 ${
-              item.level === 0 
-                ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
-                : item.level === 1
-                ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
-                : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-            } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+            className={`grid items-center w-full border-b border-gray-100 cursor-pointer transition-all duration-200 ${
+              selectedItems.includes(item.id) 
+                ? 'bg-primary/10 border-l-4 border-l-primary shadow-sm' 
+                : hoveredId === item.id 
+                  ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' 
+                  : 'bg-white hover:bg-slate-50/50'
+            }`}
             style={{
               gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
               height: '28px',
             }}
             onMouseEnter={() => onRowHover?.(item.id)}
             onMouseLeave={() => onRowHover?.(null)}
-          >
+            onClick={(e) => onRowClick?.(item.id, e.ctrlKey || e.metaKey)}
+        >
             {/* Description */}
             <div className="px-3 flex items-center h-full text-xs overflow-hidden">
               <EditableCell
