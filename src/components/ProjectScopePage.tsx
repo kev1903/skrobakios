@@ -234,6 +234,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     deleteWBSItem,
     generateWBSId,
     findWBSItem,
+    clearError,
   } = useWBS(project.id);
 
   console.log('ProjectScopePage rendering', { project, wbsItems: wbsItems?.length, loading, error, activeTab });
@@ -1540,12 +1541,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                      </div>
                    ) : error ? (
                      <div className="flex items-center justify-center h-64">
-                       <div className="text-center">
-                         <div className="text-sm text-destructive mb-2">Error loading WBS</div>
-                         <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                           Retry
-                         </Button>
-                       </div>
+                        <div className="text-center">
+                          <div className="text-sm text-destructive mb-2">Error loading WBS</div>
+                          <div className="flex gap-2 justify-center">
+                            <Button variant="outline" size="sm" onClick={clearError}>
+                              Clear Error
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                              Retry
+                            </Button>
+                          </div>
+                        </div>
                      </div>
                     ) : (
                        <div className="h-full overflow-hidden">
@@ -1588,12 +1594,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     </div>
                   ) : error ? (
                     <div className="flex items-center justify-center h-64">
-                      <div className="text-center">
-                        <div className="text-sm text-destructive mb-2">Error loading WBS</div>
-                        <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                          Retry
-                        </Button>
-                      </div>
+                     <div className="text-center">
+                       <div className="text-sm text-destructive mb-2">Error loading WBS</div>
+                       <div className="flex gap-2 justify-center">
+                         <Button variant="outline" size="sm" onClick={clearError}>
+                           Clear Error
+                         </Button>
+                         <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                           Retry
+                         </Button>
+                       </div>
+                     </div>
                     </div>
                   ) : (
                     <div className="h-full overflow-hidden">
@@ -1634,12 +1645,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        </div>
                      ) : error ? (
                        <div className="flex items-center justify-center h-64">
-                         <div className="text-center">
-                           <div className="text-sm text-destructive mb-2">Error loading WBS</div>
-                           <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                             Retry
-                           </Button>
-                         </div>
+                          <div className="text-center">
+                            <div className="text-sm text-destructive mb-2">Error loading WBS</div>
+                            <div className="flex gap-2 justify-center">
+                              <Button variant="outline" size="sm" onClick={clearError}>
+                                Clear Error
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                                Retry
+                              </Button>
+                            </div>
+                          </div>
                        </div>
                       ) : (
                           <WBSCostView

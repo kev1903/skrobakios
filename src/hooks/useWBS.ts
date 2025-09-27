@@ -119,6 +119,9 @@ export const useWBS = (projectId: string) => {
     updates: Partial<WBSItem>,
     options?: { skipAutoSchedule?: boolean }
   ) => {
+    // Clear any previous errors before attempting update
+    setError(null);
+    
     try {
       // Auto-sync progress and status
       if (updates.status === 'Completed' && updates.progress !== 100) {
@@ -227,6 +230,11 @@ export const useWBS = (projectId: string) => {
     loadWBSItems();
   }, [projectId, currentCompany?.id]);
 
+  // Function to manually clear error state  
+  const clearError = () => {
+    setError(null);
+  };
+
   return {
     wbsItems,
     loading,
@@ -235,6 +243,7 @@ export const useWBS = (projectId: string) => {
     createWBSItem,
     updateWBSItem,
     deleteWBSItem,
+    clearError,
     calculateDuration,
     generateWBSId: (parentId?: string) => generateWBSId(parentId, wbsItems),
     findWBSItem: (id: string) => findWBSItem(wbsItems, id)
