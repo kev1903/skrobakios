@@ -304,7 +304,198 @@ export const WBSTimeRightPanel = ({
   return (
     <div className="h-full bg-white overflow-hidden" style={{ minWidth: '720px' }}>
       {/* Content */}
-      <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full scrollbar-hide" onScroll={onScroll}>
+      <div className="h-full overflow-hidden">
+        {scrollRef && (
+          <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full scrollbar-hide" onScroll={onScroll}>
+          <div className="space-y-0">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className={`grid items-center w-full border-b border-gray-100 ${
+                  item.level === 0 
+                    ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 hover:from-blue-50 hover:to-blue-100 border-l-[6px] border-blue-800 shadow-sm' 
+                    : item.level === 1
+                    ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 hover:from-blue-100 hover:to-blue-200 border-l-[4px] border-blue-400'
+                    : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+                } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+                style={{
+                  gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
+                  height: '28px', // Match WBSLeftPanel exactly
+                }}
+                onMouseEnter={() => onRowHover?.(item.id)}
+                onMouseLeave={() => onRowHover?.(null)}
+              >
+
+                <div className="px-2 flex items-center text-xs text-muted-foreground">
+                    {(() => {
+                      const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
+                      const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
+                      if (isParent) {
+                        const rollup = rollupDates.get(item.id);
+                        const d = rollup?.start;
+                        return (
+                          <span className="text-xs text-muted-foreground">
+                            {d ? format(d, 'MMM dd, yyyy') : '-'}
+                          </span>
+                        );
+                      }
+                      return (
+                        <div className="flex items-center w-full">
+                          <DatePickerCell
+                            id={item.id}
+                            type={type}
+                            field="start_date"
+                            value={item.start_date}
+                            placeholder="Start date"
+                            className="text-xs text-muted-foreground"
+                            onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                            onCalculate={handleDateCalculation}
+                            currentItem={item}
+                          />
+                          <DependencyLockIndicator item={item} field="start_date" />
+                        </div>
+                      );
+                    })()}
+                </div>
+
+                <div className="px-2 flex items-end text-xs text-muted-foreground">
+                  {(() => {
+                    const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
+                    const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
+                    if (isParent) {
+                      const rollup = rollupDates.get(item.id);
+                      const d = rollup?.end;
+                      return (
+                        <span className="text-xs text-muted-foreground">
+                          {d ? format(d, 'MMM dd, yyyy') : '-'}
+                        </span>
+                      );
+                    }
+                    return (
+                      <div className="flex items-center w-full">
+                        <DatePickerCell
+                          id={item.id}
+                          type={type}
+                          field="end_date"
+                          value={item.end_date}
+                          placeholder="End date"
+                          className="text-xs text-muted-foreground"
+                          onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                          onCalculate={handleDateCalculation}
+                          currentItem={item}
+                        />
+                        <DependencyLockIndicator item={item} field="end_date" />
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                <div className="px-2 flex items-end text-xs text-muted-foreground">
+                  {(() => {
+                    const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
+                    const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
+                    if (isParent) {
+                      const rollup = rollupDates.get(item.id);
+                      const d = rollup?.duration ?? item.duration;
+                      return (
+                        <div className="w-full h-full flex items-end">
+                          <span className="text-xs leading-none text-muted-foreground">{d ? `${d}d` : '-'}</span>
+                        </div>
+                      );
+                    }
+                    return (
+                      <DurationCell
+                        id={item.id}
+                        type={type}
+                        value={item.duration || 0}
+                        className="text-xs text-muted-foreground"
+                        onUpdate={handleDurationCalculation}
+                      />
+                    );
+                  })()}
+                </div>
+
+                <div className="px-2 flex items-center text-xs text-muted-foreground">
+                  <PredecessorCell
+                    id={item.id}
+                    type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                    value={item.predecessors || []}
+                    availableItems={items.map(i => ({
+                      id: i.id,
+                      title: i.title,
+                      wbs_id: i.wbs_id || ''
+                    }))}
+                    onUpdate={(predecessors) => handleItemUpdate(item.id, { predecessors })}
+                    className="text-xs text-muted-foreground"
+                  />
+                </div>
+
+                <div className="px-2 flex items-center text-xs text-muted-foreground">
+                  <StatusSelect 
+                    value={item.status || 'Not Started'} 
+                    onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
+                  />
+                </div>
+
+                <div className="px-2 flex items-center text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onOpenNotesDialog(item)}
+                      className="h-6 w-6 p-0 hover:bg-muted"
+                      title={item.description ? "View/Edit notes" : "Add notes"}
+                    >
+                      <NotebookPen className={`w-4 h-4 transition-colors ${
+                        item.description && item.description.trim() 
+                          ? 'text-blue-600 hover:text-blue-700' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`} />
+                    </Button>
+                    
+                    {onClearAllDates && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleItemUpdate(item.id, { start_date: null, end_date: null, duration: null })}
+                        className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                        title="Clear all dates"
+                      >
+                        <Calendar className="w-4 h-4" />
+                      </Button>
+                    )}
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-muted">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onClick={() => {
+                          navigator.clipboard.writeText(JSON.stringify(item, null, 2));
+                        }}>
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy Details
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+        ) || (
         {items.map((item) => (
           <div
             key={item.id}

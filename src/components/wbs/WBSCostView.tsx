@@ -99,6 +99,10 @@ export const WBSCostView = ({
         <div 
           ref={unifiedScrollRef}
           className="h-full overflow-y-auto overflow-x-hidden"
+          style={{ 
+            scrollbarWidth: 'auto',
+            scrollbarColor: 'rgb(156 163 175) transparent'
+          }}
         >
           <ResizablePanelGroup direction="horizontal" className="min-h-full">
             {/* Left Panel Content */}
@@ -113,7 +117,7 @@ export const WBSCostView = ({
                   dragIndicator={dragIndicator}
                   EditableCell={EditableCell}
                   generateWBSNumber={generateWBSNumber}
-                  scrollRef={unifiedScrollRef}
+                  scrollRef={null}
                   onScroll={() => {}}
                   hoveredId={hoveredId}
                   onRowHover={setHoveredId}
@@ -133,7 +137,7 @@ export const WBSCostView = ({
                   onOpenNotesDialog={onOpenNotesDialog}
                   EditableCell={EditableCell}
                   StatusSelect={StatusSelect}
-                  scrollRef={unifiedScrollRef}
+                  scrollRef={null}
                   onScroll={() => {}}
                   hoveredId={hoveredId}
                   onRowHover={setHoveredId}
