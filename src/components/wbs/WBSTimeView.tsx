@@ -36,7 +36,8 @@ export const WBSTimeView = ({
   StatusSelect,
   generateWBSNumber
 }: WBSTimeViewProps) => {
-  const unifiedScrollRef = useRef<HTMLDivElement>(null);
+  const leftScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
   const headerHorizScrollRef = useRef<HTMLDivElement>(null);
   const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -44,6 +45,18 @@ export const WBSTimeView = ({
   const handleTimelineHorizontalScroll = useCallback(() => {
     if (headerHorizScrollRef.current && bodyHorizScrollRef.current) {
       headerHorizScrollRef.current.scrollLeft = bodyHorizScrollRef.current.scrollLeft;
+    }
+  }, []);
+
+  const handleRightScroll = useCallback(() => {
+    if (leftScrollRef.current && rightScrollRef.current) {
+      leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
+    }
+  }, []);
+
+  const handleLeftScroll = useCallback(() => {
+    if (leftScrollRef.current && rightScrollRef.current) {
+      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
     }
   }, []);
 
@@ -174,95 +187,98 @@ export const WBSTimeView = ({
         </ResizablePanelGroup>
       </div>
 
-      {/* Unified Scrollable Content */}
+      {/* Scrollable Content with Split Scroll Behavior */}
       <div className="flex-1 overflow-hidden">
-        <div 
-          ref={unifiedScrollRef}
-          className="h-full overflow-y-auto overflow-x-hidden"
-        >
-          <ResizablePanelGroup direction="horizontal" className="min-h-full">
-            {/* Left Panel Content */}
-            <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-              <div className="flex h-full">
-                <ResizablePanelGroup direction="horizontal" className="h-full">
-                  {/* WBS Structure Content */}
-                  <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
-                    <div className="border-r border-gray-200 bg-white">
-                      <WBSLeftPanel
-                        items={items.map(item => ({
-                          ...item,
-                          name: item.title,
-                          wbsNumber: item.wbs_id || '',
-                          status: item.status || 'Not Started'
-                        }))}
-                        onToggleExpanded={onToggleExpanded}
-                        onDragEnd={onDragEnd}
-                        onItemEdit={onItemUpdate}
-                        onAddChild={onAddChild}
-                        dragIndicator={dragIndicator}
-                        EditableCell={EditableCell}
-                        generateWBSNumber={generateWBSNumber}
-                        scrollRef={unifiedScrollRef}
-                        onScroll={() => {}}
-                        hoveredId={hoveredId}
-                        onRowHover={setHoveredId}
-                      />
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          {/* Left Panel Content */}
+          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+            <div className="h-full flex">
+              <ResizablePanelGroup direction="horizontal" className="h-full">
+                {/* WBS Structure Content */}
+                <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
+                  <div className="h-full border-r border-gray-200 bg-white flex flex-col">
+                    <div className="flex-1 overflow-hidden">
+                      <div ref={leftScrollRef} className="h-full overflow-y-scroll overflow-x-hidden scrollbar-hide" onScroll={handleLeftScroll}>
+                        <WBSLeftPanel
+                          items={items.map(item => ({
+                            ...item,
+                            name: item.title,
+                            wbsNumber: item.wbs_id || '',
+                            status: item.status || 'Not Started'
+                          }))}
+                          onToggleExpanded={onToggleExpanded}
+                          onDragEnd={onDragEnd}
+                          onItemEdit={onItemUpdate}
+                          onAddChild={onAddChild}
+                          dragIndicator={dragIndicator}
+                          EditableCell={EditableCell}
+                          generateWBSNumber={generateWBSNumber}
+                          scrollRef={leftScrollRef}
+                          onScroll={handleLeftScroll}
+                          hoveredId={hoveredId}
+                          onRowHover={setHoveredId}
+                        />
+                      </div>
                     </div>
-                  </ResizablePanel>
+                  </div>
+                </ResizablePanel>
 
-                  <ResizableHandle />
+                <ResizableHandle />
 
-                  {/* Data Columns Content */}
-                  <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
-                    <div className="border-r border-gray-200 bg-white">
-                      <WBSTimeRightPanel
-                        items={items}
-                        onItemUpdate={handleItemUpdate}
-                        onContextMenuAction={onContextMenuAction}
-                        onOpenNotesDialog={onOpenNotesDialog}
-                        onClearAllDates={onClearAllDates}
-                        EditableCell={EditableCell}
-                        StatusSelect={StatusSelect}
-                        scrollRef={unifiedScrollRef}
-                        onScroll={() => {}}
-                        hoveredId={hoveredId}
-                        onRowHover={setHoveredId}
-                      />
+                {/* Data Columns Content */}
+                <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
+                  <div className="h-full border-r border-gray-200 bg-white flex flex-col">
+                    <div className="flex-1 overflow-hidden">
+                      <div ref={rightScrollRef} className="h-full overflow-y-auto overflow-x-hidden" onScroll={handleRightScroll}>
+                        <WBSTimeRightPanel
+                          items={items}
+                          onItemUpdate={handleItemUpdate}
+                          onContextMenuAction={onContextMenuAction}
+                          onOpenNotesDialog={onOpenNotesDialog}
+                          onClearAllDates={onClearAllDates}
+                          EditableCell={EditableCell}
+                          StatusSelect={StatusSelect}
+                          scrollRef={rightScrollRef}
+                          onScroll={handleRightScroll}
+                          hoveredId={hoveredId}
+                          onRowHover={setHoveredId}
+                        />
+                      </div>
                     </div>
-                  </ResizablePanel>
-                </ResizablePanelGroup>
-              </div>
-            </ResizablePanel>
+                  </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </div>
+          </ResizablePanel>
 
-            <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
+          <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
 
-            {/* Timeline Content */}
-            <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-              <div className="h-full overflow-x-auto overflow-y-hidden bg-white">
-                <div className="min-w-fit">
-                  <GanttChart 
-                    items={items.map(item => ({
-                      ...item,
-                      name: item.title,
-                      wbsNumber: item.wbs_id || '',
-                      status: item.status || 'Not Started',
-                      predecessors: item.predecessors?.map(p => ({
-                        predecessorId: p.id,
-                        type: p.type,
-                        lag: p.lag
-                      })) || []
-                    }))} 
-                    timelineDays={timelineDays}
-                    className="relative z-10" 
-                    hideHeader 
-                    hoveredId={hoveredId}
-                    onRowHover={setHoveredId}
-                  />
-                </div>
+          {/* Timeline Content */}
+          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+            <div className="h-full overflow-x-auto overflow-y-hidden bg-white">
+              <div className="min-w-fit">
+                <GanttChart 
+                  items={items.map(item => ({
+                    ...item,
+                    name: item.title,
+                    wbsNumber: item.wbs_id || '',
+                    status: item.status || 'Not Started',
+                    predecessors: item.predecessors?.map(p => ({
+                      predecessorId: p.id,
+                      type: p.type,
+                      lag: p.lag
+                    })) || []
+                  }))} 
+                  timelineDays={timelineDays}
+                  className="relative z-10" 
+                  hideHeader 
+                  hoveredId={hoveredId}
+                  onRowHover={setHoveredId}
+                />
               </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </div>
   );
