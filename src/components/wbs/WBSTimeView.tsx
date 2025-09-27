@@ -178,9 +178,46 @@ export const WBSTimeView = ({
                 
                 {/* Timeline Header */}
                 <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
-                  <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
-                    <div className="flex items-center h-full">
-                      <div className="px-2 font-semibold text-center">TIMELINE</div>
+                  <div className="h-full overflow-x-auto scrollbar-hide">
+                    <div 
+                      className="text-xs font-medium text-gray-700 flex h-full"
+                      style={{ 
+                        minWidth: `${timelineDays.length * 32}px`
+                      }}
+                    >
+                      <div className="flex h-full">
+                        {timelineDays.map((day, index) => {
+                          const targetDate = new Date(2024, 10, 27);
+                          const actualCurrentDate = new Date();
+                          const dateToUse = timelineDays.some(d => isSameDay(d, targetDate)) ? targetDate : actualCurrentDate;
+                          const isToday = isSameDay(day, dateToUse);
+                          const isWeekend = day.getDay() === 0 || day.getDay() === 6;
+                          const isFirstDayOfMonth = day.getDate() === 1;
+                          
+                          return (
+                            <div 
+                              key={index}
+                              className={`flex-shrink-0 flex items-center justify-center border-r border-gray-200 text-[10px] font-medium ${
+                                isToday ? 'bg-blue-100 text-blue-800 font-bold' : 
+                                isWeekend ? 'bg-gray-50 text-gray-500' : 'text-gray-700'
+                              }`}
+                              style={{ width: 32, minWidth: 32, height: '32px' }}
+                              title={format(day, 'EEE, MMM d, yyyy')}
+                            >
+                              <div className="text-center">
+                                {isFirstDayOfMonth && (
+                                  <div className="text-[8px] font-bold text-blue-600 leading-none">
+                                    {format(day, 'MMM').toUpperCase()}
+                                  </div>
+                                )}
+                                <div className={`text-[10px] leading-none ${isToday ? 'font-bold' : 'font-semibold'}`}>
+                                  {format(day, 'd')}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </ResizablePanel>
@@ -222,47 +259,6 @@ export const WBSTimeView = ({
                     onScroll={handleMasterScroll}
                     ref={timelineHeaderScrollRef}
                   >
-                    <div 
-                      className="text-xs font-medium text-gray-700 flex sticky top-0 bg-white border-b border-gray-200"
-                      style={{ 
-                        minWidth: `${timelineDays.length * 32}px`,
-                        height: '32px' // Fixed height to match row height
-                      }}
-                    >
-                      <div className="flex">
-                        {timelineDays.map((day, index) => {
-                          const targetDate = new Date(2024, 10, 27);
-                          const actualCurrentDate = new Date();
-                          const dateToUse = timelineDays.some(d => isSameDay(d, targetDate)) ? targetDate : actualCurrentDate;
-                          const isToday = isSameDay(day, dateToUse);
-                          const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                          const isFirstDayOfMonth = day.getDate() === 1;
-                          
-                          return (
-                            <div 
-                              key={index}
-                              className={`flex-shrink-0 flex items-center justify-center border-r border-gray-200 text-[10px] font-medium ${
-                                isToday ? 'bg-blue-100 text-blue-800 font-bold' : 
-                                isWeekend ? 'bg-gray-50 text-gray-500' : 'text-gray-700'
-                              }`}
-                              style={{ width: 32, minWidth: 32, height: '32px' }}
-                              title={format(day, 'EEE, MMM d, yyyy')}
-                            >
-                              <div className="text-center">
-                                {isFirstDayOfMonth && (
-                                  <div className="text-[8px] font-bold text-blue-600 leading-none">
-                                    {format(day, 'MMM').toUpperCase()}
-                                  </div>
-                                )}
-                                <div className={`text-[10px] leading-none ${isToday ? 'font-bold' : 'font-semibold'}`}>
-                                  {format(day, 'd')}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
                     <GanttChart 
                       items={items.map(item => ({
                         ...item,
