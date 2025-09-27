@@ -42,6 +42,7 @@ export const WBSTimeView = ({
   const headerHorizScrollRef = useRef<HTMLDivElement>(null);
   const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const isScrollingSyncRef = useRef(false);
 
   const handleTimelineHorizontalScroll = useCallback(() => {
     if (headerHorizScrollRef.current && bodyHorizScrollRef.current) {
@@ -49,26 +50,43 @@ export const WBSTimeView = ({
     }
   }, []);
 
-  const handleRightScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current && ganttScrollRef.current) {
-      leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
-      ganttScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
+  const syncVerticalScroll = useCallback((sourceScrollTop: number) => {
+    if (isScrollingSyncRef.current) return;
+    
+    isScrollingSyncRef.current = true;
+    
+    if (leftScrollRef.current) {
+      leftScrollRef.current.scrollTop = sourceScrollTop;
     }
+    if (rightScrollRef.current) {
+      rightScrollRef.current.scrollTop = sourceScrollTop;
+    }
+    if (ganttScrollRef.current) {
+      ganttScrollRef.current.scrollTop = sourceScrollTop;
+    }
+    
+    requestAnimationFrame(() => {
+      isScrollingSyncRef.current = false;
+    });
   }, []);
+
+  const handleRightScroll = useCallback(() => {
+    if (!isScrollingSyncRef.current && rightScrollRef.current) {
+      syncVerticalScroll(rightScrollRef.current.scrollTop);
+    }
+  }, [syncVerticalScroll]);
 
   const handleLeftScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current && ganttScrollRef.current) {
-      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
-      ganttScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
+    if (!isScrollingSyncRef.current && leftScrollRef.current) {
+      syncVerticalScroll(leftScrollRef.current.scrollTop);
     }
-  }, []);
+  }, [syncVerticalScroll]);
 
-  const handleGanttScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current && ganttScrollRef.current) {
-      leftScrollRef.current.scrollTop = ganttScrollRef.current.scrollTop;
-      rightScrollRef.current.scrollTop = ganttScrollRef.current.scrollTop;
+  const handleGanttScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (!isScrollingSyncRef.current) {
+      syncVerticalScroll(e.currentTarget.scrollTop);
     }
-  }, []);
+  }, [syncVerticalScroll]);
 
   // Simplified item update handler
   const handleItemUpdate = useCallback(async (itemId: string, updates: any) => {
