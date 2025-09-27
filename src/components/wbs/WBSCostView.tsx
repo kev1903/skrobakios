@@ -95,10 +95,11 @@ export const WBSCostView = ({
       </div>
 
       {/* Unified Scrollable Content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden" style={{ height: 'calc(100% - 32px)' }}>
         <div 
           ref={unifiedScrollRef}
           className="h-full overflow-y-auto overflow-x-hidden"
+          style={{ scrollbarWidth: 'auto' }}
         >
           <ResizablePanelGroup direction="horizontal" className="min-h-full">
             {/* Left Panel Content */}
