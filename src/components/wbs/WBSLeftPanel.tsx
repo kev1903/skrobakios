@@ -95,64 +95,73 @@ export const WBSLeftPanel = ({
                               onMouseEnter={() => onRowHover?.(item.id)}
                               onMouseLeave={() => onRowHover?.(null)}
                             >
-                               <div className="px-2 flex items-center justify-center h-full">
-                                 <div className="flex items-center">
-                                   <div
-                                     {...dragProvided.dragHandleProps}
-                                     className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 mr-1 ${
-                                       item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-8' : ''
-                                     } ${
-                                       snapshot.isDragging ? 'bg-accent/30 shadow-sm' : 'hover:bg-accent/20'
-                                     }`}
-                                     title="Drag to reorder"
-                                   >
-                                     <GripVertical className="w-3 h-3 text-muted-foreground" />
-                                   </div>
-                                    {item.hasChildren && (
-                                      item.isExpanded ? (
-                                        <ChevronDown className={`w-3 h-3 ${
-                                          item.level === 0 ? 'text-gray-700' : 'text-gray-600'
-                                        }`} />
-                                      ) : (
-                                        <ChevronRight className={`w-3 h-3 ${
-                                          item.level === 0 ? 'text-gray-700' : 'text-gray-600'
-                                        }`} />
-                                     )
-                                   )}
-                                 </div>
+                                <div className="px-2 flex items-center justify-center h-full">
+                                  <div className="flex items-center">
+                                    <div
+                                      {...dragProvided.dragHandleProps}
+                                      className={`cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 mr-1 ${
+                                        item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-8' : item.level === 3 ? 'ml-12' : ''
+                                      } ${
+                                        snapshot.isDragging ? 'bg-accent/30 shadow-sm' : 'hover:bg-accent/20'
+                                      }`}
+                                      title="Drag to reorder"
+                                    >
+                                      <GripVertical className="w-3 h-3 text-muted-foreground" />
+                                    </div>
+                                     {item.hasChildren && (
+                                       item.isExpanded ? (
+                                         <ChevronDown className={`w-3 h-3 ${
+                                           item.level === 0 ? 'text-gray-700' : 'text-gray-600'
+                                         }`} />
+                                       ) : (
+                                         <ChevronRight className={`w-3 h-3 ${
+                                           item.level === 0 ? 'text-gray-700' : 'text-gray-600'
+                                         }`} />
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              
+                                 <div className={`px-2 flex items-center h-full ${
+                                   item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : item.level === 3 ? 'ml-16' : ''
+                                 } ${
+                                   item.level === 0 
+                                     ? 'font-black text-gray-800 text-sm tracking-wide' 
+                                     : item.level === 1
+                                     ? 'font-bold text-gray-700 text-sm'
+                                     : item.level === 2
+                                     ? 'font-medium text-gray-600 text-xs'
+                                     : 'font-normal text-gray-500 text-xs'
+                                 }`}>
+                                 {item.wbsNumber}
                                </div>
                               
-                                <div className={`px-2 flex items-center h-full ${
-                                  item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
-                                } ${
-                                  item.level === 0 
-                                    ? 'font-black text-gray-800 text-sm tracking-wide' 
-                                    : item.level === 1
-                                    ? 'font-bold text-gray-700 text-sm'
-                                    : 'font-medium text-gray-600 text-xs'
-                                }`}>
-                                {item.wbsNumber}
-                              </div>
-                              
-                                <div className={`px-3 flex items-center h-full ${
-                                  item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : ''
-                                } ${
-                                  item.level === 0 
-                                    ? 'font-black text-gray-800 text-base tracking-wide' 
-                                    : item.level === 1
-                                    ? 'font-bold text-gray-700 text-sm'
-                                    : 'font-medium text-foreground text-xs'
-                                }`}>
-                                <EditableCell
-                                  id={item.id}
-                                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                                  field="name"
-                                  value={item.name}
-                                  placeholder={item.level === 3 ? "Untitled Task" : item.level === 2 ? "Untitled Element" : "Untitled"}
-                                  className={item.level === 0 ? "font-black text-base text-gray-800 tracking-wide" : item.level === 1 ? "font-bold text-sm text-gray-700" : item.level === 2 ? "font-medium text-xs text-muted-foreground" : "font-normal text-xs text-muted-foreground/80"}
-                                  data-field="name"
-                                />
-                              </div>
+                                 <div className={`px-3 flex items-center h-full ${
+                                   item.level === 1 ? 'ml-4' : item.level === 2 ? 'ml-12' : item.level === 3 ? 'ml-16' : ''
+                                 } ${
+                                   item.level === 0 
+                                     ? 'font-black text-gray-800 text-base tracking-wide' 
+                                     : item.level === 1
+                                     ? 'font-bold text-gray-700 text-sm'
+                                     : item.level === 2
+                                     ? 'font-medium text-foreground text-xs'
+                                     : 'font-normal text-gray-500 text-xs'
+                                 }`}>
+                                 <EditableCell
+                                   id={item.id}
+                                   type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task'}
+                                   field="name"
+                                   value={item.name}
+                                   placeholder={item.level === 3 ? "Untitled Task" : item.level === 2 ? "Untitled Element" : "Untitled"}
+                                   className={
+                                     item.level === 0 ? "font-black text-base text-gray-800 tracking-wide" : 
+                                     item.level === 1 ? "font-bold text-sm text-gray-700" : 
+                                     item.level === 2 ? "font-medium text-xs text-muted-foreground" : 
+                                     "font-normal text-xs text-gray-500"
+                                   }
+                                   data-field="name"
+                                 />
+                               </div>
                               
                                {/* Add Child Button */}
                                 <div className="px-2 flex items-center justify-center h-full">
