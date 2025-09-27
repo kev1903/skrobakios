@@ -1597,11 +1597,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               </div>
             </Tabs>
           </div>
-          
-          {/* Chat Section - Right Column */}
-          <div className="w-80 flex-shrink-0">
-            <ProjectChat projectId={project.id} projectName={project.name} />
-          </div>
         </div>
 
         {/* Notes Dialog */}
