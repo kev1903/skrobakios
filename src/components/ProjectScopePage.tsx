@@ -1351,15 +1351,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   };
 
   const mainClasses = {
-    mobile: "h-screen overflow-hidden",
-    tablet: "h-screen overflow-hidden", 
-    desktop: "h-screen overflow-hidden"
+    mobile: "h-screen",
+    tablet: "h-screen", 
+    desktop: "h-screen"
   };
 
   const contentClasses = {
-    mobile: "fixed inset-x-0 top-12 bottom-0 overflow-hidden",
-    tablet: "fixed inset-x-0 top-12 bottom-0 overflow-hidden",
-    desktop: "fixed left-40 right-0 top-12 bottom-0 overflow-hidden"
+    mobile: "fixed inset-x-0 top-12 bottom-0",
+    tablet: "fixed inset-x-0 top-12 bottom-0",
+    desktop: "fixed left-40 right-0 top-12 bottom-0"
   };
 
   return (
@@ -1462,8 +1462,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               {/* Tab Contents */}
               <div className="flex-1 w-full">
 
-              <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex overflow-auto" style={{ position: 'relative' }}>
-                <div className="h-full w-full flex flex-col min-h-0" style={{ position: 'relative' }}>
+              <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex">
+                <div className="h-full w-full flex flex-col">
                    {loading && wbsItems.length === 0 ? (
                      <div className="flex items-center justify-center h-64">
                        <div className="text-center">
@@ -1482,16 +1482,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                      </div>
                      ) : (
                        <div 
+                         className="flex-1 min-w-0"
                          style={{
-                           position: 'absolute',
-                           top: 0,
-                           left: 0,
-                           right: 0,
-                           bottom: 0,
-                           backgroundColor: 'white',
-                           border: '1px solid #e2e8f0',
+                           height: 'calc(100vh - 200px)',
                            overflow: 'auto',
-                           maxHeight: '500px'
+                           border: '1px solid #e5e7eb'
                          }}
                        >
                         <WBSSplitView
@@ -1564,8 +1559,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </div>
               </TabsContent>
 
-               <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex overflow-auto" style={{ position: 'relative' }}>
-                 <div className="h-full w-full flex flex-col min-h-0" style={{ position: 'relative' }}>
+               <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex">
+                 <div className="h-full w-full flex flex-col">
                     {loading && wbsItems.length === 0 ? (
                       <div className="flex items-center justify-center h-64">
                         <div className="text-center">
@@ -1584,16 +1579,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       </div>
                      ) : (
                        <div 
+                         className="flex-1 min-w-0"
                          style={{
-                           position: 'absolute',
-                           top: 0,
-                           left: 0,
-                           right: 0,
-                           bottom: 0,
-                           backgroundColor: 'white',
-                           border: '1px solid #e2e8f0',
+                           height: 'calc(100vh - 200px)',
                            overflow: 'auto',
-                           maxHeight: '500px'
+                           border: '1px solid #e5e7eb'
                          }}
                        >
                         <WBSCostView
