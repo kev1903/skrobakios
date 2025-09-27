@@ -59,13 +59,19 @@ export const WBSCostView = ({
   }, []);
 
   return (
-    <div className="h-full w-full bg-white flex flex-col">
+    <div className="h-full w-full bg-white flex flex-col overflow-hidden">
       {/* Combined Header and Content Area - Scrollable Together */}
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide" style={{ maxHeight: 'calc(100vh - 200px)' }}>
-        <ResizablePanelGroup direction="horizontal" className="min-h-full">
+      <div 
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-visible" 
+        style={{ 
+          maxHeight: '100%',
+          height: '100%'
+        }}
+      >
+        <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           {/* Left Section - WBS Structure */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div className="min-h-full border-r border-gray-200">
+            <div className="h-full border-r border-gray-200">
               {/* Left Header */}
               <div className="h-[60px] bg-slate-100/70 border-b border-slate-200 sticky top-0 z-30">
                 <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
@@ -100,7 +106,7 @@ export const WBSCostView = ({
           
           {/* Right Section - Cost Data */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <div className="min-h-full overflow-hidden">
+            <div className="h-full overflow-hidden">
               {/* Right Header */}
               <div className="h-[60px] bg-slate-100/70 border-b border-slate-200 sticky top-0 z-30">
                 <div 

@@ -148,21 +148,19 @@ export const WBSTimeView = ({
   })();
 
   return (
-    <div className="h-full w-full bg-white flex flex-col relative z-10 overflow-hidden">
+    <div className="h-full w-full bg-white flex flex-col overflow-hidden">
       {/* Combined Header and Content Area - Scrollable Together */}
       <div 
         className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-visible" 
         style={{ 
-          maxHeight: 'calc(100vh - 180px)',
-          minHeight: '500px', // Ensure minimum height to trigger scrollbar
-          width: '100%',
-          maxWidth: '100%'
+          maxHeight: '100%',
+          height: '100%'
         }}
       >
-        <ResizablePanelGroup direction="horizontal" className="min-h-full w-full">
+        <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           {/* Left Side - WBS Structure + Data Columns */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <ResizablePanelGroup direction="horizontal" className="min-h-full w-full">
+            <ResizablePanelGroup direction="horizontal" className="h-full w-full">
               {/* WBS Section */}
               <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
                 <div className="min-h-full border-r border-gray-200">
