@@ -50,8 +50,8 @@ export const WBSLeftPanel = ({
   hoveredId,
   onRowHover
 }: WBSLeftPanelProps) => {
-  // Determine if we're in unified scroll mode (no scrollRef means parent handles scrolling)
-  const useUnifiedScroll = !scrollRef || !onScroll;
+  // Determine if we're in unified scroll mode (parent handles scrolling)
+  const useUnifiedScroll = !onScroll;
   
   const content = (
     <DragDropContext onDragEnd={onDragEnd}>

@@ -203,8 +203,8 @@ export const WBSTimeView = ({
                           dragIndicator={dragIndicator}
                           EditableCell={EditableCell}
                           generateWBSNumber={generateWBSNumber}
-                          scrollRef={mainScrollRef}
-                          onScroll={() => {}}
+                          scrollRef={undefined}
+                          onScroll={undefined}
                           hoveredId={hoveredId}
                           onRowHover={setHoveredId}
                         />
@@ -226,8 +226,8 @@ export const WBSTimeView = ({
                           onClearAllDates={onClearAllDates}
                           EditableCell={EditableCell}
                           StatusSelect={StatusSelect}
-                          scrollRef={mainScrollRef}
-                          onScroll={() => {}}
+                          scrollRef={undefined}
+                          onScroll={undefined}
                           hoveredId={hoveredId}
                           onRowHover={setHoveredId}
                         />
