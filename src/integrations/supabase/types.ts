@@ -4964,6 +4964,7 @@ export type Database = {
           task_number: string | null
           task_type: string
           updated_at: string
+          wbs_item_id: string | null
         }
         Insert: {
           actual_duration?: number | null
@@ -4987,6 +4988,7 @@ export type Database = {
           task_number?: string | null
           task_type?: string
           updated_at?: string
+          wbs_item_id?: string | null
         }
         Update: {
           actual_duration?: number | null
@@ -5010,6 +5012,7 @@ export type Database = {
           task_number?: string | null
           task_type?: string
           updated_at?: string
+          wbs_item_id?: string | null
         }
         Relationships: [
           {
@@ -5017,6 +5020,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_wbs_item_id_fkey"
+            columns: ["wbs_item_id"]
+            isOneToOne: false
+            referencedRelation: "wbs_items"
             referencedColumns: ["id"]
           },
         ]
@@ -5663,7 +5673,9 @@ export type Database = {
           health: string | null
           id: string
           is_expanded: boolean | null
+          is_task_enabled: boolean | null
           level: number | null
+          linked_task_id: string | null
           linked_tasks: Json | null
           parent_id: string | null
           predecessors: Json | null
@@ -5674,6 +5686,7 @@ export type Database = {
           scope_link: string | null
           start_date: string | null
           status: string | null
+          task_conversion_date: string | null
           task_type: string | null
           time_link: string | null
           title: string
@@ -5697,7 +5710,9 @@ export type Database = {
           health?: string | null
           id?: string
           is_expanded?: boolean | null
+          is_task_enabled?: boolean | null
           level?: number | null
+          linked_task_id?: string | null
           linked_tasks?: Json | null
           parent_id?: string | null
           predecessors?: Json | null
@@ -5708,6 +5723,7 @@ export type Database = {
           scope_link?: string | null
           start_date?: string | null
           status?: string | null
+          task_conversion_date?: string | null
           task_type?: string | null
           time_link?: string | null
           title: string
@@ -5731,7 +5747,9 @@ export type Database = {
           health?: string | null
           id?: string
           is_expanded?: boolean | null
+          is_task_enabled?: boolean | null
           level?: number | null
+          linked_task_id?: string | null
           linked_tasks?: Json | null
           parent_id?: string | null
           predecessors?: Json | null
@@ -5742,6 +5760,7 @@ export type Database = {
           scope_link?: string | null
           start_date?: string | null
           status?: string | null
+          task_conversion_date?: string | null
           task_type?: string | null
           time_link?: string | null
           title?: string
@@ -5754,6 +5773,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wbs_items_linked_task_id_fkey"
+            columns: ["linked_task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
           {
