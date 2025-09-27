@@ -42,6 +42,7 @@ export const WBSTimeView = ({
   const timelineContentScrollRef = useRef<HTMLDivElement>(null);
   const timelineHeaderHorizontalScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [rightPanelSizes, setRightPanelSizes] = useState([50, 50]); // [dataColumns, timeline]
   const isSyncingRef = useRef(false);
   const isHorizontalSyncingRef = useRef(false);
 
@@ -188,9 +189,13 @@ export const WBSTimeView = ({
           <div className="h-full flex flex-col">
             {/* Right Header */}
             <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
-              <ResizablePanelGroup direction="horizontal" className="h-full">
+              <ResizablePanelGroup 
+                direction="horizontal" 
+                className="h-full"
+                onLayout={setRightPanelSizes}
+              >
                 {/* Data Columns Header */}
-                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                <ResizablePanel defaultSize={rightPanelSizes[0]} minSize={30} maxSize={70}>
                   <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full overflow-x-auto scrollbar-hide">
                     <div className="grid items-center h-full min-w-fit" style={{
                       gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
@@ -208,7 +213,7 @@ export const WBSTimeView = ({
                 <ResizableHandle />
                 
                 {/* Timeline Header */}
-                <ResizablePanel defaultSize={50} minSize={30} maxSize={70} className="timeline-header-panel">
+                <ResizablePanel defaultSize={rightPanelSizes[1]} minSize={30} maxSize={70} className="timeline-header-panel">
                   <div 
                     ref={timelineHeaderHorizontalScrollRef}
                     className="h-full overflow-x-auto scrollbar-hide"
@@ -269,9 +274,12 @@ export const WBSTimeView = ({
               ref={timelineContentScrollRef}
               className="flex-1 overflow-hidden"
             >
-              <ResizablePanelGroup direction="horizontal" className="h-full">
+              <ResizablePanelGroup 
+                direction="horizontal" 
+                className="h-full"
+              >
                 {/* Data Columns Section - synchronized scrolling */}
-                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                <ResizablePanel defaultSize={rightPanelSizes[0]} minSize={30} maxSize={70}>
                   <div 
                     ref={dataColumnsScrollRef}
                     className="h-full overflow-hidden"
@@ -293,7 +301,7 @@ export const WBSTimeView = ({
                 <ResizableHandle />
                 
                 {/* Timeline Section - Master scroll controller */}
-                <ResizablePanel defaultSize={50} minSize={30} maxSize={70} className="timeline-content-panel">
+                <ResizablePanel defaultSize={rightPanelSizes[1]} minSize={30} maxSize={70} className="timeline-content-panel">
                   <div 
                     ref={timelineContentScrollRef}
                     className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
