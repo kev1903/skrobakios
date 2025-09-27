@@ -1481,7 +1481,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        </div>
                      </div>
                    ) : (
-                     <div className="flex-1 min-w-0 overflow-y-hidden">
+                      <div className="flex-1 min-w-0 overflow-y-auto">
                        <WBSSplitView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
