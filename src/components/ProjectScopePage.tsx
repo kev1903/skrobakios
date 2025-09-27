@@ -1480,31 +1480,31 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                          </Button>
                        </div>
                      </div>
-                   ) : (
-                      <div className="h-full overflow-y-auto overflow-x-hidden">
-                       <WBSSplitView
-                         items={flatWBSItems}
-                         onToggleExpanded={(itemId) => {
-                           const item = wbsItems.find(i => i.id === itemId);
-                           if (item) {
-                             updateWBSItem(itemId, { is_expanded: !item.is_expanded });
-                           }
-                         }}
-                         onDragEnd={onDragEnd}
-                         onItemUpdate={updateWBSItem}
-                         onAddChild={addChildItem}
-                         onContextMenuAction={handleContextMenuAction}
-                         onOpenNotesDialog={openNotesDialog}
-                         dragIndicator={dragIndicator}
-                         EditableCell={EditableCell}
-                         StatusSelect={StatusSelect}
-                         ProgressInput={ProgressInput}
-                         ProgressDisplay={ProgressDisplay}
-                         getProgressColor={getProgressColor}
-                         generateWBSNumber={generateWBSNumber}
-                       />
-                     </div>
-                   )}
+                    ) : (
+                       <div className="h-full overflow-hidden">
+                        <WBSSplitView
+                          items={flatWBSItems}
+                          onToggleExpanded={(itemId) => {
+                            const item = wbsItems.find(i => i.id === itemId);
+                            if (item) {
+                              updateWBSItem(itemId, { is_expanded: !item.is_expanded });
+                            }
+                          }}
+                          onDragEnd={onDragEnd}
+                          onItemUpdate={updateWBSItem}
+                          onAddChild={addChildItem}
+                          onContextMenuAction={handleContextMenuAction}
+                          onOpenNotesDialog={openNotesDialog}
+                          dragIndicator={dragIndicator}
+                          EditableCell={EditableCell}
+                          StatusSelect={StatusSelect}
+                          ProgressInput={ProgressInput}
+                          ProgressDisplay={ProgressDisplay}
+                          getProgressColor={getProgressColor}
+                          generateWBSNumber={generateWBSNumber}
+                        />
+                      </div>
+                    )}
                  </div>
                </TabsContent>
 

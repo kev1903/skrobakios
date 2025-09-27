@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSRightPanel } from './WBSRightPanel';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
@@ -50,29 +50,16 @@ export const WBSSplitView = ({
   getProgressColor,
   generateWBSNumber
 }: WBSSplitViewProps) => {
-  const leftScrollRef = useRef<HTMLDivElement>(null);
-  const rightScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  const handleRightScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current) {
-      leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
-    }
-  }, []);
-
-  const handleLeftScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current) {
-      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
-    }
-  }, []);
-
   return (
-    <div className="h-full w-full bg-white">
-      <ResizablePanelGroup direction="horizontal" className="h-full w-full">
-        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-          <div className="h-full flex flex-col">
-            {/* Left Header */}
-            <div className="h-8 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200">
+    <div className="h-full w-full bg-white flex flex-col">
+      {/* Fixed Headers */}
+      <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          {/* Left Header */}
+          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+            <div className="h-full border-r border-gray-200 bg-slate-100/70">
               <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
                 <div className="grid items-center h-full" style={{
                   gridTemplateColumns: '32px 120px 1fr 40px',
@@ -84,33 +71,13 @@ export const WBSSplitView = ({
                 </div>
               </div>
             </div>
-            
-            {/* Left Content */}
-            <div className="flex-1 overflow-hidden">
-              <WBSLeftPanel
-                items={items}
-                onToggleExpanded={onToggleExpanded}
-                onDragEnd={onDragEnd}
-                onItemEdit={onItemUpdate}
-                onAddChild={onAddChild}
-                dragIndicator={dragIndicator}
-                EditableCell={EditableCell}
-                generateWBSNumber={generateWBSNumber}
-                scrollRef={leftScrollRef}
-                onScroll={handleLeftScroll}
-                hoveredId={hoveredId}
-                onRowHover={setHoveredId}
-              />
-            </div>
-          </div>
-        </ResizablePanel>
-        
-        <ResizableHandle />
-        
-        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-          <div className="h-full flex flex-col">
-            {/* Right Header */}
-            <div className="h-8 bg-slate-100/70 border-b border-slate-200">
+          </ResizablePanel>
+          
+          <ResizableHandle />
+          
+          {/* Right Header */}
+          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+            <div className="h-full bg-slate-100/70">
               <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
                 <div className="grid items-center h-full" style={{
                   gridTemplateColumns: '140px 120px 160px 40px 84px',
@@ -123,9 +90,36 @@ export const WBSSplitView = ({
                 </div>
               </div>
             </div>
-            
-            {/* Right Content */}
-            <div className="flex-1 overflow-hidden">
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+
+      {/* Single Unified Scrollable Content */}
+      <div className="flex-1 overflow-auto">
+        <ResizablePanelGroup direction="horizontal" className="min-h-full">
+          {/* Left Panel Content */}
+          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+            <div className="min-h-full border-r border-gray-200 bg-white">
+              <WBSLeftPanel
+                items={items}
+                onToggleExpanded={onToggleExpanded}
+                onDragEnd={onDragEnd}
+                onItemEdit={onItemUpdate}
+                onAddChild={onAddChild}
+                dragIndicator={dragIndicator}
+                EditableCell={EditableCell}
+                generateWBSNumber={generateWBSNumber}
+                hoveredId={hoveredId}
+                onRowHover={setHoveredId}
+              />
+            </div>
+          </ResizablePanel>
+          
+          <ResizableHandle />
+          
+          {/* Right Panel Content */}
+          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+            <div className="min-h-full bg-white">
               <WBSRightPanel
                 items={items}
                 onItemUpdate={onItemUpdate}
@@ -136,15 +130,13 @@ export const WBSSplitView = ({
                 ProgressInput={ProgressInput}
                 ProgressDisplay={ProgressDisplay}
                 getProgressColor={getProgressColor}
-                scrollRef={rightScrollRef}
-                onScroll={handleRightScroll}
                 hoveredId={hoveredId}
                 onRowHover={setHoveredId}
               />
             </div>
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
     </div>
   );
 };
