@@ -115,11 +115,11 @@ export const WBSSplitView = ({
                 <div className="grid items-center h-full" style={{
                   gridTemplateColumns: '140px 120px 160px 40px 84px',
                 }}>
-                  <div className="px-2 font-semibold">STATUS</div>
-                  <div className="px-2 font-semibold">PROGRESS</div>
-                  <div className="px-2 font-semibold">ASSIGNED TO</div>
-                  <div className="px-1 font-semibold text-center">NOTE</div>
-                  <div className="px-2 font-semibold">ACTIONS</div>
+                  <div className="px-2 font-semibold flex items-center justify-start h-full">STATUS</div>
+                  <div className="px-2 font-semibold flex items-center justify-start h-full">PROGRESS</div>
+                  <div className="px-2 font-semibold flex items-center justify-start h-full">ASSIGNED TO</div>
+                  <div className="px-1 font-semibold flex items-center justify-center h-full">NOTE</div>
+                  <div className="px-2 font-semibold flex items-center justify-center h-full">ACTIONS</div>
                 </div>
               </div>
             </div>

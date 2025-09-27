@@ -72,7 +72,7 @@ export const WBSRightPanel = ({
              onMouseLeave={() => onRowHover?.(null)}
            >
 
-              <div className="px-2 flex items-center">
+              <div className="px-2 flex items-center justify-start h-full">
                 <StatusSelect 
                   value={item.status} 
                   onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
@@ -80,7 +80,7 @@ export const WBSRightPanel = ({
                 />
               </div>
 
-              <div className="px-2 flex items-center">
+              <div className="px-2 flex items-center justify-start h-full">
                 <div className="flex items-center gap-1">
                   <div className="w-8 h-1 bg-muted rounded-full overflow-hidden">
                     <div 
@@ -96,18 +96,18 @@ export const WBSRightPanel = ({
                 </div>
               </div>
 
-             <div className="px-2 flex items-center text-muted-foreground text-xs">
+             <div className="px-2 flex items-center justify-start h-full text-muted-foreground text-xs">
                <EditableCell
                  id={item.id}
                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task'}
                  field="assignedTo"
                  value={item.assignedTo || ''}
                  placeholder="Assign to..."
-                 className="text-xs text-muted-foreground"
+                 className="text-xs text-muted-foreground w-full"
                />
              </div>
 
-             <div className="px-1 flex items-center justify-center">
+             <div className="px-1 flex items-center justify-center h-full">
                <Button
                  variant="ghost"
                  size="sm"
@@ -123,7 +123,7 @@ export const WBSRightPanel = ({
                </Button>
              </div>
 
-             <div className="px-2 flex items-center justify-center">
+             <div className="px-2 flex items-center justify-center h-full">
                <DropdownMenu>
                  <DropdownMenuTrigger asChild>
                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
