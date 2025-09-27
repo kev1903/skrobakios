@@ -50,28 +50,27 @@ export const WBSRightPanel = ({
   hoveredId,
   onRowHover
 }: WBSRightPanelProps) => {
-  // Determine if we're in unified scroll mode
-  const useUnifiedScroll = !onScroll;
-  
-  const content = (
-    <>
-      {items.map((item) => (
-         <div
-           key={item.id}
-            className={`grid items-center w-full border-b border-gray-100 ${
-              item.level === 0 
-                ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
-                : item.level === 1
-                ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
-                : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-            } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
-            style={{
-              gridTemplateColumns: '140px 120px 160px 40px 84px',
-              height: '28px',
-            }}
-           onMouseEnter={() => onRowHover?.(item.id)}
-           onMouseLeave={() => onRowHover?.(null)}
-         >
+  return (
+    <div className="h-full bg-white overflow-hidden">
+      {/* Content - No separate header since it's now unified */}
+      <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full" onScroll={onScroll}>
+        {items.map((item) => (
+           <div
+             key={item.id}
+              className={`grid items-center w-full border-b border-gray-100 ${
+                item.level === 0 
+                  ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 border-l-[6px] border-l-blue-800 shadow-sm hover:from-blue-50 hover:to-blue-100' 
+                  : item.level === 1
+                  ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-[4px] border-l-blue-400 hover:from-blue-100 hover:to-blue-200'
+                  : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+              } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+              style={{
+                gridTemplateColumns: '140px 120px 160px 40px 84px',
+                height: '1.75rem',
+              }}
+             onMouseEnter={() => onRowHover?.(item.id)}
+             onMouseLeave={() => onRowHover?.(null)}
+           >
 
               <div className="px-2 flex items-center justify-start h-full">
                 <StatusSelect 
@@ -139,26 +138,9 @@ export const WBSRightPanel = ({
                  </DropdownMenuContent>
                </DropdownMenu>
              </div>
-         </div>
-      ))}
-    </>
-  );
-
-  return (
-    <div className="h-full bg-white overflow-hidden">
-      {useUnifiedScroll ? (
-        // Unified scroll mode - parent handles scrolling
-        <div className="h-full min-h-full">
-          {content}
-        </div>
-      ) : (
-        // Separate scroll mode - this component handles its own scrolling
-        <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin" onScroll={onScroll}>
-          <div className="min-h-full">
-            {content}
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 };
