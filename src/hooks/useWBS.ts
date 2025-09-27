@@ -7,7 +7,8 @@ import {
   findWBSItem, 
   generateWBSId, 
   updateItemsRecursively, 
-  removeItemRecursively 
+  removeItemRecursively,
+  updateParentRollups 
 } from '@/utils/wbsUtils';
 import { autoScheduleDependentWBSTasks } from '@/utils/wbsPredecessorUtils';
 
@@ -123,7 +124,16 @@ export const useWBS = (projectId: string) => {
 
       // Update local state and optionally auto-schedule dependents
       setWBSItems((prev) => {
-        const updated = updateItemsRecursively(prev, id, updates);
+        let updated = updateItemsRecursively(prev, id, updates);
+
+        // Check if progress or status was updated to trigger parent rollups
+        const touchesProgressOrStatus =
+          Object.prototype.hasOwnProperty.call(updates, 'progress') ||
+          Object.prototype.hasOwnProperty.call(updates, 'status');
+
+        if (touchesProgressOrStatus) {
+          updated = updateParentRollups(updated, id);
+        }
 
         const touchesSchedule =
           Object.prototype.hasOwnProperty.call(updates, 'duration') ||

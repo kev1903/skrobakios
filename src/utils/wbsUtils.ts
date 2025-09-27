@@ -354,6 +354,86 @@ export const removeItemRecursively = (items: WBSItem[], id: string): WBSItem[] =
   });
 };
 
+// Calculate rollup progress for parent items based on children
+export const calculateRollupProgress = (item: WBSItem): number => {
+  if (!item.children || item.children.length === 0) {
+    return item.progress || 0;
+  }
+  
+  const totalProgress = item.children.reduce((sum, child) => {
+    return sum + calculateRollupProgress(child);
+  }, 0);
+  
+  return Math.round(totalProgress / item.children.length);
+};
+
+// Calculate rollup status for parent items based on children
+export const calculateRollupStatus = (item: WBSItem): string => {
+  if (!item.children || item.children.length === 0) {
+    return item.status || 'Not Started';
+  }
+  
+  const childStatuses = item.children.map(child => calculateRollupStatus(child));
+  
+  // If any child is in progress, parent is in progress
+  if (childStatuses.includes('In Progress')) {
+    return 'In Progress';
+  }
+  
+  // If all children are completed, parent is completed
+  if (childStatuses.every(status => status === 'Completed')) {
+    return 'Completed';
+  }
+  
+  // If any child is delayed, parent is delayed
+  if (childStatuses.includes('Delayed')) {
+    return 'Delayed';
+  }
+  
+  // If any child is on hold, consider parent status
+  if (childStatuses.includes('On Hold')) {
+    return 'On Hold';
+  }
+  
+  // Default to Not Started if no children have started
+  return 'Not Started';
+};
+
+// Update parent items with rollup calculations
+export const updateParentRollups = (items: WBSItem[], changedItemId: string): WBSItem[] => {
+  const updateItem = (item: WBSItem): WBSItem => {
+    // Update children first (recursive)
+    const updatedChildren = item.children ? item.children.map(updateItem) : [];
+    const updatedItem = { ...item, children: updatedChildren };
+    
+    // If this item has children and one of them was changed, update rollups
+    const hasChangedChild = updatedChildren.some(child => 
+      child.id === changedItemId || hasDescendant(child, changedItemId)
+    );
+    
+    if (hasChangedChild && updatedChildren.length > 0) {
+      return {
+        ...updatedItem,
+        progress: calculateRollupProgress(updatedItem),
+        status: calculateRollupStatus(updatedItem) as any
+      };
+    }
+    
+    return updatedItem;
+  };
+  
+  return items.map(updateItem);
+};
+
+// Helper function to check if an item has a descendant with given ID
+const hasDescendant = (item: WBSItem, targetId: string): boolean => {
+  if (!item.children) return false;
+  
+  return item.children.some(child => 
+    child.id === targetId || hasDescendant(child, targetId)
+  );
+};
+
 // Flatten hierarchical WBS structure to include all levels (Stages, Components, Elements)
 export const flattenWBSHierarchy = (items: WBSItem[]): WBSItem[] => {
   const flatItems: WBSItem[] = [];
