@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, startOfWeek, endOfWeek, addDays, isSameDay } from 'date-fns';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
@@ -64,6 +64,51 @@ export const WBSTimeView = ({
       timelineHeaderScrollRef.current.scrollLeft = timelineContentScrollRef.current.scrollLeft;
     }
   }, []);
+
+  // Sync all scrolling when any content area scrolls
+  const handleSyncScroll = useCallback((source: 'wbs' | 'data' | 'timeline') => {
+    requestAnimationFrame(() => {
+      switch (source) {
+        case 'wbs':
+          handleWBSContentScroll();
+          break;
+        case 'data':
+          handleDataContentScroll();
+          break;
+        case 'timeline':
+          handleTimelineContentScroll();
+          break;
+      }
+    });
+  }, [handleWBSContentScroll, handleDataContentScroll, handleTimelineContentScroll]);
+
+  // Effect to handle panel resize and maintain header alignment
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      // Force scroll sync when panels are resized
+      requestAnimationFrame(() => {
+        handleSyncScroll('wbs');
+        handleSyncScroll('data');
+        handleSyncScroll('timeline');
+      });
+    });
+
+    // Observe all panel elements
+    const panels = [
+      wbsHeaderScrollRef.current?.parentElement,
+      dataHeaderScrollRef.current?.parentElement,
+      timelineHeaderScrollRef.current?.parentElement,
+      wbsContentScrollRef.current?.parentElement,
+      dataContentScrollRef.current?.parentElement,
+      timelineContentScrollRef.current?.parentElement
+    ].filter(Boolean) as Element[];
+
+    panels.forEach(panel => resizeObserver.observe(panel));
+
+    return () => {
+      panels.forEach(panel => resizeObserver.unobserve(panel));
+    };
+  }, [handleSyncScroll]);
 
   // Simplified item update handler
   const handleItemUpdate = useCallback(async (itemId: string, updates: any) => {
@@ -215,7 +260,7 @@ export const WBSTimeView = ({
                   <div 
                     ref={wbsContentScrollRef}
                     className="overflow-x-auto overflow-y-hidden"
-                    onScroll={handleWBSContentScroll}
+                    onScroll={() => handleSyncScroll('wbs')}
                   >
                     <WBSLeftPanel
                       items={items.map(item => ({
@@ -246,7 +291,7 @@ export const WBSTimeView = ({
                   <div 
                     ref={dataContentScrollRef}
                     className="overflow-x-auto overflow-y-hidden"
-                    onScroll={handleDataContentScroll}
+                    onScroll={() => handleSyncScroll('data')}
                   >
                     <WBSTimeRightPanel
                       items={items}
@@ -273,7 +318,7 @@ export const WBSTimeView = ({
               <div 
                 ref={timelineContentScrollRef}
                 className="overflow-x-auto overflow-y-hidden h-full"
-                onScroll={handleTimelineContentScroll}
+                onScroll={() => handleSyncScroll('timeline')}
               >
                 <GanttChart 
                   items={items.map(item => ({
