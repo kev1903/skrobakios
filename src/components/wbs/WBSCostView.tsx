@@ -108,7 +108,7 @@ export const WBSCostView = ({
             {/* Left Panel Content */}
             <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
               <div className="h-full border-r border-gray-200 bg-white">
-                <div ref={leftScrollRef} className="h-full overflow-y-auto overflow-x-hidden scrollbar-hide">
+                <div ref={leftScrollRef} className="h-full">
                   <WBSLeftPanel
                     items={items}
                     onToggleExpanded={onToggleExpanded}
