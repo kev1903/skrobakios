@@ -1623,6 +1623,5 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           </DialogContent>
         </Dialog>
       </div>
-    </div>
-   );
- };
+    );
+  };
