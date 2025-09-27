@@ -678,32 +678,45 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Generic function to add child items
   const addChildItem = async (parentId: string) => {
+    console.log('🔄 addChildItem called with parentId:', parentId);
     const parentItem = findWBSItem(parentId);
-    if (!parentItem) return;
+    console.log('📊 Found parent item:', parentItem);
+    if (!parentItem) {
+      console.error('❌ Parent item not found for ID:', parentId);
+      return;
+    }
     
+    console.log('📈 Parent level:', parentItem.level);
     // Determine child type based on parent level
     if (parentItem.level === 0) {
       // Parent is phase, add component
+      console.log('➕ Adding component to phase');
       await addNewComponent(parentId);
     } else if (parentItem.level === 1) {
       // Parent is component, add element
+      console.log('➕ Adding element to component');
       await addNewElement(parentId);
     } else if (parentItem.level === 2) {
       // Parent is element, add task
+      console.log('➕ Adding task to element');
       await addNewTask(parentId);
     }
+    console.log('✅ addChildItem completed');
   };
 
   const addNewTask = async (elementId: string) => {
+    console.log('🎯 addNewTask called for element:', elementId);
     try {
       if (!currentCompany?.id) {
-        console.error('No active company selected');
+        console.error('❌ No active company selected');
         return;
       }
 
+      console.log('🏢 Current company:', currentCompany.id);
       const wbsId = generateWBSId(elementId);
+      console.log('🔢 Generated WBS ID:', wbsId);
 
-      await createWBSItem({
+      const taskData = {
         company_id: currentCompany.id,
         project_id: project.id,
         parent_id: elementId,
@@ -711,14 +724,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         title: 'Untitled Task',
         description: '',
         level: 3,
-        category: 'Task',
+        category: 'Task' as const,
         is_expanded: true,
         progress: 0,
-        status: 'Not Started',
-        health: 'Good',
-        progress_status: 'On Track',
+        status: 'Not Started' as const,
+        health: 'Good' as const,
+        progress_status: 'On Track' as const,
         at_risk: false,
-        priority: 'Medium',
+        priority: 'Medium' as const,
         linked_tasks: [],
         task_type: 'General',
         estimated_hours: 0,
@@ -726,12 +739,23 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         scope_link: '',
         time_link: '',
         cost_link: ''
-      });
+      };
 
-      // Trigger renumbering to ensure all WBS IDs are sequential
-      await renumberWBSHierarchy();
+      console.log('📝 Creating task with data:', taskData);
+      await createWBSItem(taskData);
+      console.log('✅ Task created successfully');
+
+      toast({
+        title: "Task Created",
+        description: "New task has been added to the element.",
+      });
     } catch (error) {
-      console.error('Error adding task:', error);
+      console.error('❌ Error creating task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create task. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
