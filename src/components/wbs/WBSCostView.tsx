@@ -50,6 +50,22 @@ export const WBSCostView = ({
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Debug logging for scrollbar investigation
+  React.useEffect(() => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      console.log('🔍 Cost View Scroll Container Debug:', {
+        scrollHeight: container.scrollHeight,
+        clientHeight: container.clientHeight,
+        hasOverflow: container.scrollHeight > container.clientHeight,
+        scrollbarVisible: container.scrollHeight > container.clientHeight ? 'YES' : 'NO',
+        itemsCount: items.length,
+        className: container.className
+      });
+    }
+  }, [items]);
 
   const handleLeftScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     if (leftScrollRef.current && rightScrollRef.current) {
@@ -108,7 +124,14 @@ export const WBSCostView = ({
       </div>
 
       {/* Unified Scrollable Content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-visible">
+      <div 
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-visible"
+        style={{ 
+          paddingRight: '8px', // Ensure space for scrollbar
+          marginRight: '-8px'   // Offset padding to maintain layout
+        }}
+      >
         <ResizablePanelGroup direction="horizontal" className="min-h-full">
           {/* Left Panel Content */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
