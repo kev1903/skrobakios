@@ -1483,18 +1483,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                      ) : (
                        <div 
                          style={{
-                           position: 'fixed',
-                           top: '200px',
-                           left: '160px',
-                           right: '20px',
-                           bottom: '20px',
+                           flex: 1,
+                           minWidth: 0,
+                           height: 'calc(100vh - 180px)',
                            backgroundColor: 'white',
-                           border: '3px solid red',
-                           overflow: 'auto',
-                           zIndex: 1000
+                           border: '1px solid #e2e8f0',
+                           overflow: 'auto'
                          }}
                        >
-                        <div style={{ height: '2000px', width: '2000px', padding: '20px' }}>
                         <WBSSplitView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
@@ -1516,7 +1512,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                          getProgressColor={getProgressColor}
                          generateWBSNumber={generateWBSNumber}
                         />
-                        </div>
                        </div>
                    )}
                  </div>
@@ -1586,11 +1581,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       </div>
                      ) : (
                        <div 
-                         className="flex-1 min-w-0 h-[600px] border border-red-500 bg-white"
                          style={{
-                           overflow: 'auto',
-                           scrollbarWidth: 'auto',
-                           scrollbarColor: '#666 #f0f0f0'
+                           flex: 1,
+                           minWidth: 0,
+                           height: 'calc(100vh - 180px)',
+                           backgroundColor: 'white',
+                           border: '1px solid #e2e8f0',
+                           overflow: 'auto'
                          }}
                        >
                         <WBSCostView
