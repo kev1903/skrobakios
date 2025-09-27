@@ -43,6 +43,7 @@ export const WBSTimeView = ({
   const dataColumnsScrollRef = useRef<HTMLDivElement>(null);
   const dataColumnsHeaderScrollRef = useRef<HTMLDivElement>(null);
   const timelineHeaderScrollRef = useRef<HTMLDivElement>(null);
+  const timelineContentContainerRef = useRef<HTMLDivElement>(null);
   const timelineContentScrollRef = useRef<HTMLDivElement>(null);
   const timelineHeaderHorizontalScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -516,7 +517,7 @@ export const WBSTimeView = ({
             
             {/* Right Content - Container only, no scrolling */}
             <div 
-              ref={timelineContentScrollRef}
+              ref={timelineContentContainerRef}
               className="flex-1 overflow-hidden"
             >
               <ResizablePanelGroup 
