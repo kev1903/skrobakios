@@ -88,7 +88,7 @@ export const WBSTimeView = ({
       {/* Fixed Headers */}
       <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 sticky top-0 z-40">
         <ResizablePanelGroup direction="horizontal" className="h-full">
-          {/* Left Panel Headers */}
+          {/* Left Panel Headers - matches content structure exactly */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
             <ResizablePanelGroup direction="horizontal" className="h-full">
               {/* WBS Structure Header */}
@@ -176,7 +176,7 @@ export const WBSTimeView = ({
       {/* Single Unified Scrollable Content */}
       <div className="flex-1 overflow-auto">
         <ResizablePanelGroup direction="horizontal" className="min-h-full">
-          {/* Left Panel Content */}
+          {/* Left Panel Content - matches header structure exactly */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
             <div className="min-h-full flex">
               <ResizablePanelGroup direction="horizontal" className="min-h-full">

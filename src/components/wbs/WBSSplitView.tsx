@@ -57,7 +57,7 @@ export const WBSSplitView = ({
       {/* Fixed Headers */}
       <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
         <ResizablePanelGroup direction="horizontal" className="h-full">
-          {/* Left Header */}
+          {/* Left Header - matches content structure exactly */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
             <div className="h-full border-r border-gray-200 bg-slate-100/70">
               <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
@@ -75,7 +75,7 @@ export const WBSSplitView = ({
           
           <ResizableHandle />
           
-          {/* Right Header */}
+          {/* Right Header - matches content structure exactly */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
             <div className="h-full bg-slate-100/70">
               <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
@@ -97,7 +97,7 @@ export const WBSSplitView = ({
       {/* Single Unified Scrollable Content */}
       <div className="flex-1 overflow-auto">
         <ResizablePanelGroup direction="horizontal" className="min-h-full">
-          {/* Left Panel Content */}
+          {/* Left Panel Content - matches header structure exactly */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
             <div className="min-h-full border-r border-gray-200 bg-white">
               <WBSLeftPanel
@@ -117,7 +117,7 @@ export const WBSSplitView = ({
           
           <ResizableHandle />
           
-          {/* Right Panel Content */}
+          {/* Right Panel Content - matches header structure exactly */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
             <div className="min-h-full bg-white">
               <WBSRightPanel
