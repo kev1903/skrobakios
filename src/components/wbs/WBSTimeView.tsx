@@ -42,7 +42,7 @@ export const WBSTimeView = ({
   const headerHorizScrollRef = useRef<HTMLDivElement>(null);
   const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [scrollTop, setScrollTop] = useState(0);
+  const isSyncingRef = useRef(false);
 
   const handleTimelineHorizontalScroll = useCallback(() => {
     if (headerHorizScrollRef.current && bodyHorizScrollRef.current) {
@@ -50,8 +50,11 @@ export const WBSTimeView = ({
     }
   }, []);
 
-  // Use useEffect to sync scroll positions
-  React.useEffect(() => {
+  const syncScrollPosition = useCallback((scrollTop: number) => {
+    if (isSyncingRef.current) return;
+    
+    isSyncingRef.current = true;
+    
     if (leftScrollRef.current) {
       leftScrollRef.current.scrollTop = scrollTop;
     }
@@ -61,12 +64,17 @@ export const WBSTimeView = ({
     if (ganttScrollRef.current) {
       ganttScrollRef.current.scrollTop = scrollTop;
     }
-  }, [scrollTop]);
+    
+    setTimeout(() => {
+      isSyncingRef.current = false;
+    }, 10);
+  }, []);
 
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    const newScrollTop = e.currentTarget.scrollTop;
-    setScrollTop(newScrollTop);
-  }, []);
+    if (!isSyncingRef.current) {
+      syncScrollPosition(e.currentTarget.scrollTop);
+    }
+  }, [syncScrollPosition]);
 
   // Simplified item update handler
   const handleItemUpdate = useCallback(async (itemId: string, updates: any) => {
