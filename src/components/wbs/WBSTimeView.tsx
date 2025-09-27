@@ -181,7 +181,7 @@ export const WBSTimeView = ({
           </div>
         </ResizablePanel>
         
-        <ResizableHandle />
+        <ResizableHandle withHandle />
         
         {/* Right Column (Data + Timeline) */}
         <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
@@ -205,7 +205,7 @@ export const WBSTimeView = ({
                   </div>
                 </ResizablePanel>
                 
-                <ResizableHandle />
+                <ResizableHandle withHandle />
                 
                 {/* Timeline Header */}
                 <ResizablePanel 
@@ -293,7 +293,7 @@ export const WBSTimeView = ({
                   </div>
                 </ResizablePanel>
                 
-                <ResizableHandle />
+                <ResizableHandle withHandle />
                 
                 {/* Timeline Section - Master scroll controller */}
                 <ResizablePanel 
