@@ -175,14 +175,14 @@ export const WBSTimeView = ({
 
       {/* Single Unified Scrollable Content */}
       <div className="flex-1 overflow-auto">
-        <ResizablePanelGroup direction="horizontal" className="h-full">
+        <ResizablePanelGroup direction="horizontal" className="min-h-full">
           {/* Left Panel Content */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <div className="h-full flex">
-              <ResizablePanelGroup direction="horizontal" className="h-full">
+            <div className="min-h-full flex">
+              <ResizablePanelGroup direction="horizontal" className="min-h-full">
                 {/* WBS Structure Content */}
                 <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
-                  <div className="h-full border-r border-gray-200 bg-white">
+                  <div className="min-h-full border-r border-gray-200 bg-white">
                     <WBSLeftPanel
                       items={items.map(item => ({
                         ...item,
@@ -207,7 +207,7 @@ export const WBSTimeView = ({
 
                 {/* Data Columns Content */}
                 <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
-                  <div className="h-full border-r border-gray-200 bg-white">
+                  <div className="min-h-full border-r border-gray-200 bg-white">
                     <WBSTimeRightPanel
                       items={items}
                       onItemUpdate={handleItemUpdate}
@@ -229,7 +229,7 @@ export const WBSTimeView = ({
 
           {/* Timeline Content */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div className="h-full bg-white overflow-x-auto">
+            <div className="min-h-full bg-white overflow-x-auto">
               <div className="min-w-fit">
                 <GanttChart 
                   items={items.map(item => ({

@@ -545,10 +545,10 @@ export const WBSTimeRightPanel = ({
   );
 
   return (
-    <div className="h-full bg-white flex-shrink-0 overflow-hidden">
+    <div className="bg-white flex-shrink-0">
       {useUnifiedScroll ? (
         // Unified scroll mode - parent handles scrolling
-        <div className="h-full">
+        <div>
           {content}
         </div>
       ) : (
