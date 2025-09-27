@@ -75,7 +75,7 @@ export const WBSCostRightPanel = ({
   };
 
   // Determine if we're in unified scroll mode
-  const useUnifiedScroll = !scrollRef || !onScroll;
+  const useUnifiedScroll = true; // Enable unified scrolling for Cost tab
 
   const content = (
     <>
@@ -203,10 +203,10 @@ export const WBSCostRightPanel = ({
   );
 
   return (
-    <div className="h-full bg-white overflow-hidden">
+    <div className="bg-white">
       {useUnifiedScroll ? (
         // Unified scroll mode - parent handles scrolling
-        <div className="h-full min-h-full">
+        <div>
           {content}
         </div>
       ) : (
