@@ -151,8 +151,11 @@ export const WBSTimeView = ({
     <div className="h-full w-full bg-white flex flex-col relative z-10">
       {/* Combined Header and Content Area - Scrollable Together */}
       <div 
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-500" 
-        style={{ maxHeight: 'calc(100vh - 200px)' }}
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-visible" 
+        style={{ 
+          maxHeight: 'calc(100vh - 180px)',
+          minHeight: '500px' // Ensure minimum height to trigger scrollbar
+        }}
       >
         <ResizablePanelGroup direction="horizontal" className="min-h-full">
           {/* Left Side - WBS Structure + Data Columns */}
