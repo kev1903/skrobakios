@@ -47,8 +47,21 @@ export const WBSCostView = ({
   StatusSelect,
   generateWBSNumber
 }: WBSCostViewProps) => {
-  const unifiedScrollRef = useRef<HTMLDivElement>(null);
+  const leftScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const handleRightScroll = useCallback(() => {
+    if (leftScrollRef.current && rightScrollRef.current) {
+      leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
+    }
+  }, []);
+
+  const handleLeftScroll = useCallback(() => {
+    if (leftScrollRef.current && rightScrollRef.current) {
+      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
+    }
+  }, []);
 
   return (
     <div className="h-full w-full bg-white flex flex-col">
@@ -102,7 +115,7 @@ export const WBSCostView = ({
             <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
               <div className="h-full border-r border-gray-200 bg-white flex flex-col">
                 <div className="flex-1 overflow-hidden">
-                  <div className="h-full overflow-y-scroll overflow-x-hidden scrollbar-hide">
+                  <div ref={leftScrollRef} className="h-full overflow-y-scroll overflow-x-hidden scrollbar-hide" onScroll={handleLeftScroll}>
                     <WBSLeftPanel
                       items={items}
                       onToggleExpanded={onToggleExpanded}
@@ -112,8 +125,8 @@ export const WBSCostView = ({
                       dragIndicator={dragIndicator}
                       EditableCell={EditableCell}
                       generateWBSNumber={generateWBSNumber}
-                      scrollRef={{ current: null }}
-                      onScroll={() => {}}
+                      scrollRef={leftScrollRef}
+                      onScroll={handleLeftScroll}
                       hoveredId={hoveredId}
                       onRowHover={setHoveredId}
                     />
@@ -128,7 +141,7 @@ export const WBSCostView = ({
             <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
               <div className="h-full bg-white flex flex-col">
                 <div className="flex-1 overflow-hidden">
-                  <div className="h-full overflow-y-auto overflow-x-hidden">
+                  <div ref={rightScrollRef} className="h-full overflow-y-auto overflow-x-hidden" onScroll={handleRightScroll}>
                     <WBSCostRightPanel
                       items={items}
                       onItemUpdate={onItemUpdate}
@@ -136,8 +149,8 @@ export const WBSCostView = ({
                       onOpenNotesDialog={onOpenNotesDialog}
                       EditableCell={EditableCell}
                       StatusSelect={StatusSelect}
-                      scrollRef={{ current: null }}
-                      onScroll={() => {}}
+                      scrollRef={rightScrollRef}
+                      onScroll={handleRightScroll}
                       hoveredId={hoveredId}
                       onRowHover={setHoveredId}
                     />

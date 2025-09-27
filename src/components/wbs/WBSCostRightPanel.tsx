@@ -77,7 +77,7 @@ export const WBSCostRightPanel = ({
   return (
     <div className="flex-1 min-w-0 bg-white overflow-hidden">
       {/* Content */}
-      <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full" onScroll={onScroll}>
+      <div className="min-h-full">
         {items.map((item) => {
           const budget = parseFloat(item.budgeted_cost || '0') || 0;
           const committed = parseFloat(item.committed_cost || '0') || 0;
