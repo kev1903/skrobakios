@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, ChevronDown, GripVertical, Plus } from 'lucide-react';
+import { ChevronRight, ChevronDown, GripVertical, Plus, PlusCircle, PlusSquare, CheckSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { createPortal } from 'react-dom';
@@ -169,20 +169,30 @@ export const WBSLeftPanel = ({
                                     <div className="flex gap-1">
                                       {item.level < 3 && (
                                         <Button
-                                          variant="ghost"
+                                          variant={item.level === 0 ? "default" : item.level === 1 ? "outline" : "secondary"}
                                           size="sm"
                                           onClick={(e) => {
                                             e.stopPropagation();
                                             onAddChild(item.id);
                                           }}
-                                          className="h-6 w-6 p-0 hover:bg-primary/10"
+                                          className={`h-6 w-6 p-0 ${
+                                            item.level === 0 ? 'hover:bg-blue-600 bg-blue-500' : 
+                                            item.level === 1 ? 'hover:bg-green-50 border-green-500 text-green-600' :
+                                            'hover:bg-orange-50 bg-orange-100 text-orange-600'
+                                          }`}
                                           title={
                                             item.level === 0 ? "Add Component" : 
                                             item.level === 1 ? "Add Element" :
                                             "Add Task"
                                           }
                                         >
-                                          <Plus className="w-3 h-3" />
+                                          {item.level === 0 ? (
+                                            <PlusCircle className="w-3 h-3" />
+                                          ) : item.level === 1 ? (
+                                            <PlusSquare className="w-3 h-3" />
+                                          ) : (
+                                            <CheckSquare className="w-3 h-3" />
+                                          )}
                                         </Button>
                                       )}
                                     </div>
