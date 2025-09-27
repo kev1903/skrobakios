@@ -1481,7 +1481,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        </div>
                      </div>
                    ) : (
-                     <div className="flex-1 min-w-0 overflow-y-hidden">
+                      <div className="flex-1 min-w-0 overflow-y-auto h-full">
                        <WBSSplitView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
@@ -1527,7 +1527,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       </div>
                     </div>
                   ) : (
-                    <div className="flex-1 min-w-0 overflow-y-auto">
+                    <div className="flex-1 min-w-0 overflow-y-auto h-full">
                       <WBSTimeView
                         items={flatWBSItems}
                         onToggleExpanded={(itemId) => {
@@ -1571,7 +1571,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         </div>
                       </div>
                     ) : (
-                      <div className="flex-1 min-w-0 overflow-y-hidden">
+                      <div className="flex-1 min-w-0 overflow-y-auto h-full">
                        <WBSCostView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {

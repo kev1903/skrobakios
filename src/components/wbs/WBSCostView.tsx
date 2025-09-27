@@ -82,7 +82,7 @@ export const WBSCostView = ({
             </div>
             
             {/* Left Content */}
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden">
               <WBSLeftPanel
                 items={items}
                 onToggleExpanded={onToggleExpanded}
@@ -125,7 +125,7 @@ export const WBSCostView = ({
             </div>
             
             {/* Right Content */}
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden">
               <WBSCostRightPanel
                 items={items}
                 onItemUpdate={onItemUpdate}
