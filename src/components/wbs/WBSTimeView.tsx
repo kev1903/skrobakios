@@ -50,41 +50,56 @@ export const WBSTimeView = ({
     }
   }, []);
 
-  const syncVerticalScroll = useCallback((sourceScrollTop: number) => {
+  const syncVerticalScroll = useCallback((sourceElement: HTMLDivElement, sourceScrollTop: number) => {
     if (isScrollingSyncRef.current) return;
     
     isScrollingSyncRef.current = true;
     
-    if (leftScrollRef.current) {
+    // Sync all other elements except the source
+    if (leftScrollRef.current && leftScrollRef.current !== sourceElement) {
       leftScrollRef.current.scrollTop = sourceScrollTop;
     }
-    if (rightScrollRef.current) {
+    if (rightScrollRef.current && rightScrollRef.current !== sourceElement) {
       rightScrollRef.current.scrollTop = sourceScrollTop;
     }
-    if (ganttScrollRef.current) {
+    if (ganttScrollRef.current && ganttScrollRef.current !== sourceElement) {
       ganttScrollRef.current.scrollTop = sourceScrollTop;
     }
     
-    requestAnimationFrame(() => {
+    // Reset flag after a short delay to allow all scroll events to complete
+    setTimeout(() => {
       isScrollingSyncRef.current = false;
-    });
+    }, 10);
   }, []);
 
   const handleRightScroll = useCallback(() => {
     if (!isScrollingSyncRef.current && rightScrollRef.current) {
-      syncVerticalScroll(rightScrollRef.current.scrollTop);
+      syncVerticalScroll(rightScrollRef.current, rightScrollRef.current.scrollTop);
     }
   }, [syncVerticalScroll]);
 
   const handleLeftScroll = useCallback(() => {
     if (!isScrollingSyncRef.current && leftScrollRef.current) {
-      syncVerticalScroll(leftScrollRef.current.scrollTop);
+      syncVerticalScroll(leftScrollRef.current, leftScrollRef.current.scrollTop);
+    }
+  }, [syncVerticalScroll]);
+
+  // Keep separate handler for direct scroll events
+  const handleRightScrollEvent = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (!isScrollingSyncRef.current && rightScrollRef.current) {
+      syncVerticalScroll(rightScrollRef.current, e.currentTarget.scrollTop);
+    }
+  }, [syncVerticalScroll]);
+
+  const handleLeftScrollEvent = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (!isScrollingSyncRef.current && leftScrollRef.current) {
+      syncVerticalScroll(leftScrollRef.current, e.currentTarget.scrollTop);
     }
   }, [syncVerticalScroll]);
 
   const handleGanttScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    if (!isScrollingSyncRef.current) {
-      syncVerticalScroll(e.currentTarget.scrollTop);
+    if (!isScrollingSyncRef.current && ganttScrollRef.current) {
+      syncVerticalScroll(ganttScrollRef.current, e.currentTarget.scrollTop);
     }
   }, [syncVerticalScroll]);
 
@@ -226,7 +241,7 @@ export const WBSTimeView = ({
                 <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
                   <div className="h-full border-r border-gray-200 bg-white flex flex-col">
                     <div className="flex-1 overflow-hidden">
-                      <div ref={leftScrollRef} className="h-full overflow-y-scroll overflow-x-hidden scrollbar-hide" onScroll={handleLeftScroll}>
+                      <div ref={leftScrollRef} className="h-full overflow-y-scroll overflow-x-hidden scrollbar-hide" onScroll={handleLeftScrollEvent}>
                         <WBSLeftPanel
                           items={items.map(item => ({
                             ...item,
@@ -257,7 +272,7 @@ export const WBSTimeView = ({
                 <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
                   <div className="h-full border-r border-gray-200 bg-white flex flex-col">
                     <div className="flex-1 overflow-hidden">
-                      <div ref={rightScrollRef} className="h-full overflow-y-auto overflow-x-hidden" onScroll={handleRightScroll}>
+                      <div ref={rightScrollRef} className="h-full overflow-y-auto overflow-x-hidden" onScroll={handleRightScrollEvent}>
                         <WBSTimeRightPanel
                           items={items}
                           onItemUpdate={handleItemUpdate}
