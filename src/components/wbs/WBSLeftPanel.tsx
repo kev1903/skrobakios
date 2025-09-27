@@ -51,7 +51,7 @@ export const WBSLeftPanel = ({
   onRowHover
 }: WBSLeftPanelProps) => {
   // Determine if we're in unified scroll mode (parent handles scrolling)  
-  const useUnifiedScroll = false; // Always use separate scroll containers
+  const useUnifiedScroll = true; // Enable unified scrolling for Time tab
   
   const content = (
     <DragDropContext onDragEnd={onDragEnd}>
