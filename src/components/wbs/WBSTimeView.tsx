@@ -177,7 +177,7 @@ export const WBSTimeView = ({
       {/* Unified Scrollable Content */}
       <div 
         ref={masterScrollRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden"
+        className="flex-1 overflow-auto"
       >
         <ResizablePanelGroup direction="horizontal" className="h-full">
           {/* Left Panel Content */}
@@ -233,10 +233,7 @@ export const WBSTimeView = ({
 
           {/* Timeline Content */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div 
-              className="h-full bg-white overflow-x-auto"
-              onScroll={handleTimelineHorizontalScroll}
-            >
+            <div className="h-full bg-white">
               <div className="min-w-fit">
                 <GanttChart 
                   items={items.map(item => ({
