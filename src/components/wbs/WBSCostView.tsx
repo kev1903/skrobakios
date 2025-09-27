@@ -231,15 +231,19 @@ export const WBSCostView = ({
               onScroll={handleWBSContentScroll}
             >
               <WBSLeftPanel
-                items={items.map(item => ({
-                  id: item.id,
-                  name: item.title || item.name || 'Untitled',
-                  wbsNumber: item.wbs_id || '',
-                  level: item.level || 0,
-                  parent_id: item.parent_id,
-                  isExpanded: item.is_expanded !== false,
-                  hasChildren: items.some(child => child.parent_id === item.id)
-                }))}
+                items={items.map(item => {
+                  const mappedItem = {
+                    id: item.id,
+                    name: item.title || item.name || 'Untitled',
+                    wbsNumber: item.wbs_id || '',
+                    level: item.level || 0,
+                    parent_id: item.parent_id,
+                    isExpanded: item.is_expanded !== false,
+                    hasChildren: items.some(child => child.parent_id === item.id)
+                  };
+                  console.log('🟢 WBSCostView mapping item:', item.id, 'is_expanded:', item.is_expanded, 'mapped isExpanded:', mappedItem.isExpanded);
+                  return mappedItem;
+                })}
                 onToggleExpanded={onToggleExpanded}
                 onDragEnd={onDragEnd}
                 onItemEdit={onItemUpdate}

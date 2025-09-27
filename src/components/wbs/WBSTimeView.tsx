@@ -279,14 +279,18 @@ export const WBSTimeView = ({
               className="flex-1 overflow-y-hidden overflow-x-hidden scrollbar-hide"
             >
               <WBSLeftPanel
-                items={items.map(item => ({
-                  ...item,
-                  name: item.title || 'Untitled',
-                  wbsNumber: item.wbs_id || '',
-                  status: item.status || 'Not Started',
-                  isExpanded: item.is_expanded !== false,
-                  hasChildren: items.some(child => child.parent_id === item.id)
-                }))}
+                items={items.map(item => {
+                  const mappedItem = {
+                    ...item,
+                    name: item.title || 'Untitled',
+                    wbsNumber: item.wbs_id || '',
+                    status: item.status || 'Not Started',
+                    isExpanded: item.is_expanded !== false,
+                    hasChildren: items.some(child => child.parent_id === item.id)
+                  };
+                  console.log('🔵 WBSTimeView mapping item:', item.id, 'is_expanded:', item.is_expanded, 'mapped isExpanded:', mappedItem.isExpanded);
+                  return mappedItem;
+                })}
                 onToggleExpanded={onToggleExpanded}
                 onDragEnd={onDragEnd}
                 onItemEdit={onItemUpdate}

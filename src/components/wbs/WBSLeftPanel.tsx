@@ -79,6 +79,9 @@ export const WBSLeftPanel = ({
   // Filter items to only show visible ones
   const visibleItems = items.filter(isItemVisible);
   
+  console.log('🟡 WBSLeftPanel items received:', items.length, 'visible:', visibleItems.length);
+  console.log('🟡 Items with isExpanded property:', items.map(i => ({ id: i.id, name: i.name, isExpanded: i.isExpanded, level: i.level, parent_id: i.parent_id })));
+  
   const content = (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="wbs-items" type="item">
@@ -137,6 +140,7 @@ export const WBSLeftPanel = ({
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
+                                console.log('🔴 Chevron clicked for item:', item.id, 'current isExpanded:', item.isExpanded, 'hasChildren:', itemHasChildren);
                                 onToggleExpanded(item.id);
                               }}
                               className="mr-2 p-0.5 rounded hover:bg-accent/20 transition-colors flex-shrink-0"

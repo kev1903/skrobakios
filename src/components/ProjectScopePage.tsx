@@ -776,11 +776,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     if (item) {
       const newExpandedState = !item.is_expanded;
       console.log(`📊 Item ${itemId} changing from ${item.is_expanded} to ${newExpandedState}`);
+      console.log('📊 Full item before update:', item);
       
       // Update the WBS item in the database and local state
       await updateWBSItem(itemId, { is_expanded: newExpandedState });
       
       console.log('✅ Expand/collapse state updated across all tabs');
+    } else {
+      console.error('❌ Item not found in wbsItems:', itemId);
+      console.log('📊 Available items:', wbsItems.map(i => ({ id: i.id, title: i.title, is_expanded: i.is_expanded })));
     }
   }, [wbsItems, updateWBSItem]);
 
