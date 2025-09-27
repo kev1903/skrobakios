@@ -47,36 +47,18 @@ export const WBSCostView = ({
   StatusSelect,
   generateWBSNumber
 }: WBSCostViewProps) => {
-  const leftScrollRef = useRef<HTMLDivElement>(null);
-  const rightScrollRef = useRef<HTMLDivElement>(null);
+  const unifiedScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  const handleRightScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current) {
-      const rightScrollTop = rightScrollRef.current.scrollTop;
-      if (leftScrollRef.current.scrollTop !== rightScrollTop) {
-        leftScrollRef.current.scrollTop = rightScrollTop;
-      }
-    }
-  }, []);
-
-  const handleLeftScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current) {
-      const leftScrollTop = leftScrollRef.current.scrollTop;
-      if (rightScrollRef.current.scrollTop !== leftScrollTop) {
-        rightScrollRef.current.scrollTop = leftScrollTop;
-      }
-    }
-  }, []);
   return (
-    <div className="h-full w-full bg-white">
-      <ResizablePanelGroup direction="horizontal" className="h-full w-full">
-        {/* Left Panel - WBS Structure */}
-        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-          <div className="h-full flex flex-col">
-            {/* WBS Header */}
-            <div className="h-8 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200">
-              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+    <div className="h-full w-full bg-white flex flex-col">
+      {/* Fixed Headers */}
+      <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          {/* Left Header - WBS Structure */}
+          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+            <div className="h-full border-r border-gray-200 bg-slate-100/70 text-xs font-medium text-slate-700">
+              <div className="px-2 py-1 h-full">
                 <div className="grid items-center h-full" style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
                   <div></div>
                   <div className="px-2 font-semibold">WBS</div>
@@ -85,35 +67,14 @@ export const WBSCostView = ({
                 </div>
               </div>
             </div>
-            
-            {/* WBS Content */}
-            <div className="flex-1 overflow-hidden">
-              <WBSLeftPanel
-                items={items}
-                onToggleExpanded={onToggleExpanded}
-                onDragEnd={onDragEnd}
-                onItemEdit={onItemUpdate}
-                onAddChild={onAddChild}
-                dragIndicator={dragIndicator}
-                EditableCell={EditableCell}
-                generateWBSNumber={generateWBSNumber}
-                scrollRef={leftScrollRef}
-                onScroll={handleLeftScroll}
-                hoveredId={hoveredId}
-                onRowHover={setHoveredId}
-              />
-            </div>
-          </div>
-        </ResizablePanel>
-        
-        <ResizableHandle />
-        
-        {/* Right Panel - Cost Data */}
-        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-          <div className="h-full flex flex-col">
-            {/* Cost Header */}
-            <div className="h-8 bg-slate-100/70 border-b border-slate-200">
-              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+          </ResizablePanel>
+          
+          <ResizableHandle />
+          
+          {/* Right Header - Cost Data */}
+          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+            <div className="h-full bg-slate-100/70 text-xs font-medium text-slate-700">
+              <div className="px-2 py-1 h-full">
                 <div className="grid items-center h-full" style={{
                   gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
                 }}>
@@ -129,25 +90,59 @@ export const WBSCostView = ({
                 </div>
               </div>
             </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+
+      {/* Unified Scrollable Content */}
+      <div className="flex-1 overflow-hidden">
+        <div 
+          ref={unifiedScrollRef}
+          className="h-full overflow-y-auto overflow-x-hidden"
+        >
+          <ResizablePanelGroup direction="horizontal" className="min-h-full">
+            {/* Left Panel Content */}
+            <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+              <div className="border-r border-gray-200 bg-white">
+                <WBSLeftPanel
+                  items={items}
+                  onToggleExpanded={onToggleExpanded}
+                  onDragEnd={onDragEnd}
+                  onItemEdit={onItemUpdate}
+                  onAddChild={onAddChild}
+                  dragIndicator={dragIndicator}
+                  EditableCell={EditableCell}
+                  generateWBSNumber={generateWBSNumber}
+                  scrollRef={unifiedScrollRef}
+                  onScroll={() => {}}
+                  hoveredId={hoveredId}
+                  onRowHover={setHoveredId}
+                />
+              </div>
+            </ResizablePanel>
             
-            {/* Cost Content */}
-            <div className="flex-1 overflow-hidden">
-              <WBSCostRightPanel
-                items={items}
-                onItemUpdate={onItemUpdate}
-                onContextMenuAction={onContextMenuAction}
-                onOpenNotesDialog={onOpenNotesDialog}
-                EditableCell={EditableCell}
-                StatusSelect={StatusSelect}
-                scrollRef={rightScrollRef}
-                onScroll={handleRightScroll}
-                hoveredId={hoveredId}
-                onRowHover={setHoveredId}
-              />
-            </div>
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+            <ResizableHandle />
+            
+            {/* Right Panel Content */}
+            <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+              <div className="bg-white">
+                <WBSCostRightPanel
+                  items={items}
+                  onItemUpdate={onItemUpdate}
+                  onContextMenuAction={onContextMenuAction}
+                  onOpenNotesDialog={onOpenNotesDialog}
+                  EditableCell={EditableCell}
+                  StatusSelect={StatusSelect}
+                  scrollRef={unifiedScrollRef}
+                  onScroll={() => {}}
+                  hoveredId={hoveredId}
+                  onRowHover={setHoveredId}
+                />
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
+      </div>
     </div>
   );
 };
