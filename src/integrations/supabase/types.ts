@@ -6063,6 +6063,7 @@ export type Database = {
           linked_tasks: Json | null
           parent_id: string | null
           path: string[] | null
+          predecessors: Json | null
           priority: string | null
           progress: number | null
           progress_status: string | null
