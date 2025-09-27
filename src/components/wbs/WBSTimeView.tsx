@@ -157,19 +157,14 @@ export const WBSTimeView = ({
       {/* Combined Header and Content Area - Scrollable Together */}
       <div 
         className="flex-1 min-h-0 overflow-y-scroll overflow-x-hidden scrollbar-always-visible" 
-        style={{ 
-          height: 'calc(100vh - 200px)',
-          maxHeight: 'calc(100vh - 200px)',
-          minHeight: '400px' // Ensure minimum height to show scrollbar
-        }}
       >
-        <ResizablePanelGroup direction="horizontal" className="h-full w-full" style={{ minHeight: '800px' }}>
+        <ResizablePanelGroup direction="horizontal" className="h-full w-full">
           {/* Left Side - WBS Structure + Data Columns */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <ResizablePanelGroup direction="horizontal" className="h-full w-full" style={{ minHeight: '800px' }}>
+            <ResizablePanelGroup direction="horizontal" className="h-full w-full">
               {/* WBS Section */}
               <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
-                <div className="min-h-full border-r border-gray-200">
+                <div className="h-full border-r border-gray-200">
                   <div 
                     ref={wbsContentScrollRef}
                     className="overflow-x-auto overflow-y-hidden"
@@ -216,7 +211,7 @@ export const WBSTimeView = ({
 
               {/* Data Columns Section */}
               <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
-                <div className="min-h-full border-r border-gray-200">
+                <div className="h-full border-r border-gray-200">
                   <div 
                     ref={dataContentScrollRef}
                     className="overflow-x-auto overflow-y-hidden"
@@ -261,7 +256,7 @@ export const WBSTimeView = ({
 
           {/* Timeline Section */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div className="min-h-full relative overflow-hidden">
+            <div className="h-full relative overflow-hidden">
               <div 
                 ref={timelineContentScrollRef}
                 className="overflow-x-auto overflow-y-hidden h-full"
@@ -346,9 +341,6 @@ export const WBSTimeView = ({
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
-      
-      {/* Extra padding to ensure scrollbar is always visible */}
-      <div style={{ height: '50px', minHeight: '50px' }} className="bg-transparent"></div>
     </div>
   );
 };
