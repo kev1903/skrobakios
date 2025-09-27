@@ -1553,45 +1553,45 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               </TabsContent>
 
                <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex data-[state=active]:flex-col">
-                 <div className="h-full w-full flex flex-col">
-                    {loading && wbsItems.length === 0 ? (
-                      <div className="flex items-center justify-center h-64">
-                        <div className="text-center">
-                          <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
-                          <div className="text-sm text-muted-foreground">Loading WBS...</div>
-                        </div>
-                      </div>
-                    ) : error ? (
-                      <div className="flex items-center justify-center h-64">
-                        <div className="text-center">
-                          <div className="text-sm text-destructive mb-2">Error loading WBS</div>
-                          <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
-                            Retry
-                          </Button>
-                        </div>
-                      </div>
-                     ) : (
-                        <WBSCostView
-                          items={flatWBSItems}
-                          onToggleExpanded={(itemId) => {
-                           const item = wbsItems.find(i => i.id === itemId);
-                           if (item) {
-                             updateWBSItem(itemId, { is_expanded: !item.is_expanded });
-                           }
-                         }}
-                         onDragEnd={onDragEnd}
-                         onItemUpdate={updateWBSItem}
-                         onAddChild={addChildItem}
-                         onContextMenuAction={handleContextMenuAction}
-                         onOpenNotesDialog={openNotesDialog}
-                         dragIndicator={dragIndicator}
-                         EditableCell={EditableCell}
-                         StatusSelect={StatusSelect}
-                         generateWBSNumber={generateWBSNumber}
-                        />
-                     )}
-                   </div>
-                 </TabsContent>
+                  <div className="h-full flex flex-col" style={{ marginRight: 'calc(320px + 1rem)' }}>
+                     {loading && wbsItems.length === 0 ? (
+                       <div className="flex items-center justify-center h-64">
+                         <div className="text-center">
+                           <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-2"></div>
+                           <div className="text-sm text-muted-foreground">Loading WBS...</div>
+                         </div>
+                       </div>
+                     ) : error ? (
+                       <div className="flex items-center justify-center h-64">
+                         <div className="text-center">
+                           <div className="text-sm text-destructive mb-2">Error loading WBS</div>
+                           <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
+                             Retry
+                           </Button>
+                         </div>
+                       </div>
+                      ) : (
+                         <WBSCostView
+                           items={flatWBSItems}
+                           onToggleExpanded={(itemId) => {
+                            const item = wbsItems.find(i => i.id === itemId);
+                            if (item) {
+                              updateWBSItem(itemId, { is_expanded: !item.is_expanded });
+                            }
+                          }}
+                          onDragEnd={onDragEnd}
+                          onItemUpdate={updateWBSItem}
+                          onAddChild={addChildItem}
+                          onContextMenuAction={handleContextMenuAction}
+                          onOpenNotesDialog={openNotesDialog}
+                          dragIndicator={dragIndicator}
+                          EditableCell={EditableCell}
+                          StatusSelect={StatusSelect}
+                          generateWBSNumber={generateWBSNumber}
+                         />
+                      )}
+                    </div>
+                  </TabsContent>
               </div>
             </Tabs>
           </div>
