@@ -372,7 +372,7 @@ export const MyTasksCalendarView: React.FC<MyTasksCalendarViewProps> = ({
         </div>
 
         {/* Main Calendar Area - Clean White Design */}
-        <div className="ml-80 h-full overflow-y-auto pl-8 bg-white">
+        <div className="ml-80 h-full overflow-y-auto pl-8 bg-white mr-8 pr-8" style={{ marginRight: 'calc(var(--ai-chat-offset, 0px) + 2rem)' }}>
           <div className="space-y-6 pb-8">
             {/* Header */}
             <div className="flex items-center justify-between sticky top-0 bg-white z-10 py-4 border-b border-gray-200">
