@@ -86,7 +86,7 @@ export const WBSSplitView = ({
             </div>
             
             {/* Left Content */}
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden">
               <WBSLeftPanel
                 items={items}
                 onToggleExpanded={onToggleExpanded}
@@ -125,7 +125,7 @@ export const WBSSplitView = ({
             </div>
             
             {/* Right Content */}
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden">
               <WBSRightPanel
                 items={items}
                 onItemUpdate={onItemUpdate}

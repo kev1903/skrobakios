@@ -1460,9 +1460,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               </div>
 
               {/* Tab Contents */}
-              <div className="flex-1 w-full overflow-hidden">
+              <div className="flex-1 w-full overflow-hidden" style={{ height: 'calc(100vh - 180px)' }}>
 
-              <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex">
+              <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex data-[state=active]:flex-col">
                 <div className="h-full w-full flex flex-col">
                    {loading && wbsItems.length === 0 ? (
                      <div className="flex items-center justify-center h-64">
@@ -1481,7 +1481,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        </div>
                      </div>
                    ) : (
-                      <div className="flex-1 min-w-0 overflow-y-auto h-full">
+                      <div className="h-full overflow-y-auto overflow-x-hidden">
                        <WBSSplitView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
@@ -1508,7 +1508,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                  </div>
                </TabsContent>
 
-              <TabsContent value="time" className="h-full w-full m-0 p-0 data-[state=active]:flex">
+              <TabsContent value="time" className="h-full w-full m-0 p-0 data-[state=active]:flex data-[state=active]:flex-col">
                 <div className="h-full w-full flex flex-col">
                   {loading && wbsItems.length === 0 ? (
                     <div className="flex items-center justify-center h-64">
@@ -1527,7 +1527,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       </div>
                     </div>
                   ) : (
-                    <div className="flex-1 min-w-0 overflow-y-auto h-full">
+                    <div className="h-full overflow-hidden">
                       <WBSTimeView
                         items={flatWBSItems}
                         onToggleExpanded={(itemId) => {
@@ -1552,7 +1552,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </div>
               </TabsContent>
 
-               <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex">
+               <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex data-[state=active]:flex-col">
                  <div className="h-full w-full flex flex-col">
                     {loading && wbsItems.length === 0 ? (
                       <div className="flex items-center justify-center h-64">
@@ -1571,7 +1571,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         </div>
                       </div>
                     ) : (
-                      <div className="flex-1 min-w-0 overflow-y-auto h-full">
+                       <div className="h-full overflow-y-auto overflow-x-hidden">
                        <WBSCostView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
