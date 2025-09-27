@@ -1,6 +1,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSCostRightPanel } from './WBSCostRightPanel';
+import { WBSToolbar } from './WBSToolbar';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { DropResult } from 'react-beautiful-dnd';
 
@@ -146,8 +147,23 @@ export const WBSCostView = ({
 
   return (
     <div className="h-full w-full bg-white flex flex-col">
+      {/* WBS Toolbar */}
+      <WBSToolbar
+        onAddRow={handleAddRow}
+        onIndent={handleIndent}
+        onOutdent={handleOutdent}
+        onBold={handleBold}
+        onItalic={handleItalic}
+        onUnderline={handleUnderline}
+        onFontSizeChange={handleFontSizeChange}
+        selectedItems={selectedItems}
+        canIndent={selectedItems.length > 0}
+        canOutdent={selectedItems.length > 0}
+        currentFormatting={currentFormatting}
+      />
+      
       {/* Single ResizablePanelGroup controlling both header and content */}
-      <ResizablePanelGroup direction="horizontal" className="h-full">
+      <ResizablePanelGroup direction="horizontal" className="flex-1">
         {/* Left Column (WBS Structure) */}
         <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
           <div className="h-full flex flex-col">
