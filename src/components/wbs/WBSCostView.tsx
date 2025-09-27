@@ -128,6 +128,7 @@ export const WBSCostView = ({
         ref={scrollContainerRef}
         className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-visible"
         style={{ 
+          maxHeight: 'calc(100vh - 240px)', // Constrain height to force scrolling
           paddingRight: '8px', // Ensure space for scrollbar
           marginRight: '-8px'   // Offset padding to maintain layout
         }}
