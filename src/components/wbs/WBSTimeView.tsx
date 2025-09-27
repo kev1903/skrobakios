@@ -37,6 +37,7 @@ export const WBSTimeView = ({
   generateWBSNumber
 }: WBSTimeViewProps) => {
   const wbsContentScrollRef = useRef<HTMLDivElement>(null);
+  const dataColumnsScrollRef = useRef<HTMLDivElement>(null);
   const timelineHeaderScrollRef = useRef<HTMLDivElement>(null);
   const timelineContentScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -50,6 +51,9 @@ export const WBSTimeView = ({
     const scrollTop = e.currentTarget.scrollTop;
     if (wbsContentScrollRef.current) {
       wbsContentScrollRef.current.scrollTop = scrollTop;
+    }
+    if (dataColumnsScrollRef.current) {
+      dataColumnsScrollRef.current.scrollTop = scrollTop;
     }
     
     requestAnimationFrame(() => {
@@ -189,9 +193,12 @@ export const WBSTimeView = ({
               className="flex-1 overflow-hidden"
             >
               <ResizablePanelGroup direction="horizontal" className="h-full">
-                {/* Data Columns Section - no independent scrolling */}
+                {/* Data Columns Section - synchronized scrolling */}
                 <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
-                  <div className="h-full overflow-hidden">
+                  <div 
+                    ref={dataColumnsScrollRef}
+                    className="h-full overflow-hidden"
+                  >
                     <WBSTimeRightPanel
                       items={items}
                       onItemUpdate={handleItemUpdate}
