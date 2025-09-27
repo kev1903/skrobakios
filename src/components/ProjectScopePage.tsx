@@ -26,7 +26,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
-import { ProjectChat } from '@/components/ProjectChat';
 import { Project } from '@/hooks/useProjects';
 import { useScreenSize } from '@/hooks/use-mobile';
 import { createPortal } from 'react-dom';
@@ -1594,11 +1593,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   </TabsContent>
               </div>
             </Tabs>
-          </div>
-          
-          {/* Chat Section - Right Column */}
-          <div className="w-80 flex-shrink-0">
-            <ProjectChat projectId={project.id} projectName={project.name} />
           </div>
         </div>
 
