@@ -98,28 +98,21 @@ export const WBSTimeView = ({
     });
   }, []);
 
-  // Data columns header and content sync handlers
-  const handleDataColumnsHeaderScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+  // Unified data columns scroll handler - syncs header and content together
+  const handleDataColumnsScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     if (isHorizontalSyncingRef.current) return;
     isHorizontalSyncingRef.current = true;
     
     const scrollLeft = e.currentTarget.scrollLeft;
-    if (dataColumnsScrollRef.current) {
-      dataColumnsScrollRef.current.scrollLeft = scrollLeft;
-    }
     
-    requestAnimationFrame(() => {
-      isHorizontalSyncingRef.current = false;
-    });
-  }, []);
-
-  const handleDataColumnsContentScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    if (isHorizontalSyncingRef.current) return;
-    isHorizontalSyncingRef.current = true;
-    
-    const scrollLeft = e.currentTarget.scrollLeft;
+    // Sync header when content scrolls
     if (dataColumnsHeaderScrollRef.current) {
       dataColumnsHeaderScrollRef.current.scrollLeft = scrollLeft;
+    }
+    
+    // Sync content when header scrolls
+    if (dataColumnsScrollRef.current && dataColumnsScrollRef.current !== e.currentTarget) {
+      dataColumnsScrollRef.current.scrollLeft = scrollLeft;
     }
     
     requestAnimationFrame(() => {
@@ -434,7 +427,7 @@ export const WBSTimeView = ({
                   <div 
                     ref={dataColumnsHeaderScrollRef}
                     className="px-2 py-1 text-xs font-medium text-slate-700 h-full overflow-x-auto scrollbar-hide"
-                    onScroll={handleDataColumnsHeaderScroll}
+                    onScroll={handleDataColumnsScroll}
                   >
                     <div className="grid items-center h-full min-w-fit" style={{
                       gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
@@ -522,7 +515,7 @@ export const WBSTimeView = ({
                   <div 
                     ref={dataColumnsScrollRef}
                     className="h-full overflow-auto"
-                    onScroll={handleDataColumnsContentScroll}
+                    onScroll={handleDataColumnsScroll}
                   >
                     <WBSTimeRightPanel
                       items={items}
