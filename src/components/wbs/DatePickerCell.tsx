@@ -12,7 +12,7 @@ import {
 
 interface DatePickerCellProps {
   id: string;
-  type: 'phase' | 'component' | 'element';
+  type: 'phase' | 'component' | 'element' | 'task';
   field: string;
   value?: string | Date | null;
   placeholder?: string;
@@ -44,8 +44,8 @@ export const DatePickerCell = ({
     setDate(value ? (typeof value === 'string' ? new Date(value) : value) : undefined);
   }, [value]);
   
-  // Allow editing for tasks (level 3) and elements without children
-  const isEditable = currentItem?.category === 'Task' || (currentItem?.level === 2 && !currentItem?.hasChildren);
+  // In flat structure, all items are editable
+  const isEditable = true;
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (!isEditable) return;
@@ -119,14 +119,14 @@ export const DatePickerCell = ({
               className
             )}
             tabIndex={isEditable ? 0 : -1}
-            title={isEditable ? "Click to select date, or press Delete to clear" : "Calculated from child tasks"}
+            title="Click to select date, or press Delete to clear"
           >
             <div className="text-xs">
               {date ? (
                 format(date, "MMM dd, yyyy")
               ) : (
                 <span className="text-muted-foreground">
-                  {isEditable ? placeholder : "Auto-calculated"}
+                  {placeholder}
                 </span>
               )}
             </div>

@@ -50,119 +50,8 @@ export const WBSTimeRightPanel = ({
 }: WBSTimeRightPanelProps) => {
 
   const timeoutRef = React.useRef<NodeJS.Timeout>();
-  
-  // Memoized parent-child relationships for efficiency
-  const parentChildMap = React.useMemo(() => {
-    const map = new Map<string, string[]>();
-    const parentSet = new Set<string>();
-    
-    items.forEach(item => {
-      // Direct parent_id relationships
-      if (item.parent_id) {
-        if (!map.has(item.parent_id)) map.set(item.parent_id, []);
-        map.get(item.parent_id)!.push(item.id);
-        parentSet.add(item.parent_id);
-      }
-      
-      // WBS-based relationships as fallback
-      if (item.wbs_id) {
-        const base = item.wbs_id.endsWith('.0') ? item.wbs_id.slice(0, -2) : item.wbs_id;
-        const segs = base.split('.');
-        if (segs.length > 1) {
-          const parentBase = segs.slice(0, -1).join('.');
-          const potentialParent = items.find(p => {
-            if (!p.wbs_id || p.id === item.id) return false;
-            const pBase = p.wbs_id.endsWith('.0') ? p.wbs_id.slice(0, -2) : p.wbs_id;
-            return pBase === parentBase;
-          });
-          if (potentialParent && !item.parent_id) {
-            if (!map.has(potentialParent.id)) map.set(potentialParent.id, []);
-            map.get(potentialParent.id)!.push(item.id);
-            parentSet.add(potentialParent.id);
-          }
-        }
-      }
-    });
-    
-    return { map, parentSet };
-  }, [items]);
 
-  // Optimized rollup calculations with caching
-  const rollupDates = React.useMemo(() => {
-    const cache = new Map<string, { start?: Date; end?: Date; duration?: number }>();
-    const itemMap = new Map(items.map(i => [i.id, i]));
-    
-    const compute = (itemId: string, visited = new Set<string>()): typeof cache extends Map<any, infer T> ? T : never => {
-      if (visited.has(itemId) || cache.has(itemId)) return cache.get(itemId) || {};
-      visited.add(itemId);
-      
-      const item = itemMap.get(itemId);
-      if (!item) return {};
-      
-      const childIds = parentChildMap.map.get(itemId) || [];
-      
-      // Leaf node - use actual dates
-      if (childIds.length === 0) {
-        const start = item.start_date ? new Date(item.start_date) : undefined;
-        const end = item.end_date ? new Date(item.end_date) : undefined;
-        const duration = start && end ? differenceInDays(end, start) + 1 : item.duration;
-        const result = { start, end, duration };
-        cache.set(itemId, result);
-        return result;
-      }
-      
-      // Parent node - aggregate from children
-      const childResults = childIds.map(childId => compute(childId, new Set(visited))).filter(r => r.start || r.end);
-      
-      if (childResults.length === 0) {
-        cache.set(itemId, {});
-        return {};
-      }
-      
-      const starts = childResults.map(r => r.start).filter(Boolean) as Date[];
-      const ends = childResults.map(r => r.end).filter(Boolean) as Date[];
-      
-      const start = starts.length ? new Date(Math.min(...starts.map(d => d.getTime()))) : undefined;
-      const end = ends.length ? new Date(Math.max(...ends.map(d => d.getTime()))) : undefined;
-      const duration = start && end ? differenceInDays(end, start) + 1 : undefined;
-      
-      const result = { start, end, duration };
-      cache.set(itemId, result);
-      return result;
-    };
-    
-    // Compute only for parents
-    parentChildMap.parentSet.forEach(parentId => compute(parentId));
-    
-    return cache;
-  }, [items, parentChildMap]);
-
-  // Optimized parent date calculation
-  const calculateParentDates = React.useCallback(async (parentId: string) => {
-    const childIds = parentChildMap.map.get(parentId);
-    if (!childIds?.length) return;
-    
-    const childrenWithDates = childIds
-      .map(id => items.find(i => i.id === id))
-      .filter(child => child?.start_date && child?.end_date) as typeof items;
-    
-    if (childrenWithDates.length === 0) return;
-    
-    const startTimes = childrenWithDates.map(c => new Date(c.start_date!).getTime());
-    const endTimes = childrenWithDates.map(c => new Date(c.end_date!).getTime());
-    
-    const earliestStart = new Date(Math.min(...startTimes));
-    const latestEnd = new Date(Math.max(...endTimes));
-    const calculatedDuration = differenceInDays(latestEnd, earliestStart) + 1;
-    
-    await Promise.resolve(onItemUpdate(parentId, {
-      start_date: earliestStart.toISOString().split('T')[0],
-      end_date: latestEnd.toISOString().split('T')[0],
-      duration: calculatedDuration
-    }));
-  }, [items, parentChildMap.map, onItemUpdate]);
-
-  // Enhanced handler with Finish-to-Start dependency logic
+  // Simplified handler for flat structure - no rollup calculations
   const handleItemUpdate = React.useCallback(async (itemId: string, updates: any) => {
     // Check if this task has Finish-to-Start predecessors that should lock its start date
     const item = items.find(i => i.id === itemId);
@@ -220,43 +109,9 @@ export const WBSTimeRightPanel = ({
         await autoScheduleDependentWBSTasks(itemId, flatItems, (id, updates) => 
           Promise.resolve(onItemUpdate(id, updates))
         );
-        
-        // Find all ancestor parents efficiently
-        const updateAncestors = async (childId: string, visited = new Set<string>()) => {
-          if (visited.has(childId)) return;
-          visited.add(childId);
-          
-          const child = items.find(i => i.id === childId);
-          if (!child) return;
-          
-          // Find direct parent
-          let parentId = child.parent_id;
-          
-          // Fallback to WBS parent
-          if (!parentId && child.wbs_id) {
-            const childBase = child.wbs_id.endsWith('.0') ? child.wbs_id.slice(0, -2) : child.wbs_id;
-            const childSegs = childBase.split('.');
-            if (childSegs.length > 1) {
-              const parentBase = childSegs.slice(0, -1).join('.');
-              const parent = items.find(p => {
-                if (!p.wbs_id || visited.has(p.id)) return false;
-                const pBase = p.wbs_id.endsWith('.0') ? p.wbs_id.slice(0, -2) : p.wbs_id;
-                return pBase === parentBase;
-              });
-              parentId = parent?.id;
-            }
-          }
-          
-          if (parentId && !visited.has(parentId)) {
-            await calculateParentDates(parentId);
-            await updateAncestors(parentId, visited);
-          }
-        };
-        
-        await updateAncestors(itemId);
       }, 200);
     }
-  }, [items, onItemUpdate, calculateParentDates]);
+  }, [items, onItemUpdate]);
 
   // Cleanup
   React.useEffect(() => () => timeoutRef.current && clearTimeout(timeoutRef.current), []);
@@ -309,13 +164,7 @@ export const WBSTimeRightPanel = ({
       {items.map((item) => (
         <div
           key={item.id}
-          className={`grid items-center w-full border-b border-gray-100 ${
-            item.level === 0 
-              ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 hover:from-blue-50 hover:to-blue-100 border-l-[6px] border-blue-800 shadow-sm' 
-              : item.level === 1
-              ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 hover:from-blue-100 hover:to-blue-200 border-l-[4px] border-blue-400'
-              : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-          } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+          className={`grid items-center w-full border-b border-gray-100 bg-white hover:bg-slate-50/50 transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
           style={{
             gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
             height: '28px', // Match WBSLeftPanel exactly
@@ -324,110 +173,53 @@ export const WBSTimeRightPanel = ({
           onMouseLeave={() => onRowHover?.(null)}
         >
             <div className="px-2 flex items-center text-xs text-muted-foreground">
-                {(() => {
-                  const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                  // Elements (level 2) should show rollup from Tasks, Tasks (level 3 or category 'Task') should be editable
-                  const isParent = (item.level === 0 || item.level === 1) || 
-                    (item.level === 2 && (parentChildMap.map.get(item.id)?.length || 0) > 0);
-                  const isTask = item.category === 'Task' || (item.level >= 3);
-                  
-                  if (isParent && !isTask) {
-                    const rollup = rollupDates.get(item.id);
-                    const d = rollup?.start;
-                    return (
-                      <span className="text-xs text-muted-foreground">
-                        {d ? format(d, 'MMM dd, yyyy') : '-'}
-                      </span>
-                    );
-                  }
-                  return (
-                    <div className="flex items-center w-full">
-                      <DatePickerCell
-                        id={item.id}
-                        type={type}
-                        field="start_date"
-                        value={item.start_date}
-                        placeholder="Start date"
-                        className="text-xs text-muted-foreground"
-                        onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
-                        onCalculate={handleDateCalculation}
-                        currentItem={item}
-                      />
-                      <DependencyLockIndicator item={item} field="start_date" />
-                    </div>
-                  );
-                })()}
+              <div className="flex items-center w-full">
+                <DatePickerCell
+                  id={item.id}
+                  type="task"
+                  field="start_date"
+                  value={item.start_date}
+                  placeholder="Start date"
+                  className="text-xs text-muted-foreground"
+                  onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                  onCalculate={handleDateCalculation}
+                  currentItem={item}
+                />
+                <DependencyLockIndicator item={item} field="start_date" />
+              </div>
             </div>
 
             <div className="px-2 flex items-end text-xs text-muted-foreground">
-              {(() => {
-                const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                // Elements (level 2) should show rollup from Tasks, Tasks (level 3 or category 'Task') should be editable
-                const isParent = (item.level === 0 || item.level === 1) || 
-                  (item.level === 2 && (parentChildMap.map.get(item.id)?.length || 0) > 0);
-                const isTask = item.category === 'Task' || (item.level >= 3);
-                
-                if (isParent && !isTask) {
-                  const rollup = rollupDates.get(item.id);
-                  const d = rollup?.end;
-                  return (
-                    <span className="text-xs text-muted-foreground">
-                      {d ? format(d, 'MMM dd, yyyy') : '-'}
-                    </span>
-                  );
-                }
-                return (
-                  <div className="flex items-center w-full">
-                    <DatePickerCell
-                      id={item.id}
-                      type={type}
-                      field="end_date"
-                      value={item.end_date}
-                      placeholder="End date"
-                      className="text-xs text-muted-foreground"
-                      onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
-                      onCalculate={handleDateCalculation}
-                      currentItem={item}
-                    />
-                    <DependencyLockIndicator item={item} field="end_date" />
-                  </div>
-                );
-              })()}
+              <div className="flex items-center w-full">
+                <DatePickerCell
+                  id={item.id}
+                  type="task"
+                  field="end_date"
+                  value={item.end_date}
+                  placeholder="End date"
+                  className="text-xs text-muted-foreground"
+                  onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                  onCalculate={handleDateCalculation}
+                  currentItem={item}
+                />
+                <DependencyLockIndicator item={item} field="end_date" />
+              </div>
             </div>
 
             <div className="px-2 flex items-end text-xs text-muted-foreground">
-              {(() => {
-                const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                // Elements (level 2) should show rollup from Tasks, Tasks (level 3 or category 'Task') should be editable
-                const isParent = (item.level === 0 || item.level === 1) || 
-                  (item.level === 2 && (parentChildMap.map.get(item.id)?.length || 0) > 0);
-                const isTask = item.category === 'Task' || (item.level >= 3);
-                
-                if (isParent && !isTask) {
-                  const rollup = rollupDates.get(item.id);
-                  const d = rollup?.duration ?? item.duration;
-                  return (
-                    <div className="w-full h-full flex items-end">
-                      <span className="text-xs leading-none text-muted-foreground">{d ? `${d}d` : '-'}</span>
-                    </div>
-                  );
-                }
-                return (
-                  <DurationCell
-                    id={item.id}
-                    type={type}
-                    value={item.duration || 0}
-                    className="text-xs text-muted-foreground"
-                    onUpdate={handleDurationCalculation}
-                  />
-                );
-              })()}
+              <DurationCell
+                id={item.id}
+                type="task"
+                value={item.duration || 0}
+                className="text-xs text-muted-foreground"
+                onUpdate={handleDurationCalculation}
+              />
             </div>
 
             <div className="px-2 flex items-center text-xs text-muted-foreground">
               <PredecessorCell
                 id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                type="task"
                 value={item.predecessors || []}
                 availableItems={items.map(i => ({
                   id: i.id,

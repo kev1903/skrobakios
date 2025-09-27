@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 
 interface DurationCellProps {
   id: string;
-  type: 'phase' | 'component' | 'element';
+  type: 'phase' | 'component' | 'element' | 'task';
   value?: number;
   className?: string;
   onUpdate?: (id: string, field: string, value: number) => void;
@@ -24,8 +24,8 @@ export const DurationCell = ({
     setInputValue(value.toString());
   }, [value]);
   
-  // Only allow editing for elements (level 2)
-  const isEditable = type === 'element';
+  // In flat structure, all items are editable
+  const isEditable = true;
 
   const handleSave = () => {
     if (!isEditable) return;
@@ -72,7 +72,7 @@ export const DurationCell = ({
           setIsEditing(true);
         }
       }}
-      title={isEditable ? "Click to edit duration (days)" : "Auto-calculated duration"}
+      title="Click to edit duration (days)"
     >
       <span className="text-xs leading-none text-muted-foreground">
         {value > 0 ? `${value}d` : '-'}

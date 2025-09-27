@@ -31,7 +31,7 @@ interface AvailableWBSItem {
 
 interface PredecessorCellProps {
   id: string;
-  type: 'phase' | 'component' | 'element';
+  type: 'phase' | 'component' | 'element' | 'task';
   value?: WBSPredecessor[]; // Array of structured predecessors
   availableItems: AvailableWBSItem[];
   allItems?: WBSItem[]; // Full WBS items for validation
