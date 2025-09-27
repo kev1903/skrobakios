@@ -1484,7 +1484,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        <div 
                          style={{
                            width: '100%',
-                           height: '500px',
+                           height: 'calc(100vh - 150px)',
                            border: '2px solid #e5e7eb',
                            backgroundColor: 'white',
                            overflow: 'scroll',
@@ -1584,10 +1584,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        <div 
                          style={{
                            width: '100%',
-                           height: '300px',
-                           border: '3px solid red',
+                           height: 'calc(100vh - 150px)',
+                           border: '2px solid #e5e7eb',
                            backgroundColor: 'white',
-                           position: 'relative'
+                           overflow: 'scroll',
+                           overflowX: 'auto',
+                           overflowY: 'scroll'
                          }}
                        >
                          <div
