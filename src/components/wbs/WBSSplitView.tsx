@@ -148,7 +148,7 @@ export const WBSSplitView = ({
             {/* Right Content with synchronized scrolling */}
             <div 
               ref={rightScrollRef}
-              className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+              className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin"
               onScroll={handleRightScroll}
             >
               <WBSRightPanel
