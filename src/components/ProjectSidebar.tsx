@@ -141,7 +141,7 @@ export const ProjectSidebar = ({
         </div>
 
         {/* Project Navigation Items */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
           <div className="px-4 py-4 space-y-6">
             
             {!hasProjectManagement && (
