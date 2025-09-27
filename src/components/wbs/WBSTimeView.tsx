@@ -42,21 +42,8 @@ export const WBSTimeView = ({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const isSyncingRef = useRef(false);
 
-  // Simplified scroll handlers to match Scope tab pattern
-  const handleWBSContentScroll = useCallback(() => {
-    if (isSyncingRef.current) return;
-    isSyncingRef.current = true;
-    
-    if (wbsContentScrollRef.current && timelineContentScrollRef.current) {
-      timelineContentScrollRef.current.scrollTop = wbsContentScrollRef.current.scrollTop;
-    }
-    
-    requestAnimationFrame(() => {
-      isSyncingRef.current = false;
-    });
-  }, []);
-
-  const handleTimelineContentScroll = useCallback(() => {
+  // Master scroll handler - Gantt section controls all scrolling
+  const handleMasterScroll = useCallback(() => {
     if (isSyncingRef.current) return;
     isSyncingRef.current = true;
     
@@ -132,11 +119,10 @@ export const WBSTimeView = ({
               </div>
             </div>
             
-            {/* Left Content with synchronized scrolling */}
+            {/* Left Content - no scroll handler, controlled by master scroll */}
             <div 
               ref={wbsContentScrollRef}
-              className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
-              onScroll={handleWBSContentScroll}
+              className="flex-1 overflow-y-hidden overflow-x-hidden scrollbar-hide"
             >
               <WBSLeftPanel
                 items={items.map(item => ({
@@ -196,11 +182,11 @@ export const WBSTimeView = ({
               </ResizablePanelGroup>
             </div>
             
-            {/* Right Content with synchronized scrolling */}
+            {/* Right Content - Master scroll controller */}
             <div 
               ref={timelineContentScrollRef}
               className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin"
-              onScroll={handleTimelineContentScroll}
+              onScroll={handleMasterScroll}
             >
               <ResizablePanelGroup direction="horizontal" className="h-full">
                 {/* Data Columns Section */}
