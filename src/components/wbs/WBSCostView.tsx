@@ -71,7 +71,7 @@ export const WBSCostView = ({
             </div>
             
             {/* Left Content */}
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-auto scrollbar-hide">
               <WBSLeftPanel
                 items={items}
                 onToggleExpanded={onToggleExpanded}
@@ -113,7 +113,7 @@ export const WBSCostView = ({
             </div>
             
             {/* Right Content */}
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-auto scrollbar-thin">
               <WBSCostRightPanel
                 items={items}
                 onItemUpdate={onItemUpdate}
