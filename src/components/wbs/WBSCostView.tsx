@@ -62,16 +62,17 @@ export const WBSCostView = ({
     <div className="h-full w-full bg-white flex flex-col overflow-hidden">
       {/* Combined Header and Content Area - Scrollable Together */}
       <div 
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-visible" 
+        className="flex-1 min-h-0 overflow-y-scroll overflow-x-hidden scrollbar-always-visible" 
         style={{ 
           height: 'calc(100vh - 200px)',
-          maxHeight: 'calc(100vh - 200px)'
+          maxHeight: 'calc(100vh - 200px)',
+          minHeight: '400px' // Ensure minimum height to show scrollbar
         }}  
       >
-        <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+        <ResizablePanelGroup direction="horizontal" className="h-full w-full" style={{ minHeight: '800px' }}>
           {/* Left Section - WBS Structure */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div className="h-full border-r border-gray-200">
+            <div className="h-full border-r border-gray-200" style={{ minHeight: '800px' }}>
               {/* Left Header */}
               <div className="h-[60px] bg-slate-100/70 border-b border-slate-200 sticky top-0 z-30">
                 <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
@@ -106,7 +107,7 @@ export const WBSCostView = ({
           
           {/* Right Section - Cost Data */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <div className="h-full overflow-hidden">
+            <div className="h-full overflow-hidden" style={{ minHeight: '800px' }}>
               {/* Right Header */}
               <div className="h-[60px] bg-slate-100/70 border-b border-slate-200 sticky top-0 z-30">
                 <div 
@@ -155,6 +156,9 @@ export const WBSCostView = ({
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+      
+      {/* Extra padding to ensure scrollbar is always visible */}
+      <div style={{ height: '50px', minHeight: '50px' }} className="bg-transparent"></div>
     </div>
   );
 };
