@@ -138,18 +138,26 @@ export const WBSLeftPanel = ({
                           {/* Always show chevron for items with children, regardless of expand/collapse state */}
                           {itemHasChildren ? (
                             <button
+                              type="button"
                               onClick={(e) => {
+                                console.log('🔴 Button clicked - preventing default and stopping propagation');
+                                e.preventDefault();
                                 e.stopPropagation();
                                 console.log('🔴 Chevron clicked for item:', item.id, 'current isExpanded:', item.isExpanded, 'hasChildren:', itemHasChildren);
                                 onToggleExpanded(item.id);
                               }}
-                              className="mr-2 p-0.5 rounded hover:bg-accent/20 transition-colors flex-shrink-0"
+                              onMouseDown={(e) => {
+                                console.log('🟠 Mouse down on chevron for:', item.id);
+                                e.stopPropagation();
+                              }}
+                              className="mr-2 p-1 rounded hover:bg-accent/20 transition-colors flex-shrink-0 cursor-pointer z-10 relative"
+                              style={{ pointerEvents: 'auto' }}
                               title={isExpanded ? "Collapse children" : "Expand children"}
                             >
                               {isExpanded ? (
-                                <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                                <ChevronDown className="w-3 h-3 text-muted-foreground pointer-events-none" />
                               ) : (
-                                <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                                <ChevronRight className="w-3 h-3 text-muted-foreground pointer-events-none" />
                               )}
                             </button>
                           ) : (
