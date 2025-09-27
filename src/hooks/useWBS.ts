@@ -132,7 +132,20 @@ export const useWBS = (projectId: string) => {
           Object.prototype.hasOwnProperty.call(updates, 'status');
 
         if (touchesProgressOrStatus) {
-          updated = updateParentRollups(updated, id);
+          const rollupResult = updateParentRollups(updated, id);
+          updated = rollupResult.updatedItems;
+          
+          // Save parent rollup updates to database
+          rollupResult.parentsToUpdate.forEach(async (parentUpdate) => {
+            try {
+              await WBSService.updateWBSItem(parentUpdate.id, {
+                progress: parentUpdate.progress,
+                status: parentUpdate.status
+              });
+            } catch (error) {
+              console.error('Failed to save parent rollup:', error);
+            }
+          });
         }
 
         const touchesSchedule =

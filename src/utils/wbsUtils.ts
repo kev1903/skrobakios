@@ -368,7 +368,7 @@ export const calculateRollupProgress = (item: WBSItem): number => {
 };
 
 // Calculate rollup status for parent items based on children
-export const calculateRollupStatus = (item: WBSItem): string => {
+export const calculateRollupStatus = (item: WBSItem): WBSItem['status'] => {
   if (!item.children || item.children.length === 0) {
     return item.status || 'Not Started';
   }
@@ -400,7 +400,9 @@ export const calculateRollupStatus = (item: WBSItem): string => {
 };
 
 // Update parent items with rollup calculations
-export const updateParentRollups = (items: WBSItem[], changedItemId: string): WBSItem[] => {
+export const updateParentRollups = (items: WBSItem[], changedItemId: string): { updatedItems: WBSItem[], parentsToUpdate: Array<{id: string, progress: number, status: WBSItem['status']}> } => {
+  const parentsToUpdate: Array<{id: string, progress: number, status: WBSItem['status']}> = [];
+  
   const updateItem = (item: WBSItem): WBSItem => {
     // Update children first (recursive)
     const updatedChildren = item.children ? item.children.map(updateItem) : [];
@@ -412,17 +414,28 @@ export const updateParentRollups = (items: WBSItem[], changedItemId: string): WB
     );
     
     if (hasChangedChild && updatedChildren.length > 0) {
+      const newProgress = calculateRollupProgress(updatedItem);
+      const newStatus = calculateRollupStatus(updatedItem);
+      
+      // Track this parent for database update
+      parentsToUpdate.push({
+        id: item.id,
+        progress: newProgress,
+        status: newStatus
+      });
+      
       return {
         ...updatedItem,
-        progress: calculateRollupProgress(updatedItem),
-        status: calculateRollupStatus(updatedItem) as any
+        progress: newProgress,
+        status: newStatus
       };
     }
     
     return updatedItem;
   };
   
-  return items.map(updateItem);
+  const updatedItems = items.map(updateItem);
+  return { updatedItems, parentsToUpdate };
 };
 
 // Helper function to check if an item has a descendant with given ID
