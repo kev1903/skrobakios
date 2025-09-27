@@ -213,11 +213,15 @@ export const WBSTimeView = ({
                     ref={timelineHeaderHorizontalScrollRef}
                     className="h-full overflow-x-auto scrollbar-hide"
                     onScroll={handleTimelineHeaderScroll}
+                    style={{ 
+                      minWidth: `${timelineDays.length * 32}px`
+                    }}
                   >
                     <div 
                       className="text-xs font-medium text-gray-700 flex h-full"
                       style={{ 
-                        minWidth: `${timelineDays.length * 32}px`
+                        minWidth: `${timelineDays.length * 32}px`,
+                        width: `${timelineDays.length * 32}px`
                       }}
                     >
                       <div className="flex h-full">
