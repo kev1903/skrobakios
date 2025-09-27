@@ -42,7 +42,7 @@ export const WBSTimeView = ({
   const headerHorizScrollRef = useRef<HTMLDivElement>(null);
   const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const isScrollingSyncRef = useRef(false);
+  const [scrollTop, setScrollTop] = useState(0);
 
   const handleTimelineHorizontalScroll = useCallback(() => {
     if (headerHorizScrollRef.current && bodyHorizScrollRef.current) {
@@ -50,58 +50,23 @@ export const WBSTimeView = ({
     }
   }, []);
 
-  const syncVerticalScroll = useCallback((sourceElement: HTMLDivElement, sourceScrollTop: number) => {
-    if (isScrollingSyncRef.current) return;
-    
-    isScrollingSyncRef.current = true;
-    
-    // Sync all other elements except the source
-    if (leftScrollRef.current && leftScrollRef.current !== sourceElement) {
-      leftScrollRef.current.scrollTop = sourceScrollTop;
+  // Use useEffect to sync scroll positions
+  React.useEffect(() => {
+    if (leftScrollRef.current) {
+      leftScrollRef.current.scrollTop = scrollTop;
     }
-    if (rightScrollRef.current && rightScrollRef.current !== sourceElement) {
-      rightScrollRef.current.scrollTop = sourceScrollTop;
+    if (rightScrollRef.current) {
+      rightScrollRef.current.scrollTop = scrollTop;
     }
-    if (ganttScrollRef.current && ganttScrollRef.current !== sourceElement) {
-      ganttScrollRef.current.scrollTop = sourceScrollTop;
+    if (ganttScrollRef.current) {
+      ganttScrollRef.current.scrollTop = scrollTop;
     }
-    
-    // Reset flag after a short delay to allow all scroll events to complete
-    setTimeout(() => {
-      isScrollingSyncRef.current = false;
-    }, 10);
+  }, [scrollTop]);
+
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const newScrollTop = e.currentTarget.scrollTop;
+    setScrollTop(newScrollTop);
   }, []);
-
-  const handleRightScroll = useCallback(() => {
-    if (!isScrollingSyncRef.current && rightScrollRef.current) {
-      syncVerticalScroll(rightScrollRef.current, rightScrollRef.current.scrollTop);
-    }
-  }, [syncVerticalScroll]);
-
-  const handleLeftScroll = useCallback(() => {
-    if (!isScrollingSyncRef.current && leftScrollRef.current) {
-      syncVerticalScroll(leftScrollRef.current, leftScrollRef.current.scrollTop);
-    }
-  }, [syncVerticalScroll]);
-
-  // Keep separate handler for direct scroll events
-  const handleRightScrollEvent = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    if (!isScrollingSyncRef.current && rightScrollRef.current) {
-      syncVerticalScroll(rightScrollRef.current, e.currentTarget.scrollTop);
-    }
-  }, [syncVerticalScroll]);
-
-  const handleLeftScrollEvent = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    if (!isScrollingSyncRef.current && leftScrollRef.current) {
-      syncVerticalScroll(leftScrollRef.current, e.currentTarget.scrollTop);
-    }
-  }, [syncVerticalScroll]);
-
-  const handleGanttScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    if (!isScrollingSyncRef.current && ganttScrollRef.current) {
-      syncVerticalScroll(ganttScrollRef.current, e.currentTarget.scrollTop);
-    }
-  }, [syncVerticalScroll]);
 
   // Simplified item update handler
   const handleItemUpdate = useCallback(async (itemId: string, updates: any) => {
@@ -241,7 +206,7 @@ export const WBSTimeView = ({
                 <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
                   <div className="h-full border-r border-gray-200 bg-white flex flex-col">
                     <div className="flex-1 overflow-hidden">
-                      <div ref={leftScrollRef} className="h-full overflow-y-scroll overflow-x-hidden scrollbar-hide" onScroll={handleLeftScrollEvent}>
+                      <div ref={leftScrollRef} className="h-full overflow-y-scroll overflow-x-hidden scrollbar-hide" onScroll={handleScroll}>
                         <WBSLeftPanel
                           items={items.map(item => ({
                             ...item,
@@ -257,7 +222,7 @@ export const WBSTimeView = ({
                           EditableCell={EditableCell}
                           generateWBSNumber={generateWBSNumber}
                           scrollRef={leftScrollRef}
-                          onScroll={handleLeftScroll}
+                          onScroll={() => {}}
                           hoveredId={hoveredId}
                           onRowHover={setHoveredId}
                         />
@@ -272,7 +237,7 @@ export const WBSTimeView = ({
                 <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
                   <div className="h-full border-r border-gray-200 bg-white flex flex-col">
                     <div className="flex-1 overflow-hidden">
-                      <div ref={rightScrollRef} className="h-full overflow-y-auto overflow-x-hidden" onScroll={handleRightScrollEvent}>
+                      <div ref={rightScrollRef} className="h-full overflow-y-auto overflow-x-hidden" onScroll={handleScroll}>
                         <WBSTimeRightPanel
                           items={items}
                           onItemUpdate={handleItemUpdate}
@@ -282,7 +247,7 @@ export const WBSTimeView = ({
                           EditableCell={EditableCell}
                           StatusSelect={StatusSelect}
                           scrollRef={rightScrollRef}
-                          onScroll={handleRightScroll}
+                          onScroll={() => {}}
                           hoveredId={hoveredId}
                           onRowHover={setHoveredId}
                         />
@@ -301,7 +266,7 @@ export const WBSTimeView = ({
             <div 
               ref={ganttScrollRef}
               className="h-full overflow-x-auto overflow-y-auto bg-white"
-              onScroll={handleGanttScroll}
+              onScroll={handleScroll}
             >
               <div className="min-w-fit">
                 <GanttChart 
