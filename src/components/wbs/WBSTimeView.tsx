@@ -41,6 +41,7 @@ export const WBSTimeView = ({
 }: WBSTimeViewProps) => {
   const wbsContentScrollRef = useRef<HTMLDivElement>(null);
   const dataColumnsScrollRef = useRef<HTMLDivElement>(null);
+  const dataColumnsHeaderScrollRef = useRef<HTMLDivElement>(null);
   const timelineHeaderScrollRef = useRef<HTMLDivElement>(null);
   const timelineContentScrollRef = useRef<HTMLDivElement>(null);
   const timelineHeaderHorizontalScrollRef = useRef<HTMLDivElement>(null);
@@ -96,6 +97,35 @@ export const WBSTimeView = ({
     const scrollLeft = e.currentTarget.scrollLeft;
     if (timelineHeaderHorizontalScrollRef.current) {
       timelineHeaderHorizontalScrollRef.current.scrollLeft = scrollLeft;
+    }
+    
+    requestAnimationFrame(() => {
+      isHorizontalSyncingRef.current = false;
+    });
+  }, []);
+
+  // Data columns header and content sync handlers
+  const handleDataColumnsHeaderScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (isHorizontalSyncingRef.current) return;
+    isHorizontalSyncingRef.current = true;
+    
+    const scrollLeft = e.currentTarget.scrollLeft;
+    if (dataColumnsScrollRef.current) {
+      dataColumnsScrollRef.current.scrollLeft = scrollLeft;
+    }
+    
+    requestAnimationFrame(() => {
+      isHorizontalSyncingRef.current = false;
+    });
+  }, []);
+
+  const handleDataColumnsContentScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (isHorizontalSyncingRef.current) return;
+    isHorizontalSyncingRef.current = true;
+    
+    const scrollLeft = e.currentTarget.scrollLeft;
+    if (dataColumnsHeaderScrollRef.current) {
+      dataColumnsHeaderScrollRef.current.scrollLeft = scrollLeft;
     }
     
     requestAnimationFrame(() => {
@@ -407,7 +437,11 @@ export const WBSTimeView = ({
               >
                 {/* Data Columns Header */}
                 <ResizablePanel defaultSize={rightPanelSizes[0]} minSize={30} maxSize={70}>
-                  <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full overflow-x-auto scrollbar-hide">
+                  <div 
+                    ref={dataColumnsHeaderScrollRef}
+                    className="px-2 py-1 text-xs font-medium text-slate-700 h-full overflow-x-auto scrollbar-hide"
+                    onScroll={handleDataColumnsHeaderScroll}
+                  >
                     <div className="grid items-center h-full min-w-fit" style={{
                       gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
                     }}>
@@ -493,7 +527,8 @@ export const WBSTimeView = ({
                 <ResizablePanel defaultSize={rightPanelSizes[0]} minSize={30} maxSize={70}>
                   <div 
                     ref={dataColumnsScrollRef}
-                    className="h-full overflow-hidden"
+                    className="h-full overflow-auto"
+                    onScroll={handleDataColumnsContentScroll}
                   >
                     <WBSTimeRightPanel
                       items={items}
