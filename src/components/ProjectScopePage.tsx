@@ -1571,7 +1571,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         </div>
                       </div>
                     ) : (
-                       <div className="h-full overflow-y-auto overflow-x-hidden">
+                        <div 
+                          className="h-full overflow-y-auto overflow-x-hidden"
+                          style={{ marginRight: 'calc(var(--ai-chat-offset, 0px) + 2rem)' }}
+                        >
                        <WBSCostView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
