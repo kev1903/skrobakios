@@ -29,7 +29,7 @@ interface WBSTimeRightPanelProps {
   onClearAllDates?: () => void;
   EditableCell: any;
   StatusSelect: any;
-  scrollRef?: React.RefObject<HTMLDivElement>;
+  scrollRef: React.RefObject<HTMLDivElement>;
   onScroll?: () => void;
   hoveredId?: string | null;
   onRowHover?: (id: string | null) => void;
@@ -302,7 +302,7 @@ export const WBSTimeRightPanel = ({
     handleItemUpdate(id, updates);
   }, [items, handleItemUpdate]);
   // Determine if we're in unified scroll mode (parent handles scrolling)
-  const useUnifiedScroll = true; // Use unified scroll mode
+  const useUnifiedScroll = false; // Always use separate scroll containers
   
   const content = (
     <div className="h-full bg-white overflow-hidden" style={{ minWidth: '720px' }}>

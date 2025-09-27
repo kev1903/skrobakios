@@ -22,7 +22,7 @@ interface WBSLeftPanelProps {
   dragIndicator: any;
   EditableCell: any;
   generateWBSNumber: (phaseIndex: number, componentIndex?: number, elementIndex?: number) => string;
-  scrollRef?: React.RefObject<HTMLDivElement>;
+  scrollRef: React.RefObject<HTMLDivElement>;
   onScroll?: () => void;
   hoveredId?: string | null;
   onRowHover?: (id: string | null) => void;
@@ -51,7 +51,7 @@ export const WBSLeftPanel = ({
   onRowHover
 }: WBSLeftPanelProps) => {
   // Determine if we're in unified scroll mode (parent handles scrolling)  
-  const useUnifiedScroll = true; // Use unified scroll mode
+  const useUnifiedScroll = false; // Always use separate scroll containers
   
   const content = (
     <DragDropContext onDragEnd={onDragEnd}>
