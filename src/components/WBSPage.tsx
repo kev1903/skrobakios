@@ -75,12 +75,30 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
     const newWBSId = generateWBSId(parentId);
     const parentItem = parentId ? findWBSItem(parentId) : null;
     
+    // Determine category based on level
+    let category: 'Stage' | 'Component' | 'Element' | 'Task' = 'Stage';
+    let title = 'New Stage';
+    
+    if (parentItem) {
+      const level = parentItem.level + 1;
+      if (level === 1) {
+        category = 'Component';
+        title = 'New Component';
+      } else if (level === 2) {
+        category = 'Element'; 
+        title = 'New Element';
+      } else if (level >= 3) {
+        category = 'Task';
+        title = 'New Task';
+      }
+    }
+    
     const newItem = {
       company_id: project.company_id,
       project_id: project.id,
       parent_id: parentId,
       wbs_id: newWBSId,
-      title: 'New Work Package',
+      title: title,
       description: '',
       assigned_to: '',
       start_date: '',
@@ -90,6 +108,8 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
       actual_cost: 0,
       progress: 0,
       level: parentItem ? parentItem.level + 1 : 0,
+      category: category,
+      status: 'Not Started' as const,
       is_expanded: false,
       linked_tasks: [],
     };
@@ -98,8 +118,43 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
     if (createdItem) {
       setEditingId(createdItem.id);
       toast({
-        title: "WBS Item Created",
-        description: "New work package has been added to the WBS.",
+        title: `${category} Created`,
+        description: `New ${category.toLowerCase()} has been added to the WBS.`,
+      });
+    }
+  };
+
+  const addTask = async (parentId: string) => {
+    const newWBSId = generateWBSId(parentId);
+    const parentItem = findWBSItem(parentId);
+    
+    const newItem = {
+      company_id: project.company_id,
+      project_id: project.id,
+      parent_id: parentId,
+      wbs_id: newWBSId,
+      title: 'New Task',
+      description: '',
+      assigned_to: '',
+      start_date: '',
+      end_date: '',
+      duration: 0,
+      budgeted_cost: 0,
+      actual_cost: 0,
+      progress: 0,
+      level: parentItem ? parentItem.level + 1 : 3,
+      category: 'Task' as const,
+      status: 'Not Started' as const,
+      is_expanded: false,
+      linked_tasks: [],
+    };
+
+    const createdItem = await createWBSItem(newItem);
+    if (createdItem) {
+      setEditingId(createdItem.id);
+      toast({
+        title: "Task Created",
+        description: "New task has been added to the element.",
       });
     }
   };
@@ -156,15 +211,29 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
             
             {/* Add child button in WBS column */}
             {!isEditing && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => addChildItem(item.id)}
-                className="h-7 px-2 ml-2"
-                title="Add child item"
-              >
-                <Plus className="w-3 h-3" />
-              </Button>
+              <div className="flex gap-1">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => addChildItem(item.id)}
+                  className="h-7 px-2"
+                  title="Add child item"
+                >
+                  <Plus className="w-3 h-3" />
+                </Button>
+                {/* Add Task button for Elements (level 2) */}
+                {item.level === 2 && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => addTask(item.id)}
+                    className="h-7 px-2 text-xs"
+                    title="Add task to this element"
+                  >
+                    Task
+                  </Button>
+                )}
+              </div>
             )}
           </div>
 
