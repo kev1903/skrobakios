@@ -63,7 +63,7 @@ export const WBSCostView = ({
     }
   }, []);
   return (
-    <div className="h-full w-full bg-white">
+    <div className="h-full w-full bg-white min-w-[1200px]">
       <ResizablePanelGroup direction="horizontal" className="h-full w-full">
         <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
           <div className="h-full flex flex-col">
