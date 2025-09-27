@@ -120,6 +120,15 @@ export const useWBS = (projectId: string) => {
     options?: { skipAutoSchedule?: boolean }
   ) => {
     try {
+      // Auto-sync progress and status
+      if (updates.status === 'Completed' && updates.progress !== 100) {
+        updates.progress = 100;
+        console.log('🔄 Auto-setting progress to 100% for completed task');
+      } else if (updates.progress === 100 && updates.status !== 'Completed') {
+        updates.status = 'Completed';
+        console.log('🔄 Auto-setting status to Completed for 100% progress task');
+      }
+
       await WBSService.updateWBSItem(id, updates);
 
       // Check if progress or status was updated to trigger parent rollups
