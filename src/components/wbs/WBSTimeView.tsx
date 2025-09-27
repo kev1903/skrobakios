@@ -166,48 +166,64 @@ export const WBSTimeView = ({
           <div className="h-full flex flex-col">
             {/* Right Header */}
             <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
-              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full overflow-x-auto scrollbar-hide">
-                <div className="grid items-center h-full min-w-fit" style={{
-                  gridTemplateColumns: '120px 120px 100px 140px 140px 120px 1fr',
-                }}>
-                  <div className="px-2 font-semibold text-center">START DATE</div>
-                  <div className="px-2 font-semibold text-center">END DATE</div>
-                  <div className="px-2 font-semibold text-center">DURATION</div>
-                  <div className="px-2 font-semibold text-center">PREDECESSORS</div>
-                  <div className="px-2 font-semibold text-center">STATUS</div>
-                  <div className="px-2 font-semibold text-center">ACTIONS</div>
-                  <div className="px-2 font-semibold text-center">TIMELINE</div>
-                </div>
-              </div>
+              <ResizablePanelGroup direction="horizontal" className="h-full">
+                {/* Data Columns Header */}
+                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                  <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full overflow-x-auto scrollbar-hide">
+                    <div className="grid items-center h-full min-w-fit" style={{
+                      gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
+                    }}>
+                      <div className="px-2 font-semibold text-center">START DATE</div>
+                      <div className="px-2 font-semibold text-center">END DATE</div>
+                      <div className="px-2 font-semibold text-center">DURATION</div>
+                      <div className="px-2 font-semibold text-center">PREDECESSORS</div>
+                      <div className="px-2 font-semibold text-center">STATUS</div>
+                      <div className="px-2 font-semibold text-center">ACTIONS</div>
+                    </div>
+                  </div>
+                </ResizablePanel>
+                
+                <ResizableHandle />
+                
+                {/* Timeline Header */}
+                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                  <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+                    <div className="flex items-center h-full">
+                      <div className="px-2 font-semibold text-center">TIMELINE</div>
+                    </div>
+                  </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
             </div>
             
             {/* Right Content with synchronized scrolling */}
             <div 
               ref={timelineContentScrollRef}
-              className="flex-1 overflow-y-auto overflow-x-auto scrollbar-thin"
+              className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin"
               onScroll={handleTimelineContentScroll}
             >
-              <div className="flex min-h-full">
+              <ResizablePanelGroup direction="horizontal" className="h-full">
                 {/* Data Columns Section */}
-                <div style={{ flex: '0 0 auto', width: '600px' }}>
-                  <WBSTimeRightPanel
-                    items={items}
-                    onItemUpdate={handleItemUpdate}
-                    onContextMenuAction={onContextMenuAction}
-                    onOpenNotesDialog={onOpenNotesDialog}
-                    onClearAllDates={onClearAllDates}
-                    EditableCell={EditableCell}
-                    StatusSelect={StatusSelect}
-                    hoveredId={hoveredId}
-                    onRowHover={setHoveredId}
-                  />
-                </div>
+                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                  <div className="h-full overflow-x-auto">
+                    <WBSTimeRightPanel
+                      items={items}
+                      onItemUpdate={handleItemUpdate}
+                      onContextMenuAction={onContextMenuAction}
+                      onOpenNotesDialog={onOpenNotesDialog}
+                      onClearAllDates={onClearAllDates}
+                      EditableCell={EditableCell}
+                      StatusSelect={StatusSelect}
+                      hoveredId={hoveredId}
+                      onRowHover={setHoveredId}
+                    />
+                  </div>
+                </ResizablePanel>
+                
+                <ResizableHandle />
                 
                 {/* Timeline Section */}
-                <div style={{ 
-                  flex: '1 1 auto',
-                  minWidth: `${timelineDays.length * 32}px`
-                }}>
+                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
                   <div 
                     className="h-full overflow-x-auto"
                     ref={timelineHeaderScrollRef}
@@ -271,8 +287,8 @@ export const WBSTimeView = ({
                       onRowHover={setHoveredId}
                     />
                   </div>
-                </div>
-              </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
             </div>
           </div>
         </ResizablePanel>
