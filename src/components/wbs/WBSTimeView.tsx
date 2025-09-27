@@ -297,24 +297,31 @@ export const WBSTimeView = ({
                       handleTimelineContentHorizontalScroll(e);
                     }}
                   >
-                    <GanttChart 
-                      items={items.map(item => ({
-                        ...item,
-                        name: item.title,
-                        wbsNumber: item.wbs_id || '',
-                        status: item.status || 'Not Started',
-                        predecessors: item.predecessors?.map(p => ({
-                          predecessorId: p.id,
-                          type: p.type,
-                          lag: p.lag
-                        })) || []
-                      }))} 
-                      timelineDays={timelineDays}
-                      className="relative z-20 w-full" 
-                      hideHeader 
-                      hoveredId={hoveredId}
-                      onRowHover={setHoveredId}
-                    />
+                    <div 
+                      className="relative z-20 w-full"
+                      style={{ 
+                        minWidth: `${timelineDays.length * 32}px`
+                      }}
+                    >
+                      <GanttChart 
+                        items={items.map(item => ({
+                          ...item,
+                          name: item.title,
+                          wbsNumber: item.wbs_id || '',
+                          status: item.status || 'Not Started',
+                          predecessors: item.predecessors?.map(p => ({
+                            predecessorId: p.id,
+                            type: p.type,
+                            lag: p.lag
+                          })) || []
+                        }))} 
+                        timelineDays={timelineDays}
+                        className="w-full" 
+                        hideHeader 
+                        hoveredId={hoveredId}
+                        onRowHover={setHoveredId}
+                      />
+                    </div>
                   </div>
                 </ResizablePanel>
               </ResizablePanelGroup>
