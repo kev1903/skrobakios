@@ -204,7 +204,7 @@ export const WBSTimeView = ({
       </div>
 
       {/* Unified Content Area with Single Scroll and Proper Height Constraints */}
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-visible" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden" style={{ maxHeight: 'calc(100vh - 200px)' }}>
         <ResizablePanelGroup direction="horizontal" className="min-h-full">
           {/* Left Side Content - WBS Structure + Data Columns */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
