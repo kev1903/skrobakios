@@ -1579,17 +1579,25 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       </div>
                      ) : (
                        <div 
-                         className="flex-1 min-w-0"
                          style={{
-                           height: '400px',
-                           overflow: 'scroll',
-                           overflowX: 'auto',
-                           overflowY: 'scroll',
-                           border: '2px solid #e5e7eb',
-                           scrollbarWidth: 'auto'
+                           width: '100%',
+                           height: '300px',
+                           border: '3px solid red',
+                           backgroundColor: 'white',
+                           position: 'relative'
                          }}
                        >
-                        <WBSCostView
+                         <div
+                           style={{
+                             width: '100%',
+                             height: '100%',
+                             overflow: 'scroll',
+                             WebkitOverflowScrolling: 'touch'
+                           }}
+                         >
+                           <div style={{ height: '1000px', width: '2000px', background: 'linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%)' }}>
+                             <div style={{ padding: '20px', fontSize: '16px', fontWeight: 'bold' }}>SCROLLABLE TEST CONTENT - This should have scrollbars</div>
+                             <WBSCostView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
                            const item = wbsItems.find(i => i.id === itemId);
@@ -1606,8 +1614,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                          EditableCell={EditableCell}
                          StatusSelect={StatusSelect}
                          generateWBSNumber={generateWBSNumber}
-                       />
-                      </div>
+                            />
+                           </div>
+                         </div>
+                       </div>
                     )}
                   </div>
                 </TabsContent>
