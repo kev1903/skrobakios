@@ -1461,13 +1461,12 @@ export const ProjectScopePage = ({
                          <div style={{
                       width: '100%',
                       height: '100%',
-                      overflow: 'scroll',
+                      overflow: 'hidden',
                       WebkitOverflowScrolling: 'touch'
                     }}>
                            <div style={{
-                        height: '1000px',
-                        width: '2000px',
-                        background: 'linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%)'
+                        height: '100%',
+                        width: '100%'
                       }}>
                              
                              <WBSCostView items={flatWBSItems} onToggleExpanded={itemId => {
