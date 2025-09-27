@@ -223,9 +223,10 @@ export const WBSTimeView = ({
                     ref={timelineHeaderScrollRef}
                   >
                     <div 
-                      className="text-xs font-medium text-gray-700 flex"
+                      className="text-xs font-medium text-gray-700 flex sticky top-0 bg-white border-b border-gray-200"
                       style={{ 
-                        minWidth: `${timelineDays.length * 32}px`
+                        minWidth: `${timelineDays.length * 32}px`,
+                        height: '32px' // Fixed height to match row height
                       }}
                     >
                       <div className="flex">
@@ -240,22 +241,22 @@ export const WBSTimeView = ({
                           return (
                             <div 
                               key={index}
-                              className={`flex-shrink-0 flex flex-col items-center justify-center border-r border-gray-200 ${
+                              className={`flex-shrink-0 flex items-center justify-center border-r border-gray-200 text-[10px] font-medium ${
                                 isToday ? 'bg-blue-100 text-blue-800 font-bold' : 
                                 isWeekend ? 'bg-gray-50 text-gray-500' : 'text-gray-700'
                               }`}
-                              style={{ width: 32, minWidth: 32 }}
+                              style={{ width: 32, minWidth: 32, height: '32px' }}
+                              title={format(day, 'EEE, MMM d, yyyy')}
                             >
-                              {isFirstDayOfMonth && (
-                                <div className="text-[6px] font-bold mb-0.5 text-blue-600">
-                                  {format(day, 'MMM').toUpperCase()}
+                              <div className="text-center">
+                                {isFirstDayOfMonth && (
+                                  <div className="text-[8px] font-bold text-blue-600 leading-none">
+                                    {format(day, 'MMM').toUpperCase()}
+                                  </div>
+                                )}
+                                <div className={`text-[10px] leading-none ${isToday ? 'font-bold' : 'font-semibold'}`}>
+                                  {format(day, 'd')}
                                 </div>
-                              )}
-                              <div className="text-[7px] font-medium mb-0.5">
-                                {format(day, 'EEE').toUpperCase()}
-                              </div>
-                              <div className={`text-[9px] ${isToday ? 'font-bold' : 'font-semibold'}`}>
-                                {format(day, 'd')}
                               </div>
                             </div>
                           );
