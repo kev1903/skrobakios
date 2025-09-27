@@ -76,28 +76,21 @@ export const WBSTimeView = ({
     });
   }, []);
 
-  // Horizontal scroll handler for timeline header and content sync
-  const handleTimelineHeaderScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+  // Unified timeline scroll handler - syncs header and content together
+  const handleTimelineScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     if (isHorizontalSyncingRef.current) return;
     isHorizontalSyncingRef.current = true;
     
     const scrollLeft = e.currentTarget.scrollLeft;
-    if (timelineContentScrollRef.current) {
-      timelineContentScrollRef.current.scrollLeft = scrollLeft;
-    }
     
-    requestAnimationFrame(() => {
-      isHorizontalSyncingRef.current = false;
-    });
-  }, []);
-
-  const handleTimelineContentHorizontalScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    if (isHorizontalSyncingRef.current) return;
-    isHorizontalSyncingRef.current = true;
-    
-    const scrollLeft = e.currentTarget.scrollLeft;
+    // Sync header when content scrolls
     if (timelineHeaderHorizontalScrollRef.current) {
       timelineHeaderHorizontalScrollRef.current.scrollLeft = scrollLeft;
+    }
+    
+    // Sync content when header scrolls
+    if (timelineContentScrollRef.current && timelineContentScrollRef.current !== e.currentTarget) {
+      timelineContentScrollRef.current.scrollLeft = scrollLeft;
     }
     
     requestAnimationFrame(() => {
@@ -463,7 +456,7 @@ export const WBSTimeView = ({
                   <div 
                     ref={timelineHeaderHorizontalScrollRef}
                     className="h-full overflow-x-auto scrollbar-hide"
-                    onScroll={handleTimelineHeaderScroll}
+                    onScroll={handleTimelineScroll}
                     style={{ 
                       minWidth: `${timelineDays.length * 32}px`,
                       width: `${timelineDays.length * 32}px`
@@ -556,7 +549,7 @@ export const WBSTimeView = ({
                     className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
                     onScroll={(e) => {
                       handleMasterScroll(e);
-                      handleTimelineContentHorizontalScroll(e);
+                      handleTimelineScroll(e);
                     }}
                   >
                     <div 
