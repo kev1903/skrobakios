@@ -1481,7 +1481,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        </div>
                      </div>
                      ) : (
-                       <div className="flex-1 min-w-0 h-[calc(100vh-250px)] overflow-auto border border-gray-200" style={{ scrollbarWidth: 'thin' }}>
+                       <div 
+                         className="flex-1 min-w-0 h-[600px] border border-red-500 bg-white"
+                         style={{
+                           overflow: 'auto',
+                           scrollbarWidth: 'auto',
+                           scrollbarColor: '#666 #f0f0f0'
+                         }}
+                       >
                         <WBSSplitView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
@@ -1571,7 +1578,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         </div>
                       </div>
                      ) : (
-                       <div className="flex-1 min-w-0 h-[calc(100vh-250px)] overflow-auto border border-gray-200" style={{ scrollbarWidth: 'thin' }}>
+                       <div 
+                         className="flex-1 min-w-0 h-[600px] border border-red-500 bg-white"
+                         style={{
+                           overflow: 'auto',
+                           scrollbarWidth: 'auto',
+                           scrollbarColor: '#666 #f0f0f0'
+                         }}
+                       >
                         <WBSCostView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
