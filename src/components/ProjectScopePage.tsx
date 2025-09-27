@@ -1570,14 +1570,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           </Button>
                         </div>
                       </div>
-                    ) : (
-                        <div 
-                          className="h-full overflow-y-auto overflow-x-hidden"
-                          style={{ marginRight: 'calc(var(--ai-chat-offset, 0px) + 1rem)' }}
-                        >
-                       <WBSCostView
-                         items={flatWBSItems}
-                         onToggleExpanded={(itemId) => {
+                     ) : (
+                        <WBSCostView
+                          items={flatWBSItems}
+                          onToggleExpanded={(itemId) => {
                            const item = wbsItems.find(i => i.id === itemId);
                            if (item) {
                              updateWBSItem(itemId, { is_expanded: !item.is_expanded });
@@ -1592,11 +1588,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                          EditableCell={EditableCell}
                          StatusSelect={StatusSelect}
                          generateWBSNumber={generateWBSNumber}
-                       />
-                      </div>
-                    )}
-                  </div>
-                </TabsContent>
+                        />
+                     )}
+                   </div>
+                 </TabsContent>
               </div>
             </Tabs>
           </div>
