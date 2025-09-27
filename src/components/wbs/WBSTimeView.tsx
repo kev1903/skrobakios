@@ -208,13 +208,14 @@ export const WBSTimeView = ({
                 <ResizableHandle />
                 
                 {/* Timeline Header */}
-                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                <ResizablePanel defaultSize={50} minSize={30} maxSize={70} className="timeline-header-panel">
                   <div 
                     ref={timelineHeaderHorizontalScrollRef}
                     className="h-full overflow-x-auto scrollbar-hide"
                     onScroll={handleTimelineHeaderScroll}
                     style={{ 
-                      minWidth: `${timelineDays.length * 32}px`
+                      minWidth: `${timelineDays.length * 32}px`,
+                      width: `${timelineDays.length * 32}px`
                     }}
                   >
                     <div 
@@ -292,7 +293,7 @@ export const WBSTimeView = ({
                 <ResizableHandle />
                 
                 {/* Timeline Section - Master scroll controller */}
-                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                <ResizablePanel defaultSize={50} minSize={30} maxSize={70} className="timeline-content-panel">
                   <div 
                     ref={timelineContentScrollRef}
                     className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
@@ -304,7 +305,8 @@ export const WBSTimeView = ({
                     <div 
                       className="relative z-20 w-full"
                       style={{ 
-                        minWidth: `${timelineDays.length * 32}px`
+                        minWidth: `${timelineDays.length * 32}px`,
+                        width: `${timelineDays.length * 32}px`
                       }}
                     >
                       <GanttChart 
