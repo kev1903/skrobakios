@@ -1460,7 +1460,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               </div>
 
               {/* Tab Contents */}
-              <div className="flex-1 w-full overflow-hidden">
+              <div className="flex-1 w-full">
 
               <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex">
                 <div className="h-full w-full flex flex-col">
