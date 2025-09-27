@@ -578,11 +578,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           onChange={(e) => setInputValue(e.target.value)}
           onBlur={handleSave}
           onKeyDown={handleKeyDown}
-          className={`w-8 h-4 text-xs p-0 text-center border-0 bg-transparent focus:bg-white focus:border focus:ring-1 ${className}`}
+          className={`w-8 h-4 text-xs p-0 text-center border-0 bg-transparent focus:bg-white focus:border focus:ring-1 ${className} [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]`}
           autoFocus
           type="number"
           min="0"
           max="100"
+          step="1"
+          pattern="[0-9]*"
         />
       );
     }
