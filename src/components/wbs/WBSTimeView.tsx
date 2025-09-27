@@ -36,79 +36,38 @@ export const WBSTimeView = ({
   StatusSelect,
   generateWBSNumber
 }: WBSTimeViewProps) => {
-  const wbsHeaderScrollRef = useRef<HTMLDivElement>(null);
   const wbsContentScrollRef = useRef<HTMLDivElement>(null);
-  const dataHeaderScrollRef = useRef<HTMLDivElement>(null);
-  const dataContentScrollRef = useRef<HTMLDivElement>(null);
   const timelineHeaderScrollRef = useRef<HTMLDivElement>(null);
   const timelineContentScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const isSyncingRef = useRef(false);
 
-  // Sync WBS horizontal scrolling
+  // Simplified scroll handlers to match Scope tab pattern
   const handleWBSContentScroll = useCallback(() => {
-    if (wbsHeaderScrollRef.current && wbsContentScrollRef.current) {
-      wbsHeaderScrollRef.current.scrollLeft = wbsContentScrollRef.current.scrollLeft;
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    
+    if (wbsContentScrollRef.current && timelineContentScrollRef.current) {
+      timelineContentScrollRef.current.scrollTop = wbsContentScrollRef.current.scrollTop;
     }
-  }, []);
-
-  // Sync Data Columns horizontal scrolling
-  const handleDataContentScroll = useCallback(() => {
-    if (dataHeaderScrollRef.current && dataContentScrollRef.current) {
-      dataHeaderScrollRef.current.scrollLeft = dataContentScrollRef.current.scrollLeft;
-    }
-  }, []);
-
-  // Sync Timeline horizontal scrolling
-  const handleTimelineContentScroll = useCallback(() => {
-    if (timelineHeaderScrollRef.current && timelineContentScrollRef.current) {
-      timelineHeaderScrollRef.current.scrollLeft = timelineContentScrollRef.current.scrollLeft;
-    }
-  }, []);
-
-  // Sync all scrolling when any content area scrolls
-  const handleSyncScroll = useCallback((source: 'wbs' | 'data' | 'timeline') => {
+    
     requestAnimationFrame(() => {
-      switch (source) {
-        case 'wbs':
-          handleWBSContentScroll();
-          break;
-        case 'data':
-          handleDataContentScroll();
-          break;
-        case 'timeline':
-          handleTimelineContentScroll();
-          break;
-      }
+      isSyncingRef.current = false;
     });
-  }, [handleWBSContentScroll, handleDataContentScroll, handleTimelineContentScroll]);
+  }, []);
 
-  // Effect to handle panel resize and maintain header alignment
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver(() => {
-      // Force scroll sync when panels are resized
-      requestAnimationFrame(() => {
-        handleSyncScroll('wbs');
-        handleSyncScroll('data');
-        handleSyncScroll('timeline');
-      });
+  const handleTimelineContentScroll = useCallback(() => {
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    
+    if (wbsContentScrollRef.current && timelineContentScrollRef.current) {
+      wbsContentScrollRef.current.scrollTop = timelineContentScrollRef.current.scrollTop;
+    }
+    
+    requestAnimationFrame(() => {
+      isSyncingRef.current = false;
     });
-
-    // Observe all panel elements
-    const panels = [
-      wbsHeaderScrollRef.current?.parentElement,
-      dataHeaderScrollRef.current?.parentElement,
-      timelineHeaderScrollRef.current?.parentElement,
-      wbsContentScrollRef.current?.parentElement,
-      dataContentScrollRef.current?.parentElement,
-      timelineContentScrollRef.current?.parentElement
-    ].filter(Boolean) as Element[];
-
-    panels.forEach(panel => resizeObserver.observe(panel));
-
-    return () => {
-      panels.forEach(panel => resizeObserver.unobserve(panel));
-    };
-  }, [handleSyncScroll]);
+  }, []);
 
   // Simplified item update handler
   const handleItemUpdate = useCallback(async (itemId: string, updates: any) => {
@@ -153,63 +112,92 @@ export const WBSTimeView = ({
   })();
 
   return (
-    <div className="h-full w-full bg-white flex flex-col overflow-hidden">
-      {/* Fixed Headers */}
-      <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 flex">
-        <ResizablePanelGroup direction="horizontal" className="h-full w-full">
-          {/* Left Side Headers */}
-          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <div className="h-full flex">
-              {/* WBS Header */}
-              <div className="flex-1" style={{ flex: '0 0 45%' }}>
-                <div className="h-full border-r border-gray-200">
-                  <div 
-                    ref={wbsHeaderScrollRef}
-                    className="h-full overflow-x-auto overflow-y-hidden text-xs font-bold text-gray-700 shadow-sm scrollbar-hide"
-                  >
-                    <div className="h-full grid items-center min-w-fit" style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
-                      <div className="px-2 text-center"></div>
-                      <div className="px-2">WBS</div>
-                      <div className="px-3">NAME</div>
-                      <div></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Data Columns Header */}
-              <div className="flex-1" style={{ flex: '0 0 55%' }}>
-                <div className="h-full border-r border-gray-200">
-                  <div 
-                    ref={dataHeaderScrollRef}
-                    className="h-full overflow-x-auto overflow-y-hidden text-xs font-bold text-gray-700 shadow-sm scrollbar-hide"
-                  >
-                    <div className="h-full grid items-center min-w-fit" style={{ gridTemplateColumns: '120px 120px 100px 140px 140px 120px' }}>
-                      <div className="px-2 text-center">START DATE</div>
-                      <div className="px-2 text-center">END DATE</div>
-                      <div className="px-2 text-center">DURATION</div>
-                      <div className="px-2 text-center">PREDECESSORS</div>
-                      <div className="px-2 text-center">STATUS</div>
-                      <div className="px-2 text-center">ACTIONS</div>
-                    </div>
-                  </div>
+    <div className="h-full w-full bg-white flex flex-col">
+      {/* Single ResizablePanelGroup controlling both header and content */}
+      <ResizablePanelGroup direction="horizontal" className="h-full">
+        {/* Left Column (WBS + Data) */}
+        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+          <div className="h-full flex flex-col">
+            {/* Left Header */}
+            <div className="h-8 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200 sticky top-0 z-40">
+              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+                <div className="grid items-center h-full" style={{
+                  gridTemplateColumns: '32px 120px 1fr 120px 120px 100px 140px 140px 120px',
+                }}>
+                  <div></div>
+                  <div className="px-2 font-semibold">WBS</div>
+                  <div className="px-3 font-semibold">NAME</div>
+                  <div className="px-2 font-semibold text-center">START DATE</div>
+                  <div className="px-2 font-semibold text-center">END DATE</div>
+                  <div className="px-2 font-semibold text-center">DURATION</div>
+                  <div className="px-2 font-semibold text-center">PREDECESSORS</div>
+                  <div className="px-2 font-semibold text-center">STATUS</div>
+                  <div className="px-2 font-semibold text-center">ACTIONS</div>
                 </div>
               </div>
             </div>
-          </ResizablePanel>
-          
-          <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
-          
-          {/* Timeline Header */}
-          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div className="h-full">
+            
+            {/* Left Content with synchronized scrolling */}
+            <div 
+              ref={wbsContentScrollRef}
+              className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+              onScroll={handleWBSContentScroll}
+            >
+              <div className="flex">
+                {/* WBS Section */}
+                <div style={{ flex: '0 0 auto', width: '40%' }}>
+                  <WBSLeftPanel
+                    items={items.map(item => ({
+                      ...item,
+                      name: item.title,
+                      wbsNumber: item.wbs_id || '',
+                      status: item.status || 'Not Started'
+                    }))}
+                    onToggleExpanded={onToggleExpanded}
+                    onDragEnd={onDragEnd}
+                    onItemEdit={onItemUpdate}
+                    onAddChild={onAddChild}
+                    dragIndicator={dragIndicator}
+                    EditableCell={EditableCell}
+                    generateWBSNumber={generateWBSNumber}
+                    hoveredId={hoveredId}
+                    onRowHover={setHoveredId}
+                  />
+                </div>
+                
+                {/* Data Columns Section */}
+                <div style={{ flex: '0 0 auto', width: '60%' }}>
+                  <WBSTimeRightPanel
+                    items={items}
+                    onItemUpdate={handleItemUpdate}
+                    onContextMenuAction={onContextMenuAction}
+                    onOpenNotesDialog={onOpenNotesDialog}
+                    onClearAllDates={onClearAllDates}
+                    EditableCell={EditableCell}
+                    StatusSelect={StatusSelect}
+                    hoveredId={hoveredId}
+                    onRowHover={setHoveredId}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </ResizablePanel>
+        
+        <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
+        
+        {/* Right Column (Timeline) */}
+        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+          <div className="h-full flex flex-col">
+            {/* Right Header */}
+            <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
               <div 
                 ref={timelineHeaderScrollRef}
                 className="h-full overflow-x-auto overflow-y-hidden scrollbar-hide"
                 style={{ width: '100%', maxWidth: '100%' }}
               >
                 <div 
-                  className="h-full text-xs font-medium text-gray-700 shadow-sm flex"
+                  className="h-full text-xs font-medium text-gray-700 flex"
                   style={{ 
                     minWidth: `${timelineDays.length * 32}px`
                   }}
@@ -233,14 +221,14 @@ export const WBSTimeView = ({
                           style={{ width: 32, minWidth: 32 }}
                         >
                           {isFirstDayOfMonth && (
-                            <div className="text-[8px] font-bold mb-0.5 text-blue-600">
+                            <div className="text-[6px] font-bold mb-0.5 text-blue-600">
                               {format(day, 'MMM').toUpperCase()}
                             </div>
                           )}
-                          <div className="text-[9px] font-medium mb-0.5">
+                          <div className="text-[7px] font-medium mb-0.5">
                             {format(day, 'EEE').toUpperCase()}
                           </div>
-                          <div className={`text-xs ${isToday ? 'font-bold' : 'font-semibold'}`}>
+                          <div className={`text-[9px] ${isToday ? 'font-bold' : 'font-semibold'}`}>
                             {format(day, 'd')}
                           </div>
                         </div>
@@ -250,115 +238,39 @@ export const WBSTimeView = ({
                 </div>
               </div>
             </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
-
-      {/* Scrollable Content Area */}
-      <div 
-        className="flex-1 min-h-0 overflow-y-scroll overflow-x-hidden scrollbar-always-visible" 
-      >
-        <ResizablePanelGroup direction="horizontal" className="h-full w-full" style={{ minHeight: '800px' }}>
-          {/* Left Side - WBS Structure + Data Columns */}
-          <ResizablePanel defaultSize={60} minSize={40} maxSize={75} style={{ minHeight: '800px' }}>
-            <ResizablePanelGroup direction="horizontal" className="h-full w-full" style={{ minHeight: '800px' }}>
-              {/* WBS Section */}
-              <ResizablePanel defaultSize={45} minSize={25} maxSize={65} style={{ minHeight: '800px' }}>
-                <div className="h-full border-r border-gray-200">
-                  <div 
-                    ref={wbsContentScrollRef}
-                    className="overflow-x-auto overflow-y-hidden"
-                    onScroll={() => handleSyncScroll('wbs')}
-                  >
-                    {/* WBS Content */}
-                    <WBSLeftPanel
-                      items={items.map(item => ({
-                        ...item,
-                        name: item.title,
-                        wbsNumber: item.wbs_id || '',
-                        status: item.status || 'Not Started'
-                      }))}
-                      onToggleExpanded={onToggleExpanded}
-                      onDragEnd={onDragEnd}
-                      onItemEdit={onItemUpdate}
-                      onAddChild={onAddChild}
-                      dragIndicator={dragIndicator}
-                      EditableCell={EditableCell}
-                      generateWBSNumber={generateWBSNumber}
-                      hoveredId={hoveredId}
-                      onRowHover={setHoveredId}
-                    />
-                  </div>
-                </div>
-              </ResizablePanel>
-
-              <ResizableHandle />
-
-              {/* Data Columns Section */}
-              <ResizablePanel defaultSize={55} minSize={35} maxSize={75} style={{ minHeight: '800px' }}>
-                <div className="h-full border-r border-gray-200">
-                  <div 
-                    ref={dataContentScrollRef}
-                    className="overflow-x-auto overflow-y-hidden"
-                    onScroll={() => handleSyncScroll('data')}
-                  >
-                    {/* Data Columns Content */}
-                    <WBSTimeRightPanel
-                      items={items}
-                      onItemUpdate={handleItemUpdate}
-                      onContextMenuAction={onContextMenuAction}
-                      onOpenNotesDialog={onOpenNotesDialog}
-                      onClearAllDates={onClearAllDates}
-                      EditableCell={EditableCell}
-                      StatusSelect={StatusSelect}
-                      hoveredId={hoveredId}
-                      onRowHover={setHoveredId}
-                    />
-                  </div>
-                </div>
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          </ResizablePanel>
-
-          <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
-
-          {/* Timeline Section */}
-          <ResizablePanel defaultSize={40} minSize={25} maxSize={60} style={{ minHeight: '800px' }}>
-            <div className="h-full relative overflow-hidden">
-              <div 
-                ref={timelineContentScrollRef}
-                className="overflow-x-auto overflow-y-hidden h-full"
-                onScroll={() => handleSyncScroll('timeline')}
-                style={{ width: '100%', maxWidth: '100%' }}
-              >
-                {/* Timeline Content */}
-                <div style={{ 
-                  minWidth: `${timelineDays.length * 32}px`
-                }}>
-                  <GanttChart 
-                    items={items.map(item => ({
-                      ...item,
-                      name: item.title,
-                      wbsNumber: item.wbs_id || '',
-                      status: item.status || 'Not Started',
-                      predecessors: item.predecessors?.map(p => ({
-                        predecessorId: p.id,
-                        type: p.type,
-                        lag: p.lag
-                      })) || []
-                    }))} 
-                    timelineDays={timelineDays}
-                    className="relative z-20 w-full" 
-                    hideHeader 
-                    hoveredId={hoveredId}
-                    onRowHover={setHoveredId}
-                  />
-                </div>
+            
+            {/* Right Content with synchronized scrolling */}
+            <div 
+              ref={timelineContentScrollRef}
+              className="flex-1 overflow-y-auto overflow-x-auto scrollbar-thin"
+              onScroll={handleTimelineContentScroll}
+            >
+              <div style={{ 
+                minWidth: `${timelineDays.length * 32}px`
+              }}>
+                <GanttChart 
+                  items={items.map(item => ({
+                    ...item,
+                    name: item.title,
+                    wbsNumber: item.wbs_id || '',
+                    status: item.status || 'Not Started',
+                    predecessors: item.predecessors?.map(p => ({
+                      predecessorId: p.id,
+                      type: p.type,
+                      lag: p.lag
+                    })) || []
+                  }))} 
+                  timelineDays={timelineDays}
+                  className="relative z-20 w-full" 
+                  hideHeader 
+                  hoveredId={hoveredId}
+                  onRowHover={setHoveredId}
+                />
               </div>
             </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
