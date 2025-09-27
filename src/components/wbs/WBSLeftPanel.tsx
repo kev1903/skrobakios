@@ -88,6 +88,7 @@ export const WBSLeftPanel = ({
               const itemHasChildren = hasChildren(item.id);
               const indentLevel = item.level || 0;
               const indentWidth = indentLevel * 16; // 16px per level
+              const isExpanded = item.isExpanded !== false; // Default to true if not specified
               
               return (
                 <div key={item.id} className="contents">
@@ -131,24 +132,24 @@ export const WBSLeftPanel = ({
                         </div>
                         
                         <div className="px-3 flex items-center h-full font-medium text-foreground text-xs" style={{ paddingLeft: `${12 + indentWidth}px` }}>
-                          {/* Chevron for expandable items */}
+                          {/* Always show chevron for items with children, regardless of expand/collapse state */}
                           {itemHasChildren ? (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onToggleExpanded(item.id);
                               }}
-                              className="mr-2 p-0.5 rounded hover:bg-accent/20 transition-colors"
-                              title={item.isExpanded ? "Collapse" : "Expand"}
+                              className="mr-2 p-0.5 rounded hover:bg-accent/20 transition-colors flex-shrink-0"
+                              title={isExpanded ? "Collapse children" : "Expand children"}
                             >
-                              {item.isExpanded ? (
+                              {isExpanded ? (
                                 <ChevronDown className="w-3 h-3 text-muted-foreground" />
                               ) : (
                                 <ChevronRight className="w-3 h-3 text-muted-foreground" />
                               )}
                             </button>
                           ) : (
-                            <div className="w-4 mr-2" /> // Spacer for items without children
+                            <div className="w-4 mr-2 flex-shrink-0" /> // Spacer for items without children
                           )}
                           
                           <EditableCell
@@ -157,7 +158,7 @@ export const WBSLeftPanel = ({
                             field="name"
                             value={item.name}
                             placeholder="Untitled Task"
-                            className="font-medium text-xs text-muted-foreground"
+                            className="font-medium text-xs text-muted-foreground flex-1"
                             data-field="name"
                           />
                         </div>
