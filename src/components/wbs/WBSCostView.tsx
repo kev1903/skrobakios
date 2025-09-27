@@ -101,58 +101,52 @@ export const WBSCostView = ({
         </ResizablePanelGroup>
       </div>
 
-      {/* Scrollable Content with Split Scroll Behavior */}
+      {/* Unified Scrollable Content */}
       <div className="flex-1 overflow-hidden">
-        <div className="h-full overflow-hidden">
-          <ResizablePanelGroup direction="horizontal" className="h-full">
-            {/* Left Panel Content */}
-            <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-              <div className="h-full border-r border-gray-200 bg-white flex flex-col">
-                <div className="flex-1 overflow-hidden">
-                  <div ref={leftScrollRef} className="h-full overflow-y-scroll overflow-x-hidden scrollbar-hide">
-                    <WBSLeftPanel
-                      items={items}
-                      onToggleExpanded={onToggleExpanded}
-                      onDragEnd={onDragEnd}
-                      onItemEdit={onItemUpdate}
-                      onAddChild={onAddChild}
-                      dragIndicator={dragIndicator}
-                      EditableCell={EditableCell}
-                      generateWBSNumber={generateWBSNumber}
-                      scrollRef={leftScrollRef}
-                      onScroll={() => {}}
-                      hoveredId={hoveredId}
-                      onRowHover={setHoveredId}
-                    />
-                  </div>
+        <div ref={rightScrollRef} className="h-full overflow-y-auto overflow-x-hidden" onScroll={handleRightScroll}>
+          <div className="h-full">
+            <ResizablePanelGroup direction="horizontal" className="h-full">
+              {/* Left Panel Content */}
+              <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+                <div className="h-full border-r border-gray-200 bg-white">
+                  <WBSLeftPanel
+                    items={items}
+                    onToggleExpanded={onToggleExpanded}
+                    onDragEnd={onDragEnd}
+                    onItemEdit={onItemUpdate}
+                    onAddChild={onAddChild}
+                    dragIndicator={dragIndicator}
+                    EditableCell={EditableCell}
+                    generateWBSNumber={generateWBSNumber}
+                    scrollRef={leftScrollRef}
+                    onScroll={() => {}}
+                    hoveredId={hoveredId}
+                    onRowHover={setHoveredId}
+                  />
                 </div>
-              </div>
-            </ResizablePanel>
-            
-            <ResizableHandle />
-            
-            {/* Right Panel Content */}
-            <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-              <div className="h-full bg-white flex flex-col">
-                <div className="flex-1 overflow-hidden">
-                  <div ref={rightScrollRef} className="h-full overflow-y-auto overflow-x-hidden" onScroll={handleRightScroll}>
-                    <WBSCostRightPanel
-                      items={items}
-                      onItemUpdate={onItemUpdate}
-                      onContextMenuAction={onContextMenuAction}
-                      onOpenNotesDialog={onOpenNotesDialog}
-                      EditableCell={EditableCell}
-                      StatusSelect={StatusSelect}
-                      scrollRef={rightScrollRef}
-                      onScroll={handleRightScroll}
-                      hoveredId={hoveredId}
-                      onRowHover={setHoveredId}
-                    />
-                  </div>
+              </ResizablePanel>
+              
+              <ResizableHandle />
+              
+              {/* Right Panel Content */}
+              <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+                <div className="h-full bg-white">
+                  <WBSCostRightPanel
+                    items={items}
+                    onItemUpdate={onItemUpdate}
+                    onContextMenuAction={onContextMenuAction}
+                    onOpenNotesDialog={onOpenNotesDialog}
+                    EditableCell={EditableCell}
+                    StatusSelect={StatusSelect}
+                    scrollRef={rightScrollRef}
+                    onScroll={handleRightScroll}
+                    hoveredId={hoveredId}
+                    onRowHover={setHoveredId}
+                  />
                 </div>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </div>
         </div>
       </div>
     </div>

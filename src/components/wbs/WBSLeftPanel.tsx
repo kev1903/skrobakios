@@ -51,9 +51,9 @@ export const WBSLeftPanel = ({
   onRowHover
 }: WBSLeftPanelProps) => {
   return (
-    <div className="h-full bg-white flex-shrink-0 overflow-hidden">
+    <div className="h-full bg-white flex-shrink-0">
       {/* Content - No separate header since it's now unified */}
-      <div ref={scrollRef} className="h-full overflow-y-scroll overflow-x-hidden scrollbar-hide" onScroll={onScroll}>
+      <div className="h-full">
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="wbs-phases" type="phase">
             {(provided) => (
