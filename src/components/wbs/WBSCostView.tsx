@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSCostRightPanel } from './WBSCostRightPanel';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
@@ -48,6 +48,15 @@ export const WBSCostView = ({
   generateWBSNumber
 }: WBSCostViewProps) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const costHeaderScrollRef = useRef<HTMLDivElement>(null);
+  const costContentScrollRef = useRef<HTMLDivElement>(null);
+
+  // Sync Cost section horizontal scrolling
+  const handleCostContentScroll = useCallback(() => {
+    if (costHeaderScrollRef.current && costContentScrollRef.current) {
+      costHeaderScrollRef.current.scrollLeft = costContentScrollRef.current.scrollLeft;
+    }
+  }, []);
 
   return (
     <div className="h-full w-full bg-white flex flex-col">
@@ -91,13 +100,21 @@ export const WBSCostView = ({
           
           {/* Right Section - Cost Data */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <div className="min-h-full">
+            <div className="min-h-full overflow-hidden">
               {/* Right Header */}
               <div className="h-[60px] bg-slate-100/70 border-b border-slate-200 sticky top-0 z-30">
-                <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
-                  <div className="grid items-center h-full" style={{
-                    gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
-                  }}>
+                <div 
+                  ref={costHeaderScrollRef}
+                  className="px-2 py-1 text-xs font-medium text-slate-700 h-full overflow-x-auto overflow-y-hidden scrollbar-hide"
+                >
+                  <div 
+                    className="grid items-center h-full min-w-fit" 
+                    style={{
+                      gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+                      width: '100%',
+                      minWidth: '880px' // Ensure header has minimum width for all columns
+                    }}
+                  >
                     <div className="px-3 font-semibold">DESCRIPTION</div>
                     <div className="px-2 font-semibold text-right">BUDGET</div>
                     <div className="px-2 font-semibold text-right">COMMITTED</div>
@@ -112,16 +129,22 @@ export const WBSCostView = ({
               </div>
               
               {/* Right Content */}
-              <WBSCostRightPanel
-                items={items}
-                onItemUpdate={onItemUpdate}
-                onContextMenuAction={onContextMenuAction}
-                onOpenNotesDialog={onOpenNotesDialog}
-                EditableCell={EditableCell}
-                StatusSelect={StatusSelect}
-                hoveredId={hoveredId}
-                onRowHover={setHoveredId}
-              />
+              <div 
+                ref={costContentScrollRef}
+                className="overflow-x-auto overflow-y-hidden"
+                onScroll={handleCostContentScroll}
+              >
+                <WBSCostRightPanel
+                  items={items}
+                  onItemUpdate={onItemUpdate}
+                  onContextMenuAction={onContextMenuAction}
+                  onOpenNotesDialog={onOpenNotesDialog}
+                  EditableCell={EditableCell}
+                  StatusSelect={StatusSelect}
+                  hoveredId={hoveredId}
+                  onRowHover={setHoveredId}
+                />
+              </div>
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
