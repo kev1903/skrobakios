@@ -50,8 +50,6 @@ export const WBSCostView = ({
   const unifiedScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  console.log('WBSCostView - Cost tab rendering with items:', items.length);
-
   return (
     <div className="h-full w-full bg-white flex flex-col">
       {/* Fixed Headers */}
@@ -96,15 +94,11 @@ export const WBSCostView = ({
         </ResizablePanelGroup>
       </div>
 
-      {/* Unified Scrollable Content - FIXED: Added proper height constraint */}
+      {/* Unified Scrollable Content */}
       <div className="flex-1 overflow-hidden">
         <div 
           ref={unifiedScrollRef}
-          className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
-          style={{ 
-            height: 'calc(100vh - 240px)',
-            minHeight: '300px'
-          }}
+          className="h-full overflow-y-auto overflow-x-hidden"
         >
           <ResizablePanelGroup direction="horizontal" className="min-h-full">
             {/* Left Panel Content */}
@@ -119,7 +113,7 @@ export const WBSCostView = ({
                   dragIndicator={dragIndicator}
                   EditableCell={EditableCell}
                   generateWBSNumber={generateWBSNumber}
-                  scrollRef={null}
+                  scrollRef={unifiedScrollRef}
                   onScroll={() => {}}
                   hoveredId={hoveredId}
                   onRowHover={setHoveredId}
@@ -139,7 +133,7 @@ export const WBSCostView = ({
                   onOpenNotesDialog={onOpenNotesDialog}
                   EditableCell={EditableCell}
                   StatusSelect={StatusSelect}
-                  scrollRef={null}
+                  scrollRef={unifiedScrollRef}
                   onScroll={() => {}}
                   hoveredId={hoveredId}
                   onRowHover={setHoveredId}

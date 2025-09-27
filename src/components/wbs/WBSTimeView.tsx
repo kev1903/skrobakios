@@ -41,8 +41,6 @@ export const WBSTimeView = ({
   const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  console.log('WBSTimeView - Time tab rendering with items:', items.length);
-
   const handleTimelineHorizontalScroll = useCallback(() => {
     if (headerHorizScrollRef.current && bodyHorizScrollRef.current) {
       headerHorizScrollRef.current.scrollLeft = bodyHorizScrollRef.current.scrollLeft;
@@ -176,15 +174,11 @@ export const WBSTimeView = ({
         </ResizablePanelGroup>
       </div>
 
-      {/* Unified Scrollable Content - FIXED: Added proper height constraint */}
+      {/* Unified Scrollable Content */}
       <div className="flex-1 overflow-hidden">
         <div 
           ref={unifiedScrollRef}
-          className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
-          style={{ 
-            height: 'calc(100vh - 240px)',
-            minHeight: '300px'
-          }}
+          className="h-full overflow-y-auto overflow-x-hidden"
         >
           <ResizablePanelGroup direction="horizontal" className="min-h-full">
             {/* Left Panel Content */}
