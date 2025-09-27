@@ -178,7 +178,13 @@ export const WBSTimeView = ({
       <div className="flex-1 overflow-hidden">
         <div 
           ref={unifiedScrollRef}
-          className="h-full overflow-y-auto overflow-x-hidden"
+          className="h-full overflow-y-auto overflow-x-auto"
+          style={{ 
+            height: 'calc(100vh - 200px)',
+            minHeight: '400px',
+            scrollbarWidth: 'auto',
+            scrollbarColor: 'rgb(156 163 175) transparent'
+          }}
         >
           <ResizablePanelGroup direction="horizontal" className="min-h-full">
             {/* Left Panel Content */}

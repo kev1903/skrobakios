@@ -423,12 +423,12 @@ export const WBSTimeRightPanel = ({
                       className="text-xs text-muted-foreground"
                       onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
                       allItems={items}
-                      availableItems={items.map(i => ({
-                        id: i.id,
-                        name: i.title || i.name || '',
-                        wbsNumber: i.wbs_id || '',
-                        level: i.level || 0
-                      }))}
+                       availableItems={items.map(i => ({
+                         id: i.id,
+                         name: i.title || '',
+                         wbsNumber: i.wbs_id || '',
+                         level: i.level || 0
+                       }))}
                     />
                   </div>
 
@@ -613,11 +613,12 @@ export const WBSTimeRightPanel = ({
                   id={item.id}
                   type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
                   value={item.predecessors || []}
-                  availableItems={items.map(i => ({
-                    id: i.id,
-                    title: i.title,
-                    wbs_id: i.wbs_id || ''
-                  }))}
+                   availableItems={items.map(i => ({
+                     id: i.id,
+                     name: i.title || '',
+                     wbsNumber: i.wbs_id || '',
+                     level: i.level || 0
+                   }))}
                   onUpdate={(predecessors) => handleItemUpdate(item.id, { predecessors })}
                   className="text-xs text-muted-foreground"
                 />
