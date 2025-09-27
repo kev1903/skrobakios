@@ -69,12 +69,14 @@ export const WBSCostView = ({
         <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
           <div className="h-full flex flex-col">
             {/* WBS Header */}
-            <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm">
-              <div className="h-full grid items-center" style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
-                <div className="px-2 text-center"></div>
-                <div className="px-2">WBS</div>
-                <div className="px-3">NAME</div>
-                <div></div>
+            <div className="h-8 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200">
+              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+                <div className="grid items-center h-full" style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
+                  <div></div>
+                  <div className="px-2 font-semibold">WBS</div>
+                  <div className="px-3 font-semibold">NAME</div>
+                  <div></div>
+                </div>
               </div>
             </div>
             
@@ -104,19 +106,21 @@ export const WBSCostView = ({
         <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
           <div className="h-full flex flex-col">
             {/* Cost Header */}
-            <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 text-xs font-bold text-gray-700 sticky top-0 z-30 shadow-sm">
-              <div className="h-full grid items-center" style={{
-                gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
-              }}>
-                <div className="px-3 text-center">DESCRIPTION</div>
-                <div className="px-2 text-center">BUDGET</div>
-                <div className="px-2 text-center">COMMITTED</div>
-                <div className="px-2 text-center">PAID</div>
-                <div className="px-2 text-center">REMAINING</div>
-                <div className="px-2 text-center">FORECAST FINAL</div>
-                <div className="px-2 text-center">VARIANCE</div>
-                <div className="px-2 text-center">STATUS</div>
-                <div className="px-2 text-center">NOTES</div>
+            <div className="h-8 bg-slate-100/70 border-b border-slate-200">
+              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+                <div className="grid items-center h-full" style={{
+                  gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+                }}>
+                  <div className="px-3 font-semibold">DESCRIPTION</div>
+                  <div className="px-2 font-semibold text-right">BUDGET</div>
+                  <div className="px-2 font-semibold text-right">COMMITTED</div>
+                  <div className="px-2 font-semibold text-right">PAID</div>
+                  <div className="px-2 font-semibold text-right">REMAINING</div>
+                  <div className="px-2 font-semibold text-right">FORECAST FINAL</div>
+                  <div className="px-2 font-semibold text-right">VARIANCE</div>
+                  <div className="px-2 font-semibold text-center">STATUS</div>
+                  <div className="px-2 font-semibold">NOTES</div>
+                </div>
               </div>
             </div>
             
