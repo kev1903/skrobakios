@@ -208,14 +208,18 @@ export const WBSTimeView = ({
                 <ResizableHandle />
                 
                 {/* Timeline Header */}
-                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                <ResizablePanel 
+                  defaultSize={50} 
+                  minSize={30} 
+                  maxSize={70}
+                  style={{ 
+                    minWidth: `${timelineDays.length * 32}px`
+                  }}
+                >
                   <div 
                     ref={timelineHeaderHorizontalScrollRef}
                     className="h-full overflow-x-auto scrollbar-hide"
                     onScroll={handleTimelineHeaderScroll}
-                    style={{ 
-                      minWidth: `${timelineDays.length * 32}px`
-                    }}
                   >
                     <div 
                       className="text-xs font-medium text-gray-700 flex h-full"
@@ -292,7 +296,14 @@ export const WBSTimeView = ({
                 <ResizableHandle />
                 
                 {/* Timeline Section - Master scroll controller */}
-                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
+                <ResizablePanel 
+                  defaultSize={50} 
+                  minSize={30} 
+                  maxSize={70}
+                  style={{ 
+                    minWidth: `${timelineDays.length * 32}px`
+                  }}
+                >
                   <div 
                     ref={timelineContentScrollRef}
                     className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
