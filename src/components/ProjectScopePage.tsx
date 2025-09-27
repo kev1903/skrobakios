@@ -1581,10 +1581,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        <div 
                          className="flex-1 min-w-0"
                          style={{
-                           height: '60vh',
-                           maxHeight: '500px',
-                           overflow: 'auto',
-                           border: '1px solid #e5e7eb'
+                           height: '400px',
+                           overflow: 'scroll',
+                           overflowX: 'auto',
+                           overflowY: 'scroll',
+                           border: '2px solid #e5e7eb',
+                           scrollbarWidth: 'auto'
                          }}
                        >
                         <WBSCostView
