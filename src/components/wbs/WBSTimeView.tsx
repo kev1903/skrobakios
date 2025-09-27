@@ -36,16 +36,48 @@ export const WBSTimeView = ({
   StatusSelect,
   generateWBSNumber
 }: WBSTimeViewProps) => {
-  const mainScrollRef = useRef<HTMLDivElement>(null);
+  const leftScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);  
+  const ganttScrollRef = useRef<HTMLDivElement>(null);
   const headerHorizScrollRef = useRef<HTMLDivElement>(null);
   const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const isSyncingRef = useRef(false);
 
   const handleTimelineHorizontalScroll = useCallback(() => {
     if (headerHorizScrollRef.current && bodyHorizScrollRef.current) {
       headerHorizScrollRef.current.scrollLeft = bodyHorizScrollRef.current.scrollLeft;
     }
   }, []);
+
+  // Proper scroll synchronization between all three panels
+  const syncVerticalScroll = useCallback((scrollTop: number, sourceRef: React.RefObject<HTMLDivElement>) => {
+    if (isSyncingRef.current) return;
+    
+    isSyncingRef.current = true;
+    requestAnimationFrame(() => {
+      [leftScrollRef, rightScrollRef, ganttScrollRef].forEach(ref => {
+        if (ref.current && ref !== sourceRef) {
+          ref.current.scrollTop = scrollTop;
+        }
+      });
+      isSyncingRef.current = false;
+    });
+  }, []);
+
+  const handleLeftScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    syncVerticalScroll(e.currentTarget.scrollTop, leftScrollRef);
+  }, [syncVerticalScroll]);
+
+  const handleRightScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    syncVerticalScroll(e.currentTarget.scrollTop, rightScrollRef);
+  }, [syncVerticalScroll]);
+
+  const handleGanttScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    syncVerticalScroll(e.currentTarget.scrollTop, ganttScrollRef);
+    // Also handle horizontal scroll for timeline
+    handleTimelineHorizontalScroll();
+  }, [syncVerticalScroll, handleTimelineHorizontalScroll]);
 
   // Simplified item update handler
   const handleItemUpdate = useCallback(async (itemId: string, updates: any) => {
@@ -174,21 +206,22 @@ export const WBSTimeView = ({
         </ResizablePanelGroup>
       </div>
 
-      {/* Unified Scrollable Content */}
+      {/* Scrollable Content with Synchronized Scrolling */}
       <div className="flex-1 overflow-hidden">
-        <div 
-          ref={mainScrollRef}
-          className="h-full overflow-y-auto overflow-x-hidden"
-        >
-          <ResizablePanelGroup direction="horizontal" className="h-full min-h-fit">
-            {/* Left Panel Content */}
-            <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-              <div className="h-full flex">
-                <ResizablePanelGroup direction="horizontal" className="h-full">
-                  {/* WBS Structure Content */}
-                  <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
-                    <div className="h-full border-r border-gray-200 bg-white flex flex-col">
-                      <div className="flex-1">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          {/* Left Panel Content */}
+          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+            <div className="h-full flex">
+              <ResizablePanelGroup direction="horizontal" className="h-full">
+                {/* WBS Structure Content */}
+                <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
+                  <div className="h-full border-r border-gray-200 bg-white flex flex-col">
+                    <div className="flex-1 overflow-hidden">
+                      <div 
+                        ref={leftScrollRef} 
+                        className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin" 
+                        onScroll={handleLeftScroll}
+                      >
                         <WBSLeftPanel
                           items={items.map(item => ({
                             ...item,
@@ -203,21 +236,27 @@ export const WBSTimeView = ({
                           dragIndicator={dragIndicator}
                           EditableCell={EditableCell}
                           generateWBSNumber={generateWBSNumber}
-                          scrollRef={undefined}
-                          onScroll={undefined}
+                          scrollRef={leftScrollRef}
+                          onScroll={() => handleLeftScroll}
                           hoveredId={hoveredId}
                           onRowHover={setHoveredId}
                         />
                       </div>
                     </div>
-                  </ResizablePanel>
+                  </div>
+                </ResizablePanel>
 
-                  <ResizableHandle />
+                <ResizableHandle />
 
-                  {/* Data Columns Content */}
-                  <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
-                    <div className="h-full border-r border-gray-200 bg-white flex flex-col">
-                      <div className="flex-1">
+                {/* Data Columns Content */}
+                <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
+                  <div className="h-full border-r border-gray-200 bg-white flex flex-col">
+                    <div className="flex-1 overflow-hidden">
+                      <div 
+                        ref={rightScrollRef} 
+                        className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin" 
+                        onScroll={handleRightScroll}
+                      >
                         <WBSTimeRightPanel
                           items={items}
                           onItemUpdate={handleItemUpdate}
@@ -226,53 +265,51 @@ export const WBSTimeView = ({
                           onClearAllDates={onClearAllDates}
                           EditableCell={EditableCell}
                           StatusSelect={StatusSelect}
-                          scrollRef={undefined}
-                          onScroll={undefined}
+                          scrollRef={rightScrollRef}
+                          onScroll={() => handleRightScroll}
                           hoveredId={hoveredId}
                           onRowHover={setHoveredId}
                         />
                       </div>
                     </div>
-                  </ResizablePanel>
-                </ResizablePanelGroup>
-              </div>
-            </ResizablePanel>
-
-            <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
-
-            {/* Timeline Content */}
-            <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-              <div className="h-full bg-white flex flex-col">
-                <div 
-                  ref={bodyHorizScrollRef}
-                  className="flex-1 overflow-x-auto"
-                  onScroll={handleTimelineHorizontalScroll}
-                >
-                  <div className="min-w-fit">
-                    <GanttChart 
-                      items={items.map(item => ({
-                        ...item,
-                        name: item.title,
-                        wbsNumber: item.wbs_id || '',
-                        status: item.status || 'Not Started',
-                        predecessors: item.predecessors?.map(p => ({
-                          predecessorId: p.id,
-                          type: p.type,
-                          lag: p.lag
-                        })) || []
-                      }))} 
-                      timelineDays={timelineDays}
-                      className="relative z-10" 
-                      hideHeader 
-                      hoveredId={hoveredId}
-                      onRowHover={setHoveredId}
-                    />
                   </div>
-                </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            </div>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
+
+          {/* Timeline Content */}
+          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+            <div 
+              ref={ganttScrollRef}
+              className="h-full overflow-auto bg-white"
+              onScroll={handleGanttScroll}
+            >
+              <div className="min-w-fit">
+                <GanttChart 
+                  items={items.map(item => ({
+                    ...item,
+                    name: item.title,
+                    wbsNumber: item.wbs_id || '',
+                    status: item.status || 'Not Started',
+                    predecessors: item.predecessors?.map(p => ({
+                      predecessorId: p.id,
+                      type: p.type,
+                      lag: p.lag
+                    })) || []
+                  }))} 
+                  timelineDays={timelineDays}
+                  className="relative z-10" 
+                  hideHeader 
+                  hoveredId={hoveredId}
+                  onRowHover={setHoveredId}
+                />
               </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        </div>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </div>
   );

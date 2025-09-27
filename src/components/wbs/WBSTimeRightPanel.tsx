@@ -302,7 +302,7 @@ export const WBSTimeRightPanel = ({
     handleItemUpdate(id, updates);
   }, [items, handleItemUpdate]);
   // Determine if we're in unified scroll mode (parent handles scrolling)
-  const useUnifiedScroll = !onScroll;
+  const useUnifiedScroll = false; // Always use separate scroll containers
   
   const content = (
     <div className="h-full bg-white overflow-hidden" style={{ minWidth: '720px' }}>
