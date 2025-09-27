@@ -1480,9 +1480,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                          </Button>
                        </div>
                      </div>
-                   ) : (
-                      <div className="flex-1 min-w-0 overflow-y-auto">
-                       <WBSSplitView
+                     ) : (
+                       <div className="flex-1 min-w-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                        <WBSSplitView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
                            const item = wbsItems.find(i => i.id === itemId);
@@ -1570,9 +1570,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           </Button>
                         </div>
                       </div>
-                    ) : (
-                      <div className="flex-1 min-w-0 overflow-y-hidden">
-                       <WBSCostView
+                     ) : (
+                       <div className="flex-1 min-w-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                        <WBSCostView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
                            const item = wbsItems.find(i => i.id === itemId);
