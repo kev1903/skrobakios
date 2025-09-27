@@ -50,16 +50,16 @@ export const WBSLeftPanel = ({
   hoveredId,
   onRowHover
 }: WBSLeftPanelProps) => {
-  return (
-    <div className="h-full bg-white flex-shrink-0">
-      {/* Content - No separate header since it's now unified */}
-      <div className="h-full">
-        <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable droppableId="wbs-phases" type="phase">
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps} className="min-h-full">
-                {items.map((item, index) => (
-                    <div key={item.id} className="contents">
+  // Determine if we're in unified scroll mode (no scrollRef means parent handles scrolling)
+  const useUnifiedScroll = !scrollRef || !onScroll;
+  
+  const content = (
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="wbs-phases" type="phase">
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps} className="min-h-full">
+            {items.map((item, index) => (
+                <div key={item.id} className="contents">
                       {dragIndicator && dragIndicator.type === 'phase' && dragIndicator.index === index && (
                         <div className="px-2"><div className="h-0.5 bg-primary/60 rounded-full" /></div>
                       )}
@@ -207,12 +207,26 @@ export const WBSLeftPanel = ({
                 {dragIndicator && dragIndicator.type === 'phase' && dragIndicator.index === items.length && (
                   <div className="px-2"><div className="h-0.5 bg-primary/60 rounded-full" /></div>
                 )}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </div>
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
+  );
+
+  return (
+    <div className="h-full bg-white flex-shrink-0 overflow-hidden">
+      {useUnifiedScroll ? (
+        // Unified scroll mode - parent handles scrolling
+        <div className="h-full">
+          {content}
+        </div>
+      ) : (
+        // Separate scroll mode - this component handles its own scrolling
+        <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin" onScroll={onScroll}>
+          {content}
+        </div>
+      )}
     </div>
   );
 };
