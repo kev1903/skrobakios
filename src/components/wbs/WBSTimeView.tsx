@@ -148,19 +148,21 @@ export const WBSTimeView = ({
   })();
 
   return (
-    <div className="h-full w-full bg-white flex flex-col relative z-10">
+    <div className="h-full w-full bg-white flex flex-col relative z-10 overflow-hidden">
       {/* Combined Header and Content Area - Scrollable Together */}
       <div 
         className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-visible" 
         style={{ 
           maxHeight: 'calc(100vh - 180px)',
-          minHeight: '500px' // Ensure minimum height to trigger scrollbar
+          minHeight: '500px', // Ensure minimum height to trigger scrollbar
+          width: '100%',
+          maxWidth: '100%'
         }}
       >
-        <ResizablePanelGroup direction="horizontal" className="min-h-full">
+        <ResizablePanelGroup direction="horizontal" className="min-h-full w-full">
           {/* Left Side - WBS Structure + Data Columns */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <ResizablePanelGroup direction="horizontal" className="min-h-full">
+            <ResizablePanelGroup direction="horizontal" className="min-h-full w-full">
               {/* WBS Section */}
               <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
                 <div className="min-h-full border-r border-gray-200">
@@ -260,16 +262,22 @@ export const WBSTimeView = ({
                 ref={timelineContentScrollRef}
                 className="overflow-x-auto overflow-y-hidden h-full"
                 onScroll={() => handleSyncScroll('timeline')}
+                style={{ width: '100%', maxWidth: '100%' }}
               >
                 {/* Timeline Header */}
                 <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 sticky top-0 z-30">
                   <div 
                     ref={timelineHeaderScrollRef}
                     className="h-full overflow-x-auto overflow-y-hidden scrollbar-hide"
+                    style={{ width: '100%', maxWidth: '100%' }}
                   >
                     <div 
                       className="h-full text-xs font-medium text-gray-700 shadow-sm"
-                      style={{ width: `${timelineDays.length * 32}px`, minWidth: `${timelineDays.length * 32}px` }}
+                      style={{ 
+                        width: `${timelineDays.length * 32}px`, 
+                        minWidth: `${Math.min(timelineDays.length * 32, 800)}px`,
+                        maxWidth: 'none'
+                      }}
                     >
                       <div className="flex h-full">
                         {timelineDays.map((day, index) => {
@@ -309,24 +317,30 @@ export const WBSTimeView = ({
                 </div>
                 
                 {/* Timeline Content */}
-                <GanttChart 
-                  items={items.map(item => ({
-                    ...item,
-                    name: item.title,
-                    wbsNumber: item.wbs_id || '',
-                    status: item.status || 'Not Started',
-                    predecessors: item.predecessors?.map(p => ({
-                      predecessorId: p.id,
-                      type: p.type,
-                      lag: p.lag
-                    })) || []
-                  }))} 
-                  timelineDays={timelineDays}
-                  className="relative z-20" 
-                  hideHeader 
-                  hoveredId={hoveredId}
-                  onRowHover={setHoveredId}
-                />
+                <div style={{ 
+                  width: `${timelineDays.length * 32}px`, 
+                  minWidth: `${Math.min(timelineDays.length * 32, 800)}px`,
+                  maxWidth: 'none'
+                }}>
+                  <GanttChart 
+                    items={items.map(item => ({
+                      ...item,
+                      name: item.title,
+                      wbsNumber: item.wbs_id || '',
+                      status: item.status || 'Not Started',
+                      predecessors: item.predecessors?.map(p => ({
+                        predecessorId: p.id,
+                        type: p.type,
+                        lag: p.lag
+                      })) || []
+                    }))} 
+                    timelineDays={timelineDays}
+                    className="relative z-20 w-full" 
+                    hideHeader 
+                    hoveredId={hoveredId}
+                    onRowHover={setHoveredId}
+                  />
+                </div>
               </div>
             </div>
           </ResizablePanel>
