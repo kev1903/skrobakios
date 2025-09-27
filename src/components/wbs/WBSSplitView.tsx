@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSRightPanel } from './WBSRightPanel';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
@@ -51,6 +51,36 @@ export const WBSSplitView = ({
   generateWBSNumber
 }: WBSSplitViewProps) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const leftScrollRef = useRef<HTMLDivElement>(null);
+  const rightScrollRef = useRef<HTMLDivElement>(null);
+  const isSyncingRef = useRef(false);
+
+  // Synchronize scrolling between left and right panels
+  const handleLeftScroll = useCallback(() => {
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    
+    if (leftScrollRef.current && rightScrollRef.current) {
+      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
+    }
+    
+    requestAnimationFrame(() => {
+      isSyncingRef.current = false;
+    });
+  }, []);
+
+  const handleRightScroll = useCallback(() => {
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    
+    if (leftScrollRef.current && rightScrollRef.current) {
+      leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
+    }
+    
+    requestAnimationFrame(() => {
+      isSyncingRef.current = false;
+    });
+  }, []);
 
   return (
     <div className="h-full w-full bg-white flex flex-col">
@@ -73,8 +103,12 @@ export const WBSSplitView = ({
               </div>
             </div>
             
-            {/* Left Content */}
-            <div className="flex-1 overflow-auto">
+            {/* Left Content with synchronized scrolling */}
+            <div 
+              ref={leftScrollRef}
+              className="flex-1 overflow-y-auto overflow-x-hidden"
+              onScroll={handleLeftScroll}
+            >
               <WBSLeftPanel
                 items={items}
                 onToggleExpanded={onToggleExpanded}
@@ -111,8 +145,12 @@ export const WBSSplitView = ({
               </div>
             </div>
             
-            {/* Right Content */}
-            <div className="flex-1 overflow-auto">
+            {/* Right Content with synchronized scrolling */}
+            <div 
+              ref={rightScrollRef}
+              className="flex-1 overflow-y-auto overflow-x-hidden"
+              onScroll={handleRightScroll}
+            >
               <WBSRightPanel
                 items={items}
                 onItemUpdate={onItemUpdate}
