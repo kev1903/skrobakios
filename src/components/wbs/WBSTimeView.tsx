@@ -184,7 +184,7 @@ export const WBSTimeView = ({
           </div>
         </ResizablePanel>
         
-        <ResizableHandle withHandle className="w-2 hover:w-3 transition-all duration-200" />
+        <ResizableHandle />
         
         {/* Right Column (Timeline) */}
         <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
