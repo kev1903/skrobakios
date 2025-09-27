@@ -225,7 +225,7 @@ export const TaskCostTable = ({
                     <div className="w-1.5 h-1.5 bg-green-400 rounded-full mr-2 flex-shrink-0"></div>
                   )}
                   <span className="font-medium truncate" data-field="name">
-                    {item.title || 'Untitled Phase'}
+                    {item.title || 'Untitled Activity'}
                   </span>
                 </div>
               </div>
