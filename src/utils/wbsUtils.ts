@@ -19,99 +19,80 @@ export const findWBSItem = (items: WBSItem[], id: string): WBSItem | null => {
   return null;
 };
 
-// Comprehensive WBS renumbering system
+// Comprehensive WBS renumbering system - Enhanced for better hierarchy maintenance
 export const renumberAllWBSItems = (items: WBSItem[]): { item: WBSItem; newWbsId: string }[] => {
   const updates: { item: WBSItem; newWbsId: string }[] = [];
   
-  // Flatten all items while preserving hierarchy
+  // Flatten all items while preserving parent-child relationships
   const flatItems = flattenWBSHierarchy(items);
   
-  // Group items by parent_id to process siblings together
-  const itemsByParent = new Map<string | null, WBSItem[]>();
-  
-  flatItems.forEach(item => {
-    const parentKey = item.parent_id || null;
-    if (!itemsByParent.has(parentKey)) {
-      itemsByParent.set(parentKey, []);
-    }
-    itemsByParent.get(parentKey)!.push(item);
-  });
-  
-  // Sort siblings by their current WBS ID to maintain relative order
-  itemsByParent.forEach(siblings => {
-    siblings.sort((a, b) => {
-      const aWbs = a.wbs_id.split('.').map(n => parseInt(n, 10) || 0);
-      const bWbs = b.wbs_id.split('.').map(n => parseInt(n, 10) || 0);
-      
-      for (let i = 0; i < Math.max(aWbs.length, bWbs.length); i++) {
-        const da = aWbs[i] || 0;
-        const db = bWbs[i] || 0;
-        if (da !== db) return da - db;
-      }
-      return 0;
+  // Build hierarchy tree from flat items
+  const buildHierarchy = (items: WBSItem[]): WBSItem[] => {
+    const itemMap = new Map<string, WBSItem>();
+    const rootItems: WBSItem[] = [];
+    
+    // Create map of all items
+    items.forEach(item => {
+      itemMap.set(item.id, { ...item, children: [] });
     });
-  });
-  
-  // Generate new sequential WBS IDs
-  const generateNewWbsId = (item: WBSItem): string => {
-    if (!item.parent_id) {
-      // Root level items (phases): 1.0, 2.0, 3.0, etc.
-      const siblings = itemsByParent.get(null) || [];
-      const index = siblings.indexOf(item);
-      return `${index + 1}.0`;
-    }
     
-    // Find parent item and get its new WBS ID
-    const parent = flatItems.find(i => i.id === item.parent_id);
-    if (!parent) return item.wbs_id; // Fallback to original
+    // Build parent-child relationships
+    items.forEach(item => {
+      const itemCopy = itemMap.get(item.id)!;
+      if (item.parent_id && itemMap.has(item.parent_id)) {
+        const parent = itemMap.get(item.parent_id)!;
+        parent.children.push(itemCopy);
+      } else {
+        rootItems.push(itemCopy);
+      }
+    });
     
-    // Get parent's new WBS ID (it should have been processed already)
-    const parentUpdate = updates.find(u => u.item.id === parent.id);
-    const parentWbsId = parentUpdate?.newWbsId || parent.wbs_id;
-    
-    // Generate child WBS ID
-    const siblings = itemsByParent.get(item.parent_id) || [];
-    const index = siblings.indexOf(item);
-    
-    if (parentWbsId.endsWith('.0')) {
-      // Parent is a phase (e.g., "1.0"), child is component (e.g., "1.1")
-      return `${parentWbsId.slice(0, -2)}.${index + 1}`;
-    } else {
-      // Parent is a component (e.g., "1.1"), child is element (e.g., "1.1.1")
-      return `${parentWbsId}.${index + 1}`;
-    }
+    return rootItems;
   };
   
-  // Process items level by level to ensure parents are processed before children
-  const processedIds = new Set<string>();
-  let remainingItems = [...flatItems];
-  
-  while (remainingItems.length > 0 && processedIds.size < flatItems.length) {
-    const initialLength = remainingItems.length;
-    
-    remainingItems = remainingItems.filter(item => {
-      // Skip if already processed
-      if (processedIds.has(item.id)) return false;
+  // Generate WBS numbers recursively maintaining hierarchy
+  const generateWbsNumbers = (items: WBSItem[], parentWbsId: string = ''): void => {
+    items.forEach((item, index) => {
+      let newWbsId: string;
       
-      // Check if parent has been processed (or is root)
-      if (!item.parent_id || processedIds.has(item.parent_id)) {
-        const newWbsId = generateNewWbsId(item);
-        if (newWbsId !== item.wbs_id) {
-          updates.push({ item, newWbsId });
-        }
-        processedIds.add(item.id);
-        return false; // Remove from remaining items
+      if (!parentWbsId) {
+        // Root level items: 1.0, 2.0, 3.0, etc.
+        newWbsId = `${index + 1}.0`;
+      } else if (parentWbsId.endsWith('.0')) {
+        // Child of root level (component): 1.1, 1.2, 1.3, etc.
+        const rootNumber = parentWbsId.split('.')[0];
+        newWbsId = `${rootNumber}.${index + 1}`;
+      } else {
+        // Deeper levels: 1.1.1, 1.1.2, 1.2.1, etc.
+        newWbsId = `${parentWbsId}.${index + 1}`;
       }
       
-      return true; // Keep in remaining items
+      // Only add to updates if the WBS ID actually changed
+      if (newWbsId !== item.wbs_id) {
+        updates.push({ item: flatItems.find(fi => fi.id === item.id)!, newWbsId });
+      }
+      
+      // Recursively process children
+      if (item.children && item.children.length > 0) {
+        generateWbsNumbers(item.children, newWbsId);
+      }
     });
-    
-    // Prevent infinite loop
-    if (remainingItems.length === initialLength) {
-      console.warn('Circular dependency detected in WBS hierarchy, breaking loop');
-      break;
-    }
-  }
+  };
+  
+  // Build hierarchy and generate sequential WBS numbers
+  const hierarchyTree = buildHierarchy(flatItems);
+  
+  // Sort root items by their current WBS ID to maintain order
+  hierarchyTree.sort((a, b) => {
+    const aNum = parseInt((a.wbs_id || '0.0').split('.')[0], 10) || 0;
+    const bNum = parseInt((b.wbs_id || '0.0').split('.')[0], 10) || 0;
+    return aNum - bNum;
+  });
+  
+  // Generate new WBS IDs
+  generateWbsNumbers(hierarchyTree);
+  
+  console.log(`🔢 Generated ${updates.length} WBS number updates for hierarchical consistency`);
   
   return updates;
 };

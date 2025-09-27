@@ -76,11 +76,9 @@ export const WBSLeftPanel = ({
     return isItemVisible(parent);
   };
   
+// Remove debug logs from WBSLeftPanel after testing
   // Filter items to only show visible ones
   const visibleItems = items.filter(isItemVisible);
-  
-  console.log('🟡 WBSLeftPanel items received:', items.length, 'visible:', visibleItems.length);
-  console.log('🟡 Items with isExpanded property:', items.map(i => ({ id: i.id, name: i.name, isExpanded: i.isExpanded, level: i.level, parent_id: i.parent_id })));
   
   const content = (
     <DragDropContext onDragEnd={onDragEnd}>

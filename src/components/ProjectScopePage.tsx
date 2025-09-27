@@ -755,7 +755,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   // Comprehensive WBS renumbering function
   const renumberWBSHierarchy = async () => {
     try {
+      console.log('🔄 Starting WBS hierarchy renumbering...');
+      console.log('📊 Current WBS items:', wbsItems.map(i => ({ id: i.id, wbs_id: i.wbs_id, title: i.title, parent_id: i.parent_id, level: i.level })));
+      
       const updates = renumberAllWBSItems(wbsItems);
+      
+      if (updates.length === 0) {
+        console.log('✅ No WBS renumbering needed - hierarchy is already correct');
+        return;
+      }
+      
+      console.log('🔢 Applying WBS updates:', updates.map(u => ({ item: u.item.title, oldWbs: u.item.wbs_id, newWbs: u.newWbsId })));
       
       // Apply all the WBS ID updates
       for (const { item, newWbsId } of updates) {
@@ -1563,13 +1573,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           items={flatWBSItems}
                           onToggleExpanded={handleToggleExpanded}
                           onDragEnd={onDragEnd}
-                          onItemUpdate={async (itemId, updates) => {
-                            await updateWBSItem(itemId, updates);
-                            // Trigger renumbering after hierarchy changes
-                            if (updates.parent_id !== undefined || updates.level !== undefined) {
-                              await renumberWBSHierarchy();
-                            }
-                          }}
+                           onItemUpdate={async (itemId, updates) => {
+                             console.log('🟪 WBSSplitView item update:', itemId, updates);
+                             await updateWBSItem(itemId, updates);
+                             // Trigger renumbering after hierarchy changes
+                             if (updates.parent_id !== undefined || updates.level !== undefined) {
+                               console.log('🔢 Triggering WBS renumbering due to hierarchy change');
+                               await renumberWBSHierarchy();
+                             }
+                           }}
                           onAddChild={addChildItem}
                           onContextMenuAction={handleContextMenuAction}
                           onOpenNotesDialog={openNotesDialog}
@@ -1616,13 +1628,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         items={flatWBSItems}
                         onToggleExpanded={handleToggleExpanded}
                         onDragEnd={onDragEnd}
-                        onItemUpdate={async (itemId, updates) => {
-                          await updateWBSItem(itemId, updates);
-                          // Trigger renumbering after hierarchy changes
-                          if (updates.parent_id !== undefined || updates.level !== undefined) {
-                            await renumberWBSHierarchy();
-                          }
-                        }}
+                           onItemUpdate={async (itemId, updates) => {
+                             console.log('🟦 WBSTimeView item update:', itemId, updates);
+                             await updateWBSItem(itemId, updates);
+                             // Trigger renumbering after hierarchy changes
+                             if (updates.parent_id !== undefined || updates.level !== undefined) {
+                               console.log('🔢 Triggering WBS renumbering due to hierarchy change');
+                               await renumberWBSHierarchy();
+                             }
+                           }}
                         onAddChild={addChildItem}
                         onContextMenuAction={handleContextMenuAction}
                         onOpenNotesDialog={openNotesDialog}
@@ -1666,13 +1680,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                             items={flatWBSItems}
                             onToggleExpanded={handleToggleExpanded}
                             onDragEnd={onDragEnd}
-                            onItemUpdate={async (itemId, updates) => {
-                              await updateWBSItem(itemId, updates);
-                              // Trigger renumbering after hierarchy changes
-                              if (updates.parent_id !== undefined || updates.level !== undefined) {
-                                await renumberWBSHierarchy();
-                              }
-                            }}
+                             onItemUpdate={async (itemId, updates) => {
+                               console.log('🟩 WBSCostView item update:', itemId, updates);
+                               await updateWBSItem(itemId, updates);
+                               // Trigger renumbering after hierarchy changes
+                               if (updates.parent_id !== undefined || updates.level !== undefined) {
+                                 console.log('🔢 Triggering WBS renumbering due to hierarchy change');
+                                 await renumberWBSHierarchy();
+                               }
+                             }}
                             onAddChild={addChildItem}
                             onContextMenuAction={handleContextMenuAction}
                             onOpenNotesDialog={openNotesDialog}
