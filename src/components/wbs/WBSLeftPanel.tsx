@@ -155,22 +155,30 @@ export const WBSLeftPanel = ({
                               </div>
                               
                                {/* Add Child Button */}
-                               <div className="px-2 flex items-center justify-center h-full">
-                                 {onAddChild && item.level < 2 && (
-                                   <Button
-                                     variant="ghost"
-                                     size="sm"
-                                     onClick={(e) => {
-                                       e.stopPropagation();
-                                       onAddChild(item.id);
-                                     }}
-                                     className="h-6 w-6 p-0 hover:bg-primary/10"
-                                     title={item.level === 0 ? "Add Component" : "Add Element"}
-                                   >
-                                     <Plus className="w-3 h-3" />
-                                   </Button>
-                                 )}
-                               </div>
+                                <div className="px-2 flex items-center justify-center h-full">
+                                  {onAddChild && (
+                                    <div className="flex gap-1">
+                                      {item.level < 3 && (
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            onAddChild(item.id);
+                                          }}
+                                          className="h-6 w-6 p-0 hover:bg-primary/10"
+                                          title={
+                                            item.level === 0 ? "Add Component" : 
+                                            item.level === 1 ? "Add Element" :
+                                            "Add Task"
+                                          }
+                                        >
+                                          <Plus className="w-3 h-3" />
+                                        </Button>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
                             </div>
                           </DragPortalWrapper>
                         )}
