@@ -40,8 +40,10 @@ export const WBSTimeView = ({
   const dataColumnsScrollRef = useRef<HTMLDivElement>(null);
   const timelineHeaderScrollRef = useRef<HTMLDivElement>(null);
   const timelineContentScrollRef = useRef<HTMLDivElement>(null);
+  const timelineHeaderHorizontalScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const isSyncingRef = useRef(false);
+  const isHorizontalSyncingRef = useRef(false);
 
   // Master scroll handler - Timeline section controls all scrolling
   const handleMasterScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
@@ -58,6 +60,35 @@ export const WBSTimeView = ({
     
     requestAnimationFrame(() => {
       isSyncingRef.current = false;
+    });
+  }, []);
+
+  // Horizontal scroll handler for timeline header and content sync
+  const handleTimelineHeaderScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (isHorizontalSyncingRef.current) return;
+    isHorizontalSyncingRef.current = true;
+    
+    const scrollLeft = e.currentTarget.scrollLeft;
+    if (timelineContentScrollRef.current) {
+      timelineContentScrollRef.current.scrollLeft = scrollLeft;
+    }
+    
+    requestAnimationFrame(() => {
+      isHorizontalSyncingRef.current = false;
+    });
+  }, []);
+
+  const handleTimelineContentHorizontalScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    if (isHorizontalSyncingRef.current) return;
+    isHorizontalSyncingRef.current = true;
+    
+    const scrollLeft = e.currentTarget.scrollLeft;
+    if (timelineHeaderHorizontalScrollRef.current) {
+      timelineHeaderHorizontalScrollRef.current.scrollLeft = scrollLeft;
+    }
+    
+    requestAnimationFrame(() => {
+      isHorizontalSyncingRef.current = false;
     });
   }, []);
 
@@ -178,7 +209,11 @@ export const WBSTimeView = ({
                 
                 {/* Timeline Header */}
                 <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
-                  <div className="h-full overflow-x-auto scrollbar-hide">
+                  <div 
+                    ref={timelineHeaderHorizontalScrollRef}
+                    className="h-full overflow-x-auto scrollbar-hide"
+                    onScroll={handleTimelineHeaderScroll}
+                  >
                     <div 
                       className="text-xs font-medium text-gray-700 flex h-full"
                       style={{ 
@@ -255,9 +290,12 @@ export const WBSTimeView = ({
                 {/* Timeline Section - Master scroll controller */}
                 <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
                   <div 
+                    ref={timelineContentScrollRef}
                     className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
-                    onScroll={handleMasterScroll}
-                    ref={timelineHeaderScrollRef}
+                    onScroll={(e) => {
+                      handleMasterScroll(e);
+                      handleTimelineContentHorizontalScroll(e);
+                    }}
                   >
                     <GanttChart 
                       items={items.map(item => ({
