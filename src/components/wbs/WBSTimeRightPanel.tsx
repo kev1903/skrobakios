@@ -29,7 +29,7 @@ interface WBSTimeRightPanelProps {
   onClearAllDates?: () => void;
   EditableCell: any;
   StatusSelect: any;
-  scrollRef: React.RefObject<HTMLDivElement>;
+  scrollRef?: React.RefObject<HTMLDivElement>;
   onScroll?: () => void;
   hoveredId?: string | null;
   onRowHover?: (id: string | null) => void;
@@ -301,38 +301,70 @@ export const WBSTimeRightPanel = ({
 
     handleItemUpdate(id, updates);
   }, [items, handleItemUpdate]);
-  return (
-    <div className="h-full bg-white overflow-hidden" style={{ minWidth: '720px' }}>
-      {/* Content */}
-      <div className="h-full overflow-hidden">
-        {scrollRef && (
-          <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full scrollbar-hide" onScroll={onScroll}>
-          <div className="space-y-0">
-            {items.map((item) => (
-              <div
-                key={item.id}
-                className={`grid items-center w-full border-b border-gray-100 ${
-                  item.level === 0 
-                    ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 hover:from-blue-50 hover:to-blue-100 border-l-[6px] border-blue-800 shadow-sm' 
-                    : item.level === 1
-                    ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 hover:from-blue-100 hover:to-blue-200 border-l-[4px] border-blue-400'
-                    : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-                } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
-                style={{
-                  gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
-                  height: '28px', // Match WBSLeftPanel exactly
-                }}
-                onMouseEnter={() => onRowHover?.(item.id)}
-                onMouseLeave={() => onRowHover?.(null)}
-              >
 
-                <div className="px-2 flex items-center text-xs text-muted-foreground">
+  // If we have a scrollRef, use unified scrolling
+  if (scrollRef) {
+    return (
+      <div className="h-full bg-white overflow-hidden" style={{ minWidth: '720px' }}>
+        <div className="h-full overflow-hidden">
+          <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden w-full scrollbar-hide" onScroll={onScroll}>
+            <div className="space-y-0">
+              {items.map((item) => (
+                <div
+                  key={item.id}
+                  className={`grid items-center w-full border-b border-gray-100 ${
+                    item.level === 0 
+                      ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 hover:from-blue-50 hover:to-blue-100 border-l-[6px] border-blue-800 shadow-sm' 
+                      : item.level === 1
+                      ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 hover:from-blue-100 hover:to-blue-200 border-l-[4px] border-blue-400'
+                      : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+                  } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+                  style={{
+                    gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
+                    height: '28px',
+                  }}
+                  onMouseEnter={() => onRowHover?.(item.id)}
+                  onMouseLeave={() => onRowHover?.(null)}
+                >
+                  <div className="px-2 flex items-center text-xs text-muted-foreground">
+                      {(() => {
+                        const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
+                        const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
+                        if (isParent) {
+                          const rollup = rollupDates.get(item.id);
+                          const d = rollup?.start;
+                          return (
+                            <span className="text-xs text-muted-foreground">
+                              {d ? format(d, 'MMM dd, yyyy') : '-'}
+                            </span>
+                          );
+                        }
+                        return (
+                          <div className="flex items-center w-full">
+                            <DatePickerCell
+                              id={item.id}
+                              type={type}
+                              field="start_date"
+                              value={item.start_date}
+                              placeholder="Start date"
+                              className="text-xs text-muted-foreground"
+                              onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                              onCalculate={handleDateCalculation}
+                              currentItem={item}
+                            />
+                            <DependencyLockIndicator item={item} field="start_date" />
+                          </div>
+                        );
+                      })()}
+                  </div>
+
+                  <div className="px-2 flex items-end text-xs text-muted-foreground">
                     {(() => {
                       const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
                       const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
                       if (isParent) {
                         const rollup = rollupDates.get(item.id);
-                        const d = rollup?.start;
+                        const d = rollup?.end;
                         return (
                           <span className="text-xs text-muted-foreground">
                             {d ? format(d, 'MMM dd, yyyy') : '-'}
@@ -344,27 +376,156 @@ export const WBSTimeRightPanel = ({
                           <DatePickerCell
                             id={item.id}
                             type={type}
-                            field="start_date"
-                            value={item.start_date}
-                            placeholder="Start date"
+                            field="end_date"
+                            value={item.end_date}
+                            placeholder="End date"
                             className="text-xs text-muted-foreground"
                             onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
                             onCalculate={handleDateCalculation}
                             currentItem={item}
                           />
-                          <DependencyLockIndicator item={item} field="start_date" />
+                          <DependencyLockIndicator item={item} field="end_date" />
                         </div>
                       );
                     })()}
-                </div>
+                  </div>
 
-                <div className="px-2 flex items-end text-xs text-muted-foreground">
+                  <div className="px-2 flex items-end text-xs text-muted-foreground">
+                    {(() => {
+                      const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
+                      const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
+                      if (isParent) {
+                        const rollup = rollupDates.get(item.id);
+                        const d = rollup?.duration ?? item.duration;
+                        return (
+                          <div className="w-full h-full flex items-end">
+                            <span className="text-xs leading-none text-muted-foreground">{d ? `${d}d` : '-'}</span>
+                          </div>
+                        );
+                      }
+                      return (
+                        <DurationCell
+                          id={item.id}
+                          type={type}
+                          value={item.duration || 0}
+                          className="text-xs text-muted-foreground"
+                          onUpdate={handleDurationCalculation}
+                        />
+                      );
+                    })()}
+                  </div>
+
+                  <div className="px-2 flex items-center text-xs text-muted-foreground">
+                    <PredecessorCell
+                      id={item.id}
+                      type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                      value={item.predecessors || []}
+                      className="text-xs text-muted-foreground"
+                      onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
+                      allItems={items}
+                      availableItems={items.map(i => ({
+                        id: i.id,
+                        name: i.title || i.name || '',
+                        wbsNumber: i.wbs_id || '',
+                        level: i.level || 0
+                      }))}
+                    />
+                  </div>
+
+                  <div className="px-2 flex items-center text-xs text-muted-foreground">
+                    <StatusSelect
+                      id={item.id}
+                      type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                      value={item.status || 'Not Started'}
+                      className="text-xs text-muted-foreground"
+                    />
+                  </div>
+
+                  <div className="px-2 flex items-center justify-center h-full">
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onOpenNotesDialog(item)}
+                        className="h-6 w-6 p-0 hover:bg-accent/50"
+                        title="Add/Edit Notes"
+                      >
+                        <NotebookPen className="w-3 h-3" />
+                      </Button>
+                      
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 hover:bg-accent/50"
+                          >
+                            <MoreHorizontal className="w-3 h-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem 
+                            onClick={() => onContextMenuAction('edit', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}
+                          >
+                            <Edit2 className="w-4 h-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => onContextMenuAction('duplicate', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}
+                          >
+                            <Copy className="w-4 h-4 mr-2" />
+                            Duplicate
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Original standalone scrolling version
+  return (
+    <div className="h-full bg-white overflow-hidden" style={{ minWidth: '720px' }}>
+      <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
+        <div className="space-y-0">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className={`grid items-center w-full border-b border-gray-100 ${
+                item.level === 0 
+                  ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 hover:from-blue-50 hover:to-blue-100 border-l-[6px] border-blue-800 shadow-sm' 
+                  : item.level === 1
+                  ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 hover:from-blue-100 hover:to-blue-200 border-l-[4px] border-blue-400'
+                  : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
+              } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
+              style={{
+                gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
+                height: '28px',
+              }}
+              onMouseEnter={() => onRowHover?.(item.id)}
+              onMouseLeave={() => onRowHover?.(null)}
+            >
+              <div className="px-2 flex items-center text-xs text-muted-foreground">
                   {(() => {
                     const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
                     const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
                     if (isParent) {
                       const rollup = rollupDates.get(item.id);
-                      const d = rollup?.end;
+                      const d = rollup?.start;
                       return (
                         <span className="text-xs text-muted-foreground">
                           {d ? format(d, 'MMM dd, yyyy') : '-'}
@@ -376,151 +537,27 @@ export const WBSTimeRightPanel = ({
                         <DatePickerCell
                           id={item.id}
                           type={type}
-                          field="end_date"
-                          value={item.end_date}
-                          placeholder="End date"
+                          field="start_date"
+                          value={item.start_date}
+                          placeholder="Start date"
                           className="text-xs text-muted-foreground"
                           onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
                           onCalculate={handleDateCalculation}
                           currentItem={item}
                         />
-                        <DependencyLockIndicator item={item} field="end_date" />
+                        <DependencyLockIndicator item={item} field="start_date" />
                       </div>
                     );
                   })()}
-                </div>
-
-                <div className="px-2 flex items-end text-xs text-muted-foreground">
-                  {(() => {
-                    const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                    const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
-                    if (isParent) {
-                      const rollup = rollupDates.get(item.id);
-                      const d = rollup?.duration ?? item.duration;
-                      return (
-                        <div className="w-full h-full flex items-end">
-                          <span className="text-xs leading-none text-muted-foreground">{d ? `${d}d` : '-'}</span>
-                        </div>
-                      );
-                    }
-                    return (
-                      <DurationCell
-                        id={item.id}
-                        type={type}
-                        value={item.duration || 0}
-                        className="text-xs text-muted-foreground"
-                        onUpdate={handleDurationCalculation}
-                      />
-                    );
-                  })()}
-                </div>
-
-                <div className="px-2 flex items-center text-xs text-muted-foreground">
-                  <PredecessorCell
-                    id={item.id}
-                    type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                    value={item.predecessors || []}
-                    availableItems={items.map(i => ({
-                      id: i.id,
-                      title: i.title,
-                      wbs_id: i.wbs_id || ''
-                    }))}
-                    onUpdate={(predecessors) => handleItemUpdate(item.id, { predecessors })}
-                    className="text-xs text-muted-foreground"
-                  />
-                </div>
-
-                <div className="px-2 flex items-center text-xs text-muted-foreground">
-                  <StatusSelect 
-                    value={item.status || 'Not Started'} 
-                    onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
-                  />
-                </div>
-
-                <div className="px-2 flex items-center text-xs text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onOpenNotesDialog(item)}
-                      className="h-6 w-6 p-0 hover:bg-muted"
-                      title={item.description ? "View/Edit notes" : "Add notes"}
-                    >
-                      <NotebookPen className={`w-4 h-4 transition-colors ${
-                        item.description && item.description.trim() 
-                          ? 'text-blue-600 hover:text-blue-700' 
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`} />
-                    </Button>
-                    
-                    {onClearAllDates && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleItemUpdate(item.id, { start_date: null, end_date: null, duration: null })}
-                        className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
-                        title="Clear all dates"
-                      >
-                        <Calendar className="w-4 h-4" />
-                      </Button>
-                    )}
-                    
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-muted">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48">
-                        <DropdownMenuItem onClick={() => {
-                          navigator.clipboard.writeText(JSON.stringify(item, null, 2));
-                        }}>
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copy Details
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem 
-                          onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-        ) || (
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className={`grid items-center w-full border-b border-gray-100 ${
-              item.level === 0 
-                ? 'bg-gradient-to-r from-slate-100 via-blue-50 to-slate-100 hover:from-blue-50 hover:to-blue-100 border-l-[6px] border-blue-800 shadow-sm' 
-                : item.level === 1
-                ? 'bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 hover:from-blue-100 hover:to-blue-200 border-l-[4px] border-blue-400'
-                : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
-            } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
-            style={{
-              gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
-              height: '28px', // Match WBSLeftPanel exactly
-            }}
-            onMouseEnter={() => onRowHover?.(item.id)}
-            onMouseLeave={() => onRowHover?.(null)}
-          >
 
-            <div className="px-2 flex items-center text-xs text-muted-foreground">
+              <div className="px-2 flex items-end text-xs text-muted-foreground">
                 {(() => {
                   const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
                   const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
                   if (isParent) {
                     const rollup = rollupDates.get(item.id);
-                    const d = rollup?.start;
+                    const d = rollup?.end;
                     return (
                       <span className="text-xs text-muted-foreground">
                         {d ? format(d, 'MMM dd, yyyy') : '-'}
@@ -532,206 +569,123 @@ export const WBSTimeRightPanel = ({
                       <DatePickerCell
                         id={item.id}
                         type={type}
-                        field="start_date"
-                        value={item.start_date}
-                        placeholder="Start date"
+                        field="end_date"
+                        value={item.end_date}
+                        placeholder="End date"
                         className="text-xs text-muted-foreground"
                         onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
                         onCalculate={handleDateCalculation}
                         currentItem={item}
                       />
-                      <DependencyLockIndicator item={item} field="start_date" />
+                      <DependencyLockIndicator item={item} field="end_date" />
                     </div>
                   );
                 })()}
-            </div>
+              </div>
 
-            <div className="px-2 flex items-end text-xs text-muted-foreground">
-              {(() => {
-                const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
-                if (isParent) {
-                  const rollup = rollupDates.get(item.id);
-                  const d = rollup?.end;
+              <div className="px-2 flex items-end text-xs text-muted-foreground">
+                {(() => {
+                  const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
+                  const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
+                  if (isParent) {
+                    const rollup = rollupDates.get(item.id);
+                    const d = rollup?.duration ?? item.duration;
+                    return (
+                      <div className="w-full h-full flex items-end">
+                        <span className="text-xs leading-none text-muted-foreground">{d ? `${d}d` : '-'}</span>
+                      </div>
+                    );
+                  }
                   return (
-                    <span className="text-xs text-muted-foreground">
-                      {d ? format(d, 'MMM dd, yyyy') : '-'}
-                    </span>
-                  );
-                }
-                return (
-                  <div className="flex items-center w-full">
-                    <DatePickerCell
+                    <DurationCell
                       id={item.id}
                       type={type}
-                      field="end_date"
-                      value={item.end_date}
-                      placeholder="End date"
+                      value={item.duration || 0}
                       className="text-xs text-muted-foreground"
-                      onUpdate={(id, field, value) => handleItemUpdate(id, { [field]: value })}
-                      onCalculate={handleDateCalculation}
-                      currentItem={item}
+                      onUpdate={handleDurationCalculation}
                     />
-                    <DependencyLockIndicator item={item} field="end_date" />
-                  </div>
-                );
-              })()}
-            </div>
-
-            <div className="px-2 flex items-end text-xs text-muted-foreground">
-              {(() => {
-                const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
-                if (isParent) {
-                  const rollup = rollupDates.get(item.id);
-                  const d = rollup?.duration ?? item.duration;
-                  return (
-                    <div className="w-full h-full flex items-end">
-                      <span className="text-xs leading-none text-muted-foreground">{d ? `${d}d` : '-'}</span>
-                    </div>
                   );
-                }
-                return (
-                  <DurationCell
-                    id={item.id}
-                    type={type}
-                    value={item.duration || 0}
-                    className="text-xs text-muted-foreground"
-                    onUpdate={handleDurationCalculation}
-                  />
-                );
-              })()}
-            </div>
+                })()}
+              </div>
 
-            <div className="px-2 flex items-center text-xs text-muted-foreground">
-              <PredecessorCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                value={item.predecessors || []}
-                availableItems={items.map(i => ({
-                  id: i.id,
-                  name: i.title,
-                  wbsNumber: i.wbs_id || '',
-                  level: i.level
-                }))}
-                allItems={items} // Pass full items for validation
-                className="text-xs text-muted-foreground"
-                onUpdate={async (id, field, value) => {
-                  try {
-                    console.log(`Updating ${field} for item ${id}:`, value);
-                    
-                    // Update the item with new predecessors first
-                    await onItemUpdate(id, { [field]: value });
-                    console.log(`✅ Successfully updated ${field} for item ${id}`);
-                    
-                    // Get updated flat items list
-                    const flatItems = items.reduce<WBSItem[]>((acc, item) => {
-                      const flatten = (i: WBSItem): WBSItem[] => [i, ...(i.children || []).flatMap(flatten)];
-                      return [...acc, ...flatten(item)];
-                    }, []);
-                    
-                    // Validate for circular dependencies
-                    const { detectCircularDependencies } = await import('@/utils/wbsPredecessorUtils');
-                    const hasCircular = detectCircularDependencies(id, flatItems);
-                    
-                    if (hasCircular) {
-                      console.error('❌ Circular dependency detected - reverting changes');
-                      // Revert the change if circular dependency detected
-                      const originalItem = flatItems.find(i => i.id === id);
-                      if (originalItem) {
-                        await onItemUpdate(id, { predecessors: originalItem.predecessors || [] });
-                      }
-                      // Show user feedback about the circular dependency
-                      if (typeof window !== 'undefined' && 'toast' in window) {
-                        (window as any).toast({
-                          title: "Invalid Dependencies",
-                          description: "Circular dependencies are not allowed. Changes have been reverted.",
-                          variant: "destructive"
-                        });
-                      }
-                      return;
-                    }
-                    
-                    // Auto-schedule this task based on its updated predecessors
-                    if (field === 'predecessors') {
-                      const { autoScheduleWBSTask } = await import('@/utils/wbsPredecessorUtils');
-                      const currentItem = flatItems.find(i => i.id === id);
-                      if (currentItem) {
-                        // Create updated item with new predecessors for scheduling calculation
-                        const itemWithNewPredecessors = { ...currentItem, predecessors: value };
-                        const scheduleUpdates = autoScheduleWBSTask(itemWithNewPredecessors, flatItems);
-                        
-                        if (scheduleUpdates) {
-                          console.log(`📅 Auto-scheduling task ${id}:`, scheduleUpdates);
-                          await onItemUpdate(id, scheduleUpdates);
-                          
-                          // Update flatItems with the newly scheduled item for dependent task scheduling
-                          const itemIndex = flatItems.findIndex(i => i.id === id);
-                          if (itemIndex >= 0) {
-                            flatItems[itemIndex] = { ...flatItems[itemIndex], ...scheduleUpdates, predecessors: value };
-                          }
-                        }
-                      }
-                      
-                      // Auto-schedule dependent tasks based on the updated item
-                      await autoScheduleDependentWBSTasks(id, flatItems, (taskId, updates) => {
-                        console.log(`📅 Auto-scheduling dependent task ${taskId}:`, updates);
-                        return Promise.resolve(onItemUpdate(taskId, updates));
-                      });
-                      
-                      // Show success feedback
-                      console.log(`✅ Auto-scheduling completed for task ${id} and dependencies`);
-                    }
-                    
-                  } catch (error) {
-                    console.error('❌ Error updating predecessors:', error);
-                    // Show error feedback to user
-                    if (typeof window !== 'undefined' && 'toast' in window) {
-                      (window as any).toast({
-                        title: "Update Failed",
-                        description: "Failed to update predecessors. Please try again.",
-                        variant: "destructive"
-                      });
-                    }
-                  }
-                }}
-              />
-            </div>
+              <div className="px-2 flex items-center text-xs text-muted-foreground">
+                <PredecessorCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  value={item.predecessors || []}
+                  availableItems={items.map(i => ({
+                    id: i.id,
+                    title: i.title,
+                    wbs_id: i.wbs_id || ''
+                  }))}
+                  onUpdate={(predecessors) => handleItemUpdate(item.id, { predecessors })}
+                  className="text-xs text-muted-foreground"
+                />
+              </div>
 
-            <div className="px-2 flex items-center">
-              <StatusSelect 
-                value={item.status} 
-                onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
-                disabled={item.hasChildren}
-              />
-            </div>
+              <div className="px-2 flex items-center text-xs text-muted-foreground">
+                <StatusSelect 
+                  value={item.status || 'Not Started'} 
+                  onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
+                />
+              </div>
 
-            <div className="px-2 flex items-center justify-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                    <MoreHorizontal className="w-3 h-3" />
+              <div className="px-2 flex items-center text-xs text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onOpenNotesDialog(item)}
+                    className="h-6 w-6 p-0 hover:bg-muted"
+                    title={item.description ? "View/Edit notes" : "Add notes"}
+                  >
+                    <NotebookPen className={`w-4 h-4 transition-colors ${
+                      item.description && item.description.trim() 
+                        ? 'text-blue-600 hover:text-blue-700' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`} />
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuItem onClick={() => onContextMenuAction('edit', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}>
-                    <Edit2 className="w-3 h-3 mr-2" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onContextMenuAction('duplicate', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}>
-                    <Copy className="w-3 h-3 mr-2" />
-                    Duplicate
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')} className="text-destructive focus:text-destructive">
-                    <Trash2 className="w-3 h-3 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  
+                  {onClearAllDates && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleItemUpdate(item.id, { start_date: null, end_date: null, duration: null })}
+                      className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                      title="Clear all dates"
+                    >
+                      <Calendar className="w-4 h-4" />
+                    </Button>
+                  )}
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-muted">
+                        <MoreHorizontal className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => {
+                        navigator.clipboard.writeText(JSON.stringify(item, null, 2));
+                      }}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy Details
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element')}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
