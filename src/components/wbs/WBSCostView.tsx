@@ -92,11 +92,11 @@ export const WBSCostView = ({
       </div>
 
       {/* Unified Content Area with Single Scroll */}
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-thin">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hide">
         <ResizablePanelGroup direction="horizontal" className="min-h-full">
           {/* Left Content */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div className="min-h-full border-r border-gray-200">
+            <div className="min-h-full border-r border-gray-200 overflow-y-auto scrollbar-hide">
               <WBSLeftPanel
                 items={items}
                 onToggleExpanded={onToggleExpanded}
@@ -116,7 +116,7 @@ export const WBSCostView = ({
           
           {/* Right Content */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <div className="min-h-full">
+            <div className="min-h-full overflow-y-auto scrollbar-thin">
               <WBSCostRightPanel
                 items={items}
                 onItemUpdate={onItemUpdate}
