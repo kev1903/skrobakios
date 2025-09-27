@@ -109,55 +109,49 @@ export const WBSCostView = ({
 
       {/* Unified Scrollable Content */}
       <div className="flex-1 overflow-hidden">
-        <ResizablePanelGroup direction="horizontal" className="h-full">
-          {/* Left Panel Content */}
-          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div 
-              ref={leftScrollRef}
-              className="h-full border-r border-gray-200 bg-white overflow-y-auto scrollbar-thin"
-              onScroll={handleLeftScroll}
-            >
-              <WBSLeftPanel
-                items={items}
-                onToggleExpanded={onToggleExpanded}
-                onDragEnd={onDragEnd}
-                onItemEdit={onItemUpdate}
-                onAddChild={onAddChild}
-                dragIndicator={dragIndicator}
-                EditableCell={EditableCell}
-                generateWBSNumber={generateWBSNumber}
-                scrollRef={undefined}
-                onScroll={undefined}
-                hoveredId={hoveredId}
-                onRowHover={setHoveredId}
-              />
-            </div>
-          </ResizablePanel>
-          
-          <ResizableHandle />
-          
-          {/* Right Panel Content */}
-          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <div 
-              ref={rightScrollRef}
-              className="h-full bg-white overflow-y-auto scrollbar-thin"
-              onScroll={handleRightScroll}
-            >
-              <WBSCostRightPanel
-                items={items}
-                onItemUpdate={onItemUpdate}
-                onContextMenuAction={onContextMenuAction}
-                onOpenNotesDialog={onOpenNotesDialog}
-                EditableCell={EditableCell}
-                StatusSelect={StatusSelect}
-                scrollRef={undefined}
-                onScroll={undefined}
-                hoveredId={hoveredId}
-                onRowHover={setHoveredId}
-              />
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+        <div className="h-full overflow-y-auto overflow-x-hidden">
+          <ResizablePanelGroup direction="horizontal" className="h-full min-h-full">
+            {/* Left Panel Content */}
+            <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+              <div className="h-full border-r border-gray-200 bg-white">
+                <WBSLeftPanel
+                  items={items}
+                  onToggleExpanded={onToggleExpanded}
+                  onDragEnd={onDragEnd}
+                  onItemEdit={onItemUpdate}
+                  onAddChild={onAddChild}
+                  dragIndicator={dragIndicator}
+                  EditableCell={EditableCell}
+                  generateWBSNumber={generateWBSNumber}
+                  scrollRef={undefined}
+                  onScroll={undefined}
+                  hoveredId={hoveredId}
+                  onRowHover={setHoveredId}
+                />
+              </div>
+            </ResizablePanel>
+            
+            <ResizableHandle />
+            
+            {/* Right Panel Content */}
+            <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+              <div className="h-full bg-white">
+                <WBSCostRightPanel
+                  items={items}
+                  onItemUpdate={onItemUpdate}
+                  onContextMenuAction={onContextMenuAction}
+                  onOpenNotesDialog={onOpenNotesDialog}
+                  EditableCell={EditableCell}
+                  StatusSelect={StatusSelect}
+                  scrollRef={undefined}
+                  onScroll={undefined}
+                  hoveredId={hoveredId}
+                  onRowHover={setHoveredId}
+                />
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </div>
       </div>
     </div>
   );
