@@ -1553,7 +1553,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               </TabsContent>
 
                <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex data-[state=active]:flex-col overflow-hidden">
-                  <div className="h-full flex flex-col overflow-hidden" style={{ marginRight: 'calc(320px + 1rem)' }}>
+                  <div className="h-full w-full flex flex-col overflow-hidden">
                      {loading && wbsItems.length === 0 ? (
                        <div className="flex items-center justify-center h-64">
                          <div className="text-center">
