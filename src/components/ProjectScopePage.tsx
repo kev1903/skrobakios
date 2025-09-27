@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal, ChevronsDown, ChevronsUp, NotebookPen, Clock, DollarSign, Settings } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { Button } from '@/components/ui/button';
@@ -734,6 +734,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       console.error('❌ Error renumbering WBS hierarchy:', error);
     }
   };
+
+  // Create a unified toggle handler for all tabs to ensure synchronization
+  const handleToggleExpanded = useCallback(async (itemId: string) => {
+    console.log('🔄 Toggling expand/collapse for item:', itemId);
+    
+    const item = wbsItems.find(i => i.id === itemId);
+    if (item) {
+      const newExpandedState = !item.is_expanded;
+      console.log(`📊 Item ${itemId} changing from ${item.is_expanded} to ${newExpandedState}`);
+      
+      // Update the WBS item in the database and local state
+      await updateWBSItem(itemId, { is_expanded: newExpandedState });
+      
+      console.log('✅ Expand/collapse state updated across all tabs');
+    }
+  }, [wbsItems, updateWBSItem]);
 
   const addNewElement = async (componentId: string) => {
     try {
@@ -1503,12 +1519,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        <div className="h-full overflow-hidden">
                         <WBSSplitView
                           items={flatWBSItems}
-                          onToggleExpanded={(itemId) => {
-                            const item = wbsItems.find(i => i.id === itemId);
-                            if (item) {
-                              updateWBSItem(itemId, { is_expanded: !item.is_expanded });
-                            }
-                          }}
+                          onToggleExpanded={handleToggleExpanded}
                           onDragEnd={onDragEnd}
                           onItemUpdate={async (itemId, updates) => {
                             await updateWBSItem(itemId, updates);
@@ -1556,12 +1567,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     <div className="h-full overflow-hidden">
                       <WBSTimeView
                         items={flatWBSItems}
-                        onToggleExpanded={(itemId) => {
-                          const item = wbsItems.find(i => i.id === itemId);
-                          if (item) {
-                            updateWBSItem(itemId, { is_expanded: !item.is_expanded });
-                          }
-                        }}
+                        onToggleExpanded={handleToggleExpanded}
                         onDragEnd={onDragEnd}
                         onItemUpdate={async (itemId, updates) => {
                           await updateWBSItem(itemId, updates);
@@ -1606,28 +1612,23 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                       ) : (
                           <WBSCostView
                             items={flatWBSItems}
-                            onToggleExpanded={(itemId) => {
-                             const item = wbsItems.find(i => i.id === itemId);
-                             if (item) {
-                               updateWBSItem(itemId, { is_expanded: !item.is_expanded });
-                             }
-                           }}
-                           onDragEnd={onDragEnd}
-                           onItemUpdate={async (itemId, updates) => {
-                             await updateWBSItem(itemId, updates);
-                             // Trigger renumbering after hierarchy changes
-                             if (updates.parent_id !== undefined || updates.level !== undefined) {
-                               await renumberWBSHierarchy();
-                             }
-                           }}
-                           onAddChild={addChildItem}
-                           onContextMenuAction={handleContextMenuAction}
-                           onOpenNotesDialog={openNotesDialog}
-                           onAddRow={addNewPhase}
-                           dragIndicator={dragIndicator}
-                           EditableCell={EditableCell}
-                           StatusSelect={StatusSelect}
-                           generateWBSNumber={generateWBSNumber}
+                            onToggleExpanded={handleToggleExpanded}
+                            onDragEnd={onDragEnd}
+                            onItemUpdate={async (itemId, updates) => {
+                              await updateWBSItem(itemId, updates);
+                              // Trigger renumbering after hierarchy changes
+                              if (updates.parent_id !== undefined || updates.level !== undefined) {
+                                await renumberWBSHierarchy();
+                              }
+                            }}
+                            onAddChild={addChildItem}
+                            onContextMenuAction={handleContextMenuAction}
+                            onOpenNotesDialog={openNotesDialog}
+                            onAddRow={addNewPhase}
+                            dragIndicator={dragIndicator}
+                            EditableCell={EditableCell}
+                            StatusSelect={StatusSelect}
+                            generateWBSNumber={generateWBSNumber}
                           />
                       )}
                     </div>
