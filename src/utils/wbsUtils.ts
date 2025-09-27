@@ -360,11 +360,18 @@ export const calculateRollupProgress = (item: WBSItem): number => {
     return item.progress || 0;
   }
   
-  const totalProgress = item.children.reduce((sum, child) => {
-    return sum + calculateRollupProgress(child);
-  }, 0);
+  const childProgress = item.children.map(child => calculateRollupProgress(child));
+  const totalProgress = childProgress.reduce((sum, progress) => sum + progress, 0);
+  const avgProgress = Math.round(totalProgress / item.children.length);
   
-  return Math.round(totalProgress / item.children.length);
+  console.log(`📊 Calculating rollup progress for ${item.wbs_id}:`, {
+    childProgress,
+    totalProgress,
+    avgProgress,
+    childrenCount: item.children.length
+  });
+  
+  return avgProgress;
 };
 
 // Calculate rollup status for parent items based on children
@@ -374,15 +381,26 @@ export const calculateRollupStatus = (item: WBSItem): WBSItem['status'] => {
   }
   
   const childStatuses = item.children.map(child => calculateRollupStatus(child));
+  const childProgress = item.children.map(child => calculateRollupProgress(child));
   
-  // If any child is in progress, parent is in progress
-  if (childStatuses.includes('In Progress')) {
-    return 'In Progress';
+  console.log(`🏷️ Calculating rollup status for ${item.wbs_id}:`, {
+    childStatuses,
+    childProgress
+  });
+  
+  // If all children are 100% complete, parent is completed
+  if (childProgress.every(progress => progress === 100)) {
+    return 'Completed';
   }
   
-  // If all children are completed, parent is completed
+  // If all children are completed status-wise, parent is completed
   if (childStatuses.every(status => status === 'Completed')) {
     return 'Completed';
+  }
+  
+  // If any child is in progress or has progress > 0, parent is in progress
+  if (childStatuses.includes('In Progress') || childProgress.some(progress => progress > 0)) {
+    return 'In Progress';
   }
   
   // If any child is delayed, parent is delayed
@@ -403,19 +421,39 @@ export const calculateRollupStatus = (item: WBSItem): WBSItem['status'] => {
 export const updateParentRollups = (items: WBSItem[], changedItemId: string): { updatedItems: WBSItem[], parentsToUpdate: Array<{id: string, progress: number, status: WBSItem['status']}> } => {
   const parentsToUpdate: Array<{id: string, progress: number, status: WBSItem['status']}> = [];
   
+  console.log('🔄 updateParentRollups called for item:', changedItemId);
+  
   const updateItem = (item: WBSItem): WBSItem => {
     // Update children first (recursive)
     const updatedChildren = item.children ? item.children.map(updateItem) : [];
     const updatedItem = { ...item, children: updatedChildren };
     
-    // If this item has children and one of them was changed, update rollups
+    // Check if this item has children and any of them (or their descendants) was changed
     const hasChangedChild = updatedChildren.some(child => 
       child.id === changedItemId || hasDescendant(child, changedItemId)
     );
     
-    if (hasChangedChild && updatedChildren.length > 0) {
+    // Also check if this item itself was changed (direct child update)
+    const isDirectParent = updatedChildren.some(child => child.id === changedItemId);
+    
+    console.log(`📊 Item ${item.wbs_id} (${item.title}):`, {
+      hasChildren: updatedChildren.length > 0,
+      hasChangedChild,
+      isDirectParent,
+      childrenCount: updatedChildren.length
+    });
+    
+    if ((hasChangedChild || isDirectParent) && updatedChildren.length > 0) {
       const newProgress = calculateRollupProgress(updatedItem);
       const newStatus = calculateRollupStatus(updatedItem);
+      
+      console.log(`✅ Updating parent ${item.wbs_id} rollup:`, {
+        oldProgress: item.progress,
+        newProgress,
+        oldStatus: item.status,
+        newStatus,
+        childrenProgress: updatedChildren.map(c => ({ id: c.wbs_id, progress: c.progress }))
+      });
       
       // Track this parent for database update
       parentsToUpdate.push({
@@ -435,6 +473,7 @@ export const updateParentRollups = (items: WBSItem[], changedItemId: string): { 
   };
   
   const updatedItems = items.map(updateItem);
+  console.log(`🎯 Parents to update in database:`, parentsToUpdate.length);
   return { updatedItems, parentsToUpdate };
 };
 
