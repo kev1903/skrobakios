@@ -51,27 +51,52 @@ export const WBSCostView = ({
 
   return (
     <div className="h-full w-full bg-white flex flex-col">
-      {/* Single ResizablePanelGroup controlling both header and content */}
-      <ResizablePanelGroup direction="horizontal" className="h-full">
-        {/* Left Column (WBS + Names) */}
-        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-          <div className="h-full flex flex-col">
-            {/* Left Header */}
-            <div className="h-8 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200 sticky top-0 z-40">
-              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
-                <div className="grid items-center h-full" style={{
-                  gridTemplateColumns: '32px 120px 1fr 40px',
-                }}>
-                  <div></div>
-                  <div className="px-2 font-semibold">WBS</div>
-                  <div className="px-3 font-semibold">NAME</div>
-                  <div></div>
-                </div>
+      {/* Fixed Headers */}
+      <div className="flex-shrink-0 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
+        <ResizablePanelGroup direction="horizontal" className="h-8">
+          {/* Left Header */}
+          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+            <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full border-r border-gray-200">
+              <div className="grid items-center h-full" style={{
+                gridTemplateColumns: '32px 120px 1fr 40px',
+              }}>
+                <div></div>
+                <div className="px-2 font-semibold">WBS</div>
+                <div className="px-3 font-semibold">NAME</div>
+                <div></div>
               </div>
             </div>
-            
-            {/* Left Content */}
-            <div className="flex-1 overflow-auto scrollbar-hide">
+          </ResizablePanel>
+          
+          <ResizableHandle />
+          
+          {/* Right Header */}
+          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+            <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+              <div className="grid items-center h-full" style={{
+                gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+              }}>
+                <div className="px-3 font-semibold">DESCRIPTION</div>
+                <div className="px-2 font-semibold text-right">BUDGET</div>
+                <div className="px-2 font-semibold text-right">COMMITTED</div>
+                <div className="px-2 font-semibold text-right">PAID</div>
+                <div className="px-2 font-semibold text-right">REMAINING</div>
+                <div className="px-2 font-semibold text-right">FORECAST FINAL</div>
+                <div className="px-2 font-semibold text-right">VARIANCE</div>
+                <div className="px-2 font-semibold text-right">STATUS</div>
+                <div className="px-2 font-semibold">NOTES</div>
+              </div>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+
+      {/* Unified Content Area with Single Scroll */}
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-thin">
+        <ResizablePanelGroup direction="horizontal" className="min-h-full">
+          {/* Left Content */}
+          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+            <div className="min-h-full border-r border-gray-200">
               <WBSLeftPanel
                 items={items}
                 onToggleExpanded={onToggleExpanded}
@@ -85,35 +110,13 @@ export const WBSCostView = ({
                 onRowHover={setHoveredId}
               />
             </div>
-          </div>
-        </ResizablePanel>
-        
-        <ResizableHandle />
-        
-        {/* Right Column (Cost data) */}
-        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-          <div className="h-full flex flex-col">
-            {/* Right Header */}
-            <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
-              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
-                <div className="grid items-center h-full" style={{
-                  gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
-                }}>
-                  <div className="px-3 font-semibold">DESCRIPTION</div>
-                  <div className="px-2 font-semibold text-right">BUDGET</div>
-                  <div className="px-2 font-semibold text-right">COMMITTED</div>
-                  <div className="px-2 font-semibold text-right">PAID</div>
-                  <div className="px-2 font-semibold text-right">REMAINING</div>
-                  <div className="px-2 font-semibold text-right">FORECAST FINAL</div>
-                  <div className="px-2 font-semibold text-right">VARIANCE</div>
-                  <div className="px-2 font-semibold text-right">STATUS</div>
-                  <div className="px-2 font-semibold">NOTES</div>
-                </div>
-              </div>
-            </div>
-            
-            {/* Right Content */}
-            <div className="flex-1 overflow-auto scrollbar-thin">
+          </ResizablePanel>
+          
+          <ResizableHandle />
+          
+          {/* Right Content */}
+          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+            <div className="min-h-full">
               <WBSCostRightPanel
                 items={items}
                 onItemUpdate={onItemUpdate}
@@ -125,9 +128,9 @@ export const WBSCostView = ({
                 onRowHover={setHoveredId}
               />
             </div>
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
     </div>
   );
 };
