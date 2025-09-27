@@ -154,14 +154,14 @@ export const WBSTimeView = ({
 
           {/* Timeline Header */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div className="h-full">
+            <div className="h-full overflow-hidden">
               <div 
                 ref={timelineHeaderScrollRef}
                 className="h-full overflow-x-auto overflow-y-hidden scrollbar-hide"
               >
                 <div 
-                  className="h-full text-xs font-medium text-gray-700 shadow-sm overflow-hidden"
-                  style={{ width: timelineDays.length * 32, minWidth: timelineDays.length * 32 }}
+                  className="h-full text-xs font-medium text-gray-700 shadow-sm"
+                  style={{ width: `${timelineDays.length * 32}px`, minWidth: `${timelineDays.length * 32}px` }}
                 >
                   <div className="flex h-full">
                     {timelineDays.map((day, index) => {
@@ -269,7 +269,7 @@ export const WBSTimeView = ({
 
           {/* Timeline Content */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div className="min-h-full relative">
+            <div className="min-h-full relative overflow-hidden">
               <div 
                 ref={timelineContentScrollRef}
                 className="overflow-x-auto overflow-y-hidden h-full"

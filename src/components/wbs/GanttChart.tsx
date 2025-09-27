@@ -191,8 +191,8 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
     <div className={`h-full w-full rounded-xl border border-border/20 bg-white overflow-hidden ${className}`}>
 {!hideHeader && (
   <div className="sticky top-0 bg-white border-b border-border/10 z-10">
-    <div className="min-w-fit">
-      <div style={{ width: chartWidth }} className="flex">
+    <div className="overflow-x-auto">
+      <div style={{ width: `${chartWidth}px`, minWidth: `${chartWidth}px` }} className="flex">
         {timelineDays.map((day) => {
           const isWeekend = day.getDay() === 0 || day.getDay() === 6;
           const isToday = isSameDay(day, new Date());
@@ -224,8 +224,8 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
 )}
 
       {/* Gantt Bars Container */}
-      <div className="min-w-fit bg-white">
-        <div style={{ width: chartWidth }} className="relative">
+      <div className="overflow-x-auto bg-white">
+        <div style={{ width: `${chartWidth}px`, minWidth: `${chartWidth}px` }} className="relative">
           {items.map((item, index) => {
             const position = getTaskPosition(item);
             const isEven = index % 2 === 0;
