@@ -158,10 +158,10 @@ export const WBSTimeView = ({
       <div 
         className="flex-1 min-h-0 overflow-y-scroll overflow-x-hidden scrollbar-always-visible" 
       >
-        <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+        <ResizablePanelGroup direction="horizontal" className="h-full w-full" style={{ minHeight: '800px' }}>
           {/* Left Side - WBS Structure + Data Columns */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+            <ResizablePanelGroup direction="horizontal" className="h-full w-full" style={{ minHeight: '800px' }}>
               {/* WBS Section */}
               <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
                 <div className="h-full border-r border-gray-200">
@@ -341,6 +341,9 @@ export const WBSTimeView = ({
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>
+      
+      {/* Extra padding to ensure scrollbar is always visible */}
+      <div style={{ height: '50px', minHeight: '50px' }} className="bg-transparent"></div>
     </div>
   );
 };
