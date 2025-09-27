@@ -281,9 +281,11 @@ export const WBSTimeView = ({
               <WBSLeftPanel
                 items={items.map(item => ({
                   ...item,
-                  name: item.title,
+                  name: item.title || 'Untitled',
                   wbsNumber: item.wbs_id || '',
-                  status: item.status || 'Not Started'
+                  status: item.status || 'Not Started',
+                  isExpanded: item.is_expanded !== false,
+                  hasChildren: items.some(child => child.parent_id === item.id)
                 }))}
                 onToggleExpanded={onToggleExpanded}
                 onDragEnd={onDragEnd}
