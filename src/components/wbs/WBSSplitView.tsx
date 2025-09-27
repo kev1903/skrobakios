@@ -66,6 +66,8 @@ export const WBSSplitView = ({
     }
   }, []);
 
+  console.log('WBSSplitView - Scope tab rendering with items:', items.length);
+
   return (
     <div className="h-full w-full bg-white">
       <ResizablePanelGroup direction="horizontal" className="h-full w-full">
@@ -85,8 +87,16 @@ export const WBSSplitView = ({
               </div>
             </div>
             
-            {/* Left Content */}
-            <div className="flex-1 overflow-hidden">
+            {/* Left Content - FIXED: Added proper height constraint and scrollbar */}
+            <div 
+              ref={leftScrollRef}
+              className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin"
+              style={{ 
+                height: 'calc(100vh - 240px)',
+                minHeight: '300px'
+              }}
+              onScroll={handleLeftScroll}
+            >
               <WBSLeftPanel
                 items={items}
                 onToggleExpanded={onToggleExpanded}
@@ -96,8 +106,8 @@ export const WBSSplitView = ({
                 dragIndicator={dragIndicator}
                 EditableCell={EditableCell}
                 generateWBSNumber={generateWBSNumber}
-                scrollRef={leftScrollRef}
-                onScroll={handleLeftScroll}
+                scrollRef={null}
+                onScroll={() => {}}
                 hoveredId={hoveredId}
                 onRowHover={setHoveredId}
               />
@@ -124,8 +134,16 @@ export const WBSSplitView = ({
               </div>
             </div>
             
-            {/* Right Content */}
-            <div className="flex-1 overflow-hidden">
+            {/* Right Content - FIXED: Added proper height constraint and scrollbar */}
+            <div 
+              ref={rightScrollRef}
+              className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin"
+              style={{ 
+                height: 'calc(100vh - 240px)',
+                minHeight: '300px'
+              }}
+              onScroll={handleRightScroll}
+            >
               <WBSRightPanel
                 items={items}
                 onItemUpdate={onItemUpdate}
@@ -136,8 +154,8 @@ export const WBSSplitView = ({
                 ProgressInput={ProgressInput}
                 ProgressDisplay={ProgressDisplay}
                 getProgressColor={getProgressColor}
-                scrollRef={rightScrollRef}
-                onScroll={handleRightScroll}
+                scrollRef={null}
+                onScroll={() => {}}
                 hoveredId={hoveredId}
                 onRowHover={setHoveredId}
               />
