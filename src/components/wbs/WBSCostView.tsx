@@ -108,7 +108,7 @@ export const WBSCostView = ({
       </div>
 
       {/* Unified Scrollable Content */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-visible">
         <ResizablePanelGroup direction="horizontal" className="min-h-full">
           {/* Left Panel Content */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
