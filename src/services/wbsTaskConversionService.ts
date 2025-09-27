@@ -174,7 +174,21 @@ export class WBSTaskConversionService {
       if (wbsItem.is_task_enabled) continue;
 
       try {
-        const wbsItemWithChildren = { ...wbsItem, children: [] };
+        const wbsItemWithChildren = { 
+          ...wbsItem, 
+          children: [],
+          status: wbsItem.status as WBSItem['status'],
+          health: wbsItem.health as WBSItem['health'],
+          progress_status: wbsItem.progress_status as WBSItem['progress_status'],
+          category: wbsItem.category as WBSItem['category'],
+          linked_tasks: Array.isArray(wbsItem.linked_tasks) 
+            ? wbsItem.linked_tasks.map(task => String(task))
+            : [],
+          predecessors: Array.isArray(wbsItem.predecessors) 
+            ? wbsItem.predecessors as unknown as WBSItem['predecessors']
+            : [],
+          priority: wbsItem.priority as WBSItem['priority']
+        };
         const task = await this.convertWBSToTask(wbsItemWithChildren, projectId);
         tasks.push(task);
       } catch (error) {
