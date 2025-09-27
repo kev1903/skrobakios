@@ -110,7 +110,7 @@ export const WBSTimeView = ({
       dataColumnsHeaderScrollRef.current.scrollLeft = scrollLeft;
     }
     
-    // Sync content when header scrolls
+    // Sync content when header scrolls  
     if (dataColumnsScrollRef.current && dataColumnsScrollRef.current !== e.currentTarget) {
       dataColumnsScrollRef.current.scrollLeft = scrollLeft;
     }
