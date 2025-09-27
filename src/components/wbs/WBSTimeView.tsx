@@ -36,13 +36,32 @@ export const WBSTimeView = ({
   StatusSelect,
   generateWBSNumber
 }: WBSTimeViewProps) => {
-  const headerHorizScrollRef = useRef<HTMLDivElement>(null);
-  const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
+  const wbsHeaderScrollRef = useRef<HTMLDivElement>(null);
+  const wbsContentScrollRef = useRef<HTMLDivElement>(null);
+  const dataHeaderScrollRef = useRef<HTMLDivElement>(null);
+  const dataContentScrollRef = useRef<HTMLDivElement>(null);
+  const timelineHeaderScrollRef = useRef<HTMLDivElement>(null);
+  const timelineContentScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  const handleTimelineHorizontalScroll = useCallback(() => {
-    if (headerHorizScrollRef.current && bodyHorizScrollRef.current) {
-      headerHorizScrollRef.current.scrollLeft = bodyHorizScrollRef.current.scrollLeft;
+  // Sync WBS horizontal scrolling
+  const handleWBSContentScroll = useCallback(() => {
+    if (wbsHeaderScrollRef.current && wbsContentScrollRef.current) {
+      wbsHeaderScrollRef.current.scrollLeft = wbsContentScrollRef.current.scrollLeft;
+    }
+  }, []);
+
+  // Sync Data Columns horizontal scrolling
+  const handleDataContentScroll = useCallback(() => {
+    if (dataHeaderScrollRef.current && dataContentScrollRef.current) {
+      dataHeaderScrollRef.current.scrollLeft = dataContentScrollRef.current.scrollLeft;
+    }
+  }, []);
+
+  // Sync Timeline horizontal scrolling
+  const handleTimelineContentScroll = useCallback(() => {
+    if (timelineHeaderScrollRef.current && timelineContentScrollRef.current) {
+      timelineHeaderScrollRef.current.scrollLeft = timelineContentScrollRef.current.scrollLeft;
     }
   }, []);
 
@@ -93,10 +112,13 @@ export const WBSTimeView = ({
             {/* WBS Structure Column */}
             <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
               <div className="h-full flex flex-col">
-                {/* WBS Header */}
+                {/* WBS Header with horizontal scroll sync */}
                 <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 border-r border-gray-200 sticky top-0 z-40">
-                  <div className="h-full text-xs font-bold text-gray-700 shadow-sm">
-                    <div className="h-full grid items-center" style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
+                  <div 
+                    ref={wbsHeaderScrollRef}
+                    className="h-full overflow-x-auto overflow-y-hidden text-xs font-bold text-gray-700 shadow-sm"
+                  >
+                    <div className="h-full grid items-center min-w-fit" style={{ gridTemplateColumns: '32px 120px 1fr 40px' }}>
                       <div className="px-2 text-center"></div>
                       <div className="px-2">WBS</div>
                       <div className="px-3">NAME</div>
@@ -105,8 +127,12 @@ export const WBSTimeView = ({
                   </div>
                 </div>
                 
-                {/* WBS Content */}
-                <div className="flex-1 overflow-auto">
+                {/* WBS Content with horizontal scroll sync */}
+                <div 
+                  ref={wbsContentScrollRef}
+                  className="flex-1 overflow-auto"
+                  onScroll={handleWBSContentScroll}
+                >
                   <WBSLeftPanel
                     items={items.map(item => ({
                       ...item,
@@ -133,10 +159,13 @@ export const WBSTimeView = ({
             {/* Data Columns */}
             <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
               <div className="h-full flex flex-col">
-                {/* Data Columns Header */}
+                {/* Data Columns Header with horizontal scroll sync */}
                 <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 border-r border-gray-200 sticky top-0 z-40">
-                  <div className="h-full text-xs font-bold text-gray-700 shadow-sm">
-                    <div className="h-full grid items-center" style={{ gridTemplateColumns: '120px 120px 100px 140px 140px 120px' }}>
+                  <div 
+                    ref={dataHeaderScrollRef}
+                    className="h-full overflow-x-auto overflow-y-hidden text-xs font-bold text-gray-700 shadow-sm"
+                  >
+                    <div className="h-full grid items-center min-w-fit" style={{ gridTemplateColumns: '120px 120px 100px 140px 140px 120px' }}>
                       <div className="px-2 text-center">START DATE</div>
                       <div className="px-2 text-center">END DATE</div>
                       <div className="px-2 text-center">DURATION</div>
@@ -147,8 +176,12 @@ export const WBSTimeView = ({
                   </div>
                 </div>
                 
-                {/* Data Columns Content */}
-                <div className="flex-1 overflow-auto">
+                {/* Data Columns Content with horizontal scroll sync */}
+                <div 
+                  ref={dataContentScrollRef}
+                  className="flex-1 overflow-auto"
+                  onScroll={handleDataContentScroll}
+                >
                   <WBSTimeRightPanel
                     items={items}
                     onItemUpdate={handleItemUpdate}
@@ -171,17 +204,13 @@ export const WBSTimeView = ({
         {/* Right Side - Timeline */}
         <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
           <div className="h-full flex flex-col">
-            {/* Timeline Header */}
+            {/* Timeline Header with horizontal scroll sync */}
             <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 sticky top-0 z-40">
               <div 
-                ref={bodyHorizScrollRef}
+                ref={timelineHeaderScrollRef}
                 className="h-full overflow-x-auto overflow-y-hidden"
-                onScroll={handleTimelineHorizontalScroll}
               >
-                <div 
-                  ref={headerHorizScrollRef}
-                  className="h-full text-xs font-medium text-gray-700 shadow-sm overflow-hidden"
-                >
+                <div className="h-full text-xs font-medium text-gray-700 shadow-sm overflow-hidden">
                   <div className="flex h-full min-w-fit">
                     {timelineDays.map((day, index) => {
                       const targetDate = new Date(2024, 10, 27);
@@ -219,8 +248,12 @@ export const WBSTimeView = ({
               </div>
             </div>
             
-            {/* Timeline Content */}
-            <div className="flex-1 overflow-auto">
+            {/* Timeline Content with horizontal scroll sync */}
+            <div 
+              ref={timelineContentScrollRef}
+              className="flex-1 overflow-auto"
+              onScroll={handleTimelineContentScroll}
+            >
               <div className="min-w-fit">
                 <GanttChart 
                   items={items.map(item => ({
