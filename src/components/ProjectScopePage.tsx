@@ -1573,7 +1573,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     ) : (
                         <div 
                           className="h-full overflow-y-auto overflow-x-hidden"
-                          style={{ marginRight: 'calc(var(--ai-chat-offset, 0px) + 2rem)' }}
+                          style={{ marginRight: 'var(--ai-chat-offset, 0px)' }}
                         >
                        <WBSCostView
                          items={flatWBSItems}
