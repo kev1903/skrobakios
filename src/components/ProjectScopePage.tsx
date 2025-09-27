@@ -1462,8 +1462,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               {/* Tab Contents */}
               <div className="flex-1 w-full">
 
-              <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex overflow-auto">
-                <div className="h-full w-full flex flex-col min-h-0">
+              <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex overflow-auto" style={{ position: 'relative' }}>
+                <div className="h-full w-full flex flex-col min-h-0" style={{ position: 'relative' }}>
                    {loading && wbsItems.length === 0 ? (
                      <div className="flex items-center justify-center h-64">
                        <div className="text-center">
@@ -1483,12 +1483,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                      ) : (
                        <div 
                          style={{
-                           flex: 1,
-                           minWidth: 0,
-                           height: 'calc(100vh - 180px)',
+                           position: 'absolute',
+                           top: 0,
+                           left: 0,
+                           right: 0,
+                           bottom: 0,
                            backgroundColor: 'white',
                            border: '1px solid #e2e8f0',
-                           overflow: 'auto'
+                           overflow: 'auto',
+                           maxHeight: '500px'
                          }}
                        >
                         <WBSSplitView
@@ -1561,8 +1564,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </div>
               </TabsContent>
 
-               <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex overflow-auto">
-                 <div className="h-full w-full flex flex-col min-h-0">
+               <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex overflow-auto" style={{ position: 'relative' }}>
+                 <div className="h-full w-full flex flex-col min-h-0" style={{ position: 'relative' }}>
                     {loading && wbsItems.length === 0 ? (
                       <div className="flex items-center justify-center h-64">
                         <div className="text-center">
@@ -1582,12 +1585,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                      ) : (
                        <div 
                          style={{
-                           flex: 1,
-                           minWidth: 0,
-                           height: 'calc(100vh - 180px)',
+                           position: 'absolute',
+                           top: 0,
+                           left: 0,
+                           right: 0,
+                           bottom: 0,
                            backgroundColor: 'white',
                            border: '1px solid #e2e8f0',
-                           overflow: 'auto'
+                           overflow: 'auto',
+                           maxHeight: '500px'
                          }}
                        >
                         <WBSCostView
