@@ -1487,8 +1487,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                            height: 'calc(100vh - 150px)',
                            border: '2px solid #e5e7eb',
                            backgroundColor: 'white',
-                           overflow: 'scroll',
-                           overflowX: 'auto',
+                           overflowX: 'hidden',
                            overflowY: 'scroll'
                          }}
                        >
@@ -1587,8 +1586,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                            height: 'calc(100vh - 150px)',
                            border: '2px solid #e5e7eb',
                            backgroundColor: 'white',
-                           overflow: 'scroll',
-                           overflowX: 'auto',
+                           overflowX: 'hidden',
                            overflowY: 'scroll'
                          }}
                        >

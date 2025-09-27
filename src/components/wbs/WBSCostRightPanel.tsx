@@ -97,7 +97,7 @@ export const WBSCostRightPanel = ({
                   : 'bg-white border-l-2 border-l-slate-300 hover:bg-slate-50/50'
               } transition-all duration-200 ${hoveredId === item.id ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' : ''}`}
               style={{
-                gridTemplateColumns: '100px 100px 100px 100px 120px 100px 100px 200px',
+                gridTemplateColumns: '2fr 80px 80px 80px 80px 100px 80px 80px 1fr',
                 height: '1.75rem',
               }}
               onMouseEnter={() => onRowHover?.(item.id)}

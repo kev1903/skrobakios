@@ -65,7 +65,7 @@ export const WBSCostView = ({
   console.log("WBSCostView rendering with items:", items.length);
   
   return (
-    <div className="h-full w-full bg-white min-w-[1200px]">
+    <div className="h-full w-full bg-white">
       <ResizablePanelGroup direction="horizontal" className="h-full w-full">
         <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
           <div className="h-full flex flex-col">
@@ -111,7 +111,7 @@ export const WBSCostView = ({
             <div className="h-8 bg-slate-100/70 border-b border-slate-200">
               <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
                 <div className="grid items-center h-full" style={{
-                  gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+                  gridTemplateColumns: '2fr 80px 80px 80px 80px 100px 80px 80px 1fr',
                 }}>
                   <div className="px-3 font-semibold">DESCRIPTION</div>
                   <div className="px-2 font-semibold text-right">BUDGET</div>
