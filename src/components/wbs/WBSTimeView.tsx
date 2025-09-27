@@ -262,26 +262,24 @@ export const WBSTimeView = ({
               className="flex-1 overflow-auto"
               onScroll={handleTimelineContentScroll}
             >
-              <div className="min-w-fit">
-                <GanttChart 
-                  items={items.map(item => ({
-                    ...item,
-                    name: item.title,
-                    wbsNumber: item.wbs_id || '',
-                    status: item.status || 'Not Started',
-                    predecessors: item.predecessors?.map(p => ({
-                      predecessorId: p.id,
-                      type: p.type,
-                      lag: p.lag
-                    })) || []
-                  }))} 
-                  timelineDays={timelineDays}
-                  className="relative z-10" 
-                  hideHeader 
-                  hoveredId={hoveredId}
-                  onRowHover={setHoveredId}
-                />
-              </div>
+              <GanttChart 
+                items={items.map(item => ({
+                  ...item,
+                  name: item.title,
+                  wbsNumber: item.wbs_id || '',
+                  status: item.status || 'Not Started',
+                  predecessors: item.predecessors?.map(p => ({
+                    predecessorId: p.id,
+                    type: p.type,
+                    lag: p.lag
+                  })) || []
+                }))} 
+                timelineDays={timelineDays}
+                className="relative z-10" 
+                hideHeader 
+                hoveredId={hoveredId}
+                onRowHover={setHoveredId}
+              />
             </div>
           </div>
         </ResizablePanel>
