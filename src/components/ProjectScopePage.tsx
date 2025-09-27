@@ -1462,8 +1462,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               {/* Tab Contents */}
               <div className="flex-1 w-full">
 
-              <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex">
-                <div className="h-full w-full flex flex-col">
+              <TabsContent value="scope" className="h-full w-full m-0 p-0 data-[state=active]:flex overflow-auto">
+                <div className="h-full w-full flex flex-col min-h-0">
                    {loading && wbsItems.length === 0 ? (
                      <div className="flex items-center justify-center h-64">
                        <div className="text-center">
@@ -1552,8 +1552,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 </div>
               </TabsContent>
 
-               <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex">
-                 <div className="h-full w-full flex flex-col">
+               <TabsContent value="cost" className="h-full w-full m-0 p-0 data-[state=active]:flex overflow-auto">
+                 <div className="h-full w-full flex flex-col min-h-0">
                     {loading && wbsItems.length === 0 ? (
                       <div className="flex items-center justify-center h-64">
                         <div className="text-center">
@@ -1571,7 +1571,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         </div>
                       </div>
                      ) : (
-                       <div className="flex-1 min-w-0 overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                       <div className="flex-1 min-w-0 overflow-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100" style={{ border: '2px solid blue' }}>
                         <WBSCostView
                          items={flatWBSItems}
                          onToggleExpanded={(itemId) => {
