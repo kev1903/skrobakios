@@ -294,8 +294,47 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     return Math.round(totalProgress / phase.components.length);
   };
 
-  // Convert scope data to flat array for split view
+  // Convert WBS items to flat array for split view while preserving hierarchy
   const flatWBSItems = React.useMemo(() => {
+    // Helper function to recursively flatten WBS hierarchy
+    const flattenWBSItems = (items: any[], result: any[] = []): any[] => {
+      items.forEach((item) => {
+        // Add the current item to result
+        result.push({
+          id: item.id,
+          name: item.title || item.name || 'Untitled',
+          description: item.description,
+          status: item.status || 'Not Started',
+          progress: item.progress || 0,
+          assignedTo: item.assigned_to || '',
+          level: item.level || 0,
+          wbsNumber: item.wbs_id || '',
+          isExpanded: item.is_expanded !== false, // Default to true
+          hasChildren: item.children && item.children.length > 0,
+          parent_id: item.parent_id,
+          wbs_id: item.wbs_id,
+          title: item.title,
+          start_date: item.start_date,
+          end_date: item.end_date,
+          duration: item.duration || 0,
+          linked_tasks: Array.isArray(item.linked_tasks) ? item.linked_tasks : [],
+          predecessors: Array.isArray(item.predecessors) ? item.predecessors : []
+        });
+        
+        // If item has children, recursively flatten them
+        if (item.children && item.children.length > 0) {
+          flattenWBSItems(item.children, result);
+        }
+      });
+      return result;
+    };
+
+    // Use the actual WBS items from the database
+    if (wbsItems && wbsItems.length > 0) {
+      return flattenWBSItems(wbsItems);
+    }
+
+    // Fallback to scope data if no WBS items (for backward compatibility)
     const items: any[] = [];
     
     scopeData.forEach((phase, phaseIndex) => {
@@ -310,10 +349,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         wbsNumber: (phaseIndex + 1).toString(),
         isExpanded: phase.isExpanded,
         hasChildren: phase.components.length > 0,
-        start_date: null, // Add from WBS item if available
-        end_date: null, // Add from WBS item if available
-        duration: 0, // Add from WBS item if available
-        predecessors: [] // Add from WBS item if available
+        parent_id: undefined,
+        start_date: null,
+        end_date: null,
+        duration: 0,
+        predecessors: []
       });
 
       if (phase.isExpanded) {
@@ -329,10 +369,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             wbsNumber: generateWBSNumber(phaseIndex, componentIndex),
             isExpanded: component.isExpanded,
             hasChildren: component.elements.length > 0,
-            start_date: null, // Add from WBS item if available
-            end_date: null, // Add from WBS item if available
-            duration: 0, // Add from WBS item if available
-            predecessors: [] // Add from WBS item if available
+            parent_id: phase.id,
+            start_date: null,
+            end_date: null,
+            duration: 0,
+            predecessors: []
           });
 
           if (component.isExpanded) {
@@ -348,13 +389,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 wbsNumber: generateWBSNumber(phaseIndex, componentIndex, elementIndex),
                 isExpanded: element.isExpanded || false,
                 hasChildren: (element.tasks && element.tasks.length > 0) || false,
-                start_date: null, // Add from WBS item if available
-                end_date: null, // Add from WBS item if available
-                duration: 0, // Add from WBS item if available
-                predecessors: [] // Add from WBS item if available
+                parent_id: component.id,
+                start_date: null,
+                end_date: null,
+                duration: 0,
+                predecessors: []
               });
 
-              // Add tasks under elements if element is expanded
               if (element.isExpanded && element.tasks) {
                 element.tasks.forEach((task, taskIndex) => {
                   items.push({
@@ -368,6 +409,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     wbsNumber: `${generateWBSNumber(phaseIndex, componentIndex, elementIndex)}.${taskIndex + 1}`,
                     isExpanded: false,
                     hasChildren: false,
+                    parent_id: element.id,
                     start_date: null,
                     end_date: null,
                     duration: 0,
@@ -381,28 +423,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       }
     });
 
-    // Merge with actual WBS items to get date and duration data
-    return items.map(item => {
-      const wbsItem = findWBSItem(item.id);
-      if (wbsItem) {
-        return {
-          ...item,
-          // Ensure hierarchy fields are present for rollups
-          parent_id: wbsItem.parent_id,
-          wbs_id: wbsItem.wbs_id,
-          wbsNumber: wbsItem.wbs_id || item.wbsNumber,
-          level: wbsItem.level ?? item.level,
-          name: wbsItem.title || item.name, // Use WBS title if available
-          title: wbsItem.title || item.name, // Also set title field
-          start_date: wbsItem.start_date || null,
-          end_date: wbsItem.end_date || null,
-          duration: wbsItem.duration || 0,
-          linked_tasks: Array.isArray(wbsItem.linked_tasks) ? wbsItem.linked_tasks : [],
-          predecessors: Array.isArray((wbsItem as any).predecessors) ? (wbsItem as any).predecessors : []
-        } as any;
-      }
-      return item;
-    });
+    return items;
   }, [scopeData, wbsItems]);
 
   const getStatusColor = (status: string) => {
