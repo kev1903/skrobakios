@@ -124,6 +124,28 @@ export const ProjectScopePageNew = ({ project, onNavigate }: ProjectScopePageNew
     } as any);
   };
 
+  const addNewTask = async (parentElement: WBSItem) => {
+    if (!currentCompany?.id) return;
+
+    const taskCount = parentElement.children.length;
+    const wbsId = `${parentElement.wbs_id}.${taskCount + 1}`;
+
+    await createWBSItem({
+      company_id: currentCompany.id,
+      project_id: project.id,
+      parent_id: parentElement.id,
+      wbs_id: wbsId,
+      title: 'New Task',
+      description: '',
+      level: 3,
+      category: 'Task',
+      status: 'Not Started',
+      progress: 0,
+      is_expanded: false,
+      linked_tasks: []
+    } as any);
+  };
+
   const handleEdit = (item: WBSItem, field: string) => {
     setEditingItem({ id: item.id, field });
     setEditValue((item as any)[field] || '');
@@ -141,81 +163,58 @@ export const ProjectScopePageNew = ({ project, onNavigate }: ProjectScopePageNew
     setEditValue('');
   };
 
-  const renderElement = (element: WBSItem) => (
+  const renderTask = (task: WBSItem) => (
     <div
-      key={element.id}
-      className="ml-8 p-3 bg-card border border-border rounded-lg hover:shadow-sm transition-shadow"
+      key={task.id}
+      className="ml-12 p-2 bg-muted/50 border border-border rounded-md hover:shadow-sm transition-shadow"
     >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 flex-1">
-          <span className="text-lg">{getCategoryIcon(element.category)}</span>
+        <div className="flex items-center gap-2 flex-1">
+          <span className="text-sm">{getCategoryIcon(task.category)}</span>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground font-mono">{element.wbs_id}</span>
-              {editingItem?.id === element.id && editingItem?.field === 'title' ? (
+              <span className="text-xs text-muted-foreground font-mono">{task.wbs_id}</span>
+              {editingItem?.id === task.id && editingItem?.field === 'title' ? (
                 <Input
                   value={editValue}
                   onChange={(e) => setEditValue(e.target.value)}
                   onBlur={saveEdit}
-                  onKeyDown={async (e) => {
-                    if (e.key === 'Enter' && e.shiftKey) {
-                      e.preventDefault();
-                      await saveEdit();
-                      // Find parent component to add new element
-                      const findParentComponent = (items: WBSItem[], elementId: string): WBSItem | null => {
-                        for (const item of items) {
-                          if (item.children.some(child => child.id === elementId)) {
-                            return item;
-                          }
-                          for (const child of item.children) {
-                            const found = findParentComponent([child], elementId);
-                            if (found) return found;
-                          }
-                        }
-                        return null;
-                      };
-                      const parentComponent = findParentComponent(wbsItems, element.id);
-                      if (parentComponent) {
-                        await addNewElement(parentComponent);
-                      }
-                    } else if (e.key === 'Enter') {
-                      saveEdit();
-                    } else if (e.key === 'Escape') {
-                      cancelEdit();
-                    }
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') saveEdit();
+                    if (e.key === 'Escape') cancelEdit();
                   }}
-                  className="text-sm font-medium"
+                  className="text-sm"
                   autoFocus
                 />
               ) : (
                 <span 
-                  className="text-sm font-medium cursor-pointer hover:text-primary"
-                  onClick={() => handleEdit(element, 'title')}
+                  className="text-sm cursor-pointer hover:text-primary"
+                  onClick={() => handleEdit(task, 'title')}
                 >
-                  {element.title}
+                  {task.title}
                 </span>
               )}
-              <Badge className={getStatusColor(element.status)} variant="outline">
-                {element.status}
+              <Badge className={getStatusColor(task.status)} variant="secondary">
+                {task.status}
               </Badge>
             </div>
-            {element.description && (
-              <p className="text-xs text-muted-foreground mt-1">{element.description}</p>
+            {task.description && (
+              <p className="text-xs text-muted-foreground mt-1">{task.description}</p>
             )}
-            <div className="flex items-center gap-4 mt-2">
+            <div className="flex items-center gap-3 mt-1">
               <div className="flex items-center gap-1">
                 <span className="text-xs text-muted-foreground">Progress:</span>
-                <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
+                <div className="w-12 h-1.5 bg-muted rounded-full overflow-hidden">
                   <div 
-                    className={`h-full ${getProgressColor(element.progress)} transition-all`}
-                    style={{ width: `${element.progress || 0}%` }}
+                    className={`h-full ${getProgressColor(task.progress)} transition-all`}
+                    style={{ width: `${task.progress || 0}%` }}
                   />
                 </div>
-                <span className="text-xs text-muted-foreground">{element.progress || 0}%</span>
+                <span className="text-xs text-muted-foreground">{task.progress || 0}%</span>
               </div>
-              {element.assigned_to && (
+              {task.assigned_to && (
                 <span className="text-xs text-muted-foreground">
-                  Assigned: {element.assigned_to}
+                  Assigned: {task.assigned_to}
                 </span>
               )}
             </div>
@@ -224,17 +223,17 @@ export const ProjectScopePageNew = ({ project, onNavigate }: ProjectScopePageNew
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
+              <MoreHorizontal className="h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleEdit(element, 'title')}>
+            <DropdownMenuItem onClick={() => handleEdit(task, 'title')}>
               <Edit2 className="h-4 w-4 mr-2" />
               Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
-              onClick={() => deleteWBSItem(element.id)}
+              onClick={() => deleteWBSItem(task.id)}
               className="text-destructive"
             >
               <Trash2 className="h-4 w-4 mr-2" />
@@ -243,6 +242,141 @@ export const ProjectScopePageNew = ({ project, onNavigate }: ProjectScopePageNew
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+    </div>
+  );
+
+  const renderElement = (element: WBSItem) => (
+    <div key={element.id} className="ml-8">
+      <div className="p-3 bg-card border border-border rounded-lg hover:shadow-sm transition-shadow">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 flex-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleExpansion(element)}
+              className="p-1"
+            >
+              {element.is_expanded ? (
+                <ChevronDown className="h-3 w-3" />
+              ) : (
+                <ChevronRight className="h-3 w-3" />
+              )}
+            </Button>
+            <span className="text-lg">{getCategoryIcon(element.category)}</span>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground font-mono">{element.wbs_id}</span>
+                {editingItem?.id === element.id && editingItem?.field === 'title' ? (
+                  <Input
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onBlur={saveEdit}
+                    onKeyDown={async (e) => {
+                      if (e.key === 'Enter' && e.shiftKey) {
+                        e.preventDefault();
+                        await saveEdit();
+                        // Find parent component to add new element
+                        const findParentComponent = (items: WBSItem[], elementId: string): WBSItem | null => {
+                          for (const item of items) {
+                            if (item.children.some(child => child.id === elementId)) {
+                              return item;
+                            }
+                            for (const child of item.children) {
+                              const found = findParentComponent([child], elementId);
+                              if (found) return found;
+                            }
+                          }
+                          return null;
+                        };
+                        const parentComponent = findParentComponent(wbsItems, element.id);
+                        if (parentComponent) {
+                          await addNewElement(parentComponent);
+                        }
+                      } else if (e.key === 'Enter') {
+                        saveEdit();
+                      } else if (e.key === 'Escape') {
+                        cancelEdit();
+                      }
+                    }}
+                    className="text-sm font-medium"
+                    autoFocus
+                  />
+                ) : (
+                  <span 
+                    className="text-sm font-medium cursor-pointer hover:text-primary"
+                    onClick={() => handleEdit(element, 'title')}
+                  >
+                    {element.title}
+                  </span>
+                )}
+                <Badge className={getStatusColor(element.status)} variant="outline">
+                  {element.status}
+                </Badge>
+              </div>
+              {element.description && (
+                <p className="text-xs text-muted-foreground mt-1">{element.description}</p>
+              )}
+              <div className="flex items-center gap-4 mt-2">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-muted-foreground">Progress:</span>
+                  <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${getProgressColor(element.progress)} transition-all`}
+                      style={{ width: `${element.progress || 0}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-muted-foreground">{element.progress || 0}%</span>
+                </div>
+                {element.assigned_to && (
+                  <span className="text-xs text-muted-foreground">
+                    Assigned: {element.assigned_to}
+                  </span>
+                )}
+                <span className="text-xs text-muted-foreground">
+                  {element.children.length} task{element.children.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => addNewTask(element)}
+            >
+              <Plus className="h-3 w-3 mr-1" />
+              Add Task
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleEdit(element, 'title')}>
+                  <Edit2 className="h-4 w-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => deleteWBSItem(element.id)}
+                  className="text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </div>
+      
+      {element.is_expanded && element.children.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {element.children.map(renderTask)}
+        </div>
+      )}
     </div>
   );
 
