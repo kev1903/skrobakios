@@ -65,6 +65,13 @@ export const WBSTimeView = ({
     }
   }, []);
 
+  // Sync Timeline header scrolling back to content
+  const handleTimelineHeaderScroll = useCallback(() => {
+    if (timelineHeaderScrollRef.current && timelineContentScrollRef.current) {
+      timelineContentScrollRef.current.scrollLeft = timelineHeaderScrollRef.current.scrollLeft;
+    }
+  }, []);
+
   // Simplified item update handler
   const handleItemUpdate = useCallback(async (itemId: string, updates: any) => {
     await onItemUpdate(itemId, updates);
@@ -209,6 +216,7 @@ export const WBSTimeView = ({
               <div 
                 ref={timelineHeaderScrollRef}
                 className="h-full overflow-x-auto overflow-y-hidden"
+                onScroll={handleTimelineHeaderScroll}
               >
                 <div className="h-full text-xs font-medium text-gray-700 shadow-sm overflow-hidden">
                   <div className="flex h-full min-w-fit">
