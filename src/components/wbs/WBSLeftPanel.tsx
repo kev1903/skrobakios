@@ -121,17 +121,7 @@ export const WBSLeftPanel = ({
 
   return (
     <div className="bg-white flex-shrink-0">
-      {useUnifiedScroll ? (
-        // Unified scroll mode - parent handles scrolling
-        <div>
-          {content}
-        </div>
-      ) : (
-        // Separate scroll mode - this component handles its own scrolling
-        <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden scrollbar-thin" onScroll={onScroll}>
-          {content}
-        </div>
-      )}
+      {content}
     </div>
   );
 };
