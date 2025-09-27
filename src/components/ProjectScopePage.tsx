@@ -68,6 +68,17 @@ interface ScopeElement {
   progress: number;
   deliverable?: string;
   assignedTo?: string;
+  isExpanded?: boolean;
+  tasks?: ScopeTask[];
+}
+
+interface ScopeTask {
+  id: string;
+  name: string;
+  description?: string;
+  status: 'Not Started' | 'In Progress' | 'Completed' | 'On Hold';
+  progress: number;
+  assignedTo?: string;
 }
 
 // Portal wrapper to avoid transform/fixed offset issues during drag
@@ -254,7 +265,18 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               name: element.title,
               description: element.description || '',
               status: (element.status as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold') || 'Not Started',
-              progress: element.progress || 0
+              progress: element.progress || 0,
+              isExpanded: element.is_expanded,
+              tasks: element.children
+                ?.filter(child => child.level === 3 || child.category === 'Task')
+                .map(task => ({
+                  id: task.id,
+                  name: task.title,
+                  description: task.description || '',
+                  status: (task.status as 'Not Started' | 'In Progress' | 'Completed' | 'On Hold') || 'Not Started',
+                  progress: task.progress || 0,
+                  assignedTo: task.assigned_to || ''
+                })) || []
             })) || []
         })) || []
     }));
@@ -325,13 +347,35 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 assignedTo: element.assignedTo || '',
                 level: 2,
                 wbsNumber: generateWBSNumber(phaseIndex, componentIndex, elementIndex),
-                isExpanded: false,
-                hasChildren: false,
+                isExpanded: element.isExpanded || false,
+                hasChildren: (element.tasks && element.tasks.length > 0) || false,
                 start_date: null, // Add from WBS item if available
                 end_date: null, // Add from WBS item if available
                 duration: 0, // Add from WBS item if available
                 predecessors: [] // Add from WBS item if available
               });
+
+              // Add tasks under elements if element is expanded
+              if (element.isExpanded && element.tasks) {
+                element.tasks.forEach((task, taskIndex) => {
+                  items.push({
+                    id: task.id,
+                    name: task.name,
+                    description: task.description,
+                    status: task.status,
+                    progress: task.progress,
+                    assignedTo: task.assignedTo || '',
+                    level: 3,
+                    wbsNumber: `${generateWBSNumber(phaseIndex, componentIndex, elementIndex)}.${taskIndex + 1}`,
+                    isExpanded: false,
+                    hasChildren: false,
+                    start_date: null,
+                    end_date: null,
+                    duration: 0,
+                    predecessors: []
+                  });
+                });
+              }
             });
           }
         });
@@ -388,6 +432,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   const toggleComponent = async (_phaseId: string, componentId: string, currentExpanded: boolean) => {
     await updateWBSItem(componentId, { is_expanded: !currentExpanded });
+  };
+
+  const toggleElement = async (elementId: string, currentExpanded: boolean) => {
+    console.log('🔄 Toggling element:', elementId, 'from:', currentExpanded, 'to:', !currentExpanded);
+    await updateWBSItem(elementId, { is_expanded: !currentExpanded });
   };
 
   const expandAll = async () => {
@@ -741,9 +790,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         cost_link: ''
       };
 
-      console.log('📝 Creating task with data:', taskData);
       await createWBSItem(taskData);
       console.log('✅ Task created successfully');
+
+      // Auto-expand the parent element to show the new task
+      await updateWBSItem(elementId, { is_expanded: true });
 
       toast({
         title: "Task Created",
