@@ -44,8 +44,8 @@ export const DatePickerCell = ({
     setDate(value ? (typeof value === 'string' ? new Date(value) : value) : undefined);
   }, [value]);
   
-  // Only allow editing for elements (level 2)
-  const isEditable = type === 'element';
+  // Allow editing for tasks (level 3) and elements without children
+  const isEditable = currentItem?.category === 'Task' || (currentItem?.level === 2 && !currentItem?.hasChildren);
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (!isEditable) return;
@@ -119,7 +119,7 @@ export const DatePickerCell = ({
               className
             )}
             tabIndex={isEditable ? 0 : -1}
-            title={isEditable ? "Click to select date, or press Delete to clear" : "Auto-calculated"}
+            title={isEditable ? "Click to select date, or press Delete to clear" : "Calculated from child tasks"}
           >
             <div className="text-xs">
               {date ? (

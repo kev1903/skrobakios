@@ -326,8 +326,12 @@ export const WBSTimeRightPanel = ({
             <div className="px-2 flex items-center text-xs text-muted-foreground">
                 {(() => {
                   const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                  const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
-                  if (isParent) {
+                  // Elements (level 2) should show rollup from Tasks, Tasks (level 3 or category 'Task') should be editable
+                  const isParent = (item.level === 0 || item.level === 1) || 
+                    (item.level === 2 && (parentChildMap.map.get(item.id)?.length || 0) > 0);
+                  const isTask = item.category === 'Task' || (item.level >= 3);
+                  
+                  if (isParent && !isTask) {
                     const rollup = rollupDates.get(item.id);
                     const d = rollup?.start;
                     return (
@@ -358,8 +362,12 @@ export const WBSTimeRightPanel = ({
             <div className="px-2 flex items-end text-xs text-muted-foreground">
               {(() => {
                 const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
-                if (isParent) {
+                // Elements (level 2) should show rollup from Tasks, Tasks (level 3 or category 'Task') should be editable
+                const isParent = (item.level === 0 || item.level === 1) || 
+                  (item.level === 2 && (parentChildMap.map.get(item.id)?.length || 0) > 0);
+                const isTask = item.category === 'Task' || (item.level >= 3);
+                
+                if (isParent && !isTask) {
                   const rollup = rollupDates.get(item.id);
                   const d = rollup?.end;
                   return (
@@ -390,8 +398,12 @@ export const WBSTimeRightPanel = ({
             <div className="px-2 flex items-end text-xs text-muted-foreground">
               {(() => {
                 const type = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element';
-                const isParent = (item.level === 0 || item.level === 1) || (parentChildMap.map.get(item.id)?.length || 0) > 0;
-                if (isParent) {
+                // Elements (level 2) should show rollup from Tasks, Tasks (level 3 or category 'Task') should be editable
+                const isParent = (item.level === 0 || item.level === 1) || 
+                  (item.level === 2 && (parentChildMap.map.get(item.id)?.length || 0) > 0);
+                const isTask = item.category === 'Task' || (item.level >= 3);
+                
+                if (isParent && !isTask) {
                   const rollup = rollupDates.get(item.id);
                   const d = rollup?.duration ?? item.duration;
                   return (
