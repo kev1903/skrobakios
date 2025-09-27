@@ -710,6 +710,37 @@ body[data-rbd-drag-occurring="true"] {
   background-color: hsl(var(--muted-foreground) / 0.5);
 }
 
+/* Always visible scrollbar for Time tab */
+.scrollbar-always-visible {
+  scrollbar-width: auto;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+  overflow-y: scroll !important; /* Force scrollbar to always show */
+}
+
+.scrollbar-always-visible::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
+}
+
+.scrollbar-always-visible::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 6px;
+}
+
+.scrollbar-always-visible::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.scrollbar-always-visible::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.scrollbar-always-visible::-webkit-scrollbar-corner {
+  background: #f1f5f9;
+}
+
 /* Visible scrollbar for Cost tab */
 .scrollbar-visible {
   scrollbar-width: auto;
