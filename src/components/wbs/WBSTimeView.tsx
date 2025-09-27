@@ -3,7 +3,6 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, startOf
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
 import { WBSToolbar } from './WBSToolbar';
-import { GanttChart } from './GanttChart';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { DropResult } from 'react-beautiful-dnd';
 import { WBSItem } from '@/types/wbs';
@@ -394,171 +393,56 @@ export const WBSTimeView = ({
         
         <ResizableHandle />
         
-        {/* Right Column (Data + Timeline) */}
+        {/* Right Column (Data Columns Only) */}
         <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
           <div className="h-full flex flex-col">
             {/* Right Header - Only Data Columns */}
             <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
-              <ResizablePanelGroup 
-                direction="horizontal" 
-                className="h-full"
-                onLayout={setRightPanelSizes}
+              <div 
+                ref={dataColumnsHeaderScrollRef}
+                className="px-2 py-1 text-xs font-medium text-slate-700 h-full overflow-x-auto scrollbar-hide"
+                onScroll={handleDataColumnsScroll}
               >
-                {/* Data Columns Header */}
-                <ResizablePanel defaultSize={rightPanelSizes[0]} minSize={30} maxSize={70}>
-                  <div 
-                    ref={dataColumnsHeaderScrollRef}
-                    className="px-2 py-1 text-xs font-medium text-slate-700 h-full overflow-x-auto scrollbar-hide"
-                    onScroll={handleDataColumnsScroll}
-                  >
-                    <div className="grid items-center h-full min-w-fit" style={{
-                      gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
-                    }}>
-                      <div className="px-2 font-semibold text-center">START DATE</div>
-                      <div className="px-2 font-semibold text-center">END DATE</div>
-                      <div className="px-2 font-semibold text-center">DURATION</div>
-                      <div className="px-2 font-semibold text-center">PREDECESSORS</div>
-                      <div className="px-2 font-semibold text-center">STATUS</div>
-                      <div className="px-2 font-semibold text-center">ACTIONS</div>
-                    </div>
-                  </div>
-                </ResizablePanel>
-                
-                <ResizableHandle />
-                
-                {/* Timeline Placeholder - Empty space for alignment */}
-                <ResizablePanel defaultSize={rightPanelSizes[1]} minSize={30} maxSize={70}>
-                  <div className="h-full bg-slate-100/70"></div>
-                </ResizablePanel>
-              </ResizablePanelGroup>
+                <div className="grid items-center h-full min-w-fit" style={{
+                  gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
+                }}>
+                  <div className="px-2 font-semibold text-center">START DATE</div>
+                  <div className="px-2 font-semibold text-center">END DATE</div>
+                  <div className="px-2 font-semibold text-center">DURATION</div>
+                  <div className="px-2 font-semibold text-center">PREDECESSORS</div>
+                  <div className="px-2 font-semibold text-center">STATUS</div>
+                  <div className="px-2 font-semibold text-center">ACTIONS</div>
+                </div>
+              </div>
             </div>
             
-            {/* Right Content */}
+            {/* Right Content - Data Columns Only */}
             <div 
               ref={timelineContentContainerRef}
               className="flex-1 overflow-hidden"
             >
-              <ResizablePanelGroup 
-                direction="horizontal" 
-                className="h-full"
+              <div 
+                ref={dataColumnsScrollRef}
+                className="h-full overflow-auto"
+                onScroll={(e) => {
+                  handleMasterScroll(e);
+                  handleDataColumnsScroll(e);
+                }}
               >
-                {/* Data Columns Section */}
-                <ResizablePanel defaultSize={rightPanelSizes[0]} minSize={30} maxSize={70}>
-                  <div 
-                    ref={dataColumnsScrollRef}
-                    className="h-full overflow-auto"
-                    onScroll={handleDataColumnsScroll}
-                  >
-                    <WBSTimeRightPanel
-                      items={items}
-                      onItemUpdate={handleItemUpdate}
-                      onContextMenuAction={onContextMenuAction}
-                      onOpenNotesDialog={onOpenNotesDialog}
-                      onClearAllDates={onClearAllDates}
-                      EditableCell={EditableCell}
-                      StatusSelect={StatusSelect}
-                      hoveredId={hoveredId}
-                      onRowHover={handleRowHover}
-                      selectedItems={selectedItems}
-                      onRowClick={handleRowClick}
-                    />
-                  </div>
-                </ResizablePanel>
-                
-                <ResizableHandle />
-                
-                {/* Unified Timeline Section - Header + Content in one container */}
-                <ResizablePanel defaultSize={rightPanelSizes[1]} minSize={30} maxSize={70} className="timeline-panel">
-                  <div 
-                    ref={timelineContentScrollRef}
-                    className="h-full overflow-auto scrollbar-thin"
-                    onScroll={(e) => {
-                      handleMasterScroll(e);
-                      handleTimelineScroll(e);
-                    }}
-                  >
-                    {/* Timeline Header - now inside the scrollable container */}
-                    <div 
-                      className="sticky top-0 z-30 bg-slate-100/70 border-b border-slate-200"
-                      style={{ 
-                        height: '32px',
-                        minWidth: `${timelineDays.length * 32}px`,
-                        width: `${timelineDays.length * 32}px`
-                      }}
-                    >
-                      <div 
-                        className="text-xs font-medium text-gray-700 flex h-full"
-                        style={{ 
-                          minWidth: `${timelineDays.length * 32}px`,
-                          width: `${timelineDays.length * 32}px`
-                        }}
-                      >
-                        <div className="flex h-full">
-                          {timelineDays.map((day, index) => {
-                            const targetDate = new Date(2024, 10, 27);
-                            const actualCurrentDate = new Date();
-                            const dateToUse = timelineDays.some(d => isSameDay(d, targetDate)) ? targetDate : actualCurrentDate;
-                            const isToday = isSameDay(day, dateToUse);
-                            const isWeekend = day.getDay() === 0 || day.getDay() === 6;
-                            const isFirstDayOfMonth = day.getDate() === 1;
-                            
-                            return (
-                              <div 
-                                key={index}
-                                className={`flex-shrink-0 flex items-center justify-center border-r border-gray-200 text-[10px] font-medium ${
-                                  isToday ? 'bg-blue-100 text-blue-800 font-bold' : 
-                                  isWeekend ? 'bg-gray-50 text-gray-500' : 'text-gray-700'
-                                }`}
-                                style={{ width: 32, minWidth: 32, height: '32px' }}
-                                title={format(day, 'EEE, MMM d, yyyy')}
-                              >
-                                <div className="text-center">
-                                  {isFirstDayOfMonth && (
-                                    <div className="text-[8px] font-bold text-blue-600 leading-none">
-                                      {format(day, 'MMM').toUpperCase()}
-                                    </div>
-                                  )}
-                                  <div className={`text-[10px] leading-none ${isToday ? 'font-bold' : 'font-semibold'}`}>
-                                    {format(day, 'd')}
-                                  </div>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Gantt Chart Content */}
-                    <div 
-                      className="relative z-20 w-full"
-                      style={{ 
-                        minWidth: `${timelineDays.length * 32}px`,
-                        width: `${timelineDays.length * 32}px`
-                      }}
-                    >
-                      <GanttChart 
-                        items={items.map(item => ({
-                          ...item,
-                          name: item.title,
-                          wbsNumber: item.wbs_id || '',
-                          status: item.status || 'Not Started',
-                          predecessors: item.predecessors?.map(p => ({
-                            predecessorId: p.id,
-                            type: p.type,
-                            lag: p.lag
-                          })) || []
-                        }))} 
-                        timelineDays={timelineDays}
-                        className="w-full" 
-                        hideHeader 
-                        hoveredId={hoveredId}
-                        onRowHover={handleRowHover}
-                      />
-                    </div>
-                  </div>
-                </ResizablePanel>
-              </ResizablePanelGroup>
+                <WBSTimeRightPanel
+                  items={items}
+                  onItemUpdate={handleItemUpdate}
+                  onContextMenuAction={onContextMenuAction}
+                  onOpenNotesDialog={onOpenNotesDialog}
+                  onClearAllDates={onClearAllDates}
+                  EditableCell={EditableCell}
+                  StatusSelect={StatusSelect}
+                  hoveredId={hoveredId}
+                  onRowHover={handleRowHover}
+                  selectedItems={selectedItems}
+                  onRowClick={handleRowClick}
+                />
+              </div>
             </div>
           </div>
         </ResizablePanel>
