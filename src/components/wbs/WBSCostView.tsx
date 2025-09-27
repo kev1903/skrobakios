@@ -72,8 +72,22 @@ export const WBSCostView = ({
     if (selectedItems.length === 0) return;
     
     try {
-      console.log('🔵 Starting indent operation for items:', selectedItems);
+      console.log('🔵 Starting cascade indent operation for items:', selectedItems);
       
+      // Helper function to get all descendants of an item
+      const getAllDescendants = (itemId: string): string[] => {
+        const descendants: string[] = [];
+        const children = items.filter(i => i.parent_id === itemId);
+        
+        children.forEach(child => {
+          descendants.push(child.id);
+          descendants.push(...getAllDescendants(child.id));
+        });
+        
+        return descendants;
+      };
+      
+      // Process each selected item and its descendants
       for (const itemId of selectedItems) {
         const item = items.find(i => i.id === itemId);
         if (!item) continue;
@@ -84,20 +98,34 @@ export const WBSCostView = ({
         
         const itemAbove = items[currentIndex - 1];
         
-        console.log(`🔄 Indenting item ${item.name || item.id} under ${itemAbove.name || itemAbove.id}`);
+        console.log(`🔄 Indenting parent item ${item.name || item.id} under ${itemAbove.name || itemAbove.id}`);
         
-        // Set the item above as the new parent and increase level
+        // Indent the parent item
         await onItemUpdate(itemId, {
           parent_id: itemAbove.id,
           level: item.level + 1
         });
+        
+        // Get all descendants and indent them too
+        const descendants = getAllDescendants(itemId);
+        console.log(`📂 Found ${descendants.length} descendants to cascade indent:`, descendants);
+        
+        for (const descendantId of descendants) {
+          const descendant = items.find(i => i.id === descendantId);
+          if (descendant) {
+            console.log(`🔄 Cascading indent to ${descendant.name || descendant.id} (level ${descendant.level} → ${descendant.level + 1})`);
+            await onItemUpdate(descendantId, {
+              level: descendant.level + 1
+            });
+          }
+        }
       }
       
       // Clear selection after indent
       setSelectedItems([]);
-      console.log('✅ Indent operation completed');
+      console.log('✅ Cascade indent operation completed');
     } catch (error) {
-      console.error('❌ Error indenting items:', error);
+      console.error('❌ Error in cascade indent operation:', error);
     }
   }, [selectedItems, items, onItemUpdate]);
 
@@ -105,8 +133,22 @@ export const WBSCostView = ({
     if (selectedItems.length === 0) return;
     
     try {
-      console.log('🟡 Starting outdent operation for items:', selectedItems);
+      console.log('🟡 Starting cascade outdent operation for items:', selectedItems);
       
+      // Helper function to get all descendants of an item
+      const getAllDescendants = (itemId: string): string[] => {
+        const descendants: string[] = [];
+        const children = items.filter(i => i.parent_id === itemId);
+        
+        children.forEach(child => {
+          descendants.push(child.id);
+          descendants.push(...getAllDescendants(child.id));
+        });
+        
+        return descendants;
+      };
+      
+      // Process each selected item and its descendants
       for (const itemId of selectedItems) {
         const item = items.find(i => i.id === itemId);
         if (!item || item.level <= 0) continue; // Can't outdent beyond level 0
@@ -114,20 +156,34 @@ export const WBSCostView = ({
         // Find the current parent to get its parent
         const currentParent = items.find(i => i.id === item.parent_id);
         
-        console.log(`🔄 Outdenting item ${item.name || item.id} from level ${item.level} to ${item.level - 1}`);
+        console.log(`🔄 Outdenting parent item ${item.name || item.id} from level ${item.level} to ${item.level - 1}`);
         
-        // Set new parent and decrease level
+        // Outdent the parent item
         await onItemUpdate(itemId, {
           parent_id: currentParent?.parent_id || null,
           level: Math.max(0, item.level - 1)
         });
+        
+        // Get all descendants and outdent them too
+        const descendants = getAllDescendants(itemId);
+        console.log(`📂 Found ${descendants.length} descendants to cascade outdent:`, descendants);
+        
+        for (const descendantId of descendants) {
+          const descendant = items.find(i => i.id === descendantId);
+          if (descendant) {
+            console.log(`🔄 Cascading outdent to ${descendant.name || descendant.id} (level ${descendant.level} → ${Math.max(0, descendant.level - 1)})`);
+            await onItemUpdate(descendantId, {
+              level: Math.max(0, descendant.level - 1)
+            });
+          }
+        }
       }
       
       // Clear selection after outdent
       setSelectedItems([]);
-      console.log('✅ Outdent operation completed');
+      console.log('✅ Cascade outdent operation completed');
     } catch (error) {
-      console.error('❌ Error outdenting items:', error);
+      console.error('❌ Error in cascade outdent operation:', error);
     }
   }, [selectedItems, items, onItemUpdate]);
 
