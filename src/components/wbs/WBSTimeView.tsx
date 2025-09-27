@@ -38,6 +38,7 @@ export const WBSTimeView = ({
 }: WBSTimeViewProps) => {
   const leftScrollRef = useRef<HTMLDivElement>(null);
   const rightScrollRef = useRef<HTMLDivElement>(null);
+  const ganttScrollRef = useRef<HTMLDivElement>(null);
   const headerHorizScrollRef = useRef<HTMLDivElement>(null);
   const bodyHorizScrollRef = useRef<HTMLDivElement>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -49,14 +50,23 @@ export const WBSTimeView = ({
   }, []);
 
   const handleRightScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current) {
+    if (leftScrollRef.current && rightScrollRef.current && ganttScrollRef.current) {
       leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
+      ganttScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
     }
   }, []);
 
   const handleLeftScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current) {
+    if (leftScrollRef.current && rightScrollRef.current && ganttScrollRef.current) {
       rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
+      ganttScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
+    }
+  }, []);
+
+  const handleGanttScroll = useCallback(() => {
+    if (leftScrollRef.current && rightScrollRef.current && ganttScrollRef.current) {
+      leftScrollRef.current.scrollTop = ganttScrollRef.current.scrollTop;
+      rightScrollRef.current.scrollTop = ganttScrollRef.current.scrollTop;
     }
   }, []);
 
@@ -255,7 +265,11 @@ export const WBSTimeView = ({
 
           {/* Timeline Content */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div className="h-full overflow-x-auto overflow-y-hidden bg-white">
+            <div 
+              ref={ganttScrollRef}
+              className="h-full overflow-x-auto overflow-y-auto bg-white"
+              onScroll={handleGanttScroll}
+            >
               <div className="min-w-fit">
                 <GanttChart 
                   items={items.map(item => ({
