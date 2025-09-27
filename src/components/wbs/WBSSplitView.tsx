@@ -54,12 +54,13 @@ export const WBSSplitView = ({
 
   return (
     <div className="h-full w-full bg-white flex flex-col">
-      {/* Fixed Headers */}
-      <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
-        <ResizablePanelGroup direction="horizontal" className="h-full">
-          {/* Left Header - matches content structure exactly */}
-          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div className="h-full border-r border-gray-200 bg-slate-100/70">
+      {/* Single ResizablePanelGroup controlling both header and content */}
+      <ResizablePanelGroup direction="horizontal" className="h-full">
+        {/* Left Column (WBS + Names) */}
+        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+          <div className="h-full flex flex-col">
+            {/* Left Header */}
+            <div className="h-8 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200 sticky top-0 z-40">
               <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
                 <div className="grid items-center h-full" style={{
                   gridTemplateColumns: '32px 120px 1fr 40px',
@@ -71,35 +72,9 @@ export const WBSSplitView = ({
                 </div>
               </div>
             </div>
-          </ResizablePanel>
-          
-          <ResizableHandle />
-          
-          {/* Right Header - matches content structure exactly */}
-          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <div className="h-full bg-slate-100/70">
-              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
-                <div className="grid items-center h-full" style={{
-                  gridTemplateColumns: '140px 120px 160px 40px 84px',
-                }}>
-                  <div className="px-2 font-semibold flex items-center justify-start h-full">STATUS</div>
-                  <div className="px-2 font-semibold flex items-center justify-start h-full">PROGRESS</div>
-                  <div className="px-2 font-semibold flex items-center justify-start h-full">ASSIGNED TO</div>
-                  <div className="px-1 font-semibold flex items-center justify-center h-full">NOTE</div>
-                  <div className="px-2 font-semibold flex items-center justify-center h-full">ACTIONS</div>
-                </div>
-              </div>
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
-
-      {/* Single Unified Scrollable Content */}
-      <div className="flex-1 overflow-auto">
-        <ResizablePanelGroup direction="horizontal" className="min-h-full">
-          {/* Left Panel Content - matches header structure exactly */}
-          <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div className="min-h-full border-r border-gray-200 bg-white">
+            
+            {/* Left Content */}
+            <div className="flex-1 overflow-auto">
               <WBSLeftPanel
                 items={items}
                 onToggleExpanded={onToggleExpanded}
@@ -113,13 +88,31 @@ export const WBSSplitView = ({
                 onRowHover={setHoveredId}
               />
             </div>
-          </ResizablePanel>
-          
-          <ResizableHandle />
-          
-          {/* Right Panel Content - matches header structure exactly */}
-          <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <div className="min-h-full bg-white">
+          </div>
+        </ResizablePanel>
+        
+        <ResizableHandle />
+        
+        {/* Right Column (Status, Progress, etc.) */}
+        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+          <div className="h-full flex flex-col">
+            {/* Right Header */}
+            <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
+              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
+                <div className="grid items-center h-full" style={{
+                  gridTemplateColumns: '140px 120px 160px 40px 84px',
+                }}>
+                  <div className="px-2 font-semibold flex items-center justify-start h-full">STATUS</div>
+                  <div className="px-2 font-semibold flex items-center justify-start h-full">PROGRESS</div>
+                  <div className="px-2 font-semibold flex items-center justify-start h-full">ASSIGNED TO</div>
+                  <div className="px-1 font-semibold flex items-center justify-center h-full">NOTE</div>
+                  <div className="px-2 font-semibold flex items-center justify-center h-full">ACTIONS</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right Content */}
+            <div className="flex-1 overflow-auto">
               <WBSRightPanel
                 items={items}
                 onItemUpdate={onItemUpdate}
@@ -134,9 +127,9 @@ export const WBSSplitView = ({
                 onRowHover={setHoveredId}
               />
             </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
