@@ -57,12 +57,6 @@ export const WBSCostView = ({
     }
   }, []);
 
-  const handleLeftScroll = useCallback(() => {
-    if (leftScrollRef.current && rightScrollRef.current) {
-      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
-    }
-  }, []);
-
   return (
     <div className="h-full w-full bg-white flex flex-col">
       {/* Fixed Headers */}
@@ -115,7 +109,7 @@ export const WBSCostView = ({
             <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
               <div className="h-full border-r border-gray-200 bg-white flex flex-col">
                 <div className="flex-1 overflow-hidden">
-                  <div ref={leftScrollRef} className="h-full overflow-y-scroll overflow-x-hidden scrollbar-hide" onScroll={handleLeftScroll}>
+                  <div ref={leftScrollRef} className="h-full overflow-y-scroll overflow-x-hidden scrollbar-hide">
                     <WBSLeftPanel
                       items={items}
                       onToggleExpanded={onToggleExpanded}
@@ -126,7 +120,7 @@ export const WBSCostView = ({
                       EditableCell={EditableCell}
                       generateWBSNumber={generateWBSNumber}
                       scrollRef={leftScrollRef}
-                      onScroll={handleLeftScroll}
+                      onScroll={() => {}}
                       hoveredId={hoveredId}
                       onRowHover={setHoveredId}
                     />
