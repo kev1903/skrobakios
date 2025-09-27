@@ -208,10 +208,13 @@ export const WBSTimeView = ({
             <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 sticky top-0 z-40">
               <div 
                 ref={timelineHeaderScrollRef}
-                className="h-full overflow-x-auto overflow-y-hidden"
+                className="h-full overflow-x-auto overflow-y-hidden scrollbar-hide"
               >
-                <div className="h-full text-xs font-medium text-gray-700 shadow-sm overflow-hidden">
-                  <div className="flex h-full min-w-fit">
+                <div 
+                  className="h-full text-xs font-medium text-gray-700 shadow-sm overflow-hidden"
+                  style={{ width: timelineDays.length * 32, minWidth: timelineDays.length * 32 }}
+                >
+                  <div className="flex h-full">
                     {timelineDays.map((day, index) => {
                       const targetDate = new Date(2024, 10, 27);
                       const actualCurrentDate = new Date();
@@ -254,26 +257,24 @@ export const WBSTimeView = ({
               className="flex-1 overflow-auto"
               onScroll={handleTimelineContentScroll}
             >
-              <div className="min-w-fit">
-                <GanttChart 
-                  items={items.map(item => ({
-                    ...item,
-                    name: item.title,
-                    wbsNumber: item.wbs_id || '',
-                    status: item.status || 'Not Started',
-                    predecessors: item.predecessors?.map(p => ({
-                      predecessorId: p.id,
-                      type: p.type,
-                      lag: p.lag
-                    })) || []
-                  }))} 
-                  timelineDays={timelineDays}
-                  className="relative z-10" 
-                  hideHeader 
-                  hoveredId={hoveredId}
-                  onRowHover={setHoveredId}
-                />
-              </div>
+              <GanttChart 
+                items={items.map(item => ({
+                  ...item,
+                  name: item.title,
+                  wbsNumber: item.wbs_id || '',
+                  status: item.status || 'Not Started',
+                  predecessors: item.predecessors?.map(p => ({
+                    predecessorId: p.id,
+                    type: p.type,
+                    lag: p.lag
+                  })) || []
+                }))} 
+                timelineDays={timelineDays}
+                className="relative z-10" 
+                hideHeader 
+                hoveredId={hoveredId}
+                onRowHover={setHoveredId}
+              />
             </div>
           </div>
         </ResizablePanel>

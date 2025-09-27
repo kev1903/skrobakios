@@ -188,7 +188,7 @@ export const GanttChart = ({ items, className = "", hideHeader = false, hoveredI
 
 
   return (
-    <div className={`h-full rounded-xl border border-border/20 bg-white overflow-hidden ${className}`} style={{ width: chartWidth, minWidth: chartWidth }}>
+    <div className={`h-full w-full rounded-xl border border-border/20 bg-white overflow-hidden ${className}`}>
 {!hideHeader && (
   <div className="sticky top-0 bg-white border-b border-border/10 z-10">
     <div className="min-w-fit">
