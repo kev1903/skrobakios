@@ -53,13 +53,19 @@ export const WBSCostView = ({
 
   const handleRightScroll = useCallback(() => {
     if (leftScrollRef.current && rightScrollRef.current) {
-      leftScrollRef.current.scrollTop = rightScrollRef.current.scrollTop;
+      const rightScrollTop = rightScrollRef.current.scrollTop;
+      if (leftScrollRef.current.scrollTop !== rightScrollTop) {
+        leftScrollRef.current.scrollTop = rightScrollTop;
+      }
     }
   }, []);
 
   const handleLeftScroll = useCallback(() => {
     if (leftScrollRef.current && rightScrollRef.current) {
-      rightScrollRef.current.scrollTop = leftScrollRef.current.scrollTop;
+      const leftScrollTop = leftScrollRef.current.scrollTop;
+      if (rightScrollRef.current.scrollTop !== leftScrollTop) {
+        rightScrollRef.current.scrollTop = leftScrollTop;
+      }
     }
   }, []);
   return (
