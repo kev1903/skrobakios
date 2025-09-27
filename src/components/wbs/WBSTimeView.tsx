@@ -103,7 +103,7 @@ export const WBSTimeView = ({
   })();
 
   return (
-    <div className="h-full w-full bg-white flex flex-col">
+    <div className="h-full w-full bg-white flex flex-col relative z-10">
       {/* Fixed Headers Row */}
       <div className="h-[60px] bg-gray-50 border-b-2 border-gray-300 sticky top-0 z-40">
         <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -203,15 +203,15 @@ export const WBSTimeView = ({
         </ResizablePanelGroup>
       </div>
 
-      {/* Unified Content Area with Single Scroll */}
-      <div className="flex-1 overflow-auto">
-        <ResizablePanelGroup direction="horizontal" className="h-full">
+      {/* Unified Content Area with Single Scroll and Proper Height Constraints */}
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-visible" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+        <ResizablePanelGroup direction="horizontal" className="min-h-full">
           {/* Left Side Content - WBS Structure + Data Columns */}
           <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
-            <ResizablePanelGroup direction="horizontal" className="h-full">
+            <ResizablePanelGroup direction="horizontal" className="min-h-full">
               {/* WBS Content */}
               <ResizablePanel defaultSize={45} minSize={25} maxSize={65}>
-                <div className="border-r border-gray-200">
+                <div className="min-h-full border-r border-gray-200">
                   <div 
                     ref={wbsContentScrollRef}
                     className="overflow-x-auto overflow-y-hidden"
@@ -242,7 +242,7 @@ export const WBSTimeView = ({
 
               {/* Data Columns Content */}
               <ResizablePanel defaultSize={55} minSize={35} maxSize={75}>
-                <div className="border-r border-gray-200">
+                <div className="min-h-full border-r border-gray-200">
                   <div 
                     ref={dataContentScrollRef}
                     className="overflow-x-auto overflow-y-hidden"
@@ -269,29 +269,31 @@ export const WBSTimeView = ({
 
           {/* Timeline Content */}
           <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
-            <div 
-              ref={timelineContentScrollRef}
-              className="overflow-x-auto overflow-y-hidden"
-              onScroll={handleTimelineContentScroll}
-            >
-              <GanttChart 
-                items={items.map(item => ({
-                  ...item,
-                  name: item.title,
-                  wbsNumber: item.wbs_id || '',
-                  status: item.status || 'Not Started',
-                  predecessors: item.predecessors?.map(p => ({
-                    predecessorId: p.id,
-                    type: p.type,
-                    lag: p.lag
-                  })) || []
-                }))} 
-                timelineDays={timelineDays}
-                className="relative z-10" 
-                hideHeader 
-                hoveredId={hoveredId}
-                onRowHover={setHoveredId}
-              />
+            <div className="min-h-full relative">
+              <div 
+                ref={timelineContentScrollRef}
+                className="overflow-x-auto overflow-y-hidden h-full"
+                onScroll={handleTimelineContentScroll}
+              >
+                <GanttChart 
+                  items={items.map(item => ({
+                    ...item,
+                    name: item.title,
+                    wbsNumber: item.wbs_id || '',
+                    status: item.status || 'Not Started',
+                    predecessors: item.predecessors?.map(p => ({
+                      predecessorId: p.id,
+                      type: p.type,
+                      lag: p.lag
+                    })) || []
+                  }))} 
+                  timelineDays={timelineDays}
+                  className="relative z-20" 
+                  hideHeader 
+                  hoveredId={hoveredId}
+                  onRowHover={setHoveredId}
+                />
+              </div>
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
