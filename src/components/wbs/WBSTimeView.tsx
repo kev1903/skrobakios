@@ -181,7 +181,7 @@ export const WBSTimeView = ({
           </div>
         </ResizablePanel>
         
-        <ResizableHandle withHandle />
+        <ResizableHandle />
         
         {/* Right Column (Data + Timeline) */}
         <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
@@ -205,17 +205,10 @@ export const WBSTimeView = ({
                   </div>
                 </ResizablePanel>
                 
-                <ResizableHandle withHandle />
+                <ResizableHandle />
                 
                 {/* Timeline Header */}
-                <ResizablePanel 
-                  defaultSize={50} 
-                  minSize={30} 
-                  maxSize={70}
-                  style={{ 
-                    minWidth: `${timelineDays.length * 32}px`
-                  }}
-                >
+                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
                   <div 
                     ref={timelineHeaderHorizontalScrollRef}
                     className="h-full overflow-x-auto scrollbar-hide"
@@ -224,8 +217,7 @@ export const WBSTimeView = ({
                     <div 
                       className="text-xs font-medium text-gray-700 flex h-full"
                       style={{ 
-                        minWidth: `${timelineDays.length * 32}px`,
-                        width: `${timelineDays.length * 32}px`
+                        minWidth: `${timelineDays.length * 32}px`
                       }}
                     >
                       <div className="flex h-full">
@@ -293,17 +285,10 @@ export const WBSTimeView = ({
                   </div>
                 </ResizablePanel>
                 
-                <ResizableHandle withHandle />
+                <ResizableHandle />
                 
                 {/* Timeline Section - Master scroll controller */}
-                <ResizablePanel 
-                  defaultSize={50} 
-                  minSize={30} 
-                  maxSize={70}
-                  style={{ 
-                    minWidth: `${timelineDays.length * 32}px`
-                  }}
-                >
+                <ResizablePanel defaultSize={50} minSize={30} maxSize={70}>
                   <div 
                     ref={timelineContentScrollRef}
                     className="h-full overflow-y-auto overflow-x-auto scrollbar-thin"
@@ -312,31 +297,24 @@ export const WBSTimeView = ({
                       handleTimelineContentHorizontalScroll(e);
                     }}
                   >
-                    <div 
-                      className="relative z-20 w-full"
-                      style={{ 
-                        minWidth: `${timelineDays.length * 32}px`
-                      }}
-                    >
-                      <GanttChart 
-                        items={items.map(item => ({
-                          ...item,
-                          name: item.title,
-                          wbsNumber: item.wbs_id || '',
-                          status: item.status || 'Not Started',
-                          predecessors: item.predecessors?.map(p => ({
-                            predecessorId: p.id,
-                            type: p.type,
-                            lag: p.lag
-                          })) || []
-                        }))} 
-                        timelineDays={timelineDays}
-                        className="w-full" 
-                        hideHeader 
-                        hoveredId={hoveredId}
-                        onRowHover={setHoveredId}
-                      />
-                    </div>
+                    <GanttChart 
+                      items={items.map(item => ({
+                        ...item,
+                        name: item.title,
+                        wbsNumber: item.wbs_id || '',
+                        status: item.status || 'Not Started',
+                        predecessors: item.predecessors?.map(p => ({
+                          predecessorId: p.id,
+                          type: p.type,
+                          lag: p.lag
+                        })) || []
+                      }))} 
+                      timelineDays={timelineDays}
+                      className="relative z-20 w-full" 
+                      hideHeader 
+                      hoveredId={hoveredId}
+                      onRowHover={setHoveredId}
+                    />
                   </div>
                 </ResizablePanel>
               </ResizablePanelGroup>
