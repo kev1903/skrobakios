@@ -91,17 +91,15 @@ export const FrappeGanttChart = ({
       // Clear the container
       ganttRef.current.innerHTML = '';
 
-      // Create new Gantt chart
+      // Create new Gantt chart - removing view_modes and view_mode to fix v1.0.3 bug
       ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
         header_height: 50,
         column_width: 30,
         step: 24,
-        view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
         bar_height: 20,
         bar_corner_radius: 3,
         arrow_curve: 5,
         padding: 18,
-        view_mode: 'Day',
         date_format: 'YYYY-MM-DD',
         custom_popup_html: function(task: any) {
           return `
