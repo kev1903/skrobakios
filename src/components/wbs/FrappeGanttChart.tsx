@@ -91,9 +91,9 @@ export const FrappeGanttChart = ({
       // Clear the container
       ganttRef.current.innerHTML = '';
 
-      // Create new Gantt chart - removing view_modes and view_mode to fix v1.0.3 bug
+      // Create new Gantt chart - configured to align with data columns
       ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
-        header_height: 50,
+        header_height: 32, // Match the 8rem (32px) header height from WBSTimeView
         column_width: 30,
         step: 24,
         bar_height: 20,
