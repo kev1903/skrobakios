@@ -122,9 +122,9 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white/60 backdrop-blur-xl border-b border-white/20 sticky top-0 z-10">
+      <div className="bg-card/60 backdrop-blur-sm border-b border-border sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -132,21 +132,21 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
                 variant="ghost"
                 size="sm"
                 onClick={() => onNavigate?.('platform-dashboard')}
-                className="flex items-center space-x-2"
+                className="flex items-center space-x-2 text-muted-foreground"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Back</span>
               </Button>
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Building2 className="w-6 h-6 text-blue-600" />
+                <div className="p-2 bg-accent rounded-lg">
+                  <Building2 className="w-6 h-6 text-accent-foreground" />
                 </div>
-                <h1 className="text-2xl font-bold text-slate-800">Business Dashboard</h1>
+                <h1 className="text-2xl font-bold text-foreground">Business Dashboard</h1>
               </div>
             </div>
             {canManageCompanies && (
               <Button 
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="bg-primary text-primary-foreground"
                 onClick={() => onNavigate?.('create-business')}
               >
                 <Plus className="w-4 h-4 mr-2" />
@@ -161,7 +161,7 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
       <div className="max-w-7xl mx-auto px-6 py-8">
         <Tabs defaultValue="dashboard" className="w-full">
           <div className="flex items-center justify-between mb-6">
-            <TabsList className="bg-white/70 backdrop-blur-sm border border-white/40">
+            <TabsList className="bg-card border border-border">
               <TabsTrigger value="dashboard" className="flex items-center space-x-2">
                 <LayoutDashboard className="w-4 h-4" />
                 <span>Dashboard</span>
@@ -171,7 +171,7 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
                 <span>Table View</span>
               </TabsTrigger>
             </TabsList>
-            <span className="text-sm text-slate-600">{filteredCompanies.length} businesses</span>
+            <span className="text-sm text-muted-foreground">{filteredCompanies.length} businesses</span>
           </div>
 
           <TabsContent value="dashboard" className="space-y-6 mt-0">
@@ -182,15 +182,15 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     placeholder="Search businesses..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-80 bg-white/70 backdrop-blur-sm border-white/40"
+                    className="pl-10 w-80 bg-input border-border"
                   />
                 </div>
-                <Button variant="outline" size="sm" className="bg-white/70 backdrop-blur-sm border-white/40">
+                <Button variant="outline" size="sm" className="bg-card border-border">
                   <Filter className="w-4 h-4 mr-2" />
                   Filter
                 </Button>
