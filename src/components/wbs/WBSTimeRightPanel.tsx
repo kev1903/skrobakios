@@ -177,7 +177,7 @@ export const WBSTimeRightPanel = ({
             }`}
           style={{
             gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
-            height: '28px', // Match WBSLeftPanel exactly
+            height: '32px', // Match Gantt chart row height
           }}
           onMouseEnter={() => onRowHover?.(item.id)}
           onMouseLeave={() => onRowHover?.(null)}
