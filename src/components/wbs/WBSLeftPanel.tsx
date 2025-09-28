@@ -87,8 +87,8 @@ export const WBSLeftPanel = ({
           <div ref={provided.innerRef} {...provided.droppableProps} className="min-h-full">
             {visibleItems.map((item, index) => {
               const itemHasChildren = hasChildren(item.id);
-              const indentLevel = item.level || 0;
-              const indentWidth = indentLevel * 16; // 16px per level
+              const indentLevel = Math.min(item.level || 0, 4); // Clamp to max level 4
+              const indentWidth = indentLevel * 16; // 16px per level, supporting up to 5 levels (0-4)
               const isExpanded = item.isExpanded !== false; // Default to true if not specified
               
               return (

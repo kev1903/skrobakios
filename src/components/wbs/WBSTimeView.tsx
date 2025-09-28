@@ -144,6 +144,12 @@ export const WBSTimeView = ({
         
         const itemAbove = items[currentIndex - 1];
         
+        // Check maximum level restriction (allow up to level 4, since we start from 0)
+        if (item.level >= 4) {
+          console.log(`🚫 Cannot indent ${item.title || item.id} - maximum level (4) reached`);
+          continue;
+        }
+        
         console.log(`🔄 Indenting parent item ${item.title || item.id} under ${itemAbove.title || itemAbove.id}`);
         
         // Indent the parent item
@@ -346,8 +352,14 @@ export const WBSTimeView = ({
         onUnderline={handleUnderline}
         onFontSizeChange={handleFontSizeChange}
         selectedItems={selectedItems}
-        canIndent={selectedItems.length > 0}
-        canOutdent={selectedItems.length > 0}
+        canIndent={selectedItems.length > 0 && selectedItems.some(id => {
+          const item = items.find(i => i.id === id);
+          return item && item.level < 4; // Can only indent if not at max level (4)
+        })}
+        canOutdent={selectedItems.length > 0 && selectedItems.some(id => {
+          const item = items.find(i => i.id === id);
+          return item && item.level > 0; // Can only outdent if not at root level (0)
+        })}
         currentFormatting={currentFormatting}
       />
       

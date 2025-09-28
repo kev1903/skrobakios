@@ -19,7 +19,12 @@ export const findWBSItem = (items: WBSItem[], id: string): WBSItem | null => {
   return null;
 };
 
-// Comprehensive WBS renumbering system - Enhanced for better hierarchy maintenance
+// Comprehensive WBS renumbering system - Enhanced for 5-level hierarchy (Levels 0-4)
+// Level 0: Stages (1.0, 2.0, 3.0)
+// Level 1: Components (1.1, 1.2, 2.1) 
+// Level 2: Elements (1.1.1, 1.1.2, 2.1.1)
+// Level 3: Sub-Elements (1.1.1.1, 1.1.1.2)
+// Level 4: Tasks (1.1.1.1.1, 1.1.1.1.2)
 export const renumberAllWBSItems = (items: WBSItem[]): { item: WBSItem; newWbsId: string }[] => {
   const updates: { item: WBSItem; newWbsId: string }[] = [];
   
@@ -65,6 +70,12 @@ export const renumberAllWBSItems = (items: WBSItem[]): { item: WBSItem; newWbsId
   };
   
   // Generate WBS numbers recursively maintaining hierarchy
+  // Supports 5 levels (0-4): Stage -> Component -> Element -> Sub-Element -> Task
+  // Level 0: 1.0, 2.0, 3.0 (Stages)
+  // Level 1: 1.1, 1.2, 2.1 (Components)  
+  // Level 2: 1.1.1, 1.1.2, 2.1.1 (Elements)
+  // Level 3: 1.1.1.1, 1.1.1.2 (Sub-Elements)
+  // Level 4: 1.1.1.1.1, 1.1.1.1.2 (Tasks)
   const generateWbsNumbers = (items: WBSItem[], parentWbsId: string = ''): void => {
     items.forEach((item, index) => {
       let newWbsId: string;
@@ -77,7 +88,7 @@ export const renumberAllWBSItems = (items: WBSItem[]): { item: WBSItem; newWbsId
         const rootNumber = parentWbsId.split('.')[0];
         newWbsId = `${rootNumber}.${index + 1}`;
       } else {
-        // Deeper levels: 1.1.1, 1.1.2, 1.2.1, etc.
+        // Deeper levels: 1.1.1, 1.1.2, 1.2.1, 1.1.1.1, 1.1.1.1.1, etc.
         newWbsId = `${parentWbsId}.${index + 1}`;
       }
       
@@ -227,7 +238,7 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
   const expectedLevel = (wbsId: string) => {
     const parts = (wbsId || '').split('.');
     if (parts.length === 2 && parts[1] === '0') return 0; // X.0 → level 0 (Stage)
-    return Math.max(0, parts.length - 1);
+    return Math.max(0, Math.min(4, parts.length - 1)); // Clamp to max level 4 (5 levels total: 0-4)
   };
 
   for (const row of flatData) {
