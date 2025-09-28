@@ -144,6 +144,27 @@ export const FrappeGanttChart = ({
     };
   }, [items, onDateChange, onProgressChange]);
 
+  useEffect(() => {
+    // Add CDN CSS for frappe-gantt since the npm package doesn't include it
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.css';
+    link.id = 'frappe-gantt-css';
+    
+    // Only add if not already present
+    if (!document.getElementById('frappe-gantt-css')) {
+      document.head.appendChild(link);
+    }
+
+    return () => {
+      // Cleanup on unmount
+      const existingLink = document.getElementById('frappe-gantt-css');
+      if (existingLink) {
+        document.head.removeChild(existingLink);
+      }
+    };
+  }, []);
+
   return (
     <div className="h-full w-full overflow-auto bg-white">
       <div ref={ganttRef} className="min-h-full" />
