@@ -341,7 +341,7 @@ export const WBSTimeView = ({
       {/* Single ResizablePanelGroup controlling both header and content */}
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         {/* Left Column (WBS + Names) */}
-        <ResizablePanel defaultSize={40} minSize={25} maxSize={60}>
+        <ResizablePanel defaultSize={25} minSize={15} maxSize={45}>
           <div className="h-full flex flex-col">
             {/* Left Header */}
             <div className="h-8 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200 sticky top-0 z-40">
@@ -394,7 +394,7 @@ export const WBSTimeView = ({
         <ResizableHandle />
         
         {/* Right Column (Data Columns Only) */}
-        <ResizablePanel defaultSize={60} minSize={40} maxSize={75}>
+        <ResizablePanel defaultSize={75} minSize={55} maxSize={85}>
           <div className="h-full flex flex-col">
             {/* Right Header - Only Data Columns */}
             <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
