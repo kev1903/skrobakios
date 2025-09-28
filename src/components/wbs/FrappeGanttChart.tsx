@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import * as FrappeGantt from 'frappe-gantt';
 
 interface GanttTask {
@@ -25,8 +25,9 @@ export const FrappeGanttChart = ({
   const ganttRef = useRef<HTMLDivElement>(null);
   const ganttInstance = useRef<any>(null);
 
-  // Convert WBS items to Gantt tasks
-  const convertToGanttTasks = (items: any[]): GanttTask[] => {
+  // Memoize task conversion to prevent unnecessary recalculations
+  const tasks = useMemo(() => {
+    const convertToGanttTasks = (items: any[]): GanttTask[] => {
     const today = new Date();
     const defaultStart = today.toISOString().split('T')[0];
     const defaultEnd = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -69,13 +70,15 @@ export const FrappeGanttChart = ({
           custom_class: `level-${item.level || 0}`
         };
       });
-  };
+    };
+    
+    return convertToGanttTasks(items);
+  }, [items]);
 
   useEffect(() => {
     if (!ganttRef.current || items.length === 0) return;
 
     try {
-      const tasks = convertToGanttTasks(items);
       
       if (tasks.length === 0) {
         // Show empty state
@@ -142,7 +145,7 @@ export const FrappeGanttChart = ({
         ganttInstance.current = null;
       }
     };
-  }, [items, onDateChange, onProgressChange]);
+  }, [tasks, onDateChange, onProgressChange]);
 
   useEffect(() => {
     // Add CDN CSS for frappe-gantt since the npm package doesn't include it

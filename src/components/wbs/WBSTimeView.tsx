@@ -290,6 +290,20 @@ export const WBSTimeView = ({
     setHoveredId(id);
   }, []);
 
+  // Memoized Gantt chart callbacks to prevent unnecessary re-renders
+  const handleGanttDateChange = useCallback((task: any, start: Date, end: Date) => {
+    handleItemUpdate(task.id, {
+      start_date: start.toISOString().split('T')[0],
+      end_date: end.toISOString().split('T')[0]
+    });
+  }, [handleItemUpdate]);
+
+  const handleGanttProgressChange = useCallback((task: any, progress: number) => {
+    handleItemUpdate(task.id, {
+      progress: progress
+    });
+  }, [handleItemUpdate]);
+
   const handleRowClick = useCallback((itemId: string, ctrlKey: boolean = false) => {
     if (ctrlKey) {
       // Multi-select with Ctrl
@@ -480,17 +494,8 @@ export const WBSTimeView = ({
             <div className="flex-1 overflow-hidden pt-8">
               <FrappeGanttChart
                 items={items}
-                onDateChange={(task, start, end) => {
-                  // Update the WBS item when dates change in the Gantt chart
-                  handleItemUpdate(task.id, {
-                    start_date: start.toISOString().split('T')[0],
-                    end_date: end.toISOString().split('T')[0]
-                  });
-                }}
-                onProgressChange={(task, progress) => {
-                  // Update the WBS item when progress changes in the Gantt chart
-                  handleItemUpdate(task.id, { progress });
-                }}
+                onDateChange={handleGanttDateChange}
+                onProgressChange={handleGanttProgressChange}
               />
             </div>
           </div>
