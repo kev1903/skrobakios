@@ -104,11 +104,11 @@ export const WBSLeftPanel = ({
                         {...dragProvided.draggableProps}
                         className={`grid items-center border-b border-gray-100 cursor-pointer transition-all duration-200 ${
                           selectedItems.includes(item.id) 
-                            ? 'bg-primary/10 border-l-4 border-l-primary shadow-sm' 
+                            ? 'bg-primary/10 border-l-4 border-l-primary' 
                             : hoveredId === item.id 
-                              ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 shadow-lg ring-2 ring-gray-300/50' 
+                              ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 ring-2 ring-gray-300/50' 
                               : 'bg-white hover:bg-slate-50/50'
-                        } ${snapshot.isDragging ? 'shadow-lg bg-card z-30' : ''}`}
+                        } ${snapshot.isDragging ? 'bg-card z-30' : ''}`}
                         style={{
                           gridTemplateColumns: '32px 120px 1fr 40px',
                           height: '28px',

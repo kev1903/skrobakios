@@ -48,7 +48,7 @@ export const WBSToolbar = ({
   const hasSelection = selectedItems.length > 0;
 
   return (
-    <div className="h-12 bg-white border-b border-gray-200 px-4 flex items-center gap-2 shadow-sm">
+    <div className="h-12 bg-white border-b border-gray-200 px-4 flex items-center gap-2">
       {/* Row Management */}
       <div className="flex items-center gap-1">
         <Button
