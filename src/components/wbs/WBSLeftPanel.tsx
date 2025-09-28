@@ -161,19 +161,15 @@ export const WBSLeftPanel = ({
                             <div className="w-4 mr-2 flex-shrink-0" /> // Spacer for items without children
                           )}
                           
-                          {item.name ? (
-                            <EditableCell
-                              id={item.id}
-                              type="task"
-                              field="name"
-                              value={item.name}
-                              placeholder=""
-                              className="font-medium text-xs text-muted-foreground flex-1"
-                              data-field="name"
-                            />
-                          ) : (
-                            <div className="font-medium text-xs text-muted-foreground flex-1 min-h-[20px]" />
-                          )}
+                          <EditableCell
+                            id={item.id}
+                            type="task"
+                            field="name"
+                            value={item.name || ''}
+                            placeholder="Click to add activity"
+                            className="font-medium text-xs text-muted-foreground flex-1 cursor-text min-h-[20px] hover:bg-gray-50/50 rounded px-1 py-0.5 transition-colors"
+                            data-field="name"
+                          />
                         </div>
                         
                         <div className="px-2 flex items-center justify-center h-full">
