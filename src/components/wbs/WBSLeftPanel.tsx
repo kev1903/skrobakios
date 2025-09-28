@@ -166,7 +166,7 @@ export const WBSLeftPanel = ({
                             type="task"
                             field="name"
                             value={item.name}
-                            placeholder="Untitled Task"
+                            placeholder=""
                             className="font-medium text-xs text-muted-foreground flex-1"
                             data-field="name"
                           />

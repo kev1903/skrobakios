@@ -390,7 +390,7 @@ export const WBSTimeView = ({
                 items={items.map(item => {
                   const mappedItem = {
                     ...item,
-                    name: item.title || 'Untitled',
+                    name: item.title || '',
                     status: item.status || 'Not Started',
                     isExpanded: item.is_expanded !== false,
                     hasChildren: items.some(child => child.parent_id === item.id)

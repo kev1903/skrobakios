@@ -309,7 +309,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         // Add the current item to result
         result.push({
           id: item.id,
-          name: item.title || item.name || 'Untitled',
+          name: item.title || item.name || '',
           description: item.description,
           status: item.status || 'Not Started',
           progress: item.progress || 0,

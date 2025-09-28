@@ -324,7 +324,7 @@ export const WBSCostView = ({
                 items={items.map(item => {
                   const mappedItem = {
                     id: item.id,
-                    name: item.title || item.name || 'Untitled',
+                    name: item.title || item.name || '',
                     level: item.level || 0,
                     parent_id: item.parent_id,
                     isExpanded: item.is_expanded !== false,
