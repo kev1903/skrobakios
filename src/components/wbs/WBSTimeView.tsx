@@ -376,7 +376,7 @@ export const WBSTimeView = ({
                   gridTemplateColumns: '32px 1fr 40px',
                 }}>
                   <div></div>
-                  <div className="px-3 font-semibold">NAME</div>
+                  <div className="px-3 font-semibold">ACTIVITY</div>
                   <div></div>
                 </div>
               </div>
