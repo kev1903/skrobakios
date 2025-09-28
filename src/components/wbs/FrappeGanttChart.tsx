@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Gantt } from 'frappe-gantt';
+import Gantt from 'frappe-gantt';
 
 interface GanttTask {
   id: string;
