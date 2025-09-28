@@ -149,9 +149,10 @@ export const WBSLeftPanel = ({
                               }}
                               onMouseDown={(e) => {
                                 console.log('🟠 Mouse down on chevron for:', item.id);
+                                e.preventDefault();
                                 e.stopPropagation();
                               }}
-                              className="mr-2 p-1 rounded hover:bg-accent/20 transition-colors flex-shrink-0 cursor-pointer z-10 relative"
+                              className="mr-2 p-1 rounded hover:bg-accent/20 transition-colors flex-shrink-0 cursor-pointer z-50 relative"
                               style={{ pointerEvents: 'auto' }}
                               title={isExpanded ? "Collapse children" : "Expand children"}
                             >
