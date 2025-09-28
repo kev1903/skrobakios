@@ -5,6 +5,7 @@ import { WBSToolbar } from './WBSToolbar';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { DropResult } from 'react-beautiful-dnd';
 import { WBSItem } from '@/types/wbs';
+import { renumberAllWBSItems } from '@/utils/wbsUtils';
 
 
 // Extended WBS Item interface that includes legacy properties
@@ -121,9 +122,15 @@ export const WBSCostView = ({
         }
       }
       
+      // Auto-renumber WBS after indent operations
+      const updates = renumberAllWBSItems(items as WBSItem[]);
+      for (const update of updates) {
+        await onItemUpdate(update.item.id, { wbs_id: update.newWbsId });
+      }
+      
       // Clear selection after indent
       setSelectedItems([]);
-      console.log('✅ Cascade indent operation completed');
+      console.log('✅ Cascade indent operation completed with WBS renumbering');
     } catch (error) {
       console.error('❌ Error in cascade indent operation:', error);
     }
@@ -179,9 +186,15 @@ export const WBSCostView = ({
         }
       }
       
+      // Auto-renumber WBS after outdent operations
+      const updates = renumberAllWBSItems(items as WBSItem[]);
+      for (const update of updates) {
+        await onItemUpdate(update.item.id, { wbs_id: update.newWbsId });
+      }
+      
       // Clear selection after outdent
       setSelectedItems([]);
-      console.log('✅ Cascade outdent operation completed');
+      console.log('✅ Cascade outdent operation completed with WBS renumbering');
     } catch (error) {
       console.error('❌ Error in cascade outdent operation:', error);
     }

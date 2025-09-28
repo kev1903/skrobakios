@@ -1468,15 +1468,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
                   </div>
                   
-                  <Button 
-                    onClick={renumberWBSHierarchy}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                  >
-                    Fix WBS Numbering
-                  </Button>
-                  
                   {/* Tabs in Header */}
                   <TabsList className="grid w-fit grid-cols-3">
                     <TabsTrigger value="scope" className="flex items-center gap-2">
