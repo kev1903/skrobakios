@@ -346,7 +346,10 @@ export const WBSSplitView = ({
                 EditableCell={EditableCell}
                 generateWBSNumber={generateWBSNumber}
                 hoveredId={hoveredId}
-                onRowHover={React.useCallback((id: string | null) => setHoveredId(id), [])}
+                onRowHover={React.useCallback((id: string | null) => {
+                  if (id && !id.startsWith('empty-')) setHoveredId(id);
+                  else if (!id) setHoveredId(null);
+                }, [])}
                 selectedItems={selectedItems}
                 onRowClick={handleRowClick}
               />
@@ -391,7 +394,10 @@ export const WBSSplitView = ({
                 ProgressDisplay={ProgressDisplay}
                 getProgressColor={getProgressColor}
                 hoveredId={hoveredId}
-                onRowHover={React.useCallback((id: string | null) => setHoveredId(id), [])}
+                onRowHover={React.useCallback((id: string | null) => {
+                  if (id && !id.startsWith('empty-')) setHoveredId(id);
+                  else if (!id) setHoveredId(null);
+                }, [])}
                 selectedItems={selectedItems}
                 onRowClick={handleRowClick}
               />
