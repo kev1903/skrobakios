@@ -478,9 +478,6 @@ export const WBSTimeView = ({
           <div className="h-full flex flex-col">
             {/* Gantt Chart Header */}
             <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
-              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full flex items-center">
-                <div className="font-semibold">GANTT CHART</div>
-              </div>
             </div>
             
             {/* Gantt Chart Content */}
