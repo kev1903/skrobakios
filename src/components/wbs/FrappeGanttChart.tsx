@@ -91,9 +91,9 @@ export const FrappeGanttChart = ({
       // Clear the container
       ganttRef.current.innerHTML = '';
 
-      // Create new Gantt chart - configured to match WBS row heights exactly
+      // Create new Gantt chart - configured to align perfectly with data rows
       ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
-        header_height: 32, // Match the header height from WBSTimeView (h-8 = 32px)
+        header_height: 0, // No header to match the removed header
         column_width: 30,
         step: 24,
         bar_height: 16, // Reduced to fit within 28px row height

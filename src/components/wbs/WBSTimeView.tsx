@@ -476,12 +476,8 @@ export const WBSTimeView = ({
         {/* Right Column (Gantt Chart) */}
         <ResizablePanel defaultSize={40} minSize={30} maxSize={60}>
           <div className="h-full flex flex-col">
-            {/* Gantt Chart Header */}
-            <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
-            </div>
-            
-            {/* Gantt Chart Content */}
-            <div className="flex-1 overflow-hidden">
+            {/* Gantt Chart Content - no header to align with data rows */}
+            <div className="flex-1 overflow-hidden pt-8">
               <FrappeGanttChart
                 items={items}
                 onDateChange={(task, start, end) => {
