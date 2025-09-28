@@ -96,13 +96,13 @@ export const FrappeGanttChart = ({
 
       // Create new Gantt chart - configured to align perfectly with data rows
       ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
-        header_height: 32, // Match the header height from WBSTimeView (h-8 = 32px)
+        header_height: 0, // Remove header to prevent offset issues
         column_width: 30,
         step: 24,
-        bar_height: 18, // Optimized for 28px row height
+        bar_height: 20, // Slightly larger bar for 28px row
         bar_corner_radius: 3,
         arrow_curve: 5,
-        padding: 5, // Adjusted padding for exact 28px row alignment
+        padding: 0, // Zero padding for exact alignment
         date_format: 'YYYY-MM-DD',
         custom_popup_html: function(task: any) {
           return `
@@ -184,8 +184,8 @@ export const FrappeGanttChart = ({
           height: 28px !important;
         }
         .gantt .bar-wrapper .bar {
-          height: 18px !important;
-          top: 5px !important;
+          height: 20px !important;
+          top: 4px !important;
         }
         .gantt .bar-wrapper .bar-label {
           height: 28px !important;
