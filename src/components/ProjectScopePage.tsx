@@ -1248,6 +1248,33 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
     const updateScopeField = async (newVal: string) => {
       try {
+        // Check if this is an empty row that needs to be created
+        if (id.startsWith('empty-')) {
+          console.log('🆕 Creating new WBS item for empty row:', id);
+          if (!currentCompany?.id) {
+            console.error('❌ No company ID available');
+            return;
+          }
+
+          // Create a new phase when editing an empty row
+          const wbsId = generateWBSId();
+          const newItem = {
+            company_id: currentCompany.id,
+            project_id: project.id,
+            title: newVal,
+            level: 0,
+            parent_id: null,
+            wbs_id: wbsId,
+            stage: '4.0 PRELIMINARY',
+            is_expanded: true,
+            linked_tasks: []
+          };
+
+          await createWBSItem(newItem);
+          console.log('✅ Created new phase:', newVal);
+          return;
+        }
+
         // Map UI field names to database field names
         const dbField = field === 'name' ? 'title' : field;
         await updateWBSItem(id, { [dbField]: newVal });
