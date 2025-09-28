@@ -3,6 +3,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, startOf
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
 import { WBSToolbar } from './WBSToolbar';
+import { FrappeGanttChart } from './FrappeGanttChart';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { DropResult } from 'react-beautiful-dnd';
 import { WBSItem } from '@/types/wbs';
@@ -363,10 +364,10 @@ export const WBSTimeView = ({
         currentFormatting={currentFormatting}
       />
       
-      {/* Single ResizablePanelGroup controlling both header and content */}
+      {/* Three-panel layout: WBS Names | Data Columns | Gantt Chart */}
       <ResizablePanelGroup direction="horizontal" className="flex-1">
         {/* Left Column (WBS + Names) */}
-        <ResizablePanel defaultSize={25} minSize={15} maxSize={45}>
+        <ResizablePanel defaultSize={25} minSize={15} maxSize={35}>
           <div className="h-full flex flex-col">
             {/* Left Header */}
             <div className="h-8 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200 sticky top-0 z-40">
@@ -416,10 +417,10 @@ export const WBSTimeView = ({
         
         <ResizableHandle />
         
-        {/* Right Column (Data Columns Only) */}
-        <ResizablePanel defaultSize={75} minSize={55} maxSize={85}>
+        {/* Middle Column (Data Columns) */}
+        <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
           <div className="h-full flex flex-col">
-            {/* Right Header - Only Data Columns */}
+            {/* Data Columns Header */}
             <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
               <div 
                 ref={dataColumnsHeaderScrollRef}
@@ -439,7 +440,7 @@ export const WBSTimeView = ({
               </div>
             </div>
             
-            {/* Right Content - Data Columns Only */}
+            {/* Data Columns Content */}
             <div 
               ref={timelineContentContainerRef}
               className="flex-1 overflow-hidden"
@@ -466,6 +467,38 @@ export const WBSTimeView = ({
                   onRowClick={handleRowClick}
                 />
               </div>
+            </div>
+          </div>
+        </ResizablePanel>
+        
+        <ResizableHandle />
+        
+        {/* Right Column (Gantt Chart) */}
+        <ResizablePanel defaultSize={40} minSize={30} maxSize={60}>
+          <div className="h-full flex flex-col">
+            {/* Gantt Chart Header */}
+            <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
+              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full flex items-center">
+                <div className="font-semibold">GANTT CHART</div>
+              </div>
+            </div>
+            
+            {/* Gantt Chart Content */}
+            <div className="flex-1 overflow-hidden">
+              <FrappeGanttChart
+                items={items}
+                onDateChange={(task, start, end) => {
+                  // Update the WBS item when dates change in the Gantt chart
+                  handleItemUpdate(task.id, {
+                    start_date: start.toISOString().split('T')[0],
+                    end_date: end.toISOString().split('T')[0]
+                  });
+                }}
+                onProgressChange={(task, progress) => {
+                  // Update the WBS item when progress changes in the Gantt chart
+                  handleItemUpdate(task.id, { progress });
+                }}
+              />
             </div>
           </div>
         </ResizablePanel>
