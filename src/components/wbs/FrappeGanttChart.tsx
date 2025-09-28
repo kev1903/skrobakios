@@ -91,15 +91,15 @@ export const FrappeGanttChart = ({
       // Clear the container
       ganttRef.current.innerHTML = '';
 
-      // Create new Gantt chart - configured to align with data columns
+      // Create new Gantt chart - configured to match WBS row heights exactly
       ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
-        header_height: 32, // Match the 8rem (32px) header height from WBSTimeView
+        header_height: 32, // Match the header height from WBSTimeView (h-8 = 32px)
         column_width: 30,
         step: 24,
-        bar_height: 20,
+        bar_height: 16, // Reduced to fit within 28px row height
         bar_corner_radius: 3,
         arrow_curve: 5,
-        padding: 18,
+        padding: 6, // Reduced padding to match 28px row height exactly
         date_format: 'YYYY-MM-DD',
         custom_popup_html: function(task: any) {
           return `
@@ -169,12 +169,26 @@ export const FrappeGanttChart = ({
     <div className="h-full w-full overflow-auto bg-white">
       <div ref={ganttRef} className="min-h-full" />
       <style>{`
+        /* Force row heights to match WBS data columns exactly */
         .gantt .grid-row {
+          height: 28px !important;
           border-bottom: 1px solid #e5e7eb;
         }
         .gantt .grid-header {
           background-color: #f8fafc;
           border-bottom: 2px solid #e5e7eb;
+          height: 32px !important;
+        }
+        .gantt .bar-wrapper {
+          height: 28px !important;
+        }
+        .gantt .bar-wrapper .bar {
+          height: 16px !important;
+          top: 6px !important;
+        }
+        .gantt .bar-wrapper .bar-label {
+          height: 28px !important;
+          line-height: 28px !important;
         }
         .gantt .bar {
           fill: #3b82f6;
