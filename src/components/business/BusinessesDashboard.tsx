@@ -287,13 +287,14 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
           <span className="text-sm text-slate-600">{filteredBusinesses.length} businesses</span>
         </div>
 
-        {/* Business Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        {/* Business List */}
+        <div className="space-y-4">
           {filteredBusinesses.map((businessData) => (
-            <Card key={businessData.business.id} className="bg-white/70 backdrop-blur-sm border border-white/40 shadow-sm hover:shadow-lg transition-all duration-200 group">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-3">
+            <Card key={businessData.business.id} className="bg-card/60 backdrop-blur-sm border border-border">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  {/* Business Header */}
+                  <div className="flex items-center space-x-4">
                     {businessData.business.logo_url ? (
                       <img
                         src={businessData.business.logo_url}
@@ -301,17 +302,19 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                         className="w-12 h-12 rounded-lg object-cover"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                        <Building2 className="w-6 h-6 text-blue-600" />
+                      <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+                        <Building2 className="w-6 h-6 text-muted-foreground" />
                       </div>
                     )}
                     <div>
-                      <CardTitle className="text-lg font-semibold text-slate-800 group-hover:text-blue-600 transition-colors">
+                      <h3 className="text-lg font-semibold text-foreground">
                         {businessData.business.name}
-                      </CardTitle>
-                      <p className="text-sm text-slate-500">{businessData.business.industry || 'Business'}</p>
+                      </h3>
+                      <p className="text-sm text-muted-foreground">{businessData.business.industry || 'Business'}</p>
                     </div>
                   </div>
+
+                  {/* Health Status Badge */}
                   <Badge 
                     className={`${getHealthStatusColor(businessData.metrics.healthStatus)} flex items-center space-x-1`}
                   >
@@ -319,77 +322,71 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                     <span className="capitalize">{businessData.metrics.healthStatus}</span>
                   </Badge>
                 </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                {/* Project Metrics */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 rounded-lg bg-slate-50/50">
-                    <div className="text-xl font-bold text-slate-800">{businessData.metrics.totalProjects}</div>
-                    <div className="text-xs text-slate-500">Total Projects</div>
+
+                {/* Project Metrics Row */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  <div className="text-center p-3 rounded-lg bg-muted/50">
+                    <div className="text-2xl font-bold text-foreground">{businessData.metrics.totalProjects}</div>
+                    <div className="text-xs text-muted-foreground">Total Projects</div>
                   </div>
-                  <div className="text-center p-3 rounded-lg bg-slate-50/50">
-                    <div className="text-xl font-bold text-green-600">{businessData.metrics.completedProjects}</div>
-                    <div className="text-xs text-slate-500">Completed</div>
+                  <div className="text-center p-3 rounded-lg bg-muted/50">
+                    <div className="text-2xl font-bold text-green-600">{businessData.metrics.completedProjects}</div>
+                    <div className="text-xs text-muted-foreground">Completed</div>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-muted/50">
+                    <div className="text-2xl font-bold text-orange-600">{businessData.metrics.activeProjects}</div>
+                    <div className="text-xs text-muted-foreground">Active</div>
+                  </div>
+                  <div className="text-center p-3 rounded-lg bg-muted/50">
+                    <div className="text-2xl font-bold text-red-600">{businessData.metrics.pendingProjects}</div>
+                    <div className="text-xs text-muted-foreground">Pending</div>
                   </div>
                 </div>
 
-                {/* Progress */}
+                {/* Progress Bar */}
                 {businessData.metrics.totalProjects > 0 && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">Completion Rate</span>
-                      <span className="font-medium text-slate-800">{businessData.metrics.completionRate}%</span>
+                  <div className="mb-4">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span className="text-muted-foreground">Completion Rate</span>
+                      <span className="font-medium text-foreground">{businessData.metrics.completionRate}%</span>
                     </div>
                     <Progress value={businessData.metrics.completionRate} className="h-2" />
                   </div>
                 )}
 
-                {/* Project Status Breakdown */}
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center space-x-1 text-orange-600">
-                    <Clock className="w-3 h-3" />
-                    <span>{businessData.metrics.activeProjects} Active</span>
-                  </div>
-                  <div className="flex items-center space-x-1 text-red-600">
-                    <AlertTriangle className="w-3 h-3" />
-                    <span>{businessData.metrics.pendingProjects} Pending</span>
-                  </div>
-                  <div className="flex items-center space-x-1 text-green-600">
-                    <CheckCircle2 className="w-3 h-3" />
-                    <span>{businessData.metrics.completedProjects} Done</span>
-                  </div>
-                </div>
-
-                {/* Value */}
-                {businessData.metrics.totalValue > 0 && (
-                  <div className="pt-2 border-t border-slate-200">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-slate-600">Portfolio Value</span>
-                      <span className="font-semibold text-slate-800">{formatCurrency(businessData.metrics.totalValue)}</span>
+                {/* Status Breakdown and Value */}
+                <div className="flex items-center justify-between pt-4 border-t border-border">
+                  <div className="flex items-center space-x-6 text-sm">
+                    <div className="flex items-center space-x-1 text-orange-600">
+                      <Clock className="w-4 h-4" />
+                      <span>{businessData.metrics.activeProjects} Active</span>
+                    </div>
+                    <div className="flex items-center space-x-1 text-red-600">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span>{businessData.metrics.pendingProjects} Pending</span>
+                    </div>
+                    <div className="flex items-center space-x-1 text-green-600">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{businessData.metrics.completedProjects} Done</span>
                     </div>
                   </div>
-                )}
 
-                {/* Action Buttons */}
-                <div className="flex space-x-2 pt-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex-1 bg-white/50 hover:bg-white"
-                    onClick={() => onNavigate?.('business', { businessId: businessData.business.id })}
-                  >
-                    View Details
-                    <ArrowRight className="w-3 h-3 ml-1" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="bg-white/50 hover:bg-white"
-                    onClick={() => onNavigate?.('projects', { businessId: businessData.business.id })}
-                  >
-                    <BarChart3 className="w-3 h-3" />
-                  </Button>
+                  <div className="flex items-center space-x-4">
+                    {businessData.metrics.totalValue > 0 && (
+                      <div className="text-right">
+                        <div className="text-sm text-muted-foreground">Portfolio Value</div>
+                        <div className="font-semibold text-foreground">{formatCurrency(businessData.metrics.totalValue)}</div>
+                      </div>
+                    )}
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => onNavigate?.('business', { businessId: businessData.business.id })}
+                    >
+                      View Details
+                      <ArrowRight className="w-3 h-3 ml-1" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
