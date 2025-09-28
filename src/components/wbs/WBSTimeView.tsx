@@ -384,7 +384,7 @@ export const WBSTimeView = ({
         <ResizablePanel defaultSize={25} minSize={15} maxSize={35}>
           <div className="h-full flex flex-col">
             {/* Left Header */}
-            <div className="h-16 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200 sticky top-0 z-40">
+            <div className="h-24 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200 sticky top-0 z-40">
               <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full flex items-center">
                 <div className="grid items-center h-full" style={{
                   gridTemplateColumns: '32px 1fr 40px',
@@ -435,7 +435,7 @@ export const WBSTimeView = ({
         <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
           <div className="h-full flex flex-col">
             {/* Data Columns Header */}
-            <div className="h-16 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
+            <div className="h-24 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
               <div 
                 ref={dataColumnsHeaderScrollRef}
                 className="px-2 py-1 text-xs font-medium text-slate-700 h-full overflow-x-auto scrollbar-hide flex items-center"
