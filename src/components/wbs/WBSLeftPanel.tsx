@@ -91,6 +91,9 @@ export const WBSLeftPanel = ({
               const indentWidth = indentLevel * 16; // 16px per level, supporting up to 5 levels (0-4)
               const isExpanded = item.isExpanded !== false; // Default to true if not specified
               
+              // Debug logging for chevron visibility
+              console.log(`🔍 Item ${item.id} (${item.name}) - Level: ${item.level}, HasChildren: ${itemHasChildren}, IsExpanded: ${isExpanded}`);
+              
               return (
                 <div key={item.id} className="contents">
                   {dragIndicator && dragIndicator.type === 'item' && dragIndicator.index === index && (

@@ -326,7 +326,19 @@ export const WBSSplitView = ({
               onScroll={handleLeftScroll}
             >
               <WBSLeftPanel
-                items={items as any}
+                items={items.map(item => {
+                  const mappedItem = {
+                    id: item.id,
+                    name: item.title || item.name || 'Untitled',
+                    wbsNumber: item.wbs_id || '',
+                    level: item.level || 0,
+                    parent_id: item.parent_id,
+                    isExpanded: item.is_expanded !== false,
+                    hasChildren: items.some(child => child.parent_id === item.id)
+                  };
+                  console.log('🟡 WBSSplitView mapping item:', item.id, 'is_expanded:', item.is_expanded, 'mapped isExpanded:', mappedItem.isExpanded, 'hasChildren:', mappedItem.hasChildren);
+                  return mappedItem;
+                })}
                 onToggleExpanded={onToggleExpanded}
                 onDragEnd={onDragEnd}
                 onItemEdit={onItemUpdate}
