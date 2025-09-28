@@ -490,14 +490,7 @@ export const WBSTimeView = ({
         {/* Right Column (Gantt Chart) */}
         <ResizablePanel defaultSize={40} minSize={30} maxSize={60}>
           <div className="h-full flex flex-col">
-            {/* Gantt Chart Header - matches other headers exactly */}
-            <div className="h-8 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
-              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full flex items-center">
-                <span className="font-semibold">TIMELINE</span>
-              </div>
-            </div>
-            
-            {/* Gantt Chart Content - now aligned with data rows */}
+            {/* Gantt Chart Content - aligned with data rows */}
             <div className="flex-1 overflow-hidden">
               <FrappeGanttChart
                 items={items}
