@@ -113,7 +113,7 @@ export const WBSLeftPanel = ({
                         } ${snapshot.isDragging ? 'bg-card z-30' : ''}`}
                         style={{
                           gridTemplateColumns: '32px 1fr 40px',
-                          height: '32px',
+                          height: '28px',
                           ...dragProvided.draggableProps.style,
                         }}
                         onMouseEnter={() => onRowHover?.(item.id)}

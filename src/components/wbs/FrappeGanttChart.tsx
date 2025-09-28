@@ -99,10 +99,10 @@ export const FrappeGanttChart = ({
         header_height: 32, // Match the header height from WBSTimeView (h-8 = 32px)
         column_width: 30,
         step: 24,
-        bar_height: 20, // Increased to fit within larger row height
+        bar_height: 16, // Reduced to fit within 28px row height
         bar_corner_radius: 3,
         arrow_curve: 5,
-        padding: 8, // Increased padding for better alignment
+        padding: 6, // Reduced padding to match 28px row height exactly
         date_format: 'YYYY-MM-DD',
         custom_popup_html: function(task: any) {
           return `
@@ -174,22 +174,22 @@ export const FrappeGanttChart = ({
       <style>{`
         /* Force row heights to match WBS data columns exactly */
         .gantt .grid-row {
-          height: 32px !important;
+          height: 28px !important;
           border-bottom: 1px solid #e5e7eb;
         }
         .gantt .grid-header {
           display: none !important; /* Hide frappe-gantt header since we have our own */
         }
         .gantt .bar-wrapper {
-          height: 32px !important;
+          height: 28px !important;
         }
         .gantt .bar-wrapper .bar {
-          height: 20px !important;
+          height: 16px !important;
           top: 6px !important;
         }
         .gantt .bar-wrapper .bar-label {
-          height: 32px !important;
-          line-height: 32px !important;
+          height: 28px !important;
+          line-height: 28px !important;
         }
         .gantt .bar {
           fill: #3b82f6;
