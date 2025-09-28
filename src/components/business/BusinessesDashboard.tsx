@@ -218,29 +218,6 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
-      {/* Header */}
-      <div className="bg-white/60 backdrop-blur-xl border-b border-white/20 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Building2 className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-slate-800">Businesses Dashboard</h1>
-                <p className="text-sm text-slate-600">Manage and monitor all your business operations</p>
-              </div>
-            </div>
-            <Button 
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-              onClick={() => onNavigate?.('create-business')}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              ADD BUSINESS
-            </Button>
-          </div>
-        </div>
-      </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Overview Metrics */}
