@@ -309,10 +309,9 @@ export const WBSSplitView = ({
             <div className="h-8 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200 sticky top-0 z-40">
               <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full">
                 <div className="grid items-center h-full" style={{
-                  gridTemplateColumns: '32px 120px 1fr 40px',
+                  gridTemplateColumns: '32px 1fr 40px',
                 }}>
                   <div></div>
-                  <div className="px-2 font-semibold">WBS</div>
                   <div className="px-3 font-semibold">NAME</div>
                   <div></div>
                 </div>

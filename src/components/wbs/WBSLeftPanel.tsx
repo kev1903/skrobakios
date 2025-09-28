@@ -7,7 +7,6 @@ import { createPortal } from 'react-dom';
 interface WBSItem {
   id: string;
   name: string;
-  wbsNumber: string;
   level: number;
   isExpanded?: boolean;
   hasChildren?: boolean;
@@ -22,7 +21,7 @@ interface WBSLeftPanelProps {
   onAddChild?: (parentId: string) => void;
   dragIndicator: any;
   EditableCell: any;
-  generateWBSNumber: (phaseIndex: number, componentIndex?: number, elementIndex?: number) => string;
+  generateWBSNumber?: (phaseIndex: number, componentIndex?: number, elementIndex?: number) => string;
   scrollRef?: React.RefObject<HTMLDivElement>;
   onScroll?: () => void;
   hoveredId?: string | null;
@@ -113,7 +112,7 @@ export const WBSLeftPanel = ({
                               : 'bg-white hover:bg-slate-50/50'
                         } ${snapshot.isDragging ? 'bg-card z-30' : ''}`}
                         style={{
-                          gridTemplateColumns: '32px 120px 1fr 40px',
+                          gridTemplateColumns: '32px 1fr 40px',
                           height: '28px',
                           ...dragProvided.draggableProps.style,
                         }}
@@ -129,10 +128,6 @@ export const WBSLeftPanel = ({
                           >
                             <GripVertical className="w-3 h-3 text-muted-foreground" />
                           </div>
-                        </div>
-                        
-                        <div className="px-2 flex items-center h-full font-medium text-gray-600 text-xs">
-                          {item.wbsNumber}
                         </div>
                         
                         <div className="px-3 flex items-center h-full font-medium text-foreground text-xs" style={{ paddingLeft: `${12 + indentWidth}px` }}>
