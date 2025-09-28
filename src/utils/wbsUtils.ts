@@ -36,7 +36,7 @@ export const renumberAllWBSItems = (items: WBSItem[]): { item: WBSItem; newWbsId
       itemMap.set(item.id, { ...item, children: [] });
     });
     
-    // Build parent-child relationships
+    // Build parent-child relationships using parent_id field
     items.forEach(item => {
       const itemCopy = itemMap.get(item.id)!;
       if (item.parent_id && itemMap.has(item.parent_id)) {
@@ -47,6 +47,20 @@ export const renumberAllWBSItems = (items: WBSItem[]): { item: WBSItem; newWbsId
       }
     });
     
+    // Sort children within each parent by their current order/creation
+    const sortChildren = (items: WBSItem[]) => {
+      items.forEach(item => {
+        if (item.children && item.children.length > 0) {
+          item.children.sort((a, b) => {
+            // Sort by creation time or existing WBS order
+            return (a.created_at || '').localeCompare(b.created_at || '');
+          });
+          sortChildren(item.children);
+        }
+      });
+    };
+    
+    sortChildren(rootItems);
     return rootItems;
   };
   

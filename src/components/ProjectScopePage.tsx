@@ -1461,12 +1461,21 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           {/* Tabs Container - Full Width */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full w-full flex flex-col">
             <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
-              <div className="flex items-center justify-between px-6 py-4">
+                <div className="flex items-center justify-between px-6 py-4">
                 <div className="flex items-center gap-6">
                   <div>
                     <h1 className="text-2xl font-bold text-foreground font-inter">Project Control</h1>
                     <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
                   </div>
+                  
+                  <Button 
+                    onClick={renumberWBSHierarchy}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs"
+                  >
+                    Fix WBS Numbering
+                  </Button>
                   
                   {/* Tabs in Header */}
                   <TabsList className="grid w-fit grid-cols-3">
