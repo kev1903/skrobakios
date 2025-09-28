@@ -99,10 +99,10 @@ export const FrappeGanttChart = ({
         header_height: 32, // Match the header height from WBSTimeView (h-8 = 32px)
         column_width: 30,
         step: 24,
-        bar_height: 16, // Reduced to fit within 28px row height
+        bar_height: 18, // Optimized for 28px row height
         bar_corner_radius: 3,
         arrow_curve: 5,
-        padding: 6, // Reduced padding to match 28px row height exactly
+        padding: 5, // Adjusted padding for exact 28px row alignment
         date_format: 'YYYY-MM-DD',
         custom_popup_html: function(task: any) {
           return `
@@ -172,7 +172,7 @@ export const FrappeGanttChart = ({
     <div className="h-full w-full overflow-auto bg-white">
       <div ref={ganttRef} className="min-h-full" />
       <style>{`
-        /* Force row heights to match WBS data columns exactly */
+        /* Force row heights to match WBS data columns exactly at 28px */
         .gantt .grid-row {
           height: 28px !important;
           border-bottom: 1px solid #e5e7eb;
@@ -184,8 +184,8 @@ export const FrappeGanttChart = ({
           height: 28px !important;
         }
         .gantt .bar-wrapper .bar {
-          height: 16px !important;
-          top: 6px !important;
+          height: 18px !important;
+          top: 5px !important;
         }
         .gantt .bar-wrapper .bar-label {
           height: 28px !important;
