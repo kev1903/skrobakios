@@ -336,10 +336,37 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       return result;
     };
 
+    // Helper function to create empty rows
+    const createEmptyRows = (count: number): any[] => {
+      return Array.from({ length: count }, (_, index) => ({
+        id: `empty-${index + 1}`,
+        name: '',
+        description: '',
+        status: 'Not Started',
+        progress: 0,
+        assignedTo: '',
+        level: 0,
+        wbsNumber: `${index + 1}`,
+        isExpanded: false,
+        hasChildren: false,
+        parent_id: null,
+        wbs_id: `${index + 1}`,
+        title: '',
+        start_date: null,
+        end_date: null,
+        duration: 0,
+        linked_tasks: [],
+        predecessors: []
+      }));
+    };
+
     // Use the actual WBS items from the database
     if (wbsItems && wbsItems.length > 0) {
       return flattenWBSItems(wbsItems);
     }
+
+    // Show 100 empty rows by default when no WBS items exist
+    return createEmptyRows(100);
 
     // Fallback to scope data if no WBS items (for backward compatibility)
     const items: any[] = [];
