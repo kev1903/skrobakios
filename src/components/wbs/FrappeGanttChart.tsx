@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import Gantt from 'frappe-gantt';
+import * as FrappeGantt from 'frappe-gantt';
 
 interface GanttTask {
   id: string;
@@ -92,7 +92,7 @@ export const FrappeGanttChart = ({
       ganttRef.current.innerHTML = '';
 
       // Create new Gantt chart
-      ganttInstance.current = new Gantt(ganttRef.current, tasks, {
+      ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
         header_height: 50,
         column_width: 30,
         step: 24,
