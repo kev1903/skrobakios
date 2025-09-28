@@ -325,19 +325,19 @@ export const WBSSplitView = ({
               onScroll={handleLeftScroll}
             >
               <WBSLeftPanel
-                items={items.map(item => {
-                  const mappedItem = {
-                    id: item.id,
-                    name: item.title || item.name || 'Untitled',
-                    wbsNumber: item.wbs_id || '',
-                    level: item.level || 0,
-                    parent_id: item.parent_id,
-                    isExpanded: item.is_expanded !== false,
-                    hasChildren: items.some(child => child.parent_id === item.id)
-                  };
-                  console.log('🟡 WBSSplitView mapping item:', item.id, 'is_expanded:', item.is_expanded, 'mapped isExpanded:', mappedItem.isExpanded, 'hasChildren:', mappedItem.hasChildren);
-                  return mappedItem;
-                })}
+                items={React.useMemo(() => 
+                  items.map(item => {
+                    const mappedItem = {
+                      id: item.id,
+                      name: item.title || item.name || 'Untitled',
+                      level: item.level || 0,
+                      parent_id: item.parent_id,
+                      isExpanded: item.is_expanded !== false,
+                      hasChildren: items.some(child => child.parent_id === item.id)
+                    };
+                    return mappedItem;
+                  }), [items]
+                )}
                 onToggleExpanded={onToggleExpanded}
                 onDragEnd={onDragEnd}
                 onItemEdit={onItemUpdate}
@@ -346,7 +346,7 @@ export const WBSSplitView = ({
                 EditableCell={EditableCell}
                 generateWBSNumber={generateWBSNumber}
                 hoveredId={hoveredId}
-                onRowHover={setHoveredId}
+                onRowHover={React.useCallback((id: string | null) => setHoveredId(id), [])}
                 selectedItems={selectedItems}
                 onRowClick={handleRowClick}
               />
@@ -391,7 +391,7 @@ export const WBSSplitView = ({
                 ProgressDisplay={ProgressDisplay}
                 getProgressColor={getProgressColor}
                 hoveredId={hoveredId}
-                onRowHover={setHoveredId}
+                onRowHover={React.useCallback((id: string | null) => setHoveredId(id), [])}
                 selectedItems={selectedItems}
                 onRowClick={handleRowClick}
               />

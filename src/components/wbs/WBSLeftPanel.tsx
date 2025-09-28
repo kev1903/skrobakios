@@ -104,12 +104,12 @@ export const WBSLeftPanel = ({
                       <div
                         ref={dragProvided.innerRef}
                         {...dragProvided.draggableProps}
-                        className={`grid items-center border-b border-gray-100 cursor-pointer transition-all duration-200 ${
+                        className={`grid items-center border-b border-gray-100 cursor-pointer transition-colors duration-150 ${
                           selectedItems.includes(item.id) 
                             ? 'bg-primary/10 border-l-4 border-l-primary' 
                             : hoveredId === item.id 
-                              ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 ring-2 ring-gray-300/50' 
-                              : 'bg-white hover:bg-slate-50/50'
+                              ? 'bg-gray-50' 
+                              : 'bg-white hover:bg-gray-50'
                         } ${snapshot.isDragging ? 'bg-card z-30' : ''}`}
                         style={{
                           gridTemplateColumns: '32px 1fr 40px',

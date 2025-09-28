@@ -168,13 +168,13 @@ export const WBSTimeRightPanel = ({
       {items.map((item) => (
         <div
           key={item.id}
-           className={`grid items-center w-full border-b border-gray-100 cursor-pointer transition-all duration-200 ${
-             selectedItems.includes(item.id) 
-               ? 'bg-primary/10 border-l-4 border-l-primary' 
-               : hoveredId === item.id 
-                 ? 'bg-gradient-to-r from-gray-200/80 via-gray-100/60 to-gray-200/80 ring-2 ring-gray-300/50' 
-                 : 'bg-white hover:bg-slate-50/50'
-           }`}
+            className={`grid items-center w-full border-b border-gray-100 cursor-pointer transition-colors duration-150 ${
+              selectedItems.includes(item.id) 
+                ? 'bg-primary/10 border-l-4 border-l-primary' 
+                : hoveredId === item.id 
+                  ? 'bg-gray-50' 
+                  : 'bg-white hover:bg-gray-50'
+            }`}
           style={{
             gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
             height: '28px', // Match WBSLeftPanel exactly
