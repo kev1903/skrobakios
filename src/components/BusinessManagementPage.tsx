@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Search, Plus, Filter, ArrowLeft } from 'lucide-react';
+import { Building2, Search, Plus, Filter, ArrowLeft, LayoutDashboard, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Company } from '@/types/company';
 import { BusinessesTable } from '@/components/companies/BusinessesTable';
 import { BusinessEditDialog } from '@/components/companies/BusinessEditDialog';
+import { BusinessesDashboard } from '@/components/business/BusinessesDashboard';
 import { useToast } from '@/hooks/use-toast';
 import { useCompany } from '@/contexts/CompanyContext';
 
@@ -139,7 +141,7 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <Building2 className="w-6 h-6 text-blue-600" />
                 </div>
-                <h1 className="text-2xl font-bold text-slate-800">Business Management</h1>
+                <h1 className="text-2xl font-bold text-slate-800">Business Dashboard</h1>
               </div>
             </div>
             {canManageCompanies && (
@@ -155,33 +157,54 @@ export const BusinessManagementPage = ({ onNavigate, onNavigateBack }: BusinessM
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content with Tabs */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Search businesses..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-80"
-              />
-            </div>
-            <Button variant="outline" size="sm">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
+        <Tabs defaultValue="dashboard" className="w-full">
+          <div className="flex items-center justify-between mb-6">
+            <TabsList className="bg-white/70 backdrop-blur-sm border border-white/40">
+              <TabsTrigger value="dashboard" className="flex items-center space-x-2">
+                <LayoutDashboard className="w-4 h-4" />
+                <span>Dashboard</span>
+              </TabsTrigger>
+              <TabsTrigger value="table" className="flex items-center space-x-2">
+                <List className="w-4 h-4" />
+                <span>Table View</span>
+              </TabsTrigger>
+            </TabsList>
+            <span className="text-sm text-slate-600">{filteredCompanies.length} businesses</span>
           </div>
-          <span className="text-sm text-slate-600">{filteredCompanies.length} businesses</span>
-        </div>
-        
-        <BusinessesTable
-          companies={filteredCompanies}
-          onEditCompany={handleEditCompany}
-          loading={loading}
-          canManageCompanies={canManageCompanies}
-        />
+
+          <TabsContent value="dashboard" className="space-y-6 mt-0">
+            <BusinessesDashboard onNavigate={onNavigate} />
+          </TabsContent>
+
+          <TabsContent value="table" className="space-y-6 mt-0">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    placeholder="Search businesses..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-80 bg-white/70 backdrop-blur-sm border-white/40"
+                  />
+                </div>
+                <Button variant="outline" size="sm" className="bg-white/70 backdrop-blur-sm border-white/40">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Filter
+                </Button>
+              </div>
+            </div>
+            
+            <BusinessesTable
+              companies={filteredCompanies}
+              onEditCompany={handleEditCompany}
+              loading={loading}
+              canManageCompanies={canManageCompanies}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Edit Dialog */}
