@@ -390,6 +390,18 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                                project.status === 'pending' ? 'Pending' : 
                                project.status}
                             </Badge>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="h-6 px-2 text-xs"
+                              onClick={() => {
+                                // Handle daily check logic here
+                                console.log('Daily check for project:', project.name);
+                              }}
+                            >
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Daily Check
+                            </Button>
                           </div>
                         </div>
                       ))}
