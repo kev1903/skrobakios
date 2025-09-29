@@ -371,7 +371,16 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                               <Target className="w-4 h-4 text-primary" />
                             </div>
                             <div>
-                              <div className="font-medium text-foreground text-sm">{project.name}</div>
+                              <button 
+                                className="font-medium text-foreground text-sm hover:text-primary transition-colors cursor-pointer text-left"
+                                onClick={() => {
+                                  // Open project dashboard in new tab
+                                  const projectUrl = `${window.location.origin}/?page=project&projectId=${project.id}`;
+                                  window.open(projectUrl, '_blank');
+                                }}
+                              >
+                                {project.name}
+                              </button>
                               <div className="text-xs text-muted-foreground">
                                 {project.contract_price && `${project.contract_price}`}
                                 {project.location && ` • ${project.location}`}
