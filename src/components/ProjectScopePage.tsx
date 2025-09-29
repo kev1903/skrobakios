@@ -1555,12 +1555,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   <div className="flex items-center justify-between gap-6 flex-1">
                     {/* Tab-specific buttons section */}
                     <div className="flex items-center gap-2">
-                        {activeTab === 'scope' && (
-                          <Button size="sm" onClick={() => addNewPhase()}>
-                            <Plus className="w-3 h-3 mr-1" />
-                            Add Phase
-                          </Button>
-                        )}
                         {activeTab === 'time' && (
                           <div className="flex items-center gap-2">
                             <Button variant="outline" size="sm" onClick={() => {}} title="Critical Path">
