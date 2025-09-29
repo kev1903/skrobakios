@@ -354,6 +354,46 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                   </div>
                 )}
 
+                {/* Projects List */}
+                {businessData.projects.length > 0 && (
+                  <div className="pt-4 border-t border-border">
+                    <h4 className="text-sm font-medium text-foreground mb-3">Projects</h4>
+                    <div className="space-y-2">
+                      {businessData.projects.map((project) => (
+                        <div key={project.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/50">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
+                              <Target className="w-4 h-4 text-primary" />
+                            </div>
+                            <div>
+                              <div className="font-medium text-foreground text-sm">{project.name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {project.contract_price && `${project.contract_price}`}
+                                {project.location && ` • ${project.location}`}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Badge 
+                              variant={
+                                project.status === 'completed' ? 'default' :
+                                project.status === 'running' ? 'secondary' :
+                                'destructive'
+                              }
+                              className="text-xs"
+                            >
+                              {project.status === 'running' ? 'Active' : 
+                               project.status === 'completed' ? 'Completed' : 
+                               project.status === 'pending' ? 'Pending' : 
+                               project.status}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Status Breakdown and Value */}
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                   <div className="flex items-center space-x-6 text-sm">
