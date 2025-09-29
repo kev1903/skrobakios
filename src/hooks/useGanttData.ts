@@ -26,7 +26,7 @@ export const useGanttData = (tasks: GanttTask[]) => {
     if (tasks.length === 0) {
       const today = new Date();
       return {
-        rowHeight: 40,
+        rowHeight: 28,
         dayWidth: 32,
         taskListWidth: 350,
         viewStart: startOfMonth(addDays(today, -30)),
@@ -42,7 +42,7 @@ export const useGanttData = (tasks: GanttTask[]) => {
     );
 
     return {
-      rowHeight: 40,
+      rowHeight: 28,
       dayWidth: 32,
       taskListWidth: 350,
       viewStart: startOfMonth(addDays(earliest, -7)),
