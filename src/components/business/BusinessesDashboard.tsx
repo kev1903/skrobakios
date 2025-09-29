@@ -314,32 +314,35 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                     </div>
                   </div>
 
-                  {/* Health Status Badge */}
-                  <Badge 
-                    className={`${getHealthStatusColor(businessData.metrics.healthStatus)} flex items-center space-x-1`}
-                  >
-                    {getHealthStatusIcon(businessData.metrics.healthStatus)}
-                    <span className="capitalize">{businessData.metrics.healthStatus}</span>
-                  </Badge>
-                </div>
+                  {/* Inline Metrics and Health Status */}
+                  <div className="flex items-center space-x-3">
+                    {/* Compact Project Metrics */}
+                    <div className="flex items-center space-x-2">
+                      <div className="text-center px-2 py-1 rounded bg-muted/30">
+                        <div className="text-sm font-semibold text-foreground">{businessData.metrics.totalProjects}</div>
+                        <div className="text-xs text-muted-foreground">Total</div>
+                      </div>
+                      <div className="text-center px-2 py-1 rounded bg-muted/30">
+                        <div className="text-sm font-semibold text-green-600">{businessData.metrics.completedProjects}</div>
+                        <div className="text-xs text-muted-foreground">Done</div>
+                      </div>
+                      <div className="text-center px-2 py-1 rounded bg-muted/30">
+                        <div className="text-sm font-semibold text-orange-600">{businessData.metrics.activeProjects}</div>
+                        <div className="text-xs text-muted-foreground">Active</div>
+                      </div>
+                      <div className="text-center px-2 py-1 rounded bg-muted/30">
+                        <div className="text-sm font-semibold text-red-600">{businessData.metrics.pendingProjects}</div>
+                        <div className="text-xs text-muted-foreground">Pending</div>
+                      </div>
+                    </div>
 
-                {/* Project Metrics Row */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                  <div className="text-center p-3 rounded-lg bg-muted/50">
-                    <div className="text-2xl font-bold text-foreground">{businessData.metrics.totalProjects}</div>
-                    <div className="text-xs text-muted-foreground">Total Projects</div>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-muted/50">
-                    <div className="text-2xl font-bold text-green-600">{businessData.metrics.completedProjects}</div>
-                    <div className="text-xs text-muted-foreground">Completed</div>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-muted/50">
-                    <div className="text-2xl font-bold text-orange-600">{businessData.metrics.activeProjects}</div>
-                    <div className="text-xs text-muted-foreground">Active</div>
-                  </div>
-                  <div className="text-center p-3 rounded-lg bg-muted/50">
-                    <div className="text-2xl font-bold text-red-600">{businessData.metrics.pendingProjects}</div>
-                    <div className="text-xs text-muted-foreground">Pending</div>
+                    {/* Health Status Badge */}
+                    <Badge 
+                      className={`${getHealthStatusColor(businessData.metrics.healthStatus)} flex items-center space-x-1`}
+                    >
+                      {getHealthStatusIcon(businessData.metrics.healthStatus)}
+                      <span className="capitalize">{businessData.metrics.healthStatus}</span>
+                    </Badge>
                   </div>
                 </div>
 
