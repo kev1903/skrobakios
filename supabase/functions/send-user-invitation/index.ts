@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
-import { Resend } from "npm:resend@2.0.0";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { UserInvitationEmail } from "./_templates/user-invitation.tsx";
 
 const corsHeaders = {

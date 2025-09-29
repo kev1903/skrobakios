@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
-import { Resend } from "npm:resend@2.0.0";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,9 +37,8 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    // Initialize Supabase and Resend clients
+    // Initialize Supabase client
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const resend = new Resend(resendApiKey);
 
     // Get the authorization header
     const authHeader = req.headers.get('authorization');
@@ -115,7 +114,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send password reset email
     console.log('Sending password reset email to:', userEmail);
-    const emailResponse = await resend.emails.send({
+    
+    const emailData = {
       from: "System Admin <noreply@system.com>",
       to: [userEmail],
       subject: "Password Reset Request - Admin Initiated",
@@ -178,20 +178,32 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
         </div>
       `,
+    };
+
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData),
     });
 
-    if (emailResponse.error) {
-      console.error('Email sending error:', emailResponse.error);
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      console.error('Resend API error:', errorText);
       return new Response(JSON.stringify({ 
         error: 'Failed to send reset email', 
-        details: emailResponse.error.message 
+        details: errorText 
       }), {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       });
     }
 
-    console.log('Email sent successfully, ID:', emailResponse.data?.id);
+    const emailResult = await emailResponse.json();
+
+    console.log('Email sent successfully, ID:', emailResult.id);
 
     // Log the admin action
     console.log(`Password reset initiated by admin ${adminEmail} for user ${userEmail}`);
@@ -199,7 +211,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(JSON.stringify({ 
       success: true, 
       message: 'Password reset email sent successfully',
-      emailId: emailResponse.data?.id 
+      emailId: emailResult.id 
     }), {
       status: 200,
       headers: {

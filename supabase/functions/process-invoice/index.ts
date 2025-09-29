@@ -1,6 +1,6 @@
 // Deno Edge Function – parses PDFs via OpenAI Files + Responses (input_file)
 // Request body: { signed_url?: string, file_url?: string, project_invoice_id?: string }
-import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;

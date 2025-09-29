@@ -1,7 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,7 +27,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Create activation link (in a real app, you might generate a token)
     const activationLink = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?type=signup&redirect_to=${encodeURIComponent('https://9e8e7d3f-739b-468c-8264-e51262cc4144.lovableproject.com/?activated=true')}`;
 
-    const emailResponse = await resend.emails.send({
+    const emailData = {
       from: "SkrobakiOS <onboarding@resend.dev>",
       to: [email],
       subject: "Welcome to SkrobakiOS - Activate Your Account",
@@ -109,13 +107,30 @@ const handler = async (req: Request): Promise<Response> => {
         </body>
         </html>
       `,
+    };
+
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData),
     });
 
-    console.log("Activation email sent successfully:", emailResponse);
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      console.error("Resend API error:", errorText);
+      throw new Error(`Failed to send email: ${emailResponse.status} ${errorText}`);
+    }
+
+    const emailResult = await emailResponse.json();
+
+    console.log("Activation email sent successfully:", emailResult);
 
     return new Response(JSON.stringify({ 
       success: true, 
-      messageId: emailResponse.data?.id 
+      messageId: emailResult.id 
     }), {
       status: 200,
       headers: {

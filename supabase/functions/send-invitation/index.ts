@@ -1,9 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -32,7 +30,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Create the invitation acceptance URL
     const acceptUrl = `${req.headers.get('origin') || 'http://localhost:8080'}/accept-invitation?token=${token}`;
 
-    const emailResponse = await resend.emails.send({
+    const emailData = {
       from: "Team Invitations <noreply@skrobaki.com>",
       to: [email],
       subject: `You're invited to join ${projectName}`,
@@ -73,13 +71,30 @@ const handler = async (req: Request): Promise<Response> => {
           </p>
         </div>
       `,
+    };
+
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailData),
     });
 
-    console.log("Invitation email sent successfully:", emailResponse);
+    if (!emailResponse.ok) {
+      const errorText = await emailResponse.text();
+      console.error("Resend API error:", errorText);
+      throw new Error(`Failed to send email: ${emailResponse.status} ${errorText}`);
+    }
+
+    const emailResult = await emailResponse.json();
+
+    console.log("Invitation email sent successfully:", emailResult);
 
     return new Response(JSON.stringify({ 
       success: true, 
-      messageId: emailResponse.data?.id 
+      messageId: emailResult.id 
     }), {
       status: 200,
       headers: {
