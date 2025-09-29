@@ -247,7 +247,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Failed to sync with Xero' 
+        error: (error as Error).message || 'Failed to sync with Xero' 
       }),
       { 
         status: 500, 

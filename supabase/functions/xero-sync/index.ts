@@ -139,7 +139,12 @@ serve(async (req) => {
         const accessToken = refreshedConnection.access_token
         const tenantId = refreshedConnection.tenant_id
 
-        let syncResults = {
+        let syncResults: {
+          invoices: number;
+          contacts: number;
+          accounts: number;
+          errors: string[];
+        } = {
           invoices: 0,
           contacts: 0,
           accounts: 0,
@@ -188,7 +193,7 @@ serve(async (req) => {
               
               if (invoiceError) {
                 console.error('❌ Error inserting invoices:', invoiceError)
-                syncResults.errors.push(`Invoices: ${invoiceError.message}`)
+                syncResults.errors.push(`Invoices: ${(invoiceError as any).message}`)
               } else {
                 syncResults.invoices = invoicesToInsert.length
               }
@@ -199,7 +204,7 @@ serve(async (req) => {
           }
         } catch (error) {
           console.error('❌ Invoice sync error:', error)
-          syncResults.errors.push(`Invoices: ${error.message}`)
+          syncResults.errors.push(`Invoices: ${(error as Error).message}`)
         }
 
         // Sync contacts
@@ -240,7 +245,7 @@ serve(async (req) => {
               
               if (contactError) {
                 console.error('❌ Error inserting contacts:', contactError)
-                syncResults.errors.push(`Contacts: ${contactError.message}`)
+                syncResults.errors.push(`Contacts: ${(contactError as any).message}`)
               } else {
                 syncResults.contacts = contactsToInsert.length
               }
@@ -251,7 +256,7 @@ serve(async (req) => {
           }
         } catch (error) {
           console.error('❌ Contact sync error:', error)
-          syncResults.errors.push(`Contacts: ${error.message}`)
+          syncResults.errors.push(`Contacts: ${(error as Error).message}`)
         }
 
         // Sync accounts
@@ -293,7 +298,7 @@ serve(async (req) => {
               
               if (accountError) {
                 console.error('❌ Error inserting accounts:', accountError)
-                syncResults.errors.push(`Accounts: ${accountError.message}`)
+                syncResults.errors.push(`Accounts: ${(accountError as any).message}`)
               } else {
                 syncResults.accounts = accountsToInsert.length
               }
@@ -304,7 +309,7 @@ serve(async (req) => {
           }
         } catch (error) {
           console.error('❌ Account sync error:', error)
-          syncResults.errors.push(`Accounts: ${error.message}`)
+          syncResults.errors.push(`Accounts: ${(error as Error).message}`)
         }
 
         // Update last sync timestamp
@@ -337,7 +342,7 @@ serve(async (req) => {
     console.error('💥 Sync error:', error)
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: (error as Error).message,
         timestamp: new Date().toISOString()
       }),
       { 

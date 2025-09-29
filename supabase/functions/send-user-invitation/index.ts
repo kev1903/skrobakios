@@ -303,8 +303,7 @@ const handler = async (req: Request): Promise<Response> => {
       email,
       role,
       invitedBy,
-      inviteUrl,
-      companyName: invitedBy
+      inviteUrl
     });
 
     // Send email via Resend API
@@ -350,47 +349,6 @@ const handler = async (req: Request): Promise<Response> => {
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-  }
-};
-          to: [email],
-          subject: `You've been invited to join the Platform`,
-          html: htmlContent,
-        }),
-      });
-
-      const emailData = await emailResponse.json();
-
-      console.log('Email sent successfully:', emailData);
-      
-      if (!emailResponse.ok || emailData.error) {
-        console.error('Resend returned an error:', emailData.error || emailData);
-        throw new Error(`Email sending failed: ${emailData.error?.message || 'Unknown error'}`);
-      }
-
-      return new Response(JSON.stringify({
-        success: true,
-        message: 'Invitation sent successfully',
-        profileId: profile.id,
-        emailId: emailData.id
-      }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      });
-    } catch (emailError: any) {
-      console.error('Email sending error:', emailError);
-      throw new Error(`Failed to send invitation email: ${emailError.message}`);
-    }
-
-  } catch (error: any) {
-    console.error('Error in send-user-invitation function:', error);
-
-    return new Response(JSON.stringify({
-      success: false,
-      error: error.message
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json', ...corsHeaders },
     });
   }
 };
