@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { UserInvitationEmail } from "./_templates/user-invitation.tsx";
+import { generateUserInvitationEmail } from "./_templates/user-invitation.tsx";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -300,33 +300,45 @@ const handler = async (req: Request): Promise<Response> => {
       invitedBy
     });
 
-    // Send invitation email
+    // Generate HTML email content
+    const htmlContent = generateUserInvitationEmail({
+      name,
+      email,
+      role,
+      invitedBy,
+      inviteUrl,
+    });
+
+    // Send invitation email using direct API call
     try {
-      const emailData = await resend.emails.send({
-        from: `Platform <${fromEmail}>`,
-        to: [email],
-        subject: `You've been invited to join the Platform`,
-        react: UserInvitationEmail({
-          name,
-          email,
-          role,
-          invitedBy,
-          inviteUrl,
+      const emailResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: `Platform <${fromEmail}>`,
+          to: [email],
+          subject: `You've been invited to join the Platform`,
+          html: htmlContent,
         }),
       });
 
+      const emailData = await emailResponse.json();
+
       console.log('Email sent successfully:', emailData);
       
-      if (emailData.error) {
-        console.error('Resend returned an error:', emailData.error);
-        throw new Error(`Email sending failed: ${emailData.error.message}`);
+      if (!emailResponse.ok || emailData.error) {
+        console.error('Resend returned an error:', emailData.error || emailData);
+        throw new Error(`Email sending failed: ${emailData.error?.message || 'Unknown error'}`);
       }
 
       return new Response(JSON.stringify({
         success: true,
         message: 'Invitation sent successfully',
         profileId: profile.id,
-        emailId: emailData.data?.id
+        emailId: emailData.id
       }), {
         status: 200,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
