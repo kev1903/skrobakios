@@ -37,6 +37,7 @@ import { useCompany } from '@/contexts/CompanyContext';
 import { renumberAllWBSItems } from '@/utils/wbsUtils';
 import { WBSService } from '@/services/wbsService';
 import { useWBS } from '@/hooks/useWBS';
+import { TeamTaskAssignment } from '@/components/tasks/enhanced/TeamTaskAssignment';
 
 interface ProjectScopePageProps {
   project: Project;
@@ -1325,16 +1326,30 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         data-field={field}
       >
         {isEditing ? (
-          <Input
-            ref={localInputRef}
-            value={localValue}
-            onChange={(e) => setLocalValue(e.target.value)}
-            onKeyDown={onKeyDown}
-            onMouseDown={(e) => e.stopPropagation()}
-            className="border-none outline-none focus:outline-none focus:border-none ring-0 focus:ring-0 focus-visible:ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none bg-transparent p-0 m-0 rounded-none h-auto w-full"
-            placeholder={placeholder}
-            autoFocus
-          />
+          field === 'assignedTo' ? (
+            <TeamTaskAssignment
+              projectId={project.id}
+              currentAssignee={localValue ? { name: localValue, avatar: '', userId: undefined } : undefined}
+              onAssigneeChange={(assignee) => {
+                const newValue = assignee?.name || '';
+                setLocalValue(newValue);
+                updateScopeField(newValue);
+                setIsEditing(false);
+              }}
+              className="w-full text-xs"
+            />
+          ) : (
+            <Input
+              ref={localInputRef}
+              value={localValue}
+              onChange={(e) => setLocalValue(e.target.value)}
+              onKeyDown={onKeyDown}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="border-none outline-none focus:outline-none focus:border-none ring-0 focus:ring-0 focus-visible:ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none bg-transparent p-0 m-0 rounded-none h-auto w-full"
+              placeholder={placeholder}
+              autoFocus
+            />
+          )
         ) : (
           <span className={`truncate ${className}`}>
             {value || placeholder}
