@@ -1,8 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -141,41 +138,61 @@ const handler = async (req: Request): Promise<Response> => {
     const baseUrl = req.headers.get("origin") || "https://your-app.com";
     const inviteUrl = `${baseUrl}/invite/${token}`;
 
-    // Send invitation email
-    const emailResponse = await resend.emails.send({
-      from: "BuildTrack <noreply@buildtrack.app>",
-      to: [email],
-      subject: `You're invited to join ${project.name}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Project Team Invitation</h2>
-          <p>Hi there!</p>
-          <p><strong>${inviterName}</strong> has invited you to join the project <strong>"${project.name}"</strong> as a <strong>${role}</strong>.</p>
-          
-          ${message ? `<div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-            <p><strong>Message from ${inviterName}:</strong></p>
-            <p>${message}</p>
-          </div>` : ""}
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${inviteUrl}" 
-               style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-              Accept Invitation
-            </a>
+    // Send invitation email using Resend API
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendApiKey) {
+      throw new Error("RESEND_API_KEY environment variable is not set");
+    }
+
+    const emailResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "BuildTrack <noreply@buildtrack.app>",
+        to: [email],
+        subject: `You're invited to join ${project.name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Project Team Invitation</h2>
+            <p>Hi there!</p>
+            <p><strong>${inviterName}</strong> has invited you to join the project <strong>"${project.name}"</strong> as a <strong>${role}</strong>.</p>
+            
+            ${message ? `<div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+              <p><strong>Message from ${inviterName}:</strong></p>
+              <p>${message}</p>
+            </div>` : ""}
+            
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${inviteUrl}" 
+                 style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                Accept Invitation
+              </a>
+            </div>
+            
+            <p style="font-size: 14px; color: #666;">
+              This invitation will expire in 7 days. If you don't have an account, you'll be prompted to create one.
+            </p>
+            
+            <p style="font-size: 12px; color: #999;">
+              If the button doesn't work, copy and paste this link: ${inviteUrl}
+            </p>
           </div>
-          
-          <p style="font-size: 14px; color: #666;">
-            This invitation will expire in 7 days. If you don't have an account, you'll be prompted to create one.
-          </p>
-          
-          <p style="font-size: 12px; color: #999;">
-            If the button doesn't work, copy and paste this link: ${inviteUrl}
-          </p>
-        </div>
-      `,
+        `,
+      }),
     });
 
-    console.log("Invitation email sent:", emailResponse);
+    if (!emailResponse.ok) {
+      const errorData = await emailResponse.text();
+      console.error("Failed to send email:", errorData);
+      throw new Error(`Failed to send invitation email: ${emailResponse.status}`);
+    }
+
+    const emailResult = await emailResponse.json();
+
+    console.log("Invitation email sent:", emailResult);
 
     return new Response(
       JSON.stringify({ 

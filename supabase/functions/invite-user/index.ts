@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,7 +18,6 @@ const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const resendApiKey = Deno.env.get("RESEND_API_KEY")!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
-const resend = new Resend(resendApiKey);
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -133,12 +131,28 @@ const handler = async (req: Request): Promise<Response> => {
       `;
 
     try {
-      await resend.emails.send({
-        from: "Platform <onboarding@resend.dev>",
-        to: [email],
-        subject: emailSubject,
-        html: emailHtml,
+      // Send email using Resend API directly
+      const emailResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: "Platform <onboarding@resend.dev>",
+          to: [email],
+          subject: emailSubject,
+          html: emailHtml,
+        }),
       });
+
+      if (!emailResponse.ok) {
+        const errorData = await emailResponse.text();
+        console.error("Failed to send email:", errorData);
+      } else {
+        const emailResult = await emailResponse.json();
+        console.log("Email sent successfully:", emailResult);
+      }
     } catch (emailError) {
       console.error("Error sending email:", emailError);
       // Don't fail the entire request if email fails
