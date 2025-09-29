@@ -315,7 +315,7 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                   </div>
 
                   {/* Inline Metrics and Health Status */}
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-4">
                     {/* Compact Project Metrics */}
                     <div className="flex items-center space-x-2">
                       <div className="text-center px-2 py-1 rounded bg-muted/30">
@@ -336,6 +336,17 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                       </div>
                     </div>
 
+                    {/* Compact Completion Rate */}
+                    {businessData.metrics.totalProjects > 0 && (
+                      <div className="flex items-center space-x-2 min-w-[120px]">
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">Completion Rate</span>
+                        <div className="flex-1">
+                          <Progress value={businessData.metrics.completionRate} className="h-1 w-16" />
+                        </div>
+                        <span className="text-xs font-medium text-foreground">{businessData.metrics.completionRate}%</span>
+                      </div>
+                    )}
+
                     {/* Health Status Badge */}
                     <Badge 
                       className={`${getHealthStatusColor(businessData.metrics.healthStatus)} flex items-center space-x-1`}
@@ -345,17 +356,6 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                     </Badge>
                   </div>
                 </div>
-
-                {/* Progress Bar */}
-                {businessData.metrics.totalProjects > 0 && (
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-muted-foreground">Completion Rate</span>
-                      <span className="font-medium text-foreground">{businessData.metrics.completionRate}%</span>
-                    </div>
-                    <Progress value={businessData.metrics.completionRate} className="h-2" />
-                  </div>
-                )}
 
                 {/* Projects List */}
                 {businessData.projects.length > 0 && (
