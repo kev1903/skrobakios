@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { TeamTaskAssignment } from '@/components/tasks/enhanced/TeamTaskAssignment';
 
 interface WBSItem {
   id: string;
@@ -37,6 +38,7 @@ interface WBSRightPanelProps {
   onRowHover?: (id: string | null) => void;
   selectedItems?: string[];
   onRowClick?: (itemId: string, ctrlKey?: boolean) => void;
+  projectId?: string;
 }
 
 export const WBSRightPanel = ({
@@ -54,7 +56,8 @@ export const WBSRightPanel = ({
   hoveredId,
   onRowHover,
   selectedItems = [],
-  onRowClick
+  onRowClick,
+  projectId
 }: WBSRightPanelProps) => {
   // Determine if we're in unified scroll mode
   const useUnifiedScroll = !scrollRef || !onScroll;
@@ -109,14 +112,23 @@ export const WBSRightPanel = ({
                 {item.is_task_enabled && (
                   <ListTodo className="w-3 h-3 text-blue-600 flex-shrink-0" />
                 )}
-                <EditableCell
-                  id={item.id}
-                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task'}
-                  field="assignedTo"
-                  value={item.assignedTo || ''}
-                  placeholder="Assign to..."
-                  className="text-xs text-muted-foreground flex-1"
-                />
+                {projectId ? (
+                  <TeamTaskAssignment
+                    projectId={projectId}
+                    currentAssignee={item.assignedTo ? { name: item.assignedTo, avatar: '', userId: undefined } : undefined}
+                    onAssigneeChange={(assignee) => onItemUpdate(item.id, { assignedTo: assignee?.name || '' })}
+                    className="flex-1 text-xs"
+                  />
+                ) : (
+                  <EditableCell
+                    id={item.id}
+                    type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task'}
+                    field="assignedTo"
+                    value={item.assignedTo || ''}
+                    placeholder="Assign to..."
+                    className="text-xs text-muted-foreground flex-1"
+                  />
+                )}
               </div>
            </div>
 
