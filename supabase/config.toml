@@ -71,3 +71,6 @@ verify_jwt = false
 
 [functions.text-to-speech]
 verify_jwt = false
+
+[functions.daily-check-reset]
+verify_jwt = false

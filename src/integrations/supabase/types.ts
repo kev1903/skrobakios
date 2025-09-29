@@ -2959,6 +2959,33 @@ export type Database = {
           },
         ]
       }
+      project_daily_checks: {
+        Row: {
+          checked_date: string
+          created_at: string
+          id: string
+          project_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          checked_date?: string
+          created_at?: string
+          id?: string
+          project_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          checked_date?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       project_documents: {
         Row: {
           ai_confidence: number | null

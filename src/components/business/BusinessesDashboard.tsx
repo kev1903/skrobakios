@@ -25,6 +25,7 @@ import { Input } from '@/components/ui/input';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { useBusinessProjects } from '@/hooks/useBusinessProjects';
+import { useDailyChecks } from '@/hooks/useDailyChecks';
 import { Company } from '@/types/company';
 
 interface BusinessesDashboardProps {
@@ -50,10 +51,10 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredBusinesses, setFilteredBusinesses] = useState<BusinessWithProjects[]>([]);
-  const [checkedProjects, setCheckedProjects] = useState<Set<string>>(new Set());
   
   const { companies, loading: companiesLoading } = useCompany();
   const { getProjectsForBusinesses } = useBusinessProjects();
+  const { checkedProjects, toggleDailyCheck } = useDailyChecks();
 
   useEffect(() => {
     const loadBusinessData = async () => {
@@ -400,13 +401,7 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                                   : ''
                               }`}
                               onClick={() => {
-                                const newCheckedProjects = new Set(checkedProjects);
-                                if (checkedProjects.has(project.id)) {
-                                  newCheckedProjects.delete(project.id);
-                                } else {
-                                  newCheckedProjects.add(project.id);
-                                }
-                                setCheckedProjects(newCheckedProjects);
+                                toggleDailyCheck(project.id);
                               }}
                             >
                               <CheckCircle2 className="w-3 h-3 mr-1" />
