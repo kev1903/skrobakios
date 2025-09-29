@@ -50,6 +50,7 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredBusinesses, setFilteredBusinesses] = useState<BusinessWithProjects[]>([]);
+  const [checkedProjects, setCheckedProjects] = useState<Set<string>>(new Set());
   
   const { companies, loading: companiesLoading } = useCompany();
   const { getProjectsForBusinesses } = useBusinessProjects();
@@ -391,16 +392,25 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                                project.status}
                             </Badge>
                             <Button 
-                              variant="outline" 
+                              variant={checkedProjects.has(project.id) ? "default" : "outline"}
                               size="sm"
-                              className="h-6 px-2 text-xs"
+                              className={`h-6 px-2 text-xs ${
+                                checkedProjects.has(project.id) 
+                                  ? 'bg-green-600 hover:bg-green-700 text-white border-green-600' 
+                                  : ''
+                              }`}
                               onClick={() => {
-                                // Handle daily check logic here
-                                console.log('Daily check for project:', project.name);
+                                const newCheckedProjects = new Set(checkedProjects);
+                                if (checkedProjects.has(project.id)) {
+                                  newCheckedProjects.delete(project.id);
+                                } else {
+                                  newCheckedProjects.add(project.id);
+                                }
+                                setCheckedProjects(newCheckedProjects);
                               }}
                             >
                               <CheckCircle2 className="w-3 h-3 mr-1" />
-                              Daily Check
+                              {checkedProjects.has(project.id) ? 'Checked' : 'Daily Check'}
                             </Button>
                           </div>
                         </div>
