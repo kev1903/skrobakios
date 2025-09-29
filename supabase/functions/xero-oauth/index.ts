@@ -242,8 +242,8 @@ async function handleOAuthCallback(req: Request) {
 
   } catch (error) {
     console.error('💥 OAuth callback error:', error)
-    console.error('💥 Error details:', error?.message || 'No error message')
-    console.error('💥 Error stack:', error?.stack || 'No stack trace')
+    console.error('💥 Error details:', (error as any)?.message || 'No error message')
+    console.error('💥 Error stack:', (error as any)?.stack || 'No stack trace')
     console.error('💥 Error type:', typeof error)
     console.error('💥 Error object:', JSON.stringify(error, null, 2))
     
@@ -255,7 +255,7 @@ async function handleOAuthCallback(req: Request) {
     } else if (typeof error === 'string') {
       errorMessage = error
     } else if (error && typeof error === 'object') {
-      errorMessage = error.message || error.toString() || 'Object error without message'
+      errorMessage = (error as any).message || error.toString() || 'Object error without message'
     }
     
     return new Response(`
@@ -270,7 +270,7 @@ async function handleOAuthCallback(req: Request) {
             <pre>${JSON.stringify({ 
               message: errorMessage, 
               type: typeof error,
-              hasStack: !!(error?.stack),
+              hasStack: !!((error as any)?.stack),
               timestamp: new Date().toISOString()
             }, null, 2)}</pre>
           </details>
@@ -495,7 +495,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('💥 POST request error:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as Error).message }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400 

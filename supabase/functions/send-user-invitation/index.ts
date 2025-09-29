@@ -285,10 +285,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const fromEmail = senderConfig?.config_value || 'noreply@skrobaki.com';
 
-    // Initialize Resend
-    const resend = new Resend(resendApiKey);
-
-    // Create invitation URL - point to signup page with token
+    // Create invitation URL - point to signup page with token  
     const inviteUrl = `${req.headers.get('origin') || 'https://your-domain.com'}/auth?token=${invitationToken}&email=${encodeURIComponent(email)}&role=${encodeURIComponent(dbRole)}`;
 
     console.log('Preparing to send email:', {
@@ -300,25 +297,62 @@ const handler = async (req: Request): Promise<Response> => {
       invitedBy
     });
 
-    // Generate HTML email content
+    // Generate HTML email content (using the existing template function)
     const htmlContent = generateUserInvitationEmail({
       name,
       email,
       role,
       invitedBy,
       inviteUrl,
+      companyName: invitedBy
     });
 
-    // Send invitation email using direct API call
-    try {
-      const emailResponse = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${resendApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          from: `Platform <${fromEmail}>`,
+    // Send email via Resend API
+    const emailPayload = {
+      from: `Platform <${fromEmail}>`,
+      to: [email],
+      subject: `You're invited to join ${typeof invitedBy === 'string' ? invitedBy : (invitedBy as any).first_name || 'a team'}`,
+      html: htmlContent
+    };
+
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(emailPayload)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to send email: ${response.status} ${errorText}`);
+    }
+
+    const emailResult = await response.json();
+
+    console.log('✅ Email sent successfully:', emailResult);
+
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'Invitation sent successfully',
+      profileId: profile.id,
+      emailId: emailResult.id
+    }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+
+  } catch (error: any) {
+    console.error('❌ Error sending invitation:', error);
+    return new Response(JSON.stringify({ 
+      error: error.message || 'Failed to send invitation'
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
+};
           to: [email],
           subject: `You've been invited to join the Platform`,
           html: htmlContent,

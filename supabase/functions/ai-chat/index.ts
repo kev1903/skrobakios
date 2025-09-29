@@ -55,7 +55,7 @@ async function getProjectData(supabase: any, userId: string, projectId?: string)
     }
 
     // Get tasks for projects
-    const projectIds = projects?.map(p => p.id) || [];
+    const projectIds = projects?.map((p: any) => p.id) || [];
     const { data: tasks } = await supabase
       .from('tasks')
       .select('id, task_name, description, status, priority, progress, due_date, project_id, assigned_to_name')
@@ -151,7 +151,7 @@ serve(async (req) => {
 
     // Find the current project from the data
     const currentProject = validProjectId 
-      ? projectData.projects?.find(p => p.id === validProjectId) 
+      ? projectData.projects?.find((p: any) => p.id === validProjectId) 
       : projectData.projects?.[0];
     
     console.log('Current project found:', currentProject?.name || 'None');
@@ -173,7 +173,7 @@ AVAILABLE DATA FOR THIS PROJECT:
 - ${projectData.wbsItems?.length || 0} WBS items, ${projectData.tasks?.length || 0} tasks, ${projectData.costs?.length || 0} cost items
 
 PROJECT SCOPE (TOP WBS ITEMS):
-${projectData.wbsItems?.slice(0, 5).map(item => 
+${projectData.wbsItems?.slice(0, 5).map((item: any) => 
   `${item.wbs_id} - ${item.title} (${item.status}, ${item.progress}%)`
 ).join('\n') || 'No WBS items available for this project'}
 
@@ -329,7 +329,7 @@ When users request data modifications, use the available database operations to 
             .insert({
               user_id: user.id,
               command_text: 'Error occurred',
-              error_message: error.message,
+              error_message: (error as Error).message,
               success: false,
               execution_time_ms: Date.now()
             });
@@ -340,7 +340,7 @@ When users request data modifications, use the available database operations to 
     }
 
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: (error as Error).message,
       details: 'Failed to process AI chat request'
     }), {
       status: 500,

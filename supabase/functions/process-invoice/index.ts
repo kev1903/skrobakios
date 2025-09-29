@@ -55,7 +55,7 @@ async function downloadBytes(url: string) {
 
 async function uploadToOpenAI(fileBytes: Uint8Array, filename: string, contentType: string) {
   // For now, we'll use assistants purpose which supports more file types
-  const file = new File([fileBytes], filename || "invoice.pdf", { type: "application/pdf" });
+  const file = new File([new Uint8Array(fileBytes)], filename || "invoice.pdf", { type: "application/pdf" });
 
   const fd = new FormData();
   fd.append("file", file);

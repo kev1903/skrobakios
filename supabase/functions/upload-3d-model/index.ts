@@ -256,12 +256,12 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Unexpected error in upload-3d-model function:', error);
-    console.error('Error stack:', error.stack);
+    console.error('Error stack:', (error as Error).stack);
     
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error during model upload',
-        details: error.message 
+        details: (error as Error).message 
       }),
       { 
         status: 500, 

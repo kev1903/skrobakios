@@ -78,7 +78,7 @@ const handler = async (req: Request): Promise<Response> => {
           }
         } catch (error) {
           console.error(`Error deleting auth user ${authUser.email}:`, error);
-          deleteErrors.push(`${authUser.email}: ${error.message}`);
+          deleteErrors.push(`${authUser.email}: ${(error as Error).message}`);
         }
       }
     }

@@ -111,7 +111,7 @@ The document appears to be a construction/engineering drawing based on the filen
     console.error('Error in extract-document function:', error);
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
+      error: (error as Error).message,
       details: 'Failed to extract document content'
     }), {
       status: 500,

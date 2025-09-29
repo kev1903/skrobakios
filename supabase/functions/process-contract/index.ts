@@ -209,7 +209,7 @@ async function uploadFileToOpenAI(fileContent: Uint8Array, fileName: string): Pr
 
   // Create form data for file upload
   const formData = new FormData();
-  formData.append('file', new File([fileContent], fileName, { type: 'application/pdf' }));
+  formData.append('file', new File([new Uint8Array(fileContent)], fileName, { type: 'application/pdf' }));
   formData.append('purpose', 'assistants');
 
   const response = await fetch('https://api.openai.com/v1/files', {
@@ -317,7 +317,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error processing contract:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: (error as Error).message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

@@ -141,7 +141,7 @@ Keep the response practical and focused on real, implementable tasks.`;
     console.error('Error in ai-task-generator:', error);
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: (error as Error).message,
         details: 'Internal server error while generating tasks'
       }),
       {

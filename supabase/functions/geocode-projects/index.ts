@@ -151,7 +151,7 @@ serve(async (req) => {
       console.error('❌ Token test error:', testError)
       return new Response(
         JSON.stringify({ 
-          error: `Token test failed: ${testError.message}`,
+          error: `Token test failed: ${(testError as Error).message}`,
           success: false 
         }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -248,7 +248,7 @@ serve(async (req) => {
       JSON.stringify({ 
         success: false,
         error: 'Geocoding service failed',
-        message: error.message 
+        message: (error as Error).message 
       }),
       { 
         status: 500,

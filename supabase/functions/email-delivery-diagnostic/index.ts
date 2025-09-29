@@ -83,7 +83,7 @@ const handler = async (req: Request): Promise<Response> => {
         console.error(`Error analyzing email ${emailId}:`, error);
         emailAnalyses.push({
           email_id: emailId,
-          error: error.message,
+          error: (error as Error).message,
           status: 'error'
         });
       }
@@ -222,7 +222,18 @@ function getRiskFactors(emailData: any, domain: string): string[] {
 }
 
 function generateDiagnosticReport(analyses: any[], comparative = false) {
-  const report = {
+  const report: {
+    summary: {
+      total_emails: number;
+      delivered: number;
+      bounced: number;
+      other_status: number;
+    };
+    domain_analysis: { [key: string]: any };
+    delivery_confidence: { [key: string]: any };
+    recommendations: string[];
+    risk_assessment: string;
+  } = {
     summary: {
       total_emails: analyses.length,
       delivered: analyses.filter(a => a.status === 'delivered').length,

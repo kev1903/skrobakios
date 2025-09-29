@@ -37,7 +37,7 @@ async function getUserCompanies(supabase: any, userId: string) {
     .eq('user_id', userId)
     .eq('status', 'active');
   
-  return companyMembers?.map(cm => cm.company_id) || [];
+  return companyMembers?.map((cm: any) => cm.company_id) || [];
 }
 
 serve(async (req) => {
@@ -227,7 +227,7 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
         success: false,
         error: 'AI response was not in expected JSON format',
         aiResponse: aiContent,
-        parseError: parseError.message
+        parseError: (parseError as Error).message
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -369,7 +369,7 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
 
     return new Response(JSON.stringify({
       success: false,
-      error: error.message,
+      error: (error as Error).message,
       details: 'Failed to process SkAi database operation request'
     }), {
       status: 500,

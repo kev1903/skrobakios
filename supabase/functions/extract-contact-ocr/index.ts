@@ -105,7 +105,7 @@ If any field cannot be found, return null for that field. Only return the JSON o
   } catch (error) {
     console.error('Error in extract-contact-ocr function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message,
+      error: (error as Error).message,
       contactData: null 
     }), {
       status: 500,

@@ -159,17 +159,9 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in elevenlabs-auth function:', error);
     
-    // Log security event for errors
-    await logSecurityEvent('elevenlabs_auth_error', userId, {
-      service: 'elevenlabs-auth',
-      error: error.message,
-      user_agent: userAgent,
-      client_info: clientInfo
-    });
-    
     return new Response(
       JSON.stringify({ 
-        error: error.message,
+        error: (error as Error).message,
         details: 'Failed to authenticate with ElevenLabs'
       }),
       {

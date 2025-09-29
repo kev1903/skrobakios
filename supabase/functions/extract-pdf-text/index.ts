@@ -209,7 +209,7 @@ Provide the extracted text in a clear, organized format. If you cannot see reada
           error: 'Failed to process PDF format',
           suggestion: 'The PDF may have compatibility issues with the extraction engine. Try converting to a different PDF version.',
           errorCode: 'CONVERSION_FAILED',
-          details: conversionError.message
+          details: (conversionError as Error).message
         }),
         { 
           status: 422, 
@@ -222,15 +222,15 @@ Provide the extracted text in a clear, organized format. If you cannot see reada
     console.error('Error in extract-pdf-text function:', error);
     
     // Handle different types of errors with specific messages
-    let errorMessage = 'Failed to process PDF: ' + error.message;
+    let errorMessage = 'Failed to process PDF: ' + (error as Error).message;
     let suggestion = 'Please ensure the PDF is a valid vector-based document.';
     let errorCode = 'UNKNOWN_ERROR';
     
-    if (error.message.includes('OpenAI API key')) {
+    if ((error as Error).message.includes('OpenAI API key')) {
       errorMessage = 'OpenAI API configuration error';
       suggestion = 'Please contact support - API configuration needs to be updated.';
       errorCode = 'API_CONFIG_ERROR';
-    } else if (error.message.includes('Maximum call stack')) {
+    } else if ((error as Error).message.includes('Maximum call stack')) {
       errorMessage = 'PDF processing memory limit exceeded';
       suggestion = 'Please try with a smaller PDF file.';
       errorCode = 'MEMORY_LIMIT';
