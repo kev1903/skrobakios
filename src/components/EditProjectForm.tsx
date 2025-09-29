@@ -267,8 +267,10 @@ export const EditProjectForm = ({ project, onClose, onUpdate }: EditProjectFormP
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="running">Running</SelectItem>
+                    <SelectItem value="running">In Progress</SelectItem>
+                    <SelectItem value="on_hold">On Hold</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
