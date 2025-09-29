@@ -396,41 +396,6 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                     </div>
                   </div>
                 )}
-
-                {/* Status Breakdown and Value */}
-                <div className="flex items-center justify-between pt-4 border-t border-border">
-                  <div className="flex items-center space-x-6 text-sm">
-                    <div className="flex items-center space-x-1 text-orange-600">
-                      <Clock className="w-4 h-4" />
-                      <span>{businessData.metrics.activeProjects} Active</span>
-                    </div>
-                    <div className="flex items-center space-x-1 text-red-600">
-                      <AlertTriangle className="w-4 h-4" />
-                      <span>{businessData.metrics.pendingProjects} Pending</span>
-                    </div>
-                    <div className="flex items-center space-x-1 text-green-600">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>{businessData.metrics.completedProjects} Done</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4">
-                    {businessData.metrics.totalValue > 0 && (
-                      <div className="text-right">
-                        <div className="text-sm text-muted-foreground">Portfolio Value</div>
-                        <div className="font-semibold text-foreground">{formatCurrency(businessData.metrics.totalValue)}</div>
-                      </div>
-                    )}
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => onNavigate?.('business', { businessId: businessData.business.id })}
-                    >
-                      View Details
-                      <ArrowRight className="w-3 h-3 ml-1" />
-                    </Button>
-                  </div>
-                </div>
               </CardContent>
             </Card>
           ))}
