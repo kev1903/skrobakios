@@ -392,7 +392,7 @@ export const BusinessesDashboard = ({ onNavigate }: BusinessesDashboardProps) =>
                                project.status}
                             </Badge>
                             <Button 
-                              variant={checkedProjects.has(project.id) ? "default" : "outline"}
+                              variant="outline"
                               size="sm"
                               className={`h-6 px-2 text-xs ${
                                 checkedProjects.has(project.id) 
