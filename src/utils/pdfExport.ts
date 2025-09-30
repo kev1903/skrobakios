@@ -111,6 +111,7 @@ interface IssueData {
   assigned_to?: string;
   created_at: string;
   rfi_number?: string;
+  auto_number?: number;
   attachments?: IssueAttachment[];
   profiles?: {
     first_name?: string;
@@ -595,7 +596,7 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       pdf.setFontSize(9); // Slightly larger font for better readability
       pdf.setTextColor(40, 40, 40);
       
-      const issueNumber = issue.rfi_number || 'N/A';
+      const issueNumber = (issue as any).auto_number?.toString() || (i + 1).toString();
       const issueTitle = issue.title.length > 50 ? issue.title.substring(0, 50) + '...' : issue.title;
       const category = issue.category || 'N/A';
       const assignedToName = issue.assigned_to || 'Unassigned';

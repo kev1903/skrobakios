@@ -89,6 +89,7 @@ interface IssueData {
   created_at: string;
   due_date?: string;
   rfi_number?: string;
+  auto_number?: number;
   attachments?: IssueAttachment[];
   profiles?: {
     first_name?: string;
@@ -146,11 +147,15 @@ export const exportSelectedIssuesToPDF = async (
       .from('issues')
       .select('*')
       .in('id', selectedIssueIds)
-      .order('rfi_number', { ascending: true });
+      .order('created_at', { ascending: true });
 
     if (issuesError) throw issuesError;
 
-    const typedIssues = (issues || []) as unknown as IssueData[];
+    // Add auto_number to issues based on their order
+    const typedIssues = ((issues || []) as unknown as IssueData[]).map((issue, index) => ({
+      ...issue,
+      auto_number: index + 1
+    }));
 
     // Build profile map by user_id for created_by
     const userIds = Array.from(new Set(typedIssues.map(i => i.created_by).filter(Boolean)));
@@ -492,7 +497,7 @@ export const exportSelectedIssuesToPDF = async (
       pdf.setFontSize(9);
       pdf.setTextColor(40, 40, 40);
       
-      const issueNumber = issue.rfi_number || 'N/A';
+      const issueNumber = issue.auto_number?.toString() || (i + 1).toString();
       const issueTitle = issue.title.length > 45 ? issue.title.substring(0, 45) + '...' : issue.title;
       const category = issue.category || 'N/A';
       const assignedTo = issue.assigned_to || 'Unassigned';
