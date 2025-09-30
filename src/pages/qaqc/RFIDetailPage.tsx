@@ -144,7 +144,7 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
               </Button>
               <div className="flex items-center space-x-2">
                 <HelpCircle className="w-6 h-6 text-orange-600" />
-                <h1 className="text-2xl font-bold text-foreground">{report.rfi_number}</h1>
+                <h1 className="text-2xl font-bold text-foreground">{report.auto_number || report.rfi_number}</h1>
               </div>
             </div>
             <div className="flex space-x-2">
