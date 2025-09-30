@@ -142,7 +142,22 @@ export const exportSelectedIssuesToPDF = async (
 
     if (projectError) throw projectError;
 
-    // Fetch only selected issues
+    // First, fetch ALL issues in the report to establish correct auto_numbers
+    const { data: allIssues, error: allIssuesError } = await supabase
+      .from('issues')
+      .select('id')
+      .eq('report_id', reportId)
+      .order('created_at', { ascending: true });
+
+    if (allIssuesError) throw allIssuesError;
+
+    // Create a map of issue IDs to their auto_numbers
+    const autoNumberMap = new Map<string, number>();
+    (allIssues || []).forEach((issue, index) => {
+      autoNumberMap.set(issue.id, index + 1);
+    });
+
+    // Fetch only selected issues with full data
     const { data: issues, error: issuesError } = await supabase
       .from('issues')
       .select('*')
@@ -151,10 +166,10 @@ export const exportSelectedIssuesToPDF = async (
 
     if (issuesError) throw issuesError;
 
-    // Add auto_number to issues based on their order
-    const typedIssues = ((issues || []) as unknown as IssueData[]).map((issue, index) => ({
+    // Add auto_number to issues based on their position in the full list
+    const typedIssues = ((issues || []) as unknown as IssueData[]).map((issue) => ({
       ...issue,
-      auto_number: index + 1
+      auto_number: autoNumberMap.get(issue.id) || 0
     }));
 
     // Build profile map by user_id for created_by
