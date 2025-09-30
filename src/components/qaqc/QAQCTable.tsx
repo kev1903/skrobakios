@@ -190,11 +190,9 @@ export const QAQCTable = ({
             <TableRow>
               <TableHead>Number</TableHead>
               <TableHead>Title</TableHead>
-              <TableHead>Priority</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Requested By</TableHead>
+              <TableHead>Assigned To</TableHead>
               <TableHead>Due Date</TableHead>
-              <TableHead>Created</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
@@ -313,14 +311,10 @@ export const QAQCTable = ({
             </TableCell>
             <TableCell>{item.title}</TableCell>
             <TableCell>
-              <Badge className={getPriorityColor(item.priority)}>{item.priority}</Badge>
-            </TableCell>
-            <TableCell>
               <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
             </TableCell>
             <TableCell>{item.requested_by}</TableCell>
             <TableCell>{formatDate(item.due_date)}</TableCell>
-            <TableCell>{formatDate(item.created_at)}</TableCell>
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
