@@ -592,10 +592,10 @@ export const exportSelectedIssuesToPDF = async (
       let attachmentY = yPos;
       
       if (issue.attachments && issue.attachments.length > 0) {
-        // Multiple attachments handling - limit to 2 for better fit
-        const maxAttachmentsToShow = Math.min(2, issue.attachments.length);
+        // Multiple attachments handling - show up to 3 attachments
+        const maxAttachmentsToShow = Math.min(3, issue.attachments.length);
         const attachmentWidth = attachmentAreaWidth / maxAttachmentsToShow - 5;
-        const attachmentHeight = 85;
+        const attachmentHeight = 70;
         
         for (let attachmentIndex = 0; attachmentIndex < maxAttachmentsToShow; attachmentIndex++) {
           const attachment = issue.attachments[attachmentIndex];
@@ -673,11 +673,11 @@ export const exportSelectedIssuesToPDF = async (
           }
         }
         
-        // Show attachment count if more than 2
-        if (issue.attachments.length > 2) {
+        // Show attachment count if more than 3
+        if (issue.attachments.length > 3) {
           pdf.setFontSize(9);
           pdf.setTextColor(80, 80, 80);
-          pdf.text(`+${issue.attachments.length - 2} more attachments`, 20, attachmentY + attachmentHeight + 15);
+          pdf.text(`+${issue.attachments.length - 3} more attachments`, 20, attachmentY + attachmentHeight + 15);
           pdf.setTextColor(0, 0, 0);
         }
       } else {
@@ -711,7 +711,7 @@ export const exportSelectedIssuesToPDF = async (
       
       // Description box
       const descriptionBoxX = 20;
-      const actualAttachmentHeight = issue.attachments && issue.attachments.length > 0 ? 85 : attachmentAreaHeight;
+      const actualAttachmentHeight = issue.attachments && issue.attachments.length > 0 ? 70 : attachmentAreaHeight;
       const descriptionBoxY = attachmentY + actualAttachmentHeight + 5;
       const descriptionBoxWidth = 170;
       const descriptionBoxHeight = 40;
