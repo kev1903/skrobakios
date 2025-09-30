@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
+import { formatDate } from '@/utils/dateFormat';
 
 interface QAQCTableProps {
   data: any[];
@@ -271,8 +272,8 @@ export const QAQCTable = ({
               <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
             </TableCell>
             <TableCell>{item.assigned_to || '-'}</TableCell>
-            <TableCell>{item.due_date ? format(new Date(item.due_date), 'MMM dd, yyyy') : '-'}</TableCell>
-            <TableCell>{format(new Date(item.created_at), 'MMM dd, yyyy')}</TableCell>
+            <TableCell>{formatDate(item.due_date)}</TableCell>
+            <TableCell>{formatDate(item.created_at)}</TableCell>
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -318,8 +319,8 @@ export const QAQCTable = ({
               <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
             </TableCell>
             <TableCell>{item.requested_by}</TableCell>
-            <TableCell>{item.due_date ? format(new Date(item.due_date), 'MMM dd, yyyy') : '-'}</TableCell>
-            <TableCell>{format(new Date(item.created_at), 'MMM dd, yyyy')}</TableCell>
+            <TableCell>{formatDate(item.due_date)}</TableCell>
+            <TableCell>{formatDate(item.created_at)}</TableCell>
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -401,7 +402,7 @@ export const QAQCTable = ({
               <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
             </TableCell>
             <TableCell className={`py-1 px-2 ${isOverdue ? 'text-red-600' : ''}`}>{item.reported_by}</TableCell>
-            <TableCell className={`py-1 px-2 ${isOverdue ? 'text-red-600 font-semibold' : ''}`}>{item.due_date ? format(new Date(item.due_date), 'MMM dd, yyyy') : '-'}</TableCell>
+            <TableCell className={`py-1 px-2 ${isOverdue ? 'text-red-600 font-semibold' : ''}`}>{formatDate(item.due_date)}</TableCell>
             <TableCell className="py-1 px-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -445,7 +446,7 @@ export const QAQCTable = ({
             <TableCell>
               <Badge className={getStatusColor(item.status, 'issues')}>{item.status || 'active'}</Badge>
             </TableCell>
-            <TableCell>{format(new Date(item.created_at), 'MMM dd, yyyy')}</TableCell>
+            <TableCell>{formatDate(item.created_at)}</TableCell>
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -500,7 +501,7 @@ export const QAQCTable = ({
               <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
             </TableCell>
             <TableCell>{item.location}</TableCell>
-            <TableCell>{format(new Date(item.created_at), 'MMM dd, yyyy')}</TableCell>
+            <TableCell>{formatDate(item.created_at)}</TableCell>
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -544,8 +545,8 @@ export const QAQCTable = ({
               <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
             </TableCell>
             <TableCell>{item.inspector_name}</TableCell>
-            <TableCell>{item.scheduled_date ? format(new Date(item.scheduled_date), 'MMM dd, yyyy') : '-'}</TableCell>
-            <TableCell>{format(new Date(item.created_at), 'MMM dd, yyyy')}</TableCell>
+            <TableCell>{formatDate(item.scheduled_date)}</TableCell>
+            <TableCell>{formatDate(item.created_at)}</TableCell>
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -590,7 +591,7 @@ export const QAQCTable = ({
             </TableCell>
             <TableCell>{item.responsible_party}</TableCell>
             <TableCell className="capitalize">{item.phase || '-'}</TableCell>
-            <TableCell>{format(new Date(item.created_at), 'MMM dd, yyyy')}</TableCell>
+            <TableCell>{formatDate(item.created_at)}</TableCell>
             <TableCell>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

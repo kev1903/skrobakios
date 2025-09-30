@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
+import { formatDate } from '@/utils/dateFormat';
 
 interface Estimate {
   id: string;
@@ -245,10 +246,10 @@ export const EstimatesPage = ({ onNavigate }: EstimatesPageProps) => {
                         </div>
                       </TableCell>
                       <TableCell className="text-foreground">
-                        {format(new Date(estimate.estimate_date), 'MMM dd, yyyy')}
+                        {formatDate(estimate.estimate_date)}
                       </TableCell>
                       <TableCell className="text-foreground">
-                        {estimate.expiry_date ? format(new Date(estimate.expiry_date), 'MMM dd, yyyy') : '-'}
+                        {formatDate(estimate.expiry_date)}
                       </TableCell>
                       <TableCell>
                         <Badge 

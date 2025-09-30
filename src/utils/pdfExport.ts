@@ -207,7 +207,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     const pageHeight = pdf.internal.pageSize.height;
     let pageNumber = 1;
     
-    const exportDate = new Date().toLocaleDateString('en-US', {
+    const exportDate = new Date().toLocaleDateString('en-GB', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -854,9 +854,9 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      pdf.text(new Date(issue.created_at).toLocaleDateString('en-US', {
+      pdf.text(new Date(issue.created_at).toLocaleDateString('en-GB', {
         year: 'numeric',
-        month: 'short',
+        month: 'long',
         day: 'numeric'
       }), detailsX, detailsY);
       

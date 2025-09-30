@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Building2, Edit, Globe, MapPin, Phone } from 'lucide-react';
 import { Company } from '@/types/company';
 import { format } from 'date-fns';
+import { formatDate } from '@/utils/dateFormat';
 
 interface BusinessesTableProps {
   companies: Company[];
@@ -113,7 +114,7 @@ export const BusinessesTable = ({
               </TableCell>
               <TableCell className="py-2">
                 <div className="text-sm text-slate-600">
-                  {format(new Date(company.created_at), 'MMM dd, yyyy')}
+                  {formatDate(company.created_at)}
                 </div>
               </TableCell>
               <TableCell className="py-2">

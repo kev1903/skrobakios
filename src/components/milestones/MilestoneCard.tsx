@@ -14,6 +14,7 @@ import {
   Edit
 } from 'lucide-react';
 import { format, isAfter, isBefore } from 'date-fns';
+import { formatDate } from '@/utils/dateFormat';
 import { Milestone } from '../tasks/types';
 import {
   DropdownMenu,
@@ -154,7 +155,7 @@ export const MilestoneCard = ({ milestone, onUpdate }: MilestoneCardProps) => {
             <Calendar className="w-4 h-4 text-muted-foreground" />
             <span className="text-muted-foreground">Due:</span>
             <span className={daysUntilDue < 0 ? 'text-red-600 font-medium' : 'text-foreground'}>
-              {format(new Date(milestone.dueDate), 'MMM dd, yyyy')}
+              {formatDate(milestone.dueDate)}
             </span>
           </div>
           

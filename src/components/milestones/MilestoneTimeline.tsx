@@ -12,6 +12,7 @@ import {
   Check 
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { formatDate } from '@/utils/dateFormat';
 import { Milestone } from '../tasks/types';
 
 interface MilestoneTimelineProps {
@@ -108,7 +109,7 @@ export const MilestoneTimeline = ({ milestones, onMilestoneUpdate }: MilestoneTi
                       <Calendar className="w-4 h-4 text-muted-foreground" />
                       <span className="text-muted-foreground">Due:</span>
                       <span className="text-foreground font-medium">
-                        {format(new Date(milestone.dueDate), 'MMM dd, yyyy')}
+                        {formatDate(milestone.dueDate)}
                       </span>
                     </div>
                   </div>
