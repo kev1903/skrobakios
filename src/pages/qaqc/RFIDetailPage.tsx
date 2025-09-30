@@ -51,11 +51,18 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
             // Calculate the auto_number for this issue
             const autoNumber = (allIssues || []).findIndex(i => i.id === rfiId) + 1;
             
+            console.log('RFI Detail - Issue data:', {
+              issueId: rfiId,
+              databaseRfiNumber: issue.rfi_number,
+              calculatedAutoNumber: autoNumber,
+              allIssuesCount: allIssues?.length
+            });
+            
             // Set the report with auto_number and map fields correctly
             setReport({
               ...issue,
               auto_number: autoNumber,
-              rfi_number: autoNumber.toString(), // Use auto_number as display number
+              rfi_number: autoNumber.toString(), // Override with auto_number
               requested_by: issue.created_by || 'Unknown',
               date_requested: issue.created_at,
               sections: [],
@@ -67,6 +74,8 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
               },
               attachments: issue.attachments || []
             });
+            
+            console.log('RFI Detail - Report state set with auto_number:', autoNumber);
           }
         } catch (error) {
           console.error('Error fetching RFI:', error);
@@ -144,7 +153,9 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
               </Button>
               <div className="flex items-center space-x-2">
                 <HelpCircle className="w-6 h-6 text-orange-600" />
-                <h1 className="text-2xl font-bold text-foreground">{report.auto_number || report.rfi_number}</h1>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {report.auto_number || report.rfi_number}
+                </h1>
               </div>
             </div>
             <div className="flex space-x-2">
