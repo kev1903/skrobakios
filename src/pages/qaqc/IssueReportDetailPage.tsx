@@ -129,7 +129,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
   const filteredIssues = useMemo(() => {
     return issues.filter(issue => {
       const matchesStatus = statusFilter === 'all' || issue.status === statusFilter;
-      const matchesAssigned = assignedToFilter === 'all' || issue.reported_by === assignedToFilter;
+      const matchesAssigned = assignedToFilter === 'all' || issue.assigned_to === assignedToFilter;
       return matchesStatus && matchesAssigned;
     });
   }, [issues, statusFilter, assignedToFilter]);
@@ -141,7 +141,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
   }, [issues]);
 
   const uniqueAssignedTo = useMemo(() => {
-    const assigned = new Set(issues.map(issue => issue.reported_by).filter(Boolean));
+    const assigned = new Set(issues.map(issue => issue.assigned_to).filter(Boolean));
     return Array.from(assigned);
   }, [issues]);
 
