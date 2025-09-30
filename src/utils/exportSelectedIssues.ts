@@ -499,7 +499,7 @@ export const exportSelectedIssuesToPDF = async (
       const category = issue.category || 'N/A';
       const assignedTo = issue.assigned_to || 'Unassigned';
       
-      const textY = yPosition + (rowHeight / 2) + 3; // Properly centered in row
+      const textY = yPosition + (rowHeight / 2) + 3.5; // Vertically centered accounting for baseline
       pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
       pdf.text(issueTitle, columns[1].x + 2, textY, { align: 'left' });
       pdf.text(category, columns[2].x + columns[2].width/2, textY, { align: 'center' });
