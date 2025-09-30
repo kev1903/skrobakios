@@ -176,7 +176,7 @@ export const QAQCTable = ({
               <TableHead>Severity</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Reported By</TableHead>
-              <TableHead>Created</TableHead>
+              <TableHead>Due Date</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
           </TableHeader>
@@ -378,7 +378,7 @@ export const QAQCTable = ({
               <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
             </TableCell>
             <TableCell className="py-1 px-2">{item.reported_by}</TableCell>
-            <TableCell className="py-1 px-2">{format(new Date(item.created_at), 'MMM dd, yyyy')}</TableCell>
+            <TableCell className="py-1 px-2">{item.due_date ? format(new Date(item.due_date), 'MMM dd, yyyy') : '-'}</TableCell>
             <TableCell className="py-1 px-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
