@@ -346,8 +346,9 @@ export const QAQCTable = ({
         );
       
       case 'issues':
+        const isOverdue = item.due_date && new Date(item.due_date) < new Date() && item.status !== 'closed' && item.status !== 'resolved';
         return (
-          <TableRow key={item.id} className="h-10">
+          <TableRow key={item.id} className={`h-10 ${isOverdue ? 'bg-red-50' : ''}`}>
             <TableCell className="py-1 px-2">
               <Checkbox
                 checked={selectedItems.includes(item.id)}
@@ -356,7 +357,7 @@ export const QAQCTable = ({
             </TableCell>
             <TableCell className="font-medium py-1 px-2">
               <button 
-                className="text-blue-600 hover:text-blue-800 hover:underline"
+                className={`hover:underline ${isOverdue ? 'text-red-600 hover:text-red-800' : 'text-blue-600 hover:text-blue-800'}`}
                 onClick={() => onNavigate?.(`qaqc-issue-report-detail?projectId=${item.project_id}&reportId=${item.report_id}`)}
               >
                 {item.auto_number || item.issue_number || '-'}
@@ -364,21 +365,21 @@ export const QAQCTable = ({
             </TableCell>
             <TableCell className="py-1 px-2">
               <button 
-                className="text-left hover:text-blue-600 hover:underline transition-colors"
+                className={`text-left hover:underline transition-colors ${isOverdue ? 'text-red-600 hover:text-red-700' : 'hover:text-blue-600'}`}
                 onClick={() => onNavigate?.(`qaqc-issue-edit?projectId=${item.project_id}&issueId=${item.id}`)}
               >
                 {item.title}
               </button>
             </TableCell>
-            <TableCell className="capitalize py-1 px-2">{item.type?.replace('_', ' ') || '-'}</TableCell>
+            <TableCell className={`capitalize py-1 px-2 ${isOverdue ? 'text-red-600' : ''}`}>{item.type?.replace('_', ' ') || '-'}</TableCell>
             <TableCell className="py-1 px-2">
               <Badge className={getSeverityColor(item.severity)}>{item.severity}</Badge>
             </TableCell>
             <TableCell className="py-1 px-2">
               <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
             </TableCell>
-            <TableCell className="py-1 px-2">{item.reported_by}</TableCell>
-            <TableCell className="py-1 px-2">{item.due_date ? format(new Date(item.due_date), 'MMM dd, yyyy') : '-'}</TableCell>
+            <TableCell className={`py-1 px-2 ${isOverdue ? 'text-red-600' : ''}`}>{item.reported_by}</TableCell>
+            <TableCell className={`py-1 px-2 ${isOverdue ? 'text-red-600 font-semibold' : ''}`}>{item.due_date ? format(new Date(item.due_date), 'MMM dd, yyyy') : '-'}</TableCell>
             <TableCell className="py-1 px-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
