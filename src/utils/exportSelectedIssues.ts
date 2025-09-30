@@ -88,7 +88,7 @@ interface IssueData {
   assigned_to?: string;
   created_at: string;
   due_date?: string;
-  auto_number?: number;
+  issue_number?: string;
   attachments?: IssueAttachment[];
   profiles?: {
     first_name?: string;
@@ -146,7 +146,7 @@ export const exportSelectedIssuesToPDF = async (
       .from('issues')
       .select('*')
       .in('id', selectedIssueIds)
-      .order('created_at', { ascending: true });
+      .order('issue_number', { ascending: true });
 
     if (issuesError) throw issuesError;
 
@@ -375,13 +375,9 @@ export const exportSelectedIssuesToPDF = async (
     const mainTitle = (addressText && !addressLooksLikeEmail) ? addressText : project.name;
     
     // Issue statistics
-    const numberedIssues = typedIssues.map((issue, index) => ({
-      ...issue,
-      auto_number: index + 1
-    }));
-    const totalIssues = numberedIssues.length;
-    const openIssues = numberedIssues.filter(issue => issue.status === 'open').length;
-    const closedIssues = numberedIssues.filter(issue => issue.status === 'closed').length;
+    const totalIssues = typedIssues.length;
+    const openIssues = typedIssues.filter(issue => issue.status === 'open').length;
+    const closedIssues = typedIssues.filter(issue => issue.status === 'closed').length;
     
     // Assignee data - Get assignees from RFIs/issues assigned_to field
     const rfiAssigneeNames = new Set<string>();
@@ -457,8 +453,8 @@ export const exportSelectedIssuesToPDF = async (
     pdf.setFont('helvetica', 'normal');
     
     // Draw issue rows
-    for (let i = 0; i < numberedIssues.length; i++) {
-      const issue = numberedIssues[i];
+    for (let i = 0; i < typedIssues.length; i++) {
+      const issue = typedIssues[i];
       
       if (yPosition + rowHeight > pageHeight - 40) {
         pdf.addPage();
@@ -496,7 +492,7 @@ export const exportSelectedIssuesToPDF = async (
       pdf.setFontSize(9);
       pdf.setTextColor(40, 40, 40);
       
-      const issueNumber = issue.auto_number?.toString() || `${i + 1}`;
+      const issueNumber = issue.issue_number || 'N/A';
       const issueTitle = issue.title.length > 45 ? issue.title.substring(0, 45) + '...' : issue.title;
       const category = issue.category || 'N/A';
       const assignedTo = issue.assigned_to || 'Unassigned';
@@ -538,8 +534,8 @@ export const exportSelectedIssuesToPDF = async (
     }
 
     // Add individual issue detail pages
-    for (let i = 0; i < numberedIssues.length; i++) {
-      const issue = numberedIssues[i];
+    for (let i = 0; i < typedIssues.length; i++) {
+      const issue = typedIssues[i];
       
       pdf.addPage();
       pageNumber++;
@@ -549,7 +545,7 @@ export const exportSelectedIssuesToPDF = async (
       pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(30, 30, 30);
-      const issueNumber = issue.auto_number || `${i + 1}`;
+      const issueNumber = issue.issue_number || 'N/A';
       pdf.text(`${issueNumber}. ${issue.title}`, 20, 45);
       
       // Issue status badge
