@@ -96,14 +96,15 @@ export const FrappeGanttChart = ({
 
       // Create new Gantt chart - configured to align perfectly with data rows
       ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
-        header_height: 0, // Remove header to prevent offset issues
+        header_height: 50, // Small header to prevent clipping
         column_width: 30,
         step: 24,
-        bar_height: 20, // Slightly larger bar for 28px row
+        bar_height: 20, // 20px bar height for 28px row
         bar_corner_radius: 3,
         arrow_curve: 5,
-        padding: 0, // Zero padding for exact alignment
+        padding: 18, // Padding to align bars with first row
         date_format: 'YYYY-MM-DD',
+        view_mode: 'Day',
         custom_popup_html: function(task: any) {
           return `
             <div class="details-container">
@@ -172,24 +173,44 @@ export const FrappeGanttChart = ({
     <div className="h-full w-full overflow-auto bg-white">
       <div ref={ganttRef} className="min-h-full" />
       <style>{`
-        /* Force row heights to match WBS data columns exactly at 28px */
-        .gantt .grid-row {
-          height: 28px !important;
-          border-bottom: 1px solid #e5e7eb;
+        /* Override Frappe Gantt styles for perfect 28px row alignment */
+        .gantt-container {
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        .gantt {
+          overflow: visible !important;
+        }
+        .gantt .grid-background {
+          margin-top: 0 !important;
         }
         .gantt .grid-header {
-          display: none !important; /* Hide frappe-gantt header since we have our own */
+          height: 50px !important;
+        }
+        .gantt .grid-row {
+          height: 28px !important;
+          min-height: 28px !important;
+          max-height: 28px !important;
+          border-bottom: 1px solid #e5e7eb !important;
         }
         .gantt .bar-wrapper {
           height: 28px !important;
+          min-height: 28px !important;
+          max-height: 28px !important;
+          display: flex !important;
+          align-items: center !important;
         }
         .gantt .bar-wrapper .bar {
           height: 20px !important;
           top: 4px !important;
+          transform: none !important;
+          margin: 0 !important;
         }
         .gantt .bar-wrapper .bar-label {
-          height: 28px !important;
-          line-height: 28px !important;
+          height: 20px !important;
+          line-height: 20px !important;
+          display: flex !important;
+          align-items: center !important;
         }
         .gantt .bar {
           fill: #3b82f6;
