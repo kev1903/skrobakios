@@ -632,9 +632,11 @@ export const exportSelectedIssuesToPDF = async (
                 const badgeX = attachmentX + attachmentWidth - 10;
                 const badgeY = attachmentY + 4;
                 pdf.circle(badgeX, badgeY, 5, 'F');
-                pdf.setFontSize(6);
+                pdf.setFontSize(8);
+                pdf.setFont('helvetica', 'bold');
                 pdf.setTextColor(255, 255, 255);
-                pdf.text(`${attachmentIndex + 1}`, badgeX, badgeY + 1.5, { align: 'center' });
+                pdf.text(`${attachmentIndex + 1}`, badgeX, badgeY + 2, { align: 'center' });
+                pdf.setFont('helvetica', 'normal');
                 pdf.setTextColor(0, 0, 0);
               }
             } catch (imageError) {
