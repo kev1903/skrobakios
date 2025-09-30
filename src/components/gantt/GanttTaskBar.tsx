@@ -33,8 +33,8 @@ export const GanttTaskBar: React.FC<GanttTaskBarProps> = ({
         }}
         onClick={handleClick}
       >
-        <div className="h-full bg-slate-300 rounded-sm flex items-center px-3 shadow-sm">
-          <span className="text-sm font-medium text-slate-700 truncate">
+        <div className="h-full bg-slate-300 rounded flex items-center px-2 shadow-sm">
+          <span className="text-xs font-semibold text-slate-700 truncate">
             {task.name}
           </span>
         </div>

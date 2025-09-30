@@ -77,7 +77,7 @@ export const GanttTaskRow: React.FC<GanttTaskRowProps> = ({
         levelStyles.border
       )}
       style={{
-        ...style,
+        height: '28px',
         gridTemplateColumns: '20px 60px 1fr 90px 90px 60px 100px 120px'
       }}
     >
