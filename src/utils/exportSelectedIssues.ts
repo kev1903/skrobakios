@@ -399,8 +399,7 @@ export const exportSelectedIssuesToPDF = async (
     drawTableRow('Assignees:', rfiAssigneesText);
     drawTableRow('Selected Issues:', totalIssues.toString());
     drawTableRow('Open Issues:', openIssues.toString());
-    drawTableRow('Closed Issues:', closedIssues.toString());
-    drawTableRow('Register Version / Date:', `v1.0 / ${exportDate}`);
+    drawTableRow('Date:', exportDate);
     
     // Final table border
     pdf.setDrawColor(150, 150, 150);
