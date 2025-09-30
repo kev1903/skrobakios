@@ -487,7 +487,7 @@ export const exportSelectedIssuesToPDF = async (
       
       if (i % 2 === 0) {
         pdf.setFillColor(252, 253, 254);
-        pdf.rect(20, yPosition - 3, pageWidth - 40, rowHeight, 'F');
+        pdf.rect(20, yPosition, pageWidth - 40, rowHeight, 'F');
       }
       
       // Draw issue data - removed preview column section
@@ -499,7 +499,7 @@ export const exportSelectedIssuesToPDF = async (
       const category = issue.category || 'N/A';
       const assignedTo = issue.assigned_to || 'Unassigned';
       
-      const textY = yPosition + 6; // Vertically centered in 10px row
+      const textY = yPosition + (rowHeight / 2) + 3; // Properly centered in row
       pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
       pdf.text(issueTitle, columns[1].x + 2, textY, { align: 'left' });
       pdf.text(category, columns[2].x + columns[2].width/2, textY, { align: 'center' });
@@ -522,7 +522,7 @@ export const exportSelectedIssuesToPDF = async (
       // Draw separator line
       pdf.setDrawColor(240, 240, 240);
       pdf.setLineWidth(0.3);
-      pdf.line(20, yPosition + rowHeight - 3, pageWidth - 20, yPosition + rowHeight - 3);
+      pdf.line(20, yPosition + rowHeight, pageWidth - 20, yPosition + rowHeight);
       
       yPosition += rowHeight;
     }
