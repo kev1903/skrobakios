@@ -419,20 +419,18 @@ export const exportSelectedIssuesToPDF = async (
     
     let yPosition = 55;
     
-    // Table setup
-    const rowHeight = 35; // Increased row height for better text spacing
-    const previewSize = 16; // Reduced from 20 to fit narrower preview column
+    // Table setup - compact formatting
+    const rowHeight = 12; // Minimum row height as requested
     const tableMargin = 20;
     const tableWidth = pageWidth - (2 * tableMargin);
     
-    // Column positions and widths - with Assigned To column
+    // Column positions and widths - removed Preview column
     const columns = [
-      { header: '#', x: tableMargin, width: tableWidth * 0.05, align: 'center' as const },
-      { header: 'Preview', x: tableMargin + (tableWidth * 0.05), width: tableWidth * 0.1, align: 'center' as const },
-      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.15), width: tableWidth * 0.35, align: 'left' as const },
-      { header: 'Category', x: tableMargin + (tableWidth * 0.5), width: tableWidth * 0.12, align: 'center' as const },
-      { header: 'Status', x: tableMargin + (tableWidth * 0.62), width: tableWidth * 0.12, align: 'center' as const },
-      { header: 'Assigned To', x: tableMargin + (tableWidth * 0.74), width: tableWidth * 0.26, align: 'left' as const }
+      { header: '#', x: tableMargin, width: tableWidth * 0.08, align: 'center' as const },
+      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.08), width: tableWidth * 0.45, align: 'left' as const },
+      { header: 'Category', x: tableMargin + (tableWidth * 0.53), width: tableWidth * 0.15, align: 'center' as const },
+      { header: 'Status', x: tableMargin + (tableWidth * 0.68), width: tableWidth * 0.12, align: 'center' as const },
+      { header: 'Assigned To', x: tableMargin + (tableWidth * 0.8), width: tableWidth * 0.2, align: 'left' as const }
     ];
     
     // Draw table headers
@@ -492,66 +490,19 @@ export const exportSelectedIssuesToPDF = async (
         pdf.rect(20, yPosition - 5, pageWidth - 40, rowHeight, 'F');
       }
       
-      // Add preview image
-      const previewX = columns[1].x + (columns[1].width - previewSize) / 2;
-      const previewY = yPosition - 2;
-      
-      if (issue.attachments && issue.attachments.length > 0) {
-        const firstAttachment = issue.attachments[0];
-        if (firstAttachment.type?.startsWith('image/')) {
-          try {
-            const { dataUrl, format } = await getAttachmentDataUrl(firstAttachment);
-            const boxW = previewSize;
-            const boxH = previewSize * 0.75;
-            const { width: imgW, height: imgH } = await new Promise<{ width: number; height: number }>((resolve) => {
-              const imgEl = new Image();
-              imgEl.onload = () => resolve({ width: imgEl.naturalWidth, height: imgEl.naturalHeight });
-              imgEl.src = dataUrl;
-            });
-            const scale = imgW && imgH ? Math.min(boxW / imgW, boxH / imgH) : 1;
-            const drawW = Math.max(1, (imgW || boxW) * scale);
-            const drawH = Math.max(1, (imgH || boxH) * scale);
-            const drawX = previewX + (boxW - drawW) / 2;
-            const drawY = previewY + (boxH - drawH) / 2;
-
-            pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
-          } catch (imageError) {
-            console.warn('Failed to load image for preview:', imageError);
-            pdf.setFillColor(230, 230, 230);
-            pdf.rect(previewX, previewY, previewSize, previewSize * 0.75, 'F');
-            pdf.setFontSize(7);
-            pdf.setTextColor(120, 120, 120);
-            pdf.text('No preview', previewX + previewSize/2, previewY + 12, { align: 'center' });
-            pdf.setTextColor(0, 0, 0);
-          }
-        } else {
-          pdf.setFillColor(240, 240, 240);
-          pdf.rect(previewX, previewY, previewSize, previewSize * 0.75, 'F');
-          pdf.setFontSize(7);
-          pdf.setTextColor(100, 100, 100);
-          pdf.text('FILE', previewX + previewSize/2, previewY + 12, { align: 'center' });
-          pdf.setTextColor(0, 0, 0);
-        }
-      } else {
-        pdf.setFontSize(6);
-        pdf.setTextColor(180, 180, 180);
-        pdf.text('No preview', previewX + previewSize/2, previewY + 12, { align: 'center' });
-        pdf.setTextColor(0, 0, 0);
-      }
-      
-      // Draw issue data
+      // Draw issue data - removed preview column section
       pdf.setFontSize(9);
       pdf.setTextColor(40, 40, 40);
       
       const issueNumber = issue.auto_number?.toString() || `${i + 1}`;
-      const issueTitle = issue.title.length > 40 ? issue.title.substring(0, 40) + '...' : issue.title;
+      const issueTitle = issue.title.length > 50 ? issue.title.substring(0, 50) + '...' : issue.title;
       const category = issue.category || 'N/A';
       const assignedTo = issue.assigned_to || 'Unassigned';
       
-      const textY = yPosition + 15;
+      const textY = yPosition + 8; // Adjusted for smaller row height
       pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
-      pdf.text(issueTitle, columns[2].x + 2, textY, { align: 'left' });
-      pdf.text(category, columns[3].x + columns[3].width/2, textY, { align: 'center' });
+      pdf.text(issueTitle, columns[1].x + 2, textY, { align: 'left' });
+      pdf.text(category, columns[2].x + columns[2].width/2, textY, { align: 'center' });
       
       // Status with color coding
       if (issue.status === 'open') {
@@ -561,13 +512,13 @@ export const exportSelectedIssuesToPDF = async (
       } else {
         pdf.setTextColor(107, 114, 128);
       }
-      pdf.text(issue.status.toUpperCase(), columns[4].x + columns[4].width/2, textY, { align: 'center' });
+      pdf.text(issue.status.toUpperCase(), columns[3].x + columns[3].width/2, textY, { align: 'center' });
       pdf.setTextColor(40, 40, 40);
       
       // Assigned To with text wrapping for long names
-      const maxAssignedToWidth = columns[5].width - 4;
+      const maxAssignedToWidth = columns[4].width - 4;
       const assignedToLines = pdf.splitTextToSize(assignedTo, maxAssignedToWidth);
-      pdf.text(assignedToLines[0], columns[5].x + 2, textY, { align: 'left' });
+      pdf.text(assignedToLines[0], columns[4].x + 2, textY, { align: 'left' });
       
       yPosition += rowHeight;
     }
