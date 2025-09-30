@@ -90,7 +90,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
         
         toast({
           title: "Success",
-          description: "Issue deleted successfully"
+          description: "RFI deleted successfully"
         });
       }
     } catch (error) {
@@ -160,8 +160,8 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
               .eq('id', id);
           }
           toast({
-            title: "Issues Updated",
-            description: `${selectedIds.length} issue${selectedIds.length > 1 ? 's' : ''} marked as resolved.`,
+            title: "RFIs Updated",
+            description: `${selectedIds.length} RFI${selectedIds.length > 1 ? 's' : ''} marked as resolved.`,
           });
           break;
           
@@ -174,8 +174,8 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
               .eq('id', id);
           }
           toast({
-            title: "Issues Archived",
-            description: `${selectedIds.length} issue${selectedIds.length > 1 ? 's' : ''} archived.`,
+            title: "RFIs Archived",
+            description: `${selectedIds.length} RFI${selectedIds.length > 1 ? 's' : ''} archived.`,
           });
           break;
           
@@ -186,8 +186,8 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
             .delete()
             .in('id', selectedIds);
           toast({
-            title: "Issues Deleted",
-            description: `${selectedIds.length} issue${selectedIds.length > 1 ? 's' : ''} deleted.`,
+            title: "RFIs Deleted",
+            description: `${selectedIds.length} RFI${selectedIds.length > 1 ? 's' : ''} deleted.`,
           });
           break;
           
@@ -198,7 +198,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
             await exportSelectedIssuesToPDF(selectedIds, reportId, projectId);
             toast({
               title: "Export Complete",
-              description: `Successfully exported ${selectedIds.length} selected issue${selectedIds.length > 1 ? 's' : ''} to PDF.`,
+              description: `Successfully exported ${selectedIds.length} selected RFI${selectedIds.length > 1 ? 's' : ''} to PDF.`,
             });
             setLoading(false);
           }
@@ -275,7 +275,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
             </div>
             <Button onClick={handleAddIssue}>
               <Plus className="w-4 h-4 mr-2" />
-              Add Issue
+              Add RFI
             </Button>
           </div>
 
@@ -376,7 +376,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
               <div className="mt-3 pt-3 border-t border-border">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-blue-900">
-                    {selectedItems.length} issue{selectedItems.length > 1 ? 's' : ''} selected
+                    {selectedItems.length} RFI{selectedItems.length > 1 ? 's' : ''} selected
                   </span>
                   <div className="flex items-center space-x-2">
                     <Button
