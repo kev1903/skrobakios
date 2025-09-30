@@ -96,13 +96,13 @@ export const FrappeGanttChart = ({
 
       // Create new Gantt chart - configured to align perfectly with data rows
       ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
-        header_height: 50, // Small header to prevent clipping
+        header_height: 28, // Match row height
         column_width: 30,
         step: 24,
         bar_height: 20, // 20px bar height for 28px row
         bar_corner_radius: 3,
         arrow_curve: 5,
-        padding: 18, // Padding to align bars with first row
+        padding: 0, // No padding for exact alignment
         date_format: 'YYYY-MM-DD',
         view_mode: 'Day',
         custom_popup_html: function(task: any) {
@@ -185,7 +185,7 @@ export const FrappeGanttChart = ({
           margin-top: 0 !important;
         }
         .gantt .grid-header {
-          height: 50px !important;
+          height: 28px !important;
         }
         .gantt .grid-row {
           height: 28px !important;
