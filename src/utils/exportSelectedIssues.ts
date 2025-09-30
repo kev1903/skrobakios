@@ -629,12 +629,12 @@ export const exportSelectedIssuesToPDF = async (
               if (issue.attachments.length > 1) {
                 pdf.setFillColor(0, 0, 0);
                 pdf.setDrawColor(0, 0, 0);
-                const badgeX = attachmentX + attachmentWidth - 15;
-                const badgeY = attachmentY + 5;
-                pdf.circle(badgeX, badgeY, 8, 'F');
-                pdf.setFontSize(8);
+                const badgeX = attachmentX + attachmentWidth - 10;
+                const badgeY = attachmentY + 4;
+                pdf.circle(badgeX, badgeY, 5, 'F');
+                pdf.setFontSize(6);
                 pdf.setTextColor(255, 255, 255);
-                pdf.text(`${attachmentIndex + 1}`, badgeX, badgeY + 2, { align: 'center' });
+                pdf.text(`${attachmentIndex + 1}`, badgeX, badgeY + 1.5, { align: 'center' });
                 pdf.setTextColor(0, 0, 0);
               }
             } catch (imageError) {
