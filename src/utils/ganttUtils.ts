@@ -55,8 +55,8 @@ export const calculateTaskPosition = (
   return {
     left: Math.max(0, daysSinceStart * settings.dayWidth),
     width: Math.max(settings.dayWidth, duration * settings.dayWidth),
-    top: taskIndex * settings.rowHeight + 4,
-    height: settings.rowHeight - 8
+    top: taskIndex * settings.rowHeight,
+    height: settings.rowHeight
   };
 };
 

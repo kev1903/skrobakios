@@ -24,16 +24,17 @@ export const GanttTaskBar: React.FC<GanttTaskBarProps> = ({
     // Stage bar - different styling
     return (
       <div
-        className="absolute cursor-pointer"
+        className="absolute cursor-pointer flex items-center"
         style={{
           left: position.left,
           top: position.top,
           width: position.width,
-          height: position.height
+          height: position.height,
+          padding: '4px 0'
         }}
         onClick={handleClick}
       >
-        <div className="h-full bg-slate-300 rounded flex items-center px-2 shadow-sm">
+        <div className="w-full h-full bg-slate-300 rounded flex items-center px-2 shadow-sm">
           <span className="text-xs font-semibold text-slate-700 truncate">
             {task.name}
           </span>
@@ -45,23 +46,24 @@ export const GanttTaskBar: React.FC<GanttTaskBarProps> = ({
   // Regular task bar
   return (
     <div
-      className="absolute cursor-pointer group"
+      className="absolute cursor-pointer group flex items-center"
       style={{
         left: position.left,
         top: position.top,
         width: position.width,
-        height: position.height
+        height: position.height,
+        padding: '4px 0'
       }}
       onClick={handleClick}
     >
       <div className={cn(
-        "h-full rounded-md flex items-center px-2 text-white text-xs font-medium shadow-sm transition-opacity group-hover:opacity-90",
+        "w-full h-full rounded-md flex items-center px-2 text-white text-xs font-medium shadow-sm transition-opacity group-hover:opacity-90",
         statusColor
       )}>
         {/* Progress overlay */}
         <div 
           className="absolute inset-0 bg-white/20 rounded-md transition-all duration-300"
-          style={{ width: `${task.progress}%` }}
+          style={{ width: `${task.progress}%`, margin: '4px 0' }}
         />
         
         {/* Assignee avatar */}
