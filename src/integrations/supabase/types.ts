@@ -2003,12 +2003,12 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
-          issue_number: string
           location: string | null
           priority: string
           project_id: string
           report_id: string | null
           resolved_date: string | null
+          rfi_number: string
           status: string
           title: string
           updated_at: string
@@ -2024,12 +2024,12 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
-          issue_number: string
           location?: string | null
           priority?: string
           project_id: string
           report_id?: string | null
           resolved_date?: string | null
+          rfi_number: string
           status?: string
           title: string
           updated_at?: string
@@ -2045,12 +2045,12 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
-          issue_number?: string
           location?: string | null
           priority?: string
           project_id?: string
           report_id?: string | null
           resolved_date?: string | null
+          rfi_number?: string
           status?: string
           title?: string
           updated_at?: string

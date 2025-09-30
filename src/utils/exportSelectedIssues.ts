@@ -88,7 +88,7 @@ interface IssueData {
   assigned_to?: string;
   created_at: string;
   due_date?: string;
-  issue_number?: string;
+  rfi_number?: string;
   attachments?: IssueAttachment[];
   profiles?: {
     first_name?: string;
@@ -146,7 +146,7 @@ export const exportSelectedIssuesToPDF = async (
       .from('issues')
       .select('*')
       .in('id', selectedIssueIds)
-      .order('issue_number', { ascending: true });
+      .order('rfi_number', { ascending: true });
 
     if (issuesError) throw issuesError;
 
@@ -492,7 +492,7 @@ export const exportSelectedIssuesToPDF = async (
       pdf.setFontSize(9);
       pdf.setTextColor(40, 40, 40);
       
-      const issueNumber = issue.issue_number || 'N/A';
+      const issueNumber = issue.rfi_number || 'N/A';
       const issueTitle = issue.title.length > 45 ? issue.title.substring(0, 45) + '...' : issue.title;
       const category = issue.category || 'N/A';
       const assignedTo = issue.assigned_to || 'Unassigned';
@@ -545,7 +545,7 @@ export const exportSelectedIssuesToPDF = async (
       pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(30, 30, 30);
-      const issueNumber = issue.issue_number || 'N/A';
+      const issueNumber = issue.rfi_number || 'N/A';
       pdf.text(`${issueNumber}. ${issue.title}`, 20, 45);
       
       // Issue status badge

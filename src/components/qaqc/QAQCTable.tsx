@@ -354,7 +354,7 @@ export const QAQCTable = ({
                 />
               </TableCell>
               <TableCell className="font-medium py-1 px-2 text-gray-500">
-                {item.auto_number || item.issue_number || '-'}
+                {item.auto_number || item.rfi_number || '-'}
               </TableCell>
               <TableCell colSpan={4} className="py-1 px-2 text-gray-600 font-semibold italic">
                 VOIDED
@@ -376,7 +376,7 @@ export const QAQCTable = ({
                 className={`hover:underline ${isOverdue ? 'text-red-600 hover:text-red-800' : 'text-blue-600 hover:text-blue-800'}`}
                 onClick={() => onNavigate?.(`qaqc-issue-report-detail?projectId=${item.project_id}&reportId=${item.report_id}`)}
               >
-                {item.auto_number || item.issue_number || '-'}
+                {item.auto_number || item.rfi_number || '-'}
               </button>
             </TableCell>
             <TableCell className="py-1 px-2">
