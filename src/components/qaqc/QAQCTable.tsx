@@ -133,6 +133,7 @@ export const QAQCTable = ({
   }
 
   const renderColumns = () => {
+    console.log('QAQCTable renderColumns - type:', type, 'data length:', data?.length);
     switch (type) {
       case 'checklists':
         return (
