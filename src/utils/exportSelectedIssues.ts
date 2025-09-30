@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
 
 // Helper function to load images and convert to data URL
-const loadImageAsDataUrl = (url: string): Promise<string> => {
+const loadImageAsDataUrl = (url: string, isLogo: boolean = false): Promise<string> => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -20,9 +20,16 @@ const loadImageAsDataUrl = (url: string): Promise<string> => {
         canvas.width = img.naturalWidth;
         canvas.height = img.naturalHeight;
         
+        // For logos, add white background to handle transparency issues
+        if (isLogo) {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        
         ctx.drawImage(img, 0, 0);
         
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+        const quality = isLogo ? 0.9 : 0.5;
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
         resolve(dataUrl);
       } catch (error) {
         reject(error);
@@ -78,6 +85,7 @@ interface IssueData {
   description?: string;
   location?: string;
   created_by: string;
+  assigned_to?: string;
   created_at: string;
   auto_number?: number;
   attachments?: IssueAttachment[];
@@ -122,7 +130,7 @@ export const exportSelectedIssuesToPDF = async (
     const { data: project, error: projectError } = await supabase
       .from('projects')
       .select(`
-        id, name, description,
+        id, name, description, project_id, banner_image, banner_position,
         companies!projects_company_id_fkey (
           id, name, logo_url, address, abn
         )
@@ -173,9 +181,19 @@ export const exportSelectedIssuesToPDF = async (
 
     const fullCompanyData = project?.companies;
     
-    // Logo dimensions calculation
-    let logoWidth = 40;
-    let logoHeight = 20;
+    // Logo dimensions calculation (reduced by 30%)
+    let logoWidth = 28; // 30% smaller than 40
+    let logoHeight = 14; // 30% smaller than 20
+    
+    // Try to use company logo if available, otherwise preload Skrobaki logo from uploads
+    let customLogoDataUrl: string | null = null;
+    if (!fullCompanyData?.logo_url) {
+      try {
+        customLogoDataUrl = await loadImageAsDataUrl('/lovable-uploads/0ebb3672-15b3-4c91-8157-7c45f2f190ac.png', true);
+      } catch (e) {
+        console.warn('Fallback Skrobaki logo not available:', e);
+      }
+    }
     
     if (fullCompanyData?.logo_url) {
       try {
@@ -187,54 +205,69 @@ export const exportSelectedIssuesToPDF = async (
         });
         
         const aspectRatio = img.naturalWidth / img.naturalHeight;
-        logoHeight = 20;
+        
+        // Reduce size by 50% then another 30% (total ~65% reduction) and maintain proper aspect ratio
+        logoHeight = 6.3; // 30% smaller than current 9px height
         logoWidth = logoHeight * aspectRatio;
         
-        if (logoWidth > 60) {
-          logoWidth = 60;
+        // If width exceeds maximum, constrain by width and recalculate height
+        const maxWidth = 60; // Reduced max width
+        if (logoWidth > maxWidth) {
+          logoWidth = maxWidth;
           logoHeight = logoWidth / aspectRatio;
+        }
+        
+        // Ensure minimum readable size (reduced by 30%)
+        if (logoHeight < 9.8) { // 30% smaller than original 14
+          logoHeight = 9.8;
+          logoWidth = logoHeight * aspectRatio;
         }
       } catch (error) {
         console.warn('Could not get logo dimensions, using default:', error);
-        logoWidth = 40;
-        logoHeight = 20;
+        logoWidth = 35; // 30% smaller than 50
+        logoHeight = 12.6; // 30% smaller than 18
       }
     }
 
     // Header and footer helper function
-    const addHeaderFooter = (pdf: jsPDF, pageNum: number, isFirstPage = false) => {
+    const addHeaderFooter = async (pdf: jsPDF, pageNum: number, isFirstPage = false) => {
+      // Header with company logo and info
       try {
         if (fullCompanyData?.logo_url) {
-          pdf.addImage(fullCompanyData.logo_url, 'PNG', 20, 10, logoWidth, logoHeight);
+          // Process logo with white background for better PDF appearance
+          const processedLogo = await loadImageAsDataUrl(fullCompanyData.logo_url, true);
+          // Center logo vertically in header space (header is ~28px high)
+          const logoY = 10 + (18 - logoHeight) / 2; // Center within available space
+          pdf.addImage(processedLogo, 'JPEG', 20, logoY, logoWidth, logoHeight);
           
-          pdf.setFontSize(12);
-          pdf.setFont('helvetica', 'bold');
-          pdf.setTextColor(40, 40, 40);
-          pdf.text(fullCompanyData.name, 25 + logoWidth, 17);
-        } else {
-          pdf.setFontSize(12);
-          pdf.setFont('helvetica', 'bold');
-          pdf.setTextColor(40, 40, 40);
-          pdf.text(fullCompanyData?.name || 'Company', 20, 17);
+          // Company logo only - no text
+        } else if (customLogoDataUrl) {
+          // Use fallback Skrobaki logo with proper aspect ratio and alignment
+          const processedLogo = await loadImageAsDataUrl(customLogoDataUrl, true);
+          // Skrobaki logo dimensions for proper aspect ratio (wider logo, reduced by 30%)
+          const skrobakiWidth = 22.75; // 30% smaller
+          const skrobakiHeight = 6.3; // 30% smaller
+          const logoY = 10 + (18 - skrobakiHeight) / 2; // Center vertically
+          pdf.addImage(processedLogo, 'JPEG', 20, logoY, skrobakiWidth, skrobakiHeight);
         }
       } catch (logoError) {
+        console.warn('Could not process logo, using company name:', logoError);
+        // Show minimal company name as fallback only
         pdf.setFontSize(12);
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(40, 40, 40);
-        pdf.text(fullCompanyData?.name || 'Company', 20, 17);
+        pdf.text(fullCompanyData?.name || 'Company', 20, 20); // Centered vertically
       }
       
-      pdf.setFontSize(12);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(40, 40, 40);
-      pdf.text('Selected Issues Export', pageWidth - 20, 17, { align: 'right' });
-      
+      // Reset text color
       pdf.setTextColor(0, 0, 0);
       
+      // Header separator line
       pdf.setDrawColor(200, 200, 200);
       pdf.setLineWidth(0.5);
       pdf.line(20, 28, pageWidth - 20, 28);
       
+      // Footer
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(100, 100, 100);
@@ -243,103 +276,164 @@ export const exportSelectedIssuesToPDF = async (
       pdf.setTextColor(0, 0, 0);
     };
 
-    // Cover Page
-    addHeaderFooter(pdf, pageNumber, true);
+    // Cover Page - Clean Table Format Layout
+    await addHeaderFooter(pdf, pageNumber, true);
     
-    // Add Skrobaki logo/branding to top left of cover page
-    try {
-      pdf.setFontSize(16);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(41, 128, 185); // Professional blue color
-      pdf.text('SKROBAKI', 20, 50);
-      
-      // Add geometric design element using rectangles to create a diamond
-      pdf.setFillColor(41, 128, 185);
-      pdf.setDrawColor(41, 128, 185);
-      // Create diamond shape using rotated rectangles
-      pdf.rect(24, 53, 8, 2, 'F'); // Horizontal bar
-      pdf.rect(27, 50, 2, 8, 'F'); // Vertical bar
-    } catch (logoError) {
-      console.warn('Could not add Skrobaki branding:', logoError);
+    // Start with proper spacing after header - moved banner up
+    let yPos = 35; // Moved up from 50
+    
+    // Project banner image - centered and properly sized
+    if (project.banner_image) {
+      try {
+        const getBannerDimensions = (url: string): Promise<{width: number, height: number}> => {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+            img.onerror = reject;
+            img.src = url;
+          });
+        };
+        
+        const bannerDimensions = await getBannerDimensions(project.banner_image);
+        const bannerAspectRatio = bannerDimensions.width / bannerDimensions.height;
+        
+        const coverBannerMargin = 30;
+        const coverBannerWidth = pageWidth - (2 * coverBannerMargin);
+        const bannerHeight = Math.min(coverBannerWidth / bannerAspectRatio, 150);
+        const actualBannerWidth = bannerHeight * bannerAspectRatio;
+        
+        // Center the banner horizontally
+        const bannerX = (pageWidth - actualBannerWidth) / 2;
+        
+        const compressedBanner = await loadImageAsDataUrl(project.banner_image);
+        pdf.addImage(
+          compressedBanner, 
+          'JPEG', 
+          bannerX, 
+          yPos, 
+          actualBannerWidth, 
+          bannerHeight
+        );
+        
+        yPos += bannerHeight + 40;
+      } catch (bannerError) {
+        console.warn('Could not add project banner to PDF:', bannerError);
+        yPos += 30;
+      }
+    } else {
+      yPos += 30;
     }
-    
-    let yPos = 85; // Start content below the logo
 
-    // Cover page content
-    if (fullCompanyData?.address) {
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(80, 80, 80);
-      pdf.text(fullCompanyData.address, pageWidth / 2, yPos, { align: 'center' });
-      yPos += 15;
-    }
+    // Project Information Table - Ultra compact format
+    const coverTableStartY = yPos;
+    const coverTableMargin = 40;
+    const coverTableWidth = pageWidth - (2 * coverTableMargin);
+    const leftColWidth = coverTableWidth * 0.4;
+    const rightColWidth = coverTableWidth * 0.6;
+    const coverRowHeight = 8; // Even smaller row height
     
-    // Completely skip any email rendering - check if company name contains email and don't display it
-    if (fullCompanyData?.name?.includes('@')) {
-      // Skip rendering any email content
-      console.log('Email detected in company name - skipping email display');
-    }
-    
-    if (fullCompanyData?.abn) {
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(60, 60, 60);
-      pdf.text(`ABN: ${fullCompanyData.abn}`, pageWidth / 2, yPos, { align: 'center' });
-      yPos += 20;
-    }
-
-    pdf.setFontSize(16);
+    // Table header
+    pdf.setFontSize(12);
     pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(30, 30, 30);
-    pdf.text(project.name, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 15;
-
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'normal');
     pdf.setTextColor(40, 40, 40);
-    pdf.text(`${report.title} - Selected Issues`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 20;
+    pdf.text('PROJECT DETAILS', coverTableMargin, coverTableStartY - 8);
+    
+    // Header underline
+    pdf.setDrawColor(150, 150, 150);
+    pdf.setLineWidth(0.8);
+    pdf.line(coverTableMargin, coverTableStartY - 3, pageWidth - coverTableMargin, coverTableStartY - 3);
+    
+    let currentY = coverTableStartY + 3;
+    
+    // Helper function to draw ultra compact table row
+    const drawTableRow = (label: string, value: string) => {
+      // No background - just plain white
+      
+      // Label column - very compact text
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(70, 70, 70);
+      pdf.text(label, coverTableMargin + 3, currentY + 5);
+      
+      // Value column - very compact text
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(40, 40, 40);
+      pdf.text(value, coverTableMargin + leftColWidth + 3, currentY + 5);
+      
+      // Very thin separator line
+      pdf.setDrawColor(240, 240, 240);
+      pdf.setLineWidth(0.1);
+      pdf.line(coverTableMargin, currentY + coverRowHeight, pageWidth - coverTableMargin, currentY + coverRowHeight);
+      
+      currentY += coverRowHeight;
+    };
 
+    // Get project data
+    const addressText = fullCompanyData?.address?.toString().trim();
+    const addressLooksLikeEmail = addressText ? /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/.test(addressText) : false;
+    const mainTitle = (addressText && !addressLooksLikeEmail) ? addressText : project.name;
+    
+    // Issue statistics
     const numberedIssues = typedIssues.map((issue, index) => ({
       ...issue,
       auto_number: index + 1
     }));
-
     const totalIssues = numberedIssues.length;
     const openIssues = numberedIssues.filter(issue => issue.status === 'open').length;
     const closedIssues = numberedIssues.filter(issue => issue.status === 'closed').length;
-
-    pdf.setFontSize(12);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(40, 40, 40);
-    pdf.text(`Selected Issues: ${totalIssues}`, pageWidth / 2, yPos, { align: 'center' });
-    yPos += 10;
-    pdf.text(`Open: ${openIssues} | Closed: ${closedIssues}`, pageWidth / 2, yPos, { align: 'center' });
+    
+    // Assignee data - Get assignees from RFIs/issues assigned_to field
+    const rfiAssigneeNames = new Set<string>();
+    typedIssues.forEach(issue => {
+      if (issue.assigned_to) {
+        rfiAssigneeNames.add(issue.assigned_to);
+      }
+    });
+    
+    const rfiAssigneesText = rfiAssigneeNames.size > 0 ? Array.from(rfiAssigneeNames).join(', ') : 'No assignees';
+    
+    // Draw table rows
+    drawTableRow('Project Name:', mainTitle);
+    drawTableRow('Project Number:', project.project_id || 'N/A');
+    drawTableRow('Report Type:', `${report.title} (Filtered Selection)`);
+    drawTableRow('Assignees:', rfiAssigneesText);
+    drawTableRow('Selected Issues:', totalIssues.toString());
+    drawTableRow('Open Issues:', openIssues.toString());
+    drawTableRow('Closed Issues:', closedIssues.toString());
+    drawTableRow('Register Version / Date:', `v1.0 / ${exportDate}`);
+    
+    // Final table border
+    pdf.setDrawColor(150, 150, 150);
+    pdf.setLineWidth(0.8);
+    pdf.line(coverTableMargin, currentY, pageWidth - coverTableMargin, currentY);
 
     // Start new page for issue summary table
     pdf.addPage();
     pageNumber++;
-    addHeaderFooter(pdf, pageNumber);
+    await addHeaderFooter(pdf, pageNumber);
     
+    // RFI table header
     pdf.setFontSize(18);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(30, 30, 30);
-    pdf.text('Selected Issues Summary', 20, 40);
+    pdf.text('RFI Summary', 20, 40);
     
     let yPosition = 55;
     
-    const rowHeight = 30;
-    const previewSize = 20;
+    // Table setup
+    const rowHeight = 35; // Increased row height for better text spacing
+    const previewSize = 16; // Reduced from 20 to fit narrower preview column
     const tableMargin = 20;
     const tableWidth = pageWidth - (2 * tableMargin);
     
+    // Column positions and widths - with Assigned To column
     const columns = [
-      { header: '#', x: tableMargin, width: tableWidth * 0.08, align: 'center' as const },
-      { header: 'Preview', x: tableMargin + (tableWidth * 0.08), width: tableWidth * 0.12, align: 'center' as const },
-      { header: 'Issue Title', x: tableMargin + (tableWidth * 0.2), width: tableWidth * 0.4, align: 'center' as const },
-      { header: 'Category', x: tableMargin + (tableWidth * 0.6), width: tableWidth * 0.15, align: 'center' as const },
-      { header: 'Status', x: tableMargin + (tableWidth * 0.75), width: tableWidth * 0.15, align: 'center' as const },
-      { header: 'Created By', x: tableMargin + (tableWidth * 0.9), width: tableWidth * 0.1, align: 'center' as const }
+      { header: '#', x: tableMargin, width: tableWidth * 0.05, align: 'center' as const },
+      { header: 'Preview', x: tableMargin + (tableWidth * 0.05), width: tableWidth * 0.1, align: 'center' as const },
+      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.15), width: tableWidth * 0.35, align: 'left' as const },
+      { header: 'Category', x: tableMargin + (tableWidth * 0.5), width: tableWidth * 0.12, align: 'center' as const },
+      { header: 'Status', x: tableMargin + (tableWidth * 0.62), width: tableWidth * 0.12, align: 'center' as const },
+      { header: 'Assigned To', x: tableMargin + (tableWidth * 0.74), width: tableWidth * 0.26, align: 'left' as const }
     ];
     
     // Draw table headers
@@ -451,14 +545,13 @@ export const exportSelectedIssuesToPDF = async (
       pdf.setTextColor(40, 40, 40);
       
       const issueNumber = issue.auto_number?.toString() || `${i + 1}`;
-      const issueTitle = issue.title.length > 45 ? issue.title.substring(0, 45) + '...' : issue.title;
+      const issueTitle = issue.title.length > 40 ? issue.title.substring(0, 40) + '...' : issue.title;
       const category = issue.category || 'N/A';
-      const createdByProfile = profileMap.get(issue.created_by);
-      const createdByName = createdByProfile ? `${createdByProfile.first_name || ''} ${createdByProfile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
+      const assignedTo = issue.assigned_to || 'Unassigned';
       
       const textY = yPosition + 15;
       pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
-      pdf.text(issueTitle, columns[2].x + columns[2].width/2, textY, { align: 'center' });
+      pdf.text(issueTitle, columns[2].x + 2, textY, { align: 'left' });
       pdf.text(category, columns[3].x + columns[3].width/2, textY, { align: 'center' });
       
       // Status with color coding
@@ -472,7 +565,10 @@ export const exportSelectedIssuesToPDF = async (
       pdf.text(issue.status.toUpperCase(), columns[4].x + columns[4].width/2, textY, { align: 'center' });
       pdf.setTextColor(40, 40, 40);
       
-      pdf.text(createdByName, columns[5].x + columns[5].width/2, textY, { align: 'center' });
+      // Assigned To with text wrapping for long names
+      const maxAssignedToWidth = columns[5].width - 4;
+      const assignedToLines = pdf.splitTextToSize(assignedTo, maxAssignedToWidth);
+      pdf.text(assignedToLines[0], columns[5].x + 2, textY, { align: 'left' });
       
       yPosition += rowHeight;
     }
