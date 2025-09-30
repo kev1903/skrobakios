@@ -20,7 +20,7 @@ export const GanttHeader: React.FC<GanttHeaderProps> = ({
     <div 
       ref={scrollRef}
       className="bg-gray-50 border-b border-gray-200 overflow-x-auto overflow-y-hidden sticky top-0 z-20 flex items-center"
-      style={{ height: '28px' }}
+      style={{ height: '28px', maxHeight: '28px', minHeight: '28px' }}
     >
       <div style={{ width: totalWidth, minWidth: totalWidth }} className="flex h-full">
         {/* Combined Month/Day Headers */}
