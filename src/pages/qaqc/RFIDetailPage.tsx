@@ -7,6 +7,7 @@ import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { ArrowLeft, HelpCircle, Calendar, User, FileText, ClipboardList, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
 
 interface RFIDetailPageProps {
   onNavigate: (page: string) => void;
@@ -28,87 +29,47 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
           const fetchedProject = await getProject(projectId);
           setProject(fetchedProject);
           
-          // Mock comprehensive RFI report data
-          const mockReport = {
-            id: rfiId,
-            rfi_number: 'RFI-001',
-            title: 'Foundation Design Clarification Request',
-            priority: 'high',
-            status: 'open',
-            requested_by: 'John Smith',
-            assigned_to: 'Design Team',
-            description: 'Request for clarification on foundation design specifications for Building A, including reinforcement details and concrete grade requirements.',
-            location: 'Building A - Foundation',
-            date_requested: '2024-01-15',
-            due_date: '2024-01-25',
-            created_at: '2024-01-15T10:30:00Z',
+          // Fetch the actual RFI/issue from the database
+          const { data: issue, error: issueError } = await supabase
+            .from('issues')
+            .select('*')
+            .eq('id', rfiId)
+            .single();
+          
+          if (issueError) throw issueError;
+          
+          if (issue) {
+            // Fetch all issues in the same report to calculate auto_number
+            const { data: allIssues, error: allIssuesError } = await supabase
+              .from('issues')
+              .select('id')
+              .eq('report_id', issue.report_id)
+              .order('created_at', { ascending: true });
             
-            // RFI sections with multiple questions
-            sections: [
-              {
-                title: 'Foundation Design Questions',
-                items: [
-                  {
-                    id: 1,
-                    question: 'What is the required concrete grade for foundation footings?',
-                    category: 'Materials',
-                    status: 'answered',
-                    response: 'Use C32/40 concrete grade as per structural drawings Sheet S-101',
-                    answered_by: 'Senior Engineer',
-                    answered_date: '2024-01-17'
-                  },
-                  {
-                    id: 2,
-                    question: 'Clarification needed on reinforcement lap splice lengths in foundation walls',
-                    category: 'Reinforcement',
-                    status: 'pending',
-                    response: null,
-                    answered_by: null,
-                    answered_date: null
-                  }
-                ]
+            if (allIssuesError) throw allIssuesError;
+            
+            // Calculate the auto_number for this issue
+            const autoNumber = (allIssues || []).findIndex(i => i.id === rfiId) + 1;
+            
+            // Set the report with auto_number and map fields correctly
+            setReport({
+              ...issue,
+              auto_number: autoNumber,
+              rfi_number: autoNumber.toString(), // Use auto_number as display number
+              requested_by: issue.created_by || 'Unknown',
+              date_requested: issue.created_at,
+              sections: [],
+              summary: {
+                total_questions: 0,
+                answered: 0,
+                pending: 0,
+                overdue: 0
               },
-              {
-                title: 'Site Conditions',
-                items: [
-                  {
-                    id: 3,
-                    question: 'How should we proceed with foundation work during winter conditions?',
-                    category: 'Construction',
-                    status: 'answered',
-                    response: 'Follow cold weather concreting procedures as outlined in specification section 03300. Minimum curing temperature 5°C.',
-                    answered_by: 'Project Manager',
-                    answered_date: '2024-01-16'
-                  },
-                  {
-                    id: 4,
-                    question: 'Are there any utility conflicts shown on the drawings?',
-                    category: 'Coordination',
-                    status: 'pending',
-                    response: null,
-                    answered_by: null,
-                    answered_date: null
-                  }
-                ]
-              }
-            ],
-            
-            attachments: [
-              { name: 'foundation_plan.pdf', url: '#' },
-              { name: 'site_photos.jpg', url: '#' },
-              { name: 'soil_report.pdf', url: '#' }
-            ],
-            
-            summary: {
-              total_questions: 4,
-              answered: 2,
-              pending: 2,
-              overdue: 0
-            }
-          };
-          setReport(mockReport);
+              attachments: issue.attachments || []
+            });
+          }
         } catch (error) {
-          console.error('Failed to fetch data:', error);
+          console.error('Error fetching RFI:', error);
         } finally {
           setIsLoading(false);
         }
@@ -213,11 +174,15 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Date Requested</label>
-                    <p className="text-foreground">{format(new Date(report.date_requested), 'MMM dd, yyyy')}</p>
+                    <p className="text-foreground">
+                      {report.date_requested ? format(new Date(report.date_requested), 'MMM dd, yyyy') : 'N/A'}
+                    </p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Due Date</label>
-                    <p className="text-foreground">{format(new Date(report.due_date), 'MMM dd, yyyy')}</p>
+                    <p className="text-foreground">
+                      {report.due_date ? format(new Date(report.due_date), 'MMM dd, yyyy') : 'Not Set'}
+                    </p>
                   </div>
                 </div>
                 <div>
