@@ -762,6 +762,16 @@ export const exportSelectedIssuesToPDF = async (
       pdf.text(createdByName2, detailsX, detailsY);
       detailsY += 5;
       
+      // Assigned to
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Assigned to:', detailsX, detailsY);
+      detailsY += 5;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(issue.assigned_to || 'Unassigned', detailsX, detailsY);
+      detailsY += 5;
+      
       // Created date
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
