@@ -565,7 +565,7 @@ export const exportSelectedIssuesToPDF = async (
       pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(30, 30, 30);
-      const issueNumber = issue.rfi_number || 'N/A';
+      const issueNumber = issue.auto_number || `${i + 1}`;
       pdf.text(`${issueNumber}. ${issue.title}`, 20, 45);
       
       // Issue status badge

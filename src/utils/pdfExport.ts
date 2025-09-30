@@ -183,8 +183,11 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
 
     if (issuesError) throw issuesError;
 
-    // Type the issues properly
-    const typedIssues = (issues || []) as unknown as IssueData[];
+    // Type the issues properly and add auto_numbers based on their order
+    const typedIssues = ((issues || []) as unknown as IssueData[]).map((issue, index) => ({
+      ...issue,
+      auto_number: index + 1
+    }));
 
     // Build profile map by user_id for created_by only
     const userIds = Array.from(new Set(typedIssues.map(i => i.created_by).filter(Boolean)));
@@ -409,11 +412,8 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     const addressLooksLikeEmail = addressText ? /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/.test(addressText) : false;
     const mainTitle = (addressText && !addressLooksLikeEmail) ? addressText : project.name;
     
-    // Issue statistics
-    const numberedIssues = typedIssues.map((issue, index) => ({
-      ...issue,
-      auto_number: index + 1
-    }));
+    // Issue statistics - use already numbered issues
+    const numberedIssues = typedIssues; // Already has auto_number from above
     const totalIssues = numberedIssues.length;
     const openIssues = numberedIssues.filter(issue => issue.status === 'open').length;
     const closedIssues = numberedIssues.filter(issue => issue.status === 'closed').length;
