@@ -32,6 +32,7 @@ const getStatusColor = (status: string, type: string) => {
     active: 'bg-blue-100 text-blue-800',
     completed: 'bg-green-100 text-green-800',
     closed: 'bg-gray-100 text-gray-800',
+    voided: 'bg-gray-400 text-gray-700',
     
     // RFI specific
     open: 'bg-yellow-100 text-yellow-800',
@@ -346,7 +347,28 @@ export const QAQCTable = ({
         );
       
       case 'issues':
-        const isOverdue = item.due_date && new Date(item.due_date) < new Date() && item.status !== 'closed' && item.status !== 'resolved';
+        const isOverdue = item.due_date && new Date(item.due_date) < new Date() && item.status !== 'closed' && item.status !== 'resolved' && item.status !== 'voided';
+        const isVoided = item.status === 'voided';
+        
+        if (isVoided) {
+          return (
+            <TableRow key={item.id} className="h-10 bg-gray-100">
+              <TableCell className="py-1 px-2">
+                <Checkbox
+                  checked={selectedItems.includes(item.id)}
+                  onCheckedChange={(checked) => handleSelectItem(item.id, checked as boolean)}
+                />
+              </TableCell>
+              <TableCell className="font-medium py-1 px-2 text-gray-500">
+                {item.auto_number || item.issue_number || '-'}
+              </TableCell>
+              <TableCell colSpan={6} className="py-1 px-2 text-gray-600 font-semibold italic">
+                VOIDED
+              </TableCell>
+            </TableRow>
+          );
+        }
+        
         return (
           <TableRow key={item.id} className={`h-10 ${isOverdue ? 'bg-red-50' : ''}`}>
             <TableCell className="py-1 px-2">

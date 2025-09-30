@@ -464,6 +464,7 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                         <SelectItem value="in_progress">In Progress</SelectItem>
                         <SelectItem value="resolved">Resolved</SelectItem>
                         <SelectItem value="closed">Closed</SelectItem>
+                        <SelectItem value="voided">Voided</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
