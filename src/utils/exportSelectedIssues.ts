@@ -750,18 +750,6 @@ export const exportSelectedIssuesToPDF = async (
       pdf.text(issue.category || 'N/A', detailsX, detailsY);
       detailsY += 5;
       
-      // Created by
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(60, 60, 60);
-      pdf.text('Created by:', detailsX, detailsY);
-      detailsY += 5;
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(80, 80, 80);
-      const createdByProfile2 = profileMap.get(issue.created_by);
-      const createdByName2 = createdByProfile2 ? `${createdByProfile2.first_name || ''} ${createdByProfile2.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
-      pdf.text(createdByName2, detailsX, detailsY);
-      detailsY += 5;
-      
       // Assigned to
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
@@ -770,20 +758,6 @@ export const exportSelectedIssuesToPDF = async (
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
       pdf.text(issue.assigned_to || 'Unassigned', detailsX, detailsY);
-      detailsY += 5;
-      
-      // Created date
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(60, 60, 60);
-      pdf.text('Created:', detailsX, detailsY);
-      detailsY += 5;
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(80, 80, 80);
-      pdf.text(new Date(issue.created_at).toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }), detailsX, detailsY);
       detailsY += 5;
       
       // Due date
