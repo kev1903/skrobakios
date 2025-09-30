@@ -461,7 +461,7 @@ export const exportSelectedIssuesToPDF = async (
       if (yPosition + rowHeight > pageHeight - 40) {
         pdf.addPage();
         pageNumber++;
-        addHeaderFooter(pdf, pageNumber);
+        await addHeaderFooter(pdf, pageNumber);
         yPosition = 40;
         
         // Re-draw headers
@@ -533,7 +533,7 @@ export const exportSelectedIssuesToPDF = async (
       
       pdf.addPage();
       pageNumber++;
-      addHeaderFooter(pdf, pageNumber);
+      await addHeaderFooter(pdf, pageNumber);
       
       // Issue header
       pdf.setFontSize(16);
