@@ -87,6 +87,7 @@ interface IssueData {
   created_by: string;
   assigned_to?: string;
   created_at: string;
+  due_date?: string;
   auto_number?: number;
   attachments?: IssueAttachment[];
   profiles?: {
@@ -424,13 +425,14 @@ export const exportSelectedIssuesToPDF = async (
     const tableMargin = 20;
     const tableWidth = pageWidth - (2 * tableMargin);
     
-    // Column positions and widths - removed Preview column
+    // Column positions and widths - added Due Date column
     const columns = [
-      { header: '#', x: tableMargin, width: tableWidth * 0.06, align: 'center' as const },
-      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.06), width: tableWidth * 0.48, align: 'left' as const },
-      { header: 'Category', x: tableMargin + (tableWidth * 0.54), width: tableWidth * 0.14, align: 'center' as const },
-      { header: 'Status', x: tableMargin + (tableWidth * 0.68), width: tableWidth * 0.12, align: 'center' as const },
-      { header: 'Assigned To', x: tableMargin + (tableWidth * 0.8), width: tableWidth * 0.2, align: 'left' as const }
+      { header: '#', x: tableMargin, width: tableWidth * 0.05, align: 'center' as const },
+      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.05), width: tableWidth * 0.38, align: 'left' as const },
+      { header: 'Category', x: tableMargin + (tableWidth * 0.43), width: tableWidth * 0.12, align: 'center' as const },
+      { header: 'Status', x: tableMargin + (tableWidth * 0.55), width: tableWidth * 0.10, align: 'center' as const },
+      { header: 'Due Date', x: tableMargin + (tableWidth * 0.65), width: tableWidth * 0.13, align: 'center' as const },
+      { header: 'Assigned To', x: tableMargin + (tableWidth * 0.78), width: tableWidth * 0.22, align: 'left' as const }
     ];
     
     // Draw table headers
@@ -490,14 +492,19 @@ export const exportSelectedIssuesToPDF = async (
         pdf.rect(20, yPosition, pageWidth - 40, rowHeight, 'F');
       }
       
-      // Draw issue data - removed preview column section
+      // Draw issue data - added Due Date column
       pdf.setFontSize(9);
       pdf.setTextColor(40, 40, 40);
       
       const issueNumber = issue.auto_number?.toString() || `${i + 1}`;
-      const issueTitle = issue.title.length > 55 ? issue.title.substring(0, 55) + '...' : issue.title;
+      const issueTitle = issue.title.length > 45 ? issue.title.substring(0, 45) + '...' : issue.title;
       const category = issue.category || 'N/A';
       const assignedTo = issue.assigned_to || 'Unassigned';
+      const dueDate = issue.due_date ? new Date(issue.due_date).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }) : 'Not Set';
       
       const textY = yPosition + (rowHeight / 2) + 3.5; // Vertically centered accounting for baseline
       pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
@@ -515,9 +522,12 @@ export const exportSelectedIssuesToPDF = async (
       pdf.text(issue.status.toUpperCase(), columns[3].x + columns[3].width/2, textY, { align: 'center' });
       pdf.setTextColor(40, 40, 40);
       
+      // Due Date
+      pdf.text(dueDate, columns[4].x + columns[4].width/2, textY, { align: 'center' });
+      
       // Assigned To
-      const assignedToText = assignedTo.length > 22 ? assignedTo.substring(0, 22) + '...' : assignedTo;
-      pdf.text(assignedToText, columns[4].x + 2, textY, { align: 'left' });
+      const assignedToText = assignedTo.length > 20 ? assignedTo.substring(0, 20) + '...' : assignedTo;
+      pdf.text(assignedToText, columns[5].x + 2, textY, { align: 'left' });
       
       // Draw separator line
       pdf.setDrawColor(240, 240, 240);
@@ -746,6 +756,21 @@ export const exportSelectedIssuesToPDF = async (
         month: 'long',
         day: 'numeric'
       }), detailsX, detailsY);
+      detailsY += 5;
+      
+      // Due date
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Due Date:', detailsX, detailsY);
+      detailsY += 5;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      const dueDateText = issue.due_date ? new Date(issue.due_date).toLocaleDateString('en-GB', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }) : 'Not Set';
+      pdf.text(dueDateText, detailsX, detailsY);
       
       // Comments section placeholder
       if (detailsY < 200) {
