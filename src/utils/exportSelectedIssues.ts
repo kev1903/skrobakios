@@ -419,16 +419,16 @@ export const exportSelectedIssuesToPDF = async (
     
     let yPosition = 55;
     
-    // Table setup - compact formatting
-    const rowHeight = 12; // Minimum row height as requested
+    // Table setup - compact formatting with proper spacing
+    const rowHeight = 10; // Very compact row height
     const tableMargin = 20;
     const tableWidth = pageWidth - (2 * tableMargin);
     
     // Column positions and widths - removed Preview column
     const columns = [
-      { header: '#', x: tableMargin, width: tableWidth * 0.08, align: 'center' as const },
-      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.08), width: tableWidth * 0.45, align: 'left' as const },
-      { header: 'Category', x: tableMargin + (tableWidth * 0.53), width: tableWidth * 0.15, align: 'center' as const },
+      { header: '#', x: tableMargin, width: tableWidth * 0.06, align: 'center' as const },
+      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.06), width: tableWidth * 0.48, align: 'left' as const },
+      { header: 'Category', x: tableMargin + (tableWidth * 0.54), width: tableWidth * 0.14, align: 'center' as const },
       { header: 'Status', x: tableMargin + (tableWidth * 0.68), width: tableWidth * 0.12, align: 'center' as const },
       { header: 'Assigned To', x: tableMargin + (tableWidth * 0.8), width: tableWidth * 0.2, align: 'left' as const }
     ];
@@ -487,7 +487,7 @@ export const exportSelectedIssuesToPDF = async (
       
       if (i % 2 === 0) {
         pdf.setFillColor(252, 253, 254);
-        pdf.rect(20, yPosition - 5, pageWidth - 40, rowHeight, 'F');
+        pdf.rect(20, yPosition - 3, pageWidth - 40, rowHeight, 'F');
       }
       
       // Draw issue data - removed preview column section
@@ -495,11 +495,11 @@ export const exportSelectedIssuesToPDF = async (
       pdf.setTextColor(40, 40, 40);
       
       const issueNumber = issue.auto_number?.toString() || `${i + 1}`;
-      const issueTitle = issue.title.length > 50 ? issue.title.substring(0, 50) + '...' : issue.title;
+      const issueTitle = issue.title.length > 55 ? issue.title.substring(0, 55) + '...' : issue.title;
       const category = issue.category || 'N/A';
       const assignedTo = issue.assigned_to || 'Unassigned';
       
-      const textY = yPosition + 8; // Adjusted for smaller row height
+      const textY = yPosition + 6; // Vertically centered in 10px row
       pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
       pdf.text(issueTitle, columns[1].x + 2, textY, { align: 'left' });
       pdf.text(category, columns[2].x + columns[2].width/2, textY, { align: 'center' });
@@ -515,10 +515,14 @@ export const exportSelectedIssuesToPDF = async (
       pdf.text(issue.status.toUpperCase(), columns[3].x + columns[3].width/2, textY, { align: 'center' });
       pdf.setTextColor(40, 40, 40);
       
-      // Assigned To with text wrapping for long names
-      const maxAssignedToWidth = columns[4].width - 4;
-      const assignedToLines = pdf.splitTextToSize(assignedTo, maxAssignedToWidth);
-      pdf.text(assignedToLines[0], columns[4].x + 2, textY, { align: 'left' });
+      // Assigned To
+      const assignedToText = assignedTo.length > 22 ? assignedTo.substring(0, 22) + '...' : assignedTo;
+      pdf.text(assignedToText, columns[4].x + 2, textY, { align: 'left' });
+      
+      // Draw separator line
+      pdf.setDrawColor(240, 240, 240);
+      pdf.setLineWidth(0.3);
+      pdf.line(20, yPosition + rowHeight - 3, pageWidth - 20, yPosition + rowHeight - 3);
       
       yPosition += rowHeight;
     }
