@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { QAQCTable } from '@/components/qaqc/QAQCTable';
-import { Plus, ArrowLeft, AlertTriangle, CheckCircle, Archive, Download, Trash2 } from 'lucide-react';
+import { Plus, ArrowLeft, AlertTriangle, CheckCircle, Archive, Download, Trash2, Filter } from 'lucide-react';
 import { useIssueReport } from '@/hooks/useQAQCData';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { exportIssueReportToPDF } from '@/utils/pdfExport';
 import { exportSelectedIssuesToPDF } from '@/utils/exportSelectedIssues';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface IssueReportDetailPageProps {
   onNavigate: (page: string) => void;
@@ -26,6 +27,8 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
   const [issues, setIssues] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [assignedToFilter, setAssignedToFilter] = useState<string>('all');
   const { toast } = useToast();
 
   // Debug logging
@@ -121,6 +124,26 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
     }
     setLoading(false);
   };
+
+  // Filter issues based on selected filters
+  const filteredIssues = useMemo(() => {
+    return issues.filter(issue => {
+      const matchesStatus = statusFilter === 'all' || issue.status === statusFilter;
+      const matchesAssigned = assignedToFilter === 'all' || issue.reported_by === assignedToFilter;
+      return matchesStatus && matchesAssigned;
+    });
+  }, [issues, statusFilter, assignedToFilter]);
+
+  // Get unique values for filters
+  const uniqueStatuses = useMemo(() => {
+    const statuses = new Set(issues.map(issue => issue.status).filter(Boolean));
+    return Array.from(statuses);
+  }, [issues]);
+
+  const uniqueAssignedTo = useMemo(() => {
+    const assigned = new Set(issues.map(issue => issue.reported_by).filter(Boolean));
+    return Array.from(assigned);
+  }, [issues]);
 
   const handleBack = () => onNavigate(`project-qaqc?projectId=${projectId}&tab=issues`);
   const handleAddIssue = () => onNavigate(`qaqc-issue-create?projectId=${projectId}&reportId=${reportId}`);
@@ -293,6 +316,61 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
               </div>
             </div>
 
+            {/* Filters Section */}
+            <div className="mt-3 pt-3 border-t border-border">
+              <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">Filters:</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-muted-foreground">Status:</label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="h-8 w-[130px] bg-background">
+                      <SelectValue placeholder="All statuses" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="all">All statuses</SelectItem>
+                      {uniqueStatuses.map(status => (
+                        <SelectItem key={status} value={status}>
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-muted-foreground">Assigned to:</label>
+                  <Select value={assignedToFilter} onValueChange={setAssignedToFilter}>
+                    <SelectTrigger className="h-8 w-[150px] bg-background">
+                      <SelectValue placeholder="All users" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="all">All users</SelectItem>
+                      {uniqueAssignedTo.map(user => (
+                        <SelectItem key={user} value={user}>
+                          {user}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {(statusFilter !== 'all' || assignedToFilter !== 'all') && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setStatusFilter('all');
+                      setAssignedToFilter('all');
+                    }}
+                    className="h-8 text-xs"
+                  >
+                    Clear Filters
+                  </Button>
+                )}
+              </div>
+            </div>
+
             {/* Bulk Actions - Show when items are selected */}
             {selectedItems.length > 0 && (
               <div className="mt-3 pt-3 border-t border-border">
@@ -354,7 +432,7 @@ export const IssueReportDetailPage = ({ onNavigate }: IssueReportDetailPageProps
 
           <div className="bg-white rounded-lg shadow">
             <QAQCTable 
-              data={issues} 
+              data={filteredIssues} 
               type="issues" 
               isLoading={loading} 
               onNavigate={onNavigate} 
