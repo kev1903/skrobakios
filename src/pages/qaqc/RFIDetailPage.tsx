@@ -184,6 +184,13 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                     <p className="text-foreground">{report.requested_by}</p>
                   </div>
                   <div>
+                    <label className="text-sm font-medium text-muted-foreground">Assigned To</label>
+                    <div className="flex items-center space-x-2">
+                      <User className="w-4 h-4 text-muted-foreground" />
+                      <p className="text-foreground">{report.assigned_to || 'Unassigned'}</p>
+                    </div>
+                  </div>
+                  <div>
                     <label className="text-sm font-medium text-muted-foreground">Date Requested</label>
                     <p className="text-foreground">
                       {report.date_requested ? format(new Date(report.date_requested), 'MMM dd, yyyy') : 'N/A'}
