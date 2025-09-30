@@ -175,10 +175,8 @@ export const QAQCTable = ({
               </TableHead>
               <TableHead>Number</TableHead>
               <TableHead>Title</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Severity</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Reported By</TableHead>
+              <TableHead>Assigned To</TableHead>
               <TableHead>Due Date</TableHead>
               <TableHead className="w-12"></TableHead>
             </TableRow>
@@ -358,7 +356,7 @@ export const QAQCTable = ({
               <TableCell className="font-medium py-1 px-2 text-gray-500">
                 {item.auto_number || item.issue_number || '-'}
               </TableCell>
-              <TableCell colSpan={6} className="py-1 px-2 text-gray-600 font-semibold italic">
+              <TableCell colSpan={4} className="py-1 px-2 text-gray-600 font-semibold italic">
                 VOIDED
               </TableCell>
             </TableRow>
@@ -389,14 +387,10 @@ export const QAQCTable = ({
                 {item.title}
               </button>
             </TableCell>
-            <TableCell className={`capitalize py-1 px-2 ${isOverdue ? 'text-red-600' : ''}`}>{item.type?.replace('_', ' ') || '-'}</TableCell>
-            <TableCell className="py-1 px-2">
-              <Badge className={getSeverityColor(item.severity)}>{item.severity}</Badge>
-            </TableCell>
             <TableCell className="py-1 px-2">
               <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
             </TableCell>
-            <TableCell className={`py-1 px-2 ${isOverdue ? 'text-red-600' : ''}`}>{item.reported_by}</TableCell>
+            <TableCell className={`py-1 px-2 ${isOverdue ? 'text-red-600' : ''}`}>{item.assigned_to || '-'}</TableCell>
             <TableCell className={`py-1 px-2 ${isOverdue ? 'text-red-600 font-semibold' : ''}`}>{formatDate(item.due_date)}</TableCell>
             <TableCell className="py-1 px-2">
               <DropdownMenu>
