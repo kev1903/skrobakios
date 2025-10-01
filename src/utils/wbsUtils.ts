@@ -144,12 +144,12 @@ export const generateWBSId = (parentId?: string, wbsItems: WBSItem[] = []): stri
     const rootItems = flat.filter(i => 
       i.parent_id == null || 
       i.level === 0 || 
-      (i.wbs_id && i.wbs_id.endsWith('.0'))
+      (i.wbs_id && !i.wbs_id.includes('.'))
     );
     
     // Sort by WBS number to ensure we get the correct next number
     const sortedRoots = rootItems
-      .map(item => parseInt((item.wbs_id || '0.0').split('.')[0], 10))
+      .map(item => parseInt(item.wbs_id || '0', 10))
       .filter(n => !isNaN(n))
       .sort((a, b) => a - b);
     
@@ -163,7 +163,7 @@ export const generateWBSId = (parentId?: string, wbsItems: WBSItem[] = []): stri
       }
     }
     
-    return `${nextNum}.0`;
+    return `${nextNum}`;
   }
 
   // Find parent to get its WBS ID
@@ -200,11 +200,10 @@ export const generateWBSId = (parentId?: string, wbsItems: WBSItem[] = []): stri
       }
     }
     
-    const parentBase = parent.wbs_id.endsWith('.0') ? parent.wbs_id.slice(0, -2) : parent.wbs_id;
-    return `${parentBase}.${nextNum}`;
+    return `${parent.wbs_id}.${nextNum}`;
   }
 
-  return '1.0';
+  return '1';
 };
 
 // Transform flat database data into hierarchical structure (robust to bad parent_id/level)
