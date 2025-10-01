@@ -514,9 +514,9 @@ export const WBSTimeView = ({
         
         {/* Right Column (Gantt Chart) - Enhanced */}
         <ResizablePanel defaultSize={40} minSize={30} maxSize={60}>
-          <div className="h-full flex flex-col">
+          <div className="h-full w-full flex flex-col bg-white">
             {/* Gantt Chart Content - Professional aligned with data rows */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 w-full overflow-auto">
               <FrappeGanttChart
                 items={items}
                 onDateChange={handleGanttDateChange}

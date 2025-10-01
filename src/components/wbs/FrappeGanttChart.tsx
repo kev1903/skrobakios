@@ -199,13 +199,20 @@ export const FrappeGanttChart = ({
   }, []);
 
   return (
-    <div className="h-full w-full overflow-auto bg-white">
-      <div ref={ganttRef} className="min-h-full" />
+    <div className="h-full w-full bg-white flex flex-col">
+      <div ref={ganttRef} className="flex-1 w-full" style={{ minHeight: '400px' }} />
       <style>{`
         /* Professional Gantt Chart Styling */
         .gantt-container {
           font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
           font-size: 11px !important;
+          overflow: visible !important;
+        }
+        
+        /* Ensure SVG is visible */
+        .gantt svg {
+          display: block !important;
+          overflow: visible !important;
         }
         
         /* Enhanced Header styling - Professional PM Tool Look */
