@@ -91,8 +91,8 @@ export const WBSLeftPanel = ({
               const indentWidth = indentLevel * 16; // 16px per level, supporting up to 5 levels (0-4)
               const isExpanded = item.isExpanded !== false; // Default to true if not specified
               
-              // Debug logging for chevron visibility
-              console.log(`🔍 Item ${item.id} (${item.name}) - Level: ${item.level}, HasChildren: ${itemHasChildren}, IsExpanded: ${isExpanded}`);
+              // Calculate sequential WBS number based on display order (all items in the full list)
+              const sequentialWBSNumber = items.findIndex(i => i.id === item.id) + 1;
               
               return (
                 <div key={item.id} className="contents">
@@ -132,7 +132,7 @@ export const WBSLeftPanel = ({
                         </div>
 
                         <div className="px-3 flex items-center h-full text-xs text-slate-600 font-medium">
-                          {(item as any).wbs_id || '-'}
+                          {sequentialWBSNumber}
                         </div>
                         
                         <div className="px-3 flex items-center h-full font-medium text-foreground text-xs" style={{ paddingLeft: `${12 + indentWidth}px` }}>
