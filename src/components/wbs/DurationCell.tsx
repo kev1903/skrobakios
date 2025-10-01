@@ -53,7 +53,7 @@ export const DurationCell = ({
         onChange={(e) => setInputValue(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
-        className="w-full h-auto text-xs p-1 text-center border-0 bg-transparent focus:bg-white focus:border focus:ring-1 self-end"
+        className="w-full h-6 text-xs px-2 font-medium border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
         autoFocus
         type="number"
         min="0"
@@ -63,7 +63,7 @@ export const DurationCell = ({
 
   return (
     <div
-      className={`w-full h-full flex items-end justify-start rounded px-1 ${
+      className={`w-full h-full flex items-center justify-start rounded px-1 hover:bg-slate-100 transition-colors ${
         isEditable ? 'cursor-pointer' : 'cursor-default opacity-60'
       } ${className}`}
       onClick={() => {
@@ -74,7 +74,7 @@ export const DurationCell = ({
       }}
       title="Click to edit duration (days)"
     >
-      <span className="text-xs leading-none text-muted-foreground">
+      <span className="text-xs font-medium text-slate-700">
         {value > 0 ? `${value}d` : '-'}
       </span>
     </div>

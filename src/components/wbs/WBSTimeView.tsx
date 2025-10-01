@@ -4,6 +4,7 @@ import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
 import { WBSToolbar } from './WBSToolbar';
 import { FrappeGanttChart } from './FrappeGanttChart';
+import { TimeViewHeader } from './TimeViewHeader';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { DropResult } from 'react-beautiful-dnd';
 import { WBSItem } from '@/types/wbs';
@@ -54,8 +55,19 @@ export const WBSTimeView = ({
     underline: false,
     fontSize: "12"
   });
+  const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('day');
+  const [showCriticalPath, setShowCriticalPath] = useState(false);
+  const [showBaseline, setShowBaseline] = useState(false);
   const isSyncingRef = useRef(false);
   const isHorizontalSyncingRef = useRef(false);
+
+  // Calculate project progress
+  const projectProgress = React.useMemo(() => {
+    const itemsWithProgress = items.filter(item => item.level === 2); // Only elements
+    if (itemsWithProgress.length === 0) return 0;
+    const totalProgress = itemsWithProgress.reduce((sum, item) => sum + (item.progress || 0), 0);
+    return Math.round(totalProgress / itemsWithProgress.length);
+  }, [items]);
 
   // Master scroll handler - Timeline section controls all scrolling
   const handleMasterScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
@@ -357,6 +369,17 @@ export const WBSTimeView = ({
 
   return (
     <div className="h-full w-full bg-white flex flex-col">
+      {/* Enhanced Time View Header */}
+      <TimeViewHeader
+        projectProgress={projectProgress}
+        showCriticalPath={showCriticalPath}
+        showBaseline={showBaseline}
+        onToggleCriticalPath={() => setShowCriticalPath(!showCriticalPath)}
+        onToggleBaseline={() => setShowBaseline(!showBaseline)}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
+
       {/* Toolbar */}
       <WBSToolbar
         onAddRow={handleAddRow}
@@ -383,14 +406,16 @@ export const WBSTimeView = ({
         {/* Left Column (WBS + Names) */}
         <ResizablePanel defaultSize={25} minSize={15} maxSize={35}>
           <div className="h-full flex flex-col">
-            {/* Left Header */}
-            <div className="h-24 bg-slate-100/70 border-b border-slate-200 border-r border-gray-200 sticky top-0 z-40">
-              <div className="px-2 py-1 text-xs font-medium text-slate-700 h-full flex items-center">
-                <div className="grid items-center h-full" style={{
+            {/* Left Header - Enhanced Professional Styling */}
+            <div className="h-12 bg-slate-50 border-b-2 border-slate-300 border-r border-slate-200 sticky top-0 z-40">
+              <div className="px-3 h-full flex items-center">
+                <div className="grid items-center h-full w-full" style={{
                   gridTemplateColumns: '32px 1fr 40px',
                 }}>
                   <div></div>
-                  <div className="px-3 font-semibold">ACTIVITY</div>
+                  <div className="px-2 font-semibold text-[10px] uppercase tracking-wider text-slate-600">
+                    Activity
+                  </div>
                   <div></div>
                 </div>
               </div>
@@ -434,22 +459,22 @@ export const WBSTimeView = ({
         {/* Middle Column (Data Columns) */}
         <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
           <div className="h-full flex flex-col">
-            {/* Data Columns Header */}
-            <div className="h-24 bg-slate-100/70 border-b border-slate-200 sticky top-0 z-40">
+            {/* Data Columns Header - Enhanced Professional Styling */}
+            <div className="h-12 bg-slate-50 border-b-2 border-slate-300 sticky top-0 z-40">
               <div 
                 ref={dataColumnsHeaderScrollRef}
-                className="px-2 py-1 text-xs font-medium text-slate-700 h-full overflow-x-auto scrollbar-hide flex items-center"
+                className="px-2 h-full overflow-x-auto scrollbar-hide flex items-center"
                 onScroll={handleDataColumnsScroll}
               >
                 <div className="grid items-center h-full min-w-fit" style={{
-                  gridTemplateColumns: '120px 120px 100px 140px 140px 120px',
+                  gridTemplateColumns: '140px 140px 100px 160px 140px 80px',
                 }}>
-                  <div className="px-2 font-semibold text-center">START DATE</div>
-                  <div className="px-2 font-semibold text-center">END DATE</div>
-                  <div className="px-2 font-semibold text-center">DURATION</div>
-                  <div className="px-2 font-semibold text-center">PREDECESSORS</div>
-                  <div className="px-2 font-semibold text-center">STATUS</div>
-                  <div className="px-2 font-semibold text-center">ACTIONS</div>
+                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Start Date</div>
+                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">End Date</div>
+                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Duration</div>
+                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Predecessors</div>
+                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Status</div>
+                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600 text-center">Actions</div>
                 </div>
               </div>
             </div>
@@ -487,15 +512,17 @@ export const WBSTimeView = ({
         
         <ResizableHandle />
         
-        {/* Right Column (Gantt Chart) */}
+        {/* Right Column (Gantt Chart) - Enhanced */}
         <ResizablePanel defaultSize={40} minSize={30} maxSize={60}>
           <div className="h-full flex flex-col">
-            {/* Gantt Chart Content - aligned with data rows */}
+            {/* Gantt Chart Content - Professional aligned with data rows */}
             <div className="flex-1 overflow-hidden">
               <FrappeGanttChart
                 items={items}
                 onDateChange={handleGanttDateChange}
                 onProgressChange={handleGanttProgressChange}
+                viewMode={viewMode}
+                showCriticalPath={showCriticalPath}
               />
             </div>
           </div>

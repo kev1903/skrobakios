@@ -113,19 +113,19 @@ export const DatePickerCell = ({
             onClick={handleClick}
             onKeyDown={handleKeyDown}
             className={cn(
-              "w-full justify-start text-left font-normal p-0 h-auto focus:ring-2 focus:ring-primary/20 focus:outline-none",
-              isEditable ? "cursor-pointer hover:bg-accent/20" : "cursor-default opacity-60",
-              !date && "text-muted-foreground",
+              "w-full justify-start text-left font-normal p-1 h-auto focus:ring-2 focus:ring-blue-500/20 focus:outline-none hover:bg-slate-100 transition-colors",
+              isEditable ? "cursor-pointer" : "cursor-default opacity-60",
+              !date && "text-slate-400",
               className
             )}
             tabIndex={isEditable ? 0 : -1}
             title="Click to select date, or press Delete to clear"
           >
-            <div className="text-xs">
+            <div className="text-xs font-medium text-slate-700">
               {date ? (
                 format(date, "MMM dd, yyyy")
               ) : (
-                <span className="text-muted-foreground">
+                <span className="text-slate-400 font-normal">
                   {placeholder}
                 </span>
               )}

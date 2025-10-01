@@ -15,12 +15,16 @@ interface FrappeGanttChartProps {
   items: any[];
   onDateChange?: (task: any, start: Date, end: Date) => void;
   onProgressChange?: (task: any, progress: number) => void;
+  viewMode?: 'day' | 'week' | 'month';
+  showCriticalPath?: boolean;
 }
 
 export const FrappeGanttChart = ({ 
   items, 
   onDateChange, 
-  onProgressChange 
+  onProgressChange,
+  viewMode = 'day',
+  showCriticalPath = false
 }: FrappeGanttChartProps) => {
   const ganttRef = useRef<HTMLDivElement>(null);
   const ganttInstance = useRef<any>(null);
@@ -94,17 +98,20 @@ export const FrappeGanttChart = ({
       // Clear the container
       ganttRef.current.innerHTML = '';
 
+      // Map view mode to Frappe Gantt view mode
+      const frappeViewMode = viewMode === 'day' ? 'Day' : viewMode === 'week' ? 'Week' : 'Month';
+      
       // Create new Gantt chart configured for exact 28px row alignment
       ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
-        header_height: 28, // Single header row to match table
-        column_width: 32,
+        header_height: 50,
+        column_width: viewMode === 'day' ? 32 : viewMode === 'week' ? 120 : 200,
         step: 24,
-        bar_height: 22,
-        bar_corner_radius: 4,
+        bar_height: 20,
+        bar_corner_radius: 3,
         arrow_curve: 5,
         padding: 18,
         date_format: 'YYYY-MM-DD',
-        view_mode: 'Day',
+        view_mode: frappeViewMode,
         custom_popup_html: function(task: any) {
           return `
             <div class="details-container">
@@ -146,7 +153,7 @@ export const FrappeGanttChart = ({
         ganttInstance.current = null;
       }
     };
-  }, [tasks, onDateChange, onProgressChange]);
+  }, [tasks, onDateChange, onProgressChange, viewMode]);
 
   useEffect(() => {
     // Add CDN CSS for frappe-gantt since the npm package doesn't include it
@@ -173,42 +180,47 @@ export const FrappeGanttChart = ({
     <div className="h-full w-full overflow-auto bg-white">
       <div ref={ganttRef} className="min-h-full" />
       <style>{`
-        /* Critical: Force exact 28px row height throughout Gantt chart */
+        /* Professional Gantt Chart Styling */
         .gantt-container {
           font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
           font-size: 11px !important;
         }
         
-        /* Header styling to match data table */
+        /* Enhanced Header styling - Professional PM Tool Look */
         .gantt .grid-header {
-          height: 28px !important;
-          fill: #f9fafb !important;
+          height: 50px !important;
+          fill: #f8fafc !important;
         }
         
         .gantt .grid-header text {
           font-size: 10px !important;
-          font-weight: 500 !important;
-          fill: #6b7280 !important;
+          font-weight: 600 !important;
+          fill: #475569 !important;
           text-transform: uppercase !important;
           letter-spacing: 0.05em !important;
         }
         
-        /* Upper and lower header rows */
-        .gantt .upper-text,
-        .gantt .lower-text {
-          font-size: 10px !important;
-          font-weight: 500 !important;
-          fill: #6b7280 !important;
+        /* Month/Day header rows */
+        .gantt .upper-text {
+          font-size: 11px !important;
+          font-weight: 600 !important;
+          fill: #1e293b !important;
         }
         
-        /* Grid rows - EXACT 28px height */
+        .gantt .lower-text {
+          font-size: 9px !important;
+          font-weight: 500 !important;
+          fill: #64748b !important;
+        }
+        
+        /* Grid rows - Enhanced 28px height */
         .gantt .grid-row {
           height: 28px !important;
           min-height: 28px !important;
           max-height: 28px !important;
         }
         
-        /* Bar wrappers - EXACT 28px container */
+        /* Bar wrappers - 28px container */
         .gantt .bar-wrapper {
           height: 28px !important;
           min-height: 28px !important;
@@ -217,106 +229,127 @@ export const FrappeGanttChart = ({
           margin: 0 !important;
         }
         
-        /* Task bars - 22px height with 3px top margin for perfect centering in 28px row */
+        /* Task bars - Professional styling with status-based colors */
         .gantt .bar {
-          height: 22px !important;
-          transform: translateY(3px) !important;
+          height: 20px !important;
+          transform: translateY(4px) !important;
+          border-radius: 3px !important;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
         }
         
-        /* Bar labels centered */
+        /* Bar labels - minimal */
         .gantt .bar-label {
-          font-size: 10px !important;
-          line-height: 22px !important;
+          font-size: 9px !important;
+          line-height: 20px !important;
           font-weight: 500 !important;
+          fill: white !important;
         }
         
-        /* Progress bar same height */
+        /* Progress bar */
         .gantt .bar-progress {
-          height: 22px !important;
+          height: 20px !important;
+          border-radius: 3px !important;
+          fill: #059669 !important;
+          opacity: 0.85 !important;
         }
         
-        /* Level-based colors matching your design */
+        /* Professional status-based colors */
         .gantt .bar.level-0 {
-          fill: #cbd5e1 !important;
-          stroke: #94a3b8 !important;
-          stroke-width: 1 !important;
+          fill: #64748b !important;
+          stroke: #475569 !important;
+          stroke-width: 1.5 !important;
         }
         .gantt .bar.level-1 {
-          fill: #3b82f6 !important;
-          stroke: #2563eb !important;
+          fill: #2563eb !important;
+          stroke: #1e40af !important;
+          stroke-width: 1.5 !important;
         }
         .gantt .bar.level-2 {
-          fill: #60a5fa !important;
-          stroke: #3b82f6 !important;
+          fill: #3b82f6 !important;
+          stroke: #2563eb !important;
+          stroke-width: 1.5 !important;
         }
         .gantt .bar.level-3 {
-          fill: #93c5fd !important;
-          stroke: #60a5fa !important;
+          fill: #60a5fa !important;
+          stroke: #3b82f6 !important;
+          stroke-width: 1.5 !important;
         }
         
-        /* Progress fill */
-        .gantt .bar-progress {
-          fill: #10b981 !important;
-        }
-        
-        /* Resize handles */
+        /* Resize handles - Professional */
         .gantt .handle {
-          fill: #6b7280 !important;
-          opacity: 0.6 !important;
+          fill: #475569 !important;
+          opacity: 0.5 !important;
+          cursor: ew-resize !important;
         }
         
         .gantt .handle:hover {
           opacity: 1 !important;
+          fill: #1e293b !important;
         }
         
-        /* Grid background */
+        /* Grid background - Clean white */
         .gantt .grid-background {
           fill: #ffffff !important;
         }
         
-        /* Grid lines matching table borders */
+        /* Grid lines - Subtle professional borders */
         .gantt .tick {
-          stroke: #e5e7eb !important;
+          stroke: #e2e8f0 !important;
           stroke-width: 1 !important;
         }
         
         .gantt .grid-row {
-          stroke: #e5e7eb !important;
+          stroke: #f1f5f9 !important;
           stroke-width: 1 !important;
         }
         
-        /* Today marker */
+        /* Today marker - Prominent */
         .gantt .today-highlight {
-          fill: #dbeafe !important;
-          opacity: 0.2 !important;
+          fill: #3b82f6 !important;
+          opacity: 0.15 !important;
         }
         
-        /* Hide task name labels on bars to reduce clutter */
-        .gantt .bar-label {
-          display: none !important;
+        /* Show task labels on hover */
+        .gantt .bar-wrapper:hover .bar-label {
+          display: block !important;
         }
         
-        /* Popup styling */
+        /* Enhanced Popup styling - Professional */
         .details-container {
           background: white !important;
-          border: 1px solid #e5e7eb !important;
-          border-radius: 6px !important;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-          padding: 12px !important;
+          border: 1px solid #e2e8f0 !important;
+          border-radius: 8px !important;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+          padding: 16px !important;
           font-family: Inter, sans-serif !important;
+          min-width: 200px !important;
         }
         
         .details-container h5 {
-          font-size: 13px !important;
+          font-size: 14px !important;
           font-weight: 600 !important;
-          margin: 0 0 8px 0 !important;
-          color: #111827 !important;
+          margin: 0 0 12px 0 !important;
+          color: #0f172a !important;
+          border-bottom: 1px solid #e2e8f0 !important;
+          padding-bottom: 8px !important;
         }
         
         .details-container p {
-          font-size: 11px !important;
-          margin: 4px 0 !important;
-          color: #6b7280 !important;
+          font-size: 12px !important;
+          margin: 6px 0 !important;
+          color: #475569 !important;
+          line-height: 1.5 !important;
+        }
+        
+        /* Dependency arrows - Enhanced visibility */
+        .gantt .arrow {
+          stroke: #3b82f6 !important;
+          stroke-width: 1.5 !important;
+          fill: none !important;
+        }
+        
+        .gantt .arrow-head {
+          fill: #3b82f6 !important;
         }
       `}</style>
     </div>
