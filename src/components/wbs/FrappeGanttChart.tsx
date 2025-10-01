@@ -129,7 +129,7 @@ export const FrappeGanttChart = ({
         bar_height: 20,
         bar_corner_radius: 3,
         arrow_curve: 5,
-        padding: 18,
+        padding: 4, // 20px bar + 4px top + 4px bottom = 28px total row height
         date_format: 'YYYY-MM-DD',
         view_mode: frappeViewMode,
         custom_popup_html: function(task: any) {
