@@ -3,7 +3,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, startOf
 import { WBSLeftPanel } from './WBSLeftPanel';
 import { WBSTimeRightPanel } from './WBSTimeRightPanel';
 import { WBSToolbar } from './WBSToolbar';
-import { FrappeGanttChart } from './FrappeGanttChart';
+import { SimpleGanttChart } from './SimpleGanttChart';
 import { TimeViewHeader } from './TimeViewHeader';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { DropResult } from 'react-beautiful-dnd';
@@ -517,12 +517,11 @@ export const WBSTimeView = ({
           <div className="h-full w-full flex flex-col bg-white">
             {/* Gantt Chart Content - Professional aligned with data rows */}
             <div className="flex-1 w-full overflow-auto">
-              <FrappeGanttChart
+              <SimpleGanttChart
                 items={items}
                 onDateChange={handleGanttDateChange}
                 onProgressChange={handleGanttProgressChange}
                 viewMode={viewMode}
-                showCriticalPath={showCriticalPath}
               />
             </div>
           </div>
