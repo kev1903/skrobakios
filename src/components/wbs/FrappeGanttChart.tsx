@@ -94,15 +94,15 @@ export const FrappeGanttChart = ({
       // Clear the container
       ganttRef.current.innerHTML = '';
 
-      // Create new Gantt chart with proper configuration
+      // Create new Gantt chart configured for exact 28px row alignment
       ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
-        header_height: 56, // Two rows: month + day
-        column_width: 32, // Wider columns for better visibility
+        header_height: 28, // Single header row to match table
+        column_width: 32,
         step: 24,
-        bar_height: 22, // Slightly larger bar
+        bar_height: 22,
         bar_corner_radius: 4,
         arrow_curve: 5,
-        padding: 18, // Standard padding
+        padding: 18,
         date_format: 'YYYY-MM-DD',
         view_mode: 'Day',
         custom_popup_html: function(task: any) {
@@ -173,81 +173,150 @@ export const FrappeGanttChart = ({
     <div className="h-full w-full overflow-auto bg-white">
       <div ref={ganttRef} className="min-h-full" />
       <style>{`
-        /* Frappe Gantt customization for 28px row alignment */
+        /* Critical: Force exact 28px row height throughout Gantt chart */
         .gantt-container {
           font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+          font-size: 11px !important;
         }
         
-        /* Grid rows - exact 28px height to match data table */
+        /* Header styling to match data table */
+        .gantt .grid-header {
+          height: 28px !important;
+          fill: #f9fafb !important;
+        }
+        
+        .gantt .grid-header text {
+          font-size: 10px !important;
+          font-weight: 500 !important;
+          fill: #6b7280 !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.05em !important;
+        }
+        
+        /* Upper and lower header rows */
+        .gantt .upper-text,
+        .gantt .lower-text {
+          font-size: 10px !important;
+          font-weight: 500 !important;
+          fill: #6b7280 !important;
+        }
+        
+        /* Grid rows - EXACT 28px height */
         .gantt .grid-row {
           height: 28px !important;
-          line-height: 28px !important;
+          min-height: 28px !important;
+          max-height: 28px !important;
         }
         
-        /* Bar wrappers - 28px container height */
+        /* Bar wrappers - EXACT 28px container */
         .gantt .bar-wrapper {
           height: 28px !important;
+          min-height: 28px !important;
+          max-height: 28px !important;
           padding: 0 !important;
+          margin: 0 !important;
         }
         
-        /* Bars - 22px height centered in 28px row (3px top/bottom margin) */
+        /* Task bars - 22px height with 3px top margin for perfect centering in 28px row */
         .gantt .bar {
           height: 22px !important;
-          margin-top: 3px !important;
-          margin-bottom: 3px !important;
+          transform: translateY(3px) !important;
         }
         
-        /* Bar labels */
+        /* Bar labels centered */
         .gantt .bar-label {
-          font-size: 11px !important;
+          font-size: 10px !important;
           line-height: 22px !important;
+          font-weight: 500 !important;
         }
         
-        /* Progress bars */
+        /* Progress bar same height */
         .gantt .bar-progress {
           height: 22px !important;
         }
         
-        /* Level-based colors */
+        /* Level-based colors matching your design */
         .gantt .bar.level-0 {
           fill: #cbd5e1 !important;
           stroke: #94a3b8 !important;
+          stroke-width: 1 !important;
         }
         .gantt .bar.level-1 {
           fill: #3b82f6 !important;
+          stroke: #2563eb !important;
         }
         .gantt .bar.level-2 {
           fill: #60a5fa !important;
+          stroke: #3b82f6 !important;
         }
         .gantt .bar.level-3 {
           fill: #93c5fd !important;
+          stroke: #60a5fa !important;
         }
         
-        /* Progress color */
+        /* Progress fill */
         .gantt .bar-progress {
           fill: #10b981 !important;
         }
         
-        /* Handles */
+        /* Resize handles */
         .gantt .handle {
           fill: #6b7280 !important;
-          opacity: 0.8 !important;
+          opacity: 0.6 !important;
         }
         
-        /* Grid header */
-        .gantt .grid-header {
-          fill: #f9fafb !important;
+        .gantt .handle:hover {
+          opacity: 1 !important;
         }
         
-        /* Grid lines */
-        .gantt .grid-background .grid-row {
+        /* Grid background */
+        .gantt .grid-background {
+          fill: #ffffff !important;
+        }
+        
+        /* Grid lines matching table borders */
+        .gantt .tick {
           stroke: #e5e7eb !important;
+          stroke-width: 1 !important;
+        }
+        
+        .gantt .grid-row {
+          stroke: #e5e7eb !important;
+          stroke-width: 1 !important;
         }
         
         /* Today marker */
         .gantt .today-highlight {
           fill: #dbeafe !important;
-          opacity: 0.3 !important;
+          opacity: 0.2 !important;
+        }
+        
+        /* Hide task name labels on bars to reduce clutter */
+        .gantt .bar-label {
+          display: none !important;
+        }
+        
+        /* Popup styling */
+        .details-container {
+          background: white !important;
+          border: 1px solid #e5e7eb !important;
+          border-radius: 6px !important;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+          padding: 12px !important;
+          font-family: Inter, sans-serif !important;
+        }
+        
+        .details-container h5 {
+          font-size: 13px !important;
+          font-weight: 600 !important;
+          margin: 0 0 8px 0 !important;
+          color: #111827 !important;
+        }
+        
+        .details-container p {
+          font-size: 11px !important;
+          margin: 4px 0 !important;
+          color: #6b7280 !important;
         }
       `}</style>
     </div>
