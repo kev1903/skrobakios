@@ -467,8 +467,9 @@ export const WBSTimeView = ({
                 onScroll={handleDataColumnsScroll}
               >
                 <div className="grid items-center h-full min-w-fit" style={{
-                  gridTemplateColumns: '140px 140px 100px 160px 140px 80px',
+                  gridTemplateColumns: '80px 140px 140px 100px 160px 140px 80px',
                 }}>
+                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">WBS</div>
                   <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Start Date</div>
                   <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">End Date</div>
                   <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Duration</div>
