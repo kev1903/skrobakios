@@ -94,6 +94,16 @@ div[data-rbd-drag-handle-draggable-id] {
   50% { opacity: 0.6; }
 }
 
+/* Hide scrollbar for Gantt header sync */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 
 @tailwind base;
 @tailwind components;

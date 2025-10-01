@@ -24,12 +24,13 @@ export const GanttTaskBar: React.FC<GanttTaskBarProps> = ({
     // Stage bar - different styling
     return (
       <div
-        className="absolute cursor-pointer"
+        className="absolute cursor-pointer flex items-center"
         style={{
           left: position.left,
-          top: position.top + 2,
+          top: position.top,
           width: position.width,
-          height: position.height - 4
+          height: position.height,
+          padding: '3px 0'
         }}
         onClick={handleClick}
       >
@@ -45,12 +46,13 @@ export const GanttTaskBar: React.FC<GanttTaskBarProps> = ({
   // Regular task bar
   return (
     <div
-      className="absolute cursor-pointer group"
+      className="absolute cursor-pointer group flex items-center"
       style={{
         left: position.left,
-        top: position.top + 2,
+        top: position.top,
         width: position.width,
-        height: position.height - 4
+        height: position.height,
+        padding: '3px 0'
       }}
       onClick={handleClick}
     >
@@ -61,7 +63,7 @@ export const GanttTaskBar: React.FC<GanttTaskBarProps> = ({
         {/* Progress overlay */}
         <div 
           className="absolute inset-0 bg-white/20 rounded-md transition-all duration-300"
-          style={{ width: `${task.progress}%` }}
+          style={{ width: `${task.progress}%`, margin: '3px 0' }}
         />
         
         {/* Assignee avatar */}

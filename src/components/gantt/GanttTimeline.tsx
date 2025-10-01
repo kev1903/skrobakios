@@ -20,10 +20,9 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
   onTaskClick,
   scrollRef
 }) => {
-  const { days, months } = generateTimelineData(viewSettings.viewStart, viewSettings.viewEnd);
+  const { days } = generateTimelineData(viewSettings.viewStart, viewSettings.viewEnd);
   const totalWidth = days.length * viewSettings.dayWidth;
-  const HEADER_HEIGHT = 28; // Match the task list header height
-  const totalHeight = tasks.length * viewSettings.rowHeight + HEADER_HEIGHT;
+  const totalHeight = tasks.length * viewSettings.rowHeight;
   
   // Get dependency lines for visualization
   const dependencyLines = getDependencyLines(tasks, viewSettings);
@@ -41,26 +40,8 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
           minWidth: totalWidth 
         }}
       >
-        {/* Timeline Header */}
-        <div className="sticky top-0 z-40 bg-gray-50 border-b border-gray-200" style={{ height: HEADER_HEIGHT }}>
-          <div className="relative h-full" style={{ width: totalWidth }}>
-            {/* Month headers */}
-            {months.map((month) => (
-              <div
-                key={month.key}
-                className="absolute top-0 h-full flex items-center justify-center text-xs font-medium text-gray-700 border-r border-gray-200"
-                style={{
-                  left: month.startIndex * viewSettings.dayWidth,
-                  width: month.length * viewSettings.dayWidth
-                }}
-              >
-                {month.label}
-              </div>
-            ))}
-          </div>
-        </div>
         {/* Grid Background */}
-        <div className="absolute" style={{ top: HEADER_HEIGHT, left: 0, right: 0, bottom: 0 }}>
+        <div className="absolute inset-0">
           {/* Vertical grid lines (days) */}
           {days.map((day, index) => {
             const isWeekendDay = isWeekend(day);
@@ -68,14 +49,13 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
               <div
                 key={`grid-${index}`}
                 className={cn(
-                  "absolute border-r",
+                  "absolute top-0 border-r",
                   isWeekendDay ? "bg-gray-50/50 border-gray-200" : "border-gray-100"
                 )}
                 style={{
                   left: index * viewSettings.dayWidth,
                   width: viewSettings.dayWidth,
-                  height: tasks.length * viewSettings.rowHeight,
-                  top: 0
+                  height: totalHeight
                 }}
               />
             );
@@ -97,17 +77,16 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
         {/* Today Line */}
         {days.some(day => isToday(day)) && (
           <div
-            className="absolute w-0.5 bg-blue-500 z-30"
+            className="absolute top-0 w-0.5 bg-blue-500 z-30"
             style={{
               left: days.findIndex(day => isToday(day)) * viewSettings.dayWidth + viewSettings.dayWidth / 2,
-              top: HEADER_HEIGHT,
-              height: tasks.length * viewSettings.rowHeight
+              height: totalHeight
             }}
           />
         )}
 
         {/* Task Bars */}
-        <div className="absolute z-20" style={{ top: HEADER_HEIGHT, left: 0, right: 0 }}>
+        <div className="absolute inset-0 z-20">
           {tasks.map((task, index) => {
             const position = calculateTaskPosition(task, viewSettings, index);
             return (
@@ -129,7 +108,7 @@ export const GanttTimeline: React.FC<GanttTimelineProps> = ({
             height={totalHeight + 100}
             style={{ 
               left: '-100px',
-              top: `${HEADER_HEIGHT - 50}px`,
+              top: '-50px',
               overflow: 'visible'
             }}
           >
