@@ -200,20 +200,29 @@ export const FrappeGanttChart = ({
   }, []);
 
   return (
-    <div className="h-full w-full bg-white flex flex-col">
-      <div ref={ganttRef} className="flex-1 w-full" style={{ minHeight: '400px' }} />
+    <div className="h-full w-full bg-white">
+      <div ref={ganttRef} className="w-full h-full" />
       <style>{`
         /* Professional Gantt Chart Styling */
         .gantt-container {
           font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
           font-size: 11px !important;
-          overflow: visible !important;
+          overflow: auto !important;
+          width: 100% !important;
+          height: 100% !important;
         }
         
-        /* Ensure SVG is visible */
+        /* Ensure SVG is visible and sized correctly */
+        .gantt {
+          width: 100% !important;
+          height: 100% !important;
+        }
+        
         .gantt svg {
           display: block !important;
-          overflow: visible !important;
+          width: 100% !important;
+          height: auto !important;
+          min-height: 400px !important;
         }
         
         /* Enhanced Header styling - Professional PM Tool Look */
@@ -251,13 +260,23 @@ export const FrappeGanttChart = ({
           fill: #64748b !important;
         }
         
-        /* Grid rows - Exact 28px height with no spacing */
+        /* Grid rows - Exact 28px height - MUST BE VISIBLE */
         .gantt .grid-row {
           height: 28px !important;
           min-height: 28px !important;
           max-height: 28px !important;
+          stroke: #e2e8f0 !important;
+          stroke-width: 1 !important;
+          fill: transparent !important;
           margin: 0 !important;
           padding: 0 !important;
+        }
+        
+        /* Row lines - MUST BE VISIBLE */
+        .gantt .row-line {
+          stroke: #cbd5e1 !important;
+          stroke-width: 1 !important;
+          opacity: 1 !important;
         }
         
         /* Bar wrappers - Exact 28px container */
@@ -267,16 +286,19 @@ export const FrappeGanttChart = ({
           max-height: 28px !important;
           padding: 0 !important;
           margin: 0 !important;
-          transform: none !important;
+          display: block !important;
+          opacity: 1 !important;
         }
         
-        /* Task bars - 20px centered in 28px row */
+        /* Task bars - 20px centered in 28px row - MUST BE VISIBLE */
         .gantt .bar {
           height: 20px !important;
-          transform: translateY(4px) !important;
+          y: 4 !important;
           border-radius: 3px !important;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
           margin: 0 !important;
+          opacity: 1 !important;
+          display: block !important;
         }
         
         /* Bar labels - minimal */
@@ -329,15 +351,17 @@ export const FrappeGanttChart = ({
           fill: #1e293b !important;
         }
         
-        /* Grid background - Clean white */
+        /* Grid background - MUST BE VISIBLE */
         .gantt .grid-background {
           fill: #ffffff !important;
+          opacity: 1 !important;
         }
         
-        /* Grid lines - Visible professional borders */
+        /* Grid lines - MUST BE VISIBLE */
         .gantt .tick {
           stroke: #e2e8f0 !important;
           stroke-width: 1 !important;
+          opacity: 1 !important;
         }
         
         .gantt .grid-row {
