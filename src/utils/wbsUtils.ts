@@ -19,110 +19,34 @@ export const findWBSItem = (items: WBSItem[], id: string): WBSItem | null => {
   return null;
 };
 
-// Comprehensive WBS renumbering system - Enhanced for 5-level hierarchy (Levels 0-4)
-// Level 0: Stages (1.0, 2.0, 3.0)
-// Level 1: Components (1.1, 1.2, 2.1) 
-// Level 2: Elements (1.1.1, 1.1.2, 2.1.1)
-// Level 3: Sub-Elements (1.1.1.1, 1.1.1.2)
-// Level 4: Tasks (1.1.1.1.1, 1.1.1.1.2)
+// Simple sequential WBS renumbering - flat numbering (1, 2, 3, 4...)
 export const renumberAllWBSItems = (items: WBSItem[]): { item: WBSItem; newWbsId: string }[] => {
   const updates: { item: WBSItem; newWbsId: string }[] = [];
   
-  // Flatten all items while preserving parent-child relationships
+  // Flatten all items to get a flat list
   const flatItems = flattenWBSHierarchy(items);
   
-  // Build hierarchy tree from flat items
-  const buildHierarchy = (items: WBSItem[]): WBSItem[] => {
-    const itemMap = new Map<string, WBSItem>();
-    const rootItems: WBSItem[] = [];
-    
-    // Create map of all items
-    items.forEach(item => {
-      itemMap.set(item.id, { ...item, children: [] });
-    });
-    
-    // Build parent-child relationships using parent_id field
-    items.forEach(item => {
-      const itemCopy = itemMap.get(item.id)!;
-      if (item.parent_id && itemMap.has(item.parent_id)) {
-        const parent = itemMap.get(item.parent_id)!;
-        parent.children.push(itemCopy);
-      } else {
-        rootItems.push(itemCopy);
-      }
-    });
-    
-    // Sort children within each parent by their current order/creation
-    const sortChildren = (items: WBSItem[]) => {
-      items.forEach(item => {
-        if (item.children && item.children.length > 0) {
-          item.children.sort((a, b) => {
-            // Sort by creation time or existing WBS order
-            return (a.created_at || '').localeCompare(b.created_at || '');
-          });
-          sortChildren(item.children);
-        }
-      });
-    };
-    
-    sortChildren(rootItems);
-    return rootItems;
-  };
-  
-  // Generate WBS numbers recursively maintaining hierarchy
-  // Supports 5 levels (0-4): Stage -> Component -> Element -> Sub-Element -> Task
-  // Level 0: 1.0, 2.0, 3.0 (Stages)
-  // Level 1: 1.1, 1.2, 2.1 (Components)  
-  // Level 2: 1.1.1, 1.1.2, 2.1.1 (Elements)
-  // Level 3: 1.1.1.1, 1.1.1.2 (Sub-Elements)
-  // Level 4: 1.1.1.1.1, 1.1.1.1.2 (Tasks)
-  const generateWbsNumbers = (items: WBSItem[], parentWbsId: string = ''): void => {
-    items.forEach((item, index) => {
-      let newWbsId: string;
-      
-      if (!parentWbsId) {
-        // Root level items: 1.0, 2.0, 3.0, etc.
-        newWbsId = `${index + 1}.0`;
-      } else if (parentWbsId.endsWith('.0')) {
-        // Child of root level (component): 1.1, 1.2, 1.3, etc.
-        const rootNumber = parentWbsId.split('.')[0];
-        newWbsId = `${rootNumber}.${index + 1}`;
-      } else {
-        // Deeper levels: 1.1.1, 1.1.2, 1.2.1, 1.1.1.1, 1.1.1.1.1, etc.
-        newWbsId = `${parentWbsId}.${index + 1}`;
-      }
-      
-      // Only add to updates if the WBS ID actually changed
-      if (newWbsId !== item.wbs_id) {
-        updates.push({ item: flatItems.find(fi => fi.id === item.id)!, newWbsId });
-      }
-      
-      // Recursively process children
-      if (item.children && item.children.length > 0) {
-        generateWbsNumbers(item.children, newWbsId);
-      }
-    });
-  };
-  
-  // Build hierarchy and generate sequential WBS numbers
-  const hierarchyTree = buildHierarchy(flatItems);
-  
-  // Sort root items by their current WBS ID to maintain order
-  hierarchyTree.sort((a, b) => {
-    const aNum = parseInt((a.wbs_id || '0.0').split('.')[0], 10) || 0;
-    const bNum = parseInt((b.wbs_id || '0.0').split('.')[0], 10) || 0;
-    return aNum - bNum;
+  // Sort items by their current order/creation to maintain visual order
+  flatItems.sort((a, b) => {
+    return (a.created_at || '').localeCompare(b.created_at || '');
   });
   
-  // Generate new WBS IDs
-  generateWbsNumbers(hierarchyTree);
+  // Generate simple sequential WBS numbers
+  flatItems.forEach((item, index) => {
+    const newWbsId = `${index + 1}`;
+    
+    // Only add to updates if the WBS ID actually changed
+    if (newWbsId !== item.wbs_id) {
+      updates.push({ item, newWbsId });
+    }
+  });
   
-  console.log(`🔢 Generated ${updates.length} WBS number updates for hierarchical consistency`);
+  console.log(`🔢 Generated ${updates.length} WBS number updates for sequential numbering`);
   
   return updates;
 };
 
-// Generate WBS ID for new items (improved version)
+// Generate WBS ID for new items - simple sequential numbering
 export const generateWBSId = (parentId?: string, wbsItems: WBSItem[] = []): string => {
   // Helper to get all items in flat form
   const toFlat = (items: WBSItem[]): WBSItem[] => {
@@ -139,71 +63,23 @@ export const generateWBSId = (parentId?: string, wbsItems: WBSItem[] = []): stri
 
   const flat = toFlat(wbsItems);
 
-  if (!parentId) {
-    // Create a top-level item → find existing top-level items and get next sequential number
-    const rootItems = flat.filter(i => 
-      i.parent_id == null || 
-      i.level === 0 || 
-      (i.wbs_id && !i.wbs_id.includes('.'))
-    );
-    
-    // Sort by WBS number to ensure we get the correct next number
-    const sortedRoots = rootItems
-      .map(item => parseInt(item.wbs_id || '0', 10))
-      .filter(n => !isNaN(n))
-      .sort((a, b) => a - b);
-    
-    // Find the next sequential number
-    let nextNum = 1;
-    for (const num of sortedRoots) {
-      if (num === nextNum) {
-        nextNum++;
-      } else {
-        break;
-      }
+  // Get all existing WBS numbers
+  const allNumbers = flat
+    .map(item => parseInt(item.wbs_id || '0', 10))
+    .filter(n => !isNaN(n))
+    .sort((a, b) => a - b);
+  
+  // Find the next sequential number
+  let nextNum = 1;
+  for (const num of allNumbers) {
+    if (num === nextNum) {
+      nextNum++;
+    } else {
+      break;
     }
-    
-    return `${nextNum}`;
   }
-
-  // Find parent to get its WBS ID
-  const findParent = (items: WBSItem[]): WBSItem | null => {
-    for (const item of items) {
-      if (item.id === parentId) return item;
-      const found = findParent(item.children || []);
-      if (found) return found;
-    }
-    return null;
-  };
-
-  const parent = findParent(wbsItems);
-  if (parent) {
-    // Get all direct children of this parent
-    const children = flat.filter(i => i.parent_id === parent.id);
-    
-    // Sort children by their WBS IDs to ensure sequential numbering
-    const childNumbers = children
-      .map(child => {
-        const parts = child.wbs_id.split('.');
-        return parseInt(parts[parts.length - 1], 10);
-      })
-      .filter(n => !isNaN(n))
-      .sort((a, b) => a - b);
-    
-    // Find the next sequential number
-    let nextNum = 1;
-    for (const num of childNumbers) {
-      if (num === nextNum) {
-        nextNum++;
-      } else {
-        break;
-      }
-    }
-    
-    return `${parent.wbs_id}.${nextNum}`;
-  }
-
-  return '1';
+  
+  return `${nextNum}`;
 };
 
 // Transform flat database data into hierarchical structure (robust to bad parent_id/level)
