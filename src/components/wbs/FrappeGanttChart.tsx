@@ -123,15 +123,16 @@ export const FrappeGanttChart = ({
       
       // Create new Gantt chart configured for exact 28px row alignment
       ganttInstance.current = new Gantt(ganttRef.current, tasks, {
-        header_height: 48, // Match table header (h-12 = 48px)
+        upper_header_height: 32, // Upper header part
+        lower_header_height: 16, // Lower header part (total = 48px to match h-12)
         column_width: viewMode === 'day' ? 32 : viewMode === 'week' ? 120 : 200,
-        step: 24,
         bar_height: 20,
         bar_corner_radius: 3,
         arrow_curve: 5,
         padding: 4, // 20px bar + 4px top + 4px bottom = 28px total row height
         date_format: 'YYYY-MM-DD',
         view_mode: frappeViewMode,
+        container_height: 'auto',
         custom_popup_html: function(task: any) {
           return `
             <div class="details-container">
@@ -217,8 +218,16 @@ export const FrappeGanttChart = ({
         
         /* Enhanced Header styling - Professional PM Tool Look */
         .gantt .grid-header {
-          height: 48px !important;
           fill: #f8fafc !important;
+        }
+        
+        /* Upper and lower header heights */
+        .gantt .upper-header {
+          height: 32px !important;
+        }
+        
+        .gantt .lower-header {
+          height: 16px !important;
         }
         
         .gantt .grid-header text {
