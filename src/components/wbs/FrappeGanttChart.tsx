@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useMemo } from 'react';
-import * as FrappeGantt from 'frappe-gantt';
+import Gantt from 'frappe-gantt';
 
 interface GanttTask {
   id: string;
@@ -31,14 +31,17 @@ export const FrappeGanttChart = ({
 
   // Memoize task conversion to prevent unnecessary recalculations
   const tasks = useMemo(() => {
+    console.log('🔵 FrappeGanttChart received items:', items.length, items);
+    
     const convertToGanttTasks = (items: any[]): GanttTask[] => {
     const today = new Date();
     const defaultStart = today.toISOString().split('T')[0];
     const defaultEnd = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-    return items
-      .filter(item => !item.id.startsWith('empty-')) // Filter out empty rows
-      .map(item => {
+    const filtered = items.filter(item => !item.id.startsWith('empty-'));
+    console.log('🔵 FrappeGanttChart after filtering empty rows:', filtered.length);
+    
+    return filtered.map(item => {
         // Format dates properly
         let startDate = defaultStart;
         let endDate = defaultEnd;
@@ -64,7 +67,7 @@ export const FrappeGanttChart = ({
           endDate = new Date(new Date(startDate).getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
         }
 
-        return {
+        const task = {
           id: item.id,
           name: item.title || item.name || 'Untitled Task',
           start: startDate,
@@ -73,20 +76,35 @@ export const FrappeGanttChart = ({
           dependencies: item.predecessors?.join(',') || '',
           custom_class: `level-${item.level || 0}`
         };
+        
+        console.log('🔵 FrappeGanttChart converted task:', task);
+        return task;
       });
     };
     
-    return convertToGanttTasks(items);
+    const result = convertToGanttTasks(items);
+    console.log('🔵 FrappeGanttChart final tasks:', result.length, result);
+    return result;
   }, [items]);
 
   useEffect(() => {
-    if (!ganttRef.current || items.length === 0) return;
+    console.log('🔵 FrappeGanttChart useEffect - items:', items.length, 'tasks:', tasks.length);
+    
+    if (!ganttRef.current) {
+      console.log('❌ No ganttRef.current');
+      return;
+    }
+    
+    if (items.length === 0) {
+      console.log('⚠️ No items provided');
+      ganttRef.current.innerHTML = '<div class="p-8 text-center text-slate-500">No activities to display</div>';
+      return;
+    }
 
     try {
-      
       if (tasks.length === 0) {
-        // Show empty state
-        ganttRef.current.innerHTML = '<div class="p-8 text-center text-gray-500">No tasks to display</div>';
+        console.log('⚠️ No tasks after conversion');
+        ganttRef.current.innerHTML = '<div class="p-8 text-center text-slate-500">No tasks to display</div>';
         return;
       }
 
@@ -101,8 +119,10 @@ export const FrappeGanttChart = ({
       // Map view mode to Frappe Gantt view mode
       const frappeViewMode = viewMode === 'day' ? 'Day' : viewMode === 'week' ? 'Week' : 'Month';
       
+      console.log('🔵 Creating Gantt chart with', tasks.length, 'tasks, viewMode:', frappeViewMode);
+      
       // Create new Gantt chart configured for exact 28px row alignment
-      ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
+      ganttInstance.current = new Gantt(ganttRef.current, tasks, {
         header_height: 50,
         column_width: viewMode === 'day' ? 32 : viewMode === 'week' ? 120 : 200,
         step: 24,
@@ -140,11 +160,13 @@ export const FrappeGanttChart = ({
           console.log('Gantt view changed to:', mode);
         }
       });
+      
+      console.log('✅ Gantt chart created successfully');
 
     } catch (error) {
-      console.error('Error creating Gantt chart:', error);
+      console.error('❌ Error creating Gantt chart:', error);
       if (ganttRef.current) {
-        ganttRef.current.innerHTML = '<div class="p-8 text-center text-red-500">Error loading Gantt chart</div>';
+        ganttRef.current.innerHTML = `<div class="p-8 text-center text-red-500">Error loading Gantt chart: ${error instanceof Error ? error.message : 'Unknown error'}</div>`;
       }
     }
 
