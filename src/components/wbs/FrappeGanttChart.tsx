@@ -321,14 +321,19 @@ export const FrappeGanttChart = ({
           fill: #ffffff !important;
         }
         
-        /* Grid lines - Subtle professional borders */
+        /* Grid lines - Visible professional borders */
         .gantt .tick {
           stroke: #e2e8f0 !important;
           stroke-width: 1 !important;
         }
         
         .gantt .grid-row {
-          stroke: #f1f5f9 !important;
+          stroke: #cbd5e1 !important;
+          stroke-width: 1 !important;
+        }
+        
+        .gantt .row-line {
+          stroke: #cbd5e1 !important;
           stroke-width: 1 !important;
         }
         
