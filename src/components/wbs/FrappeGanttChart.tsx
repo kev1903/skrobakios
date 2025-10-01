@@ -121,18 +121,17 @@ export const FrappeGanttChart = ({
       
       console.log('🔵 Creating Gantt chart with', tasks.length, 'tasks, viewMode:', frappeViewMode);
       
-      // Create new Gantt chart configured for exact 28px row alignment
+      // Create new Gantt chart with proper configuration
       ganttInstance.current = new Gantt(ganttRef.current, tasks, {
-        upper_header_height: 32, // Upper header part
-        lower_header_height: 16, // Lower header part (total = 48px to match h-12)
-        column_width: viewMode === 'day' ? 32 : viewMode === 'week' ? 120 : 200,
+        header_height: 50,
+        column_width: viewMode === 'day' ? 30 : viewMode === 'week' ? 120 : 200,
+        step: 24,
         bar_height: 20,
         bar_corner_radius: 3,
         arrow_curve: 5,
-        padding: 4, // 20px bar + 4px top + 4px bottom = 28px total row height
+        padding: 18,
         date_format: 'YYYY-MM-DD',
         view_mode: frappeViewMode,
-        container_height: 'auto',
         custom_popup_html: function(task: any) {
           return `
             <div class="details-container">
@@ -200,43 +199,24 @@ export const FrappeGanttChart = ({
   }, []);
 
   return (
-    <div className="h-full w-full bg-white">
-      <div ref={ganttRef} className="w-full h-full" />
+    <div className="w-full h-full bg-white overflow-auto">
+      <div ref={ganttRef} className="w-full" style={{ minHeight: '500px' }} />
       <style>{`
         /* Professional Gantt Chart Styling */
         .gantt-container {
           font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
           font-size: 11px !important;
-          overflow: auto !important;
-          width: 100% !important;
-          height: 100% !important;
         }
         
-        /* Ensure SVG is visible and sized correctly */
-        .gantt {
-          width: 100% !important;
-          height: 100% !important;
-        }
-        
+        /* Ensure SVG is visible */
         .gantt svg {
           display: block !important;
-          width: 100% !important;
-          height: auto !important;
-          min-height: 400px !important;
+          overflow: visible !important;
         }
         
         /* Enhanced Header styling - Professional PM Tool Look */
         .gantt .grid-header {
           fill: #f8fafc !important;
-        }
-        
-        /* Upper and lower header heights */
-        .gantt .upper-header {
-          height: 32px !important;
-        }
-        
-        .gantt .lower-header {
-          height: 16px !important;
         }
         
         .gantt .grid-header text {
@@ -260,45 +240,20 @@ export const FrappeGanttChart = ({
           fill: #64748b !important;
         }
         
-        /* Grid rows - Exact 28px height - MUST BE VISIBLE */
+        /* Grid rows with proper height */
         .gantt .grid-row {
-          height: 28px !important;
-          min-height: 28px !important;
-          max-height: 28px !important;
-          stroke: #e2e8f0 !important;
-          stroke-width: 1 !important;
-          fill: transparent !important;
-          margin: 0 !important;
-          padding: 0 !important;
+          fill: none !important;
         }
         
-        /* Row lines - MUST BE VISIBLE */
-        .gantt .row-line {
-          stroke: #cbd5e1 !important;
-          stroke-width: 1 !important;
-          opacity: 1 !important;
-        }
-        
-        /* Bar wrappers - Exact 28px container */
-        .gantt .bar-wrapper {
-          height: 28px !important;
-          min-height: 28px !important;
-          max-height: 28px !important;
-          padding: 0 !important;
-          margin: 0 !important;
-          display: block !important;
-          opacity: 1 !important;
-        }
-        
-        /* Task bars - 20px centered in 28px row - MUST BE VISIBLE */
+        /* Task bars - visible and properly sized */
         .gantt .bar {
-          height: 20px !important;
-          y: 4 !important;
-          border-radius: 3px !important;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-          margin: 0 !important;
-          opacity: 1 !important;
-          display: block !important;
+          rx: 3 !important;
+          ry: 3 !important;
+        }
+        
+        /* Bar wrappers */
+        .gantt .bar-wrapper {
+          cursor: pointer !important;
         }
         
         /* Bar labels - minimal */
