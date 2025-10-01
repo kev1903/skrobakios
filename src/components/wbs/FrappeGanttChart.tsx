@@ -94,15 +94,15 @@ export const FrappeGanttChart = ({
       // Clear the container
       ganttRef.current.innerHTML = '';
 
-      // Create new Gantt chart - configured to align perfectly with data rows
+      // Create new Gantt chart with proper configuration
       ganttInstance.current = new (FrappeGantt as any).default(ganttRef.current, tasks, {
-        header_height: 28, // Match row height
-        column_width: 30,
+        header_height: 56, // Two rows: month + day
+        column_width: 32, // Wider columns for better visibility
         step: 24,
-        bar_height: 20, // 20px bar height for 28px row
-        bar_corner_radius: 3,
+        bar_height: 22, // Slightly larger bar
+        bar_corner_radius: 4,
         arrow_curve: 5,
-        padding: 0, // No padding for exact alignment
+        padding: 18, // Standard padding
         date_format: 'YYYY-MM-DD',
         view_mode: 'Day',
         custom_popup_html: function(task: any) {
@@ -173,71 +173,81 @@ export const FrappeGanttChart = ({
     <div className="h-full w-full overflow-auto bg-white">
       <div ref={ganttRef} className="min-h-full" />
       <style>{`
-        /* Override Frappe Gantt styles for perfect 28px row alignment */
+        /* Frappe Gantt customization for 28px row alignment */
         .gantt-container {
-          padding: 0 !important;
-          margin: 0 !important;
+          font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
         }
-        .gantt {
-          overflow: visible !important;
-        }
-        .gantt .grid-background {
-          margin-top: 0 !important;
-        }
-        .gantt .grid-header {
-          height: 28px !important;
-        }
+        
+        /* Grid rows - exact 28px height to match data table */
         .gantt .grid-row {
           height: 28px !important;
-          min-height: 28px !important;
-          max-height: 28px !important;
-          border-bottom: 1px solid #e5e7eb !important;
+          line-height: 28px !important;
         }
+        
+        /* Bar wrappers - 28px container height */
         .gantt .bar-wrapper {
           height: 28px !important;
-          min-height: 28px !important;
-          max-height: 28px !important;
-          display: flex !important;
-          align-items: center !important;
+          padding: 0 !important;
         }
-        .gantt .bar-wrapper .bar {
-          height: 20px !important;
-          top: 4px !important;
-          transform: none !important;
-          margin: 0 !important;
-        }
-        .gantt .bar-wrapper .bar-label {
-          height: 20px !important;
-          line-height: 20px !important;
-          display: flex !important;
-          align-items: center !important;
-        }
+        
+        /* Bars - 22px height centered in 28px row (3px top/bottom margin) */
         .gantt .bar {
-          fill: #3b82f6;
+          height: 22px !important;
+          margin-top: 3px !important;
+          margin-bottom: 3px !important;
         }
+        
+        /* Bar labels */
+        .gantt .bar-label {
+          font-size: 11px !important;
+          line-height: 22px !important;
+        }
+        
+        /* Progress bars */
+        .gantt .bar-progress {
+          height: 22px !important;
+        }
+        
+        /* Level-based colors */
         .gantt .bar.level-0 {
-          fill: #1e40af;
+          fill: #cbd5e1 !important;
+          stroke: #94a3b8 !important;
         }
         .gantt .bar.level-1 {
-          fill: #3b82f6;
+          fill: #3b82f6 !important;
         }
         .gantt .bar.level-2 {
-          fill: #60a5fa;
+          fill: #60a5fa !important;
         }
         .gantt .bar.level-3 {
-          fill: #93c5fd;
+          fill: #93c5fd !important;
         }
-        .gantt .bar.level-4 {
-          fill: #bfdbfe;
-        }
+        
+        /* Progress color */
         .gantt .bar-progress {
-          fill: #10b981;
+          fill: #10b981 !important;
         }
-        .gantt .handle.right {
-          fill: #6b7280;
+        
+        /* Handles */
+        .gantt .handle {
+          fill: #6b7280 !important;
+          opacity: 0.8 !important;
         }
-        .gantt .handle.left {
-          fill: #6b7280;
+        
+        /* Grid header */
+        .gantt .grid-header {
+          fill: #f9fafb !important;
+        }
+        
+        /* Grid lines */
+        .gantt .grid-background .grid-row {
+          stroke: #e5e7eb !important;
+        }
+        
+        /* Today marker */
+        .gantt .today-highlight {
+          fill: #dbeafe !important;
+          opacity: 0.3 !important;
         }
       `}</style>
     </div>
