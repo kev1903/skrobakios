@@ -123,7 +123,7 @@ export const FrappeGanttChart = ({
       
       // Create new Gantt chart configured for exact 28px row alignment
       ganttInstance.current = new Gantt(ganttRef.current, tasks, {
-        header_height: 50,
+        header_height: 48, // Match table header (h-12 = 48px)
         column_width: viewMode === 'day' ? 32 : viewMode === 'week' ? 120 : 200,
         step: 24,
         bar_height: 20,
@@ -217,7 +217,7 @@ export const FrappeGanttChart = ({
         
         /* Enhanced Header styling - Professional PM Tool Look */
         .gantt .grid-header {
-          height: 50px !important;
+          height: 48px !important;
           fill: #f8fafc !important;
         }
         
@@ -242,28 +242,32 @@ export const FrappeGanttChart = ({
           fill: #64748b !important;
         }
         
-        /* Grid rows - Enhanced 28px height */
+        /* Grid rows - Exact 28px height with no spacing */
         .gantt .grid-row {
           height: 28px !important;
           min-height: 28px !important;
           max-height: 28px !important;
+          margin: 0 !important;
+          padding: 0 !important;
         }
         
-        /* Bar wrappers - 28px container */
+        /* Bar wrappers - Exact 28px container */
         .gantt .bar-wrapper {
           height: 28px !important;
           min-height: 28px !important;
           max-height: 28px !important;
           padding: 0 !important;
           margin: 0 !important;
+          transform: none !important;
         }
         
-        /* Task bars - Professional styling with status-based colors */
+        /* Task bars - 20px centered in 28px row */
         .gantt .bar {
           height: 20px !important;
           transform: translateY(4px) !important;
           border-radius: 3px !important;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+          margin: 0 !important;
         }
         
         /* Bar labels - minimal */
