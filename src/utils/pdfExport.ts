@@ -463,23 +463,22 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     
     let yPosition = 55;
     
-    // Table setup
-    const rowHeight = 35; // Increased row height for better text spacing
-    const previewSize = 16; // Reduced from 20 to fit narrower preview column
+    // Table setup - compact formatting with proper spacing
+    const rowHeight = 10; // Compact row height for consistency
     const tableMargin = 20;
     const tableWidth = pageWidth - (2 * tableMargin);
     
-    // Column positions and widths - removed Description column for cleaner layout
+    // Column positions and widths - standardized with Due Date column
     const columns = [
       { header: '#', x: tableMargin, width: tableWidth * 0.05, align: 'center' as const },
-      { header: 'Preview', x: tableMargin + (tableWidth * 0.05), width: tableWidth * 0.1, align: 'center' as const },
-      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.15), width: tableWidth * 0.4, align: 'left' as const },
-      { header: 'Category', x: tableMargin + (tableWidth * 0.55), width: tableWidth * 0.15, align: 'center' as const },
-      { header: 'Status', x: tableMargin + (tableWidth * 0.7), width: tableWidth * 0.12, align: 'center' as const },
-      { header: 'Assigned To', x: tableMargin + (tableWidth * 0.82), width: tableWidth * 0.18, align: 'left' as const }
+      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.05), width: tableWidth * 0.38, align: 'left' as const },
+      { header: 'Category', x: tableMargin + (tableWidth * 0.43), width: tableWidth * 0.12, align: 'center' as const },
+      { header: 'Status', x: tableMargin + (tableWidth * 0.55), width: tableWidth * 0.10, align: 'center' as const },
+      { header: 'Due Date', x: tableMargin + (tableWidth * 0.65), width: tableWidth * 0.13, align: 'center' as const },
+      { header: 'Assigned To', x: tableMargin + (tableWidth * 0.78), width: tableWidth * 0.22, align: 'left' as const }
     ];
     
-    // Draw table headers with background
+    // Draw table headers
     pdf.setFillColor(248, 250, 252);
     pdf.rect(20, yPosition - 8, pageWidth - 40, 12, 'F');
     
@@ -492,13 +491,11 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       pdf.text(col.header, textX, yPosition, { align: col.align });
     });
     
-    // Draw header border
     pdf.setDrawColor(220, 220, 220);
     pdf.setLineWidth(0.5);
     pdf.line(20, yPosition + 5, pageWidth - 20, yPosition + 5);
     yPosition += 15;
     
-    // Reset text properties for table content
     pdf.setTextColor(0, 0, 0);
     pdf.setFont('helvetica', 'normal');
     
@@ -506,14 +503,13 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
     for (let i = 0; i < numberedIssues.length; i++) {
       const issue = numberedIssues[i];
       
-      // Check for page break
       if (yPosition + rowHeight > pageHeight - 40) {
         pdf.addPage();
         pageNumber++;
         await addHeaderFooter(pdf, pageNumber);
         yPosition = 40;
         
-        // Re-draw table headers
+        // Re-draw headers
         pdf.setFillColor(248, 250, 252);
         pdf.rect(20, yPosition - 8, pageWidth - 40, 12, 'F');
         
@@ -527,6 +523,7 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         });
         
         pdf.setDrawColor(220, 220, 220);
+        pdf.setLineWidth(0.5);
         pdf.line(20, yPosition + 5, pageWidth - 20, yPosition + 5);
         yPosition += 15;
         
@@ -534,97 +531,46 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
         pdf.setFont('helvetica', 'normal');
       }
       
-      // Draw alternating row background
+      // Alternating row background
       if (i % 2 === 0) {
         pdf.setFillColor(252, 253, 254);
-        pdf.rect(20, yPosition - 5, pageWidth - 40, rowHeight, 'F');
+        pdf.rect(20, yPosition, pageWidth - 40, rowHeight, 'F');
       }
       
-      // Load and draw attachment preview (now in column 1 instead of 0)
-      const previewX = columns[1].x + (columns[1].width - previewSize) / 2;
-      const previewY = yPosition - 2;
-      
-      if (issue.attachments && issue.attachments.length > 0) {
-        const firstAttachment = issue.attachments[0];
-        if (firstAttachment.type?.startsWith('image/')) {
-          try {
-            // Load image and convert to base64
-const { dataUrl, format } = await getAttachmentDataUrl(firstAttachment);
-// Fit image into preview box while preserving aspect ratio
-const boxW = previewSize;
-const boxH = previewSize * 0.75;
-const { width: imgW, height: imgH } = await new Promise<{ width: number; height: number }>((resolve) => {
-  const imgEl = new Image();
-  imgEl.onload = () => resolve({ width: imgEl.naturalWidth, height: imgEl.naturalHeight });
-  imgEl.src = dataUrl;
-});
-const scale = imgW && imgH ? Math.min(boxW / imgW, boxH / imgH) : 1;
-const drawW = Math.max(1, (imgW || boxW) * scale);
-const drawH = Math.max(1, (imgH || boxH) * scale);
-const drawX = previewX + (boxW - drawW) / 2;
-const drawY = previewY + (boxH - drawH) / 2;
-
-pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
-          } catch (imageError) {
-            console.warn('Failed to load image for preview:', imageError);
-            // Fallback icon for images
-            pdf.setFillColor(230, 230, 230);
-            pdf.rect(previewX, previewY, previewSize, previewSize * 0.75, 'F');
-            pdf.setFontSize(7);
-            pdf.setTextColor(120, 120, 120);
-            pdf.text('No preview', previewX + previewSize/2, previewY + 12, { align: 'center' });
-            pdf.setTextColor(0, 0, 0);
-          }
-        } else {
-          // File icon placeholder
-          pdf.setFillColor(240, 240, 240);
-          pdf.rect(previewX, previewY, previewSize, previewSize * 0.75, 'F');
-          pdf.setFontSize(7);
-          pdf.setTextColor(100, 100, 100);
-          pdf.text('FILE', previewX + previewSize/2, previewY + 12, { align: 'center' });
-          pdf.setTextColor(0, 0, 0);
-        }
-      } else {
-        // No attachment placeholder
-        pdf.setFontSize(6);
-        pdf.setTextColor(180, 180, 180);
-        pdf.text('No preview', previewX + previewSize/2, previewY + 12, { align: 'center' });
-        pdf.setTextColor(0, 0, 0);
-      }
-      
-      // Draw issue data
-      pdf.setFontSize(9); // Slightly larger font for better readability
+      // Issue data
+      pdf.setFontSize(8);
       pdf.setTextColor(40, 40, 40);
       
       const issueNumber = (issue as any).auto_number?.toString() || (i + 1).toString();
-      const issueTitle = issue.title.length > 50 ? issue.title.substring(0, 50) + '...' : issue.title;
+      const issueTitle = issue.title.length > 60 ? issue.title.substring(0, 60) + '...' : issue.title;
       const category = issue.category || 'N/A';
       const assignedToName = issue.assigned_to || 'Unassigned';
       
-      const textY = yPosition + 18; // Better vertical centering in taller rows
+      // Format due date if available
+      const dueDate = (issue as any).due_date 
+        ? new Date((issue as any).due_date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        : 'N/A';
       
-      // Draw text with proper alignment
+      const textY = yPosition + 6;
+      
+      // Draw text
       pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
-      pdf.text(issueTitle, columns[2].x + 3, textY, { align: 'left' });
-      pdf.text(category, columns[3].x + columns[3].width/2, textY, { align: 'center' });
+      pdf.text(issueTitle, columns[1].x + 2, textY, { align: 'left' });
+      pdf.text(category, columns[2].x + columns[2].width/2, textY, { align: 'center' });
       
-      // Status with color coding
+      // Status with color
       const statusColor = issue.status === 'closed' ? [22, 163, 74] :
                          issue.status === 'in_progress' ? [59, 130, 246] :
                          issue.status === 'open' ? [220, 38, 38] : [107, 114, 128];
       pdf.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-      pdf.setFont('helvetica', 'bold'); // Make status text bold
-      pdf.text(issue.status.toUpperCase(), columns[4].x + columns[4].width/2, textY, { align: 'center' });
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(issue.status.toUpperCase(), columns[3].x + columns[3].width/2, textY, { align: 'center' });
       
-      // Reset font and text color for assigned to
+      // Due date and assigned to
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(40, 40, 40);
-      pdf.text(assignedToName, columns[5].x + 3, textY, { align: 'left' });
-      
-      // Draw subtle row separator
-      pdf.setDrawColor(240, 240, 240);
-      pdf.setLineWidth(0.3);
-      pdf.line(20, yPosition + rowHeight - 5, pageWidth - 20, yPosition + rowHeight - 5);
+      pdf.text(dueDate, columns[4].x + columns[4].width/2, textY, { align: 'center' });
+      pdf.text(assignedToName, columns[5].x + 2, textY, { align: 'left' });
       
       yPosition += rowHeight;
     }
