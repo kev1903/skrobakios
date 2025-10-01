@@ -176,17 +176,13 @@ export const WBSTimeRightPanel = ({
                 : 'bg-white hover:bg-slate-50'
           }`}
           style={{
-            gridTemplateColumns: '80px 140px 140px 100px 160px 140px 80px',
+            gridTemplateColumns: '140px 140px 100px 160px 140px 80px',
             height: '28px',
           }}
           onMouseEnter={() => onRowHover?.(item.id)}
           onMouseLeave={() => onRowHover?.(null)}
           onClick={(e) => onRowClick?.(item.id, e.ctrlKey || e.metaKey)}
         >
-            <div className="px-3 flex items-center text-xs text-slate-600 font-medium">
-              {item.wbs_id || '-'}
-            </div>
-
             <div className="px-3 flex items-center text-xs text-slate-700">
               <div className="flex items-center w-full">
                 <DatePickerCell

@@ -410,9 +410,12 @@ export const WBSTimeView = ({
             <div className="h-12 bg-slate-50 border-b-2 border-slate-300 border-r border-slate-200 sticky top-0 z-40">
               <div className="px-3 h-full flex items-center">
                 <div className="grid items-center h-full w-full" style={{
-                  gridTemplateColumns: '32px 1fr 40px',
+                  gridTemplateColumns: '32px 70px 1fr 40px',
                 }}>
                   <div></div>
+                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">
+                    WBS
+                  </div>
                   <div className="px-2 font-semibold text-[10px] uppercase tracking-wider text-slate-600">
                     Activity
                   </div>
@@ -467,9 +470,8 @@ export const WBSTimeView = ({
                 onScroll={handleDataColumnsScroll}
               >
                 <div className="grid items-center h-full min-w-fit" style={{
-                  gridTemplateColumns: '80px 140px 140px 100px 160px 140px 80px',
+                  gridTemplateColumns: '140px 140px 100px 160px 140px 80px',
                 }}>
-                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">WBS</div>
                   <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Start Date</div>
                   <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">End Date</div>
                   <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Duration</div>

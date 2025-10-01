@@ -11,6 +11,7 @@ interface WBSItem {
   isExpanded?: boolean;
   hasChildren?: boolean;
   parent_id?: string;
+  wbs_id?: string;
 }
 
 interface WBSLeftPanelProps {
@@ -112,7 +113,7 @@ export const WBSLeftPanel = ({
                               : 'bg-white hover:bg-gray-50'
                         } ${snapshot.isDragging ? 'bg-card z-30' : ''}`}
                         style={{
-                          gridTemplateColumns: '32px 1fr 40px',
+                          gridTemplateColumns: '32px 70px 1fr 40px',
                           height: '28px',
                           ...dragProvided.draggableProps.style,
                         }}
@@ -128,6 +129,10 @@ export const WBSLeftPanel = ({
                           >
                             <GripVertical className="w-3 h-3 text-muted-foreground" />
                           </div>
+                        </div>
+
+                        <div className="px-3 flex items-center h-full text-xs text-slate-600 font-medium">
+                          {(item as any).wbs_id || '-'}
                         </div>
                         
                         <div className="px-3 flex items-center h-full font-medium text-foreground text-xs" style={{ paddingLeft: `${12 + indentWidth}px` }}>
