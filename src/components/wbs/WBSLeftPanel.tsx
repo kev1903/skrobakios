@@ -105,6 +105,7 @@ export const WBSLeftPanel = ({
                       <div
                         ref={dragProvided.innerRef}
                         {...dragProvided.draggableProps}
+                        data-row-id={item.id}
                         className={`grid items-center border-b border-gray-100 cursor-pointer transition-colors duration-150 ${
                           selectedItems.includes(item.id) 
                             ? 'bg-primary/10 border-l-4 border-l-primary' 

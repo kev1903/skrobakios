@@ -74,6 +74,7 @@ export const WBSRightPanel = ({
                     ? 'bg-gray-50' 
                     : 'bg-white hover:bg-gray-50'
               }`}
+              data-row-id={item.id}
             style={{
               gridTemplateColumns: '140px 120px 160px 40px 84px',
               height: '1.75rem',
