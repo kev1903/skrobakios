@@ -99,9 +99,14 @@ export const PredecessorCell = ({
     const predecessors: WBSPredecessor[] = [];
     const invalidNumbers: string[] = [];
 
+    console.log('🔍 Parsing predecessors:', wbsNumbers);
+    console.log('📋 Available items:', availableItems.map(i => ({ id: i.id, wbsNumber: i.wbsNumber, name: i.name })));
+
     for (const wbsNumber of wbsNumbers) {
       // Find the item by WBS number
       const item = availableItems.find(i => i.wbsNumber === wbsNumber);
+      
+      console.log(`🔍 Looking for WBS number "${wbsNumber}":`, item);
       
       if (!item) {
         invalidNumbers.push(wbsNumber);
