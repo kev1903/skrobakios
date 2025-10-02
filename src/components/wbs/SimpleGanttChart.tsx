@@ -145,15 +145,8 @@ export const SimpleGanttChart = ({
         const toX = toPosition.left + 4;
         const toY = toIndex * ROW_HEIGHT + BAR_TOP_OFFSET;
 
-        // Create path: go right, down, across, then down to top of bar
-        const cornerOffset = 8;
-        const path = `
-          M ${fromX} ${fromY}
-          L ${fromX + cornerOffset} ${fromY}
-          L ${fromX + cornerOffset} ${toY - cornerOffset}
-          L ${toX} ${toY - cornerOffset}
-          L ${toX} ${toY}
-        `;
+        // Simple 2-direction path: horizontal first, then vertical down
+        const path = `M ${fromX} ${fromY} L ${toX} ${fromY} L ${toX} ${toY}`;
 
         arrows.push({
           fromTaskId: fromTask.id,

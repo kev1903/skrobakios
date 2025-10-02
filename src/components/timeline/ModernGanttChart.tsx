@@ -872,18 +872,14 @@ const toggleSection = (taskId: string) => {
             const predecessorPos = getTaskPositionForArrow(predecessorTask.id);
             if (!predecessorPos) return;
 
-            // Calculate arrow path (curved line from end of predecessor to start of successor)
+            // Calculate arrow path (horizontal then vertical)
             const startX = predecessorPos.endX;
             const startY = predecessorPos.y;
             const endX = successorPos.x;
             const endY = successorPos.y;
             
-            // Create a smooth curved path
-            const controlPoint1X = startX + 30;
-            const controlPoint2X = endX - 30;
-            
-            const path = `M ${startX} ${startY} 
-                         C ${controlPoint1X} ${startY}, ${controlPoint2X} ${endY}, ${endX} ${endY}`;
+            // Simple 2-direction path: horizontal first, then vertical
+            const path = `M ${startX} ${startY} L ${endX} ${startY} L ${endX} ${endY}`;
 
             arrows.push({
               id: `${predecessorTask.id}-${task.id}`,
