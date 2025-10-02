@@ -237,6 +237,7 @@ export const useWBS = (projectId: string) => {
 
   return {
     wbsItems,
+    setWBSItems,
     loading,
     error,
     loadWBSItems,
