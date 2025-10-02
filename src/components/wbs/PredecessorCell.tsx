@@ -167,8 +167,10 @@ export const PredecessorCell = ({
         onKeyDown={handleInputKeyDown}
         placeholder="e.g., 1 or 1,2"
         className={cn(
-          "h-6 text-xs border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 px-1",
-          validationErrors.length > 0 && "text-destructive",
+          "h-6 text-xs border border-transparent shadow-none px-1 rounded",
+          "hover:border-slate-200 focus:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0",
+          "transition-colors duration-200",
+          validationErrors.length > 0 && "text-destructive border-destructive",
           className
         )}
       />
