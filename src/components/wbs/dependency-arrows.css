@@ -1,21 +1,23 @@
-/* Enhanced Dependency Arrow Styles */
+/* World-Class Dependency Arrow Styles */
 .dependency-arrow {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  filter: drop-shadow(0 1px 2px rgba(37, 99, 235, 0.1));
 }
 
 .dependency-arrow:hover .arrow-main {
-  stroke-width: 3.5px;
-  filter: brightness(1.2) drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.25));
+  stroke-width: 2.5px;
+  stroke: #1d4ed8;
+  filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.3));
 }
 
 .dependency-arrow:hover .arrow-highlight {
-  opacity: 1 !important;
+  opacity: 0.6 !important;
 }
 
 .dependency-arrow:hover .arrow-glow {
-  opacity: 0.4;
-  stroke-width: 8px;
+  opacity: 0.3;
+  stroke-width: 10px;
 }
 
 /* Cleaner orthogonal arrow animations */
@@ -32,45 +34,46 @@
   opacity: 1;
 }
 
-/* Dependency type specific styles - more subtle */
+/* Dependency type specific styles - sophisticated colors */
 .dependency-fs {
-  --arrow-color: rgba(59, 130, 246, 0.9);
+  --arrow-color: #2563eb;
+  --arrow-glow: rgba(37, 99, 235, 0.2);
 }
 
 .dependency-ss {
-  --arrow-color: rgba(16, 185, 129, 0.9);
+  --arrow-color: #059669;
+  --arrow-glow: rgba(5, 150, 105, 0.2);
 }
 
 .dependency-ff {
-  --arrow-color: rgba(245, 158, 11, 0.9);
+  --arrow-color: #d97706;
+  --arrow-glow: rgba(217, 119, 6, 0.2);
 }
 
 .dependency-sf {
-  --arrow-color: rgba(239, 68, 68, 0.9);
+  --arrow-color: #dc2626;
+  --arrow-glow: rgba(220, 38, 38, 0.2);
 }
 
-/* Enhanced entrance animation */
+/* Sophisticated entrance animation */
 .dependency-arrow {
   opacity: 0;
-  animation: arrow-fade-in 0.6s ease-out forwards;
+  animation: arrow-fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes arrow-fade-in {
   0% {
     opacity: 0;
-    transform: scale(0.8);
-    stroke-dasharray: 8, 4;
-    stroke-dashoffset: 12;
+    transform: translateY(-4px);
+    filter: blur(2px);
   }
-  50% {
-    opacity: 0.7;
-    transform: scale(1.05);
+  60% {
+    opacity: 0.8;
   }
   100% {
     opacity: 1;
-    transform: scale(1);
-    stroke-dasharray: none;
-    stroke-dashoffset: 0;
+    transform: translateY(0);
+    filter: blur(0);
   }
 }
 
@@ -108,11 +111,11 @@
 
 @keyframes pulse-glow {
   0%, 100% {
-    opacity: 0.2;
-    stroke-width: 6px;
+    opacity: 0.15;
+    stroke-width: 8px;
   }
   50% {
-    opacity: 0.4;
-    stroke-width: 8px;
+    opacity: 0.3;
+    stroke-width: 12px;
   }
 }

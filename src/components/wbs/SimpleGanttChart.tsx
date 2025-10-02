@@ -83,9 +83,32 @@ export const SimpleGanttChart = ({
     };
   };
 
-  const getBarColor = (level: number) => {
-    // Light grey color for all bars
-    return '#d1d5db';
+  const getBarStyle = (level: number) => {
+    // Sophisticated color scheme based on hierarchy level
+    const styles = [
+      { 
+        bg: 'linear-gradient(135deg, hsl(210, 100%, 56%) 0%, hsl(210, 100%, 64%) 100%)',
+        border: 'hsl(210, 100%, 50%)',
+        shadow: '0 2px 8px -2px rgba(59, 130, 246, 0.3)'
+      },
+      { 
+        bg: 'linear-gradient(135deg, hsl(262, 83%, 58%) 0%, hsl(262, 83%, 66%) 100%)',
+        border: 'hsl(262, 83%, 52%)',
+        shadow: '0 2px 8px -2px rgba(139, 92, 246, 0.3)'
+      },
+      { 
+        bg: 'linear-gradient(135deg, hsl(200, 98%, 39%) 0%, hsl(200, 98%, 47%) 100%)',
+        border: 'hsl(200, 98%, 35%)',
+        shadow: '0 2px 8px -2px rgba(14, 165, 233, 0.3)'
+      },
+      { 
+        bg: 'linear-gradient(135deg, hsl(173, 58%, 39%) 0%, hsl(173, 58%, 47%) 100%)',
+        border: 'hsl(173, 58%, 35%)',
+        shadow: '0 2px 8px -2px rgba(20, 184, 166, 0.3)'
+      }
+    ];
+    
+    return styles[level % styles.length];
   };
 
   // Generate dependency arrows
@@ -159,43 +182,76 @@ export const SimpleGanttChart = ({
   const HEADER_HEIGHT = 48;
 
   return (
-    <div className="w-full h-full bg-white overflow-auto">
+    <div className="w-full h-full bg-gradient-to-b from-slate-50 to-white overflow-auto">
       <div className="relative" style={{ minWidth: dateRange.length * columnWidth }}>
         {/* Header */}
         <div 
-          className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200"
+          className="sticky top-0 z-10 bg-gradient-to-b from-slate-100 via-slate-50 to-slate-50/80 backdrop-blur-sm border-b-2 border-slate-300/50 shadow-sm"
           style={{ height: HEADER_HEIGHT }}
         >
           <div className="flex h-full">
-            {dateRange.map((date, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 border-r border-slate-200 flex items-center justify-center"
-                style={{ width: columnWidth }}
-              >
-                <div className="text-center">
-                  <div className="text-xs font-semibold text-slate-700">
-                    {format(date, 'MMM')}
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    {format(date, 'd')}
+            {dateRange.map((date, i) => {
+              const isToday = format(new Date(), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd');
+              const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+              
+              return (
+                <div
+                  key={i}
+                  className={`flex-shrink-0 border-r flex items-center justify-center transition-colors ${
+                    isToday 
+                      ? 'bg-blue-50/80 border-blue-300/50' 
+                      : isWeekend 
+                      ? 'bg-slate-100/50 border-slate-200/50' 
+                      : 'border-slate-200/50'
+                  }`}
+                  style={{ width: columnWidth }}
+                >
+                  <div className="text-center">
+                    <div className={`text-xs font-bold tracking-wide ${
+                      isToday ? 'text-blue-700' : 'text-slate-700'
+                    }`}>
+                      {format(date, 'MMM')}
+                    </div>
+                    <div className={`text-[11px] font-semibold mt-0.5 ${
+                      isToday ? 'text-blue-600' : 'text-slate-500'
+                    }`}>
+                      {format(date, 'd')}
+                    </div>
+                    {isToday && (
+                      <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mx-auto mt-1" />
+                    )}
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
         {/* Grid and Bars */}
         <div className="relative">
-          {/* Vertical grid lines */}
-          {dateRange.map((_, i) => (
-            <div
-              key={`grid-${i}`}
-              className="absolute top-0 bottom-0 border-r border-slate-100"
-              style={{ left: i * columnWidth, width: 1 }}
-            />
-          ))}
+          {/* Vertical grid lines with today marker */}
+          {dateRange.map((date, i) => {
+            const isToday = format(new Date(), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd');
+            const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+            
+            return (
+              <div
+                key={`grid-${i}`}
+                className={`absolute top-0 bottom-0 border-r ${
+                  isToday 
+                    ? 'border-blue-400/40 bg-blue-50/20' 
+                    : isWeekend 
+                    ? 'border-slate-200/40 bg-slate-50/30' 
+                    : 'border-slate-200/30'
+                }`}
+                style={{ 
+                  left: i * columnWidth, 
+                  width: isToday ? 2 : 1,
+                  zIndex: isToday ? 5 : 0
+                }}
+              />
+            );
+          })}
 
           {/* Dependency arrows - drawn before bars so they appear behind */}
           <svg 
@@ -207,25 +263,28 @@ export const SimpleGanttChart = ({
             }}
           >
             <defs>
-              {/* Downward pointing arrowhead for Smartsheet style */}
+              {/* Sophisticated downward pointing arrowhead */}
               <marker
                 id="arrowhead-gantt"
-                markerWidth="8"
-                markerHeight="8"
-                refX="4"
-                refY="7"
+                markerWidth="10"
+                markerHeight="10"
+                refX="5"
+                refY="8"
                 orient="auto-start-reverse"
               >
                 <path
-                  d="M0,0 L8,0 L4,8 z"
+                  d="M1,1 L9,1 L5,9 z"
                   fill="#2563eb"
+                  stroke="#1e40af"
+                  strokeWidth="0.5"
+                  strokeLinejoin="round"
                 />
               </marker>
               <filter id="arrow-shadow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
                 <feOffset dx="0" dy="1" result="offsetblur"/>
                 <feComponentTransfer>
-                  <feFuncA type="linear" slope="0.15"/>
+                  <feFuncA type="linear" slope="0.2"/>
                 </feComponentTransfer>
                 <feMerge>
                   <feMergeNode/>
@@ -238,38 +297,41 @@ export const SimpleGanttChart = ({
                 <g 
                   key={`arrow-${i}-${arrow.fromTaskId}-${arrow.toTaskId}`}
                   className="dependency-arrow dependency-fs"
+                  style={{ animationDelay: `${i * 0.05}s` }}
                 >
-                  {/* Glow effect */}
+                  {/* Outer glow effect */}
                   <path
                     className="arrow-glow"
                     d={arrow.path}
                     stroke="rgba(37, 99, 235, 0.15)"
-                    strokeWidth="6"
+                    strokeWidth="8"
                     fill="none"
                     opacity="0"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
-                  {/* Main arrow line */}
+                  {/* Main arrow line with shadow */}
                   <path
                     className="arrow-main"
                     d={arrow.path}
                     stroke="#2563eb"
-                    strokeWidth="1.5"
+                    strokeWidth="2"
                     fill="none"
-                    strokeLinecap="square"
-                    strokeLinejoin="miter"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     markerEnd="url(#arrowhead-gantt)"
                     filter="url(#arrow-shadow)"
                   />
-                  {/* Highlight for hover */}
+                  {/* Inner highlight for depth */}
                   <path
                     className="arrow-highlight"
                     d={arrow.path}
-                    stroke="rgba(255, 255, 255, 0.4)"
-                    strokeWidth="1"
+                    stroke="rgba(96, 165, 250, 0.4)"
+                    strokeWidth="0.5"
                     fill="none"
                     opacity="0"
-                    strokeLinecap="square"
-                    strokeLinejoin="miter"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </g>
               );
@@ -279,40 +341,58 @@ export const SimpleGanttChart = ({
           {/* Task rows and bars */}
           {tasks.map((task, rowIndex) => {
             const position = getBarPosition(task);
+            const barStyle = getBarStyle(task.level);
+            const isHovered = false; // Could be enhanced with state management
+            
             return (
               <div
                 key={task.id}
-                className="relative border-b border-slate-100"
+                className="relative border-b border-slate-200/40 hover:bg-slate-50/30 transition-colors group"
                 style={{ height: ROW_HEIGHT, zIndex: 2 }}
               >
                 {/* Task bar */}
                 <div
-                  className="absolute top-1 rounded shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                  className="absolute rounded-md cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5"
                   style={{
                     left: position.left + 4,
                     width: Math.max(position.width - 8, 20),
                     height: ROW_HEIGHT - 8,
-                    backgroundColor: getBarColor(task.level),
+                    background: barStyle.bg,
+                    border: `1px solid ${barStyle.border}`,
+                    boxShadow: barStyle.shadow,
                     top: 4
                   }}
                 >
-                  {/* Progress indicator */}
+                  {/* Progress indicator with gradient */}
                   <div
-                    className="h-full rounded bg-black/20"
+                    className="h-full rounded-md relative overflow-hidden"
                     style={{ width: `${task.progress}%` }}
-                  />
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-black/30 to-black/20" />
+                    <div className="absolute inset-0 bg-white/5" />
+                  </div>
+                  
+                  {/* Shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent rounded-md pointer-events-none" />
+                  
+                  {/* Progress percentage badge */}
+                  {task.progress > 0 && task.progress < 100 && (
+                    <div className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-white/90 backdrop-blur-sm px-1.5 py-0.5 rounded text-[10px] font-bold text-slate-700 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                      {task.progress}%
+                    </div>
+                  )}
                 </div>
                 
                 {/* Task name - positioned to the right of the bar */}
                 <div 
                   className="absolute flex items-center"
                   style={{
-                    left: position.left + Math.max(position.width - 8, 20) + 8,
+                    left: position.left + Math.max(position.width - 8, 20) + 12,
                     top: 4,
                     height: ROW_HEIGHT - 8
                   }}
                 >
-                  <span className="text-xs font-medium text-black whitespace-nowrap">
+                  <span className="text-xs font-semibold text-slate-800 whitespace-nowrap drop-shadow-sm">
                     {task.name}
                   </span>
                 </div>
