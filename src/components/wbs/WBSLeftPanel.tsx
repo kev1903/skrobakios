@@ -109,12 +109,12 @@ export const WBSLeftPanel = ({
                           ref={dragProvided.innerRef}
                           {...dragProvided.draggableProps}
                           data-row-id={item.id}
-                          className={`grid items-center border-b border-gray-100 cursor-pointer transition-colors duration-150 ${
+                          className={`grid items-center border-b border-gray-100 border-l-4 cursor-pointer transition-colors duration-150 ${
                             selectedItems.includes(item.id) 
-                              ? 'bg-primary/10 border-l-4 border-l-primary' 
+                              ? 'bg-primary/10 border-l-primary' 
                               : hoveredId === item.id 
-                                ? 'bg-gray-50' 
-                                : 'bg-white hover:bg-gray-50'
+                                ? 'bg-gray-50 border-l-transparent' 
+                                : 'bg-white hover:bg-gray-50 border-l-transparent'
                           } ${snapshot.isDragging ? 'bg-white shadow-lg border rounded-md' : ''}`}
                           style={{
                             gridTemplateColumns: '32px 70px 1fr 40px',
