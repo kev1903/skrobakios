@@ -253,6 +253,24 @@ export const SimpleGanttChart = ({
             );
           })}
 
+          {/* Today dotted line */}
+          {dateRange.map((date, i) => {
+            const isToday = format(new Date(), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd');
+            if (!isToday) return null;
+            
+            return (
+              <div
+                key={`today-line-${i}`}
+                className="absolute top-0 bottom-0 border-r-2 border-red-500"
+                style={{ 
+                  left: i * columnWidth + columnWidth / 2,
+                  borderStyle: 'dotted',
+                  zIndex: 15
+                }}
+              />
+            );
+          })}
+
           {/* Dependency arrows - drawn in front of grid lines */}
           <svg 
             className="absolute top-0 left-0 pointer-events-none"
