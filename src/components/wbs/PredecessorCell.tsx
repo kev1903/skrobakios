@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { WBSPredecessor, DependencyType, WBSItem } from '@/types/wbs';
 import { validateWBSTaskSchedule } from '@/utils/wbsPredecessorUtils';
 import { toast } from 'sonner';
+import { PredecessorEditDialog } from './PredecessorEditDialog';
 
 interface AvailableWBSItem {
   id: string;
@@ -34,6 +35,7 @@ export const PredecessorCell = ({
 }: PredecessorCellProps) => {
   const [inputValue, setInputValue] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   // Update input value when value prop changes
   useEffect(() => {
@@ -95,6 +97,26 @@ export const PredecessorCell = ({
     }
   };
 
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowEditDialog(true);
+  };
+
+  const handleSavePredecessors = (predecessors: WBSPredecessor[]) => {
+    if (onUpdate) {
+      onUpdate(id, 'predecessors', predecessors);
+    }
+    setShowEditDialog(false);
+  };
+
+  // Get current item data for dialog
+  const currentItem = allItems.find(item => item.id === id);
+  const dialogAvailableItems = availableItems.map(item => ({
+    id: item.id,
+    wbs_id: item.wbsNumber.replace(/\.0$/, ''),
+    title: item.name
+  }));
+
   const parsePredecessors = () => {
     if (!inputValue.trim()) {
       // Clear predecessors if input is empty
@@ -154,36 +176,62 @@ export const PredecessorCell = ({
   };
 
   return (
-    <div className="w-full h-full flex items-center relative group">
-      <Input
-        type="text"
-        value={inputValue}
-        onChange={handleInputChange}
-        onBlur={handleInputBlur}
-        onKeyDown={handleInputKeyDown}
-        placeholder=""
-        className={cn(
-          "h-full text-xs border-0 shadow-none px-2 bg-transparent cursor-text text-center",
-          "hover:bg-accent/30 focus:bg-accent/50",
-          "focus:border-0 focus-visible:ring-0 focus-visible:ring-offset-0",
-          "transition-colors duration-150",
-          validationErrors.length > 0 && "text-destructive",
-          inputValue && "pr-6",
-          className
+    <>
+      <div className="w-full h-full flex items-center relative group">
+        <Input
+          type="text"
+          value={inputValue}
+          onChange={handleInputChange}
+          onBlur={handleInputBlur}
+          onKeyDown={handleInputKeyDown}
+          placeholder=""
+          className={cn(
+            "h-full text-xs border-0 shadow-none px-2 bg-transparent cursor-text text-center",
+            "hover:bg-accent/30 focus:bg-accent/50",
+            "focus:border-0 focus-visible:ring-0 focus-visible:ring-offset-0",
+            "transition-colors duration-150",
+            validationErrors.length > 0 && "text-destructive",
+            inputValue && "pr-12",
+            className
+          )}
+        />
+        {inputValue && !validationErrors.length && (
+          <>
+            <button
+              onClick={handleEditClick}
+              className="absolute right-8 h-4 w-4 flex items-center justify-center rounded-sm opacity-0 group-hover:opacity-100 hover:bg-accent transition-opacity"
+              title="Edit predecessors"
+            >
+              <Pencil className="h-3 w-3 text-muted-foreground" />
+            </button>
+            <button
+              onClick={handleClearPredecessors}
+              className="absolute right-2 h-4 w-4 flex items-center justify-center rounded-sm opacity-0 group-hover:opacity-100 hover:bg-accent transition-opacity"
+              title="Clear predecessors"
+            >
+              <X className="h-3 w-3 text-muted-foreground" />
+            </button>
+          </>
         )}
-      />
-      {inputValue && !validationErrors.length && (
-        <button
-          onClick={handleClearPredecessors}
-          className="absolute right-2 h-4 w-4 flex items-center justify-center rounded-sm opacity-0 group-hover:opacity-100 hover:bg-accent transition-opacity"
-          title="Clear predecessors"
-        >
-          <X className="h-3 w-3 text-muted-foreground" />
-        </button>
+        {validationErrors.length > 0 && (
+          <AlertTriangle className="absolute right-2 h-3 w-3 text-destructive pointer-events-none" />
+        )}
+      </div>
+
+      {currentItem && (
+        <PredecessorEditDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          currentItem={{
+            id: currentItem.id,
+            wbs_id: currentItem.wbs_id,
+            title: currentItem.title
+          }}
+          predecessors={value}
+          availableItems={dialogAvailableItems}
+          onSave={handleSavePredecessors}
+        />
       )}
-      {validationErrors.length > 0 && (
-        <AlertTriangle className="absolute right-2 h-3 w-3 text-destructive pointer-events-none" />
-      )}
-    </div>
+    </>
   );
 };
