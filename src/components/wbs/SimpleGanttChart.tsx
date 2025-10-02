@@ -97,9 +97,11 @@ export const SimpleGanttChart = ({
       fromY: number;
       toX: number;
       toY: number;
+      path: string;
     }> = [];
 
     const ROW_HEIGHT = 28;
+    const BAR_TOP_OFFSET = 4; // Offset from top of row to top of bar
 
     tasks.forEach((task, toIndex) => {
       if (!task.predecessors || task.predecessors.length === 0) return;
@@ -112,13 +114,23 @@ export const SimpleGanttChart = ({
         const fromPosition = getBarPosition(fromTask);
         const toPosition = getBarPosition(task);
 
-        // Arrow starts from the end of predecessor bar
+        // Arrow starts from the right edge of predecessor bar at vertical center
         const fromX = fromPosition.left + fromPosition.width - 4;
         const fromY = fromIndex * ROW_HEIGHT + ROW_HEIGHT / 2;
 
-        // Arrow ends at the start of successor bar
+        // Arrow ends at the left edge of successor bar at the TOP
         const toX = toPosition.left + 4;
-        const toY = toIndex * ROW_HEIGHT + ROW_HEIGHT / 2;
+        const toY = toIndex * ROW_HEIGHT + BAR_TOP_OFFSET;
+
+        // Create path: go right, down, across, then down to top of bar
+        const cornerOffset = 8;
+        const path = `
+          M ${fromX} ${fromY}
+          L ${fromX + cornerOffset} ${fromY}
+          L ${fromX + cornerOffset} ${toY - cornerOffset}
+          L ${toX} ${toY - cornerOffset}
+          L ${toX} ${toY}
+        `;
 
         arrows.push({
           fromTaskId: fromTask.id,
@@ -126,7 +138,8 @@ export const SimpleGanttChart = ({
           fromX,
           fromY,
           toX,
-          toY
+          toY,
+          path
         });
       });
     });
@@ -194,17 +207,17 @@ export const SimpleGanttChart = ({
             }}
           >
             <defs>
+              {/* Downward pointing arrowhead for Smartsheet style */}
               <marker
                 id="arrowhead-gantt"
-                markerWidth="6"
-                markerHeight="6"
-                refX="5"
-                refY="3"
-                orient="auto"
-                markerUnits="strokeWidth"
+                markerWidth="8"
+                markerHeight="8"
+                refX="4"
+                refY="7"
+                orient="auto-start-reverse"
               >
                 <path
-                  d="M0,0 L0,6 L6,3 z"
+                  d="M0,0 L8,0 L4,8 z"
                   fill="#2563eb"
                 />
               </marker>
@@ -221,16 +234,6 @@ export const SimpleGanttChart = ({
               </filter>
             </defs>
             {dependencyArrows.map((arrow, i) => {
-              const midX = (arrow.fromX + arrow.toX) / 2;
-              
-              // Create an orthogonal path (Smartsheet style)
-              const pathData = `
-                M ${arrow.fromX} ${arrow.fromY}
-                L ${midX} ${arrow.fromY}
-                L ${midX} ${arrow.toY}
-                L ${arrow.toX - 8} ${arrow.toY}
-              `;
-
               return (
                 <g 
                   key={`arrow-${i}-${arrow.fromTaskId}-${arrow.toTaskId}`}
@@ -239,7 +242,7 @@ export const SimpleGanttChart = ({
                   {/* Glow effect */}
                   <path
                     className="arrow-glow"
-                    d={pathData}
+                    d={arrow.path}
                     stroke="rgba(37, 99, 235, 0.15)"
                     strokeWidth="6"
                     fill="none"
@@ -248,25 +251,25 @@ export const SimpleGanttChart = ({
                   {/* Main arrow line */}
                   <path
                     className="arrow-main"
-                    d={pathData}
+                    d={arrow.path}
                     stroke="#2563eb"
                     strokeWidth="1.5"
                     fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    strokeLinecap="square"
+                    strokeLinejoin="miter"
                     markerEnd="url(#arrowhead-gantt)"
                     filter="url(#arrow-shadow)"
                   />
                   {/* Highlight for hover */}
                   <path
                     className="arrow-highlight"
-                    d={pathData}
+                    d={arrow.path}
                     stroke="rgba(255, 255, 255, 0.4)"
                     strokeWidth="1"
                     fill="none"
                     opacity="0"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    strokeLinecap="square"
+                    strokeLinejoin="miter"
                   />
                 </g>
               );
