@@ -269,8 +269,8 @@ export const SimpleGanttChart = ({
                 markerWidth="4"
                 markerHeight="4"
                 refX="2"
-                refY="3.5"
-                orient="auto-start-reverse"
+                refY="0.5"
+                orient="auto"
               >
                 <path
                   d="M0.5,0.5 L3.5,0.5 L2,3.5 z"
