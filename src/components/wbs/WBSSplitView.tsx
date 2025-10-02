@@ -21,6 +21,7 @@ interface WBSSplitViewProps {
   items: ExtendedWBSItem[];
   onToggleExpanded: (itemId: string) => void;
   onDragEnd: (result: DropResult) => void;
+  onDragUpdate?: (update: any) => void;
   onItemUpdate: (itemId: string, updates: any) => void;
   onAddChild?: (parentId: string) => void;
   onContextMenuAction: (action: string, itemId: string, type: string) => void;
@@ -38,6 +39,7 @@ export const WBSSplitView = ({
   items,
   onToggleExpanded,
   onDragEnd,
+  onDragUpdate,
   onItemUpdate,
   onAddChild,
   onContextMenuAction,
@@ -364,19 +366,33 @@ export const WBSSplitView = ({
             
             {/* Left Content with synchronized scrolling */}
             <div ref={leftScrollRef} className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide" onScroll={handleLeftScroll}>
-              <WBSLeftPanel items={items.map(item => {
-              const mappedItem = {
-                id: item.id,
-                name: item.title || item.name || 'Untitled',
-                wbs_id: item.wbs_id || '',
-                level: item.level || 0,
-                parent_id: item.parent_id,
-                isExpanded: item.is_expanded !== false,
-                hasChildren: items.some(child => child.parent_id === item.id)
-              };
-              console.log('🟡 WBSSplitView mapping item:', item.id, 'is_expanded:', item.is_expanded, 'mapped isExpanded:', mappedItem.isExpanded, 'hasChildren:', mappedItem.hasChildren);
-              return mappedItem;
-            })} onToggleExpanded={onToggleExpanded} onDragEnd={onDragEnd} onItemEdit={onItemUpdate} onAddChild={onAddChild} dragIndicator={dragIndicator} EditableCell={EditableCell} generateWBSNumber={generateWBSNumber} hoveredId={hoveredId} onRowHover={setHoveredId} selectedItems={selectedItems} onRowClick={handleRowClick} />
+              <WBSLeftPanel 
+                items={items.map(item => {
+                  const mappedItem = {
+                    id: item.id,
+                    name: item.title || item.name || 'Untitled',
+                    wbs_id: item.wbs_id || '',
+                    level: item.level || 0,
+                    parent_id: item.parent_id,
+                    isExpanded: item.is_expanded !== false,
+                    hasChildren: items.some(child => child.parent_id === item.id)
+                  };
+                  console.log('🟡 WBSSplitView mapping item:', item.id, 'is_expanded:', item.is_expanded, 'mapped isExpanded:', mappedItem.isExpanded, 'hasChildren:', mappedItem.hasChildren);
+                  return mappedItem;
+                })} 
+                onToggleExpanded={onToggleExpanded} 
+                onDragEnd={onDragEnd}
+                onDragUpdate={onDragUpdate}
+                onItemEdit={onItemUpdate} 
+                onAddChild={onAddChild} 
+                dragIndicator={dragIndicator} 
+                EditableCell={EditableCell} 
+                generateWBSNumber={generateWBSNumber} 
+                hoveredId={hoveredId} 
+                onRowHover={setHoveredId} 
+                selectedItems={selectedItems} 
+                onRowClick={handleRowClick} 
+              />
             </div>
           </div>
         </ResizablePanel>

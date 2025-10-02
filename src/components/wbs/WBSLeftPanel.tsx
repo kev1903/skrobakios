@@ -18,6 +18,7 @@ interface WBSLeftPanelProps {
   items: WBSItem[];
   onToggleExpanded: (itemId: string) => void;
   onDragEnd: (result: DropResult) => void;
+  onDragUpdate?: (update: any) => void;
   onItemEdit: (itemId: string, field: string, value: string) => void;
   onAddChild?: (parentId: string) => void;
   dragIndicator: any;
@@ -43,6 +44,7 @@ export const WBSLeftPanel = ({
   items,
   onToggleExpanded,
   onDragEnd,
+  onDragUpdate,
   onItemEdit,
   onAddChild,
   dragIndicator,
@@ -81,7 +83,7 @@ export const WBSLeftPanel = ({
   const visibleItems = items.filter(isItemVisible);
   
   const content = (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
       <Droppable droppableId="wbs-items" type="item">
         {(provided) => (
           <div ref={provided.innerRef} {...provided.droppableProps} className="min-h-full">

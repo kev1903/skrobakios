@@ -1658,6 +1658,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           items={flatWBSItems}
                           onToggleExpanded={handleToggleExpanded}
                           onDragEnd={onDragEnd}
+                          onDragUpdate={onDragUpdate}
                            onItemUpdate={async (itemId, updates) => {
                              console.log('🟪 WBSSplitView item update:', itemId, updates);
                              await updateWBSItem(itemId, updates);
