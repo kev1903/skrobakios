@@ -158,7 +158,7 @@ export const PredecessorCell = ({
   }
 
   return (
-    <div className="w-full h-full flex items-center relative">
+    <div className="w-full h-full flex items-center relative group">
       <Input
         type="text"
         value={inputValue}
@@ -167,15 +167,16 @@ export const PredecessorCell = ({
         onKeyDown={handleInputKeyDown}
         placeholder="e.g., 1 or 1,2"
         className={cn(
-          "h-6 text-xs border border-transparent shadow-none px-1 rounded",
-          "hover:border-slate-200 focus:border-blue-500 focus-visible:ring-0 focus-visible:ring-offset-0",
-          "transition-colors duration-200",
-          validationErrors.length > 0 && "text-destructive border-destructive",
+          "h-8 text-xs border border-border/40 shadow-none px-2 rounded cursor-text",
+          "hover:border-primary/40 hover:bg-accent/5",
+          "focus:border-primary focus:bg-background focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:ring-offset-0",
+          "transition-all duration-200",
+          validationErrors.length > 0 && "text-destructive border-destructive focus:border-destructive",
           className
         )}
       />
       {validationErrors.length > 0 && (
-        <AlertTriangle className="absolute right-1 h-3 w-3 text-destructive pointer-events-none" />
+        <AlertTriangle className="absolute right-2 h-3 w-3 text-destructive pointer-events-none" />
       )}
     </div>
   );
