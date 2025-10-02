@@ -1396,7 +1396,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     if (!result.destination) return;
     
     const { source, destination, type } = result;
-    console.log('Reorder request', { source, destination, type });
+    console.log('🔄 Reorder request', { source, destination, type });
     
     if (source.index === destination.index) return;
     
@@ -1413,26 +1413,34 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       // Get all visible items in current display order
       const visibleItems = wbsItems.filter(item => isItemVisible(item, wbsItems));
       
-      // Reorder the items
-      const [movedItem] = visibleItems.splice(source.index, 1);
-      visibleItems.splice(destination.index, 0, movedItem);
+      console.log('📋 Visible items before reorder:', visibleItems.map(i => ({ id: i.id, wbs_id: i.wbs_id, title: i.title })));
       
-      // Update the created_at timestamps to maintain the new order
-      const now = new Date();
-      for (let i = 0; i < visibleItems.length; i++) {
-        const item = visibleItems[i];
-        const newTimestamp = new Date(now.getTime() + i * 1000).toISOString();
+      // Create a new array and reorder
+      const reorderedItems = [...visibleItems];
+      const [movedItem] = reorderedItems.splice(source.index, 1);
+      reorderedItems.splice(destination.index, 0, movedItem);
+      
+      console.log('📋 Visible items after reorder:', reorderedItems.map(i => ({ id: i.id, wbs_id: i.wbs_id, title: i.title })));
+      
+      // Update wbs_id for all reordered items sequentially
+      for (let i = 0; i < reorderedItems.length; i++) {
+        const item = reorderedItems[i];
+        const newWbsId = `${i + 1}`;
+        
+        console.log(`🔢 Updating item ${item.title}: ${item.wbs_id} → ${newWbsId}`);
+        
         await updateWBSItem(item.id, { 
-          created_at: newTimestamp 
+          wbs_id: newWbsId,
+          created_at: new Date(Date.now() + i * 1000).toISOString()
         }, { skipAutoSchedule: true });
       }
       
       // Reload the items to reflect the new order
       await loadWBSItems();
       
-      console.log('Drag and drop reordering completed');
+      console.log('✅ Drag and drop reordering completed');
     } catch (error) {
-      console.error('Error reordering items:', error);
+      console.error('❌ Error reordering items:', error);
     }
   };
 
