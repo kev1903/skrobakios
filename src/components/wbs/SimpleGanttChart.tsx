@@ -350,7 +350,7 @@ export const SimpleGanttChart = ({
                 <div 
                   className="absolute flex items-center"
                   style={{
-                    left: position.left + Math.max(position.width - 8, 20) + 24,
+                    left: position.left + Math.max(position.width - 8, 20) + 18,
                     top: 4,
                     height: ROW_HEIGHT - 8
                   }}
