@@ -135,20 +135,20 @@ export const PredecessorCell = ({
   };
 
   return (
-    <div className="w-full h-full flex items-center relative group">
+    <div className="w-full h-full flex items-center relative">
       <Input
         type="text"
         value={inputValue}
         onChange={handleInputChange}
         onBlur={handleInputBlur}
         onKeyDown={handleInputKeyDown}
-        placeholder="e.g., 1 or 1,2"
+        placeholder=""
         className={cn(
-          "h-8 text-xs border border-border/40 shadow-none px-2 rounded cursor-text",
-          "hover:border-primary/40 hover:bg-accent/5",
-          "focus:border-primary focus:bg-background focus-visible:ring-1 focus-visible:ring-primary/20 focus-visible:ring-offset-0",
-          "transition-all duration-200",
-          validationErrors.length > 0 && "text-destructive border-destructive focus:border-destructive",
+          "h-full text-xs border-0 shadow-none px-2 bg-transparent cursor-text",
+          "hover:bg-accent/30 focus:bg-accent/50",
+          "focus:border-0 focus-visible:ring-0 focus-visible:ring-offset-0",
+          "transition-colors duration-150",
+          validationErrors.length > 0 && "text-destructive",
           className
         )}
       />
