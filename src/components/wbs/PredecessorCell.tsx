@@ -101,7 +101,7 @@ export const PredecessorCell = ({
 
     for (const wbsNumber of wbsNumbers) {
       // Find the item by WBS number
-      const item = availableItems.find(i => i.wbsNumber === wbsNumber && i.level === 2);
+      const item = availableItems.find(i => i.wbsNumber === wbsNumber);
       
       if (!item) {
         invalidNumbers.push(wbsNumber);
