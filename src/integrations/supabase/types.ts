@@ -5710,6 +5710,7 @@ export type Database = {
           progress: number | null
           progress_status: string | null
           project_id: string
+          revised_budget: number | null
           scope_link: string | null
           start_date: string | null
           status: string | null
@@ -5718,6 +5719,7 @@ export type Database = {
           time_link: string | null
           title: string
           updated_at: string
+          variations: number | null
           wbs_id: string
         }
         Insert: {
@@ -5747,6 +5749,7 @@ export type Database = {
           progress?: number | null
           progress_status?: string | null
           project_id: string
+          revised_budget?: number | null
           scope_link?: string | null
           start_date?: string | null
           status?: string | null
@@ -5755,6 +5758,7 @@ export type Database = {
           time_link?: string | null
           title: string
           updated_at?: string
+          variations?: number | null
           wbs_id: string
         }
         Update: {
@@ -5784,6 +5788,7 @@ export type Database = {
           progress?: number | null
           progress_status?: string | null
           project_id?: string
+          revised_budget?: number | null
           scope_link?: string | null
           start_date?: string | null
           status?: string | null
@@ -5792,6 +5797,7 @@ export type Database = {
           time_link?: string | null
           title?: string
           updated_at?: string
+          variations?: number | null
           wbs_id?: string
         }
         Relationships: [

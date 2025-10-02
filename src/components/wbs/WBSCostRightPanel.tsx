@@ -23,6 +23,8 @@ interface WBSItem {
   duration?: number;
   predecessors?: string[];
   budgeted_cost?: string;
+  variations?: string;
+  revised_budget?: string;
   committed_cost?: string;
   paid_cost?: string;
   forecast_cost?: string;
@@ -82,9 +84,11 @@ export const WBSCostRightPanel = ({
   const useUnifiedScroll = true; // Enable unified scrolling for Cost tab
 
   const content = (
-    <div style={{ minWidth: '720px' }}> {/* Reasonable minimum width for cost columns */}
+    <div style={{ minWidth: '920px' }}> {/* Reasonable minimum width for cost columns */}
       {items.map((item) => {
         const budget = parseFloat(item.budgeted_cost || '0') || 0;
+        const variations = parseFloat(item.variations || '0') || 0;
+        const revisedBudget = parseFloat(item.revised_budget || '0') || (budget + variations);
         const committed = parseFloat(item.committed_cost || '0') || 0;
         const paid = parseFloat(item.paid_cost || '0') || 0;
         const forecast = parseFloat(item.forecast_cost || '0') || budget;
@@ -102,7 +106,7 @@ export const WBSCostRightPanel = ({
                     : 'bg-white hover:bg-gray-50'
               }`}
             style={{
-              gridTemplateColumns: '1fr 100px 100px 100px 100px 120px 100px 100px 200px',
+              gridTemplateColumns: '1fr 100px 100px 100px 100px 100px 100px 120px 100px 100px 200px',
               height: '28px',
             }}
             onMouseEnter={() => onRowHover?.(item.id)}
@@ -131,6 +135,23 @@ export const WBSCostRightPanel = ({
                 placeholder="0"
                 className="text-xs text-foreground text-right w-full font-medium"
               />
+            </div>
+
+            {/* Variations */}
+            <div className="px-2 flex items-center justify-end h-full text-xs">
+              <EditableCell
+                id={item.id}
+                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                field="variations"
+                value={item.variations || ''}
+                placeholder="0"
+                className="text-xs text-orange-600 text-right w-full font-medium"
+              />
+            </div>
+
+            {/* New Budget (Revised Budget) - Calculated */}
+            <div className="px-2 flex items-center justify-end h-full text-xs text-indigo-600 font-medium">
+              {formatCurrency(revisedBudget)}
             </div>
 
             {/* Committed */}
