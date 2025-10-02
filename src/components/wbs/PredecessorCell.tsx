@@ -40,17 +40,34 @@ export const PredecessorCell = ({
   // Update input value when value prop changes
   useEffect(() => {
     if (value && value.length > 0) {
-      // Convert predecessor IDs to WBS numbers for display (remove trailing .0)
-      const wbsNumbers = value
+      // Convert predecessor IDs to WBS numbers for display with type and lag
+      const formattedPredecessors = value
         .map(pred => {
           const item = availableItems.find(i => i.id === pred.id);
           if (!item?.wbsNumber) return null;
+          
           // Remove trailing .0 from WBS numbers
-          return item.wbsNumber.replace(/\.0$/, '');
+          const wbsNumber = item.wbsNumber.replace(/\.0$/, '');
+          
+          // Build the display string: WBS(Type)(Lag)
+          let display = wbsNumber;
+          
+          // Add dependency type if not FS (default) or if lag exists
+          if (pred.type !== 'FS' || (pred.lag && pred.lag !== 0)) {
+            display += `(${pred.type})`;
+          }
+          
+          // Add lag if it exists and is not 0
+          if (pred.lag && pred.lag !== 0) {
+            const lagSign = pred.lag > 0 ? '+' : '';
+            display += `(${lagSign}${pred.lag})`;
+          }
+          
+          return display;
         })
         .filter(Boolean)
         .join(', ');
-      setInputValue(wbsNumbers);
+      setInputValue(formattedPredecessors);
     } else {
       setInputValue('');
     }
