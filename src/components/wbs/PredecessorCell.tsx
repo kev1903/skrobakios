@@ -35,9 +35,6 @@ export const PredecessorCell = ({
   const [inputValue, setInputValue] = useState('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-  // Only allow predecessors for elements
-  const isElement = type === 'element';
-
   // Update input value when value prop changes
   useEffect(() => {
     if (value && value.length > 0) {
@@ -57,7 +54,7 @@ export const PredecessorCell = ({
 
   // Validate schedule when predecessors change
   useEffect(() => {
-    if (isElement && allItems.length > 0 && value.length > 0) {
+    if (allItems.length > 0 && value.length > 0) {
       const timeoutId = setTimeout(() => {
         const currentTask = allItems.find(t => t.id === id);
         if (currentTask) {
@@ -70,7 +67,7 @@ export const PredecessorCell = ({
     } else {
       setValidationErrors([]);
     }
-  }, [value, allItems, id, isElement]);
+  }, [value, allItems, id]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
@@ -125,12 +122,6 @@ export const PredecessorCell = ({
       });
     }
 
-    // Check element limit
-    if (type === 'element' && predecessors.length > 1) {
-      toast.error('Elements can only have 1 dependency');
-      return;
-    }
-
     // Show errors for invalid numbers
     if (invalidNumbers.length > 0) {
       toast.error(`Invalid WBS numbers: ${invalidNumbers.join(', ')}`);
@@ -142,20 +133,6 @@ export const PredecessorCell = ({
       onUpdate(id, 'predecessors', predecessors);
     }
   };
-
-  // If not an element, show read-only display
-  if (!isElement) {
-    return (
-      <div className="w-full h-full flex items-center">
-        <div className={cn(
-          "w-full text-left p-1 h-auto text-muted-foreground/50",
-          className
-        )}>
-          <span className="text-xs">-</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full h-full flex items-center relative group">
