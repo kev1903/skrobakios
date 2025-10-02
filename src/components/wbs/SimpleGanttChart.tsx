@@ -271,7 +271,7 @@ export const SimpleGanttChart = ({
                 <div 
                   className="absolute inset-0 -mx-1"
                   style={{
-                    background: 'linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.08), transparent)',
+                    background: 'linear-gradient(90deg, transparent, rgba(156, 163, 175, 0.08), transparent)',
                     filter: 'blur(4px)'
                   }}
                 />
@@ -279,10 +279,10 @@ export const SimpleGanttChart = ({
                 <div 
                   className="absolute inset-0 border-r-[1.5px]"
                   style={{ 
-                    borderColor: '#ef4444',
+                    borderColor: '#9ca3af',
                     borderStyle: 'dashed',
                     borderWidth: '1.5px',
-                    boxShadow: '0 0 8px rgba(239, 68, 68, 0.3)'
+                    boxShadow: '0 0 8px rgba(156, 163, 175, 0.3)'
                   }}
                 />
               </div>
