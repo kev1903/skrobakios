@@ -84,27 +84,27 @@ export const SimpleGanttChart = ({
   };
 
   const getBarStyle = (level: number) => {
-    // Sophisticated color scheme based on hierarchy level
+    // Muted, professional color scheme inspired by Smartsheet
     const styles = [
       { 
-        bg: 'linear-gradient(135deg, hsl(210, 100%, 56%) 0%, hsl(210, 100%, 64%) 100%)',
-        border: 'hsl(210, 100%, 50%)',
-        shadow: '0 2px 8px -2px rgba(59, 130, 246, 0.3)'
+        bg: 'hsl(214, 65%, 60%)',
+        border: 'hsl(214, 65%, 50%)',
+        shadow: '0 1px 3px rgba(0, 0, 0, 0.12)'
       },
       { 
-        bg: 'linear-gradient(135deg, hsl(262, 83%, 58%) 0%, hsl(262, 83%, 66%) 100%)',
-        border: 'hsl(262, 83%, 52%)',
-        shadow: '0 2px 8px -2px rgba(139, 92, 246, 0.3)'
+        bg: 'hsl(214, 60%, 58%)',
+        border: 'hsl(214, 60%, 48%)',
+        shadow: '0 1px 3px rgba(0, 0, 0, 0.12)'
       },
       { 
-        bg: 'linear-gradient(135deg, hsl(200, 98%, 39%) 0%, hsl(200, 98%, 47%) 100%)',
-        border: 'hsl(200, 98%, 35%)',
-        shadow: '0 2px 8px -2px rgba(14, 165, 233, 0.3)'
+        bg: 'hsl(214, 55%, 56%)',
+        border: 'hsl(214, 55%, 46%)',
+        shadow: '0 1px 3px rgba(0, 0, 0, 0.12)'
       },
       { 
-        bg: 'linear-gradient(135deg, hsl(173, 58%, 39%) 0%, hsl(173, 58%, 47%) 100%)',
-        border: 'hsl(173, 58%, 35%)',
-        shadow: '0 2px 8px -2px rgba(20, 184, 166, 0.3)'
+        bg: 'hsl(214, 50%, 54%)',
+        border: 'hsl(214, 50%, 44%)',
+        shadow: '0 1px 3px rgba(0, 0, 0, 0.12)'
       }
     ];
     
@@ -253,85 +253,48 @@ export const SimpleGanttChart = ({
             );
           })}
 
-          {/* Dependency arrows - drawn before bars so they appear behind */}
+          {/* Dependency arrows - drawn in front of grid lines */}
           <svg 
             className="absolute top-0 left-0 pointer-events-none"
             style={{ 
               width: '100%', 
               height: tasks.length * ROW_HEIGHT,
-              zIndex: 1
+              zIndex: 10
             }}
           >
             <defs>
-              {/* Sophisticated downward pointing arrowhead */}
+              {/* Simple downward pointing arrowhead */}
               <marker
                 id="arrowhead-gantt"
-                markerWidth="10"
-                markerHeight="10"
-                refX="5"
-                refY="8"
+                markerWidth="8"
+                markerHeight="8"
+                refX="4"
+                refY="7"
                 orient="auto-start-reverse"
               >
                 <path
-                  d="M1,1 L9,1 L5,9 z"
-                  fill="#2563eb"
-                  stroke="#1e40af"
-                  strokeWidth="0.5"
-                  strokeLinejoin="round"
+                  d="M1,1 L7,1 L4,7 z"
+                  fill="#1a1a1a"
+                  stroke="none"
                 />
               </marker>
-              <filter id="arrow-shadow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
-                <feOffset dx="0" dy="1" result="offsetblur"/>
-                <feComponentTransfer>
-                  <feFuncA type="linear" slope="0.2"/>
-                </feComponentTransfer>
-                <feMerge>
-                  <feMergeNode/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
             </defs>
             {dependencyArrows.map((arrow, i) => {
               return (
                 <g 
                   key={`arrow-${i}-${arrow.fromTaskId}-${arrow.toTaskId}`}
-                  className="dependency-arrow dependency-fs"
-                  style={{ animationDelay: `${i * 0.05}s` }}
+                  className="dependency-arrow"
                 >
-                  {/* Outer glow effect */}
-                  <path
-                    className="arrow-glow"
-                    d={arrow.path}
-                    stroke="rgba(37, 99, 235, 0.15)"
-                    strokeWidth="8"
-                    fill="none"
-                    opacity="0"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  {/* Main arrow line with shadow */}
+                  {/* Thin black arrow line */}
                   <path
                     className="arrow-main"
                     d={arrow.path}
-                    stroke="#2563eb"
-                    strokeWidth="2"
+                    stroke="#1a1a1a"
+                    strokeWidth="1.5"
                     fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                    strokeLinecap="square"
+                    strokeLinejoin="miter"
                     markerEnd="url(#arrowhead-gantt)"
-                    filter="url(#arrow-shadow)"
-                  />
-                  {/* Inner highlight for depth */}
-                  <path
-                    className="arrow-highlight"
-                    d={arrow.path}
-                    stroke="rgba(96, 165, 250, 0.4)"
-                    strokeWidth="0.5"
-                    fill="none"
-                    opacity="0"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
                   />
                 </g>
               );
