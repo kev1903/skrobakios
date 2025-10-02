@@ -474,9 +474,9 @@ export const WBSTimeView = ({
                 }}>
                   <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Start Date</div>
                   <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">End Date</div>
-                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Duration</div>
-                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Predecessors</div>
-                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Status</div>
+                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600 text-center">Duration</div>
+                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600 text-center">Predecessors</div>
+                  <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600 text-center">Status</div>
                   <div className="px-3 font-semibold text-[10px] uppercase tracking-wider text-slate-600 text-center">Actions</div>
                 </div>
               </div>

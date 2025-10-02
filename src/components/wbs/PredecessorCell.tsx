@@ -155,7 +155,7 @@ export const PredecessorCell = ({
         onKeyDown={handleInputKeyDown}
         placeholder=""
         className={cn(
-          "h-full text-xs border-0 shadow-none px-2 bg-transparent cursor-text",
+          "h-full text-xs border-0 shadow-none px-2 bg-transparent cursor-text text-center",
           "hover:bg-accent/30 focus:bg-accent/50",
           "focus:border-0 focus-visible:ring-0 focus-visible:ring-offset-0",
           "transition-colors duration-150",

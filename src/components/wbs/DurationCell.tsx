@@ -53,7 +53,7 @@ export const DurationCell = ({
         onChange={(e) => setInputValue(e.target.value)}
         onBlur={handleSave}
         onKeyDown={handleKeyDown}
-        className="w-full h-6 text-xs px-2 font-medium border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20"
+        className="w-full h-6 text-xs px-2 font-medium border-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 text-center"
         autoFocus
         type="number"
         min="0"
@@ -63,7 +63,7 @@ export const DurationCell = ({
 
   return (
     <div
-      className={`w-full h-full flex items-center justify-start rounded px-1 hover:bg-slate-100 transition-colors ${
+      className={`w-full h-full flex items-center justify-center rounded px-1 hover:bg-slate-100 transition-colors ${
         isEditable ? 'cursor-pointer' : 'cursor-default opacity-60'
       } ${className}`}
       onClick={() => {

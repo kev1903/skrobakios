@@ -217,7 +217,7 @@ export const WBSTimeRightPanel = ({
               </div>
             </div>
 
-            <div className="px-3 flex items-center h-full text-xs text-slate-700">
+            <div className="px-3 flex items-center justify-center h-full text-xs text-slate-700">
               <DurationCell
                 id={item.id}
                 type="task"
@@ -227,7 +227,7 @@ export const WBSTimeRightPanel = ({
               />
             </div>
 
-            <div className="px-3 flex items-center h-full text-xs text-slate-700">
+            <div className="px-3 flex items-center justify-center h-full text-xs text-slate-700">
               <PredecessorCell
                 id={item.id}
                 type="task"
@@ -322,7 +322,7 @@ export const WBSTimeRightPanel = ({
               />
             </div>
 
-            <div className="px-3 flex items-center h-full">
+            <div className="px-3 flex items-center justify-center h-full">
               <StatusSelect
                 value={item.status} 
                 onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
