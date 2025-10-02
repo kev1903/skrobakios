@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { format, eachDayOfInterval, startOfMonth, endOfMonth, addMonths, differenceInDays } from 'date-fns';
 import { WBSPredecessor } from '@/types/wbs';
+import './dependency-arrows.css';
 
 interface GanttTask {
   id: string;
@@ -194,38 +195,78 @@ export const SimpleGanttChart = ({
           >
             <defs>
               <marker
-                id="arrowhead"
-                markerWidth="8"
-                markerHeight="8"
-                refX="6"
-                refY="4"
+                id="arrowhead-gantt"
+                markerWidth="6"
+                markerHeight="6"
+                refX="5"
+                refY="3"
                 orient="auto"
+                markerUnits="strokeWidth"
               >
-                <polygon
-                  points="0 0, 8 4, 0 8"
-                  fill="#3b82f6"
+                <path
+                  d="M0,0 L0,6 L6,3 z"
+                  fill="#2563eb"
                 />
               </marker>
+              <filter id="arrow-shadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="1"/>
+                <feOffset dx="0" dy="1" result="offsetblur"/>
+                <feComponentTransfer>
+                  <feFuncA type="linear" slope="0.15"/>
+                </feComponentTransfer>
+                <feMerge>
+                  <feMergeNode/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
             </defs>
             {dependencyArrows.map((arrow, i) => {
               const midX = (arrow.fromX + arrow.toX) / 2;
               
-              // Create a curved path for the arrow
+              // Create an orthogonal path (Smartsheet style)
               const pathData = `
                 M ${arrow.fromX} ${arrow.fromY}
                 L ${midX} ${arrow.fromY}
                 L ${midX} ${arrow.toY}
-                L ${arrow.toX} ${arrow.toY}
+                L ${arrow.toX - 8} ${arrow.toY}
               `;
 
               return (
-                <g key={`arrow-${i}-${arrow.fromTaskId}-${arrow.toTaskId}`}>
+                <g 
+                  key={`arrow-${i}-${arrow.fromTaskId}-${arrow.toTaskId}`}
+                  className="dependency-arrow dependency-fs"
+                >
+                  {/* Glow effect */}
                   <path
+                    className="arrow-glow"
                     d={pathData}
-                    stroke="#3b82f6"
-                    strokeWidth="2"
+                    stroke="rgba(37, 99, 235, 0.15)"
+                    strokeWidth="6"
                     fill="none"
-                    markerEnd="url(#arrowhead)"
+                    opacity="0"
+                  />
+                  {/* Main arrow line */}
+                  <path
+                    className="arrow-main"
+                    d={pathData}
+                    stroke="#2563eb"
+                    strokeWidth="1.5"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    markerEnd="url(#arrowhead-gantt)"
+                    filter="url(#arrow-shadow)"
+                  />
+                  {/* Highlight for hover */}
+                  <path
+                    className="arrow-highlight"
+                    d={pathData}
+                    stroke="rgba(255, 255, 255, 0.4)"
+                    strokeWidth="1"
+                    fill="none"
+                    opacity="0"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </g>
               );
