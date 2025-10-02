@@ -92,6 +92,7 @@ export const PredecessorCell = ({
     setInputValue('');
     if (onUpdate) {
       onUpdate(id, 'predecessors', []);
+      toast.success('Predecessors cleared');
     }
   };
 
@@ -150,6 +151,7 @@ export const PredecessorCell = ({
     // Update predecessors
     if (onUpdate) {
       onUpdate(id, 'predecessors', predecessors);
+      toast.success(`Predecessors updated successfully`);
     }
   };
 
