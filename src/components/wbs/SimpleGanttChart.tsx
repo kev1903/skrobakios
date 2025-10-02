@@ -253,7 +253,7 @@ export const SimpleGanttChart = ({
             );
           })}
 
-          {/* Today dotted line */}
+          {/* Today marker - modern dotted line with glow */}
           {dateRange.map((date, i) => {
             const isToday = format(new Date(), 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd');
             if (!isToday) return null;
@@ -261,13 +261,31 @@ export const SimpleGanttChart = ({
             return (
               <div
                 key={`today-line-${i}`}
-                className="absolute top-0 bottom-0 border-r-2 border-red-500"
+                className="absolute top-0 bottom-0"
                 style={{ 
                   left: i * columnWidth + columnWidth / 2,
-                  borderStyle: 'dotted',
                   zIndex: 15
                 }}
-              />
+              >
+                {/* Glow effect backdrop */}
+                <div 
+                  className="absolute inset-0 -mx-1"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.08), transparent)',
+                    filter: 'blur(4px)'
+                  }}
+                />
+                {/* Main dotted line */}
+                <div 
+                  className="absolute inset-0 border-r-[1.5px]"
+                  style={{ 
+                    borderColor: '#ef4444',
+                    borderStyle: 'dashed',
+                    borderWidth: '1.5px',
+                    boxShadow: '0 0 8px rgba(239, 68, 68, 0.3)'
+                  }}
+                />
+              </div>
             );
           })}
 
