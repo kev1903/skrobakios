@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { WBSPredecessor, DependencyType, WBSItem } from '@/types/wbs';
@@ -87,6 +87,14 @@ export const PredecessorCell = ({
     }
   };
 
+  const handleClearPredecessors = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setInputValue('');
+    if (onUpdate) {
+      onUpdate(id, 'predecessors', []);
+    }
+  };
+
   const parsePredecessors = () => {
     if (!inputValue.trim()) {
       // Clear predecessors if input is empty
@@ -146,7 +154,7 @@ export const PredecessorCell = ({
   };
 
   return (
-    <div className="w-full h-full flex items-center relative">
+    <div className="w-full h-full flex items-center relative group">
       <Input
         type="text"
         value={inputValue}
@@ -160,9 +168,19 @@ export const PredecessorCell = ({
           "focus:border-0 focus-visible:ring-0 focus-visible:ring-offset-0",
           "transition-colors duration-150",
           validationErrors.length > 0 && "text-destructive",
+          inputValue && "pr-6",
           className
         )}
       />
+      {inputValue && !validationErrors.length && (
+        <button
+          onClick={handleClearPredecessors}
+          className="absolute right-2 h-4 w-4 flex items-center justify-center rounded-sm opacity-0 group-hover:opacity-100 hover:bg-accent transition-opacity"
+          title="Clear predecessors"
+        >
+          <X className="h-3 w-3 text-muted-foreground" />
+        </button>
+      )}
       {validationErrors.length > 0 && (
         <AlertTriangle className="absolute right-2 h-3 w-3 text-destructive pointer-events-none" />
       )}
