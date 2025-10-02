@@ -168,7 +168,7 @@ export const WBSTimeRightPanel = ({
       {items.map((item) => (
         <div
           key={item.id}
-          className={`grid items-center w-full border-b border-slate-100 cursor-pointer transition-colors duration-150 ${
+          className={`grid w-full border-b border-slate-100 cursor-pointer transition-colors duration-150 ${
             selectedItems.includes(item.id) 
               ? 'bg-blue-50 border-l-2 border-l-blue-500' 
               : hoveredId === item.id 
@@ -183,7 +183,7 @@ export const WBSTimeRightPanel = ({
           onMouseLeave={() => onRowHover?.(null)}
           onClick={(e) => onRowClick?.(item.id, e.ctrlKey || e.metaKey)}
         >
-            <div className="px-3 flex items-center text-xs text-slate-700">
+            <div className="px-3 flex items-center h-full text-xs text-slate-700">
               <div className="flex items-center w-full">
                 <DatePickerCell
                   id={item.id}
@@ -200,7 +200,7 @@ export const WBSTimeRightPanel = ({
               </div>
             </div>
 
-            <div className="px-3 flex items-center text-xs text-slate-700">
+            <div className="px-3 flex items-center h-full text-xs text-slate-700">
               <div className="flex items-center w-full">
                 <DatePickerCell
                   id={item.id}
@@ -217,7 +217,7 @@ export const WBSTimeRightPanel = ({
               </div>
             </div>
 
-            <div className="px-3 flex items-center text-xs text-slate-700">
+            <div className="px-3 flex items-center h-full text-xs text-slate-700">
               <DurationCell
                 id={item.id}
                 type="task"
@@ -227,7 +227,7 @@ export const WBSTimeRightPanel = ({
               />
             </div>
 
-            <div className="px-3 flex items-center text-xs text-slate-700">
+            <div className="px-3 flex items-center h-full text-xs text-slate-700">
               <PredecessorCell
                 id={item.id}
                 type="task"
@@ -322,7 +322,7 @@ export const WBSTimeRightPanel = ({
               />
             </div>
 
-            <div className="px-3 flex items-center">
+            <div className="px-3 flex items-center h-full">
               <StatusSelect
                 value={item.status} 
                 onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
@@ -330,7 +330,7 @@ export const WBSTimeRightPanel = ({
               />
             </div>
 
-            <div className="px-3 flex items-center justify-center">
+            <div className="px-3 flex items-center justify-center h-full">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-slate-100">
