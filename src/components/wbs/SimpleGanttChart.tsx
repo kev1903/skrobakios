@@ -80,13 +80,8 @@ export const SimpleGanttChart = ({
   };
 
   const getBarColor = (level: number) => {
-    const colors = [
-      '#64748b', // level 0 - gray
-      '#3b82f6', // level 1 - blue
-      '#10b981', // level 2 - green
-      '#f59e0b', // level 3 - amber
-    ];
-    return colors[level] || colors[0];
+    // Light grey color for all bars
+    return '#d1d5db';
   };
 
   if (tasks.length === 0) {
@@ -164,13 +159,20 @@ export const SimpleGanttChart = ({
                     className="h-full rounded bg-black/20"
                     style={{ width: `${task.progress}%` }}
                   />
-                  
-                  {/* Task name */}
-                  <div className="absolute inset-0 flex items-center px-2">
-                    <span className="text-xs font-medium text-white truncate">
-                      {task.name}
-                    </span>
-                  </div>
+                </div>
+                
+                {/* Task name - positioned to the right of the bar */}
+                <div 
+                  className="absolute flex items-center"
+                  style={{
+                    left: position.left + Math.max(position.width - 8, 20) + 8,
+                    top: 4,
+                    height: ROW_HEIGHT - 8
+                  }}
+                >
+                  <span className="text-xs font-medium text-black whitespace-nowrap">
+                    {task.name}
+                  </span>
                 </div>
               </div>
             );
