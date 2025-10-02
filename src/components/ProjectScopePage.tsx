@@ -36,7 +36,7 @@ import { createPortal } from 'react-dom';
 import { useCompany } from '@/contexts/CompanyContext';
 import { renumberAllWBSItems } from '@/utils/wbsUtils';
 import { WBSService } from '@/services/wbsService';
-import { useWBS } from '@/hooks/useWBS';
+import { useWBS, WBSItem } from '@/hooks/useWBS';
 import { TeamTaskAssignment } from '@/components/tasks/enhanced/TeamTaskAssignment';
 
 interface ProjectScopePageProps {
@@ -236,6 +236,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     generateWBSId,
     findWBSItem,
     clearError,
+    loadWBSItems,
   } = useWBS(project.id);
 
   console.log('ProjectScopePage rendering', { project, wbsItems: wbsItems?.length, loading, error, activeTab });
@@ -1400,23 +1401,36 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     if (source.index === destination.index) return;
     
     try {
-      // Get the current items in display order (only phases for now)
-      const flatItems = wbsItems
-        .filter(item => item.level === 0 || item.parent_id == null)
-        .sort((a, b) => {
-          const aWbs = a.wbs_id?.split('.').map(n => parseInt(n)) || [0];
-          const bWbs = b.wbs_id?.split('.').map(n => parseInt(n)) || [0];
-          return aWbs[0] - bWbs[0];
-        });
+      // Helper function to determine if an item should be visible (not hidden by collapsed parent)
+      const isItemVisible = (item: WBSItem, allItems: WBSItem[]): boolean => {
+        if (item.level === 0) return true;
+        const parent = allItems.find(i => i.id === item.parent_id);
+        if (!parent) return true;
+        if (parent.is_expanded === false) return false;
+        return isItemVisible(parent, allItems);
+      };
       
-      // Remove the dragged item and insert at new position
-      const [reorderedItem] = flatItems.splice(source.index, 1);
-      flatItems.splice(destination.index, 0, reorderedItem);
+      // Get all visible items in current display order
+      const visibleItems = wbsItems.filter(item => isItemVisible(item, wbsItems));
       
-      // Use comprehensive renumbering to fix all WBS IDs
-      await renumberWBSHierarchy();
+      // Reorder the items
+      const [movedItem] = visibleItems.splice(source.index, 1);
+      visibleItems.splice(destination.index, 0, movedItem);
       
-      console.log('Drag and drop reordering completed with comprehensive renumbering');
+      // Update the created_at timestamps to maintain the new order
+      const now = new Date();
+      for (let i = 0; i < visibleItems.length; i++) {
+        const item = visibleItems[i];
+        const newTimestamp = new Date(now.getTime() + i * 1000).toISOString();
+        await updateWBSItem(item.id, { 
+          created_at: newTimestamp 
+        }, { skipAutoSchedule: true });
+      }
+      
+      // Reload the items to reflect the new order
+      await loadWBSItems();
+      
+      console.log('Drag and drop reordering completed');
     } catch (error) {
       console.error('Error reordering items:', error);
     }
