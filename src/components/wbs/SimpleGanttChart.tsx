@@ -84,27 +84,27 @@ export const SimpleGanttChart = ({
   };
 
   const getBarStyle = (level: number) => {
-    // Muted, professional color scheme inspired by Smartsheet
+    // Light blue color scheme inspired by Smartsheet
     const styles = [
       { 
-        bg: 'hsl(214, 65%, 60%)',
-        border: 'hsl(214, 65%, 50%)',
-        shadow: '0 1px 3px rgba(0, 0, 0, 0.12)'
+        bg: 'hsl(214, 85%, 70%)',
+        border: 'hsl(214, 75%, 60%)',
+        shadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       },
       { 
-        bg: 'hsl(214, 60%, 58%)',
-        border: 'hsl(214, 60%, 48%)',
-        shadow: '0 1px 3px rgba(0, 0, 0, 0.12)'
+        bg: 'hsl(214, 80%, 68%)',
+        border: 'hsl(214, 70%, 58%)',
+        shadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       },
       { 
-        bg: 'hsl(214, 55%, 56%)',
-        border: 'hsl(214, 55%, 46%)',
-        shadow: '0 1px 3px rgba(0, 0, 0, 0.12)'
+        bg: 'hsl(214, 75%, 66%)',
+        border: 'hsl(214, 65%, 56%)',
+        shadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       },
       { 
-        bg: 'hsl(214, 50%, 54%)',
-        border: 'hsl(214, 50%, 44%)',
-        shadow: '0 1px 3px rgba(0, 0, 0, 0.12)'
+        bg: 'hsl(214, 70%, 64%)',
+        border: 'hsl(214, 60%, 54%)',
+        shadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       }
     ];
     
@@ -263,17 +263,17 @@ export const SimpleGanttChart = ({
             }}
           >
             <defs>
-              {/* Simple downward pointing arrowhead */}
+              {/* Small downward pointing arrowhead */}
               <marker
                 id="arrowhead-gantt"
-                markerWidth="8"
-                markerHeight="8"
-                refX="4"
-                refY="7"
+                markerWidth="4"
+                markerHeight="4"
+                refX="2"
+                refY="3.5"
                 orient="auto-start-reverse"
               >
                 <path
-                  d="M1,1 L7,1 L4,7 z"
+                  d="M0.5,0.5 L3.5,0.5 L2,3.5 z"
                   fill="#1a1a1a"
                   stroke="none"
                 />
