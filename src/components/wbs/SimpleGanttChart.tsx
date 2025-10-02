@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { format, eachDayOfInterval, startOfMonth, endOfMonth, addMonths, differenceInDays } from 'date-fns';
+import { WBSPredecessor } from '@/types/wbs';
 
 interface GanttTask {
   id: string;
@@ -8,6 +9,7 @@ interface GanttTask {
   end: Date;
   progress: number;
   level: number;
+  predecessors?: WBSPredecessor[];
 }
 
 interface SimpleGanttChartProps {
@@ -45,7 +47,8 @@ export const SimpleGanttChart = ({
           start: startDate,
           end: endDate,
           progress: item.progress || 0,
-          level: item.level || 0
+          level: item.level || 0,
+          predecessors: item.predecessors || []
         };
       });
   }, [items]);
@@ -83,6 +86,52 @@ export const SimpleGanttChart = ({
     // Light grey color for all bars
     return '#d1d5db';
   };
+
+  // Generate dependency arrows
+  const dependencyArrows = useMemo(() => {
+    const arrows: Array<{
+      fromTaskId: string;
+      toTaskId: string;
+      fromX: number;
+      fromY: number;
+      toX: number;
+      toY: number;
+    }> = [];
+
+    const ROW_HEIGHT = 28;
+
+    tasks.forEach((task, toIndex) => {
+      if (!task.predecessors || task.predecessors.length === 0) return;
+
+      task.predecessors.forEach(pred => {
+        const fromTask = tasks.find(t => t.id === pred.id);
+        if (!fromTask) return;
+
+        const fromIndex = tasks.findIndex(t => t.id === pred.id);
+        const fromPosition = getBarPosition(fromTask);
+        const toPosition = getBarPosition(task);
+
+        // Arrow starts from the end of predecessor bar
+        const fromX = fromPosition.left + fromPosition.width - 4;
+        const fromY = fromIndex * ROW_HEIGHT + ROW_HEIGHT / 2;
+
+        // Arrow ends at the start of successor bar
+        const toX = toPosition.left + 4;
+        const toY = toIndex * ROW_HEIGHT + ROW_HEIGHT / 2;
+
+        arrows.push({
+          fromTaskId: fromTask.id,
+          toTaskId: task.id,
+          fromX,
+          fromY,
+          toX,
+          toY
+        });
+      });
+    });
+
+    return arrows;
+  }, [tasks, dateRange, columnWidth]);
 
   if (tasks.length === 0) {
     return (
@@ -134,6 +183,55 @@ export const SimpleGanttChart = ({
             />
           ))}
 
+          {/* Dependency arrows - drawn before bars so they appear behind */}
+          <svg 
+            className="absolute top-0 left-0 pointer-events-none"
+            style={{ 
+              width: '100%', 
+              height: tasks.length * ROW_HEIGHT,
+              zIndex: 1
+            }}
+          >
+            <defs>
+              <marker
+                id="arrowhead"
+                markerWidth="8"
+                markerHeight="8"
+                refX="6"
+                refY="4"
+                orient="auto"
+              >
+                <polygon
+                  points="0 0, 8 4, 0 8"
+                  fill="#3b82f6"
+                />
+              </marker>
+            </defs>
+            {dependencyArrows.map((arrow, i) => {
+              const midX = (arrow.fromX + arrow.toX) / 2;
+              
+              // Create a curved path for the arrow
+              const pathData = `
+                M ${arrow.fromX} ${arrow.fromY}
+                L ${midX} ${arrow.fromY}
+                L ${midX} ${arrow.toY}
+                L ${arrow.toX} ${arrow.toY}
+              `;
+
+              return (
+                <g key={`arrow-${i}-${arrow.fromTaskId}-${arrow.toTaskId}`}>
+                  <path
+                    d={pathData}
+                    stroke="#3b82f6"
+                    strokeWidth="2"
+                    fill="none"
+                    markerEnd="url(#arrowhead)"
+                  />
+                </g>
+              );
+            })}
+          </svg>
+
           {/* Task rows and bars */}
           {tasks.map((task, rowIndex) => {
             const position = getBarPosition(task);
@@ -141,7 +239,7 @@ export const SimpleGanttChart = ({
               <div
                 key={task.id}
                 className="relative border-b border-slate-100"
-                style={{ height: ROW_HEIGHT }}
+                style={{ height: ROW_HEIGHT, zIndex: 2 }}
               >
                 {/* Task bar */}
                 <div
