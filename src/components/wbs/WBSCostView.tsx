@@ -365,12 +365,11 @@ export const WBSCostView = ({
                 <div 
                   className="grid items-center h-full min-w-fit" 
                   style={{
-                    gridTemplateColumns: '1fr 100px 100px 100px 100px 100px 100px 120px 100px 100px 200px',
+                    gridTemplateColumns: '100px 100px 100px 100px 100px 100px 120px 100px 1fr',
                     width: '100%',
-                    minWidth: '920px'
+                    minWidth: '820px'
                   }}
                 >
-                  <div className="px-3 font-semibold">DESCRIPTION</div>
                   <div className="px-2 font-semibold text-right">BUDGET</div>
                   <div className="px-2 font-semibold text-right">VARIATIONS</div>
                   <div className="px-2 font-semibold text-right">NEW BUDGET</div>
@@ -379,7 +378,6 @@ export const WBSCostView = ({
                   <div className="px-2 font-semibold text-right">REMAINING</div>
                   <div className="px-2 font-semibold text-right">FORECAST FINAL</div>
                   <div className="px-2 font-semibold text-right">VARIANCE</div>
-                  <div className="px-2 font-semibold text-right">STATUS</div>
                   <div className="px-2 font-semibold">NOTES</div>
                 </div>
               </div>

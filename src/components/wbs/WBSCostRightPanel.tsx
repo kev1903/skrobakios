@@ -84,7 +84,7 @@ export const WBSCostRightPanel = ({
   const useUnifiedScroll = true; // Enable unified scrolling for Cost tab
 
   const content = (
-    <div style={{ minWidth: '920px' }}> {/* Reasonable minimum width for cost columns */}
+    <div style={{ minWidth: '820px' }}> {/* Reasonable minimum width for cost columns */}
       {items.map((item) => {
         const budget = parseFloat(item.budgeted_cost || '0') || 0;
         const variations = parseFloat(item.variations || '0') || 0;
@@ -106,25 +106,13 @@ export const WBSCostRightPanel = ({
                     : 'bg-white hover:bg-gray-50'
               }`}
             style={{
-              gridTemplateColumns: '1fr 100px 100px 100px 100px 100px 100px 120px 100px 100px 200px',
+              gridTemplateColumns: '100px 100px 100px 100px 100px 100px 120px 100px 1fr',
               height: '28px',
             }}
             onMouseEnter={() => onRowHover?.(item.id)}
             onMouseLeave={() => onRowHover?.(null)}
             onClick={(e) => onRowClick?.(item.id, e.ctrlKey || e.metaKey)}
         >
-            {/* Description */}
-            <div className="px-3 flex items-center h-full text-xs overflow-hidden">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="description"
-                value={item.description || ''}
-                placeholder="Add description..."
-                className="text-xs text-muted-foreground w-full truncate"
-              />
-            </div>
-
             {/* Budget */}
             <div className="px-2 flex items-center justify-end h-full text-xs">
               <EditableCell
@@ -201,15 +189,6 @@ export const WBSCostRightPanel = ({
             }`}>
               {variance !== 0 && (variance > 0 ? '+' : '')}{formatCurrency(Math.abs(variance))}
             </div>
-
-             {/* Status */}
-             <div className="px-2 flex items-center justify-center h-full">
-               <StatusSelect 
-                 value={item.status} 
-                 onChange={(newStatus: string) => onItemUpdate(item.id, { status: newStatus })}
-                 disabled={item.hasChildren}
-               />
-             </div>
 
             {/* Notes */}
             <div className="px-2 flex items-center h-full text-xs">
