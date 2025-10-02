@@ -168,7 +168,7 @@ export const WBSTimeRightPanel = ({
       {items.map((item) => (
         <div
           key={item.id}
-          className={`grid w-full border-b border-slate-100 cursor-pointer transition-colors duration-150 ${
+          className={`grid items-center w-full border-b border-slate-100 cursor-pointer transition-colors duration-150 ${
             selectedItems.includes(item.id) 
               ? 'bg-blue-50 border-l-2 border-l-blue-500' 
               : hoveredId === item.id 
