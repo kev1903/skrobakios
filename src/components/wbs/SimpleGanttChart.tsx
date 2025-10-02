@@ -263,17 +263,17 @@ export const SimpleGanttChart = ({
             }}
           >
             <defs>
-              {/* Small downward pointing arrowhead */}
+              {/* Small arrowhead that points in travel direction */}
               <marker
                 id="arrowhead-gantt"
-                markerWidth="4"
-                markerHeight="4"
-                refX="2"
-                refY="0.5"
+                markerWidth="5"
+                markerHeight="5"
+                refX="4"
+                refY="2.5"
                 orient="auto"
               >
                 <path
-                  d="M0.5,0.5 L3.5,0.5 L2,3.5 z"
+                  d="M0,0 L0,5 L4,2.5 z"
                   fill="#1a1a1a"
                   stroke="none"
                 />
@@ -290,7 +290,7 @@ export const SimpleGanttChart = ({
                     className="arrow-main"
                     d={arrow.path}
                     stroke="#1a1a1a"
-                    strokeWidth="1.5"
+                    strokeWidth="1"
                     fill="none"
                     strokeLinecap="square"
                     strokeLinejoin="miter"
