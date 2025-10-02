@@ -38,11 +38,13 @@ export const PredecessorCell = ({
   // Update input value when value prop changes
   useEffect(() => {
     if (value && value.length > 0) {
-      // Convert predecessor IDs to WBS numbers for display
+      // Convert predecessor IDs to WBS numbers for display (remove trailing .0)
       const wbsNumbers = value
         .map(pred => {
           const item = availableItems.find(i => i.id === pred.id);
-          return item?.wbsNumber;
+          if (!item?.wbsNumber) return null;
+          // Remove trailing .0 from WBS numbers
+          return item.wbsNumber.replace(/\.0$/, '');
         })
         .filter(Boolean)
         .join(', ');
