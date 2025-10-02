@@ -111,8 +111,10 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
   });
 
   const expectedLevel = (wbsId: string) => {
-    const parts = (wbsId || '').split('.');
-    if (parts.length === 2 && parts[1] === '0') return 0; // X.0 → level 0 (Stage)
+    const parts = (wbsId || '').split('.').filter(p => p !== '');
+    // Single segment like "1", "2" → level 0 (Stage)
+    if (parts.length === 1) return 0;
+    // Multiple segments → level is parts.length - 1
     return Math.max(0, Math.min(4, parts.length - 1)); // Clamp to max level 4 (5 levels total: 0-4)
   };
 
@@ -142,24 +144,12 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
   // Link by WBS path regardless of parent_id stored
   const roots: WBSItem[] = [];
   const getParentCandidates = (wbsId: string): string[] => {
-    const parts = (wbsId || '').split('.');
+    const parts = (wbsId || '').split('.').filter(p => p !== '');
     // Single-segment like "1" → root
     if (parts.length === 1) return [];
-    // Two segments
-    if (parts.length === 2) {
-      // X.0 → explicit root
-      if (parts[1] === '0') return [];
-      // Prefer parent "X"; also support datasets using "X.0" as parent
-      return [parts[0], `${parts[0]}.0`];
-    }
-    // Three or more → parent is all but last
+    // Multiple segments → parent is all but last
     const parent = parts.slice(0, -1).join('.');
-    // If parent ends with .0, also provide variant without .0
-    const candidates = [parent];
-    if (parent.endsWith('.0')) {
-      candidates.push(parent.split('.').slice(0, -1).join('.'));
-    }
-    return candidates;
+    return [parent];
   };
 
   // Ensure deterministic order
