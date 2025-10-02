@@ -103,8 +103,12 @@ export const PredecessorCell = ({
     console.log('📋 Available items:', availableItems.map(i => ({ id: i.id, wbsNumber: i.wbsNumber, name: i.name })));
 
     for (const wbsNumber of wbsNumbers) {
-      // Find the item by WBS number
-      const item = availableItems.find(i => i.wbsNumber === wbsNumber);
+      // Find the item by WBS number - support both exact match and partial match (e.g., "2" matches "2.0")
+      const item = availableItems.find(i => 
+        i.wbsNumber === wbsNumber || 
+        i.wbsNumber === `${wbsNumber}.0` ||
+        i.wbsNumber.startsWith(`${wbsNumber}.`)
+      );
       
       console.log(`🔍 Looking for WBS number "${wbsNumber}":`, item);
       
