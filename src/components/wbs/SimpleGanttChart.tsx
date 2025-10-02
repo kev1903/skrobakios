@@ -137,13 +137,13 @@ export const SimpleGanttChart = ({
         const fromPosition = getBarPosition(fromTask);
         const toPosition = getBarPosition(task);
 
-        // Arrow starts from the right edge of predecessor bar at vertical center
+        // Arrow starts from the right edge of predecessor bar, positioned lower
         const fromX = fromPosition.left + fromPosition.width - 4;
-        const fromY = fromIndex * ROW_HEIGHT + ROW_HEIGHT / 2;
+        const fromY = fromIndex * ROW_HEIGHT + ROW_HEIGHT * 0.75;
 
-        // Arrow ends at the left edge of successor bar at the TOP
+        // Arrow ends at the left edge of successor bar, positioned lower
         const toX = toPosition.left + 4;
-        const toY = toIndex * ROW_HEIGHT + BAR_TOP_OFFSET;
+        const toY = toIndex * ROW_HEIGHT + ROW_HEIGHT * 0.75;
 
         // Simple 2-direction path: horizontal first, then vertical down
         const path = `M ${fromX} ${fromY} L ${toX} ${fromY} L ${toX} ${toY}`;

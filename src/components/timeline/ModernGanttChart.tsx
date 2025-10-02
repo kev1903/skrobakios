@@ -841,7 +841,7 @@ const toggleSection = (taskId: string) => {
     return {
       x: startDayIndex * dayWidth,
       endX: (endDayIndex + 1) * dayWidth,
-      y: taskIndex * rowHeight + rowHeight / 2, // Center of task row
+      y: taskIndex * rowHeight + rowHeight * 0.75, // Position arrow near bottom of row
       taskIndex
     };
   };
