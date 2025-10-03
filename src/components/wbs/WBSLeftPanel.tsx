@@ -154,13 +154,11 @@ export const WBSLeftPanel = ({
                           {itemHasChildren ? (
                             <div
                               onMouseDown={(e) => {
-                                console.log('🔵 CHEVRON MOUSEDOWN for item:', item.id, 'current isExpanded:', item.isExpanded);
                                 e.preventDefault();
                                 e.stopPropagation();
                                 onToggleExpanded(item.id);
                               }}
                               onClick={(e) => {
-                                console.log('🔵 CHEVRON ONCLICK for item:', item.id);
                                 e.preventDefault();
                                 e.stopPropagation();
                               }}
