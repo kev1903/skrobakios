@@ -803,26 +803,26 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         // Parse the current item's WBS ID to get the number
         const currentWbsNum = parseFloat(item.wbs_id);
         
-        // Find the next item at the same level to determine the new WBS number
-        const nextItem = flatWBSItems[currentItemIndex + 1];
+        // Find the next root-level item (level 0) to determine the new WBS number
+        const nextRootItem = flatWBSItems.slice(currentItemIndex + 1).find(i => i.level === 0);
         let newWbsNum: number;
         
-        if (nextItem && nextItem.level === item.level) {
-          // Insert between current and next sibling
-          const nextWbsNum = parseFloat(nextItem.wbs_id);
+        if (nextRootItem) {
+          // Insert between current and next root-level sibling
+          const nextWbsNum = parseFloat(nextRootItem.wbs_id);
           newWbsNum = currentWbsNum + ((nextWbsNum - currentWbsNum) / 2);
         } else {
-          // Insert after current item (no next sibling at same level)
+          // Insert after current item (no next root-level sibling)
           newWbsNum = currentWbsNum + 0.5;
         }
         
-        // Create the new item with the calculated WBS ID
+        // Create the new item at root level (level 0, no parent)
         const insertedItem = await createWBSItem({
           company_id: currentCompany.id,
           project_id: project.id,
-          parent_id: item.parent_id || null,
+          parent_id: null, // Always root level
           title: 'New Item',
-          level: item.level,
+          level: 0, // Always root level - no indent
           wbs_id: newWbsNum.toString(),
           is_expanded: true,
           linked_tasks: [],
