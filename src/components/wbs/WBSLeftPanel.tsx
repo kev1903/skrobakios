@@ -75,9 +75,7 @@ export const WBSLeftPanel = ({
     if (!parent) return true;
     
     // If parent is collapsed, this item should be hidden
-    console.log(`🔍 Checking visibility for ${item.name}: parent=${parent.name}, parent.isExpanded=${parent.isExpanded}`);
     if (parent.isExpanded === false) {
-      console.log(`❌ Hiding ${item.name} because parent ${parent.name} is collapsed`);
       return false;
     }
     
