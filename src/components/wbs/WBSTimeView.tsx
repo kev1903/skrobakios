@@ -515,6 +515,11 @@ export const WBSTimeView = ({
                 onDragEnd={onDragEnd}
                 onItemEdit={onItemUpdate}
                 onAddChild={onAddChild}
+                onContextMenuAction={(action, itemId) => {
+                  const item = items.find(i => i.id === itemId);
+                  const type = item?.level === 0 ? 'phase' : item?.level === 1 ? 'component' : item?.level === 2 ? 'element' : 'task';
+                  onContextMenuAction(action, itemId, type);
+                }}
                 dragIndicator={dragIndicator}
                 EditableCell={EditableCell}
                 generateWBSNumber={generateWBSNumber}
