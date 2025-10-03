@@ -125,12 +125,11 @@ export const WBSLeftPanel = ({
                           onMouseEnter={() => onRowHover?.(item.id)}
                           onMouseLeave={() => onRowHover?.(null)}
                           onClick={(e) => {
-                            // Don't trigger row click if clicking on the chevron button or editable cell
+                            // Only trigger row click if not clicking inside the name/chevron area
                             const target = e.target as HTMLElement;
-                            if (target.closest('button[title*="children"]') || target.closest('[data-field="name"]')) {
-                              return;
+                            if (!target.closest('[data-field="name"]') && !target.closest('.cursor-pointer[title*="children"]')) {
+                              onRowClick?.(item.id, e.ctrlKey || e.metaKey);
                             }
-                            onRowClick?.(item.id, e.ctrlKey || e.metaKey);
                           }}
                         >
                         <div className="px-2 flex items-center justify-center h-full">
@@ -147,22 +146,24 @@ export const WBSLeftPanel = ({
                           {sequentialWBSNumber}
                         </div>
                         
-                        <div className="px-3 flex items-center h-full font-medium text-foreground text-xs" style={{ paddingLeft: `${12 + indentWidth}px` }}>
+                        <div 
+                          className="px-3 flex items-center h-full font-medium text-foreground text-xs" 
+                          style={{ paddingLeft: `${12 + indentWidth}px` }}
+                          onClick={(e) => {
+                            // Stop propagation at this level to prevent row click
+                            e.stopPropagation();
+                          }}
+                        >
                           {/* Always show chevron for items with children, regardless of expand/collapse state */}
                           {itemHasChildren ? (
-                            <button
-                              type="button"
+                            <div
                               onClick={(e) => {
                                 console.log('🔵 Chevron clicked for item:', item.id, 'current isExpanded:', item.isExpanded);
                                 e.preventDefault();
                                 e.stopPropagation();
                                 onToggleExpanded(item.id);
                               }}
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                              }}
-                              className="mr-2 p-1 rounded hover:bg-accent/20 transition-colors flex-shrink-0 cursor-pointer z-10"
+                              className="mr-2 p-1 rounded hover:bg-accent/20 transition-colors flex-shrink-0 cursor-pointer"
                               title={isExpanded ? "Collapse children" : "Expand children"}
                             >
                               {isExpanded ? (
@@ -170,7 +171,7 @@ export const WBSLeftPanel = ({
                               ) : (
                                 <ChevronRight className="w-3 h-3 text-muted-foreground" />
                               )}
-                            </button>
+                            </div>
                           ) : (
                             <div className="w-4 mr-2 flex-shrink-0" />
                           )}

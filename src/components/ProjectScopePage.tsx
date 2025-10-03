@@ -814,8 +814,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     
     const item = wbsItems.find(i => i.id === itemId);
     if (item) {
-      const newExpandedState = !item.is_expanded;
-      console.log(`📊 Item ${itemId} changing from ${item.is_expanded} to ${newExpandedState}`);
+      // Handle undefined by defaulting to true, then toggle
+      const currentState = item.is_expanded !== false; // undefined or true = true
+      const newExpandedState = !currentState;
+      console.log(`📊 Item ${itemId} changing from ${item.is_expanded} (treated as ${currentState}) to ${newExpandedState}`);
       console.log('📊 Full item before update:', item);
       
       // Update the WBS item in the database and local state
