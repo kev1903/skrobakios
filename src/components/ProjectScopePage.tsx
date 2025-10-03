@@ -306,9 +306,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Convert WBS items to flat array for split view while preserving hierarchy
   const flatWBSItems = React.useMemo(() => {
+    console.log('🔄 flatWBSItems recalculating, wbsItems.length:', wbsItems.length);
+    
     // Helper function to recursively flatten WBS hierarchy
     const flattenWBSItems = (items: any[], result: any[] = []): any[] => {
       items.forEach((item) => {
+        const isExpanded = item.is_expanded !== false;
+        console.log(`📋 Flattening item ${item.title}: is_expanded=${item.is_expanded}, mapped isExpanded=${isExpanded}`);
+        
         // Add the current item to result
         result.push({
           id: item.id,
@@ -319,7 +324,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           assignedTo: item.assigned_to || '',
           level: item.level || 0,
           wbsNumber: '',
-          isExpanded: item.is_expanded !== false, // Default to true
+          isExpanded: isExpanded,
           hasChildren: item.children && item.children.length > 0,
           parent_id: item.parent_id,
           wbs_id: item.wbs_id,
