@@ -1809,6 +1809,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           </div>
                         </div>
                      </div>
+                    ) : flatWBSItems.length === 0 ? (
+                      <div className="flex items-center justify-center h-full">
+                        <div className="text-center max-w-md px-4">
+                          <div className="mb-4">
+                            <Plus className="w-16 h-16 mx-auto text-muted-foreground/40" />
+                          </div>
+                          <h3 className="text-lg font-semibold mb-2">No Activities Yet</h3>
+                          <p className="text-sm text-muted-foreground mb-6">
+                            Get started by adding your first project activity to build your work breakdown structure.
+                          </p>
+                          <Button onClick={addNewPhase} className="gap-2">
+                            <Plus className="w-4 h-4" />
+                            Add First Activity
+                          </Button>
+                        </div>
+                      </div>
                     ) : (
                        <div className="h-full overflow-hidden">
                         <WBSSplitView
@@ -1865,6 +1881,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                        </div>
                      </div>
                     </div>
+                  ) : flatWBSItems.length === 0 ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center max-w-md px-4">
+                        <div className="mb-4">
+                          <Clock className="w-16 h-16 mx-auto text-muted-foreground/40" />
+                        </div>
+                        <h3 className="text-lg font-semibold mb-2">No Activities Yet</h3>
+                        <p className="text-sm text-muted-foreground mb-6">
+                          Get started by adding your first project activity to build your work breakdown structure.
+                        </p>
+                        <Button onClick={addNewPhase} className="gap-2">
+                          <Plus className="w-4 h-4" />
+                          Add First Activity
+                        </Button>
+                      </div>
+                    </div>
                   ) : (
                     <div className="h-full overflow-hidden">
                       <WBSTimeView
@@ -1918,6 +1950,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                             </div>
                           </div>
                        </div>
+                      ) : flatWBSItems.length === 0 ? (
+                        <div className="flex items-center justify-center h-full">
+                          <div className="text-center max-w-md px-4">
+                            <div className="mb-4">
+                              <DollarSign className="w-16 h-16 mx-auto text-muted-foreground/40" />
+                            </div>
+                            <h3 className="text-lg font-semibold mb-2">No Activities Yet</h3>
+                            <p className="text-sm text-muted-foreground mb-6">
+                              Get started by adding your first project activity to build your work breakdown structure.
+                            </p>
+                            <Button onClick={addNewPhase} className="gap-2">
+                              <Plus className="w-4 h-4" />
+                              Add First Activity
+                            </Button>
+                          </div>
+                        </div>
                       ) : (
                           <WBSCostView
                             items={flatWBSItems}
