@@ -131,7 +131,7 @@ export const WBSTimeView = ({
     if (selectedItems.length === 0) return;
     
     try {
-      console.log('🔵 Starting cascade indent operation for items:', selectedItems);
+      console.log('🔵 Starting progressive indent operation for items:', selectedItems);
       
       // Helper function to get all descendants of an item
       const getAllDescendants = (itemId: string): string[] => {
@@ -146,16 +146,25 @@ export const WBSTimeView = ({
         return descendants;
       };
       
+      // Helper to find the appropriate parent for a given level
+      const findParentForLevel = (currentIndex: number, targetLevel: number): string | null => {
+        // Look backwards to find an item at level (targetLevel - 1)
+        for (let i = currentIndex - 1; i >= 0; i--) {
+          const potentialParent = items[i];
+          if (potentialParent.level === targetLevel - 1) {
+            return potentialParent.id;
+          }
+        }
+        return null;
+      };
+      
       // Process each selected item and its descendants
       for (const itemId of selectedItems) {
         const item = items.find(i => i.id === itemId);
         if (!item) continue;
         
-        // Find the item directly above this one in the flat list
         const currentIndex = items.findIndex(i => i.id === itemId);
-        if (currentIndex <= 0) continue; // Can't indent the first item
-        
-        const itemAbove = items[currentIndex - 1];
+        if (currentIndex < 0) continue;
         
         // Check maximum level restriction (allow up to level 4, since we start from 0)
         if (item.level >= 4) {
@@ -163,12 +172,15 @@ export const WBSTimeView = ({
           continue;
         }
         
-        console.log(`🔄 Indenting parent item ${item.title || item.id} under ${itemAbove.title || itemAbove.id}`);
+        const newLevel = item.level + 1;
+        const newParentId = findParentForLevel(currentIndex, newLevel);
         
-        // Indent the parent item
+        console.log(`🔄 Progressive indent: ${item.title || item.id} from level ${item.level} to ${newLevel}, new parent: ${newParentId}`);
+        
+        // Indent the item by one level
         await onItemUpdate(itemId, {
-          parent_id: itemAbove.id,
-          level: item.level + 1
+          parent_id: newParentId,
+          level: newLevel
         });
         
         // Get all descendants and indent them too

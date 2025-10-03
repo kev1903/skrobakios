@@ -854,14 +854,30 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         openNotesDialog(item);
         break;
       case 'indent':
-        // Find the item above to make it the parent
+        // Progressive indent: increase level by 1 and find appropriate parent
         const currentIndex = wbsItems.findIndex(i => i.id === itemId);
-        if (currentIndex > 0 && item.level < 4) {
-          const itemAbove = wbsItems[currentIndex - 1];
+        if (currentIndex >= 0 && item.level < 4) {
+          const newLevel = item.level + 1;
+          
+          // Find the appropriate parent - look backwards for an item at (newLevel - 1)
+          let newParentId: string | null = null;
+          for (let i = currentIndex - 1; i >= 0; i--) {
+            const potentialParent = wbsItems[i];
+            if (potentialParent.level === newLevel - 1) {
+              newParentId = potentialParent.id;
+              break;
+            }
+          }
+          
+          console.log(`🔄 Progressive indent: ${item.title} from level ${item.level} to ${newLevel}, parent: ${newParentId}`);
+          
           await updateWBSItem(itemId, {
-            parent_id: itemAbove.id,
-            level: item.level + 1
+            parent_id: newParentId,
+            level: newLevel
           });
+          
+          // Renumber after hierarchy change
+          setTimeout(() => renumberWBSHierarchy(), 100);
         }
         break;
       case 'outdent':
