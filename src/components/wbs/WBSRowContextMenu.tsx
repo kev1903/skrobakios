@@ -65,23 +65,10 @@ export const WBSRowContextMenu = ({
         
         <ContextMenuSeparator />
         
-        <ContextMenuSub>
-          <ContextMenuSubTrigger className="cursor-pointer">
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Insert Row
-          </ContextMenuSubTrigger>
-          <ContextMenuSubContent className="bg-white/95 backdrop-blur-sm border-slate-200 shadow-lg z-[100]">
-            <ContextMenuItem onClick={() => onAction('insert-above', itemId)} className="cursor-pointer">
-              Insert Above
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => onAction('insert-below', itemId)} className="cursor-pointer">
-              Insert Below
-            </ContextMenuItem>
-            <ContextMenuItem onClick={() => onAction('insert-child', itemId)} className="cursor-pointer">
-              Insert Child
-            </ContextMenuItem>
-          </ContextMenuSubContent>
-        </ContextMenuSub>
+        <ContextMenuItem onClick={() => onAction('insert-below', itemId)} className="cursor-pointer">
+          <PlusCircle className="w-4 h-4 mr-2" />
+          Insert Row
+        </ContextMenuItem>
         
         <ContextMenuItem 
           onClick={() => onAction('delete', itemId)} 
