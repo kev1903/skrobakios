@@ -829,10 +829,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         });
         
         if (insertedItem) {
-          // Reload items to reflect new order
+          // Reload items to reflect new order (database orders by level, then wbs_id)
           await loadWBSItems();
-          // Renumber to get correct sequential WBS IDs
-          renumberWBSHierarchy();
+          // Don't renumber immediately - let the fractional WBS ID maintain position
+          // The user can manually renumber when needed
         }
         break;
       case 'insert-child':
