@@ -205,10 +205,7 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
 export const updateItemsRecursively = (items: WBSItem[], id: string, updates: Partial<WBSItem>): WBSItem[] => {
   return items.map(item => {
     if (item.id === id) {
-      console.log(`✏️ Updating item ${id} with:`, updates);
-      const updated = { ...item, ...updates };
-      console.log(`✅ Item updated, is_expanded:`, updated.is_expanded);
-      return updated;
+      return { ...item, ...updates };
     }
     if (item.children.length > 0) {
       return { ...item, children: updateItemsRecursively(item.children, id, updates) };

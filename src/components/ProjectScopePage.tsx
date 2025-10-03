@@ -306,14 +306,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Convert WBS items to flat array for split view while preserving hierarchy
   const flatWBSItems = React.useMemo(() => {
-    console.log('🔄 flatWBSItems recalculating, wbsItems.length:', wbsItems.length);
-    
-    // Helper function to recursively flatten WBS hierarchy
-    const flattenWBSItems = (items: any[], result: any[] = []): any[] => {
+    // Helper function to recursively flatten WBS hierarchy with correct depth tracking
+    const flattenWBSItems = (items: any[], depth: number = 0, result: any[] = []): any[] => {
       items.forEach((item) => {
-        console.log(`📋 Flattening item ${item.title}: is_expanded=${item.is_expanded}`);
-        
-        // Add the current item to result
+        // Add the current item to result with depth-based level
         result.push({
           id: item.id,
           name: item.title || item.name || '',
@@ -321,7 +317,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           status: item.status || 'Not Started',
           progress: item.progress || 0,
           assignedTo: item.assigned_to || '',
-          level: item.level || 0,
+          level: depth, // Use actual tree depth, not database level
           wbsNumber: '',
           isExpanded: item.is_expanded !== false, // Normalized at service level
           hasChildren: item.children && item.children.length > 0,
@@ -335,9 +331,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           predecessors: Array.isArray(item.predecessors) ? item.predecessors : []
         });
         
-        // If item has children, recursively flatten them
+        // If item has children, recursively flatten them at next depth level
         if (item.children && item.children.length > 0) {
-          flattenWBSItems(item.children, result);
+          flattenWBSItems(item.children, depth + 1, result);
         }
       });
       return result;
@@ -963,36 +959,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Create a unified toggle handler for all tabs to ensure synchronization
   const handleToggleExpanded = useCallback(async (itemId: string) => {
-    console.log('🔄 Toggling expand/collapse for item:', itemId);
-    
     const item = wbsItems.find(i => i.id === itemId);
     if (item) {
       // is_expanded is now always a boolean from the service
       const currentState = item.is_expanded !== false;
       const newExpandedState = !currentState;
-      console.log(`📊 Item ${itemId} (${item.title}) changing from ${currentState} to ${newExpandedState}`);
-      console.log('📊 Before update - wbsItems count:', wbsItems.length);
       
       // Update the WBS item in the database and local state
       await updateWBSItem(itemId, { is_expanded: newExpandedState });
-      
-      console.log('✅ Expand/collapse state updated successfully');
-      console.log('📊 After update - checking item state...');
-      
-      // Force a re-check after update
-      setTimeout(() => {
-        const updatedItems = wbsItems;
-        const updatedItem = updatedItems.find(i => i.id === itemId);
-        console.log('🔍 Post-update check:', {
-          itemId,
-          foundItem: !!updatedItem,
-          is_expanded: updatedItem?.is_expanded,
-          title: updatedItem?.title
-        });
-      }, 100);
-    } else {
-      console.error('❌ Item not found in wbsItems:', itemId);
-      console.log('📊 Available items:', wbsItems.map(i => ({ id: i.id, title: i.title, is_expanded: i.is_expanded })));
     }
   }, [wbsItems, updateWBSItem]);
 

@@ -68,39 +68,21 @@ export const WBSLeftPanel = ({
   
   // Helper function to determine if an item should be visible (not hidden by collapsed parent)
   const isItemVisible = (item: WBSItem) => {
-    if (item.level === 0) {
-      console.log(`✅ ${item.name} is visible (top level)`);
-      return true; // Top level items are always visible
-    }
+    if (item.level === 0) return true; // Top level items are always visible
     
     // Find the parent item
     const parent = items.find(i => i.id === item.parent_id);
-    if (!parent) {
-      console.log(`✅ ${item.name} is visible (no parent found)`);
-      return true;
-    }
-    
-    console.log(`🔍 Checking visibility for ${item.name}: parent=${parent.name}, parent.isExpanded=${parent.isExpanded}`);
+    if (!parent) return true;
     
     // If parent is collapsed, this item should be hidden
-    if (parent.isExpanded === false) {
-      console.log(`❌ Hiding ${item.name} because parent ${parent.name} is collapsed (isExpanded=${parent.isExpanded})`);
-      return false;
-    }
+    if (parent.isExpanded === false) return false;
     
     // Recursively check if all ancestors are expanded
     return isItemVisible(parent);
   };
   
-// Remove debug logs from WBSLeftPanel after testing
   // Filter items to only show visible ones
-  console.log(`🎯 WBSLeftPanel rendering with ${items.length} items`);
-  items.forEach(item => {
-    console.log(`  - ${item.name}: level=${item.level}, isExpanded=${item.isExpanded}, parent_id=${item.parent_id}`);
-  });
-  
   const visibleItems = items.filter(isItemVisible);
-  console.log(`📊 Visible items: ${visibleItems.length}/${items.length}`);
   
   const content = (
     <DragDropContext onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
