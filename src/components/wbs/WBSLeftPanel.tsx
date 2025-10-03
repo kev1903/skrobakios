@@ -124,7 +124,14 @@ export const WBSLeftPanel = ({
                           }}
                           onMouseEnter={() => onRowHover?.(item.id)}
                           onMouseLeave={() => onRowHover?.(null)}
-                          onClick={(e) => onRowClick?.(item.id, e.ctrlKey || e.metaKey)}
+                          onClick={(e) => {
+                            // Don't trigger row click if clicking on the chevron button or editable cell
+                            const target = e.target as HTMLElement;
+                            if (target.closest('button[title*="children"]') || target.closest('[data-field="name"]')) {
+                              return;
+                            }
+                            onRowClick?.(item.id, e.ctrlKey || e.metaKey);
+                          }}
                         >
                         <div className="px-2 flex items-center justify-center h-full">
                           <div
@@ -146,14 +153,16 @@ export const WBSLeftPanel = ({
                             <button
                               type="button"
                               onClick={(e) => {
+                                console.log('🔵 Chevron clicked for item:', item.id, 'current isExpanded:', item.isExpanded);
                                 e.preventDefault();
                                 e.stopPropagation();
                                 onToggleExpanded(item.id);
                               }}
                               onMouseDown={(e) => {
+                                e.preventDefault();
                                 e.stopPropagation();
                               }}
-                              className="mr-2 p-1 rounded hover:bg-accent/20 transition-colors flex-shrink-0 cursor-pointer"
+                              className="mr-2 p-1 rounded hover:bg-accent/20 transition-colors flex-shrink-0 cursor-pointer z-10"
                               title={isExpanded ? "Collapse children" : "Expand children"}
                             >
                               {isExpanded ? (
