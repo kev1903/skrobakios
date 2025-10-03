@@ -330,6 +330,76 @@ export const WBSTimeView = ({
     }
   }, []);
 
+  // Keyboard navigation for row selection
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle if we have items and aren't in an input field
+      if (items.length === 0 || (e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') {
+        return;
+      }
+
+      // Helper to check if item is visible (all ancestors are expanded)
+      const isItemVisible = (itemId: string): boolean => {
+        const item = items.find(i => i.id === itemId);
+        if (!item) return false;
+        
+        // Check all ancestors are expanded
+        let currentParentId = item.parent_id;
+        while (currentParentId) {
+          const parent = items.find(i => i.id === currentParentId);
+          if (!parent) break;
+          if (parent.is_expanded === false) return false;
+          currentParentId = parent.parent_id;
+        }
+        return true;
+      };
+
+      // Get visible items
+      const visibleItems = items.filter(item => isItemVisible(item.id));
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter') {
+        e.preventDefault();
+        
+        const currentSelectedId = selectedItems.length > 0 ? selectedItems[selectedItems.length - 1] : null;
+        const currentIndex = currentSelectedId ? visibleItems.findIndex(item => item.id === currentSelectedId) : -1;
+
+        let newIndex = -1;
+        
+        if (e.key === 'ArrowDown' || e.key === 'Enter') {
+          // Move down or Enter (next row)
+          if (currentIndex === -1) {
+            newIndex = 0; // Select first item if nothing selected
+          } else if (currentIndex < visibleItems.length - 1) {
+            newIndex = currentIndex + 1;
+          }
+        } else if (e.key === 'ArrowUp') {
+          // Move up
+          if (currentIndex === -1) {
+            newIndex = 0; // Select first item if nothing selected
+          } else if (currentIndex > 0) {
+            newIndex = currentIndex - 1;
+          }
+        }
+
+        if (newIndex >= 0 && newIndex < visibleItems.length) {
+          const newSelectedItem = visibleItems[newIndex];
+          setSelectedItems([newSelectedItem.id]);
+
+          // Scroll selected item into view
+          setTimeout(() => {
+            const rowElement = document.querySelector(`[data-row-id="${newSelectedItem.id}"]`);
+            if (rowElement) {
+              rowElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          }, 0);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [items, selectedItems]);
+
   // Generate timeline days for consistent layout
   const timelineDays = (() => {
     const itemsWithDates = items.filter(item => item.start_date || item.end_date);
