@@ -5711,6 +5711,7 @@ export type Database = {
           progress_status: string | null
           project_id: string
           revised_budget: number | null
+          rfq_required: boolean | null
           scope_link: string | null
           start_date: string | null
           status: string | null
@@ -5750,6 +5751,7 @@ export type Database = {
           progress_status?: string | null
           project_id: string
           revised_budget?: number | null
+          rfq_required?: boolean | null
           scope_link?: string | null
           start_date?: string | null
           status?: string | null
@@ -5789,6 +5791,7 @@ export type Database = {
           progress_status?: string | null
           project_id?: string
           revised_budget?: number | null
+          rfq_required?: boolean | null
           scope_link?: string | null
           start_date?: string | null
           status?: string | null

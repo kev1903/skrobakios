@@ -37,6 +37,7 @@ export interface WBSItem {
 
   // Additional fields to match standardized interface
   priority?: 'High' | 'Medium' | 'Low';
+  rfq_required?: boolean; // RFQ (Request for Quotation) required flag
 
   // Task-specific fields
   scope_link?: string; // Link to scope documentation or requirements

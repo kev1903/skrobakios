@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { MoreHorizontal, Trash2, NotebookPen, ListTodo, Unlink } from 'lucide-react';
 import {
   DropdownMenu,
@@ -20,6 +21,7 @@ interface WBSItem {
   hasChildren?: boolean;
   is_task_enabled?: boolean;
   linked_task_id?: string;
+  rfq_required?: boolean;
 }
 
 interface WBSRightPanelProps {
@@ -65,7 +67,7 @@ export const WBSRightPanel = ({
   const content = (
     <>
       {items.map((item) => (
-         <div
+          <div
            key={item.id}
               className={`grid items-center w-full border-b border-gray-100 border-l-4 cursor-pointer transition-colors duration-150 ${
                 selectedItems.includes(item.id) 
@@ -76,7 +78,7 @@ export const WBSRightPanel = ({
               }`}
               data-row-id={item.id}
             style={{
-              gridTemplateColumns: '140px 120px 160px 40px 84px',
+              gridTemplateColumns: '140px 120px 160px 60px 40px 84px',
               height: '1.75rem',
           }}
           onMouseEnter={() => onRowHover?.(item.id)}
@@ -130,7 +132,18 @@ export const WBSRightPanel = ({
                     className="text-xs text-muted-foreground flex-1"
                   />
                 )}
-              </div>
+           </div>
+           </div>
+
+           <div className="px-2 flex items-center justify-center h-full">
+             <Switch
+               checked={item.rfq_required || false}
+               onCheckedChange={(checked) => {
+                 onItemUpdate(item.id, { rfq_required: checked });
+               }}
+               onClick={(e) => e.stopPropagation()}
+               className="data-[state=checked]:bg-primary"
+             />
            </div>
 
            <div className="px-1 flex items-center justify-center h-full">
