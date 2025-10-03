@@ -746,8 +746,107 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   );
 
-  const handleContextMenuAction = async (action: string, itemId: string, type: 'phase' | 'component' | 'element' | 'task') => {
+  const handleContextMenuAction = async (action: string, itemId: string) => {
+    // Determine item type from wbsItems
+    const item = wbsItems.find(i => i.id === itemId);
+    if (!item) return;
+    
+    const type: 'phase' | 'component' | 'element' | 'task' = 
+      item.level === 0 ? 'phase' : 
+      item.level === 1 ? 'component' : 
+      item.level === 2 ? 'element' : 'task';
+    
     switch (action) {
+      case 'cut':
+        // TODO: Implement cut functionality
+        console.log('Cut item:', itemId);
+        toast({
+          title: "Cut",
+          description: "Item cut to clipboard (feature coming soon)",
+        });
+        break;
+      case 'copy':
+        // TODO: Implement copy functionality
+        console.log('Copy item:', itemId);
+        toast({
+          title: "Copied",
+          description: "Item copied to clipboard (feature coming soon)",
+        });
+        break;
+      case 'paste':
+        // TODO: Implement paste functionality
+        console.log('Paste at item:', itemId);
+        toast({
+          title: "Paste",
+          description: "Paste functionality coming soon",
+        });
+        break;
+      case 'insert-above':
+        // Insert a new item at the same level above this item
+        await createWBSItem({
+          company_id: currentCompany.id,
+          project_id: project.id,
+          parent_id: item.parent_id || null,
+          title: 'New Item',
+          level: item.level,
+          wbs_id: item.wbs_id,
+          is_expanded: true,
+          linked_tasks: [],
+        });
+        break;
+      case 'insert-below':
+        // Insert a new item at the same level below this item
+        await createWBSItem({
+          company_id: currentCompany.id,
+          project_id: project.id,
+          parent_id: item.parent_id || null,
+          title: 'New Item',
+          level: item.level,
+          wbs_id: item.wbs_id,
+          is_expanded: true,
+          linked_tasks: [],
+        });
+        break;
+      case 'insert-child':
+        await addChildItem(itemId);
+        break;
+      case 'add-comment':
+        openNotesDialog(item);
+        break;
+      case 'indent':
+        // Find the item above to make it the parent
+        const currentIndex = wbsItems.findIndex(i => i.id === itemId);
+        if (currentIndex > 0 && item.level < 4) {
+          const itemAbove = wbsItems[currentIndex - 1];
+          await updateWBSItem(itemId, {
+            parent_id: itemAbove.id,
+            level: item.level + 1
+          });
+        }
+        break;
+      case 'outdent':
+        if (item.level > 0) {
+          const currentParent = wbsItems.find(i => i.id === item.parent_id);
+          await updateWBSItem(itemId, {
+            parent_id: currentParent?.parent_id || null,
+            level: Math.max(0, item.level - 1)
+          });
+        }
+        break;
+      case 'view-details':
+        openNotesDialog(item);
+        break;
+      case 'assign-to':
+        // TODO: Open assignment dialog
+        toast({
+          title: "Assign To",
+          description: "Assignment dialog coming soon",
+        });
+        break;
+      case 'row-actions':
+        // TODO: Open more actions menu
+        console.log('More actions for:', itemId);
+        break;
       case 'add-component':
         addNewComponent(itemId);
         break;
@@ -758,10 +857,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         addNewTask(itemId);
         break;
       case 'edit':
-        const item = wbsItems.find(i => i.id === itemId);
-        if (item) {
+        const foundItem = wbsItems.find(i => i.id === itemId);
+        if (foundItem) {
           setEditingItem({ id: itemId, type, field: 'title' });
-          setEditValue(item.title);
+          setEditValue(foundItem.title);
         }
         break;
       case 'duplicate':

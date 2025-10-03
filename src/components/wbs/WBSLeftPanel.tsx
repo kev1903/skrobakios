@@ -3,6 +3,7 @@ import { ChevronRight, ChevronDown, GripVertical, Plus, PlusCircle, PlusSquare, 
 import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { createPortal } from 'react-dom';
+import { WBSRowContextMenu } from './WBSRowContextMenu';
 
 interface WBSItem {
   id: string;
@@ -21,6 +22,7 @@ interface WBSLeftPanelProps {
   onDragUpdate?: (update: any) => void;
   onItemEdit: (itemId: string, field: string, value: string) => void;
   onAddChild?: (parentId: string) => void;
+  onContextMenuAction?: (action: string, itemId: string) => void;
   dragIndicator: any;
   EditableCell: any;
   generateWBSNumber?: (phaseIndex: number, componentIndex?: number, elementIndex?: number) => string;
@@ -47,6 +49,7 @@ export const WBSLeftPanel = ({
   onDragUpdate,
   onItemEdit,
   onAddChild,
+  onContextMenuAction,
   dragIndicator,
   EditableCell,
   generateWBSNumber,
@@ -105,33 +108,42 @@ export const WBSLeftPanel = ({
                   <Draggable draggableId={item.id} index={index}>
                     {(dragProvided, snapshot) => (
                       <DragPortalWrapper isDragging={snapshot.isDragging}>
-                        <div
-                          ref={dragProvided.innerRef}
-                          {...dragProvided.draggableProps}
-                          data-row-id={item.id}
-                          className={`grid items-center border-b border-gray-100 border-l-4 cursor-pointer transition-colors duration-150 ${
-                            selectedItems.includes(item.id) 
-                              ? 'bg-primary/10 border-l-primary' 
-                              : hoveredId === item.id 
-                                ? 'bg-gray-50 border-l-transparent' 
-                                : 'bg-white hover:bg-gray-50 border-l-transparent'
-                          } ${snapshot.isDragging ? 'bg-white shadow-lg border rounded-md' : ''}`}
-                          style={{
-                            gridTemplateColumns: '32px 70px 1fr 40px',
-                            height: '28px',
-                            width: snapshot.isDragging ? '580px' : 'auto',
-                            ...dragProvided.draggableProps.style,
-                          }}
-                          onMouseEnter={() => onRowHover?.(item.id)}
-                          onMouseLeave={() => onRowHover?.(null)}
-                          onClick={(e) => {
-                            const target = e.target as HTMLElement;
-                            // Ignore clicks on chevron or editable areas
-                            if (target.closest('[data-field="name"]')) return;
-                            if (target.closest('[title*="children"]')) return;
-                            onRowClick?.(item.id, e.ctrlKey || e.metaKey);
+                        <WBSRowContextMenu
+                          itemId={item.id}
+                          itemName={item.name}
+                          hasChildren={itemHasChildren}
+                          level={item.level || 0}
+                          onAction={(action, itemId) => {
+                            onContextMenuAction?.(action, itemId);
                           }}
                         >
+                          <div
+                            ref={dragProvided.innerRef}
+                            {...dragProvided.draggableProps}
+                            data-row-id={item.id}
+                            className={`grid items-center border-b border-gray-100 border-l-4 cursor-pointer transition-colors duration-150 ${
+                              selectedItems.includes(item.id) 
+                                ? 'bg-primary/10 border-l-primary' 
+                                : hoveredId === item.id 
+                                  ? 'bg-gray-50 border-l-transparent' 
+                                  : 'bg-white hover:bg-gray-50 border-l-transparent'
+                            } ${snapshot.isDragging ? 'bg-white shadow-lg border rounded-md' : ''}`}
+                            style={{
+                              gridTemplateColumns: '32px 70px 1fr 40px',
+                              height: '28px',
+                              width: snapshot.isDragging ? '580px' : 'auto',
+                              ...dragProvided.draggableProps.style,
+                            }}
+                            onMouseEnter={() => onRowHover?.(item.id)}
+                            onMouseLeave={() => onRowHover?.(null)}
+                            onClick={(e) => {
+                              const target = e.target as HTMLElement;
+                              // Ignore clicks on chevron or editable areas
+                              if (target.closest('[data-field="name"]')) return;
+                              if (target.closest('[title*="children"]')) return;
+                              onRowClick?.(item.id, e.ctrlKey || e.metaKey);
+                            }}
+                          >
                         <div className="px-2 flex items-center justify-center h-full">
                           <div
                             {...dragProvided.dragHandleProps}
@@ -203,7 +215,8 @@ export const WBSLeftPanel = ({
                             </Button>
                           )}
                         </div>
-                        </div>
+                          </div>
+                        </WBSRowContextMenu>
                       </DragPortalWrapper>
                     )}
                   </Draggable>

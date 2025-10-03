@@ -24,7 +24,7 @@ interface WBSSplitViewProps {
   onDragUpdate?: (update: any) => void;
   onItemUpdate: (itemId: string, updates: any) => void;
   onAddChild?: (parentId: string) => void;
-  onContextMenuAction: (action: string, itemId: string, type: string) => void;
+  onContextMenuAction: (action: string, itemId: string) => void;
   onOpenNotesDialog: (item: any) => void;
   onAddRow?: () => void;
   dragIndicator: any;
@@ -378,12 +378,13 @@ export const WBSSplitView = ({
                     hasChildren: items.some(child => child.parent_id === item.id)
                   };
                   return mappedItem;
-                })}
+                })} 
                 onToggleExpanded={onToggleExpanded} 
                 onDragEnd={onDragEnd}
                 onDragUpdate={onDragUpdate}
                 onItemEdit={onItemUpdate} 
-                onAddChild={onAddChild} 
+                onAddChild={onAddChild}
+                onContextMenuAction={onContextMenuAction}
                 dragIndicator={dragIndicator} 
                 EditableCell={EditableCell} 
                 generateWBSNumber={generateWBSNumber} 
