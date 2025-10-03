@@ -903,14 +903,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         // TODO: Open more actions menu
         console.log('More actions for:', itemId);
         break;
-      case 'add-component':
-        addNewComponent(itemId);
-        break;
-      case 'add-element':
-        addNewElement(itemId);
-        break;
-      case 'add-task':
-        addNewTask(itemId);
+      case 'add-child':
+        addChildItem(itemId);
         break;
       case 'edit':
         const foundItem = wbsItems.find(i => i.id === itemId);
@@ -985,43 +979,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   }, [wbsItems, updateWBSItem]);
 
-  const addNewElement = async (componentId: string) => {
-    try {
-      if (!currentCompany?.id) {
-        console.error('No active company selected');
-        return;
-      }
-
-      const wbsId = generateWBSId(componentId);
-
-      await createWBSItem({
-        company_id: currentCompany.id,
-        project_id: project.id,
-        parent_id: componentId,
-        wbs_id: wbsId,
-        title: 'Untitled Element',
-        description: '',
-        level: 2,
-        category: 'Element',
-        is_expanded: true,
-        progress: 0,
-        status: 'Not Started',
-        health: 'Good',
-        progress_status: 'On Track',
-        at_risk: false,
-        priority: 'Medium',
-        linked_tasks: []
-      });
-
-      // Auto-expand the parent component to show the new element
-      await updateWBSItem(componentId, { is_expanded: true });
-
-      // Trigger renumbering to ensure all WBS IDs are sequential
-      await renumberWBSHierarchy();
-    } catch (error) {
-      console.error('Error adding element:', error);
-    }
-  };
 
   // Remove drag and drop and editing functions that use setScopeData
   const handleEdit = (id: string, type: 'phase' | 'component' | 'element' | 'task', field: string, currentValue: string) => {
@@ -1031,140 +988,57 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Generic function to add child items
   const addChildItem = async (parentId: string) => {
-    console.log('🔄 addChildItem called with parentId:', parentId);
-    const parentItem = findWBSItem(parentId);
-    console.log('📊 Found parent item:', parentItem);
-    if (!parentItem) {
-      console.error('❌ Parent item not found for ID:', parentId);
-      return;
-    }
-    
-    console.log('📈 Parent level:', parentItem.level);
-    // Determine child type based on parent level
-    if (parentItem.level === 0) {
-      // Parent is phase, add component
-      console.log('➕ Adding component to phase');
-      await addNewComponent(parentId);
-    } else if (parentItem.level === 1) {
-      // Parent is component, add element
-      console.log('➕ Adding element to component');
-      await addNewElement(parentId);
-    } else if (parentItem.level === 2) {
-      // Parent is element, add task
-      console.log('➕ Adding task to element');
-      await addNewTask(parentId);
-    }
-    console.log('✅ addChildItem completed');
-  };
-
-  const addNewTask = async (elementId: string) => {
-    console.log('🎯 addNewTask called for element:', elementId);
     try {
+      console.log('🔄 addChildItem called with parentId:', parentId);
+      const parentItem = findWBSItem(parentId);
+      
+      if (!parentItem) {
+        console.error('❌ Parent item not found for ID:', parentId);
+        return;
+      }
+
       if (!currentCompany?.id) {
         console.error('❌ No active company selected');
         return;
       }
 
-      console.log('🏢 Current company:', currentCompany.id);
-      const wbsId = generateWBSId(elementId);
-      console.log('🔢 Generated WBS ID:', wbsId);
+      const childLevel = parentItem.level + 1;
+      const wbsId = generateWBSId(parentId);
 
-      const taskData = {
-        company_id: currentCompany.id,
-        project_id: project.id,
-        parent_id: elementId,
-        wbs_id: wbsId,
-        title: 'Untitled Task',
-        description: '',
-        level: 3,
-        category: 'Task' as const,
-        is_expanded: true,
-        progress: 0,
-        status: 'Not Started' as const,
-        health: 'Good' as const,
-        progress_status: 'On Track' as const,
-        at_risk: false,
-        priority: 'Medium' as const,
-        linked_tasks: [],
-        task_type: 'General',
-        estimated_hours: 0,
-        actual_hours: 0,
-        scope_link: '',
-        time_link: '',
-        cost_link: ''
-      };
-
-      await createWBSItem(taskData);
-      console.log('✅ Task created successfully');
-
-      // Auto-expand the parent element to show the new task
-      await updateWBSItem(elementId, { is_expanded: true });
-
-      toast({
-        title: "Task Created",
-        description: "New task has been added to the element.",
-      });
-    } catch (error) {
-      console.error('❌ Error creating task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create task. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const addNewComponent = async (phaseId: string) => {
-    try {
-      console.log('🔧 Starting addNewComponent for phase:', phaseId);
-      
-      if (!currentCompany?.id) {
-        console.error('No active company selected');
-        return;
-      }
-
-      const wbsId = generateWBSId(phaseId);
-      console.log('🆔 Creating component with WBS ID:', wbsId);
+      console.log(`➕ Adding child at level ${childLevel} to parent at level ${parentItem.level}`);
 
       await createWBSItem({
         company_id: currentCompany.id,
         project_id: project.id,
-        parent_id: phaseId,
+        parent_id: parentId,
         wbs_id: wbsId,
-        title: 'Untitled Component',
+        title: 'Untitled Activity',
         description: '',
-        assigned_to: undefined,
-        start_date: undefined,
-        end_date: undefined,
-        duration: 0,
-        budgeted_cost: undefined,
-        actual_cost: undefined,
+        level: childLevel,
+        category: 'Task',
+        is_expanded: true,
         progress: 0,
         status: 'Not Started',
         health: 'Good',
         progress_status: 'On Track',
         at_risk: false,
-        level: 1,
-        category: 'Component',
         priority: 'Medium',
-        is_expanded: true,
         linked_tasks: []
       });
 
-      console.log('🎉 Component added successfully');
-
-      // Auto-expand the parent phase to show the new component
-      await updateWBSItem(phaseId, { is_expanded: true });
+      // Auto-expand the parent to show the new child
+      await updateWBSItem(parentId, { is_expanded: true });
 
       // Trigger renumbering to ensure all WBS IDs are sequential
       await renumberWBSHierarchy();
 
+      console.log('✅ addChildItem completed');
     } catch (error) {
-      console.error('❌ Error adding component:', error);
+      console.error('❌ Error adding child item:', error);
     }
   };
 
-  const addNewPhase = async () => {
+  const addNewItem = async () => {
     try {
       if (!currentCompany?.id) {
         console.error('No active company selected');
@@ -1332,11 +1206,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       // Find the parent of this item
       const currentItem = wbsItems.find(item => item.id === editingItem.id);
       if (currentItem?.parent_id) {
-        if (editingItem.type === 'element') {
-          await addNewElement(currentItem.parent_id);
-        } else if (editingItem.type === 'task') {
-          await addNewTask(currentItem.parent_id);
-        }
+        // Add a sibling by adding child to parent
+        await addChildItem(currentItem.parent_id);
       }
     } else if (e.key === 'Enter') {
       e.preventDefault();
@@ -1468,11 +1339,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         await commitEdit();
         const currentItem = wbsItems.find(item => item.id === id);
         if (currentItem?.parent_id) {
-          if (type === 'element') {
-            await addNewElement(currentItem.parent_id);
-          } else if (type === 'task') {
-            await addNewTask(currentItem.parent_id);
-          }
+          // Add a sibling by adding child to parent
+          await addChildItem(currentItem.parent_id);
         }
       } else if (e.key === 'Enter') {
         e.preventDefault();
@@ -1841,7 +1709,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           <p className="text-sm text-muted-foreground mb-6">
                             Get started by adding your first project activity to build your work breakdown structure.
                           </p>
-                          <Button onClick={addNewPhase} className="gap-2">
+                          <Button onClick={addNewItem} className="gap-2">
                             <Plus className="w-4 h-4" />
                             Add First Activity
                           </Button>
@@ -1863,11 +1731,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                await renumberWBSHierarchy();
                              }
                            }}
-                          onAddChild={addChildItem}
-                          onContextMenuAction={handleContextMenuAction}
-                          onOpenNotesDialog={openNotesDialog}
-                          onAddRow={addNewPhase}
-                          dragIndicator={dragIndicator}
+                           onAddChild={addChildItem}
+                           onContextMenuAction={handleContextMenuAction}
+                           onOpenNotesDialog={openNotesDialog}
+                           onAddRow={addNewItem}
+                           dragIndicator={dragIndicator}
                           EditableCell={EditableCell}
                           StatusSelect={StatusSelect}
                           ProgressInput={ProgressInput}
@@ -1913,7 +1781,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         <p className="text-sm text-muted-foreground mb-6">
                           Get started by adding your first project activity to build your work breakdown structure.
                         </p>
-                        <Button onClick={addNewPhase} className="gap-2">
+                        <Button onClick={addNewItem} className="gap-2">
                           <Plus className="w-4 h-4" />
                           Add First Activity
                         </Button>
@@ -1938,7 +1806,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         onContextMenuAction={handleContextMenuAction}
                         onOpenNotesDialog={openNotesDialog}
                         onClearAllDates={clearAllDates}
-                        onAddRow={addNewPhase}
+                        onAddRow={addNewItem}
                         dragIndicator={dragIndicator}
                         EditableCell={EditableCell}
                         StatusSelect={StatusSelect}
@@ -1982,7 +1850,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                             <p className="text-sm text-muted-foreground mb-6">
                               Get started by adding your first project activity to build your work breakdown structure.
                             </p>
-                            <Button onClick={addNewPhase} className="gap-2">
+                            <Button onClick={addNewItem} className="gap-2">
                               <Plus className="w-4 h-4" />
                               Add First Activity
                             </Button>
@@ -2002,10 +1870,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                  await renumberWBSHierarchy();
                                }
                              }}
-                            onAddChild={addChildItem}
+                             onAddChild={addChildItem}
                             onContextMenuAction={handleContextMenuAction}
                             onOpenNotesDialog={openNotesDialog}
-                            onAddRow={addNewPhase}
+                            onAddRow={addNewItem}
                             dragIndicator={dragIndicator}
                             EditableCell={EditableCell}
                             StatusSelect={StatusSelect}
