@@ -306,9 +306,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Convert WBS items to flat array for split view while preserving hierarchy
   const flatWBSItems = React.useMemo(() => {
+    console.log('🔄 flatWBSItems recalculating, wbsItems.length:', wbsItems.length);
+    
     // Helper function to recursively flatten WBS hierarchy
     const flattenWBSItems = (items: any[], result: any[] = []): any[] => {
       items.forEach((item) => {
+        console.log(`📋 Flattening item ${item.title}: is_expanded=${item.is_expanded}`);
+        
         // Add the current item to result
         result.push({
           id: item.id,
@@ -967,11 +971,25 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       const currentState = item.is_expanded !== false;
       const newExpandedState = !currentState;
       console.log(`📊 Item ${itemId} (${item.title}) changing from ${currentState} to ${newExpandedState}`);
+      console.log('📊 Before update - wbsItems count:', wbsItems.length);
       
       // Update the WBS item in the database and local state
       await updateWBSItem(itemId, { is_expanded: newExpandedState });
       
       console.log('✅ Expand/collapse state updated successfully');
+      console.log('📊 After update - checking item state...');
+      
+      // Force a re-check after update
+      setTimeout(() => {
+        const updatedItems = wbsItems;
+        const updatedItem = updatedItems.find(i => i.id === itemId);
+        console.log('🔍 Post-update check:', {
+          itemId,
+          foundItem: !!updatedItem,
+          is_expanded: updatedItem?.is_expanded,
+          title: updatedItem?.title
+        });
+      }, 100);
     } else {
       console.error('❌ Item not found in wbsItems:', itemId);
       console.log('📊 Available items:', wbsItems.map(i => ({ id: i.id, title: i.title, is_expanded: i.is_expanded })));
