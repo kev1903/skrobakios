@@ -796,53 +796,28 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         break;
       case 'insert-below':
         // Insert a new item at the same level below this item
-        const newItem = await createWBSItem({
+        const insertedItem = await createWBSItem({
           company_id: currentCompany.id,
           project_id: project.id,
           parent_id: item.parent_id || null,
           title: 'New Item',
           level: item.level,
-          wbs_id: `${item.wbs_id}.new`,
+          wbs_id: `${wbsItems.length + 1}`,
           is_expanded: true,
           linked_tasks: [],
         });
         
-        if (newItem) {
-          // Flatten, reorder, and rebuild the tree structure
-          setWBSItems((prevItems) => {
-            // Helper to flatten tree to array
-            const flattenTree = (items: WBSItem[]): WBSItem[] => {
-              return items.reduce((acc: WBSItem[], item) => {
-                const { children, ...itemWithoutChildren } = item;
-                acc.push(itemWithoutChildren as WBSItem);
-                if (children && children.length > 0) {
-                  acc.push(...flattenTree(children));
-                }
-                return acc;
-              }, []);
-            };
-            
-            const flatList = flattenTree(prevItems);
-            
-            // Find indices
-            const currentIndex = flatList.findIndex(i => i.id === itemId);
-            const newItemIndex = flatList.findIndex(i => i.id === newItem.id);
-            
-            if (currentIndex === -1 || newItemIndex === -1) return prevItems;
-            
-            // Remove new item from current position
-            const movedItem = flatList.splice(newItemIndex, 1)[0];
-            
-            // Adjust index if new item was before current item
-            const insertIndex = newItemIndex < currentIndex ? currentIndex : currentIndex + 1;
-            
-            // Insert after current item
-            flatList.splice(insertIndex, 0, movedItem);
-            
-            // Rebuild hierarchy
-            return buildHierarchy(flatList);
+        if (insertedItem) {
+          // Update created_at to position it right after current item
+          const currentItemTime = new Date(item.created_at).getTime();
+          const nextItemTime = currentItemTime + 1000; // 1 second after
+          
+          await updateWBSItem(insertedItem.id, {
+            created_at: new Date(nextItemTime).toISOString(),
           });
           
+          // Reload items to reflect new order
+          await loadWBSItems();
           // Renumber to get correct WBS IDs
           setTimeout(() => renumberWBSHierarchy(), 100);
         }
@@ -917,7 +892,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         console.log('Duplicate', type, itemId);
         break;
       case 'delete':
-        deleteWBSItem(itemId);
+        await deleteWBSItem(itemId);
+        // Reload and renumber after deletion
+        await loadWBSItems();
+        setTimeout(() => renumberWBSHierarchy(), 100);
+        toast({
+          title: "Row Deleted",
+          description: "The row has been deleted successfully",
+        });
         break;
       case 'convert_to_task':
         await taskHandlers.handleConvertToTask(itemId);
