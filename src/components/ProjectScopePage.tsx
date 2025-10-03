@@ -1013,6 +1013,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         linked_tasks: []
       });
 
+      // Auto-expand the parent component to show the new element
+      await updateWBSItem(componentId, { is_expanded: true });
+
       // Trigger renumbering to ensure all WBS IDs are sequential
       await renumberWBSHierarchy();
     } catch (error) {
@@ -1149,6 +1152,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       });
 
       console.log('🎉 Component added successfully');
+
+      // Auto-expand the parent phase to show the new component
+      await updateWBSItem(phaseId, { is_expanded: true });
 
       // Trigger renumbering to ensure all WBS IDs are sequential
       await renumberWBSHierarchy();
