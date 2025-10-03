@@ -796,6 +796,32 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         break;
       case 'insert-below':
         // Insert a new item at the same level below this item
+        // Find the position of the current item in the display order
+        const currentItemIndex = flatWBSItems.findIndex(i => i.id === itemId);
+        
+        if (currentItemIndex === -1) break;
+        
+        // Get timestamps for positioning
+        const currentItemTime = new Date(item.created_at).getTime();
+        const nextItem = flatWBSItems[currentItemIndex + 1];
+        const nextItemTime = nextItem ? new Date(nextItem.created_at).getTime() : currentItemTime + 2000;
+        
+        // Calculate new item timestamp (halfway between current and next)
+        const newItemTime = currentItemTime + Math.floor((nextItemTime - currentItemTime) / 2);
+        
+        // If items are too close together (less than 100ms apart), we need to shift all following items
+        if (nextItemTime - currentItemTime < 100 && nextItem) {
+          // Shift all items after the current item by 2 seconds
+          const itemsToShift = flatWBSItems.slice(currentItemIndex + 1);
+          for (const shiftItem of itemsToShift) {
+            const shiftTime = new Date(shiftItem.created_at).getTime();
+            await updateWBSItem(shiftItem.id, {
+              created_at: new Date(shiftTime + 2000).toISOString(),
+            }, { skipAutoSchedule: true });
+          }
+        }
+        
+        // Create the new item with the calculated timestamp
         const insertedItem = await createWBSItem({
           company_id: currentCompany.id,
           project_id: project.id,
@@ -809,11 +835,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         
         if (insertedItem) {
           // Update created_at to position it right after current item
-          const currentItemTime = new Date(item.created_at).getTime();
-          const nextItemTime = currentItemTime + 1000; // 1 second after
-          
           await updateWBSItem(insertedItem.id, {
-            created_at: new Date(nextItemTime).toISOString(),
+            created_at: new Date(newItemTime).toISOString(),
           });
           
           // Reload items to reflect new order
