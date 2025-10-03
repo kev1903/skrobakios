@@ -1419,62 +1419,40 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     if (!result.destination) return;
     
     const { source, destination, type } = result;
-    console.log('🔄 Reorder request', { source, destination, type });
     
     if (source.index === destination.index) return;
     
     // Helper function to determine if an item should be visible (not hidden by collapsed parent)
-    const isItemVisible = (item: WBSItem, allItems: WBSItem[]): boolean => {
+    const isItemVisible = (item: any, allItems: any[]): boolean => {
       if (item.level === 0) return true;
       const parent = allItems.find(i => i.id === item.parent_id);
       if (!parent) return true;
-      if (parent.is_expanded === false) return false;
+      if (parent.isExpanded === false) return false;
       return isItemVisible(parent, allItems);
     };
     
-    // Get all visible items in current display order
-    const visibleItems = wbsItems.filter(item => isItemVisible(item, wbsItems));
-    
-    console.log('📋 Visible items before reorder:', visibleItems.map(i => ({ id: i.id, wbs_id: i.wbs_id, title: i.title })));
+    // Use flatWBSItems (hierarchically ordered) instead of wbsItems (created_at ordered)
+    // This ensures drag indices match the visual display order
+    const visibleFlatItems = flatWBSItems.filter(item => isItemVisible(item, flatWBSItems));
     
     // Create a new array and reorder
-    const reorderedVisibleItems = [...visibleItems];
+    const reorderedVisibleItems = [...visibleFlatItems];
     const [movedItem] = reorderedVisibleItems.splice(source.index, 1);
     reorderedVisibleItems.splice(destination.index, 0, movedItem);
     
-    // Update wbs_id optimistically for immediate UI feedback
-    const updatedVisibleItems = reorderedVisibleItems.map((item, i) => ({
-      ...item,
-      wbs_id: `${i + 1}`,
-      created_at: new Date(Date.now() + i * 1000).toISOString()
-    }));
-    
-    // Get all hidden items (not visible)
-    const hiddenItems = wbsItems.filter(item => !isItemVisible(item, wbsItems));
-    
-    // Merge updated visible items with hidden items for complete state
-    const optimisticItems = [...updatedVisibleItems, ...hiddenItems];
-    
-    // Optimistic UI update - immediate feedback
-    setWBSItems(optimisticItems);
-    
-    console.log('📋 Visible items after reorder:', updatedVisibleItems.map(i => ({ id: i.id, wbs_id: i.wbs_id, title: i.title })));
-    
-    // Persist to database in background
+    // Persist to database - update created_at to maintain new order
     try {
-      for (let i = 0; i < updatedVisibleItems.length; i++) {
-        const item = updatedVisibleItems[i];
-        const newWbsId = `${i + 1}`;
-        
-        console.log(`🔢 Updating item ${item.title}: ${item.wbs_id} → ${newWbsId}`);
+      for (let i = 0; i < reorderedVisibleItems.length; i++) {
+        const item = reorderedVisibleItems[i];
         
         await updateWBSItem(item.id, { 
-          wbs_id: newWbsId,
+          wbs_id: `${i + 1}`,
           created_at: new Date(Date.now() + i * 1000).toISOString()
         }, { skipAutoSchedule: true });
       }
       
-      console.log('✅ Drag and drop reordering completed');
+      // Reload items to reflect new order
+      await loadWBSItems();
     } catch (error) {
       console.error('❌ Error reordering items:', error);
       // Revert on error
