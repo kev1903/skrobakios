@@ -92,8 +92,8 @@ export const WBSLeftPanel = ({
           <div ref={provided.innerRef} {...provided.droppableProps} className="min-h-full">
             {visibleItems.map((item, index) => {
               const itemHasChildren = hasChildren(item.id);
-              const indentLevel = Math.min(item.level || 0, 4); // Clamp to max level 4
-              const indentWidth = indentLevel * 16; // 16px per level, supporting up to 5 levels (0-4)
+              const indentLevel = 0; // No visual indentation - hierarchy shown through chevrons and WBS numbers
+              const indentWidth = 0; // Keep all rows at same position
               const isExpanded = item.isExpanded !== false; // Default to true if not specified
               
               // Calculate sequential WBS number based on display order (all items in the full list)
