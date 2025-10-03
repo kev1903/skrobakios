@@ -34,7 +34,7 @@ import { Project } from '@/hooks/useProjects';
 import { useScreenSize } from '@/hooks/use-mobile';
 import { createPortal } from 'react-dom';
 import { useCompany } from '@/contexts/CompanyContext';
-import { renumberAllWBSItems } from '@/utils/wbsUtils';
+import { renumberAllWBSItems, buildHierarchy } from '@/utils/wbsUtils';
 import { WBSService } from '@/services/wbsService';
 import { useWBS, WBSItem } from '@/hooks/useWBS';
 import { TeamTaskAssignment } from '@/components/tasks/enhanced/TeamTaskAssignment';
@@ -796,16 +796,56 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         break;
       case 'insert-below':
         // Insert a new item at the same level below this item
-        await createWBSItem({
+        const newItem = await createWBSItem({
           company_id: currentCompany.id,
           project_id: project.id,
           parent_id: item.parent_id || null,
           title: 'New Item',
           level: item.level,
-          wbs_id: item.wbs_id,
+          wbs_id: `${item.wbs_id}.new`,
           is_expanded: true,
           linked_tasks: [],
         });
+        
+        if (newItem) {
+          // Flatten, reorder, and rebuild the tree structure
+          setWBSItems((prevItems) => {
+            // Helper to flatten tree to array
+            const flattenTree = (items: WBSItem[]): WBSItem[] => {
+              return items.reduce((acc: WBSItem[], item) => {
+                const { children, ...itemWithoutChildren } = item;
+                acc.push(itemWithoutChildren as WBSItem);
+                if (children && children.length > 0) {
+                  acc.push(...flattenTree(children));
+                }
+                return acc;
+              }, []);
+            };
+            
+            const flatList = flattenTree(prevItems);
+            
+            // Find indices
+            const currentIndex = flatList.findIndex(i => i.id === itemId);
+            const newItemIndex = flatList.findIndex(i => i.id === newItem.id);
+            
+            if (currentIndex === -1 || newItemIndex === -1) return prevItems;
+            
+            // Remove new item from current position
+            const movedItem = flatList.splice(newItemIndex, 1)[0];
+            
+            // Adjust index if new item was before current item
+            const insertIndex = newItemIndex < currentIndex ? currentIndex : currentIndex + 1;
+            
+            // Insert after current item
+            flatList.splice(insertIndex, 0, movedItem);
+            
+            // Rebuild hierarchy
+            return buildHierarchy(flatList);
+          });
+          
+          // Renumber to get correct WBS IDs
+          setTimeout(() => renumberWBSHierarchy(), 100);
+        }
         break;
       case 'insert-child':
         await addChildItem(itemId);
