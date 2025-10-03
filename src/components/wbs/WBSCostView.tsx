@@ -404,33 +404,15 @@ export const WBSCostView = ({
               onScroll={handleWBSContentScroll}
             >
               <WBSLeftPanel
-                items={items.map(item => {
-                  // Handle is_expanded being an object with _type/value or a boolean
-                  let isExpanded = true; // default
-                  if (typeof item.is_expanded === 'boolean') {
-                    isExpanded = item.is_expanded;
-                  } else if (item.is_expanded && typeof item.is_expanded === 'object') {
-                    // Handle { _type: "undefined", value: "undefined" } case
-                    const expandedObj = item.is_expanded as any;
-                    if (expandedObj.value === 'false' || expandedObj.value === false) {
-                      isExpanded = false;
-                    } else if (expandedObj.value === 'true' || expandedObj.value === true) {
-                      isExpanded = true;
-                    }
-                    // If value is "undefined", keep default true
-                  }
-                  
-                  const mappedItem = {
-                    id: item.id,
-                    name: item.title || item.name || '',
-                    level: item.level || 0,
-                    parent_id: item.parent_id,
-                    wbs_id: item.wbs_id,
-                    isExpanded,
-                    hasChildren: items.some(child => child.parent_id === item.id)
-                  };
-                  return mappedItem;
-                })}
+                items={items.map(item => ({
+                  id: item.id,
+                  name: item.title || item.name || '',
+                  level: item.level || 0,
+                  parent_id: item.parent_id,
+                  wbs_id: item.wbs_id,
+                  isExpanded: item.is_expanded !== false, // Normalized at service level
+                  hasChildren: items.some(child => child.parent_id === item.id)
+                }))}
                 onToggleExpanded={onToggleExpanded}
                 onDragEnd={onDragEnd}
                 onItemEdit={onItemUpdate}

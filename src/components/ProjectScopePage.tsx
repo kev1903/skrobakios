@@ -309,21 +309,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     // Helper function to recursively flatten WBS hierarchy
     const flattenWBSItems = (items: any[], result: any[] = []): any[] => {
       items.forEach((item) => {
-        // Handle is_expanded being an object with _type/value or a boolean
-        let isExpanded = true; // default
-        if (typeof item.is_expanded === 'boolean') {
-          isExpanded = item.is_expanded;
-        } else if (item.is_expanded && typeof item.is_expanded === 'object') {
-          // Handle { _type: "undefined", value: "undefined" } case
-          const expandedObj = item.is_expanded as any;
-          if (expandedObj.value === 'false' || expandedObj.value === false) {
-            isExpanded = false;
-          } else if (expandedObj.value === 'true' || expandedObj.value === true) {
-            isExpanded = true;
-          }
-          // If value is "undefined", keep default true
-        }
-        
         // Add the current item to result
         result.push({
           id: item.id,
@@ -334,7 +319,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           assignedTo: item.assigned_to || '',
           level: item.level || 0,
           wbsNumber: '',
-          isExpanded,
+          isExpanded: item.is_expanded !== false, // Normalized at service level
           hasChildren: item.children && item.children.length > 0,
           parent_id: item.parent_id,
           wbs_id: item.wbs_id,
@@ -978,16 +963,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     
     const item = wbsItems.find(i => i.id === itemId);
     if (item) {
-      // Handle undefined by defaulting to true, then toggle
-      const currentState = item.is_expanded !== false; // undefined or true = true
+      // is_expanded is now always a boolean from the service
+      const currentState = item.is_expanded !== false;
       const newExpandedState = !currentState;
-      console.log(`📊 Item ${itemId} changing from ${item.is_expanded} (treated as ${currentState}) to ${newExpandedState}`);
-      console.log('📊 Full item before update:', item);
+      console.log(`📊 Item ${itemId} (${item.title}) changing from ${currentState} to ${newExpandedState}`);
       
       // Update the WBS item in the database and local state
       await updateWBSItem(itemId, { is_expanded: newExpandedState });
       
-      console.log('✅ Expand/collapse state updated across all tabs');
+      console.log('✅ Expand/collapse state updated successfully');
     } else {
       console.error('❌ Item not found in wbsItems:', itemId);
       console.log('📊 Available items:', wbsItems.map(i => ({ id: i.id, title: i.title, is_expanded: i.is_expanded })));

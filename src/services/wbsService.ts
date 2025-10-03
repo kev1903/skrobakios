@@ -27,11 +27,30 @@ export class WBSService {
     }
 
     // Convert database records to WBSItem format with proper predecessors handling
-    const wbsItems = data.map(item => ({
-      ...item,
-      predecessors: (item.predecessors as unknown as WBSPredecessor[]) || [],
-      linked_tasks: Array.isArray(item.linked_tasks) ? (item.linked_tasks as string[]) : []
-    }));
+    const wbsItems = data.map(item => {
+      // Normalize is_expanded to always be a boolean
+      let isExpanded = true; // default
+      if (typeof item.is_expanded === 'boolean') {
+        isExpanded = item.is_expanded;
+      } else if (item.is_expanded === null || item.is_expanded === undefined) {
+        isExpanded = true; // default for null/undefined
+      } else if (typeof item.is_expanded === 'object' && item.is_expanded !== null) {
+        // Handle malformed object case like { "_type": "undefined", "value": "undefined" }
+        const expandedObj = item.is_expanded as any;
+        if (expandedObj.value === 'false' || expandedObj.value === false) {
+          isExpanded = false;
+        } else if (expandedObj.value === 'true' || expandedObj.value === true) {
+          isExpanded = true;
+        }
+      }
+      
+      return {
+        ...item,
+        is_expanded: isExpanded, // Ensure it's always a boolean
+        predecessors: (item.predecessors as unknown as WBSPredecessor[]) || [],
+        linked_tasks: Array.isArray(item.linked_tasks) ? (item.linked_tasks as string[]) : []
+      };
+    });
 
     // Build and return hierarchy
     const hierarchyData = buildHierarchy(wbsItems);
@@ -62,7 +81,7 @@ export class WBSService {
       level: itemData.level,
       category: itemData.category,
       priority: itemData.priority,
-      is_expanded: itemData.is_expanded,
+      is_expanded: itemData.is_expanded !== undefined ? Boolean(itemData.is_expanded) : true,
       predecessors: (itemData.predecessors || []) as any,
       linked_tasks: itemData.linked_tasks
     };
@@ -85,8 +104,13 @@ export class WBSService {
     Object.keys(updates).forEach(key => {
       if (key !== 'children' && key !== 'created_at' && key !== 'updated_at') {
         const value = updates[key as keyof WBSItem];
+        
+        // Ensure is_expanded is always a boolean
+        if (key === 'is_expanded') {
+          dbUpdates[key] = Boolean(value);
+        }
         // Handle predecessors field specially - ensure it's properly formatted as JSON
-        if (key === 'predecessors' && Array.isArray(value)) {
+        else if (key === 'predecessors' && Array.isArray(value)) {
           dbUpdates[key] = value as any;
         } else {
           dbUpdates[key] = value;

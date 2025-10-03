@@ -512,31 +512,13 @@ export const WBSTimeView = ({
               className="flex-1 overflow-y-hidden overflow-x-hidden scrollbar-hide"
             >
               <WBSLeftPanel
-                items={items.map(item => {
-                  // Handle is_expanded being an object with _type/value or a boolean
-                  let isExpanded = true; // default
-                  if (typeof item.is_expanded === 'boolean') {
-                    isExpanded = item.is_expanded;
-                  } else if (item.is_expanded && typeof item.is_expanded === 'object') {
-                    // Handle { _type: "undefined", value: "undefined" } case
-                    const expandedObj = item.is_expanded as any;
-                    if (expandedObj.value === 'false' || expandedObj.value === false) {
-                      isExpanded = false;
-                    } else if (expandedObj.value === 'true' || expandedObj.value === true) {
-                      isExpanded = true;
-                    }
-                    // If value is "undefined", keep default true
-                  }
-                  
-                  const mappedItem = {
-                    ...item,
-                    name: item.title || '',
-                    status: item.status || 'Not Started',
-                    isExpanded,
-                    hasChildren: items.some(child => child.parent_id === item.id)
-                  };
-                  return mappedItem;
-                })}
+                items={items.map(item => ({
+                  ...item,
+                  name: item.title || '',
+                  status: item.status || 'Not Started',
+                  isExpanded: item.is_expanded !== false, // Normalized at service level
+                  hasChildren: items.some(child => child.parent_id === item.id)
+                }))}
                 onToggleExpanded={onToggleExpanded}
                 onDragEnd={onDragEnd}
                 onItemEdit={onItemUpdate}
