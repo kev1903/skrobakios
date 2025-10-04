@@ -131,23 +131,20 @@ export const WBSTimeView = ({
 
   const handleIndent = useCallback(async () => {
     if (selectedItems.length === 0) return;
-    
     try {
       console.log('🔵 Starting progressive indent operation for items:', selectedItems);
-      
+
       // Helper function to get all descendants of an item
       const getAllDescendants = (itemId: string): string[] => {
         const descendants: string[] = [];
         const children = items.filter(i => i.parent_id === itemId);
-        
         children.forEach(child => {
           descendants.push(child.id);
           descendants.push(...getAllDescendants(child.id));
         });
-        
         return descendants;
       };
-      
+
       // Helper to find the appropriate parent for a given level
       const findParentForLevel = (currentIndex: number, targetLevel: number): string | null => {
         // Look backwards to find an item at level (targetLevel - 1)
@@ -159,36 +156,35 @@ export const WBSTimeView = ({
         }
         return null;
       };
-      
+
       // Process each selected item and its descendants
       for (const itemId of selectedItems) {
         const item = items.find(i => i.id === itemId);
         if (!item) continue;
-        
+
         const currentIndex = items.findIndex(i => i.id === itemId);
         if (currentIndex < 0) continue;
-        
+
         // Check maximum level restriction (allow up to level 4, since we start from 0)
         if (item.level >= 4) {
           console.log(`🚫 Cannot indent ${item.title || item.id} - maximum level (4) reached`);
           continue;
         }
-        
+
         const newLevel = item.level + 1;
         const newParentId = findParentForLevel(currentIndex, newLevel);
-        
+
         console.log(`🔄 Progressive indent: ${item.title || item.id} from level ${item.level} to ${newLevel}, new parent: ${newParentId}`);
-        
+
         // Indent the item by one level
         await onItemUpdate(itemId, {
           parent_id: newParentId,
           level: newLevel
         });
-        
-        // Get all descendants and indent them too
+
+        // Get all descendants and indent them too (cascade)
         const descendants = getAllDescendants(itemId);
         console.log(`📂 Found ${descendants.length} descendants to cascade indent:`, descendants);
-        
         for (const descendantId of descendants) {
           const descendant = items.find(i => i.id === descendantId);
           if (descendant) {
@@ -199,13 +195,15 @@ export const WBSTimeView = ({
           }
         }
       }
-      
+
       // Auto-renumber WBS after indent operations
       const updates = renumberAllWBSItems(items);
       for (const update of updates) {
-        await onItemUpdate(update.item.id, { wbs_id: update.newWbsId });
+        await onItemUpdate(update.item.id, {
+          wbs_id: update.newWbsId
+        });
       }
-      
+
       // Clear selection after indent
       setSelectedItems([]);
       
@@ -222,43 +220,38 @@ export const WBSTimeView = ({
 
   const handleOutdent = useCallback(async () => {
     if (selectedItems.length === 0) return;
-    
     try {
       console.log('🟡 Starting cascade outdent operation for items:', selectedItems);
-      
+
       // Helper function to get all descendants of an item
       const getAllDescendants = (itemId: string): string[] => {
         const descendants: string[] = [];
         const children = items.filter(i => i.parent_id === itemId);
-        
         children.forEach(child => {
           descendants.push(child.id);
           descendants.push(...getAllDescendants(child.id));
         });
-        
         return descendants;
       };
-      
+
       // Process each selected item and its descendants
       for (const itemId of selectedItems) {
         const item = items.find(i => i.id === itemId);
         if (!item || item.level <= 0) continue; // Can't outdent beyond level 0
-        
+
         // Find the current parent to get its parent
         const currentParent = items.find(i => i.id === item.parent_id);
-        
         console.log(`🔄 Outdenting parent item ${item.title || item.id} from level ${item.level} to ${item.level - 1}`);
-        
+
         // Outdent the parent item
         await onItemUpdate(itemId, {
           parent_id: currentParent?.parent_id || null,
           level: Math.max(0, item.level - 1)
         });
-        
+
         // Get all descendants and outdent them too
         const descendants = getAllDescendants(itemId);
         console.log(`📂 Found ${descendants.length} descendants to cascade outdent:`, descendants);
-        
         for (const descendantId of descendants) {
           const descendant = items.find(i => i.id === descendantId);
           if (descendant) {
@@ -269,13 +262,15 @@ export const WBSTimeView = ({
           }
         }
       }
-      
+
       // Auto-renumber WBS after outdent operations
       const updates = renumberAllWBSItems(items);
       for (const update of updates) {
-        await onItemUpdate(update.item.id, { wbs_id: update.newWbsId });
+        await onItemUpdate(update.item.id, {
+          wbs_id: update.newWbsId
+        });
       }
-      
+
       // Clear selection after outdent
       setSelectedItems([]);
       
