@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { MoreHorizontal, Trash2, NotebookPen, ListTodo, Unlink } from 'lucide-react';
+import { MoreHorizontal, Trash2, NotebookPen, ListTodo, Unlink, Quote } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -136,14 +135,18 @@ export const WBSRightPanel = ({
            </div>
 
            <div className="px-2 flex items-center justify-center h-full">
-             <Switch
-               checked={item.rfq_required || false}
-               onCheckedChange={(checked) => {
-                 onItemUpdate(item.id, { rfq_required: checked });
+             <Button
+               variant="ghost"
+               size="sm"
+               className={`h-6 w-6 p-0 ${item.rfq_required ? 'text-primary' : 'text-muted-foreground'}`}
+               onClick={(e) => {
+                 e.stopPropagation();
+                 onItemUpdate(item.id, { rfq_required: !item.rfq_required });
                }}
-               onClick={(e) => e.stopPropagation()}
-               className="data-[state=checked]:bg-primary"
-             />
+               title={item.rfq_required ? "RFQ Required" : "No RFQ"}
+             >
+               <Quote className="w-4 h-4" />
+             </Button>
            </div>
 
            <div className="px-1 flex items-center justify-center h-full">
