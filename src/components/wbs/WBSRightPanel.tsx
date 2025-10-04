@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, NotebookPen, ListTodo, Unlink, Quote } from 'lucide-react';
+import { MoreHorizontal, Trash2, NotebookPen, ListTodo, Unlink, FileText } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -143,9 +143,9 @@ export const WBSRightPanel = ({
                  e.stopPropagation();
                  onItemUpdate(item.id, { rfq_required: !item.rfq_required });
                }}
-               title={item.rfq_required ? "RFQ Required" : "No RFQ"}
+               title={item.rfq_required ? "Tender Required" : "No Tender"}
              >
-               <Quote className="w-4 h-4" />
+               <FileText className="w-4 h-4" />
              </Button>
            </div>
 
