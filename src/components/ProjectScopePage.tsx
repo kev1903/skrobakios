@@ -463,6 +463,20 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     return items;
   }, [scopeData, wbsItems]);
 
+  // Filter items to only show visible ones (not hidden by collapsed parents)
+  const visibleWBSItems = React.useMemo(() => {
+    // Helper function to determine if an item should be visible (not hidden by collapsed parent)
+    const isItemVisible = (item: any, allItems: any[]): boolean => {
+      if (item.level === 0) return true;
+      const parent = allItems.find(i => i.id === item.parent_id);
+      if (!parent) return true;
+      if (parent.isExpanded === false) return false;
+      return isItemVisible(parent, allItems);
+    };
+
+    return flatWBSItems.filter(item => isItemVisible(item, flatWBSItems));
+  }, [flatWBSItems]);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Completed': return 'bg-success/10 text-success border-success/20';
@@ -1675,10 +1689,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         </div>
                       </div>
                     ) : (
-                       <div className="h-full overflow-hidden">
-                        <WBSSplitView
-                          items={flatWBSItems}
-                          onToggleExpanded={handleToggleExpanded}
+                    <div className="h-full overflow-hidden">
+                      <WBSSplitView
+                        items={visibleWBSItems}
+                        onToggleExpanded={handleToggleExpanded}
                           onDragEnd={onDragEnd}
                           onDragUpdate={onDragUpdate}
                            onItemUpdate={async (itemId, updates) => {
@@ -1749,7 +1763,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   ) : (
                     <div className="h-full overflow-hidden">
                       <WBSTimeView
-                        items={flatWBSItems}
+                        items={visibleWBSItems}
                         onToggleExpanded={handleToggleExpanded}
                         onDragEnd={onDragEnd}
                            onItemUpdate={async (itemId, updates) => {
@@ -1817,7 +1831,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         </div>
                       ) : (
                           <WBSCostView
-                            items={flatWBSItems}
+                            items={visibleWBSItems}
                             onToggleExpanded={handleToggleExpanded}
                             onDragEnd={onDragEnd}
                              onItemUpdate={async (itemId, updates) => {
