@@ -171,21 +171,33 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
   // Link children with robust parent fallback
   for (const item of all) {
     const candidates = getParentCandidates(item.wbs_id);
-    if (candidates.length === 0) {
+    
+    // Check if this is a root item (no wbs_id pattern parent and no parent_id)
+    if (candidates.length === 0 && !item.parent_id) {
       item.level = expectedLevel(item.wbs_id);
       roots.push(item);
       continue;
     }
+    
     let parent: WBSItem | undefined;
+    
+    // First, try to find parent by wbs_id pattern
     for (const cand of candidates) {
       parent = byWbsId.get(cand);
       if (parent) break;
     }
+    
+    // If no parent found by wbs_id pattern, try using parent_id field
+    if (!parent && item.parent_id) {
+      parent = byId.get(item.parent_id);
+    }
+    
     if (parent) {
-      item.level = expectedLevel(item.wbs_id);
+      // Calculate level based on parent's level + 1
+      item.level = (parent.level ?? 0) + 1;
       parent.children!.push(item);
     } else {
-      // No parent found, treat as root to avoid data loss
+      // No parent found by either method, treat as root to avoid data loss
       item.level = expectedLevel(item.wbs_id);
       roots.push(item);
     }
