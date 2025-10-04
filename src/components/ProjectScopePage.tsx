@@ -1691,7 +1691,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                     ) : (
                     <div className="h-full overflow-hidden">
                       <WBSSplitView
-                        items={visibleWBSItems}
+                        items={flatWBSItems}
                         onToggleExpanded={handleToggleExpanded}
                           onDragEnd={onDragEnd}
                           onDragUpdate={onDragUpdate}
@@ -1764,7 +1764,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                   ) : (
                     <div className="h-full overflow-hidden">
                       <WBSTimeView
-                        items={visibleWBSItems}
+                        items={flatWBSItems}
                         onToggleExpanded={handleToggleExpanded}
                         onDragEnd={onDragEnd}
                            onItemUpdate={async (itemId, updates) => {
@@ -1833,7 +1833,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                         </div>
                       ) : (
                           <WBSCostView
-                            items={visibleWBSItems}
+                            items={flatWBSItems}
                             onToggleExpanded={handleToggleExpanded}
                             onDragEnd={onDragEnd}
                              onItemUpdate={async (itemId, updates) => {
