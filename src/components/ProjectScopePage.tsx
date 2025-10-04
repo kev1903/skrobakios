@@ -795,26 +795,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         });
         break;
       case 'insert-below':
-        // Insert a new item at the same level below this item
-        const currentItemIndex = flatWBSItems.findIndex(i => i.id === itemId);
+        // Insert a new item at root level (level 0) at the end of the list
+        // Find the highest root-level WBS number
+        const rootItems = flatWBSItems.filter(i => i.level === 0);
+        const maxRootWbsNum = rootItems.length > 0 
+          ? Math.max(...rootItems.map(i => {
+              const parts = i.wbs_id.split('.');
+              return parseFloat(parts[0]); // Get the first segment as a number
+            }))
+          : 0;
         
-        if (currentItemIndex === -1) break;
-        
-        // Parse the current item's WBS ID to get the number
-        const currentWbsNum = parseFloat(item.wbs_id);
-        
-        // Find the next root-level item (level 0) to determine the new WBS number
-        const nextRootItem = flatWBSItems.slice(currentItemIndex + 1).find(i => i.level === 0);
-        let newWbsNum: number;
-        
-        if (nextRootItem) {
-          // Insert between current and next root-level sibling
-          const nextWbsNum = parseFloat(nextRootItem.wbs_id);
-          newWbsNum = currentWbsNum + ((nextWbsNum - currentWbsNum) / 2);
-        } else {
-          // Insert after current item (no next root-level sibling)
-          newWbsNum = currentWbsNum + 0.5;
-        }
+        const newWbsNum = Math.floor(maxRootWbsNum) + 1;
         
         // Create the new item at root level (level 0, no parent)
         const insertedItem = await createWBSItem({
