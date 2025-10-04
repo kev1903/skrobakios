@@ -1704,6 +1704,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                await renumberWBSHierarchy();
                              }
                            }}
+                           onReloadItems={loadWBSItems}
                            onAddChild={addChildItem}
                            onContextMenuAction={handleContextMenuAction}
                            onOpenNotesDialog={openNotesDialog}
@@ -1775,6 +1776,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                await renumberWBSHierarchy();
                              }
                            }}
+                        onReloadItems={loadWBSItems}
                         onAddChild={addChildItem}
                         onContextMenuAction={handleContextMenuAction}
                         onOpenNotesDialog={openNotesDialog}
@@ -1843,6 +1845,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                                  await renumberWBSHierarchy();
                                }
                              }}
+                             onReloadItems={loadWBSItems}
                              onAddChild={addChildItem}
                             onContextMenuAction={handleContextMenuAction}
                             onOpenNotesDialog={openNotesDialog}

@@ -27,6 +27,7 @@ interface WBSSplitViewProps {
   onContextMenuAction: (action: string, itemId: string) => void;
   onOpenNotesDialog: (item: any) => void;
   onAddRow?: () => void;
+  onReloadItems?: () => Promise<void>;
   dragIndicator: any;
   EditableCell: any;
   StatusSelect: any;
@@ -45,6 +46,7 @@ export const WBSSplitView = ({
   onContextMenuAction,
   onOpenNotesDialog,
   onAddRow,
+  onReloadItems,
   dragIndicator,
   EditableCell,
   StatusSelect,
@@ -148,11 +150,17 @@ export const WBSSplitView = ({
 
       // Clear selection after indent
       setSelectedItems([]);
+      
+      // Reload items from database to rebuild hierarchy
+      if (onReloadItems) {
+        await onReloadItems();
+      }
+      
       console.log('✅ Cascade indent operation completed with WBS renumbering');
     } catch (error) {
       console.error('❌ Error in cascade indent operation:', error);
     }
-  }, [selectedItems, items, onItemUpdate]);
+  }, [selectedItems, items, onItemUpdate, onReloadItems]);
   const handleOutdent = useCallback(async () => {
     if (selectedItems.length === 0) return;
     try {
@@ -208,11 +216,17 @@ export const WBSSplitView = ({
 
       // Clear selection after outdent
       setSelectedItems([]);
+      
+      // Reload items from database to rebuild hierarchy
+      if (onReloadItems) {
+        await onReloadItems();
+      }
+      
       console.log('✅ Cascade outdent operation completed with WBS renumbering');
     } catch (error) {
       console.error('❌ Error in cascade outdent operation:', error);
     }
-  }, [selectedItems, items, onItemUpdate]);
+  }, [selectedItems, items, onItemUpdate, onReloadItems]);
   const handleBold = useCallback(() => {
     setCurrentFormatting(prev => ({
       ...prev,
