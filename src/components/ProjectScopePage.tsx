@@ -949,7 +949,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Create a unified toggle handler for all tabs to ensure synchronization
   const handleToggleExpanded = useCallback(async (itemId: string) => {
-    const item = wbsItems.find(i => i.id === itemId);
+    const item = findWBSItem(itemId);
     if (item) {
       // is_expanded is now always a boolean from the service
       const currentState = item.is_expanded !== false;
@@ -958,7 +958,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       // Update the WBS item in the database and local state
       await updateWBSItem(itemId, { is_expanded: newExpandedState });
     }
-  }, [wbsItems, updateWBSItem]);
+  }, [wbsItems, updateWBSItem, findWBSItem]);
 
 
   // Remove drag and drop and editing functions that use setScopeData
