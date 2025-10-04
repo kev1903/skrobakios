@@ -798,41 +798,35 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         // Insert a new row directly below the selected row at root level (level 0)
         const rootItems = flatWBSItems.filter(i => i.level === 0);
         const selectedRootWbsNum = parseInt(item.wbs_id.split('.')[0]);
-        
-        // Calculate the new WBS ID
         const newWbsId = (selectedRootWbsNum + 1).toString();
         
-        // Find all root items that come after the selected item
+        // Find all root items that come after the selected item and shift them first
         const itemsToShift = rootItems.filter(i => {
           const itemWbsNum = parseInt(i.wbs_id.split('.')[0]);
           return itemWbsNum > selectedRootWbsNum;
         });
         
-        // First, insert the new item with a temporary high WBS ID to avoid conflicts
-        const tempWbsId = '9999';
+        // Shift all subsequent items by incrementing their WBS IDs (do this BEFORE creating the new item)
+        for (const itemToShift of itemsToShift) {
+          const currentNum = parseInt(itemToShift.wbs_id.split('.')[0]);
+          const shiftedWbsId = (currentNum + 1).toString();
+          await updateWBSItem(itemToShift.id, { wbs_id: shiftedWbsId }, { skipAutoSchedule: true });
+        }
+        
+        // Now create the new item with the correct WBS ID
         const insertedItem = await createWBSItem({
           company_id: currentCompany.id,
           project_id: project.id,
           parent_id: null,
           title: 'New Item',
           level: 0,
-          wbs_id: tempWbsId,
+          wbs_id: newWbsId,
           is_expanded: true,
           linked_tasks: [],
         });
         
         if (insertedItem) {
-          // Now shift all subsequent items
-          for (const itemToShift of itemsToShift) {
-            const currentNum = parseInt(itemToShift.wbs_id.split('.')[0]);
-            const shiftedWbsId = (currentNum + 1).toString();
-            await updateWBSItem(itemToShift.id, { wbs_id: shiftedWbsId }, { skipAutoSchedule: true });
-          }
-          
-          // Finally, update the new item to its correct position
-          await updateWBSItem(insertedItem.id, { wbs_id: newWbsId }, { skipAutoSchedule: true });
-          
-          // Reload items to show the final order
+          // Single reload at the end to show everything in the correct order
           await loadWBSItems();
         }
         break;
