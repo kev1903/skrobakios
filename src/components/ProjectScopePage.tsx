@@ -795,35 +795,39 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         });
         break;
       case 'insert-below':
-        // Insert a new item at root level (level 0) at the end of the list
-        // Find the highest root-level WBS number
+        // Insert a new row directly below the selected row at root level (level 0)
         const rootItems = flatWBSItems.filter(i => i.level === 0);
-        const maxRootWbsNum = rootItems.length > 0 
-          ? Math.max(...rootItems.map(i => {
-              const parts = i.wbs_id.split('.');
-              return parseFloat(parts[0]); // Get the first segment as a number
-            }))
-          : 0;
+        const selectedRootWbsNum = parseInt(item.wbs_id.split('.')[0]);
         
-        const newWbsNum = Math.floor(maxRootWbsNum) + 1;
+        // Find all root items that come after the selected item
+        const itemsToShift = rootItems.filter(i => {
+          const itemWbsNum = parseInt(i.wbs_id.split('.')[0]);
+          return itemWbsNum > selectedRootWbsNum;
+        });
         
-        // Create the new item at root level (level 0, no parent)
+        // Shift all subsequent root items by incrementing their WBS IDs
+        for (const itemToShift of itemsToShift) {
+          const currentNum = parseInt(itemToShift.wbs_id.split('.')[0]);
+          const newWbsId = (currentNum + 1).toString();
+          await updateWBSItem(itemToShift.id, { wbs_id: newWbsId }, { skipAutoSchedule: true });
+        }
+        
+        // Insert the new item right after the selected item
+        const newWbsId = (selectedRootWbsNum + 1).toString();
         const insertedItem = await createWBSItem({
           company_id: currentCompany.id,
           project_id: project.id,
           parent_id: null, // Always root level
           title: 'New Item',
           level: 0, // Always root level - no indent
-          wbs_id: newWbsNum.toString(),
+          wbs_id: newWbsId,
           is_expanded: true,
           linked_tasks: [],
         });
         
         if (insertedItem) {
-          // Reload items to reflect new order (database orders by level, then wbs_id)
+          // Reload items to show the new order
           await loadWBSItems();
-          // Don't renumber immediately - let the fractional WBS ID maintain position
-          // The user can manually renumber when needed
         }
         break;
       case 'insert-child':
