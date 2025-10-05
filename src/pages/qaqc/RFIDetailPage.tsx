@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
-import { ArrowLeft, HelpCircle, Calendar, User, FileText, ClipboardList, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, HelpCircle, Calendar, User, FileText, ClipboardList, CheckCircle, XCircle, MapPin, UserCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { RFIComments } from '@/components/qaqc/RFIComments';
@@ -175,36 +175,61 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Location</label>
-                    <p className="text-foreground">{report.location}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Requested By</label>
-                    <p className="text-foreground">{report.requested_by}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Assigned To</label>
-                    <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4 text-muted-foreground" />
-                      <p className="text-foreground">{report.assigned_to || 'Unassigned'}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-muted-foreground">Category</p>
+                      <p className="text-sm text-foreground truncate">{report.category || 'General'}</p>
                     </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Date Requested</label>
-                    <p className="text-foreground">
-                      {report.date_requested ? format(new Date(report.date_requested), 'MMM dd, yyyy') : 'N/A'}
-                    </p>
+
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <UserCircle className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-muted-foreground">Created By</p>
+                      <p className="text-sm text-foreground truncate">{report.requested_by}</p>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Due Date</label>
-                    <p className="text-foreground">
-                      {report.due_date ? format(new Date(report.due_date), 'MMM dd, yyyy') : 'Not Set'}
-                    </p>
+
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-muted-foreground">Assigned To</p>
+                      <p className="text-sm text-foreground truncate">{report.assigned_to || 'Unassigned'}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-muted-foreground">Due Date</p>
+                      <p className="text-sm text-foreground truncate">
+                        {report.due_date ? format(new Date(report.due_date), 'MMM dd, yyyy') : 'Not Set'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-muted-foreground">Location</p>
+                      <p className="text-sm text-foreground truncate">{report.location || 'Not specified'}</p>
+                    </div>
                   </div>
                 </div>
-                <div>
+                
+                <div className="pt-2">
                   <label className="text-sm font-medium text-muted-foreground">Description</label>
                   <p className="text-foreground mt-1">{report.description}</p>
                 </div>
