@@ -265,7 +265,6 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                     className="flex items-center gap-2" 
                     style={{ paddingLeft: `${row.level * 16}px` }}
                   >
-                    <GripVertical className="w-4 h-4 text-gray-400 flex-shrink-0" />
                     {row.hasChildren ? (
                       <Button
                         variant="ghost"
