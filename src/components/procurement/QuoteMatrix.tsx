@@ -234,7 +234,111 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   }
 
   return (
-    <>
+    <div className="space-y-6">
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          {/* Table Header */}
+          <div className="bg-gray-50 border-b border-gray-200">
+            <div className="grid grid-cols-8 px-4 py-3 text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <div className="col-span-2 px-2">WBS</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 1</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 2</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 3</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 4</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 5</div>
+              <div className="col-span-1 text-center px-2 border-l border-gray-200 bg-green-50">Approved</div>
+            </div>
+          </div>
+
+          {/* Table Body */}
+          <div className="bg-white divide-y divide-gray-100">
+            {wbsMatrix.map((row, index) => (
+              <div 
+                key={row.wbsId} 
+                className={`grid grid-cols-8 px-4 hover:bg-gray-50 transition-colors ${
+                  row.level > 0 ? 'bg-blue-50/30' : 'bg-white'
+                }`}
+              >
+                <div className="col-span-2 flex items-center px-2 py-3">
+                  <div 
+                    className="flex items-center space-x-2" 
+                    style={{ paddingLeft: `${row.level * 16}px` }}
+                  >
+                    {row.hasChildren ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleExpanded(row.itemId)}
+                        className="h-5 w-5 p-0 hover:bg-gray-200 flex-shrink-0"
+                      >
+                        {row.isExpanded ? (
+                          <ChevronDown className="w-3 h-3" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3" />
+                        )}
+                      </Button>
+                    ) : (
+                      <div className="w-5" />
+                    )}
+                    <div className="flex items-center space-x-2 min-w-0">
+                      <span className="text-sm font-medium text-blue-600 flex-shrink-0">{row.wbsId}</span>
+                      <span className="text-sm text-gray-900 truncate">{row.title}</span>
+                    </div>
+                  </div>
+                </div>
+                {[0, 1, 2, 3, 4].map((contractorIndex) => {
+                  const contractor = row.contractors[contractorIndex];
+                  const isBlueColumn = contractorIndex % 2 === 0;
+                  const isElementRow = !row.hasChildren;
+                  return (
+                    <div key={contractorIndex} className={`col-span-1 text-center text-sm font-medium text-gray-900 px-2 py-3 h-full border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-100'} relative flex items-center justify-center`}>
+                      <div className="flex items-center justify-center space-x-2">
+                        <span>{contractor?.quote ? formatCurrency(contractor.quote) : ''}</span>
+                        {isElementRow && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            type="button"
+                            aria-label="Create quote"
+                            className="h-6 w-6 p-0 text-gray-600 hover:text-gray-800 flex items-center justify-center"
+                            onClick={() => handleCreateQuote(row, contractor)}
+                          >
+                            <span className="text-sm font-bold">+</span>
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+                <div className="col-span-1 px-2 py-3 h-full border-l border-gray-200 bg-green-50/30">
+                  <Select>
+                    <SelectTrigger className="w-full h-8 text-xs bg-white border-green-200">
+                      <SelectValue placeholder="Select quote..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
+                      {row.contractors.map((contractor, idx) => (
+                        <SelectItem 
+                          key={contractor.contractorId} 
+                          value={contractor.contractorId}
+                          className="text-xs"
+                        >
+                          <div className="flex justify-between items-center w-full">
+                            <span className="truncate">{contractor.contractorName}</span>
+                            <span className="ml-2 text-muted-foreground">
+                              {contractor.quote ? 'Submitted' : 'Pending'}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <QuotePopup
         isOpen={isQuotePopupOpen}
         onClose={() => setIsQuotePopupOpen(false)}
@@ -248,6 +352,6 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
         } : undefined}
         projectId={projectId}
       />
-    </>
+    </div>
   );
 };
