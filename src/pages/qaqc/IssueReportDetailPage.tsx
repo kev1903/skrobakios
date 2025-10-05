@@ -9,8 +9,7 @@ import { Plus, ArrowLeft, AlertTriangle, CheckCircle, Archive, Download, Trash2,
 import { useIssueReport } from '@/hooks/useQAQCData';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { exportIssueReportToPDF } from '@/utils/pdfExport';
-import { exportSelectedIssuesToPDF } from '@/utils/exportSelectedIssues';
+import { exportIssueReportToPDF, exportSelectedIssuesToPDF } from '@/utils/pdfExport';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface IssueReportDetailPageProps {

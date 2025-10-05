@@ -830,3 +830,613 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
     pdf.save('issue_report_export.pdf');
   }
 };
+
+// Export selected issues to PDF (for bulk export)
+export const exportSelectedIssuesToPDF = async (
+  selectedIssueIds: string[], 
+  reportId: string, 
+  projectId: string
+) => {
+  try {
+    // Fetch report data
+    const { data: report, error: reportError } = await supabase
+      .from('issue_reports')
+      .select('*')
+      .eq('id', reportId)
+      .single();
+
+    if (reportError) throw reportError;
+
+    // Fetch project data with company details
+    const { data: project, error: projectError } = await supabase
+      .from('projects')
+      .select(`
+        id, name, description, project_id, banner_image, banner_position,
+        companies!projects_company_id_fkey (
+          id, name, logo_url, address, abn
+        )
+      `)
+      .eq('id', projectId)
+      .single();
+
+    if (projectError) throw projectError;
+
+    // First, fetch ALL issues in the report to establish correct auto_numbers
+    const { data: allIssues, error: allIssuesError } = await supabase
+      .from('issues')
+      .select('id')
+      .eq('report_id', reportId)
+      .order('created_at', { ascending: true });
+
+    if (allIssuesError) throw allIssuesError;
+
+    // Create a map of issue IDs to their auto_numbers
+    const autoNumberMap = new Map<string, number>();
+    (allIssues || []).forEach((issue, index) => {
+      autoNumberMap.set(issue.id, index + 1);
+    });
+
+    // Fetch only selected issues with full data
+    const { data: issues, error: issuesError } = await supabase
+      .from('issues')
+      .select('*')
+      .in('id', selectedIssueIds)
+      .order('created_at', { ascending: true });
+
+    if (issuesError) throw issuesError;
+
+    // Add auto_number to issues based on their position in the full list
+    const typedIssues = ((issues || []) as unknown as IssueData[]).map((issue) => ({
+      ...issue,
+      auto_number: autoNumberMap.get(issue.id) || 0
+    }));
+
+    // Build profile map by user_id for created_by
+    const userIds = Array.from(new Set(typedIssues.map(i => i.created_by).filter(Boolean)));
+    const profileMap = new Map<string, { first_name?: string; last_name?: string; professional_title?: string }>();
+    if (userIds.length > 0) {
+      const { data: profileRows } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, professional_title')
+        .in('user_id', userIds as string[]);
+      (profileRows as any[] | null)?.forEach((p: any) => {
+        profileMap.set(p.user_id, { first_name: p.first_name, last_name: p.last_name, professional_title: p.professional_title });
+      });
+    }
+
+    // Create PDF
+    const pdf = new jsPDF({
+      compress: true,
+      precision: 2
+    });
+    const pageWidth = pdf.internal.pageSize.width;
+    const pageHeight = pdf.internal.pageSize.height;
+    let pageNumber = 1;
+    
+    const exportDate = new Date().toLocaleDateString('en-GB', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    const fullCompanyData = project?.companies;
+    
+    // Logo dimensions calculation (reduced by 30%)
+    let logoWidth = 28;
+    let logoHeight = 14;
+    
+    // Try to use company logo if available, otherwise preload Skrobaki logo from uploads
+    let customLogoDataUrl: string | null = null;
+    if (!fullCompanyData?.logo_url) {
+      try {
+        customLogoDataUrl = await loadImageAsDataUrl('/lovable-uploads/0ebb3672-15b3-4c91-8157-7c45f2f190ac.png', true);
+      } catch (e) {
+        console.warn('Fallback Skrobaki logo not available:', e);
+      }
+    }
+    
+    if (fullCompanyData?.logo_url) {
+      try {
+        const img = new Image();
+        img.src = fullCompanyData.logo_url;
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+        
+        const aspectRatio = img.naturalWidth / img.naturalHeight;
+        logoHeight = 6.3;
+        logoWidth = logoHeight * aspectRatio;
+        
+        const maxWidth = 60;
+        if (logoWidth > maxWidth) {
+          logoWidth = maxWidth;
+          logoHeight = logoWidth / aspectRatio;
+        }
+        
+        if (logoHeight < 9.8) {
+          logoHeight = 9.8;
+          logoWidth = logoHeight * aspectRatio;
+        }
+      } catch (error) {
+        console.warn('Could not get logo dimensions, using default:', error);
+        logoWidth = 35;
+        logoHeight = 12.6;
+      }
+    }
+
+    // Header and footer helper function
+    const addHeaderFooter = async (pdf: jsPDF, pageNum: number, isFirstPage = false) => {
+      try {
+        if (fullCompanyData?.logo_url) {
+          const processedLogo = await loadImageAsDataUrl(fullCompanyData.logo_url, true);
+          const logoY = 10 + (18 - logoHeight) / 2;
+          pdf.addImage(processedLogo, 'JPEG', 20, logoY, logoWidth, logoHeight);
+        } else if (customLogoDataUrl) {
+          const processedLogo = await loadImageAsDataUrl(customLogoDataUrl, true);
+          const skrobakiWidth = 22.75;
+          const skrobakiHeight = 6.3;
+          const logoY = 10 + (18 - skrobakiHeight) / 2;
+          pdf.addImage(processedLogo, 'JPEG', 20, logoY, skrobakiWidth, skrobakiHeight);
+        }
+      } catch (logoError) {
+        console.warn('Could not process logo, using company name:', logoError);
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(40, 40, 40);
+        pdf.text(fullCompanyData?.name || 'Company', 20, 20);
+      }
+      
+      pdf.setTextColor(0, 0, 0);
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.5);
+      pdf.line(20, 28, pageWidth - 20, 28);
+      
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`Page ${pageNum}`, pageWidth / 2, pageHeight - 15, { align: 'center' });
+      pdf.text(`Export Date: ${exportDate}`, pageWidth - 20, pageHeight - 15, { align: 'right' });
+      pdf.setTextColor(0, 0, 0);
+    };
+
+    // Cover Page
+    await addHeaderFooter(pdf, pageNumber, true);
+    
+    let yPos = 35;
+    
+    // Project banner image
+    if (project.banner_image) {
+      try {
+        const getBannerDimensions = (url: string): Promise<{width: number, height: number}> => {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+            img.onerror = reject;
+            img.src = url;
+          });
+        };
+        
+        const bannerDimensions = await getBannerDimensions(project.banner_image);
+        const bannerAspectRatio = bannerDimensions.width / bannerDimensions.height;
+        const coverBannerMargin = 30;
+        const coverBannerWidth = pageWidth - (2 * coverBannerMargin);
+        const bannerHeight = Math.min(coverBannerWidth / bannerAspectRatio, 150);
+        const actualBannerWidth = bannerHeight * bannerAspectRatio;
+        const bannerX = (pageWidth - actualBannerWidth) / 2;
+        
+        const compressedBanner = await loadImageAsDataUrl(project.banner_image);
+        pdf.addImage(compressedBanner, 'JPEG', bannerX, yPos, actualBannerWidth, bannerHeight);
+        yPos += bannerHeight + 40;
+      } catch (bannerError) {
+        console.warn('Could not add project banner to PDF:', bannerError);
+        yPos += 30;
+      }
+    } else {
+      yPos += 30;
+    }
+
+    // Project Information Table
+    const coverTableStartY = yPos;
+    const coverTableMargin = 40;
+    const coverTableWidth = pageWidth - (2 * coverTableMargin);
+    const leftColWidth = coverTableWidth * 0.4;
+    const coverRowHeight = 8;
+    
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(40, 40, 40);
+    pdf.text('PROJECT DETAILS', coverTableMargin, coverTableStartY - 8);
+    
+    pdf.setDrawColor(150, 150, 150);
+    pdf.setLineWidth(0.8);
+    pdf.line(coverTableMargin, coverTableStartY - 3, pageWidth - coverTableMargin, coverTableStartY - 3);
+    
+    let currentY = coverTableStartY + 3;
+    
+    const drawTableRow = (label: string, value: string) => {
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(70, 70, 70);
+      pdf.text(label, coverTableMargin + 3, currentY + 5);
+      
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(40, 40, 40);
+      pdf.text(value, coverTableMargin + leftColWidth + 3, currentY + 5);
+      
+      pdf.setDrawColor(240, 240, 240);
+      pdf.setLineWidth(0.1);
+      pdf.line(coverTableMargin, currentY + coverRowHeight, pageWidth - coverTableMargin, currentY + coverRowHeight);
+      
+      currentY += coverRowHeight;
+    };
+
+    const addressText = fullCompanyData?.address?.toString().trim();
+    const addressLooksLikeEmail = addressText ? /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/.test(addressText) : false;
+    const mainTitle = (addressText && !addressLooksLikeEmail) ? addressText : project.name;
+    
+    const totalIssues = typedIssues.length;
+    const openIssues = typedIssues.filter(issue => issue.status === 'open').length;
+    
+    const rfiAssigneeNames = new Set<string>();
+    typedIssues.forEach(issue => {
+      if (issue.assigned_to) {
+        rfiAssigneeNames.add(issue.assigned_to);
+      }
+    });
+    const rfiAssigneesText = rfiAssigneeNames.size > 0 ? Array.from(rfiAssigneeNames).join(', ') : 'No assignees';
+    
+    drawTableRow('Project Name:', mainTitle);
+    drawTableRow('Project Number:', project.project_id || 'N/A');
+    drawTableRow('Report Type:', `${report.title} (Filtered Selection)`);
+    drawTableRow('Assignees:', rfiAssigneesText);
+    drawTableRow('Selected Issues:', totalIssues.toString());
+    drawTableRow('Open Issues:', openIssues.toString());
+    drawTableRow('Date:', exportDate);
+    
+    pdf.setDrawColor(150, 150, 150);
+    pdf.setLineWidth(0.8);
+    pdf.line(coverTableMargin, currentY, pageWidth - coverTableMargin, currentY);
+
+    // Start new page for issue summary table
+    pdf.addPage();
+    pageNumber++;
+    await addHeaderFooter(pdf, pageNumber);
+    
+    pdf.setFontSize(18);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(30, 30, 30);
+    pdf.text('RFI Summary', 20, 40);
+    
+    let yPosition = 55;
+    const rowHeight = 10;
+    const tableMargin = 20;
+    const tableWidth = pageWidth - (2 * tableMargin);
+    
+    const columns = [
+      { header: '#', x: tableMargin, width: tableWidth * 0.05, align: 'center' as const },
+      { header: 'RFI Title', x: tableMargin + (tableWidth * 0.05), width: tableWidth * 0.38, align: 'left' as const },
+      { header: 'Category', x: tableMargin + (tableWidth * 0.43), width: tableWidth * 0.12, align: 'center' as const },
+      { header: 'Status', x: tableMargin + (tableWidth * 0.55), width: tableWidth * 0.10, align: 'center' as const },
+      { header: 'Due Date', x: tableMargin + (tableWidth * 0.65), width: tableWidth * 0.13, align: 'center' as const },
+      { header: 'Assigned To', x: tableMargin + (tableWidth * 0.78), width: tableWidth * 0.22, align: 'left' as const }
+    ];
+    
+    pdf.setFillColor(248, 250, 252);
+    pdf.rect(20, yPosition - 8, pageWidth - 40, 12, 'F');
+    
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(60, 60, 60);
+    
+    columns.forEach(col => {
+      const textX = col.align === 'center' ? col.x + col.width / 2 : col.x;
+      pdf.text(col.header, textX, yPosition, { align: col.align });
+    });
+    
+    pdf.setDrawColor(220, 220, 220);
+    pdf.setLineWidth(0.5);
+    pdf.line(20, yPosition + 5, pageWidth - 20, yPosition + 5);
+    yPosition += 15;
+    
+    pdf.setTextColor(0, 0, 0);
+    pdf.setFont('helvetica', 'normal');
+    
+    // Draw issue rows
+    for (let i = 0; i < typedIssues.length; i++) {
+      const issue = typedIssues[i];
+      
+      if (yPosition + rowHeight > pageHeight - 40) {
+        pdf.addPage();
+        pageNumber++;
+        await addHeaderFooter(pdf, pageNumber);
+        yPosition = 40;
+        
+        pdf.setFillColor(248, 250, 252);
+        pdf.rect(20, yPosition - 8, pageWidth - 40, 12, 'F');
+        
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(60, 60, 60);
+        
+        columns.forEach(col => {
+          const textX = col.align === 'center' ? col.x + col.width / 2 : col.x;
+          pdf.text(col.header, textX, yPosition, { align: col.align });
+        });
+        
+        pdf.setDrawColor(220, 220, 220);
+        pdf.line(20, yPosition + 5, pageWidth - 20, yPosition + 5);
+        yPosition += 15;
+        
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFont('helvetica', 'normal');
+      }
+      
+      if (i % 2 === 0) {
+        pdf.setFillColor(252, 253, 254);
+        pdf.rect(20, yPosition, pageWidth - 40, rowHeight, 'F');
+      }
+      
+      pdf.setFontSize(9);
+      pdf.setTextColor(40, 40, 40);
+      
+      const issueNumber = issue.auto_number?.toString() || (i + 1).toString();
+      const issueTitle = issue.title.length > 45 ? issue.title.substring(0, 45) + '...' : issue.title;
+      const category = issue.category || 'N/A';
+      const assignedTo = issue.assigned_to || 'Unassigned';
+      const dueDate = (issue as any).due_date ? new Date((issue as any).due_date).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }) : 'Not Set';
+      
+      const textY = yPosition + (rowHeight / 2) + 3.5;
+      pdf.text(issueNumber, columns[0].x + columns[0].width/2, textY, { align: 'center' });
+      pdf.text(issueTitle, columns[1].x + 2, textY, { align: 'left' });
+      pdf.text(category, columns[2].x + columns[2].width/2, textY, { align: 'center' });
+      
+      if (issue.status === 'open') {
+        pdf.setTextColor(220, 38, 38);
+      } else if (issue.status === 'closed') {
+        pdf.setTextColor(34, 197, 94);
+      } else {
+        pdf.setTextColor(107, 114, 128);
+      }
+      pdf.text(issue.status.toUpperCase(), columns[3].x + columns[3].width/2, textY, { align: 'center' });
+      pdf.setTextColor(40, 40, 40);
+      
+      pdf.text(dueDate, columns[4].x + columns[4].width/2, textY, { align: 'center' });
+      const assignedToText = assignedTo.length > 20 ? assignedTo.substring(0, 20) + '...' : assignedTo;
+      pdf.text(assignedToText, columns[5].x + 2, textY, { align: 'left' });
+      
+      pdf.setDrawColor(240, 240, 240);
+      pdf.setLineWidth(0.3);
+      pdf.line(20, yPosition + rowHeight, pageWidth - 20, yPosition + rowHeight);
+      
+      yPosition += rowHeight;
+    }
+
+    // Add individual issue detail pages
+    for (let i = 0; i < typedIssues.length; i++) {
+      const issue = typedIssues[i];
+      
+      pdf.addPage();
+      pageNumber++;
+      await addHeaderFooter(pdf, pageNumber);
+      
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(30, 30, 30);
+      const issueNumber = issue.auto_number || `${i + 1}`;
+      pdf.text(`${issueNumber}. ${issue.title}`, 20, 45);
+      
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'normal');
+      if (issue.status === 'open') {
+        pdf.setTextColor(220, 38, 38);
+      } else if (issue.status === 'closed') {
+        pdf.setTextColor(34, 197, 94);
+      } else {
+        pdf.setTextColor(107, 114, 128);
+      }
+      pdf.text(issue.status.toUpperCase(), pageWidth - 20, 45, { align: 'right' });
+      pdf.setTextColor(0, 0, 0);
+      
+      let yPos = 60;
+      const attachmentAreaWidth = pageWidth - 40;
+      const attachmentAreaHeight = 120;
+      let attachmentY = yPos;
+      
+      if (issue.attachments && issue.attachments.length > 0) {
+        const maxAttachmentsToShow = Math.min(3, issue.attachments.length);
+        const attachmentWidth = attachmentAreaWidth / maxAttachmentsToShow - 5;
+        const attachmentHeight = 70;
+        
+        for (let attachmentIndex = 0; attachmentIndex < maxAttachmentsToShow; attachmentIndex++) {
+          const attachment = issue.attachments[attachmentIndex];
+          const attachmentX = 20 + (attachmentIndex * (attachmentWidth + 5));
+          
+          if (attachment.type?.startsWith('image/')) {
+            try {
+              const { dataUrl, format } = await getAttachmentDataUrl(attachment);
+              const padding = 2;
+              const boxW = attachmentWidth - padding * 2;
+              const boxH = attachmentHeight - padding * 2;
+              
+              const { width: imgW, height: imgH } = await new Promise<{ width: number; height: number }>((resolve) => {
+                const imgEl = new Image();
+                imgEl.onload = () => resolve({ width: imgEl.naturalWidth, height: imgEl.naturalHeight });
+                imgEl.src = dataUrl;
+              });
+              
+              const scale = imgW && imgH ? Math.min(boxW / imgW, boxH / imgH) : 1;
+              const drawW = Math.max(1, (imgW || boxW) * scale);
+              const drawH = Math.max(1, (imgH || boxH) * scale);
+              const drawX = attachmentX + (attachmentWidth - drawW) / 2;
+              const drawY = attachmentY + (attachmentHeight - drawH) / 2;
+              
+              pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
+              
+              if (issue.attachments.length > 1) {
+                pdf.setFillColor(0, 0, 0);
+                pdf.setDrawColor(0, 0, 0);
+                const badgeX = attachmentX + attachmentWidth - 10;
+                const badgeY = attachmentY + 4;
+                pdf.circle(badgeX, badgeY, 5, 'F');
+                pdf.setFontSize(8);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(255, 255, 255);
+                pdf.text(`${attachmentIndex + 1}`, badgeX, badgeY + 2, { align: 'center' });
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(0, 0, 0);
+              }
+            } catch (imageError) {
+              pdf.setFillColor(240, 240, 240);
+              pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight, 'F');
+              pdf.setDrawColor(200, 200, 200);
+              pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
+              pdf.setFontSize(10);
+              pdf.setTextColor(120, 120, 120);
+              pdf.text('Image', attachmentX + attachmentWidth/2, attachmentY + attachmentHeight/2 - 5, { align: 'center' });
+              pdf.text('Failed', attachmentX + attachmentWidth/2, attachmentY + attachmentHeight/2 + 5, { align: 'center' });
+              pdf.setTextColor(0, 0, 0);
+            }
+          } else {
+            pdf.setFillColor(245, 245, 245);
+            pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight, 'F');
+            pdf.setDrawColor(200, 200, 200);
+            pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
+            
+            pdf.setFillColor(100, 100, 100);
+            const iconSize = 20;
+            const iconX = attachmentX + (attachmentWidth - iconSize) / 2;
+            const iconY = attachmentY + 15;
+            pdf.rect(iconX, iconY, iconSize, iconSize * 1.2, 'F');
+            
+            pdf.setFontSize(8);
+            pdf.setTextColor(60, 60, 60);
+            const fileName = attachment.name || 'File';
+            const truncatedName = fileName.length > 15 ? fileName.substring(0, 12) + '...' : fileName;
+            pdf.text(truncatedName, attachmentX + attachmentWidth/2, attachmentY + attachmentHeight - 15, { align: 'center' });
+            pdf.setTextColor(0, 0, 0);
+          }
+        }
+        
+        if (issue.attachments.length > 3) {
+          pdf.setFontSize(9);
+          pdf.setTextColor(80, 80, 80);
+          pdf.text(`+${issue.attachments.length - 3} more attachments`, 20, attachmentY + attachmentHeight + 15);
+          pdf.setTextColor(0, 0, 0);
+        }
+      } else {
+        pdf.setFillColor(250, 250, 250);
+        pdf.rect(20, attachmentY, attachmentAreaWidth, attachmentAreaHeight, 'F');
+        pdf.setDrawColor(220, 220, 220);
+        pdf.setLineWidth(1);
+        pdf.rect(20, attachmentY, attachmentAreaWidth, attachmentAreaHeight);
+        
+        pdf.setDrawColor(180, 180, 180);
+        pdf.setLineWidth(0.5);
+        const dashLength = 3;
+        const gapLength = 3;
+        for (let x = 20; x < 20 + attachmentAreaWidth; x += dashLength + gapLength) {
+          pdf.line(x, attachmentY, Math.min(x + dashLength, 20 + attachmentAreaWidth), attachmentY);
+          pdf.line(x, attachmentY + attachmentAreaHeight, Math.min(x + dashLength, 20 + attachmentAreaWidth), attachmentY + attachmentAreaHeight);
+        }
+        for (let y = attachmentY; y < attachmentY + attachmentAreaHeight; y += dashLength + gapLength) {
+          pdf.line(20, y, 20, Math.min(y + dashLength, attachmentY + attachmentAreaHeight));
+          pdf.line(20 + attachmentAreaWidth, y, 20 + attachmentAreaWidth, Math.min(y + dashLength, attachmentY + attachmentAreaHeight));
+        }
+        
+        pdf.setFontSize(12);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text('No Attachments', 20 + attachmentAreaWidth/2, attachmentY + attachmentAreaHeight/2 - 5, { align: 'center' });
+        pdf.text('Available', 20 + attachmentAreaWidth/2, attachmentY + attachmentAreaHeight/2 + 5, { align: 'center' });
+        pdf.setTextColor(0, 0, 0);
+      }
+      
+      const descriptionBoxX = 20;
+      const actualAttachmentHeight = issue.attachments && issue.attachments.length > 0 ? 70 : attachmentAreaHeight;
+      const descriptionBoxY = attachmentY + actualAttachmentHeight + 5;
+      const descriptionBoxWidth = 170;
+      const descriptionBoxHeight = 40;
+      
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Description:', descriptionBoxX + 5, descriptionBoxY + 10);
+      
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      pdf.setFontSize(10);
+      const description = issue.description || 'No description provided';
+      const wrappedDescription = pdf.splitTextToSize(description, descriptionBoxWidth - 10);
+      const maxLines = Math.floor((descriptionBoxHeight - 15) / 4);
+      const displayedLines = wrappedDescription.slice(0, maxLines);
+      pdf.text(displayedLines, descriptionBoxX + 5, descriptionBoxY + 18);
+      
+      // Position other details below the description box - 2 rows, 2 columns format
+      let detailsY = descriptionBoxY + descriptionBoxHeight + 10;
+      const detailsX = 20;
+      const col2X = 110;
+      
+      const createdByProfile2 = profileMap.get(issue.created_by);
+      const createdByName2 = createdByProfile2 ? `${createdByProfile2.first_name || ''} ${createdByProfile2.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
+      const assignedToName = issue.assigned_to || 'Unassigned';
+      const dueDateText = (issue as any).due_date ? new Date((issue as any).due_date).toLocaleDateString('en-GB', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }) : 'Not Set';
+      
+      pdf.setFontSize(9);
+      
+      // First row - Category and Created by (side by side)
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Category:', detailsX, detailsY);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(issue.category || 'N/A', detailsX + 20, detailsY);
+      
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Created by:', col2X, detailsY);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(createdByName2, col2X + 24, detailsY);
+      
+      // Second row - Assigned to and Due Date (side by side)
+      detailsY += 8;
+      
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Assigned to:', detailsX, detailsY);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(assignedToName, detailsX + 25, detailsY);
+      
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Due Date:', col2X, detailsY);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(dueDateText, col2X + 20, detailsY);
+      
+      if (detailsY < 200) {
+        pdf.setFontSize(8);
+        pdf.setTextColor(120, 120, 120);
+        pdf.text('Additional comments available in app', 20, 220);
+        pdf.setTextColor(0, 0, 0);
+      }
+    }
+
+    // Save the PDF
+    const filename = `${project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_selected_issues_${new Date().toISOString().split('T')[0]}.pdf`;
+    pdf.save(filename);
+
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw error;
+  }
+};
