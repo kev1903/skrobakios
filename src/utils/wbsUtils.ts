@@ -105,6 +105,7 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
     level: row.level,
     is_expanded: row.is_expanded,
     linked_tasks: Array.isArray(row.linked_tasks) ? (row.linked_tasks as string[]) : [],
+    rfq_required: row.rfq_required || false,
     children: [],
     created_at: row.created_at,
     updated_at: row.updated_at
