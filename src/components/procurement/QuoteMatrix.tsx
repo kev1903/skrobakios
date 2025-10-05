@@ -247,7 +247,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
               <div className="text-center px-2 border-l border-gray-200">Quote 3</div>
               <div className="text-center px-2 border-l border-gray-200">Quote 4</div>
               <div className="text-center px-2 border-l border-gray-200">Quote 5</div>
-              <div className="text-center px-2 border-l border-gray-200 bg-green-50">Approved</div>
+              <div className="text-center px-2 border-l border-gray-200 bg-green-50">Committed</div>
             </div>
           </div>
 
