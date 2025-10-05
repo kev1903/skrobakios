@@ -328,7 +328,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           end_date: item.end_date,
           duration: item.duration || 0,
           linked_tasks: Array.isArray(item.linked_tasks) ? item.linked_tasks : [],
-          predecessors: Array.isArray(item.predecessors) ? item.predecessors : []
+          predecessors: Array.isArray(item.predecessors) ? item.predecessors : [],
+          is_task_enabled: item.is_task_enabled || false,
+          linked_task_id: item.linked_task_id,
+          rfq_required: item.rfq_required || false
         });
         
         // If item has children, recursively flatten them at next depth level
