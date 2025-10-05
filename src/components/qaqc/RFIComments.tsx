@@ -45,28 +45,50 @@ export const RFIComments = ({ rfiId, projectId, companyId }: RFICommentsProps) =
   const fetchComments = async () => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch comments
+      const { data: commentsData, error: commentsError } = await supabase
         .from('rfi_comments')
-        .select(`
-          *,
-          profiles:user_id (
-            email,
-            first_name,
-            last_name
-          )
-        `)
+        .select('*')
         .eq('rfi_id', rfiId)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (commentsError) throw commentsError;
 
-      const commentsWithUserInfo = (data || []).map((comment: any) => ({
-        ...comment,
-        user_email: comment.profiles?.email,
-        user_name: comment.profiles?.first_name && comment.profiles?.last_name
-          ? `${comment.profiles.first_name} ${comment.profiles.last_name}`
-          : comment.profiles?.email?.split('@')[0] || 'Unknown User'
-      }));
+      if (!commentsData || commentsData.length === 0) {
+        setComments([]);
+        return;
+      }
+
+      // Get unique user IDs
+      const userIds = [...new Set(commentsData.map(c => c.user_id))];
+
+      // Fetch profiles for these users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, email, first_name, last_name')
+        .in('user_id', userIds);
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+      }
+
+      // Create a map of user profiles
+      const profilesMap = new Map(
+        (profilesData || []).map(p => [p.user_id, p])
+      );
+
+      // Combine comments with user info
+      const commentsWithUserInfo = commentsData.map((comment: any) => {
+        const profile = profilesMap.get(comment.user_id);
+        return {
+          ...comment,
+          user_email: profile?.email,
+          user_name: profile?.first_name && profile?.last_name
+            ? `${profile.first_name} ${profile.last_name}`
+            : profile?.email?.split('@')[0] || 'Unknown User'
+        };
+      });
 
       setComments(commentsWithUserInfo);
     } catch (error: any) {
