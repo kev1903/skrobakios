@@ -757,55 +757,55 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       const displayedLines = wrappedDescription.slice(0, maxLines);
       pdf.text(displayedLines, descriptionBoxX + 5, descriptionBoxY + 18);
       
-      // Position other details below the description box
-      let detailsY = descriptionBoxY + descriptionBoxHeight + 5;
+      // Position other details below the description box - horizontal format
+      let detailsY = descriptionBoxY + descriptionBoxHeight + 10;
       const detailsX = 20;
+      
+      // Get values first
+      const createdByProfile2 = profileMap.get(issue.created_by);
+      const createdByName2 = createdByProfile2 ? `${createdByProfile2.first_name || ''} ${createdByProfile2.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
+      const assignedToName = issue.assigned_to || 'Unassigned';
+      const dueDateFormatted = (issue as any).due_date 
+        ? new Date((issue as any).due_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+        : 'Not Set';
+      
+      // Display in horizontal format
+      pdf.setFontSize(9);
       
       // Category
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
       pdf.text('Category:', detailsX, detailsY);
-      detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      pdf.text(issue.category || 'N/A', detailsX, detailsY);
-      detailsY += 5;
+      pdf.text(issue.category || 'N/A', detailsX + 18, detailsY);
       
       // Created by
+      detailsY += 6;
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
       pdf.text('Created by:', detailsX, detailsY);
-      detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      const createdByProfile2 = profileMap.get(issue.created_by);
-      const createdByName2 = createdByProfile2 ? `${createdByProfile2.first_name || ''} ${createdByProfile2.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
-      pdf.text(createdByName2, detailsX, detailsY);
-      detailsY += 10;
+      pdf.text(createdByName2, detailsX + 22, detailsY);
       
       // Assigned to
+      detailsY += 6;
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
       pdf.text('Assigned to:', detailsX, detailsY);
-      detailsY += 5;
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      const assignedToName = issue.assigned_to || 'Unassigned';
-      pdf.text(assignedToName, detailsX, detailsY);
-      detailsY += 10;
+      pdf.text(assignedToName, detailsX + 24, detailsY);
       
-      // Created date
+      // Due Date
+      detailsY += 6;
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
-      pdf.text('Created:', detailsX, detailsY);
-      detailsY += 5;
+      pdf.text('Due Date:', detailsX, detailsY);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      pdf.text(new Date(issue.created_at).toLocaleDateString('en-GB', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      }), detailsX, detailsY);
+      pdf.text(dueDateFormatted, detailsX + 18, detailsY);
       
       // Comments section placeholder - positioned properly within A4 bounds
       if (detailsY < 200) {
