@@ -175,62 +175,32 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <FileText className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-muted-foreground">Category</p>
-                      <p className="text-sm text-foreground truncate">{report.category || 'General'}</p>
-                    </div>
+                <div className="flex flex-wrap gap-6">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-muted-foreground">Category:</span>
+                    <span className="text-sm text-foreground">{report.category || 'General'}</span>
                   </div>
 
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <UserCircle className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-muted-foreground">Created By</p>
-                      <p className="text-sm text-foreground truncate">{report.requested_by}</p>
-                    </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-muted-foreground">Created by:</span>
+                    <span className="text-sm text-foreground">{report.requested_by}</span>
                   </div>
 
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <User className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-muted-foreground">Assigned To</p>
-                      <p className="text-sm text-foreground truncate">{report.assigned_to || 'Unassigned'}</p>
-                    </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-muted-foreground">Assigned to:</span>
+                    <span className="text-sm text-foreground">{report.assigned_to || 'Unassigned'}</span>
                   </div>
 
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Calendar className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-muted-foreground">Due Date</p>
-                      <p className="text-sm text-foreground truncate">
-                        {report.due_date ? format(new Date(report.due_date), 'MMM dd, yyyy') : 'Not Set'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-muted-foreground">Location</p>
-                      <p className="text-sm text-foreground truncate">{report.location || 'Not specified'}</p>
-                    </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm font-medium text-muted-foreground">Due Date:</span>
+                    <span className="text-sm text-foreground">
+                      {report.due_date ? format(new Date(report.due_date), 'MMM dd, yyyy') : 'Not Set'}
+                    </span>
                   </div>
                 </div>
                 
                 <div className="pt-2">
-                  <label className="text-sm font-medium text-muted-foreground">Description</label>
+                  <label className="text-sm font-medium text-muted-foreground">Description:</label>
                   <p className="text-foreground mt-1">{report.description}</p>
                 </div>
               </CardContent>
