@@ -135,13 +135,16 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
     .filter(vendor => quotes.some(quote => quote.vendor_id === vendor.id))
     .slice(0, 5);
 
-  // Flatten visible WBS items based on expansion state
+  // Flatten visible WBS items based on expansion state and filter by RFQ required
   const flattenVisibleWBS = (items: WBSItem[]): WBSItem[] => {
     const result: WBSItem[] = [];
     
     const traverse = (wbsItems: WBSItem[]) => {
       wbsItems.forEach(item => {
-        result.push(item);
+        // Only include items where rfq_required is true
+        if (item.rfq_required === true) {
+          result.push(item);
+        }
         
         if (item.children && item.children.length > 0 && expandedIds.has(item.id)) {
           traverse(item.children);
