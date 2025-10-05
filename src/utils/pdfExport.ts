@@ -808,11 +808,82 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       pdf.setTextColor(80, 80, 80);
       pdf.text(dueDateFormatted, col2X + 20, detailsY);
       
-      // Comments section placeholder - positioned properly within A4 bounds
-      if (detailsY < 200) {
-        pdf.setFontSize(8);
+      // Comments section - fetch and display actual comments
+      detailsY += 15;
+      
+      // Fetch comments for this issue
+      const { data: comments } = await supabase
+        .from('rfi_comments')
+        .select(`
+          id,
+          comment_text,
+          created_at,
+          user_id
+        `)
+        .eq('rfi_id', issue.id)
+        .order('created_at', { ascending: true });
+      
+      if (comments && comments.length > 0) {
+        // Fetch user profiles for comment authors
+        const commentUserIds = [...new Set(comments.map(c => c.user_id))];
+        const { data: commentProfiles } = await supabase
+          .from('profiles')
+          .select('user_id, first_name, last_name')
+          .in('user_id', commentUserIds);
+        
+        const commentProfileMap = new Map(
+          (commentProfiles || []).map(p => [p.user_id, p])
+        );
+        
+        // Comments header
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(60, 60, 60);
+        pdf.text('Comments:', detailsX, detailsY);
+        detailsY += 8;
+        
+        // Display each comment
+        pdf.setFontSize(9);
+        for (const comment of comments) {
+          // Check if we need a new page
+          if (detailsY > pageHeight - 60) {
+            pdf.addPage();
+            pageNumber++;
+            await addHeaderFooter(pdf, pageNumber);
+            detailsY = 40;
+          }
+          
+          const profile = commentProfileMap.get(comment.user_id);
+          const authorName = profile?.first_name && profile?.last_name
+            ? `${profile.first_name} ${profile.last_name}`
+            : 'Unknown User';
+          const commentDate = new Date(comment.created_at).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          
+          // Comment author and date
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(60, 60, 60);
+          pdf.text(`${authorName} - ${commentDate}`, detailsX, detailsY);
+          detailsY += 5;
+          
+          // Comment text
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(80, 80, 80);
+          const wrappedComment = pdf.splitTextToSize(comment.comment_text, pageWidth - 50);
+          pdf.text(wrappedComment, detailsX, detailsY);
+          detailsY += (wrappedComment.length * 4) + 6;
+        }
+      } else {
+        // No comments message
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'italic');
         pdf.setTextColor(120, 120, 120);
-        pdf.text('Additional comments available in app', 20, 220);
+        pdf.text('No comments', detailsX, detailsY);
         pdf.setTextColor(0, 0, 0);
       }
     }
@@ -1423,10 +1494,82 @@ export const exportSelectedIssuesToPDF = async (
       pdf.setTextColor(80, 80, 80);
       pdf.text(dueDateText, col2X + 20, detailsY);
       
-      if (detailsY < 200) {
-        pdf.setFontSize(8);
+      // Comments section - fetch and display actual comments
+      detailsY += 15;
+      
+      // Fetch comments for this issue
+      const { data: comments } = await supabase
+        .from('rfi_comments')
+        .select(`
+          id,
+          comment_text,
+          created_at,
+          user_id
+        `)
+        .eq('rfi_id', issue.id)
+        .order('created_at', { ascending: true });
+      
+      if (comments && comments.length > 0) {
+        // Fetch user profiles for comment authors
+        const commentUserIds = [...new Set(comments.map(c => c.user_id))];
+        const { data: commentProfiles } = await supabase
+          .from('profiles')
+          .select('user_id, first_name, last_name')
+          .in('user_id', commentUserIds);
+        
+        const commentProfileMap = new Map(
+          (commentProfiles || []).map(p => [p.user_id, p])
+        );
+        
+        // Comments header
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(60, 60, 60);
+        pdf.text('Comments:', detailsX, detailsY);
+        detailsY += 8;
+        
+        // Display each comment
+        pdf.setFontSize(9);
+        for (const comment of comments) {
+          // Check if we need a new page
+          if (detailsY > pageHeight - 60) {
+            pdf.addPage();
+            pageNumber++;
+            await addHeaderFooter(pdf, pageNumber);
+            detailsY = 40;
+          }
+          
+          const profile = commentProfileMap.get(comment.user_id);
+          const authorName = profile?.first_name && profile?.last_name
+            ? `${profile.first_name} ${profile.last_name}`
+            : 'Unknown User';
+          const commentDate = new Date(comment.created_at).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          
+          // Comment author and date
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(60, 60, 60);
+          pdf.text(`${authorName} - ${commentDate}`, detailsX, detailsY);
+          detailsY += 5;
+          
+          // Comment text
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(80, 80, 80);
+          const wrappedComment = pdf.splitTextToSize(comment.comment_text, pageWidth - 50);
+          pdf.text(wrappedComment, detailsX, detailsY);
+          detailsY += (wrappedComment.length * 4) + 6;
+        }
+      } else {
+        // No comments message
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'italic');
         pdf.setTextColor(120, 120, 120);
-        pdf.text('Additional comments available in app', 20, 220);
+        pdf.text('No comments', detailsX, detailsY);
         pdf.setTextColor(0, 0, 0);
       }
     }
