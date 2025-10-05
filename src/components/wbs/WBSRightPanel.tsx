@@ -138,7 +138,11 @@ export const WBSRightPanel = ({
              <Button
                variant="ghost"
                size="sm"
-               className={`h-6 w-6 p-0 ${item.rfq_required ? 'text-primary' : 'text-muted-foreground'}`}
+               className={`h-6 w-6 p-0 transition-colors ${
+                 item.rfq_required 
+                   ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                   : 'text-muted-foreground hover:bg-muted'
+               }`}
                onClick={(e) => {
                  e.stopPropagation();
                  onItemUpdate(item.id, { rfq_required: !item.rfq_required });
