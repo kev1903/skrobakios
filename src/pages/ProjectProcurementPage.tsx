@@ -224,7 +224,7 @@ export const ProjectProcurementPage = () => {
   }
 
   return (
-    <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="h-screen flex bg-white">
       {/* Project Sidebar */}
       <ProjectSidebar
         project={project}
@@ -235,22 +235,23 @@ export const ProjectProcurementPage = () => {
       />
 
       {/* Main Content */}
-      <div className="flex-1 ml-48 bg-white/90 backdrop-blur-sm border-l border-gray-200/30 h-full overflow-hidden">
+      <div className="flex-1 ml-48 bg-white h-full overflow-hidden">
         <div className="h-full overflow-y-auto">
-          <div className="p-8">
+          <div className="p-6">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Procurement</h1>
-              <p className="text-muted-foreground mt-2">
+              <h1 className="text-2xl font-semibold text-gray-900">Procurement</h1>
+              <p className="text-sm text-gray-600 mt-1">
                 {project.name} ({project.project_id})
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <Button 
                 onClick={() => setShowVendorForm(true)}
                 variant="outline"
                 size="sm"
+                className="text-sm"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Vendor
@@ -258,6 +259,7 @@ export const ProjectProcurementPage = () => {
               <Button 
                 onClick={() => setShowRFQForm(true)}
                 size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create RFQ
@@ -265,43 +267,36 @@ export const ProjectProcurementPage = () => {
             </div>
           </div>
 
-          {/* Status Overview */}
-          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-            {PROCUREMENT_STATUSES.slice(0, 10).map((status) => {
-              const count = getRFQCountByStatus(status.key);
-              const StatusIcon = status.icon;
-              return (
-                <Card key={status.key} className="hover:shadow-md transition-shadow flex-shrink-0 min-w-[120px]">
-                  <CardContent className="p-3">
-                    <div className="flex items-center gap-1 mb-1">
-                      <StatusIcon className="w-3 h-3" />
-                      <span className="text-lg font-bold">{count}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-tight">{status.label}</p>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-
           {/* Main Content Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
-              <TabsTrigger value="matrix" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <TabsList className="inline-flex h-9 items-center justify-center rounded-md bg-gray-100 p-1 text-gray-500">
+              <TabsTrigger 
+                value="matrix" 
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+              >
                 Quote Matrix
               </TabsTrigger>
-              <TabsTrigger value="rfq" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger 
+                value="rfq"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+              >
                 RFQ
               </TabsTrigger>
-              <TabsTrigger value="approvals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger 
+                value="approvals"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+              >
                 Approvals
               </TabsTrigger>
-              <TabsTrigger value="commitments" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsTrigger 
+                value="commitments"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
+              >
                 Commitments
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="matrix" className="space-y-6">
+            <TabsContent value="matrix" className="mt-4">
               <QuoteMatrix 
                 projectId={resolvedProjectId} 
                 rfqs={rfqs} 
@@ -309,7 +304,7 @@ export const ProjectProcurementPage = () => {
               />
             </TabsContent>
 
-            <TabsContent value="rfq" className="space-y-6">
+            <TabsContent value="rfq" className="mt-4">
               <QuoteMatrix 
                 projectId={resolvedProjectId} 
                 rfqs={rfqs} 
@@ -317,14 +312,14 @@ export const ProjectProcurementPage = () => {
               />
             </TabsContent>
 
-            <TabsContent value="approvals" className="space-y-6">
+            <TabsContent value="approvals" className="mt-4">
               <ApprovalQueue 
                 projectId={resolvedProjectId} 
                 rfqs={rfqs}
               />
             </TabsContent>
 
-            <TabsContent value="commitments" className="space-y-6">
+            <TabsContent value="commitments" className="mt-4">
               <CommitmentsRegister 
                 projectId={resolvedProjectId}
               />
