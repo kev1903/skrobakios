@@ -12,6 +12,7 @@ import { useProjects, Project } from '@/hooks/useProjects';
 import { ArrowLeft, Save, AlertTriangle, Upload, Paperclip, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { RFIComments } from '@/components/qaqc/RFIComments';
 
 interface IssueEditPageProps {
   onNavigate: (page: string) => void;
@@ -719,6 +720,15 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
               </form>
             </CardContent>
           </Card>
+
+          {/* Comments Section */}
+          {project && issueId && (
+            <RFIComments 
+              rfiId={issueId} 
+              projectId={projectId!} 
+              companyId={project.company_id}
+            />
+          )}
           </div>
         </div>
       </div>
