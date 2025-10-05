@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, GripVertical } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -239,9 +239,9 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
         <div className="overflow-x-auto">
           {/* Table Header */}
           <div className="bg-gray-50 border-b border-gray-200">
-            <div className="grid grid-cols-[80px_1fr_repeat(6,minmax(120px,1fr))] px-4 py-3 text-xs font-medium text-gray-700 uppercase tracking-wider">
-              <div className="px-2">WBS</div>
-              <div className="px-2 border-l border-gray-200">ACTIVITY</div>
+            <div className="grid grid-cols-[100px_1fr_repeat(6,minmax(120px,1fr))] py-3 text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <div className="px-4">WBS</div>
+              <div className="px-4 border-l border-gray-200">ACTIVITY</div>
               <div className="text-center px-2 border-l border-gray-200">Quote 1</div>
               <div className="text-center px-2 border-l border-gray-200">Quote 2</div>
               <div className="text-center px-2 border-l border-gray-200">Quote 3</div>
@@ -256,15 +256,16 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
             {wbsMatrix.map((row, index) => (
               <div 
                 key={row.wbsId} 
-                className={`grid grid-cols-[80px_1fr_repeat(6,minmax(120px,1fr))] px-4 hover:bg-gray-50 transition-colors ${
+                className={`grid grid-cols-[100px_1fr_repeat(6,minmax(120px,1fr))] hover:bg-gray-50 transition-colors ${
                   row.level > 0 ? 'bg-blue-50/30' : 'bg-white'
                 }`}
               >
-                <div className="flex items-center px-2 py-3">
+                <div className="flex items-center py-3 px-4">
                   <div 
-                    className="flex items-center space-x-2" 
+                    className="flex items-center gap-2" 
                     style={{ paddingLeft: `${row.level * 16}px` }}
                   >
+                    <GripVertical className="w-4 h-4 text-gray-400 flex-shrink-0" />
                     {row.hasChildren ? (
                       <Button
                         variant="ghost"
@@ -281,10 +282,10 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                     ) : (
                       <div className="w-5" />
                     )}
-                    <span className="text-sm font-medium text-blue-600 flex-shrink-0">{row.wbsId}</span>
+                    <span className="text-sm text-gray-900">{row.wbsId}</span>
                   </div>
                 </div>
-                <div className="flex items-center px-2 py-3 border-l border-gray-200">
+                <div className="flex items-center py-3 px-4 border-l border-gray-200">
                   <span className="text-sm text-gray-900 truncate">{row.title}</span>
                 </div>
                 {[0, 1, 2, 3, 4].map((contractorIndex) => {
