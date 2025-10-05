@@ -138,18 +138,18 @@ export const WBSRightPanel = ({
              <Button
                variant="ghost"
                size="sm"
-               className={`h-6 w-6 p-0 transition-colors ${
-                 item.rfq_required 
-                   ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                   : 'text-muted-foreground hover:bg-muted'
-               }`}
+               className="h-6 w-6 p-0 hover:bg-muted"
                onClick={(e) => {
                  e.stopPropagation();
                  onItemUpdate(item.id, { rfq_required: !item.rfq_required });
                }}
                title={item.rfq_required ? "Tender Required" : "No Tender"}
              >
-               <FileText className="w-4 h-4" />
+               <FileText className={`w-4 h-4 transition-colors ${
+                 item.rfq_required
+                   ? 'text-blue-600 hover:text-blue-700' 
+                   : 'text-muted-foreground hover:text-foreground'
+               }`} />
              </Button>
            </div>
 
