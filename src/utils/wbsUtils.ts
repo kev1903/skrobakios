@@ -23,13 +23,11 @@ export const findWBSItem = (items: WBSItem[], id: string): WBSItem | null => {
 export const renumberAllWBSItems = (items: WBSItem[]): { item: WBSItem; newWbsId: string }[] => {
   const updates: { item: WBSItem; newWbsId: string }[] = [];
   
-  // Flatten all items to get a flat list
+  // Flatten all items to get a flat list - maintains visual order from hierarchy
   const flatItems = flattenWBSHierarchy(items);
   
-  // Sort items by their current order/creation to maintain visual order
-  flatItems.sort((a, b) => {
-    return (a.created_at || '').localeCompare(b.created_at || '');
-  });
+  // Do NOT sort by created_at - preserve the visual order from the hierarchy
+  // The flattenWBSHierarchy function already maintains the correct display order
   
   // Generate simple sequential WBS numbers
   flatItems.forEach((item, index) => {
