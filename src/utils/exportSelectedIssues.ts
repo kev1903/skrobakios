@@ -736,55 +736,58 @@ export const exportSelectedIssuesToPDF = async (
       const displayedLines = wrappedDescription.slice(0, maxLines);
       pdf.text(displayedLines, descriptionBoxX + 5, descriptionBoxY + 18);
       
-      // Position other details below the description box
-      let detailsY = descriptionBoxY + descriptionBoxHeight + 5;
+      // Position other details below the description box - 2 rows, 2 columns format
+      let detailsY = descriptionBoxY + descriptionBoxHeight + 10;
       const detailsX = 20;
+      const col2X = 110; // Second column X position
       
-      // Category
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(60, 60, 60);
-      pdf.text('Category:', detailsX, detailsY);
-      detailsY += 5;
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(80, 80, 80);
-      pdf.text(issue.category || 'N/A', detailsX, detailsY);
-      detailsY += 5;
-      
-      // Created by
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(60, 60, 60);
-      pdf.text('Created by:', detailsX, detailsY);
-      detailsY += 5;
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(80, 80, 80);
+      // Get values first
       const createdByProfile2 = profileMap.get(issue.created_by);
       const createdByName2 = createdByProfile2 ? `${createdByProfile2.first_name || ''} ${createdByProfile2.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User';
-      pdf.text(createdByName2, detailsX, detailsY);
-      detailsY += 5;
-      
-      // Assigned to
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(60, 60, 60);
-      pdf.text('Assigned to:', detailsX, detailsY);
-      detailsY += 5;
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(80, 80, 80);
-      pdf.text(issue.assigned_to || 'Unassigned', detailsX, detailsY);
-      detailsY += 5;
-      
-      // Due date
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(60, 60, 60);
-      pdf.text('Due Date:', detailsX, detailsY);
-      detailsY += 5;
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(80, 80, 80);
+      const assignedToName = issue.assigned_to || 'Unassigned';
       const dueDateText = issue.due_date ? new Date(issue.due_date).toLocaleDateString('en-GB', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
       }) : 'Not Set';
-      pdf.text(dueDateText, detailsX, detailsY);
+      
+      pdf.setFontSize(9);
+      
+      // First row - Category and Created by (side by side)
+      // Category (left column)
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Category:', detailsX, detailsY);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(issue.category || 'N/A', detailsX + 20, detailsY);
+      
+      // Created by (right column, same row)
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Created by:', col2X, detailsY);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(createdByName2, col2X + 24, detailsY);
+      
+      // Second row - Assigned to and Due Date (side by side)
+      detailsY += 8;
+      
+      // Assigned to (left column)
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Assigned to:', detailsX, detailsY);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(assignedToName, detailsX + 25, detailsY);
+      
+      // Due Date (right column, same row)
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(60, 60, 60);
+      pdf.text('Due Date:', col2X, detailsY);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(dueDateText, col2X + 20, detailsY);
       
       // Comments section placeholder
       if (detailsY < 200) {
