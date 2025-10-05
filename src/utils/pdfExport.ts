@@ -757,10 +757,10 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       const displayedLines = wrappedDescription.slice(0, maxLines);
       pdf.text(displayedLines, descriptionBoxX + 5, descriptionBoxY + 18);
       
-      // Position other details below the description box - 2 rows horizontal format
+      // Position other details below the description box - 2 rows, 2 columns format
       let detailsY = descriptionBoxY + descriptionBoxHeight + 10;
       const detailsX = 20;
-      const midPageX = pageWidth / 2; // Middle of page for second column
+      const col2X = 110; // Second column X position
       
       // Get values first
       const createdByProfile2 = profileMap.get(issue.created_by);
@@ -772,41 +772,41 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       
       pdf.setFontSize(9);
       
-      // First row - Category and Created by
-      // Category (left side)
+      // First row - Category and Created by (side by side)
+      // Category (left column)
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
       pdf.text('Category:', detailsX, detailsY);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      pdf.text(issue.category || 'N/A', detailsX, detailsY + 5);
+      pdf.text(issue.category || 'N/A', detailsX + 20, detailsY);
       
-      // Created by (right side)
+      // Created by (right column, same row)
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
-      pdf.text('Created by:', midPageX, detailsY);
+      pdf.text('Created by:', col2X, detailsY);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      pdf.text(createdByName2, midPageX, detailsY + 5);
+      pdf.text(createdByName2, col2X + 24, detailsY);
       
-      // Second row - Assigned to and Due Date
-      detailsY += 15;
+      // Second row - Assigned to and Due Date (side by side)
+      detailsY += 8;
       
-      // Assigned to (left side)
+      // Assigned to (left column)
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
       pdf.text('Assigned to:', detailsX, detailsY);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      pdf.text(assignedToName, detailsX, detailsY + 5);
+      pdf.text(assignedToName, detailsX + 25, detailsY);
       
-      // Due Date (right side)
+      // Due Date (right column, same row)
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(60, 60, 60);
-      pdf.text('Due Date:', midPageX, detailsY);
+      pdf.text('Due Date:', col2X, detailsY);
       pdf.setFont('helvetica', 'normal');
       pdf.setTextColor(80, 80, 80);
-      pdf.text(dueDateFormatted, midPageX, detailsY + 5);
+      pdf.text(dueDateFormatted, col2X + 20, detailsY);
       
       // Comments section placeholder - positioned properly within A4 bounds
       if (detailsY < 200) {
