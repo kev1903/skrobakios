@@ -18,7 +18,7 @@ export class WBSService {
     if (error) throw error;
 
     console.log('📊 Raw WBS data from database:', data?.length || 0, 'items');
-    data?.forEach(item => console.log(`  ${item.wbs_id}: ${item.title} (Level ${item.level})`));
+    data?.forEach(item => console.log(`  ${item.wbs_id}: ${item.title} (Level ${item.level}) - RFQ: ${item.rfq_required}`));
 
     // If no data exists, return empty array (no seeding)
     if (!data || data.length === 0) {
