@@ -239,8 +239,8 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
         <div className="overflow-x-auto">
           {/* Table Header */}
           <div className="bg-gray-50 border-b border-gray-200">
-            <div className="grid grid-cols-[100px_1fr_repeat(6,minmax(120px,1fr))] py-3 text-xs font-medium text-gray-700 uppercase tracking-wider">
-              <div className="px-4">WBS</div>
+            <div className="grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] py-3 text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <div className="px-2">WBS</div>
               <div className="px-4 border-l border-gray-200">ACTIVITY</div>
               <div className="text-center px-2 border-l border-gray-200">Quote 1</div>
               <div className="text-center px-2 border-l border-gray-200">Quote 2</div>
@@ -256,11 +256,11 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
             {wbsMatrix.map((row, index) => (
               <div 
                 key={row.wbsId} 
-                className={`grid grid-cols-[100px_1fr_repeat(6,minmax(120px,1fr))] hover:bg-gray-50 transition-colors ${
+                className={`grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] hover:bg-gray-50 transition-colors ${
                   row.level > 0 ? 'bg-blue-50/30' : 'bg-white'
                 }`}
               >
-                <div className="flex items-center py-3 px-4">
+                <div className="flex items-center py-3 px-2">
                   <div 
                     className="flex items-center gap-2" 
                     style={{ paddingLeft: `${row.level * 16}px` }}
