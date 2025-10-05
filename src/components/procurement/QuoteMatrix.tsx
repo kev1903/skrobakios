@@ -239,8 +239,8 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
         <div className="overflow-x-auto">
           {/* Table Header */}
           <div className="bg-gray-50 border-b border-gray-200">
-            <div className="grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] py-3 text-xs font-medium text-gray-700 uppercase tracking-wider">
-              <div className="px-2">WBS</div>
+            <div className="grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] py-2 text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <div className="px-2 text-left">WBS</div>
               <div className="px-4 border-l border-gray-200">ACTIVITY</div>
               <div className="text-center px-2 border-l border-gray-200">Quote 1</div>
               <div className="text-center px-2 border-l border-gray-200">Quote 2</div>
@@ -260,7 +260,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                   row.level > 0 ? 'bg-blue-50/30' : 'bg-white'
                 }`}
               >
-                <div className="flex items-center py-3 px-2">
+                <div className="flex items-center py-2 px-2">
                   <div 
                     className="flex items-center gap-2" 
                     style={{ paddingLeft: `${row.level * 16}px` }}
@@ -284,7 +284,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                     <span className="text-sm text-gray-900">{row.wbsId}</span>
                   </div>
                 </div>
-                <div className="flex items-center py-3 px-4 border-l border-gray-200">
+                <div className="flex items-center py-2 px-4 border-l border-gray-200">
                   <span className="text-sm text-gray-900 truncate">{row.title}</span>
                 </div>
                 {[0, 1, 2, 3, 4].map((contractorIndex) => {
@@ -292,7 +292,7 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                   const isBlueColumn = contractorIndex % 2 === 0;
                   const isElementRow = !row.hasChildren;
                   return (
-                    <div key={contractorIndex} className={`col-span-1 text-center text-sm font-medium text-gray-900 px-2 py-3 h-full border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-100'} relative flex items-center justify-center`}>
+                    <div key={contractorIndex} className={`text-center text-sm font-medium text-gray-900 px-2 py-2 h-full border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-100'} relative flex items-center justify-center`}>
                       <div className="flex items-center justify-center space-x-2">
                         <span>{contractor?.quote ? formatCurrency(contractor.quote) : ''}</span>
                         {isElementRow && (
@@ -311,9 +311,9 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                     </div>
                   );
                 })}
-                <div className="col-span-1 px-2 py-3 h-full border-l border-gray-200 bg-green-50/30">
+                <div className="px-2 py-2 h-full border-l border-gray-200 bg-green-50/30">
                   <Select>
-                    <SelectTrigger className="w-full h-8 text-xs bg-white border-green-200">
+                    <SelectTrigger className="w-full h-7 text-xs bg-white border-green-200">
                       <SelectValue placeholder="Select quote..." />
                     </SelectTrigger>
                     <SelectContent className="bg-white border border-gray-200 shadow-lg z-50">
