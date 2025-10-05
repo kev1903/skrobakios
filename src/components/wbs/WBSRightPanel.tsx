@@ -147,7 +147,7 @@ export const WBSRightPanel = ({
              >
                <FileText className={`w-4 h-4 transition-colors ${
                  item.rfq_required
-                   ? 'text-blue-600 hover:text-blue-700' 
+                   ? 'text-orange-500 hover:text-orange-600' 
                    : 'text-muted-foreground hover:text-foreground'
                }`} />
              </Button>
