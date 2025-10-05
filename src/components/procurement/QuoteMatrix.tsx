@@ -239,14 +239,15 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
         <div className="overflow-x-auto">
           {/* Table Header */}
           <div className="bg-gray-50 border-b border-gray-200">
-            <div className="grid grid-cols-8 px-4 py-3 text-xs font-medium text-gray-700 uppercase tracking-wider">
-              <div className="col-span-2 px-2">WBS</div>
-              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 1</div>
-              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 2</div>
-              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 3</div>
-              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 4</div>
-              <div className="col-span-1 text-center px-2 border-l border-gray-200">Quote 5</div>
-              <div className="col-span-1 text-center px-2 border-l border-gray-200 bg-green-50">Approved</div>
+            <div className="grid grid-cols-[80px_1fr_repeat(6,minmax(120px,1fr))] px-4 py-3 text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <div className="px-2">WBS</div>
+              <div className="px-2 border-l border-gray-200">ACTIVITY</div>
+              <div className="text-center px-2 border-l border-gray-200">Quote 1</div>
+              <div className="text-center px-2 border-l border-gray-200">Quote 2</div>
+              <div className="text-center px-2 border-l border-gray-200">Quote 3</div>
+              <div className="text-center px-2 border-l border-gray-200">Quote 4</div>
+              <div className="text-center px-2 border-l border-gray-200">Quote 5</div>
+              <div className="text-center px-2 border-l border-gray-200 bg-green-50">Approved</div>
             </div>
           </div>
 
@@ -255,11 +256,11 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
             {wbsMatrix.map((row, index) => (
               <div 
                 key={row.wbsId} 
-                className={`grid grid-cols-8 px-4 hover:bg-gray-50 transition-colors ${
+                className={`grid grid-cols-[80px_1fr_repeat(6,minmax(120px,1fr))] px-4 hover:bg-gray-50 transition-colors ${
                   row.level > 0 ? 'bg-blue-50/30' : 'bg-white'
                 }`}
               >
-                <div className="col-span-2 flex items-center px-2 py-3">
+                <div className="flex items-center px-2 py-3">
                   <div 
                     className="flex items-center space-x-2" 
                     style={{ paddingLeft: `${row.level * 16}px` }}
@@ -280,11 +281,11 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                     ) : (
                       <div className="w-5" />
                     )}
-                    <div className="flex items-center space-x-2 min-w-0">
-                      <span className="text-sm font-medium text-blue-600 flex-shrink-0">{row.wbsId}</span>
-                      <span className="text-sm text-gray-900 truncate">{row.title}</span>
-                    </div>
+                    <span className="text-sm font-medium text-blue-600 flex-shrink-0">{row.wbsId}</span>
                   </div>
+                </div>
+                <div className="flex items-center px-2 py-3 border-l border-gray-200">
+                  <span className="text-sm text-gray-900 truncate">{row.title}</span>
                 </div>
                 {[0, 1, 2, 3, 4].map((contractorIndex) => {
                   const contractor = row.contractors[contractorIndex];
