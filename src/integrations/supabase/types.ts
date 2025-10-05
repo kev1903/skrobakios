@@ -3819,6 +3819,61 @@ export type Database = {
         }
         Relationships: []
       }
+      rfi_comments: {
+        Row: {
+          comment_text: string
+          company_id: string
+          created_at: string
+          id: string
+          project_id: string
+          rfi_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment_text: string
+          company_id: string
+          created_at?: string
+          id?: string
+          project_id: string
+          rfi_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment_text?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+          rfi_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_project"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_rfi"
+            columns: ["rfi_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rfi_reports: {
         Row: {
           company_id: string

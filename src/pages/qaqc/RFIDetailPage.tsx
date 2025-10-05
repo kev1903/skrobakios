@@ -8,6 +8,7 @@ import { useProjects, Project } from '@/hooks/useProjects';
 import { ArrowLeft, HelpCircle, Calendar, User, FileText, ClipboardList, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
+import { RFIComments } from '@/components/qaqc/RFIComments';
 
 interface RFIDetailPageProps {
   onNavigate: (page: string) => void;
@@ -310,6 +311,15 @@ export const RFIDetailPage = ({ onNavigate }: RFIDetailPageProps) => {
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Comments Section */}
+            {project && (
+              <RFIComments 
+                rfiId={rfiId!} 
+                projectId={projectId!} 
+                companyId={project.company_id}
+              />
             )}
 
             {/* Actions */}
