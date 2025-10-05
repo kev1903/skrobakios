@@ -139,20 +139,32 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
   const flattenVisibleWBS = (items: WBSItem[]): WBSItem[] => {
     const result: WBSItem[] = [];
     
-    const traverse = (wbsItems: WBSItem[]) => {
+    console.log('🔍 QuoteMatrix: Flattening WBS items, total input items:', items.length);
+    
+    const traverse = (wbsItems: WBSItem[], depth: number = 0) => {
       wbsItems.forEach(item => {
+        console.log(`  ${'  '.repeat(depth)}Item: ${item.wbs_id} - ${item.title}, rfq_required: ${item.rfq_required}, level: ${item.level}`);
+        
         // Only include items where rfq_required is true
         if (item.rfq_required === true) {
+          console.log(`    ${'  '.repeat(depth)}✅ Added to matrix (RFQ required)`);
           result.push(item);
         }
         
-        if (item.children && item.children.length > 0 && expandedIds.has(item.id)) {
-          traverse(item.children);
+        // Always traverse children to find nested items with RFQ required
+        if (item.children && item.children.length > 0) {
+          if (expandedIds.has(item.id)) {
+            console.log(`    ${'  '.repeat(depth)}📂 Expanded, traversing ${item.children.length} children`);
+            traverse(item.children, depth + 1);
+          } else {
+            console.log(`    ${'  '.repeat(depth)}📁 Collapsed, skipping children`);
+          }
         }
       });
     };
     
     traverse(items);
+    console.log('📊 QuoteMatrix: Total items with RFQ required:', result.length);
     return result;
   };
 
