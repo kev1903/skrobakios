@@ -579,31 +579,6 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                     className="hidden"
                   />
 
-                  {/* Drag & Drop Zone */}
-                  <div
-                    ref={dropZoneRef}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={`
-                      border-2 border-dashed rounded-lg p-8 text-center transition-colors
-                      ${isDragOver 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-muted-foreground/25 hover:border-muted-foreground/50'
-                      }
-                    `}
-                  >
-                    <Upload className={`w-12 h-12 mx-auto mb-4 ${isDragOver ? 'text-primary' : 'text-muted-foreground'}`} />
-                    <p className={`text-lg font-medium mb-2 ${isDragOver ? 'text-primary' : 'text-foreground'}`}>
-                      {isDragOver ? 'Drop files here' : 'Drag & drop files here'}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      or use the buttons above to browse or paste files
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Supports images, documents, and other files up to 10MB
-                    </p>
-                  </div>
 
                   {/* File Previews */}
                   {(existingAttachments.length > 0 || attachments.length > 0) && (
