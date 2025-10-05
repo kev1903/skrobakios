@@ -420,28 +420,6 @@ export const CreateIssuePage = ({ onNavigate }: CreateIssuePageProps) => {
                       </Button>
                     </div>
 
-                    {/* Compact Drag & Drop Zone */}
-                    <div
-                      ref={dropZoneRef}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                      className={`
-                        border-2 border-dashed rounded-lg p-4 text-center transition-colors
-                        ${isDragOver 
-                          ? 'border-primary bg-primary/5' 
-                          : 'border-muted-foreground/25 hover:border-muted-foreground/50'
-                        }
-                      `}
-                    >
-                      <Upload className={`w-8 h-8 mx-auto mb-2 ${isDragOver ? 'text-primary' : 'text-muted-foreground'}`} />
-                      <p className={`text-sm font-medium mb-1 ${isDragOver ? 'text-primary' : 'text-foreground'}`}>
-                        {isDragOver ? 'Drop files here' : 'Drag & drop files here'}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Supports images, documents up to 10MB
-                      </p>
-                    </div>
 
                     {/* File Previews - Compact */}
                     {attachments.length > 0 && (
