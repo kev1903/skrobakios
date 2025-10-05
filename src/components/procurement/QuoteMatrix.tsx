@@ -151,14 +151,11 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
           result.push(item);
         }
         
-        // Always traverse children to find nested items with RFQ required
+        // Always traverse ALL children to find nested items with RFQ required
+        // regardless of expansion state (procurement should show all RFQ items)
         if (item.children && item.children.length > 0) {
-          if (expandedIds.has(item.id)) {
-            console.log(`    ${'  '.repeat(depth)}📂 Expanded, traversing ${item.children.length} children`);
-            traverse(item.children, depth + 1);
-          } else {
-            console.log(`    ${'  '.repeat(depth)}📁 Collapsed, skipping children`);
-          }
+          console.log(`    ${'  '.repeat(depth)}📂 Traversing ${item.children.length} children (looking for RFQ items)`);
+          traverse(item.children, depth + 1);
         }
       });
     };
