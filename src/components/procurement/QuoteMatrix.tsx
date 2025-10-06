@@ -236,15 +236,15 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
         <div className="overflow-x-auto">
           {/* Table Header */}
           <div className="bg-gray-50 border-b border-gray-200">
-            <div className="grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] py-2 text-xs font-medium text-gray-700 uppercase tracking-wider">
-              <div className="px-2 text-left">WBS</div>
-              <div className="px-4 border-l border-gray-200">ACTIVITY</div>
-              <div className="text-center px-2 border-l border-gray-200">Quote 1</div>
-              <div className="text-center px-2 border-l border-gray-200">Quote 2</div>
-              <div className="text-center px-2 border-l border-gray-200">Quote 3</div>
-              <div className="text-center px-2 border-l border-gray-200">Quote 4</div>
-              <div className="text-center px-2 border-l border-gray-200">Quote 5</div>
-              <div className="text-center px-2 border-l border-gray-200 bg-green-50">Committed</div>
+            <div className="grid grid-cols-[60px_1fr_repeat(6,minmax(120px,1fr))] py-2">
+              <div className="px-2 text-left font-semibold text-[10px] uppercase tracking-wider text-slate-600">WBS</div>
+              <div className="px-4 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">ACTIVITY</div>
+              <div className="text-center px-2 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Quote 1</div>
+              <div className="text-center px-2 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Quote 2</div>
+              <div className="text-center px-2 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Quote 3</div>
+              <div className="text-center px-2 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Quote 4</div>
+              <div className="text-center px-2 border-l border-gray-200 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Quote 5</div>
+              <div className="text-center px-2 border-l border-gray-200 bg-green-50 font-semibold text-[10px] uppercase tracking-wider text-slate-600">Committed</div>
             </div>
           </div>
 
