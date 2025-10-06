@@ -278,18 +278,18 @@ export const QuoteMatrix: React.FC<QuoteMatrixProps> = ({ projectId, rfqs, onRFQ
                     ) : (
                       <div className="w-5" />
                     )}
-                    <span className="text-sm text-gray-900">{row.wbsId}</span>
+                    <span className="text-xs text-muted-foreground font-medium">{row.wbsId}</span>
                   </div>
                 </div>
                 <div className="flex items-center py-2 px-4 border-l border-gray-200">
-                  <span className="text-sm text-gray-900 truncate">{row.title}</span>
+                  <span className="text-xs text-muted-foreground font-medium truncate">{row.title}</span>
                 </div>
                 {[0, 1, 2, 3, 4].map((contractorIndex) => {
                   const contractor = row.contractors[contractorIndex];
                   const isBlueColumn = contractorIndex % 2 === 0;
                   const isElementRow = !row.hasChildren;
                   return (
-                    <div key={contractorIndex} className={`text-center text-sm font-medium text-gray-900 px-2 py-2 h-full border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-100'} relative flex items-center justify-center`}>
+                    <div key={contractorIndex} className={`text-center text-xs font-medium text-muted-foreground px-2 py-2 h-full border-l border-gray-200 ${isBlueColumn ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-100'} relative flex items-center justify-center`}>
                       <div className="flex items-center justify-center space-x-2">
                         <span>{contractor?.quote ? formatCurrency(contractor.quote) : ''}</span>
                         {isElementRow && (
