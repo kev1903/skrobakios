@@ -77,7 +77,7 @@ export const WBSRightPanel = ({
               }`}
               data-row-id={item.id}
             style={{
-              gridTemplateColumns: '140px 120px 160px 60px 40px 84px',
+              gridTemplateColumns: '140px 120px 160px 60px 40px 40px 84px',
               height: '1.75rem',
           }}
           onMouseEnter={() => onRowHover?.(item.id)}
@@ -163,6 +163,29 @@ export const WBSRightPanel = ({
              >
                <NotebookPen className={`w-4 h-4 transition-colors ${
                  item.description && item.description.trim() 
+                   ? 'text-blue-600 hover:text-blue-700' 
+                   : 'text-muted-foreground hover:text-foreground'
+               }`} />
+             </Button>
+           </div>
+
+           <div className="px-1 flex items-center justify-center h-full">
+             <Button
+               variant="ghost"
+               size="sm"
+               className="h-6 w-6 p-0 hover:bg-muted"
+               onClick={(e) => {
+                 e.stopPropagation();
+                 if (item.is_task_enabled) {
+                   onContextMenuAction('view_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
+                 } else {
+                   onContextMenuAction('convert_to_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
+                 }
+               }}
+               title={item.is_task_enabled ? "View Task" : "Convert to Task"}
+             >
+               <ListTodo className={`w-4 h-4 transition-colors ${
+                 item.is_task_enabled
                    ? 'text-blue-600 hover:text-blue-700' 
                    : 'text-muted-foreground hover:text-foreground'
                }`} />
