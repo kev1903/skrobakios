@@ -109,6 +109,18 @@ export class WBSService {
         if (key === 'is_expanded') {
           dbUpdates[key] = Boolean(value);
         }
+        // Handle parent_id specially - ensure it's a proper UUID or null
+        else if (key === 'parent_id') {
+          // Convert to string and validate it's a proper UUID or null
+          if (value === null || value === undefined) {
+            dbUpdates[key] = null;
+          } else if (typeof value === 'string') {
+            dbUpdates[key] = value;
+          } else {
+            console.error('Invalid parent_id format:', value);
+            dbUpdates[key] = null;
+          }
+        }
         // Handle predecessors field specially - ensure it's properly formatted as JSON
         else if (key === 'predecessors' && Array.isArray(value)) {
           dbUpdates[key] = value as any;
