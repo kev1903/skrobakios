@@ -11,7 +11,7 @@ interface ProjectTeamManagementPageProps {
 
 const ProjectTeamManagementContent = ({ project, onNavigate }: ProjectTeamManagementPageProps) => {
   return (
-    <div className="h-screen flex backdrop-blur-xl bg-black/20 border border-white/10">
+    <div className="h-screen flex bg-background">
       {/* Project Sidebar */}
       <ProjectSidebar
         project={project}
@@ -22,10 +22,10 @@ const ProjectTeamManagementContent = ({ project, onNavigate }: ProjectTeamManage
       />
 
       {/* Main Content */}
-      <div className="flex-1 ml-48 backdrop-blur-xl bg-white/5 border-l border-white/10 h-full overflow-y-auto">
+      <div className="flex-1 ml-48 bg-background border-l h-full overflow-y-auto">
         <div className="p-8">
           {/* Team Management Header */}
-          <div className="mb-8 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-6">
+          <div className="mb-6 bg-card border rounded-lg p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-foreground mb-2">Team Management</h1>
@@ -41,7 +41,7 @@ const ProjectTeamManagementContent = ({ project, onNavigate }: ProjectTeamManage
           </div>
 
           {/* Team Management Content */}
-          <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl">
+          <div className="bg-card border rounded-lg">
             <ProjectTeamPage project={project} onNavigate={onNavigate} />
           </div>
         </div>

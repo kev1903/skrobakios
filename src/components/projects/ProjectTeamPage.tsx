@@ -299,18 +299,54 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
   ) || [];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
+      {/* Team Stats - Clean design */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 pb-4">
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Members</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{(teamMembers?.length || 0) + manualMembers.length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Active Members</CardTitle>
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {teamMembers?.filter(m => m.status === 'active').length || 0}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Pending Invites</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">
+              {(teamMembers?.filter(m => m.status === 'pending').length || 0) + manualMembers.length}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Action Buttons */}
-      <div className="flex justify-end items-center">
-        <div className="flex gap-2">
-          {availableCompanyMembers.length > 0 && (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  Add Company Members ({availableCompanyMembers.length})
-                </Button>
-              </DialogTrigger>
+      <div className="flex justify-end items-center gap-2 px-6">
+        {availableCompanyMembers.length > 0 && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Add Company Members ({availableCompanyMembers.length})
+              </Button>
+            </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>Add Company Members to Project</DialogTitle>
@@ -553,18 +589,17 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
               </DialogFooter>
             </DialogContent>
           </Dialog>
-        </div>
       </div>
 
-      {/* Manual Members Section */}
+      {/* Manual Members Card */}
       {manualMembers.length > 0 && (
-        <Card>
+        <Card className="mx-6">
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
-                <CardTitle>Draft Members</CardTitle>
+                <CardTitle>Draft Member Entries ({manualMembers.length})</CardTitle>
                 <CardDescription>
-                  Team members added manually. Send invitations when ready.
+                  Team members added manually. Send invitations to activate their accounts.
                 </CardDescription>
               </div>
               <Button onClick={handleSendInvitesToManualMembers} className="flex items-center gap-2">
@@ -649,46 +684,9 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
         </Card>
       )}
 
-      {/* Team Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{(teamMembers?.length || 0) + manualMembers.length}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Members</CardTitle>
-            <Badge variant="default" className="w-3 h-3 p-0 bg-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {teamMembers?.filter(m => m.status === 'active').length || 0}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Invites</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {(teamMembers?.filter(m => m.status === 'pending').length || 0) + manualMembers.length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Team Members Section */}
       {teamMembers && teamMembers.length > 0 ? (
-        <Card>
+        <Card className="mx-6">
           <CardHeader>
             <CardTitle>Project Team Members ({teamMembers.length})</CardTitle>
             <CardDescription>
@@ -762,7 +760,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
           </CardContent>
         </Card>
       ) : (
-        <Card>
+        <Card className="mx-6">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Users className="w-16 h-16 text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">No Team Members Yet</h3>
