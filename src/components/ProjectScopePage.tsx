@@ -650,15 +650,16 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   );
 
-  const handleContextMenuAction = async (action: string, itemId: string) => {
-    // Determine item type from wbsItems
-    const item = wbsItems.find(i => i.id === itemId);
-    if (!item) return;
+  const handleContextMenuAction = async (action: string, itemId: string, type: string) => {
+    // Type is now passed directly from the component
+    console.log('🔵 ProjectScopePage handleContextMenuAction received:', action, itemId, type);
     
-    const type: 'phase' | 'component' | 'element' | 'task' = 
-      item.level === 0 ? 'phase' : 
-      item.level === 1 ? 'component' : 
-      item.level === 2 ? 'element' : 'task';
+    // Find the item for operations that need it
+    const item = wbsItems.find(i => i.id === itemId);
+    if (!item && action !== 'delete') {
+      console.error('Item not found:', itemId);
+      return;
+    }
     
     switch (action) {
       case 'cut':
@@ -796,7 +797,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       case 'edit':
         const foundItem = wbsItems.find(i => i.id === itemId);
         if (foundItem) {
-          setEditingItem({ id: itemId, type, field: 'title' });
+          setEditingItem({ id: itemId, type: type as 'phase' | 'component' | 'element' | 'task', field: 'title' });
           setEditValue(foundItem.title);
         }
         break;
