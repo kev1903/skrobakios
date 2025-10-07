@@ -126,13 +126,53 @@ export class WBSService {
     if (error) throw error;
   }
 
-  // Delete a WBS item
+  // Delete a WBS item and all its descendants
   static async deleteWBSItem(id: string): Promise<void> {
+    // First, find all descendants recursively
+    const descendants = await this.getAllDescendants(id);
+    
+    // Delete children first (bottom-up to avoid foreign key issues)
+    // Delete in reverse order to delete deepest children first
+    for (const descendantId of descendants.reverse()) {
+      const { error } = await supabase
+        .from('wbs_items')
+        .delete()
+        .eq('id', descendantId);
+      
+      if (error) {
+        console.error('Error deleting descendant:', descendantId, error);
+        throw error;
+      }
+    }
+    
+    // Finally delete the item itself
     const { error } = await supabase
       .from('wbs_items')
       .delete()
       .eq('id', id);
 
     if (error) throw error;
+  }
+
+  // Helper method to get all descendants of an item
+  private static async getAllDescendants(parentId: string): Promise<string[]> {
+    const { data, error } = await supabase
+      .from('wbs_items')
+      .select('id')
+      .eq('parent_id', parentId);
+
+    if (error) throw error;
+    if (!data || data.length === 0) return [];
+
+    const descendants: string[] = [];
+    
+    // For each direct child, get their ID and recursively get their descendants
+    for (const child of data) {
+      descendants.push(child.id);
+      const childDescendants = await this.getAllDescendants(child.id);
+      descendants.push(...childDescendants);
+    }
+
+    return descendants;
   }
 }
