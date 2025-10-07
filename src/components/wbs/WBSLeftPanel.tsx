@@ -22,7 +22,7 @@ interface WBSLeftPanelProps {
   onDragUpdate?: (update: any) => void;
   onItemEdit: (itemId: string, field: string, value: string) => void;
   onAddChild?: (parentId: string) => void;
-  onContextMenuAction?: (action: string, itemId: string) => void;
+  onContextMenuAction?: (action: string, itemId: string, type: string) => void;
   dragIndicator: any;
   EditableCell: any;
   generateWBSNumber?: (phaseIndex: number, componentIndex?: number, elementIndex?: number) => string;
@@ -113,7 +113,8 @@ export const WBSLeftPanel = ({
                           hasChildren={itemHasChildren}
                           level={item.level || 0}
                           onAction={(action, itemId) => {
-                            onContextMenuAction?.(action, itemId);
+                            const itemType = item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task';
+                            onContextMenuAction?.(action, itemId, itemType);
                           }}
                         >
                           <div

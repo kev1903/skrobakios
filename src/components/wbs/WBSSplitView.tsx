@@ -24,7 +24,7 @@ interface WBSSplitViewProps {
   onDragUpdate?: (update: any) => void;
   onItemUpdate: (itemId: string, updates: any) => void;
   onAddChild?: (parentId: string) => void;
-  onContextMenuAction: (action: string, itemId: string) => void;
+  onContextMenuAction: (action: string, itemId: string, type: string) => void;
   onOpenNotesDialog: (item: any) => void;
   onAddRow?: () => void;
   onReloadItems?: () => Promise<void>;
