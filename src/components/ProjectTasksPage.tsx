@@ -647,7 +647,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   };
 
   return (
-    <div className="h-screen flex bg-gradient-to-br from-slate-50 to-slate-100 border border-gray-200/50">
+    <div className="h-screen overflow-hidden">
       {/* Project Sidebar */}
       <ProjectSidebar
         project={project}
@@ -657,28 +657,40 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         activeSection="tasks"
       />
 
-      {/* Main Content */}
-      <div className="flex-1 ml-48 bg-white/90 backdrop-blur-sm border-l border-gray-200/30 h-full overflow-y-auto">
-        <div className="p-8">
-          <TaskPageHeader project={project} />
-          
-          <TaskSearchAndActions
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            selectedTasks={selectedTasks}
-            onAddTask={handleAddTask}
-            onExport={handleExport}
-          />
+      {/* Main Content - Fixed positioning to match Project Control */}
+      <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
+        <div className="h-full w-full bg-white">
+          {/* Header */}
+          <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
+            <div className="px-6 py-4">
+              <TaskPageHeader project={project} />
+              
+              <div className="mt-4">
+                <TaskSearchAndActions
+                  searchTerm={searchTerm}
+                  onSearchChange={setSearchTerm}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
+                  selectedTasks={selectedTasks}
+                  onAddTask={handleAddTask}
+                  onExport={handleExport}
+                />
+              </div>
 
-          <TaskTabNavigation
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
+              <div className="mt-4">
+                <TaskTabNavigation
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                />
+              </div>
+            </div>
+          </div>
 
-          <div>
-            {renderActiveView()}
+          {/* Content Area */}
+          <div className="h-[calc(100%-200px)] overflow-y-auto">
+            <div className="p-6">
+              {renderActiveView()}
+            </div>
           </div>
         </div>
       </div>

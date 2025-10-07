@@ -224,7 +224,7 @@ export const ProjectProcurementPage = () => {
   }
 
   return (
-    <div className="h-screen flex bg-white">
+    <div className="h-screen overflow-hidden">
       {/* Project Sidebar */}
       <ProjectSidebar
         project={project}
@@ -234,97 +234,87 @@ export const ProjectProcurementPage = () => {
         activeSection="procurement"
       />
 
-      {/* Main Content */}
-      <div className="flex-1 ml-48 bg-white h-full overflow-hidden">
-        <div className="h-full overflow-y-auto">
-          <div className="p-6">
+      {/* Main Content - Fixed positioning to match Project Control */}
+      <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
+        <div className="h-full w-full bg-white">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Procurement</h1>
-              <p className="text-sm text-gray-600 mt-1">
-                {project.name} ({project.project_id})
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button 
-                onClick={() => setShowVendorForm(true)}
-                variant="outline"
-                size="sm"
-                className="text-sm"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Vendor
-              </Button>
-              <Button 
-                onClick={() => setShowRFQForm(true)}
-                size="sm"
-                className="bg-blue-600 hover:bg-blue-700 text-white text-sm"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Create RFQ
-              </Button>
+          <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
+            <div className="px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground">Procurement</h1>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    {project.name} ({project.project_id})
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={() => setShowVendorForm(true)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Vendor
+                  </Button>
+                  <Button 
+                    onClick={() => setShowRFQForm(true)}
+                    size="sm"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create RFQ
+                  </Button>
+                </div>
+              </div>
+
+              {/* Tabs in Header */}
+              <div className="mt-4">
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="inline-flex h-9 items-center justify-center rounded-md bg-gray-100 p-1">
+                    <TabsTrigger value="matrix" className="px-3 py-1.5">Quote Matrix</TabsTrigger>
+                    <TabsTrigger value="rfq" className="px-3 py-1.5">RFQ</TabsTrigger>
+                    <TabsTrigger value="approvals" className="px-3 py-1.5">Approvals</TabsTrigger>
+                    <TabsTrigger value="commitments" className="px-3 py-1.5">Commitments</TabsTrigger>
+                  </TabsList>
+
+                </Tabs>
+              </div>
             </div>
           </div>
 
-          {/* Main Content Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="inline-flex h-9 items-center justify-center rounded-md bg-gray-100 p-1 text-gray-500">
-              <TabsTrigger 
-                value="matrix" 
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
-              >
-                Quote Matrix
-              </TabsTrigger>
-              <TabsTrigger 
-                value="rfq"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
-              >
-                RFQ
-              </TabsTrigger>
-              <TabsTrigger 
-                value="approvals"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
-              >
-                Approvals
-              </TabsTrigger>
-              <TabsTrigger 
-                value="commitments"
-                className="inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm"
-              >
-                Commitments
-              </TabsTrigger>
-            </TabsList>
+          {/* Content Area */}
+          <div className="h-[calc(100%-180px)] overflow-y-auto">
+            <div className="p-6">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsContent value="matrix" className="mt-0">
+                  <QuoteMatrix 
+                    projectId={resolvedProjectId} 
+                    rfqs={rfqs} 
+                    onRFQUpdate={fetchRFQs}
+                  />
+                </TabsContent>
 
-            <TabsContent value="matrix" className="mt-4">
-              <QuoteMatrix 
-                projectId={resolvedProjectId} 
-                rfqs={rfqs} 
-                onRFQUpdate={fetchRFQs}
-              />
-            </TabsContent>
+                <TabsContent value="rfq" className="mt-0">
+                  <QuoteMatrix 
+                    projectId={resolvedProjectId} 
+                    rfqs={rfqs} 
+                    onRFQUpdate={fetchRFQs}
+                  />
+                </TabsContent>
 
-            <TabsContent value="rfq" className="mt-4">
-              <QuoteMatrix 
-                projectId={resolvedProjectId} 
-                rfqs={rfqs} 
-                onRFQUpdate={fetchRFQs}
-              />
-            </TabsContent>
+                <TabsContent value="approvals" className="mt-0">
+                  <ApprovalQueue 
+                    projectId={resolvedProjectId} 
+                    rfqs={rfqs}
+                  />
+                </TabsContent>
 
-            <TabsContent value="approvals" className="mt-4">
-              <ApprovalQueue 
-                projectId={resolvedProjectId} 
-                rfqs={rfqs}
-              />
-            </TabsContent>
-
-            <TabsContent value="commitments" className="mt-4">
-              <CommitmentsRegister 
-                projectId={resolvedProjectId}
-              />
-            </TabsContent>
-          </Tabs>
+                <TabsContent value="commitments" className="mt-0">
+                  <CommitmentsRegister 
+                    projectId={resolvedProjectId}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
           </div>
         </div>
       </div>

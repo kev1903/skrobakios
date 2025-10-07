@@ -11,7 +11,7 @@ interface ProjectTeamManagementPageProps {
 
 const ProjectTeamManagementContent = ({ project, onNavigate }: ProjectTeamManagementPageProps) => {
   return (
-    <div className="h-screen flex bg-white">
+    <div className="h-screen overflow-hidden">
       {/* Project Sidebar */}
       <ProjectSidebar
         project={project}
@@ -21,26 +21,30 @@ const ProjectTeamManagementContent = ({ project, onNavigate }: ProjectTeamManage
         activeSection="team"
       />
 
-      {/* Main Content */}
-      <div className="flex-1 ml-48 bg-white h-full overflow-hidden">
-        <div className="h-full overflow-y-auto">
-          <div className="p-6">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
-              <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Team Management</h1>
-                <p className="text-sm text-gray-600 mt-1">
-                  Manage project team members, roles, and permissions for {project.name}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-sm text-muted-foreground">Project ID</div>
-                <div className="text-lg font-mono text-foreground">#{project.project_id}</div>
+      {/* Main Content - Fixed positioning to match Project Control */}
+      <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
+        <div className="h-full w-full bg-white">
+          {/* Header */}
+          <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
+            <div className="px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-foreground">Team Management</h1>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    Manage project team members, roles, and permissions for {project.name}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm text-muted-foreground">Project ID</div>
+                  <div className="text-lg font-mono text-foreground">#{project.project_id}</div>
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* Team Management Content */}
-            <div className="bg-white">
+          {/* Content Area */}
+          <div className="h-[calc(100%-100px)] overflow-y-auto">
+            <div className="p-6">
               <ProjectTeamPage project={project} onNavigate={onNavigate} />
             </div>
           </div>

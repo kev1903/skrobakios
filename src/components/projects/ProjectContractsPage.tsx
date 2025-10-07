@@ -194,46 +194,53 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   }
 
   return (
-    <div className="h-screen flex bg-background">
-      {/* Fixed Project Sidebar */}
-      <div className="fixed left-0 top-0 h-full w-48 z-40">
-        <ProjectSidebar 
-          project={project} 
-          onNavigate={onNavigate}
-          getStatusColor={getStatusColor}
-          getStatusText={utilsGetStatusText}
-        />
-      </div>
+    <div className="h-screen overflow-hidden">
+      {/* Project Sidebar */}
+      <ProjectSidebar 
+        project={project} 
+        onNavigate={onNavigate}
+        getStatusColor={getStatusColor}
+        getStatusText={utilsGetStatusText}
+        activeSection="contracts"
+      />
       
-      {/* Main Content */}
-      <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
-        <div className="p-6 min-h-full">
-          <div className="mb-6 flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">Contracts</h2>
-              <p className="text-muted-foreground">Manage project contracts and documentation.</p>
+      {/* Main Content - Fixed positioning to match Project Control */}
+      <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
+        <div className="h-full w-full bg-white">
+          {/* Header */}
+          <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
+            <div className="px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">Contracts</h2>
+                  <p className="text-muted-foreground mt-1 text-sm">{project.name}</p>
+                </div>
+                <Button 
+                  className="flex items-center gap-2"
+                  onClick={() => setShowUploadDialog(true)}
+                >
+                  <Upload className="h-4 w-4" />
+                  Upload Contract
+                </Button>
+              </div>
             </div>
-            <Button 
-              className="flex items-center gap-2"
-              onClick={() => setShowUploadDialog(true)}
-            >
-              <Upload className="h-4 w-4" />
-              Upload Contract
-            </Button>
           </div>
 
-          {contracts.length === 0 ? (
-            <div className="text-center py-12">
-              <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No Contracts Found</h3>
-              <p className="text-muted-foreground">
-                No contracts have been uploaded for this project yet.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                <table className="w-full table-auto">
+          {/* Content Area */}
+          <div className="h-[calc(100%-100px)] overflow-y-auto">
+            <div className="p-6">
+              {contracts.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No Contracts Found</h3>
+                  <p className="text-muted-foreground">
+                    No contracts have been uploaded for this project yet.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <table className="w-full table-auto">
                   <thead>
                     <tr className="bg-gray-50 border-b border-gray-200">
                       <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-12">View</th>
@@ -303,10 +310,12 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
 

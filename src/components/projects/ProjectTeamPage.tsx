@@ -300,7 +300,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
 
   return (
     <div className="bg-white">
-      {/* Team Stats - Clean design */}
+      {/* Team Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <Card className="border shadow-sm bg-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
