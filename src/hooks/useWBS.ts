@@ -214,15 +214,26 @@ export const useWBS = (projectId: string) => {
   };
   // Delete a WBS item
   const deleteWBSItem = async (id: string) => {
+    console.log('🔵 useWBS.deleteWBSItem called for:', id);
     try {
+      // Call the service to delete from database
       await WBSService.deleteWBSItem(id);
+      
+      console.log('🔵 Database delete successful, updating local state');
 
       // Remove from local state
-      setWBSItems(prev => removeItemRecursively(prev, id));
+      setWBSItems(prev => {
+        const updated = removeItemRecursively(prev, id);
+        console.log('🔵 Local state updated, items remaining:', updated.length);
+        return updated;
+      });
+      
+      console.log('✅ Delete operation completed successfully');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete WBS item';
       setError(errorMessage);
-      console.error('Error deleting WBS item:', err);
+      console.error('❌ Error in useWBS.deleteWBSItem:', err);
+      throw err; // Re-throw to allow caller to handle
     }
   };
 

@@ -227,13 +227,17 @@ export const updateItemsRecursively = (items: WBSItem[], id: string, updates: Pa
 
 // Remove item recursively from a hierarchical structure
 export const removeItemRecursively = (items: WBSItem[], id: string): WBSItem[] => {
-  return items.filter(item => {
-    if (item.id === id) return false;
-    if (item.children.length > 0) {
-      item.children = removeItemRecursively(item.children, id);
-    }
-    return true;
-  });
+  return items
+    .filter(item => item.id !== id)
+    .map(item => {
+      if (item.children && item.children.length > 0) {
+        return {
+          ...item,
+          children: removeItemRecursively(item.children, id)
+        };
+      }
+      return item;
+    });
 };
 
 // Calculate rollup progress for parent items based on children

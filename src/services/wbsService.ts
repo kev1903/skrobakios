@@ -140,15 +140,19 @@ export class WBSService {
 
   // Delete a WBS item and all its descendants
   static async deleteWBSItem(id: string): Promise<void> {
+    console.log('🗑️ Deleting WBS item:', id);
+    
     // Use the database function which handles recursive deletion
     // This bypasses RLS issues with CASCADE deletes
-    const { error } = await supabase.rpc('delete_wbs_item_with_children', {
+    const { data, error } = await supabase.rpc('delete_wbs_item_with_children', {
       item_id: id
     });
 
     if (error) {
-      console.error('Error deleting WBS item:', error);
+      console.error('❌ Error deleting WBS item:', error);
       throw error;
     }
+    
+    console.log('✅ Successfully deleted WBS item:', id);
   }
 }
