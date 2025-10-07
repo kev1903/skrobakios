@@ -188,9 +188,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
   // Convert WBS items to flat array for split view while preserving hierarchy
   const flatWBSItems = React.useMemo(() => {
+    console.log('🟢 flatWBSItems recalculating, wbsItems:', wbsItems.length);
+    
     // Helper function to recursively flatten WBS hierarchy with correct depth tracking
     const flattenWBSItems = (items: any[], depth: number = 0, result: any[] = []): any[] => {
       items.forEach((item) => {
+        console.log('  🟢 Flattening:', item.title, 'Level:', depth, 'Has children:', item.children?.length || 0);
+        
         // Add the current item to result with depth-based level
         result.push({
           id: item.id,
@@ -218,6 +222,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         
         // If item has children, recursively flatten them at next depth level
         if (item.children && item.children.length > 0) {
+          console.log('  🟢 Processing', item.children.length, 'children of:', item.title);
           flattenWBSItems(item.children, depth + 1, result);
         }
       });
@@ -799,14 +804,25 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         console.log('Duplicate', type, itemId);
         break;
       case 'delete':
-        await deleteWBSItem(itemId);
-        // Reload and renumber after deletion
-        await loadWBSItems();
-        setTimeout(() => renumberWBSHierarchy(), 100);
-        toast({
-          title: "Row Deleted",
-          description: "The row has been deleted successfully",
-        });
+        console.log('🔵 ProjectScopePage handleContextMenuAction DELETE:', itemId, type);
+        try {
+          await deleteWBSItem(itemId);
+          console.log('🔵 Delete successful, reloading items');
+          // Reload and renumber after deletion
+          await loadWBSItems();
+          setTimeout(() => renumberWBSHierarchy(), 100);
+          toast({
+            title: "Row Deleted",
+            description: "The row has been deleted successfully",
+          });
+        } catch (err) {
+          console.error('🔴 Delete failed:', err);
+          toast({
+            title: "Delete Failed",
+            description: err instanceof Error ? err.message : "Failed to delete row",
+            variant: "destructive"
+          });
+        }
         break;
       case 'convert_to_task':
         await taskHandlers.handleConvertToTask(itemId);

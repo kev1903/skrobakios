@@ -60,6 +60,13 @@ export const WBSRightPanel = ({
   onRowClick,
   projectId
 }: WBSRightPanelProps) => {
+  // Log items for debugging
+  console.log('🟣 WBSRightPanel rendering with', items.length, 'items');
+  console.log('🟣 Items by level:', items.reduce((acc: any, item: any) => {
+    acc[item.level] = (acc[item.level] || 0) + 1;
+    return acc;
+  }, {}));
+  
   // Determine if we're in unified scroll mode
   const useUnifiedScroll = !scrollRef || !onScroll;
 
@@ -223,10 +230,17 @@ export const WBSRightPanel = ({
                       </DropdownMenuItem>
                     </>
                   )}
-                  <DropdownMenuItem onClick={() => onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task')} className="text-destructive focus:text-destructive">
-                    <Trash2 className="w-3 h-3 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
+                   <DropdownMenuItem 
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       console.log('🔴 DELETE CLICKED:', item.id, 'Level:', item.level, 'Name:', item.name);
+                       onContextMenuAction('delete', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
+                     }} 
+                     className="text-destructive focus:text-destructive"
+                   >
+                     <Trash2 className="w-3 h-3 mr-2" />
+                     Delete
+                   </DropdownMenuItem>
                 </DropdownMenuContent>
              </DropdownMenu>
            </div>
