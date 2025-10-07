@@ -22,26 +22,28 @@ const ProjectTeamManagementContent = ({ project, onNavigate }: ProjectTeamManage
       />
 
       {/* Main Content */}
-      <div className="flex-1 bg-white border-l h-full overflow-y-auto">
-        {/* Team Management Header */}
-        <div className="border-b bg-white px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground mb-1">Team Management</h1>
-              <p className="text-muted-foreground">
-                Manage project team members, roles, and permissions for {project.name}
-              </p>
+      <div className="flex-1 ml-48 bg-white h-full overflow-hidden">
+        <div className="h-full overflow-y-auto">
+          <div className="p-6">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+              <div>
+                <h1 className="text-2xl font-semibold text-gray-900">Team Management</h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  Manage project team members, roles, and permissions for {project.name}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Project ID</div>
+                <div className="text-lg font-mono text-foreground">#{project.project_id}</div>
+              </div>
             </div>
-            <div className="text-right">
-              <div className="text-sm text-muted-foreground">Project ID</div>
-              <div className="text-lg font-mono text-foreground">#{project.project_id}</div>
+
+            {/* Team Management Content */}
+            <div className="bg-white">
+              <ProjectTeamPage project={project} onNavigate={onNavigate} />
             </div>
           </div>
-        </div>
-
-        {/* Team Management Content */}
-        <div className="bg-white">
-          <ProjectTeamPage project={project} onNavigate={onNavigate} />
         </div>
       </div>
     </div>

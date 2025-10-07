@@ -301,7 +301,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
   return (
     <div className="bg-white">
       {/* Team Stats - Clean design */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-8 pb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <Card className="border shadow-sm bg-white">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Members</CardTitle>
@@ -338,7 +338,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end items-center gap-2 px-8 pb-6">
+      <div className="flex justify-end items-center gap-2 mb-6">
         {availableCompanyMembers.length > 0 && (
           <Dialog>
             <DialogTrigger asChild>
@@ -593,7 +593,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
 
       {/* Manual Members Card */}
       {manualMembers.length > 0 && (
-        <Card className="mx-8 mb-6 bg-white">
+        <Card className="mb-6 bg-white">
           <CardHeader>
             <div className="flex justify-between items-center">
               <div>
@@ -686,7 +686,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
 
       {/* Team Members Section */}
       {teamMembers && teamMembers.length > 0 ? (
-        <Card className="mx-8 mb-8 bg-white">
+        <Card className="mb-6 bg-white">
           <CardHeader>
             <CardTitle>Project Team Members ({teamMembers.length})</CardTitle>
             <CardDescription>
@@ -760,7 +760,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
           </CardContent>
         </Card>
       ) : (
-        <Card className="mx-8 mb-8 bg-white">
+        <Card className="mb-6 bg-white">
           <CardContent className="flex flex-col items-center justify-center py-16">
             <Users className="w-16 h-16 text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">No Team Members Yet</h3>
