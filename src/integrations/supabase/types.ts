@@ -6431,6 +6431,10 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: Json
       }
+      delete_wbs_item_with_children: {
+        Args: { item_id: string }
+        Returns: undefined
+      }
       encrypt_sensitive_data: {
         Args: { data: string }
         Returns: string
