@@ -76,7 +76,10 @@ export const WBSSplitView = ({
   const handleIndent = useCallback(async () => {
     if (selectedItems.length === 0) return;
     try {
-      console.log('🔵 Starting progressive indent operation for items:', selectedItems);
+      console.log('🔵 Starting optimized indent operation for items:', selectedItems);
+
+      // Collect all updates to batch them
+      const batchUpdates: Array<{ id: string; updates: Partial<WBSItem> }> = [];
 
       // Helper function to get all descendants of an item
       const getAllDescendants = (itemId: string): string[] => {
@@ -91,7 +94,6 @@ export const WBSSplitView = ({
 
       // Helper to find the appropriate parent for a given level
       const findParentForLevel = (currentIndex: number, targetLevel: number): string | null => {
-        // Look backwards to find an item at level (targetLevel - 1)
         for (let i = currentIndex - 1; i >= 0; i--) {
           const potentialParent = items[i];
           if (potentialParent.level === targetLevel - 1) {
@@ -101,7 +103,10 @@ export const WBSSplitView = ({
         return null;
       };
 
-      // Process each selected item and its descendants
+      // Collect all ancestors that need expansion
+      const parentsToExpand = new Set<string>();
+      
+      // Process each selected item to collect updates
       for (const itemId of selectedItems) {
         const item = items.find(i => i.id === itemId);
         if (!item) continue;
@@ -109,7 +114,6 @@ export const WBSSplitView = ({
         const currentIndex = items.findIndex(i => i.id === itemId);
         if (currentIndex < 0) continue;
 
-        // Check maximum level restriction (allow up to level 4, since we start from 0)
         if (item.level >= 4) {
           console.log(`🚫 Cannot indent ${item.title || item.id} - maximum level (4) reached`);
           continue;
@@ -118,74 +122,71 @@ export const WBSSplitView = ({
         const newLevel = item.level + 1;
         const newParentId = findParentForLevel(currentIndex, newLevel);
 
-        console.log(`🔄 Progressive indent: ${item.title || item.id} from level ${item.level} to ${newLevel}, new parent: ${newParentId}`);
-
-        // Expand all ancestors in the parent chain so the child will be visible
+        // Collect ancestors to expand
         if (newParentId) {
-          const expandAncestors = async (parentId: string) => {
-            const parent = items.find(i => i.id === parentId);
-            if (!parent) return;
-            
-            // Expand this parent if collapsed
-            if (parent.isExpanded === false) {
-              console.log(`📂 Expanding ancestor ${parent.title || parentId}`);
-              await onItemUpdate(parentId, { is_expanded: true });
+          let currentParentId: string | null | undefined = newParentId;
+          while (currentParentId) {
+            const parent = items.find(i => i.id === currentParentId);
+            if (parent && parent.isExpanded === false) {
+              parentsToExpand.add(currentParentId);
             }
-            
-            // Recursively expand its parent too
-            if (parent.parent_id) {
-              await expandAncestors(parent.parent_id);
-            }
-          };
-          
-          await expandAncestors(newParentId);
-        }
-
-        // Indent the item by one level
-        await onItemUpdate(itemId, {
-          parent_id: newParentId,
-          level: newLevel
-        });
-
-        // Get all descendants and indent them too (cascade)
-        const descendants = getAllDescendants(itemId);
-        console.log(`📂 Found ${descendants.length} descendants to cascade indent:`, descendants);
-        for (const descendantId of descendants) {
-          const descendant = items.find(i => i.id === descendantId);
-          if (descendant) {
-            console.log(`🔄 Cascading indent to ${descendant.title || descendant.id} (level ${descendant.level} → ${descendant.level + 1})`);
-            await onItemUpdate(descendantId, {
-              level: descendant.level + 1
-            });
+            currentParentId = parent?.parent_id;
           }
         }
-      }
 
-      // Auto-renumber WBS after indent operations
-      const updates = renumberAllWBSItems(items as WBSItem[]);
-      for (const update of updates) {
-        await onItemUpdate(update.item.id, {
-          wbs_id: update.newWbsId
+        // Collect main item update
+        batchUpdates.push({
+          id: itemId,
+          updates: { parent_id: newParentId, level: newLevel }
+        });
+
+        // Collect descendant updates
+        const descendants = getAllDescendants(itemId);
+        descendants.forEach(descendantId => {
+          const descendant = items.find(i => i.id === descendantId);
+          if (descendant) {
+            batchUpdates.push({
+              id: descendantId,
+              updates: { level: descendant.level + 1 }
+            });
+          }
         });
       }
 
-      // Clear selection after indent
+      // Add parent expansion updates
+      parentsToExpand.forEach(parentId => {
+        batchUpdates.push({
+          id: parentId,
+          updates: { is_expanded: true }
+        });
+      });
+
+      // Execute all updates in parallel
+      console.log(`⚡ Executing ${batchUpdates.length} updates in parallel`);
+      await Promise.all(
+        batchUpdates.map(({ id, updates }) => onItemUpdate(id, updates))
+      );
+
+      // Clear selection
       setSelectedItems([]);
       
-      // Reload items from database to rebuild hierarchy
+      // Single reload to rebuild hierarchy and renumber
       if (onReloadItems) {
         await onReloadItems();
       }
       
-      console.log('✅ Cascade indent operation completed with WBS renumbering');
+      console.log('✅ Optimized indent completed');
     } catch (error) {
-      console.error('❌ Error in cascade indent operation:', error);
+      console.error('❌ Error in indent operation:', error);
     }
   }, [selectedItems, items, onItemUpdate, onReloadItems]);
   const handleOutdent = useCallback(async () => {
     if (selectedItems.length === 0) return;
     try {
-      console.log('🟡 Starting cascade outdent operation for items:', selectedItems);
+      console.log('🟡 Starting optimized outdent operation for items:', selectedItems);
+
+      // Collect all updates to batch them
+      const batchUpdates: Array<{ id: string; updates: Partial<WBSItem> }> = [];
 
       // Helper function to get all descendants of an item
       const getAllDescendants = (itemId: string): string[] => {
@@ -198,54 +199,52 @@ export const WBSSplitView = ({
         return descendants;
       };
 
-      // Process each selected item and its descendants
+      // Process each selected item to collect updates
       for (const itemId of selectedItems) {
         const item = items.find(i => i.id === itemId);
-        if (!item || item.level <= 0) continue; // Can't outdent beyond level 0
+        if (!item || item.level <= 0) continue;
 
-        // Find the current parent to get its parent
         const currentParent = items.find(i => i.id === item.parent_id);
-        console.log(`🔄 Outdenting parent item ${item.name || item.id} from level ${item.level} to ${item.level - 1}`);
 
-        // Outdent the parent item
-        await onItemUpdate(itemId, {
-          parent_id: currentParent?.parent_id || null,
-          level: Math.max(0, item.level - 1)
+        // Collect main item update
+        batchUpdates.push({
+          id: itemId,
+          updates: {
+            parent_id: currentParent?.parent_id || null,
+            level: Math.max(0, item.level - 1)
+          }
         });
 
-        // Get all descendants and outdent them too
+        // Collect descendant updates
         const descendants = getAllDescendants(itemId);
-        console.log(`📂 Found ${descendants.length} descendants to cascade outdent:`, descendants);
-        for (const descendantId of descendants) {
+        descendants.forEach(descendantId => {
           const descendant = items.find(i => i.id === descendantId);
           if (descendant) {
-            console.log(`🔄 Cascading outdent to ${descendant.name || descendant.id} (level ${descendant.level} → ${Math.max(0, descendant.level - 1)})`);
-            await onItemUpdate(descendantId, {
-              level: Math.max(0, descendant.level - 1)
+            batchUpdates.push({
+              id: descendantId,
+              updates: { level: Math.max(0, descendant.level - 1) }
             });
           }
-        }
-      }
-
-      // Auto-renumber WBS after outdent operations
-      const updates = renumberAllWBSItems(items as WBSItem[]);
-      for (const update of updates) {
-        await onItemUpdate(update.item.id, {
-          wbs_id: update.newWbsId
         });
       }
 
-      // Clear selection after outdent
+      // Execute all updates in parallel
+      console.log(`⚡ Executing ${batchUpdates.length} updates in parallel`);
+      await Promise.all(
+        batchUpdates.map(({ id, updates }) => onItemUpdate(id, updates))
+      );
+
+      // Clear selection
       setSelectedItems([]);
       
-      // Reload items from database to rebuild hierarchy
+      // Single reload to rebuild hierarchy and renumber
       if (onReloadItems) {
         await onReloadItems();
       }
       
-      console.log('✅ Cascade outdent operation completed with WBS renumbering');
+      console.log('✅ Optimized outdent completed');
     } catch (error) {
-      console.error('❌ Error in cascade outdent operation:', error);
+      console.error('❌ Error in outdent operation:', error);
     }
   }, [selectedItems, items, onItemUpdate, onReloadItems]);
   const handleBold = useCallback(() => {
