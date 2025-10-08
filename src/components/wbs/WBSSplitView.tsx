@@ -167,11 +167,14 @@ export const WBSSplitView = ({
         await Promise.all(expandPromises);
         console.log('✅ All parents expanded');
         
+        // Wait for database propagation
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         // CRITICAL: Reload items to get updated expansion states BEFORE indenting
         if (onReloadItems) {
           console.log('🔄 Reloading items after parent expansion to sync UI state');
           await onReloadItems();
-          console.log('✅ Parent expansion reload completed');
+          console.log('✅ Parent expansion reload completed, items refreshed from database');
         }
       }
 

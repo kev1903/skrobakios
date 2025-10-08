@@ -80,9 +80,9 @@ export const WBSLeftPanel = ({
       return true;
     }
     
-    // Check parent expansion state
+    // Check parent expansion state - use both isExpanded (UI) and any inherited state
     const parentExpanded = parent.isExpanded !== false;
-    console.log(`🔍 Checking visibility: ${item.name} (level ${item.level}) - Parent: ${parent.name} (expanded: ${parentExpanded})`);
+    console.log(`🔍 Checking visibility: ${item.name} (level ${item.level}) - Parent: ${parent.name} (expanded: ${parentExpanded}, parent.isExpanded: ${parent.isExpanded})`);
     
     // If parent is collapsed, this item should be hidden
     if (!parentExpanded) {
@@ -91,7 +91,11 @@ export const WBSLeftPanel = ({
     }
     
     // Recursively check if all ancestors are expanded
-    return isItemVisible(parent);
+    const ancestorVisible = isItemVisible(parent);
+    if (!ancestorVisible) {
+      console.log(`❌ Item hidden because ancestor collapsed: ${item.name}`);
+    }
+    return ancestorVisible;
   };
   
   // Filter items to only show visible ones
