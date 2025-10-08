@@ -1477,8 +1477,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 <div className="flex items-center justify-between px-6 py-4">
                 <div className="flex items-center gap-6">
                   <div>
-                    <h1 className="text-2xl font-bold text-foreground font-inter">Project Control</h1>
-                    <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
+                    <h1 className="text-2xl font-bold text-foreground font-inter">{project.name}</h1>
+                    <p className="text-muted-foreground mt-1 text-sm font-inter">Project Control</p>
                   </div>
                   
                   {/* Tabs in Header */}
