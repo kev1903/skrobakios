@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { TeamTaskAssignment } from '@/components/tasks/enhanced/TeamTaskAssignment';
+import { SimpleTeamAssignment } from '@/components/tasks/enhanced/SimpleTeamAssignment';
 
 interface WBSItem {
   id: string;
@@ -122,11 +122,11 @@ export const WBSRightPanel = ({
                   <ListTodo className="w-3 h-3 text-blue-600 flex-shrink-0" />
                 )}
                 {projectId ? (
-                  <TeamTaskAssignment
+                  <SimpleTeamAssignment
                     projectId={projectId}
                     currentAssignee={item.assignedTo ? { name: item.assignedTo, avatar: '', userId: undefined } : undefined}
-                    onAssigneeChange={(assignee) => onItemUpdate(item.id, { assignedTo: assignee?.name || '' })}
-                    className="flex-1 text-xs"
+                    onAssigneeChange={(assignee) => onItemUpdate(item.id, { assigned_to: assignee?.name || null })}
+                    className="flex-1"
                   />
                 ) : (
                   <EditableCell

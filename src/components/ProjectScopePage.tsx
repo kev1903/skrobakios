@@ -38,7 +38,7 @@ import { useCompany } from '@/contexts/CompanyContext';
 import { renumberAllWBSItems, buildHierarchy } from '@/utils/wbsUtils';
 import { WBSService } from '@/services/wbsService';
 import { useWBS, WBSItem } from '@/hooks/useWBS';
-import { TeamTaskAssignment } from '@/components/tasks/enhanced/TeamTaskAssignment';
+import { SimpleTeamAssignment } from '@/components/tasks/enhanced/SimpleTeamAssignment';
 
 interface ProjectScopePageProps {
   project: Project;
@@ -1263,7 +1263,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       >
         {isEditing ? (
           field === 'assignedTo' ? (
-            <TeamTaskAssignment
+            <SimpleTeamAssignment
               projectId={project.id}
               currentAssignee={localValue ? { name: localValue, avatar: '', userId: undefined } : undefined}
               onAssigneeChange={(assignee) => {
@@ -1272,7 +1272,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                 updateScopeField(newValue);
                 setIsEditing(false);
               }}
-              className="w-full text-xs"
+              className="w-full"
             />
           ) : (
             <Input
