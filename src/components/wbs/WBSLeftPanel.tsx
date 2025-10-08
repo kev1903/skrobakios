@@ -68,14 +68,27 @@ export const WBSLeftPanel = ({
   
   // Helper function to determine if an item should be visible (not hidden by collapsed parent)
   const isItemVisible = (item: WBSItem) => {
-    if (item.level === 0) return true; // Top level items are always visible
+    if (item.level === 0) {
+      console.log(`✅ Level 0 item always visible: ${item.name}`);
+      return true; // Top level items are always visible
+    }
     
     // Find the parent item
     const parent = items.find(i => i.id === item.parent_id);
-    if (!parent) return true;
+    if (!parent) {
+      console.log(`⚠️ No parent found for: ${item.name} (parent_id: ${item.parent_id}) - showing by default`);
+      return true;
+    }
+    
+    // Check parent expansion state
+    const parentExpanded = parent.isExpanded !== false;
+    console.log(`🔍 Checking visibility: ${item.name} (level ${item.level}) - Parent: ${parent.name} (expanded: ${parentExpanded})`);
     
     // If parent is collapsed, this item should be hidden
-    if (parent.isExpanded === false) return false;
+    if (!parentExpanded) {
+      console.log(`❌ Item hidden because parent collapsed: ${item.name}`);
+      return false;
+    }
     
     // Recursively check if all ancestors are expanded
     return isItemVisible(parent);

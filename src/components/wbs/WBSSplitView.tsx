@@ -77,6 +77,7 @@ export const WBSSplitView = ({
     if (selectedItems.length === 0) return;
     try {
       console.log('🔵 Starting optimized indent operation for items:', selectedItems);
+      console.log('📋 Current items state:', items.map(i => ({ id: i.id, name: i.name || i.title, level: i.level, isExpanded: i.isExpanded, parent_id: i.parent_id })));
 
       // Collect all updates to batch them
       const batchUpdates: Array<{ id: string; updates: Partial<WBSItem> }> = [];
@@ -97,6 +98,7 @@ export const WBSSplitView = ({
         for (let i = currentIndex - 1; i >= 0; i--) {
           const potentialParent = items[i];
           if (potentialParent.level === targetLevel - 1) {
+            console.log(`🎯 Found parent for level ${targetLevel}: ${potentialParent.name || potentialParent.title}`);
             return potentialParent.id;
           }
         }
@@ -122,12 +124,15 @@ export const WBSSplitView = ({
         const newLevel = item.level + 1;
         const newParentId = findParentForLevel(currentIndex, newLevel);
 
+        console.log(`📍 Indenting ${item.name || item.title} from level ${item.level} to ${newLevel}, parent: ${newParentId}`);
+
         // ALWAYS collect all ancestors to ensure they're expanded
         if (newParentId) {
           let currentParentId: string | null | undefined = newParentId;
           while (currentParentId) {
             parentsToExpand.add(currentParentId);
             const parent = items.find(i => i.id === currentParentId);
+            console.log(`📂 Will expand ancestor: ${parent?.name || parent?.title || currentParentId}`);
             currentParentId = parent?.parent_id;
           }
         }
@@ -152,20 +157,26 @@ export const WBSSplitView = ({
       }
 
       // CRITICAL: Expand parents FIRST, before indenting
-      console.log(`📂 Expanding ${parentsToExpand.size} parent items to ensure visibility`);
+      console.log(`📂 Expanding ${parentsToExpand.size} parent items to ensure visibility:`, Array.from(parentsToExpand));
       if (parentsToExpand.size > 0) {
-        await Promise.all(
-          Array.from(parentsToExpand).map(parentId => 
-            onItemUpdate(parentId, { is_expanded: true })
-          )
-        );
+        const expandPromises = Array.from(parentsToExpand).map(async parentId => {
+          console.log(`🔓 Expanding parent: ${parentId}`);
+          await onItemUpdate(parentId, { is_expanded: true });
+          console.log(`✅ Expanded parent: ${parentId}`);
+        });
+        await Promise.all(expandPromises);
+        console.log('✅ All parents expanded');
       }
 
       // Then execute indent updates in parallel
       console.log(`⚡ Executing ${batchUpdates.length} indent updates in parallel`);
       await Promise.all(
-        batchUpdates.map(({ id, updates }) => onItemUpdate(id, updates))
+        batchUpdates.map(({ id, updates }) => {
+          console.log(`  💾 Updating ${id}:`, updates);
+          return onItemUpdate(id, updates);
+        })
       );
+      console.log('✅ All indent updates completed');
 
       // Clear selection
       setSelectedItems([]);
@@ -174,6 +185,7 @@ export const WBSSplitView = ({
       if (onReloadItems) {
         console.log('🔄 Reloading items to rebuild hierarchy');
         await onReloadItems();
+        console.log('✅ Reload completed');
       }
       
       console.log('✅ Optimized indent completed with parent expansion');
