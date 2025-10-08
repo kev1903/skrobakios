@@ -643,7 +643,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     async () => {
       // Reload WBS items using the hook's loadWBSItems
       await loadWBSItems();
-    }
+    },
+    onNavigate
   );
 
   const handleContextMenuAction = async (action: string, itemId: string, type: string) => {

@@ -9,7 +9,8 @@ export const createTaskConversionHandlers = (
   findWBSItem: (id: string) => any,
   setSelectedTask: (task: any) => void,
   setIsTaskDetailOpen: (open: boolean) => void,
-  loadWBSItems: () => Promise<void>
+  loadWBSItems: () => Promise<void>,
+  onNavigate: (page: string) => void
 ) => {
   
   const handleConvertToTask = async (itemId: string) => {
@@ -32,9 +33,8 @@ export const createTaskConversionHandlers = (
       
       toast.success(`Successfully converted "${wbsItem.title}" to a detailed task`);
       
-      // Open the task detail panel
-      setSelectedTask(task);
-      setIsTaskDetailOpen(true);
+      // Navigate to Tasks page to show the newly created task
+      onNavigate('tasks');
       
     } catch (error) {
       console.error('Error converting WBS to task:', error);
