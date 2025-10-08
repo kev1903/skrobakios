@@ -241,7 +241,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
             <DialogTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
-                Add Company Members ({availableCompanyMembers.length})
+                Add Project Member
               </Button>
             </DialogTrigger>
               <DialogContent className="max-w-2xl">
@@ -399,7 +399,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                   <DialogTrigger asChild>
                     <Button className="flex items-center gap-2">
                       <Users className="w-4 h-4" />
-                      Add Company Members ({availableCompanyMembers.length})
+                      Add Project Member
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-2xl">
