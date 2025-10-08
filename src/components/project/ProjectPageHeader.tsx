@@ -14,7 +14,6 @@ export const ProjectPageHeader = ({ projectName, pageTitle, onNavigate, actions 
         <div className="flex items-center justify-between w-full">
           <div>
             <h1 className="text-2xl font-bold text-foreground font-inter">{projectName}</h1>
-            <p className="text-muted-foreground mt-1 text-sm font-inter">{pageTitle}</p>
           </div>
           {actions && <div className="flex items-center gap-2">{actions}</div>}
         </div>
