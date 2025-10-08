@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
+import { ProjectPageHeader } from '@/components/project/ProjectPageHeader';
 import { Project } from '@/hooks/useProjects';
 import { useScreenSize } from '@/hooks/use-mobile';
 import { createPortal } from 'react-dom';
@@ -1471,82 +1472,86 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       <div className={contentClasses[screenSize]}>
         {/* Full Width Content - No Chat Section */}
         <div className="h-full w-full bg-background">
-          {/* Tabs Container - Full Width */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full w-full flex flex-col">
-            <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
-                <div className="flex items-center justify-between px-6 py-4">
-                <div className="flex items-center gap-6">
-                  <div>
-                    <h1 className="text-2xl font-bold text-foreground font-inter">{project.name}</h1>
-                    <p className="text-muted-foreground mt-1 text-sm font-inter">Project Control</p>
+          {/* Header */}
+          <ProjectPageHeader 
+            projectName={project.name}
+            pageTitle="Project Control"
+            onNavigate={onNavigate}
+            actions={
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <div className="text-xs text-muted-foreground font-inter">{getProgressData().label}</div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-300 ${getProgressColor(getProgressData().value)}`}
+                        style={{ width: `${getProgressData().value}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-foreground font-inter">{getProgressData().value}{getProgressData().suffix}</span>
                   </div>
-                  
-                  {/* Tabs in Header */}
-                  <TabsList className="grid w-fit grid-cols-3">
-                    <TabsTrigger value="scope" className="flex items-center gap-2">
-                      <NotebookPen className="w-4 h-4" />
-                      Scope
-                    </TabsTrigger>
-                    <TabsTrigger value="time" className="flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Time
-                    </TabsTrigger>
-                    <TabsTrigger value="cost" className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4" />
-                      Cost
-                    </TabsTrigger>
-                  </TabsList>
                 </div>
+              </div>
+            }
+          />
+          
+          {/* Tabs Container - Full Width */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-[calc(100%-100px)] w-full flex flex-col">
+            <div className="flex-shrink-0 border-b border-border bg-white">
+              <div className="flex items-center justify-between px-6 py-3">
+                {/* Tabs in Header */}
+                <TabsList className="grid w-fit grid-cols-3">
+                  <TabsTrigger value="scope" className="flex items-center gap-2">
+                    <NotebookPen className="w-4 h-4" />
+                    Scope
+                  </TabsTrigger>
+                  <TabsTrigger value="time" className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Time
+                  </TabsTrigger>
+                  <TabsTrigger value="cost" className="flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    Cost
+                  </TabsTrigger>
+                </TabsList>
                 
                 <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <div className="text-xs text-muted-foreground font-inter">{getProgressData().label}</div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full transition-all duration-300 ${getProgressColor(getProgressData().value)}`}
-                          style={{ width: `${getProgressData().value}%` }}
-                        />
-                      </div>
-                      <span className="text-xs font-medium text-foreground font-inter">{getProgressData().value}{getProgressData().suffix}</span>
-                    </div>
-                  </div>
                   <div className="flex items-center justify-between gap-6 flex-1">
                     {/* Tab-specific buttons section */}
                     <div className="flex items-center gap-2">
-                        {activeTab === 'time' && (
-                          <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm" onClick={() => {}} title="Critical Path">
-                              <span className="text-xs font-medium">Critical Path</span>
-                            </Button>
-                          </div>
-                        )}
-                        {activeTab === 'cost' && (
-                          <div className="flex items-center gap-2">
-                            {/* Cost-specific buttons can go here */}
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Common buttons section */}
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={collapseAll} title="Collapse All">
-                          <ChevronsUp className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={expandAll} title="Expand All">
-                          <ChevronsDown className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => {}} title="Baseline">
-                          <span className="text-xs font-medium">Baseline</span>
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => {}} title="Settings">
-                          <Settings className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      {activeTab === 'time' && (
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm" onClick={() => {}} title="Critical Path">
+                            <span className="text-xs font-medium">Critical Path</span>
+                          </Button>
+                        </div>
+                      )}
+                      {activeTab === 'cost' && (
+                        <div className="flex items-center gap-2">
+                          {/* Cost-specific buttons can go here */}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Common buttons section */}
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" onClick={collapseAll} title="Collapse All">
+                        <ChevronsUp className="w-4 h-4" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={expandAll} title="Expand All">
+                        <ChevronsDown className="w-4 h-4" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => {}} title="Baseline">
+                        <span className="text-xs font-medium">Baseline</span>
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => {}} title="Settings">
+                        <Settings className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
               {/* Tab Contents */}
               <div className="flex-1 w-full" style={{ height: 'calc(100vh - 180px)' }}>
