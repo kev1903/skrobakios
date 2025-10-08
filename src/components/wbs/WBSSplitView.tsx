@@ -120,13 +120,25 @@ export const WBSSplitView = ({
 
         console.log(`🔄 Progressive indent: ${item.title || item.id} from level ${item.level} to ${newLevel}, new parent: ${newParentId}`);
 
-        // Expand the new parent so the child will be visible
+        // Expand all ancestors in the parent chain so the child will be visible
         if (newParentId) {
-          const newParent = items.find(i => i.id === newParentId);
-          if (newParent && newParent.isExpanded === false) {
-            console.log(`📂 Expanding parent ${newParent.title || newParentId} to show indented child`);
-            await onItemUpdate(newParentId, { is_expanded: true });
-          }
+          const expandAncestors = async (parentId: string) => {
+            const parent = items.find(i => i.id === parentId);
+            if (!parent) return;
+            
+            // Expand this parent if collapsed
+            if (parent.isExpanded === false) {
+              console.log(`📂 Expanding ancestor ${parent.title || parentId}`);
+              await onItemUpdate(parentId, { is_expanded: true });
+            }
+            
+            // Recursively expand its parent too
+            if (parent.parent_id) {
+              await expandAncestors(parent.parent_id);
+            }
+          };
+          
+          await expandAncestors(newParentId);
         }
 
         // Indent the item by one level
