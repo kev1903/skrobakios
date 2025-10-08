@@ -12,8 +12,7 @@ export class WBSService {
       .from('wbs_items')
       .select('*')
       .eq('project_id', projectId)
-      .order('level', { ascending: true })
-      .order('wbs_id', { ascending: true });
+      .order('created_at', { ascending: true });
 
     if (error) throw error;
 
@@ -102,7 +101,7 @@ export class WBSService {
     
     // Map fields to database columns
     Object.keys(updates).forEach(key => {
-      if (key !== 'children' && key !== 'created_at' && key !== 'updated_at') {
+      if (key !== 'children' && key !== 'updated_at') {
         const value = updates[key as keyof WBSItem];
         
         // Ensure is_expanded is always a boolean
