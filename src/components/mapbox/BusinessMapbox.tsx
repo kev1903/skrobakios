@@ -9,8 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useProjects as useProjectsHook } from '@/hooks/useProjects';
-import { cleanupDigitalObjectsCache } from '@/utils/cacheCleanup';
-import { toast } from '@/utils/toastFilters';
+import { toast } from 'sonner';
 
 interface Project {
   id: string;
@@ -38,10 +37,6 @@ export const BusinessMapbox: React.FC<{ className?: string }> = ({ className = '
   const navigate = useNavigate();
   
 
-  // Clean up any potential digital objects cache on component mount
-  useEffect(() => {
-    cleanupDigitalObjectsCache();
-  }, []);
 
   // Fetch Mapbox token from edge function
   useEffect(() => {
