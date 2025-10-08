@@ -1288,9 +1288,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           )
         ) : (
           <span 
-            className={`truncate ${className} ${!value ? 'opacity-50' : ''}`}
+            className={`truncate ${!value ? 'opacity-50' : ''} ${textFormatting?.bold ? '' : className}`}
             style={{
-              fontWeight: textFormatting?.bold ? 'bold' : 'normal',
+              fontWeight: textFormatting?.bold ? '700' : undefined,
               fontStyle: textFormatting?.italic ? 'italic' : 'normal',
               textDecoration: textFormatting?.underline ? 'underline' : 'none',
               fontSize: textFormatting?.fontSize ? `${textFormatting.fontSize}px` : undefined
