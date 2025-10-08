@@ -719,8 +719,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           await updateWBSItem(itemToShift.id, { wbs_id: shiftedWbsId }, { skipAutoSchedule: true });
         }
         
-        // Now create the new item with the correct WBS ID
-        const insertedItem = await createWBSItem({
+        // Create the new item directly without optimistic updates to avoid visual jumps
+        await WBSService.createWBSItem({
           company_id: currentCompany.id,
           project_id: project.id,
           parent_id: null,
@@ -731,10 +731,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           linked_tasks: [],
         });
         
-        if (insertedItem) {
-          // Single reload at the end to show everything in the correct order
-          await loadWBSItems();
-        }
+        // Single reload at the end to show everything in the correct order
+        await loadWBSItems();
         break;
       case 'insert-child':
         await addChildItem(itemId);
