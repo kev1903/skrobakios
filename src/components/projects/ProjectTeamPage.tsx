@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Project } from "@/hooks/useProjects";
 import { useCompany } from "@/contexts/CompanyContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,9 +49,13 @@ const roleOptions = [
 export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) => {
   const { currentCompany } = useCompany();
   const queryClient = useQueryClient();
+  const { isBusinessAdmin, isProjectAdmin, loading: roleLoading } = useUserRole();
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
+  
+  // Check if user can manage team (Business Admin or Project Admin)
+  const canManageTeam = isBusinessAdmin() || isProjectAdmin();
   
   // Manual member addition state
   const [isAddMemberDialogOpen, setIsAddMemberDialogOpen] = useState(false);
@@ -285,7 +290,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
     }
   };
 
-  if (isLoading || loadingCompanyMembers) {
+  if (isLoading || loadingCompanyMembers || roleLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -339,7 +344,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
 
       {/* Action Buttons */}
       <div className="flex justify-end items-center gap-2 mb-6">
-        {availableCompanyMembers.length > 0 && (
+        {canManageTeam && availableCompanyMembers.length > 0 && (
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
@@ -398,14 +403,15 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                   </div>
                 </div>
               </DialogContent>
-            </Dialog>
-          )}
-          
+          </Dialog>
+        )}
+        
+        {canManageTeam && (
           <Dialog open={isAddMemberDialogOpen} onOpenChange={setIsAddMemberDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <Edit3 className="w-4 h-4" />
-                Add Members
+                Add Member Details
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
@@ -531,7 +537,9 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
               </DialogFooter>
             </DialogContent>
           </Dialog>
-
+        )}
+        
+        {canManageTeam && (
           <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2">
@@ -589,6 +597,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
               </DialogFooter>
             </DialogContent>
           </Dialog>
+        )}
       </div>
 
       {/* Manual Members Card */}
