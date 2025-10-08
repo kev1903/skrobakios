@@ -1280,8 +1280,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             />
           )
         ) : (
-          <span className={`truncate ${className}`}>
-            {value || placeholder}
+          <span className={`truncate ${className} ${!value ? 'opacity-50' : ''}`}>
+            {value || 'Click to add Activity'}
           </span>
         )}
       </div>
