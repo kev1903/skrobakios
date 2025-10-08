@@ -1345,17 +1345,21 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     const [movedItem] = reorderedVisibleItems.splice(source.index, 1);
     reorderedVisibleItems.splice(destination.index, 0, movedItem);
     
-    // Persist to database - update created_at to maintain new order
+    // Persist to database - batch updates for performance
     try {
-      for (let i = 0; i < reorderedVisibleItems.length; i++) {
-        const item = reorderedVisibleItems[i];
-        
-        await updateWBSItem(item.id, { 
-          wbs_id: `${i + 1}`,
-          created_at: new Date(Date.now() + i * 1000).toISOString()
-        }, { skipAutoSchedule: true });
-      }
+      console.log('🔄 Starting drag reorder with', reorderedVisibleItems.length, 'items');
       
+      // Execute all updates in parallel
+      await Promise.all(
+        reorderedVisibleItems.map((item, i) => 
+          updateWBSItem(item.id, { 
+            wbs_id: `${i + 1}`,
+            created_at: new Date(Date.now() + i * 1000).toISOString()
+          }, { skipAutoSchedule: true })
+        )
+      );
+      
+      console.log('✅ Drag reorder completed, reloading items');
       // Reload items to reflect new order
       await loadWBSItems();
     } catch (error) {
