@@ -440,7 +440,7 @@ export const WBSSplitView = ({
                 items={items.map(item => {
                   const mappedItem = {
                     id: item.id,
-                    name: item.title || item.name || 'Untitled',
+                    name: item.title || item.name || '',
                     wbs_id: item.wbs_id || '',
                     level: item.level || 0,
                     parent_id: item.parent_id,
@@ -448,7 +448,7 @@ export const WBSSplitView = ({
                     hasChildren: items.some(child => child.parent_id === item.id)
                   };
                   return mappedItem;
-                })} 
+                })}
                 onToggleExpanded={onToggleExpanded} 
                 onDragEnd={onDragEnd}
                 onDragUpdate={onDragUpdate}
