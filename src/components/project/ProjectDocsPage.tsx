@@ -8,6 +8,7 @@ import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { useProjectLinks, ProjectLink } from '@/hooks/useProjectLinks';
 import { ProjectLinkDialog } from './ProjectLinkDialog';
+import { ProjectPageHeader } from './ProjectPageHeader';
 import { Plus, FileText, Link, Download, Eye, Edit, Trash2, Upload, ExternalLink } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 interface ProjectDocsPageProps {
@@ -130,14 +131,11 @@ export const ProjectDocsPage = ({
       {/* Main Content */}
       <div className="flex-1 ml-40 bg-background">
         {/* Header Section */}
-        <div className="sticky top-0 z-30 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground font-inter">Project Documents</h1>
-              <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
-            </div>
-          </div>
-        </div>
+        <ProjectPageHeader 
+          projectName={project.name}
+          pageTitle="Project Documents"
+          onNavigate={onNavigate}
+        />
         
         <div className="p-6">
           {/* Main Content with Tabs */}

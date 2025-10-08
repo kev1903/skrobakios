@@ -663,7 +663,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
           {/* Header */}
           <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
             <div className="px-6 py-4">
-              <TaskPageHeader project={project} />
+              <TaskPageHeader project={project} onNavigate={onNavigate} />
               
               <div className="mt-4">
                 <TaskSearchAndActions

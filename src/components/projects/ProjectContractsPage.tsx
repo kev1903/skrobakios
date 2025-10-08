@@ -12,6 +12,7 @@ import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload } from 'lucid
 import { toast } from 'sonner';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "../ProjectSidebar";
+import { ProjectPageHeader } from "../project/ProjectPageHeader";
 import { getStatusColor, getStatusText as utilsGetStatusText } from "./utils";
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 import { ContractUploadDialog } from "./ContractUploadDialog";
@@ -208,23 +209,20 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
         <div className="h-full w-full bg-white">
           {/* Header */}
-          <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
-            <div className="px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-foreground">Contracts</h2>
-                  <p className="text-muted-foreground mt-1 text-sm">{project.name}</p>
-                </div>
-                <Button 
-                  className="flex items-center gap-2"
-                  onClick={() => setShowUploadDialog(true)}
-                >
-                  <Upload className="h-4 w-4" />
-                  Upload Contract
-                </Button>
-              </div>
-            </div>
-          </div>
+          <ProjectPageHeader 
+            projectName={project.name}
+            pageTitle="Contracts"
+            onNavigate={onNavigate}
+            actions={
+              <Button 
+                className="flex items-center gap-2"
+                onClick={() => setShowUploadDialog(true)}
+              >
+                <Upload className="h-4 w-4" />
+                Upload Contract
+              </Button>
+            }
+          />
 
           {/* Content Area */}
           <div className="h-[calc(100%-100px)] overflow-y-auto">

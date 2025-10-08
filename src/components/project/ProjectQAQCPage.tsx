@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
+import { ProjectPageHeader } from '@/components/project/ProjectPageHeader';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { QAQCTable } from '@/components/qaqc/QAQCTable';
 import { 
@@ -151,14 +152,11 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
       {/* Main Content */}
       <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
         {/* Header Section */}
-        <div className="flex-shrink-0 border-b border-border px-6 py-4 bg-white backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground font-inter">QA/QC</h1>
-              <p className="text-muted-foreground mt-1 text-sm font-inter">{project.name}</p>
-            </div>
-          </div>
-        </div>
+        <ProjectPageHeader 
+          projectName={project.name}
+          pageTitle="QA/QC"
+          onNavigate={onNavigate}
+        />
         
         <div className="p-6 min-h-full">
           <div className="max-w-7xl mx-auto">

@@ -1,27 +1,27 @@
 
-import React from 'react';
 import { Project } from '@/hooks/useProjects';
+import { ProjectPageHeader } from '@/components/project/ProjectPageHeader';
 import { Badge } from '@/components/ui/badge';
 import { getStatusColor, getStatusText } from './utils/taskUtils';
 
 interface TaskPageHeaderProps {
   project: Project;
+  onNavigate?: (page: string) => void;
 }
 
-export const TaskPageHeader = ({ project }: TaskPageHeaderProps) => {
+export const TaskPageHeader = ({ project, onNavigate }: TaskPageHeaderProps) => {
+  const handleNavigate = onNavigate || (() => window.history.back());
+  
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">Project Tasks</h1>
-          <div className="flex items-center gap-4">
-            <p className="text-slate-600">{project.name}</p>
-            <Badge variant="outline" className={`${getStatusColor(project.status)} text-xs`}>
-              {getStatusText(project.status)}
-            </Badge>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ProjectPageHeader 
+      projectName={project.name}
+      pageTitle="Project Tasks"
+      onNavigate={handleNavigate}
+      actions={
+        <Badge variant="outline" className={`${getStatusColor(project.status)} text-xs`}>
+          {getStatusText(project.status)}
+        </Badge>
+      }
+    />
   );
 };
