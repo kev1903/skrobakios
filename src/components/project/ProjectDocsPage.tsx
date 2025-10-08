@@ -8,33 +8,31 @@ import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { useProjectLinks, ProjectLink } from '@/hooks/useProjectLinks';
 import { ProjectLinkDialog } from './ProjectLinkDialog';
-import { 
-  Plus, 
-  FileText,
-  Link,
-  Download,
-  Eye,
-  Edit,
-  Trash2,
-  Upload,
-  ExternalLink
-} from 'lucide-react';
+import { Plus, FileText, Link, Download, Eye, Edit, Trash2, Upload, ExternalLink } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
-
 interface ProjectDocsPageProps {
   onNavigate: (page: string) => void;
 }
-
-export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
+export const ProjectDocsPage = ({
+  onNavigate
+}: ProjectDocsPageProps) => {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('projectId');
   const tabParam = searchParams.get('tab') || 'files';
-  const defaultTab = (['files', 'links'] as const).includes(tabParam as any) ? (tabParam as any) : 'files';
-  const { getProject } = useProjects();
+  const defaultTab = (['files', 'links'] as const).includes(tabParam as any) ? tabParam as any : 'files';
+  const {
+    getProject
+  } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
-  
+
   // Project links management
-  const { links, loading: linksLoading, createLink, updateLink, deleteLink } = useProjectLinks(projectId || undefined);
+  const {
+    links,
+    loading: linksLoading,
+    createLink,
+    updateLink,
+    deleteLink
+  } = useProjectLinks(projectId || undefined);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const [linkDialogMode, setLinkDialogMode] = useState<'create' | 'edit'>('create');
   const [selectedLink, setSelectedLink] = useState<ProjectLink | undefined>();
@@ -42,36 +40,31 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
   const [linkToDelete, setLinkToDelete] = useState<ProjectLink | undefined>();
 
   // Mock data for files (keeping existing for now)
-  const [files] = useState([
-    {
-      id: '1',
-      name: 'Project Specifications.pdf',
-      type: 'pdf',
-      size: '2.4 MB',
-      uploadedBy: 'John Doe',
-      uploadedAt: '2024-01-15',
-      category: 'Specifications'
-    },
-    {
-      id: '2',
-      name: 'Site Plans.dwg',
-      type: 'dwg',
-      size: '8.1 MB',
-      uploadedBy: 'Jane Smith',
-      uploadedAt: '2024-01-14',
-      category: 'Drawings'
-    },
-    {
-      id: '3',
-      name: 'Material List.xlsx',
-      type: 'xlsx',
-      size: '156 KB',
-      uploadedBy: 'Mike Johnson',
-      uploadedAt: '2024-01-13',
-      category: 'Lists'
-    }
-  ]);
-
+  const [files] = useState([{
+    id: '1',
+    name: 'Project Specifications.pdf',
+    type: 'pdf',
+    size: '2.4 MB',
+    uploadedBy: 'John Doe',
+    uploadedAt: '2024-01-15',
+    category: 'Specifications'
+  }, {
+    id: '2',
+    name: 'Site Plans.dwg',
+    type: 'dwg',
+    size: '8.1 MB',
+    uploadedBy: 'Jane Smith',
+    uploadedAt: '2024-01-14',
+    category: 'Drawings'
+  }, {
+    id: '3',
+    name: 'Material List.xlsx',
+    type: 'xlsx',
+    size: '156 KB',
+    uploadedBy: 'Mike Johnson',
+    uploadedAt: '2024-01-13',
+    category: 'Lists'
+  }]);
   useEffect(() => {
     if (projectId) {
       const fetchProject = async () => {
@@ -85,28 +78,23 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
       fetchProject();
     }
   }, [projectId, getProject]);
-
   const getFileIcon = (type: string) => {
     return <FileText className="w-5 h-5 text-blue-600" />;
   };
-
   const handleAddLink = () => {
     setLinkDialogMode('create');
     setSelectedLink(undefined);
     setLinkDialogOpen(true);
   };
-
   const handleEditLink = (link: ProjectLink) => {
     setLinkDialogMode('edit');
     setSelectedLink(link);
     setLinkDialogOpen(true);
   };
-
   const handleDeleteLink = (link: ProjectLink) => {
     setLinkToDelete(link);
     setDeleteDialogOpen(true);
   };
-
   const confirmDeleteLink = async () => {
     if (linkToDelete) {
       await deleteLink(linkToDelete.id);
@@ -114,7 +102,6 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
       setLinkToDelete(undefined);
     }
   };
-
   const handleLinkSubmit = async (data: any) => {
     if (linkDialogMode === 'create') {
       await createLink(data);
@@ -122,34 +109,22 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
       await updateLink(selectedLink.id, data);
     }
   };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
-
   if (!project) {
-    return (
-      <div className="flex items-center justify-center h-screen">
+    return <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
           <p className="text-gray-600 mb-4">The requested project could not be found.</p>
           <Button onClick={() => onNavigate('projects')}>Back to Projects</Button>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="flex bg-background min-h-screen">
+  return <div className="flex bg-background min-h-screen">
       {/* Fixed Project Sidebar */}
       <div className="fixed left-0 top-0 h-full w-40 z-40">
-        <ProjectSidebar 
-          project={project} 
-          onNavigate={onNavigate} 
-          getStatusColor={getStatusColor} 
-          getStatusText={getStatusText} 
-          activeSection="docs" 
-        />
+        <ProjectSidebar project={project} onNavigate={onNavigate} getStatusColor={getStatusColor} getStatusText={getStatusText} activeSection="docs" />
       </div>
 
       {/* Main Content */}
@@ -174,17 +149,11 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                   {/* Left side - Tab buttons */}
                   <div className="flex items-center gap-6">
                     <TabsList className="grid w-full grid-cols-2 bg-muted/50">
-                      <TabsTrigger 
-                        value="files"
-                        className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground"
-                      >
+                      <TabsTrigger value="files" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground">
                         <FileText className="h-4 w-4" />
                         <span>Files</span>
                       </TabsTrigger>
-                      <TabsTrigger 
-                        value="links"
-                        className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground"
-                      >
+                      <TabsTrigger value="links" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-background data-[state=active]:text-foreground">
                         <Link className="h-4 w-4" />
                         <span>Links</span>
                       </TabsTrigger>
@@ -194,13 +163,13 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                   {/* Right side - Action buttons */}
                   <div className="flex items-center gap-4">
                     <Button onClick={() => {
-                      if (defaultTab === 'links') {
-                        handleAddLink();
-                      } else {
-                        // TODO: Handle file upload when implemented
-                        console.log('File upload not implemented yet');
-                      }
-                    }}>
+                    if (defaultTab === 'links') {
+                      handleAddLink();
+                    } else {
+                      // TODO: Handle file upload when implemented
+                      console.log('File upload not implemented yet');
+                    }
+                  }}>
                       <Plus className="w-4 h-4 mr-2" />
                       Add New
                     </Button>
@@ -220,8 +189,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                   </div>
                   
                   <div className="grid gap-4">
-                    {files.map((file) => (
-                      <Card key={file.id} className="hover:shadow-md transition-shadow">
+                    {files.map(file => <Card key={file.id} className="hover:shadow-md transition-shadow">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -255,8 +223,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                             </div>
                           </div>
                         </CardContent>
-                      </Card>
-                    ))}
+                      </Card>)}
                   </div>
                 </TabsContent>
 
@@ -269,16 +236,10 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                     </Button>
                   </div>
                   
-                  {linksLoading ? (
-                    <div className="text-center py-8">Loading links...</div>
-                  ) : links.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
+                  {linksLoading ? <div className="text-center py-8">Loading links...</div> : links.length === 0 ? <div className="text-center py-8 text-muted-foreground">
                       No links added yet. Click "Add Link" to get started.
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {links.map((link) => (
-                        <div key={link.id} className="group flex items-center justify-between p-3 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200">
+                    </div> : <div className="space-y-2">
+                      {links.map(link => <div key={link.id} className="group flex items-center justify-between p-3 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200">
                           <div className="flex items-center gap-3 min-w-0 flex-1">
                             <div className="w-2 h-2 rounded-full bg-primary/60 flex-shrink-0" />
                             <div className="min-w-0 flex-1">
@@ -288,44 +249,22 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                   {link.category}
                                 </span>
                               </div>
-                              {link.description && (
-                                <p className="text-sm text-muted-foreground/80 truncate">{link.description}</p>
-                              )}
+                              {link.description && <p className="text-sm text-muted-foreground/80 truncate">{link.description}</p>}
                             </div>
                           </div>
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0 hover:bg-primary/10"
-                              onClick={() => window.open(link.url, '_blank')}
-                              title="Open link"
-                            >
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10" onClick={() => window.open(link.url, '_blank')} title="Open link">
                               <ExternalLink className="w-4 h-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="h-8 w-8 p-0 hover:bg-primary/10"
-                              onClick={() => handleEditLink(link)}
-                              title="Edit link"
-                            >
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-primary/10" onClick={() => handleEditLink(link)} title="Edit link">
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                              onClick={() => handleDeleteLink(link)}
-                              title="Delete link"
-                            >
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive" onClick={() => handleDeleteLink(link)} title="Delete link">
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        </div>)}
+                    </div>}
                 </TabsContent>
               </div>
             </Tabs>
@@ -334,16 +273,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
       </div>
 
       {/* Link Dialog */}
-      {projectId && (
-        <ProjectLinkDialog
-          open={linkDialogOpen}
-          onOpenChange={setLinkDialogOpen}
-          onSubmit={handleLinkSubmit}
-          link={selectedLink}
-          projectId={projectId}
-          mode={linkDialogMode}
-        />
-      )}
+      {projectId && <ProjectLinkDialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen} onSubmit={handleLinkSubmit} link={selectedLink} projectId={projectId} mode={linkDialogMode} />}
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -360,6 +290,5 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
+    </div>;
 };
