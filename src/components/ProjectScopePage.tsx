@@ -1498,7 +1498,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           {/* Tabs Container - Full Width */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-[calc(100%-100px)] w-full flex flex-col">
             <div className="flex-shrink-0 border-b border-border bg-white">
-              <div className="flex items-center justify-between px-6 py-3">
+              <div className="flex items-center justify-between px-6 py-4">
                 {/* Tabs in Header */}
                 <TabsList className="grid w-fit grid-cols-3">
                   <TabsTrigger value="scope" className="flex items-center gap-2">
