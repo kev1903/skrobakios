@@ -296,10 +296,15 @@ export const WBSSplitView = ({
         })
       );
       console.log('✅ Bold formatting applied to', selectedItems.length, 'items');
+      
+      // Reload items to reflect the formatting changes
+      if (onReloadItems) {
+        await onReloadItems();
+      }
     } catch (error) {
       console.error('❌ Error applying bold formatting:', error);
     }
-  }, [selectedItems, currentFormatting.bold, items, onItemUpdate]);
+  }, [selectedItems, currentFormatting.bold, items, onItemUpdate, onReloadItems]);
   const handleItalic = useCallback(async () => {
     if (selectedItems.length === 0) return;
     
@@ -325,10 +330,15 @@ export const WBSSplitView = ({
         })
       );
       console.log('✅ Italic formatting applied to', selectedItems.length, 'items');
+      
+      // Reload items to reflect the formatting changes
+      if (onReloadItems) {
+        await onReloadItems();
+      }
     } catch (error) {
       console.error('❌ Error applying italic formatting:', error);
     }
-  }, [selectedItems, currentFormatting.italic, items, onItemUpdate]);
+  }, [selectedItems, currentFormatting.italic, items, onItemUpdate, onReloadItems]);
   const handleUnderline = useCallback(async () => {
     if (selectedItems.length === 0) return;
     
@@ -354,10 +364,15 @@ export const WBSSplitView = ({
         })
       );
       console.log('✅ Underline formatting applied to', selectedItems.length, 'items');
+      
+      // Reload items to reflect the formatting changes
+      if (onReloadItems) {
+        await onReloadItems();
+      }
     } catch (error) {
       console.error('❌ Error applying underline formatting:', error);
     }
-  }, [selectedItems, currentFormatting.underline, items, onItemUpdate]);
+  }, [selectedItems, currentFormatting.underline, items, onItemUpdate, onReloadItems]);
   const handleFontSizeChange = useCallback(async (size: string) => {
     if (selectedItems.length === 0) return;
     
@@ -382,10 +397,15 @@ export const WBSSplitView = ({
         })
       );
       console.log('✅ Font size changed to', size, 'for', selectedItems.length, 'items');
+      
+      // Reload items to reflect the formatting changes
+      if (onReloadItems) {
+        await onReloadItems();
+      }
     } catch (error) {
       console.error('❌ Error changing font size:', error);
     }
-  }, [selectedItems, items, onItemUpdate]);
+  }, [selectedItems, items, onItemUpdate, onReloadItems]);
   const handleRowClick = useCallback((itemId: string, ctrlKey: boolean = false) => {
     if (ctrlKey) {
       setSelectedItems(prev => prev.includes(itemId) ? prev.filter(id => id !== itemId) : [...prev, itemId]);
