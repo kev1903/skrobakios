@@ -31,42 +31,50 @@ export const useProjectUsers = (projectId: string) => {
       // First get project members
       const { data: members, error: membersError } = await supabase
         .from("project_members")
-        .select(`
-          *,
-          profiles!inner (
-            first_name,
-            last_name,
-            avatar_url,
-            professional_title,
-            phone,
-            skills
-          )
-        `)
+        .select("*")
         .eq("project_id", projectId)
         .eq("status", "active")
         .order("joined_at", { ascending: false });
 
       if (membersError) {
         console.error("Error fetching project members:", membersError);
+        return [];
       }
 
-      // If we have project members, return them with current user marked
-      if (members && members.length > 0) {
-        const projectUsers = members.map(member => ({
-          ...member,
-          isCurrentUser: member.user_id === currentUserId
-        })) as ProjectUser[];
-        
-        // Sort to put current user first
-        return projectUsers.sort((a, b) => {
-          if (a.isCurrentUser && !b.isCurrentUser) return -1;
-          if (!a.isCurrentUser && b.isCurrentUser) return 1;
-          return 0;
-        });
+      // If no project members, return empty array
+      if (!members || members.length === 0) {
+        return [];
       }
 
-      // No project members found - return empty array
-      return [];
+      // Get all unique user IDs
+      const userIds = [...new Set(members.map(m => m.user_id).filter(Boolean))];
+
+      // Fetch profiles for all users
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("user_id, email, first_name, last_name, avatar_url, professional_title, phone, skills")
+        .in("user_id", userIds);
+
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+      }
+
+      // Create a map of profiles by user_id
+      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+
+      // Combine members with their profiles
+      const projectUsers = members.map(member => ({
+        ...member,
+        profile: profileMap.get(member.user_id || ''),
+        isCurrentUser: member.user_id === currentUserId
+      })) as ProjectUser[];
+      
+      // Sort to put current user first
+      return projectUsers.sort((a, b) => {
+        if (a.isCurrentUser && !b.isCurrentUser) return -1;
+        if (!a.isCurrentUser && b.isCurrentUser) return 1;
+        return 0;
+      });
     },
     enabled: !!projectId,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
