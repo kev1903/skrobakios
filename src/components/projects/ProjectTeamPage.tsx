@@ -53,6 +53,7 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
+  const [selectedRoles, setSelectedRoles] = useState<Record<string, string>>({});
   
   // Check if user can manage team (Business Admin or Project Admin)
   const canManageTeam = isBusinessAdmin() || isProjectAdmin();
@@ -120,8 +121,51 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
     mutationFn: async ({ companyMemberId, role }: { companyMemberId: string, role: string }) => {
       // Get the company member details first
       const companyMember = companyMembers?.find(m => m.id === companyMemberId);
-      if (!companyMember) throw new Error("Company member not found");
+      if (!companyMember) {
+        console.error("Company member not found:", companyMemberId);
+        throw new Error("Company member not found");
+      }
 
+      if (!companyMember.user_id) {
+        console.error("Company member has no user_id:", companyMember);
+        throw new Error("Company member must have a user account");
+      }
+
+      console.log("Adding member to project:", {
+        project_id: project.id,
+        user_id: companyMember.user_id,
+        email: companyMember.email,
+        role: role
+      });
+
+      // Check if member is already in the project
+      const { data: existing } = await supabase
+        .from("project_members")
+        .select("id, status")
+        .eq("project_id", project.id)
+        .eq("user_id", companyMember.user_id)
+        .maybeSingle();
+
+      if (existing) {
+        // Update existing member instead of inserting
+        const { data, error } = await supabase
+          .from("project_members")
+          .update({
+            role: role,
+            status: 'active',
+            joined_at: existing.status !== 'active' ? new Date().toISOString() : undefined
+          })
+          .eq("id", existing.id)
+          .select();
+
+        if (error) {
+          console.error("Supabase error updating member:", error);
+          throw new Error(error.message || "Failed to update team member");
+        }
+        return data;
+      }
+
+      // Insert new member
       const { data, error } = await supabase
         .from("project_members")
         .insert({
@@ -131,23 +175,29 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
           role: role,
           status: 'active',
           joined_at: new Date().toISOString()
-        });
+        })
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error adding member:", error);
+        throw new Error(error.message || "Failed to add team member");
+      }
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Successfully added/updated member:", data);
       toast({
         title: "Success",
         description: "Company member added to project successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["project-users", project.id] });
+      queryClient.invalidateQueries({ queryKey: ["company-members", currentCompany?.id] });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Error adding member to project:", error);
       toast({
         title: "Error",
-        description: "Failed to add member to project",
+        description: error.message || "Failed to add member to project",
         variant: "destructive",
       });
     }
@@ -378,12 +428,12 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                         </div>
                         <div className="flex items-center gap-2">
                           <Select
-                            defaultValue="member"
+                            value={selectedRoles[member.id] || "member"}
                             onValueChange={(role) => {
-                              addMemberToProjectMutation.mutate({
-                                companyMemberId: member.id,
-                                role: role
-                              });
+                              setSelectedRoles(prev => ({
+                                ...prev,
+                                [member.id]: role
+                              }));
                             }}
                           >
                             <SelectTrigger className="w-32">
@@ -397,6 +447,18 @@ export const ProjectTeamPage = ({ project, onNavigate }: ProjectTeamPageProps) =
                               ))}
                             </SelectContent>
                           </Select>
+                          <Button
+                            onClick={() => {
+                              addMemberToProjectMutation.mutate({
+                                companyMemberId: member.id,
+                                role: selectedRoles[member.id] || "member"
+                              });
+                            }}
+                            disabled={addMemberToProjectMutation.isPending}
+                            size="sm"
+                          >
+                            {addMemberToProjectMutation.isPending ? "Adding..." : "Add to Project"}
+                          </Button>
                         </div>
                       </div>
                     ))}
