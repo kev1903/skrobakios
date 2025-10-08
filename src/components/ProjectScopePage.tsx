@@ -1327,6 +1327,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     
     if (source.index === destination.index) return;
     
+    console.log('🎯 Drag ended:', { from: source.index, to: destination.index });
+    
     // Helper function to determine if an item should be visible (not hidden by collapsed parent)
     const isItemVisible = (item: any, allItems: any[]): boolean => {
       if (item.level === 0) return true;
@@ -1340,20 +1342,27 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     // This ensures drag indices match the visual display order
     const visibleFlatItems = flatWBSItems.filter(item => isItemVisible(item, flatWBSItems));
     
+    console.log('📋 Visible items before reorder:', visibleFlatItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
+    
+    // Get the item being moved
+    const movedItem = visibleFlatItems[source.index];
+    console.log('🔀 Moving item:', movedItem.name || movedItem.title, 'from', source.index, 'to', destination.index);
+    
     // Create a new array and reorder
     const reorderedVisibleItems = [...visibleFlatItems];
-    const [movedItem] = reorderedVisibleItems.splice(source.index, 1);
+    reorderedVisibleItems.splice(source.index, 1);
     reorderedVisibleItems.splice(destination.index, 0, movedItem);
     
-    // Persist to database - batch updates for performance
+    console.log('📋 Visible items after reorder:', reorderedVisibleItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
+    
+    // Persist to database - update order using created_at timestamps
     try {
       console.log('🔄 Starting drag reorder with', reorderedVisibleItems.length, 'items');
       
-      // Execute all updates in parallel
+      // Execute all updates in parallel - use timestamps to maintain order
       await Promise.all(
         reorderedVisibleItems.map((item, i) => 
           updateWBSItem(item.id, { 
-            wbs_id: `${i + 1}`,
             created_at: new Date(Date.now() + i * 1000).toISOString()
           }, { skipAutoSchedule: true })
         )
@@ -1362,6 +1371,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       console.log('✅ Drag reorder completed, reloading items');
       // Reload items to reflect new order
       await loadWBSItems();
+      
+      // Renumber WBS IDs after reorder to reflect new hierarchy
+      console.log('🔢 Renumbering WBS after drag reorder');
+      await renumberWBSHierarchy();
     } catch (error) {
       console.error('❌ Error reordering items:', error);
       // Revert on error
