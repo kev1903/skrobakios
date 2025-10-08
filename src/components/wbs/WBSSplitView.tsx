@@ -35,6 +35,7 @@ interface WBSSplitViewProps {
   ProgressDisplay: any;
   getProgressColor: (progress: number) => string;
   generateWBSNumber: (phaseIndex: number, componentIndex?: number, elementIndex?: number) => string;
+  projectId?: string;
 }
 export const WBSSplitView = ({
   items,
@@ -53,7 +54,8 @@ export const WBSSplitView = ({
   ProgressInput,
   ProgressDisplay,
   getProgressColor,
-  generateWBSNumber
+  generateWBSNumber,
+  projectId
 }: WBSSplitViewProps) => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -621,7 +623,7 @@ export const WBSSplitView = ({
             
             {/* Right Content with synchronized scrolling */}
             <div ref={rightScrollRef} className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin" onScroll={handleRightScroll}>
-              <WBSRightPanel items={items as any} onItemUpdate={onItemUpdate} onContextMenuAction={onContextMenuAction} onOpenNotesDialog={onOpenNotesDialog} EditableCell={EditableCell} StatusSelect={StatusSelect} ProgressInput={ProgressInput} ProgressDisplay={ProgressDisplay} getProgressColor={getProgressColor} hoveredId={hoveredId} onRowHover={setHoveredId} selectedItems={selectedItems} onRowClick={handleRowClick} />
+              <WBSRightPanel items={items as any} onItemUpdate={onItemUpdate} onContextMenuAction={onContextMenuAction} onOpenNotesDialog={onOpenNotesDialog} EditableCell={EditableCell} StatusSelect={StatusSelect} ProgressInput={ProgressInput} ProgressDisplay={ProgressDisplay} getProgressColor={getProgressColor} hoveredId={hoveredId} onRowHover={setHoveredId} selectedItems={selectedItems} onRowClick={handleRowClick} projectId={projectId} />
             </div>
           </div>
         </ResizablePanel>

@@ -1653,6 +1653,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
                           ProgressDisplay={ProgressDisplay}
                           getProgressColor={getProgressColor}
                           generateWBSNumber={generateWBSNumber}
+                          projectId={project.id}
                         />
                       </div>
                     )}
