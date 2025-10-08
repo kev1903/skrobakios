@@ -128,7 +128,7 @@ export const ProjectSidebar = ({
     <div className={`${sidebarClasses[screenSize]} transition-all duration-300`}>
       <div className={contentClasses[screenSize]}>
         {/* Back Button */}
-        <div className="flex-shrink-0 px-4 h-[100px] flex items-center border-b border-gray-200">
+        <div className="flex-shrink-0 px-4 h-[72px] flex items-center border-b border-gray-200">
           <Button
             variant="ghost"
             size="sm"
