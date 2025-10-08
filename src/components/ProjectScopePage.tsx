@@ -655,8 +655,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     // Type is now passed directly from the component
     console.log('🔵 ProjectScopePage handleContextMenuAction received:', action, itemId, type);
     
-    // Find the item for operations that need it
-    const item = wbsItems.find(i => i.id === itemId);
+    // Find the item for operations that need it - search in flatWBSItems to include nested children
+    const item = flatWBSItems.find(i => i.id === itemId);
     if (!item && action !== 'delete') {
       console.error('Item not found:', itemId);
       return;
