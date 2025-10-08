@@ -103,7 +103,7 @@ export const WBSSplitView = ({
         return null;
       };
 
-      // Collect all ancestors that need expansion
+      // Collect all ancestors that need expansion - ALWAYS expand parent chain
       const parentsToExpand = new Set<string>();
       
       // Process each selected item to collect updates
@@ -122,14 +122,12 @@ export const WBSSplitView = ({
         const newLevel = item.level + 1;
         const newParentId = findParentForLevel(currentIndex, newLevel);
 
-        // Collect ancestors to expand
+        // ALWAYS collect all ancestors to ensure they're expanded
         if (newParentId) {
           let currentParentId: string | null | undefined = newParentId;
           while (currentParentId) {
+            parentsToExpand.add(currentParentId);
             const parent = items.find(i => i.id === currentParentId);
-            if (parent && parent.isExpanded === false) {
-              parentsToExpand.add(currentParentId);
-            }
             currentParentId = parent?.parent_id;
           }
         }
@@ -153,16 +151,18 @@ export const WBSSplitView = ({
         });
       }
 
-      // Add parent expansion updates
-      parentsToExpand.forEach(parentId => {
-        batchUpdates.push({
-          id: parentId,
-          updates: { is_expanded: true }
-        });
-      });
+      // CRITICAL: Expand parents FIRST, before indenting
+      console.log(`📂 Expanding ${parentsToExpand.size} parent items to ensure visibility`);
+      if (parentsToExpand.size > 0) {
+        await Promise.all(
+          Array.from(parentsToExpand).map(parentId => 
+            onItemUpdate(parentId, { is_expanded: true })
+          )
+        );
+      }
 
-      // Execute all updates in parallel
-      console.log(`⚡ Executing ${batchUpdates.length} updates in parallel`);
+      // Then execute indent updates in parallel
+      console.log(`⚡ Executing ${batchUpdates.length} indent updates in parallel`);
       await Promise.all(
         batchUpdates.map(({ id, updates }) => onItemUpdate(id, updates))
       );
@@ -172,10 +172,11 @@ export const WBSSplitView = ({
       
       // Single reload to rebuild hierarchy and renumber
       if (onReloadItems) {
+        console.log('🔄 Reloading items to rebuild hierarchy');
         await onReloadItems();
       }
       
-      console.log('✅ Optimized indent completed');
+      console.log('✅ Optimized indent completed with parent expansion');
     } catch (error) {
       console.error('❌ Error in indent operation:', error);
     }
