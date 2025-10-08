@@ -9,7 +9,7 @@ export const createTaskConversionHandlers = (
   findWBSItem: (id: string) => any,
   setSelectedTask: (task: any) => void,
   setIsTaskDetailOpen: (open: boolean) => void,
-  loadWBSItems: () => void
+  loadWBSItems: () => Promise<void>
 ) => {
   
   const handleConvertToTask = async (itemId: string) => {

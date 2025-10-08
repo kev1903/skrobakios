@@ -640,14 +640,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     findWBSItem,
     setSelectedTask,
     setIsTaskDetailOpen,
-    () => {
-      // Reload WBS items
-      if (project?.id && currentCompany?.id) {
-        WBSService.loadWBSItems(project.id, currentCompany.id).then((items) => {
-          // Update local state with refreshed data
-          window.location.reload(); // Simple reload for now
-        }).catch(console.error);
-      }
+    async () => {
+      // Reload WBS items using the hook's loadWBSItems
+      await loadWBSItems();
     }
   );
 
