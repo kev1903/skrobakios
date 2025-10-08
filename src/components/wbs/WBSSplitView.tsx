@@ -270,42 +270,122 @@ export const WBSSplitView = ({
       console.error('❌ Error in outdent operation:', error);
     }
   }, [selectedItems, items, onItemUpdate, onReloadItems]);
-  const handleBold = useCallback(() => {
+  const handleBold = useCallback(async () => {
+    if (selectedItems.length === 0) return;
+    
+    const newBoldState = !currentFormatting.bold;
     setCurrentFormatting(prev => ({
       ...prev,
-      bold: !prev.bold
+      bold: newBoldState
     }));
-    selectedItems.forEach(itemId => {
-      console.log('Toggle bold for item:', itemId);
-    });
-  }, [selectedItems]);
-  const handleItalic = useCallback(() => {
+    
+    // Apply bold formatting to all selected items
+    try {
+      await Promise.all(
+        selectedItems.map(itemId => {
+          const item = items.find(i => i.id === itemId);
+          if (!item) return Promise.resolve();
+          
+          const currentFormatting = item.text_formatting || {};
+          return onItemUpdate(itemId, {
+            text_formatting: {
+              ...currentFormatting,
+              bold: newBoldState
+            }
+          });
+        })
+      );
+      console.log('✅ Bold formatting applied to', selectedItems.length, 'items');
+    } catch (error) {
+      console.error('❌ Error applying bold formatting:', error);
+    }
+  }, [selectedItems, currentFormatting.bold, items, onItemUpdate]);
+  const handleItalic = useCallback(async () => {
+    if (selectedItems.length === 0) return;
+    
+    const newItalicState = !currentFormatting.italic;
     setCurrentFormatting(prev => ({
       ...prev,
-      italic: !prev.italic
+      italic: newItalicState
     }));
-    selectedItems.forEach(itemId => {
-      console.log('Toggle italic for item:', itemId);
-    });
-  }, [selectedItems]);
-  const handleUnderline = useCallback(() => {
+    
+    try {
+      await Promise.all(
+        selectedItems.map(itemId => {
+          const item = items.find(i => i.id === itemId);
+          if (!item) return Promise.resolve();
+          
+          const currentFormatting = item.text_formatting || {};
+          return onItemUpdate(itemId, {
+            text_formatting: {
+              ...currentFormatting,
+              italic: newItalicState
+            }
+          });
+        })
+      );
+      console.log('✅ Italic formatting applied to', selectedItems.length, 'items');
+    } catch (error) {
+      console.error('❌ Error applying italic formatting:', error);
+    }
+  }, [selectedItems, currentFormatting.italic, items, onItemUpdate]);
+  const handleUnderline = useCallback(async () => {
+    if (selectedItems.length === 0) return;
+    
+    const newUnderlineState = !currentFormatting.underline;
     setCurrentFormatting(prev => ({
       ...prev,
-      underline: !prev.underline
+      underline: newUnderlineState
     }));
-    selectedItems.forEach(itemId => {
-      console.log('Toggle underline for item:', itemId);
-    });
-  }, [selectedItems]);
-  const handleFontSizeChange = useCallback((size: string) => {
+    
+    try {
+      await Promise.all(
+        selectedItems.map(itemId => {
+          const item = items.find(i => i.id === itemId);
+          if (!item) return Promise.resolve();
+          
+          const currentFormatting = item.text_formatting || {};
+          return onItemUpdate(itemId, {
+            text_formatting: {
+              ...currentFormatting,
+              underline: newUnderlineState
+            }
+          });
+        })
+      );
+      console.log('✅ Underline formatting applied to', selectedItems.length, 'items');
+    } catch (error) {
+      console.error('❌ Error applying underline formatting:', error);
+    }
+  }, [selectedItems, currentFormatting.underline, items, onItemUpdate]);
+  const handleFontSizeChange = useCallback(async (size: string) => {
+    if (selectedItems.length === 0) return;
+    
     setCurrentFormatting(prev => ({
       ...prev,
       fontSize: size
     }));
-    selectedItems.forEach(itemId => {
-      console.log('Change font size for item:', itemId, 'to:', size);
-    });
-  }, [selectedItems]);
+    
+    try {
+      await Promise.all(
+        selectedItems.map(itemId => {
+          const item = items.find(i => i.id === itemId);
+          if (!item) return Promise.resolve();
+          
+          const currentFormatting = item.text_formatting || {};
+          return onItemUpdate(itemId, {
+            text_formatting: {
+              ...currentFormatting,
+              fontSize: size
+            }
+          });
+        })
+      );
+      console.log('✅ Font size changed to', size, 'for', selectedItems.length, 'items');
+    } catch (error) {
+      console.error('❌ Error changing font size:', error);
+    }
+  }, [selectedItems, items, onItemUpdate]);
   const handleRowClick = useCallback((itemId: string, ctrlKey: boolean = false) => {
     if (ctrlKey) {
       setSelectedItems(prev => prev.includes(itemId) ? prev.filter(id => id !== itemId) : [...prev, itemId]);
@@ -313,6 +393,35 @@ export const WBSSplitView = ({
       setSelectedItems([itemId]);
     }
   }, []);
+
+  // Update formatting state when selection changes
+  useEffect(() => {
+    if (selectedItems.length === 1) {
+      const selectedItem = items.find(i => i.id === selectedItems[0]);
+      if (selectedItem?.text_formatting) {
+        setCurrentFormatting({
+          bold: selectedItem.text_formatting.bold || false,
+          italic: selectedItem.text_formatting.italic || false,
+          underline: selectedItem.text_formatting.underline || false,
+          fontSize: selectedItem.text_formatting.fontSize || "12"
+        });
+      } else {
+        setCurrentFormatting({
+          bold: false,
+          italic: false,
+          underline: false,
+          fontSize: "12"
+        });
+      }
+    } else if (selectedItems.length === 0) {
+      setCurrentFormatting({
+        bold: false,
+        italic: false,
+        underline: false,
+        fontSize: "12"
+      });
+    }
+  }, [selectedItems, items]);
 
   // Keyboard navigation for row selection
   useEffect(() => {
@@ -445,7 +554,8 @@ export const WBSSplitView = ({
                     level: item.level || 0,
                     parent_id: item.parent_id,
                     isExpanded: item.isExpanded !== false,
-                    hasChildren: items.some(child => child.parent_id === item.id)
+                    hasChildren: items.some(child => child.parent_id === item.id),
+                    text_formatting: item.text_formatting
                   };
                   return mappedItem;
                 })}

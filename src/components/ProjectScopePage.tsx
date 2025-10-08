@@ -1141,7 +1141,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     field, 
     value, 
     placeholder, 
-    className = "" 
+    className = "",
+    textFormatting
   }: { 
     id: string; 
     type: 'phase' | 'component' | 'element' | 'task'; 
@@ -1149,6 +1150,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     value: string; 
     placeholder: string;
     className?: string;
+    textFormatting?: {
+      bold?: boolean;
+      italic?: boolean;
+      underline?: boolean;
+      fontSize?: string;
+    };
   }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [localValue, setLocalValue] = useState(value || "");
@@ -1280,7 +1287,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             />
           )
         ) : (
-          <span className={`truncate ${className} ${!value ? 'opacity-50' : ''}`}>
+          <span 
+            className={`truncate ${className} ${!value ? 'opacity-50' : ''}`}
+            style={{
+              fontWeight: textFormatting?.bold ? 'bold' : 'normal',
+              fontStyle: textFormatting?.italic ? 'italic' : 'normal',
+              textDecoration: textFormatting?.underline ? 'underline' : 'none',
+              fontSize: textFormatting?.fontSize ? `${textFormatting.fontSize}px` : undefined
+            }}
+          >
             {value || 'Click to add Activity'}
           </span>
         )}

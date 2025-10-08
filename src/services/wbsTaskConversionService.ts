@@ -187,7 +187,8 @@ export class WBSTaskConversionService {
           predecessors: Array.isArray(wbsItem.predecessors) 
             ? wbsItem.predecessors as unknown as WBSItem['predecessors']
             : [],
-          priority: wbsItem.priority as WBSItem['priority']
+          priority: wbsItem.priority as WBSItem['priority'],
+          text_formatting: wbsItem.text_formatting ? (wbsItem.text_formatting as any) : null
         };
         const task = await this.convertWBSToTask(wbsItemWithChildren, projectId);
         tasks.push(task);

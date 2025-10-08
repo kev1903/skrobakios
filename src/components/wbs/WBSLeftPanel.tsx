@@ -13,6 +13,12 @@ interface WBSItem {
   hasChildren?: boolean;
   parent_id?: string;
   wbs_id?: string;
+  text_formatting?: {
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    fontSize?: string;
+  };
 }
 
 interface WBSLeftPanelProps {
@@ -213,6 +219,7 @@ export const WBSLeftPanel = ({
                             placeholder="Click to add activity"
                             className="font-medium text-xs text-muted-foreground flex-1 cursor-text min-h-[20px] hover:bg-gray-50/50 rounded px-1 py-0.5 transition-colors"
                             data-field="name"
+                            textFormatting={item.text_formatting}
                           />
                         </div>
                         

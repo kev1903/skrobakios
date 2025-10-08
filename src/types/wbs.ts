@@ -46,6 +46,14 @@ export interface WBSItem {
   task_type?: string; // Type of task (General, Design, Construction, Review, etc.)
   estimated_hours?: number; // Estimated hours to complete the task
   actual_hours?: number; // Actual hours spent on the task
+  
+  // Text formatting (stored as JSONB in database)
+  text_formatting?: {
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    fontSize?: string;
+  } | null;
 }
 
 export type WBSItemInput = Omit<WBSItem, 'id' | 'children' | 'created_at' | 'updated_at'>;

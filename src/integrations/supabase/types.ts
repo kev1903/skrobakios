@@ -5772,6 +5772,7 @@ export type Database = {
           status: string | null
           task_conversion_date: string | null
           task_type: string | null
+          text_formatting: Json | null
           time_link: string | null
           title: string
           updated_at: string
@@ -5812,6 +5813,7 @@ export type Database = {
           status?: string | null
           task_conversion_date?: string | null
           task_type?: string | null
+          text_formatting?: Json | null
           time_link?: string | null
           title: string
           updated_at?: string
@@ -5852,6 +5854,7 @@ export type Database = {
           status?: string | null
           task_conversion_date?: string | null
           task_type?: string | null
+          text_formatting?: Json | null
           time_link?: string | null
           title?: string
           updated_at?: string
