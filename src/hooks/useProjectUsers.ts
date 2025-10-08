@@ -33,7 +33,7 @@ export const useProjectUsers = (projectId: string) => {
         .from("project_members")
         .select(`
           *,
-          profiles!project_members_user_id_fkey (
+          profiles!inner (
             first_name,
             last_name,
             avatar_url,
