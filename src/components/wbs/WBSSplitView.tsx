@@ -166,6 +166,13 @@ export const WBSSplitView = ({
         });
         await Promise.all(expandPromises);
         console.log('✅ All parents expanded');
+        
+        // CRITICAL: Reload items to get updated expansion states BEFORE indenting
+        if (onReloadItems) {
+          console.log('🔄 Reloading items after parent expansion to sync UI state');
+          await onReloadItems();
+          console.log('✅ Parent expansion reload completed');
+        }
       }
 
       // Then execute indent updates in parallel
@@ -181,11 +188,11 @@ export const WBSSplitView = ({
       // Clear selection
       setSelectedItems([]);
       
-      // Single reload to rebuild hierarchy and renumber
+      // Final reload to rebuild hierarchy and renumber
       if (onReloadItems) {
-        console.log('🔄 Reloading items to rebuild hierarchy');
+        console.log('🔄 Final reload to rebuild hierarchy and renumber');
         await onReloadItems();
-        console.log('✅ Reload completed');
+        console.log('✅ Final reload completed');
       }
       
       console.log('✅ Optimized indent completed with parent expansion');
