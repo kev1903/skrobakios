@@ -3098,6 +3098,7 @@ export type Database = {
           content_type: string | null
           created_at: string
           created_by: string | null
+          document_status: string | null
           document_type: string | null
           error_message: string | null
           estimate_id: string | null
@@ -3119,6 +3120,7 @@ export type Database = {
           content_type?: string | null
           created_at?: string
           created_by?: string | null
+          document_status?: string | null
           document_type?: string | null
           error_message?: string | null
           estimate_id?: string | null
@@ -3140,6 +3142,7 @@ export type Database = {
           content_type?: string | null
           created_at?: string
           created_by?: string | null
+          document_status?: string | null
           document_type?: string | null
           error_message?: string | null
           estimate_id?: string | null

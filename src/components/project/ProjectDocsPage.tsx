@@ -10,6 +10,8 @@ import { useProjectLinks, ProjectLink } from '@/hooks/useProjectLinks';
 import { ProjectLinkDialog } from './ProjectLinkDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
 import { Plus, FileText, Link, Download, Eye, Edit, Trash2, ExternalLink, Upload, ChevronDown } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { supabase } from '@/integrations/supabase/client';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { DocumentUpload } from '@/components/project-documents/DocumentUpload';
 import { useProjectDocuments } from '@/hooks/useProjectDocuments';
@@ -234,6 +236,22 @@ export const ProjectDocsPage = ({
   const handleDownload = (fileUrl: string, fileName: string) => {
     window.open(fileUrl, '_blank');
   };
+
+  const handleStatusChange = async (documentId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('project_documents')
+        .update({ document_status: newStatus })
+        .eq('id', documentId);
+
+      if (error) throw error;
+      
+      // Refresh documents to show updated status
+      refetchDocuments();
+    } catch (error) {
+      console.error('Error updating document status:', error);
+    }
+  };
   const handleAddLink = () => {
     setLinkDialogMode('create');
     setSelectedLink(undefined);
@@ -444,6 +462,23 @@ export const ProjectDocsPage = ({
                                               <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
                                                 {formatFileSize(doc.file_size || 0)}
                                               </span>
+                                              
+                                              {/* Document Status Dropdown */}
+                                              <Select
+                                                value={doc.document_status || ''}
+                                                onValueChange={(value) => handleStatusChange(doc.id, value)}
+                                              >
+                                                <SelectTrigger className="h-8 w-[180px] text-xs">
+                                                  <SelectValue placeholder="Set status" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectItem value="Issue for Review">Issue for Review</SelectItem>
+                                                  <SelectItem value="Issue for Approval">Issue for Approval</SelectItem>
+                                                  <SelectItem value="Issue for Construction">Issue for Construction</SelectItem>
+                                                  <SelectItem value="Issue for Use">Issue for Use</SelectItem>
+                                                </SelectContent>
+                                              </Select>
+                                              
                                               <Button 
                                                 variant="ghost" 
                                                 size="sm" 

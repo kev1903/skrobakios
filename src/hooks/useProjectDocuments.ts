@@ -12,6 +12,7 @@ export interface ProjectDocument {
   file_size: number | null;
   created_at: string;
   created_by: string | null;
+  document_status: string | null;
 }
 
 export const useProjectDocuments = (projectId: string | undefined) => {
