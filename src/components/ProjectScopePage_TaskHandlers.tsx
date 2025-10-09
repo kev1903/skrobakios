@@ -10,6 +10,7 @@ export const createTaskConversionHandlers = (
   setSelectedTask: (task: any) => void,
   setIsTaskDetailOpen: (open: boolean) => void,
   loadWBSItems: () => Promise<void>,
+  updateWBSItem: (itemId: string, updates: any) => Promise<void>,
   onNavigate: (page: string) => void
 ) => {
   
@@ -28,8 +29,12 @@ export const createTaskConversionHandlers = (
 
       const task = await WBSTaskConversionService.convertWBSToTask(wbsItem, project.id);
       
-      // Reload WBS items to reflect the changes
-      await loadWBSItems();
+      // Immediately update local state to show green icon (like RFQ button)
+      await updateWBSItem(itemId, {
+        is_task_enabled: true,
+        linked_task_id: task.id,
+        task_conversion_date: new Date().toISOString()
+      });
       
       toast.success(`Successfully converted "${wbsItem.title}" to a detailed task`);
       
@@ -60,8 +65,12 @@ export const createTaskConversionHandlers = (
     try {
       await WBSTaskConversionService.unlinkWBSFromTask(itemId);
       
-      // Reload WBS items to reflect the changes
-      await loadWBSItems();
+      // Immediately update local state to remove green icon (like RFQ button)
+      await updateWBSItem(itemId, {
+        is_task_enabled: false,
+        linked_task_id: null,
+        task_conversion_date: null
+      });
       
       toast.success('Task linkage removed successfully');
       

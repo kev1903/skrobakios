@@ -644,6 +644,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       // Reload WBS items using the hook's loadWBSItems
       await loadWBSItems();
     },
+    updateWBSItem,
     onNavigate
   );
 
