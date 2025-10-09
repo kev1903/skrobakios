@@ -3095,6 +3095,7 @@ export type Database = {
           ai_confidence: number | null
           ai_rationale: string | null
           ai_summary: string | null
+          category_id: string | null
           content_type: string | null
           created_at: string
           created_by: string | null
@@ -3117,6 +3118,7 @@ export type Database = {
           ai_confidence?: number | null
           ai_rationale?: string | null
           ai_summary?: string | null
+          category_id?: string | null
           content_type?: string | null
           created_at?: string
           created_by?: string | null
@@ -3139,6 +3141,7 @@ export type Database = {
           ai_confidence?: number | null
           ai_rationale?: string | null
           ai_summary?: string | null
+          category_id?: string | null
           content_type?: string | null
           created_at?: string
           created_by?: string | null
@@ -3158,6 +3161,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "project_documents_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "document_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "project_documents_estimate_id_fkey"
             columns: ["estimate_id"]

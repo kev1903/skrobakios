@@ -13,6 +13,7 @@ export interface ProjectDocument {
   created_at: string;
   created_by: string | null;
   document_status: string | null;
+  category_id: string | null;
 }
 
 export const useProjectDocuments = (projectId: string | undefined) => {

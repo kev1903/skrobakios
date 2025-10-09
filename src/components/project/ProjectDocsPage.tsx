@@ -348,7 +348,7 @@ export const ProjectDocsPage = ({
                               <div className="space-y-0">
                                 {sectionCategories.map((category) => {
                                   const categoryDocs = documents.filter(doc => 
-                                    doc.document_type === category.document_type
+                                    doc.category_id === category.id
                                   );
                                   
                                   return (
