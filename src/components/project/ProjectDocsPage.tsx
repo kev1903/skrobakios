@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { useProjectLinks, ProjectLink } from '@/hooks/useProjectLinks';
 import { useProjectDocuments } from '@/hooks/useProjectDocuments';
 import { ProjectLinkDialog } from './ProjectLinkDialog';
+import { DocumentUpload } from '../project-documents/DocumentUpload';
 import { ProjectPageHeader } from './ProjectPageHeader';
-import { Plus, Link, Edit, Trash2, ExternalLink, FileText } from 'lucide-react';
+import { Plus, Link, Edit, Trash2, ExternalLink, FileText, Upload, ChevronDown, ChevronRight } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 
 interface ProjectDocsPageProps {
@@ -41,7 +43,121 @@ export const ProjectDocsPage = ({
   const [linkToDelete, setLinkToDelete] = useState<ProjectLink | undefined>();
 
   // Project documents management
-  const { documents, loading: docsLoading, deleteDocument, formatFileSize } = useProjectDocuments(projectId || undefined);
+  const { documents, loading: docsLoading, deleteDocument, formatFileSize, refetch: refetchDocuments } = useProjectDocuments(projectId || undefined);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+
+  // Construction document categories
+  const constructionDocCategories = [
+    {
+      id: 'design',
+      title: 'Design Documents',
+      items: [
+        'Architectural Plans',
+        'Structural Drawings',
+        'MEP Drawings (Mechanical, Electrical, Plumbing)',
+        'Civil Engineering Plans',
+        'Landscape Plans',
+        'Interior Design Plans'
+      ]
+    },
+    {
+      id: 'specifications',
+      title: 'Specifications',
+      items: [
+        'Technical Specifications',
+        'Material Specifications',
+        'Equipment Specifications',
+        'Finish Specifications'
+      ]
+    },
+    {
+      id: 'contracts',
+      title: 'Contracts & Legal',
+      items: [
+        'Construction Contract',
+        'Subcontractor Agreements',
+        'Supplier Agreements',
+        'Change Orders',
+        'Insurance Documents'
+      ]
+    },
+    {
+      id: 'permits',
+      title: 'Permits & Approvals',
+      items: [
+        'Building Permits',
+        'Planning Approvals',
+        'Environmental Permits',
+        'Safety Permits',
+        'Utility Approvals'
+      ]
+    },
+    {
+      id: 'schedules',
+      title: 'Schedules',
+      items: [
+        'Construction Schedule',
+        'Milestone Schedule',
+        'Procurement Schedule',
+        'Delivery Schedule'
+      ]
+    },
+    {
+      id: 'reports',
+      title: 'Reports & Documentation',
+      items: [
+        'Site Reports',
+        'Progress Reports',
+        'Quality Reports',
+        'Safety Reports',
+        'Meeting Minutes',
+        'Inspection Reports'
+      ]
+    },
+    {
+      id: 'financial',
+      title: 'Financial Documents',
+      items: [
+        'Cost Estimates',
+        'Invoices',
+        'Payment Applications',
+        'Budget Reports',
+        'Change Order Valuations'
+      ]
+    },
+    {
+      id: 'closeout',
+      title: 'Closeout Documents',
+      items: [
+        'As-Built Drawings',
+        'Operation & Maintenance Manuals',
+        'Warranties',
+        'Certificates of Completion',
+        'Final Inspection Reports'
+      ]
+    }
+  ];
+
+  const toggleCategory = (categoryId: string) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId]
+    }));
+  };
+
+  const handleUploadClick = (categoryTitle: string) => {
+    setSelectedCategoryId(categoryTitle);
+    setUploadDialogOpen(true);
+  };
+
+  const getDocumentsByCategory = (categoryTitle: string) => {
+    return documents.filter(doc => 
+      doc.document_type?.toLowerCase().includes(categoryTitle.toLowerCase()) ||
+      doc.name?.toLowerCase().includes(categoryTitle.toLowerCase())
+    );
+  };
   
   useEffect(() => {
     if (projectId) {
@@ -222,71 +338,203 @@ export const ProjectDocsPage = ({
 
             {/* Project Docs Tab */}
             <TabsContent value="docs">
-              <div className="bg-card border rounded-lg">
-                {/* Header */}
-                <div className="bg-muted/30 border-b px-6 py-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold flex items-center gap-2">
-                      <FileText className="h-5 w-5" />
-                      Project Documents
-                    </h3>
-                  </div>
-                </div>
-
-                {/* Documents Content */}
-                <div className="p-6">
-                  {docsLoading ? (
-                    <div className="text-center py-8">Loading documents...</div>
-                  ) : documents.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No documents uploaded yet.
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {documents.map(doc => (
-                        <div 
-                          key={doc.id} 
-                          className="group flex items-center justify-between p-3 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200"
-                        >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <FileText className="h-5 w-5 text-primary/60 flex-shrink-0" />
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-medium text-foreground truncate">{doc.name}</h4>
-                                <span className="text-xs text-muted-foreground/70 bg-muted/30 px-2 py-0.5 rounded-full flex-shrink-0">
-                                  {formatFileSize(doc.file_size)}
-                                </span>
+              <div className="space-y-4">
+                {constructionDocCategories.map(category => {
+                  const isExpanded = expandedCategories[category.id];
+                  const categoryDocs = getDocumentsByCategory(category.title);
+                  
+                  return (
+                    <Collapsible
+                      key={category.id}
+                      open={isExpanded}
+                      onOpenChange={() => toggleCategory(category.id)}
+                    >
+                      <div className="bg-card border rounded-lg overflow-hidden">
+                        {/* Category Header */}
+                        <div className="bg-muted/30 border-b">
+                          <CollapsibleTrigger asChild>
+                            <div className="flex items-center justify-between px-6 py-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                              <div className="flex items-center gap-2">
+                                {isExpanded ? (
+                                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                )}
+                                <h3 className="text-lg font-semibold flex items-center gap-2">
+                                  <FileText className="h-5 w-5" />
+                                  {category.title}
+                                </h3>
+                                {categoryDocs.length > 0 && (
+                                  <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                                    {categoryDocs.length}
+                                  </span>
+                                )}
                               </div>
-                              <p className="text-sm text-muted-foreground/80">
-                                {new Date(doc.created_at).toLocaleDateString()}
-                              </p>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleUploadClick(category.title);
+                                }}
+                              >
+                                <Upload className="w-4 h-4 mr-2" />
+                                Upload
+                              </Button>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0 hover:bg-primary/10" 
-                              onClick={() => window.open(doc.file_url, '_blank')} 
-                              title="View document"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive" 
-                              onClick={() => deleteDocument(doc.id)} 
-                              title="Delete document"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
+                          </CollapsibleTrigger>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+
+                        {/* Category Content */}
+                        <CollapsibleContent>
+                          <div className="p-6">
+                            {/* Document Subcategories */}
+                            <div className="space-y-4">
+                              {category.items.map((item, idx) => {
+                                const itemDocs = documents.filter(doc =>
+                                  doc.name?.toLowerCase().includes(item.toLowerCase()) ||
+                                  doc.document_type?.toLowerCase().includes(item.toLowerCase())
+                                );
+
+                                return (
+                                  <div key={idx} className="border-l-2 border-muted pl-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <h4 className="text-sm font-medium text-foreground">
+                                        {item}
+                                      </h4>
+                                      {itemDocs.length > 0 && (
+                                        <span className="text-xs text-muted-foreground">
+                                          {itemDocs.length} {itemDocs.length === 1 ? 'file' : 'files'}
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    {/* Documents under this item */}
+                                    {itemDocs.length > 0 ? (
+                                      <div className="space-y-2 ml-2">
+                                        {itemDocs.map(doc => (
+                                          <div
+                                            key={doc.id}
+                                            className="group flex items-center justify-between p-2 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200"
+                                          >
+                                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                                              <FileText className="h-4 w-4 text-primary/60 flex-shrink-0" />
+                                              <div className="min-w-0 flex-1">
+                                                <p className="text-sm font-medium text-foreground truncate">
+                                                  {doc.name}
+                                                </p>
+                                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                  <span>{formatFileSize(doc.file_size)}</span>
+                                                  <span>•</span>
+                                                  <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+                                                </div>
+                                              </div>
+                                            </div>
+                                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                              <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-7 w-7 p-0 hover:bg-primary/10"
+                                                onClick={() => window.open(doc.file_url, '_blank')}
+                                                title="View document"
+                                              >
+                                                <ExternalLink className="w-3.5 h-3.5" />
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                                onClick={() => deleteDocument(doc.id)}
+                                                title="Delete document"
+                                              >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <p className="text-xs text-muted-foreground ml-2">
+                                        No documents uploaded yet
+                                      </p>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {/* Show all documents for this category at the bottom if any don't match subcategories */}
+                            {categoryDocs.filter(doc => 
+                              !category.items.some(item => 
+                                doc.name?.toLowerCase().includes(item.toLowerCase()) ||
+                                doc.document_type?.toLowerCase().includes(item.toLowerCase())
+                              )
+                            ).length > 0 && (
+                              <div className="mt-4 pt-4 border-t">
+                                <h4 className="text-sm font-medium text-foreground mb-2">Other Documents</h4>
+                                <div className="space-y-2">
+                                  {categoryDocs
+                                    .filter(doc => 
+                                      !category.items.some(item => 
+                                        doc.name?.toLowerCase().includes(item.toLowerCase()) ||
+                                        doc.document_type?.toLowerCase().includes(item.toLowerCase())
+                                      )
+                                    )
+                                    .map(doc => (
+                                      <div
+                                        key={doc.id}
+                                        className="group flex items-center justify-between p-2 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200"
+                                      >
+                                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                                          <FileText className="h-4 w-4 text-primary/60 flex-shrink-0" />
+                                          <div className="min-w-0 flex-1">
+                                            <p className="text-sm font-medium text-foreground truncate">
+                                              {doc.name}
+                                            </p>
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                              <span>{formatFileSize(doc.file_size)}</span>
+                                              <span>•</span>
+                                              <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+                                            </div>
+                                          </div>
+                                        </div>
+                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-7 w-7 p-0 hover:bg-primary/10"
+                                            onClick={() => window.open(doc.file_url, '_blank')}
+                                            title="View document"
+                                          >
+                                            <ExternalLink className="w-3.5 h-3.5" />
+                                          </Button>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                            onClick={() => deleteDocument(doc.id)}
+                                            title="Delete document"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </CollapsibleContent>
+                      </div>
+                    </Collapsible>
+                  );
+                })}
+
+                {docsLoading && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Loading documents...
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
@@ -295,14 +543,25 @@ export const ProjectDocsPage = ({
 
       {/* Link Dialog */}
       {projectId && (
-        <ProjectLinkDialog 
-          open={linkDialogOpen} 
-          onOpenChange={setLinkDialogOpen} 
-          onSubmit={handleLinkSubmit} 
-          link={selectedLink} 
-          projectId={projectId} 
-          mode={linkDialogMode} 
-        />
+        <>
+          <ProjectLinkDialog 
+            open={linkDialogOpen} 
+            onOpenChange={setLinkDialogOpen} 
+            onSubmit={handleLinkSubmit} 
+            link={selectedLink} 
+            projectId={projectId} 
+            mode={linkDialogMode} 
+          />
+          <DocumentUpload
+            projectId={projectId}
+            open={uploadDialogOpen}
+            onOpenChange={setUploadDialogOpen}
+            onUploadComplete={() => {
+              refetchDocuments();
+              setUploadDialogOpen(false);
+            }}
+          />
+        </>
       )}
 
       {/* Delete Confirmation Dialog */}
