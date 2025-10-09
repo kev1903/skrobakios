@@ -228,73 +228,73 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
           <Upload className="w-3.5 h-3.5" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <Upload className="h-4 w-4" />
             Upload Project Documents
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Metadata Form */}
           {showMetadataForm && currentFileId && (
-            <div className="space-y-4 border rounded-lg p-4 bg-muted/30">
+            <div className="space-y-3 border rounded-lg p-3 bg-muted/30">
               <h4 className="text-sm font-semibold">Document Information</h4>
               {uploadFiles.filter(f => f.id === currentFileId).map(file => (
-                <div key={file.id} className="space-y-3">
-                  <div className="space-y-2">
+                <div key={file.id} className="space-y-2.5">
+                  <div className="space-y-1.5">
                     <label className="text-xs font-medium">Document Title</label>
                     <input
                       type="text"
                       value={file.metadata?.title || ''}
                       onChange={(e) => handleMetadataUpdate(file.id, 'title', e.target.value)}
-                      className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                      className="w-full px-2.5 py-1.5 text-sm border rounded-md bg-background"
                       placeholder="Enter document title"
                     />
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="space-y-1.5">
                       <label className="text-xs font-medium">Version</label>
                       <input
                         type="text"
                         value={file.metadata?.version || ''}
                         onChange={(e) => handleMetadataUpdate(file.id, 'version', e.target.value)}
-                        className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                        className="w-full px-2.5 py-1.5 text-sm border rounded-md bg-background"
                         placeholder="e.g., 1.0"
                       />
                     </div>
                     
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <label className="text-xs font-medium">Date</label>
                       <input
                         type="date"
                         value={file.metadata?.date || ''}
                         onChange={(e) => handleMetadataUpdate(file.id, 'date', e.target.value)}
-                        className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                        className="w-full px-2.5 py-1.5 text-sm border rounded-md bg-background"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <label className="text-xs font-medium">Author</label>
                     <input
                       type="text"
                       value={file.metadata?.author || ''}
                       onChange={(e) => handleMetadataUpdate(file.id, 'author', e.target.value)}
-                      className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                      className="w-full px-2.5 py-1.5 text-sm border rounded-md bg-background"
                       placeholder="Document author"
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="space-y-1.5">
                       <label className="text-xs font-medium">Type</label>
                       <select
                         value={file.metadata?.type || 'drawing'}
                         onChange={(e) => handleMetadataUpdate(file.id, 'type', e.target.value)}
-                        className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                        className="w-full px-2.5 py-1.5 text-sm border rounded-md bg-background"
                       >
                         <option value="specification">Specification</option>
                         <option value="drawing">Drawing</option>
@@ -304,12 +304,12 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
                       </select>
                     </div>
                     
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <label className="text-xs font-medium">Status</label>
                       <select
                         value={file.metadata?.status || 'draft'}
                         onChange={(e) => handleMetadataUpdate(file.id, 'status', e.target.value)}
-                        className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                        className="w-full px-2.5 py-1.5 text-sm border rounded-md bg-background"
                       >
                         <option value="draft">Draft</option>
                         <option value="review">Under Review</option>
@@ -332,7 +332,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
 
           {/* Drop Zone */}
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+            className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
               isDragging 
                 ? 'border-primary bg-primary/5' 
                 : 'border-muted-foreground/25 hover:border-primary/50'
@@ -342,11 +342,11 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
             onDragLeave={handleDragLeave}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-lg font-medium mb-2">
+            <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+            <p className="text-base font-medium mb-1.5">
               Drop files here or click to browse
             </p>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-xs text-muted-foreground mb-3">
               Supports PDF, DOC, DOCX, JPG, PNG, DWG files up to 20MB
             </p>
             <Button variant="outline" size="sm">
@@ -365,35 +365,36 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
 
           {/* Upload Progress */}
           {uploadFiles.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               <h4 className="text-sm font-medium">Uploading Files</h4>
-              <div className="max-h-64 overflow-y-auto space-y-2">
+              <div className="max-h-48 overflow-y-auto space-y-2">
                 {uploadFiles.map(file => (
-                  <div key={file.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <div key={file.id} className="flex items-center space-x-2 p-2.5 border rounded-lg">
                     {getFileIcon(file.file.name)}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{file.file.name}</p>
-                      <p className="text-xs text-muted-foreground mb-2">
+                      <p className="text-xs font-medium truncate">{file.file.name}</p>
+                      <p className="text-[10px] text-muted-foreground mb-1.5">
                         {(file.file.size / 1024 / 1024).toFixed(2)} MB
                       </p>
                       <div className="flex items-center space-x-2">
-                        <Progress value={file.progress} className="flex-1 h-2" />
-                        <span className="text-xs text-muted-foreground">
+                        <Progress value={file.progress} className="flex-1 h-1.5" />
+                        <span className="text-[10px] text-muted-foreground min-w-[30px]">
                           {file.progress}%
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-1">
                       {file.status === 'complete' && (
-                        <Check className="h-4 w-4 text-success" />
+                        <Check className="h-3.5 w-3.5 text-success" />
                       )}
                       {file.status === 'error' && (
-                        <X className="h-4 w-4 text-destructive" />
+                        <X className="h-3.5 w-3.5 text-destructive" />
                       )}
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => removeFile(file.id)}
+                        className="h-6 w-6 p-0"
                       >
                         <X className="h-3 w-3" />
                       </Button>
@@ -405,7 +406,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
           )}
 
           {/* Upload Instructions */}
-          <div className="text-xs text-muted-foreground bg-muted/50 p-4 rounded-lg">
+          <div className="text-[11px] text-muted-foreground bg-muted/50 p-3 rounded-lg">
             <strong>Document Types:</strong>
             <ul className="mt-2 space-y-1">
               <li>• <strong>Specifications:</strong> Technical specs, requirements documents</li>
