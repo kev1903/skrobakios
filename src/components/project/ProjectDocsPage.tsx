@@ -123,6 +123,11 @@ export const ProjectDocsPage: React.FC<ProjectDocsPageProps> = () => {
 
       refetchDocuments();
 
+      // Remove from upload list after a short delay
+      setTimeout(() => {
+        setUploadFiles(prev => prev.filter(f => f.id !== uploadFile.id));
+      }, 1000);
+
     } catch (error) {
       console.error('Upload error:', error);
       setUploadFiles(prev => prev.map(f => 
