@@ -43,9 +43,17 @@ export class WBSService {
         }
       }
       
+      // Log task-enabled items for debugging
+      if (item.is_task_enabled) {
+        console.log(`🟢 Task-enabled WBS item: ${item.title} (${item.id}) - linked_task_id: ${item.linked_task_id}`);
+      }
+      
       return {
         ...item,
         is_expanded: isExpanded, // Ensure it's always a boolean
+        is_task_enabled: item.is_task_enabled || false, // Explicitly include task conversion fields
+        linked_task_id: item.linked_task_id || null,
+        task_conversion_date: item.task_conversion_date || null,
         predecessors: (item.predecessors as unknown as WBSPredecessor[]) || [],
         linked_tasks: Array.isArray(item.linked_tasks) ? (item.linked_tasks as string[]) : []
       };
