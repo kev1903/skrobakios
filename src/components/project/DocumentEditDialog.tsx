@@ -7,13 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { ProjectDocument } from '@/hooks/useProjectDocuments';
-import { Upload, File } from 'lucide-react';
+import { Upload, File, Trash2 } from 'lucide-react';
 
 interface DocumentEditDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   document: ProjectDocument | null;
   onDocumentUpdated: () => void;
+  onDelete?: (documentId: string) => void;
 }
 
 export const DocumentEditDialog: React.FC<DocumentEditDialogProps> = ({
@@ -21,6 +22,7 @@ export const DocumentEditDialog: React.FC<DocumentEditDialogProps> = ({
   onOpenChange,
   document,
   onDocumentUpdated,
+  onDelete,
 }) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -146,6 +148,15 @@ export const DocumentEditDialog: React.FC<DocumentEditDialogProps> = ({
     }
   };
 
+  const handleDelete = async () => {
+    if (!document || !onDelete) return;
+    
+    if (window.confirm('Are you sure you want to delete this document?')) {
+      onDelete(document.id);
+      onOpenChange(false);
+    }
+  };
+
   if (!document) return null;
 
   return (
@@ -239,18 +250,30 @@ export const DocumentEditDialog: React.FC<DocumentEditDialogProps> = ({
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex justify-between sm:justify-between">
             <Button
               type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={loading || uploading}
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={loading || uploading || !onDelete}
+              className="mr-auto"
             >
-              Cancel
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
             </Button>
-            <Button type="submit" disabled={loading || uploading}>
-              {uploading ? 'Uploading...' : loading ? 'Saving...' : 'Save Changes'}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={loading || uploading}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading || uploading}>
+                {uploading ? 'Uploading...' : loading ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>

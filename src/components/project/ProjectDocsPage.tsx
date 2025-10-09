@@ -532,6 +532,7 @@ export const ProjectDocsPage = ({
         onOpenChange={setEditDialogOpen}
         document={selectedDocument}
         onDocumentUpdated={refetchDocuments}
+        onDelete={deleteDocument}
       />
     </div>;
 };
