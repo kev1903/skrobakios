@@ -247,8 +247,8 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
       />
 
       {/* Main Content */}
-      <div className="flex-1 ml-48 bg-white/80 backdrop-blur-sm border-l border-gray-200/30">
-        <div className="py-8 pr-8 pt-8">
+      <div className="flex-1 bg-white/80 backdrop-blur-sm border-l border-gray-200/30">
+        <div className="py-8 pr-8 pl-8">
           <ProjectHeader
             project={project}
             bannerImage={bannerImage}
