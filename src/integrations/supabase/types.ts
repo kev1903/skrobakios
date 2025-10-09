@@ -1412,6 +1412,45 @@ export type Database = {
           },
         ]
       }
+      document_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          document_type: string
+          id: string
+          is_active: boolean
+          name: string
+          section_name: string
+          section_number: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          document_type: string
+          id?: string
+          is_active?: boolean
+          name: string
+          section_name: string
+          section_number: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          document_type?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          section_name?: string
+          section_number?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       estimate_drawings: {
         Row: {
           created_by: string | null

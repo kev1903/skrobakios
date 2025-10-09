@@ -14,6 +14,7 @@ import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { DocumentUpload } from '@/components/project-documents/DocumentUpload';
 import { useProjectDocuments } from '@/hooks/useProjectDocuments';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useDocumentCategories } from '@/hooks/useDocumentCategories';
 
 const documentCategories = [
   // 1. Application & Administrative Documents
@@ -198,6 +199,14 @@ export const ProjectDocsPage = ({
     formatFileSize,
     refetch: refetchDocuments,
   } = useProjectDocuments(projectId || undefined);
+
+  // Document categories from database
+  const {
+    categories: documentCategories,
+    loading: categoriesLoading,
+    getSections,
+    getCategoriesBySection
+  } = useDocumentCategories();
   useEffect(() => {
     if (projectId) {
       const fetchProject = async () => {
@@ -325,802 +334,136 @@ export const ProjectDocsPage = ({
                     <h3 className="text-base font-semibold text-foreground">Project Files</h3>
                   </div>
                   
-                  {documentsLoading ? (
+                  {documentsLoading || categoriesLoading ? (
                     <div className="text-center py-8 text-muted-foreground">Loading files...</div>
                   ) : (
                     <div className="space-y-4">
-                      {/* Section 1: Application & Administrative Documents */}
-                      <Collapsible open={openSections.section1} onOpenChange={() => toggleSection('section1')}>
-                        <CollapsibleTrigger className="w-full">
-                          <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors cursor-pointer rounded-md">
-                            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                              <ChevronDown className={`w-4 h-4 transition-transform ${openSections.section1 ? '' : '-rotate-90'}`} />
-                              1. Application & Administrative Documents
-                            </h4>
-                          </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <div className="space-y-0">
-                            {documentCategories.slice(0, 21).map((category) => {
-                              const categoryDocs = documents.filter(doc => 
-                                doc.document_type === category.type
-                              );
-                              
-                              return (
-                                <>
-                                  {categoryDocs.length === 0 ? (
-                                    <div
-                                      key={category.id}
-                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                    >
-                                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                                        <div className="flex-shrink-0 flex items-center">
-                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                                        </div>
-                                        {editingTitleId === category.id ? (
-                                          <input
-                                            type="text"
-                                            value={editTitleValue}
-                                            onChange={(e) => setEditTitleValue(e.target.value)}
-                                            onBlur={() => handleTitleSave(category.id)}
-                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                            autoFocus
-                                            onClick={(e) => e.stopPropagation()}
-                                          />
-                                        ) : (
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
-                                          >
-                                            {getTitleDisplay(category.id, category.name)}
-                                          </span>
-                                        )}
-                                      </div>
-                                      
-                                      <div className="flex items-center gap-4 flex-shrink-0">
-                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                          No files uploaded
-                                        </span>
-                                        {projectId && (
-                                          <DocumentUpload 
-                                            projectId={projectId} 
-                                            onUploadComplete={refetchDocuments}
-                                            open={uploadDialogOpen === category.id}
-                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                          />
-                                        )}
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    categoryDocs.map((doc, idx) => (
-                                      <div
-                                        key={doc.id}
-                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                      >
-                                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                                          <div className="flex-shrink-0 flex items-center">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                          </div>
-                                          {editingTitleId === category.id ? (
-                                            <input
-                                              type="text"
-                                              value={editTitleValue}
-                                              onChange={(e) => setEditTitleValue(e.target.value)}
-                                              onBlur={() => handleTitleSave(category.id)}
-                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                              autoFocus
-                                              onClick={(e) => e.stopPropagation()}
-                                            />
-                                          ) : (
-                                            <span 
-                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
-                                            >
-                                              {getTitleDisplay(category.id, category.name)}
-                                            </span>
-                                          )}
-                                        </div>
-                                        
-                                        <div className="flex items-center gap-4 flex-shrink-0">
-                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                            {formatFileSize(doc.file_size || 0)}
-                                          </span>
-                                          {projectId && idx === 0 && (
-                                            <DocumentUpload 
-                                              projectId={projectId} 
-                                              onUploadComplete={refetchDocuments}
-                                              open={uploadDialogOpen === category.id}
-                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                            />
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))
-                                  )}
-                                </>
-                              );
-                            })}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-
-                      {/* Section 2: Engineering & Technical Reports */}
-                      <Collapsible open={openSections.section2} onOpenChange={() => toggleSection('section2')}>
-                        <CollapsibleTrigger className="w-full">
-                          <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors cursor-pointer rounded-md">
-                            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                              <ChevronDown className={`w-4 h-4 transition-transform ${openSections.section2 ? '' : '-rotate-90'}`} />
-                              2. Engineering & Technical Reports
-                            </h4>
-                          </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <div className="space-y-0">
-                            {documentCategories.slice(21, 34).map((category) => {
-                              const categoryDocs = documents.filter(doc => 
-                                doc.document_type === category.type
-                              );
-                              
-                              return (
-                                <>
-                                  {categoryDocs.length === 0 ? (
-                                    <div
-                                      key={category.id}
-                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                    >
-                                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                                        <div className="flex-shrink-0 flex items-center">
-                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                                        </div>
-                                        <span 
-                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                          onClick={() => setUploadDialogOpen(category.id)}
+                      {getSections().map((section) => {
+                        const sectionKey = `section${section.number}`;
+                        const sectionCategories = getCategoriesBySection(section.number);
+                        
+                        return (
+                          <Collapsible 
+                            key={sectionKey}
+                            open={openSections[sectionKey] !== false} 
+                            onOpenChange={() => toggleSection(sectionKey)}
+                          >
+                            <CollapsibleTrigger className="w-full">
+                              <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors cursor-pointer rounded-md">
+                                <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                  <ChevronDown className={`w-4 h-4 transition-transform ${openSections[sectionKey] !== false ? '' : '-rotate-90'}`} />
+                                  {section.number}. {section.name}
+                                </h4>
+                              </div>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                              <div className="space-y-0">
+                                {sectionCategories.map((category) => {
+                                  const categoryDocs = documents.filter(doc => 
+                                    doc.document_type === category.document_type
+                                  );
+                                  
+                                  return (
+                                    <>
+                                      {categoryDocs.length === 0 ? (
+                                        <div
+                                          key={category.id}
+                                          className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
                                         >
-                                          {category.name}
-                                        </span>
-                                      </div>
-                                      
-                                      <div className="flex items-center gap-4 flex-shrink-0">
-                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                          No files uploaded
-                                        </span>
-                                        {projectId && (
-                                          <DocumentUpload 
-                                            projectId={projectId} 
-                                            onUploadComplete={refetchDocuments}
-                                            open={uploadDialogOpen === category.id}
-                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                          />
-                                        )}
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    categoryDocs.map((doc, idx) => (
-                                      <div
-                                        key={doc.id}
-                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                      >
-                                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                                          <div className="flex-shrink-0 flex items-center">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                                            <div className="flex-shrink-0 flex items-center">
+                                              <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                                            </div>
+                                            {editingTitleId === category.id ? (
+                                              <input
+                                                type="text"
+                                                value={editTitleValue}
+                                                onChange={(e) => setEditTitleValue(e.target.value)}
+                                                onBlur={() => handleTitleSave(category.id)}
+                                                onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                                className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                                autoFocus
+                                                onClick={(e) => e.stopPropagation()}
+                                              />
+                                            ) : (
+                                              <span 
+                                                className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                                onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                              >
+                                                {getTitleDisplay(category.id, category.name)}
+                                              </span>
+                                            )}
                                           </div>
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={() => setUploadDialogOpen(category.id)}
-                                          >
-                                            {category.name}
-                                          </span>
-                                        </div>
-                                        
-                                        <div className="flex items-center gap-4 flex-shrink-0">
-                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                            {formatFileSize(doc.file_size || 0)}
-                                          </span>
-                                          {projectId && idx === 0 && (
-                                            <DocumentUpload 
-                                              projectId={projectId} 
-                                              onUploadComplete={refetchDocuments}
-                                              open={uploadDialogOpen === category.id}
-                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                            />
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))
-                                  )}
-                                </>
-                              );
-                            })}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-
-                      {/* Section 3: Architectural & Design Drawings */}
-                      <Collapsible open={openSections.section3} onOpenChange={() => toggleSection('section3')}>
-                        <CollapsibleTrigger className="w-full">
-                          <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors cursor-pointer rounded-md">
-                            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                              <ChevronDown className={`w-4 h-4 transition-transform ${openSections.section3 ? '' : '-rotate-90'}`} />
-                              3. Architectural & Design Drawings
-                            </h4>
-                          </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <div className="space-y-0">
-                            {documentCategories.slice(34, 46).map((category) => {
-                              const categoryDocs = documents.filter(doc => 
-                                doc.document_type === category.type
-                              );
-                              
-                              return (
-                                <>
-                                  {categoryDocs.length === 0 ? (
-                                    <div
-                                      key={category.id}
-                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                    >
-                                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                                        <div className="flex-shrink-0 flex items-center">
-                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                                        </div>
-                                        {editingTitleId === category.id ? (
-                                          <input
-                                            type="text"
-                                            value={editTitleValue}
-                                            onChange={(e) => setEditTitleValue(e.target.value)}
-                                            onBlur={() => handleTitleSave(category.id)}
-                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                            autoFocus
-                                            onClick={(e) => e.stopPropagation()}
-                                          />
-                                        ) : (
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
-                                          >
-                                            {getTitleDisplay(category.id, category.name)}
-                                          </span>
-                                        )}
-                                      </div>
-                                      
-                                      <div className="flex items-center gap-4 flex-shrink-0">
-                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                          No files uploaded
-                                        </span>
-                                        {projectId && (
-                                          <DocumentUpload 
-                                            projectId={projectId} 
-                                            onUploadComplete={refetchDocuments}
-                                            open={uploadDialogOpen === category.id}
-                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                          />
-                                        )}
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    categoryDocs.map((doc, idx) => (
-                                      <div
-                                        key={doc.id}
-                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                      >
-                                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                                          <div className="flex-shrink-0 flex items-center">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                          </div>
-                                          {editingTitleId === category.id ? (
-                                            <input
-                                              type="text"
-                                              value={editTitleValue}
-                                              onChange={(e) => setEditTitleValue(e.target.value)}
-                                              onBlur={() => handleTitleSave(category.id)}
-                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                              autoFocus
-                                              onClick={(e) => e.stopPropagation()}
-                                            />
-                                          ) : (
-                                            <span 
-                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
-                                            >
-                                              {getTitleDisplay(category.id, category.name)}
+                                          
+                                          <div className="flex items-center gap-4 flex-shrink-0">
+                                            <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                              No files uploaded
                                             </span>
-                                          )}
-                                        </div>
-                                        
-                                        <div className="flex items-center gap-4 flex-shrink-0">
-                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                            {formatFileSize(doc.file_size || 0)}
-                                          </span>
-                                          {projectId && idx === 0 && (
-                                            <DocumentUpload 
-                                              projectId={projectId} 
-                                              onUploadComplete={refetchDocuments}
-                                              open={uploadDialogOpen === category.id}
-                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                            />
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))
-                                  )}
-                                </>
-                              );
-                            })}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-
-                      {/* Section 4: Product Certifications & Technical Data */}
-                      <Collapsible open={openSections.section4} onOpenChange={() => toggleSection('section4')}>
-                        <CollapsibleTrigger className="w-full">
-                          <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors cursor-pointer rounded-md">
-                            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                              <ChevronDown className={`w-4 h-4 transition-transform ${openSections.section4 ? '' : '-rotate-90'}`} />
-                              4. Product Certifications & Technical Data
-                            </h4>
-                          </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <div className="space-y-0">
-                            {documentCategories.slice(46, 51).map((category) => {
-                              const categoryDocs = documents.filter(doc => 
-                                doc.document_type === category.type
-                              );
-                              
-                              return (
-                                <>
-                                  {categoryDocs.length === 0 ? (
-                                    <div
-                                      key={category.id}
-                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                    >
-                                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                                        <div className="flex-shrink-0 flex items-center">
-                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                                        </div>
-                                        {editingTitleId === category.id ? (
-                                          <input
-                                            type="text"
-                                            value={editTitleValue}
-                                            onChange={(e) => setEditTitleValue(e.target.value)}
-                                            onBlur={() => handleTitleSave(category.id)}
-                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                            autoFocus
-                                            onClick={(e) => e.stopPropagation()}
-                                          />
-                                        ) : (
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
-                                          >
-                                            {getTitleDisplay(category.id, category.name)}
-                                          </span>
-                                        )}
-                                      </div>
-                                      
-                                      <div className="flex items-center gap-4 flex-shrink-0">
-                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                          No files uploaded
-                                        </span>
-                                        {projectId && (
-                                          <DocumentUpload 
-                                            projectId={projectId} 
-                                            onUploadComplete={refetchDocuments}
-                                            open={uploadDialogOpen === category.id}
-                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                          />
-                                        )}
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    categoryDocs.map((doc, idx) => (
-                                      <div
-                                        key={doc.id}
-                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                      >
-                                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                                          <div className="flex-shrink-0 flex items-center">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                            {projectId && (
+                                              <DocumentUpload 
+                                                projectId={projectId} 
+                                                onUploadComplete={refetchDocuments}
+                                                open={uploadDialogOpen === category.id}
+                                                onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                              />
+                                            )}
                                           </div>
-                                          {editingTitleId === category.id ? (
-                                            <input
-                                              type="text"
-                                              value={editTitleValue}
-                                              onChange={(e) => setEditTitleValue(e.target.value)}
-                                              onBlur={() => handleTitleSave(category.id)}
-                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                              autoFocus
-                                              onClick={(e) => e.stopPropagation()}
-                                            />
-                                          ) : (
-                                            <span 
-                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
-                                            >
-                                              {getTitleDisplay(category.id, category.name)}
-                                            </span>
-                                          )}
                                         </div>
-                                        
-                                        <div className="flex items-center gap-4 flex-shrink-0">
-                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                            {formatFileSize(doc.file_size || 0)}
-                                          </span>
-                                          {projectId && idx === 0 && (
-                                            <DocumentUpload 
-                                              projectId={projectId} 
-                                              onUploadComplete={refetchDocuments}
-                                              open={uploadDialogOpen === category.id}
-                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                            />
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))
-                                  )}
-                                </>
-                              );
-                            })}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-
-                      {/* Section 5: Protection & Inspection Reports */}
-                      <Collapsible open={openSections.section5} onOpenChange={() => toggleSection('section5')}>
-                        <CollapsibleTrigger className="w-full">
-                          <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors cursor-pointer rounded-md">
-                            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                              <ChevronDown className={`w-4 h-4 transition-transform ${openSections.section5 ? '' : '-rotate-90'}`} />
-                              5. Protection & Inspection Reports
-                            </h4>
-                          </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <div className="space-y-0">
-                            {documentCategories.slice(51, 57).map((category) => {
-                              const categoryDocs = documents.filter(doc => 
-                                doc.document_type === category.type
-                              );
-                              
-                              return (
-                                <>
-                                  {categoryDocs.length === 0 ? (
-                                    <div
-                                      key={category.id}
-                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                    >
-                                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                                        <div className="flex-shrink-0 flex items-center">
-                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                                        </div>
-                                        {editingTitleId === category.id ? (
-                                          <input
-                                            type="text"
-                                            value={editTitleValue}
-                                            onChange={(e) => setEditTitleValue(e.target.value)}
-                                            onBlur={() => handleTitleSave(category.id)}
-                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                            autoFocus
-                                            onClick={(e) => e.stopPropagation()}
-                                          />
-                                        ) : (
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                      ) : (
+                                        categoryDocs.map((doc, idx) => (
+                                          <div
+                                            key={doc.id}
+                                            className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
                                           >
-                                            {getTitleDisplay(category.id, category.name)}
-                                          </span>
-                                        )}
-                                      </div>
-                                      
-                                      <div className="flex items-center gap-4 flex-shrink-0">
-                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                          No files uploaded
-                                        </span>
-                                        {projectId && (
-                                          <DocumentUpload 
-                                            projectId={projectId} 
-                                            onUploadComplete={refetchDocuments}
-                                            open={uploadDialogOpen === category.id}
-                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                          />
-                                        )}
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    categoryDocs.map((doc, idx) => (
-                                      <div
-                                        key={doc.id}
-                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                      >
-                                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                                          <div className="flex-shrink-0 flex items-center">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                                              <div className="flex-shrink-0 flex items-center">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                              </div>
+                                              {editingTitleId === category.id ? (
+                                                <input
+                                                  type="text"
+                                                  value={editTitleValue}
+                                                  onChange={(e) => setEditTitleValue(e.target.value)}
+                                                  onBlur={() => handleTitleSave(category.id)}
+                                                  onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                                  className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                                  autoFocus
+                                                  onClick={(e) => e.stopPropagation()}
+                                                />
+                                              ) : (
+                                                <span 
+                                                  className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                                  onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                                >
+                                                  {getTitleDisplay(category.id, category.name)}
+                                                </span>
+                                              )}
+                                            </div>
+                                            
+                                            <div className="flex items-center gap-4 flex-shrink-0">
+                                              <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                                {formatFileSize(doc.file_size || 0)}
+                                              </span>
+                                              {projectId && idx === 0 && (
+                                                <DocumentUpload 
+                                                  projectId={projectId} 
+                                                  onUploadComplete={refetchDocuments}
+                                                  open={uploadDialogOpen === category.id}
+                                                  onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                                />
+                                              )}
+                                            </div>
                                           </div>
-                                          {editingTitleId === category.id ? (
-                                            <input
-                                              type="text"
-                                              value={editTitleValue}
-                                              onChange={(e) => setEditTitleValue(e.target.value)}
-                                              onBlur={() => handleTitleSave(category.id)}
-                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                              autoFocus
-                                              onClick={(e) => e.stopPropagation()}
-                                            />
-                                          ) : (
-                                            <span 
-                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
-                                            >
-                                              {getTitleDisplay(category.id, category.name)}
-                                            </span>
-                                          )}
-                                        </div>
-                                        
-                                        <div className="flex items-center gap-4 flex-shrink-0">
-                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                            {formatFileSize(doc.file_size || 0)}
-                                          </span>
-                                          {projectId && idx === 0 && (
-                                            <DocumentUpload 
-                                              projectId={projectId} 
-                                              onUploadComplete={refetchDocuments}
-                                              open={uploadDialogOpen === category.id}
-                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                            />
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))
-                                  )}
-                                </>
-                              );
-                            })}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-
-                      {/* Section 6: Compliance & Authority Approvals */}
-                      <Collapsible open={openSections.section6} onOpenChange={() => toggleSection('section6')}>
-                        <CollapsibleTrigger className="w-full">
-                          <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors cursor-pointer rounded-md">
-                            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                              <ChevronDown className={`w-4 h-4 transition-transform ${openSections.section6 ? '' : '-rotate-90'}`} />
-                              6. Compliance & Authority Approvals
-                            </h4>
-                          </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <div className="space-y-0">
-                            {documentCategories.slice(57, 66).map((category) => {
-                              const categoryDocs = documents.filter(doc => 
-                                doc.document_type === category.type
-                              );
-                              
-                              return (
-                                <>
-                                  {categoryDocs.length === 0 ? (
-                                    <div
-                                      key={category.id}
-                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                    >
-                                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                                        <div className="flex-shrink-0 flex items-center">
-                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                                        </div>
-                                        {editingTitleId === category.id ? (
-                                          <input
-                                            type="text"
-                                            value={editTitleValue}
-                                            onChange={(e) => setEditTitleValue(e.target.value)}
-                                            onBlur={() => handleTitleSave(category.id)}
-                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                            autoFocus
-                                            onClick={(e) => e.stopPropagation()}
-                                          />
-                                        ) : (
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
-                                          >
-                                            {getTitleDisplay(category.id, category.name)}
-                                          </span>
-                                        )}
-                                      </div>
-                                      
-                                      <div className="flex items-center gap-4 flex-shrink-0">
-                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                          No files uploaded
-                                        </span>
-                                        {projectId && (
-                                          <DocumentUpload 
-                                            projectId={projectId} 
-                                            onUploadComplete={refetchDocuments}
-                                            open={uploadDialogOpen === category.id}
-                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                          />
-                                        )}
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    categoryDocs.map((doc, idx) => (
-                                      <div
-                                        key={doc.id}
-                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                      >
-                                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                                          <div className="flex-shrink-0 flex items-center">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                          </div>
-                                          {editingTitleId === category.id ? (
-                                            <input
-                                              type="text"
-                                              value={editTitleValue}
-                                              onChange={(e) => setEditTitleValue(e.target.value)}
-                                              onBlur={() => handleTitleSave(category.id)}
-                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                              autoFocus
-                                              onClick={(e) => e.stopPropagation()}
-                                            />
-                                          ) : (
-                                            <span 
-                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
-                                            >
-                                              {getTitleDisplay(category.id, category.name)}
-                                            </span>
-                                          )}
-                                        </div>
-                                        
-                                        <div className="flex items-center gap-4 flex-shrink-0">
-                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                            {formatFileSize(doc.file_size || 0)}
-                                          </span>
-                                          {projectId && idx === 0 && (
-                                            <DocumentUpload 
-                                              projectId={projectId} 
-                                              onUploadComplete={refetchDocuments}
-                                              open={uploadDialogOpen === category.id}
-                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                            />
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))
-                                  )}
-                                </>
-                              );
-                            })}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-
-                      {/* Section 7: Optional / Project-Specific Documents */}
-                      <Collapsible open={openSections.section7} onOpenChange={() => toggleSection('section7')}>
-                        <CollapsibleTrigger className="w-full">
-                          <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors cursor-pointer rounded-md">
-                            <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                              <ChevronDown className={`w-4 h-4 transition-transform ${openSections.section7 ? '' : '-rotate-90'}`} />
-                              7. Optional / Project-Specific Documents
-                            </h4>
-                          </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <div className="space-y-0">
-                            {documentCategories.slice(66).map((category) => {
-                              const categoryDocs = documents.filter(doc => 
-                                doc.document_type === category.type
-                              );
-                              
-                              return (
-                                <>
-                                  {categoryDocs.length === 0 ? (
-                                    <div
-                                      key={category.id}
-                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                    >
-                                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                                        <div className="flex-shrink-0 flex items-center">
-                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                                        </div>
-                                        {editingTitleId === category.id ? (
-                                          <input
-                                            type="text"
-                                            value={editTitleValue}
-                                            onChange={(e) => setEditTitleValue(e.target.value)}
-                                            onBlur={() => handleTitleSave(category.id)}
-                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                            autoFocus
-                                            onClick={(e) => e.stopPropagation()}
-                                          />
-                                        ) : (
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
-                                          >
-                                            {getTitleDisplay(category.id, category.name)}
-                                          </span>
-                                        )}
-                                      </div>
-                                      
-                                      <div className="flex items-center gap-4 flex-shrink-0">
-                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                          No files uploaded
-                                        </span>
-                                        {projectId && (
-                                          <DocumentUpload 
-                                            projectId={projectId} 
-                                            onUploadComplete={refetchDocuments}
-                                            open={uploadDialogOpen === category.id}
-                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                          />
-                                        )}
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    categoryDocs.map((doc, idx) => (
-                                      <div
-                                        key={doc.id}
-                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                      >
-                                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                                          <div className="flex-shrink-0 flex items-center">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                          </div>
-                                          {editingTitleId === category.id ? (
-                                            <input
-                                              type="text"
-                                              value={editTitleValue}
-                                              onChange={(e) => setEditTitleValue(e.target.value)}
-                                              onBlur={() => handleTitleSave(category.id)}
-                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
-                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
-                                              autoFocus
-                                              onClick={(e) => e.stopPropagation()}
-                                            />
-                                          ) : (
-                                            <span 
-                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
-                                            >
-                                              {getTitleDisplay(category.id, category.name)}
-                                            </span>
-                                          )}
-                                        </div>
-                                        
-                                        <div className="flex items-center gap-4 flex-shrink-0">
-                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                            {formatFileSize(doc.file_size || 0)}
-                                          </span>
-                                          {projectId && idx === 0 && (
-                                            <DocumentUpload 
-                                              projectId={projectId} 
-                                              onUploadComplete={refetchDocuments}
-                                              open={uploadDialogOpen === category.id}
-                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                            />
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))
-                                  )}
-                                </>
-                              );
-                            })}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
+                                        ))
+                                      )}
+                                    </>
+                                  );
+                                })}
+                              </div>
+                            </CollapsibleContent>
+                          </Collapsible>
+                        );
+                      })}
                     </div>
                   )}
                 </TabsContent>
