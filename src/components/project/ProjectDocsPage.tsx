@@ -202,33 +202,33 @@ export const ProjectDocsPage = ({
 
               {/* Tab Content */}
               <div className="p-6">
-                <TabsContent value="files" className="space-y-4 mt-0">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">Project Folders</h3>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
+                <TabsContent value="files" className="space-y-0 mt-0">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-base font-semibold text-foreground">Project Folders</h3>
+                    <Button size="sm" className="h-8 text-sm">
+                      <Plus className="w-3.5 h-3.5 mr-1.5" />
                       New Folder
                     </Button>
                   </div>
                   
-                  <div className="grid gap-3">
+                  <div className="space-y-1">
                     {folders.map(folder => (
                       <div 
                         key={folder.id}
-                        className="group flex items-center justify-between p-4 rounded-lg border border-border/40 hover:border-primary/40 hover:bg-accent/30 transition-all duration-200 cursor-pointer"
+                        className="group flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-accent/50 transition-colors cursor-pointer"
                       >
-                        <div className="flex items-center gap-4 min-w-0 flex-1">
-                          <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Folder className="w-6 h-6 text-primary" />
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <div className="flex-shrink-0">
+                            <Folder className="w-5 h-5 text-muted-foreground/60" strokeWidth={1.5} />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-semibold text-foreground">{folder.name}</h4>
-                              <span className="text-xs text-muted-foreground/70 bg-muted/40 px-2 py-0.5 rounded-full flex-shrink-0">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm text-foreground">{folder.name}</span>
+                              <span className="text-xs text-muted-foreground/60">
                                 {folder.type}
                               </span>
                             </div>
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground/70 mt-0.5">
                               <span>{folder.fileCount} files</span>
                               <span>•</span>
                               <span>{folder.size}</span>
@@ -237,29 +237,8 @@ export const ProjectDocsPage = ({
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
-                          >
-                            <Download className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                          <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" strokeWidth={1.5} />
                         </div>
                       </div>
                     ))}
