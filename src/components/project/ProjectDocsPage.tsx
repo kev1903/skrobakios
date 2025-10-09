@@ -314,12 +314,6 @@ export const ProjectDocsPage = ({
                                     <div className="flex-shrink-0 flex items-center">
                                       <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
                                     </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
-                                    >
-                                      {category.name}
-                                    </span>
                                   </div>
                                   
                                   <div className="flex items-center gap-4 flex-shrink-0">
@@ -370,12 +364,6 @@ export const ProjectDocsPage = ({
                                     <div className="flex-shrink-0 flex items-center">
                                       <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
                                     </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
-                                    >
-                                      {category.name}
-                                    </span>
                                   </div>
                                   
                                   <div className="flex items-center gap-4 flex-shrink-0">
@@ -426,12 +414,6 @@ export const ProjectDocsPage = ({
                                     <div className="flex-shrink-0 flex items-center">
                                       <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
                                     </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
-                                    >
-                                      {category.name}
-                                    </span>
                                   </div>
                                   
                                   <div className="flex items-center gap-4 flex-shrink-0">
@@ -482,12 +464,6 @@ export const ProjectDocsPage = ({
                                     <div className="flex-shrink-0 flex items-center">
                                       <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
                                     </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
-                                    >
-                                      {category.name}
-                                    </span>
                                   </div>
                                   
                                   <div className="flex items-center gap-4 flex-shrink-0">
@@ -538,12 +514,6 @@ export const ProjectDocsPage = ({
                                     <div className="flex-shrink-0 flex items-center">
                                       <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
                                     </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
-                                    >
-                                      {category.name}
-                                    </span>
                                   </div>
                                   
                                   <div className="flex items-center gap-4 flex-shrink-0">
@@ -594,12 +564,6 @@ export const ProjectDocsPage = ({
                                     <div className="flex-shrink-0 flex items-center">
                                       <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
                                     </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
-                                    >
-                                      {category.name}
-                                    </span>
                                   </div>
                                   
                                   <div className="flex items-center gap-4 flex-shrink-0">
@@ -650,12 +614,6 @@ export const ProjectDocsPage = ({
                                     <div className="flex-shrink-0 flex items-center">
                                       <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
                                     </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
-                                    >
-                                      {category.name}
-                                    </span>
                                   </div>
                                   
                                   <div className="flex items-center gap-4 flex-shrink-0">
