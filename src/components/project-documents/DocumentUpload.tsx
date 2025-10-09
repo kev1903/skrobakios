@@ -15,6 +15,8 @@ import {
 interface DocumentUploadProps {
   projectId: string;
   onUploadComplete?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface DocumentMetadata {
@@ -35,8 +37,10 @@ interface UploadFile {
   metadata?: DocumentMetadata;
 }
 
-export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUploadComplete }) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUploadComplete, open: controlledOpen, onOpenChange: controlledOnOpenChange }) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setIsOpen = controlledOnOpenChange || setInternalOpen;
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [showMetadataForm, setShowMetadataForm] = useState(false);
