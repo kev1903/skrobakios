@@ -15,14 +15,91 @@ import { DocumentUpload } from '@/components/project-documents/DocumentUpload';
 import { useProjectDocuments } from '@/hooks/useProjectDocuments';
 
 const documentCategories = [
-  { id: 'architectural', name: 'Architectural Plans', type: 'drawing' },
-  { id: 'structural', name: 'Structural Drawings', type: 'drawing' },
-  { id: 'specifications', name: 'Project Specifications', type: 'specification' },
-  { id: 'reports', name: 'Site Reports', type: 'report' },
-  { id: 'permits', name: 'Permits & Approvals', type: 'document' },
-  { id: 'contracts', name: 'Contracts', type: 'document' },
-  { id: 'photos', name: 'Site Photos', type: 'image' },
-  { id: 'correspondence', name: 'Correspondence', type: 'document' },
+  // 1. Application & Administrative Documents
+  { id: 'app-form', name: 'Application Form for a Building Permit', type: 'document' },
+  { id: 'owner-builder', name: 'Owner–Builder / Agent Authority Form', type: 'document' },
+  { id: 'sec-30a', name: 'Section 30A – Document Checklist', type: 'document' },
+  { id: 'sec-80', name: 'Section 80 – Builder Appointment Form', type: 'document' },
+  { id: 're-establishment', name: 'Re-establishment, Feature & Level Survey', type: 'document' },
+  { id: 'title-plan', name: 'Title, Plan of Subdivision & Covenant', type: 'document' },
+  { id: 'property-report', name: 'Property Report / Land Data Report', type: 'report' },
+  { id: 'planning-report', name: 'Planning Property Report', type: 'report' },
+  { id: 'council-zoning', name: 'Council Zoning / Planning Information Letter', type: 'document' },
+  { id: 'google-photos', name: 'Google Site Photos / Site Inspection Photos', type: 'image' },
+  { id: 'dbi', name: 'Domestic Building Insurance Certificate (DBI)', type: 'document' },
+  { id: 'builders-contract', name: 'Builders Contract & Construction Management Letter', type: 'document' },
+  { id: 'surveyor-appointment', name: 'Building Surveyor Appointment Form', type: 'document' },
+  { id: 'form-2', name: 'Form 2 – Building Permit', type: 'document' },
+  { id: 'form-6', name: 'Form 6 – Protection Work Determination', type: 'document' },
+  { id: 'form-7', name: 'Form 7 – Protection Work Notice(s)', type: 'document' },
+  { id: 'form-8', name: 'Form 8 – Protection Work Agreement(s)', type: 'document' },
+  { id: 'reg-51', name: 'Reg 51 – Property Information', type: 'document' },
+  { id: 'reg-74', name: 'Reg 74 – Approved Permit (and Extension of Time)', type: 'document' },
+  { id: 'reg-133', name: 'Reg 133 – Performance Solution Report / LPD', type: 'report' },
+  { id: 'reg-126', name: 'Reg 126 – Certificate of Compliance (Structural, Civil, Stormwater)', type: 'document' },
+
+  // 2. Engineering & Technical Reports
+  { id: 'structural-plans', name: 'Structural Engineering Plans (Stamped)', type: 'drawing' },
+  { id: 'structural-computations', name: 'Structural Computations & Certification (Reg 126 CoC)', type: 'report' },
+  { id: 'civil-plans', name: 'Civil Engineering Plans (Drainage, Stormwater, Driveway)', type: 'drawing' },
+  { id: 'civil-cert', name: 'Civil / Structural Combined Certificate of Compliance (Reg 126)', type: 'document' },
+  { id: 'drainage-computations', name: 'Drainage Computations', type: 'report' },
+  { id: 'sewer-plan', name: 'Sewer Plan & Stormwater Layout Plan', type: 'drawing' },
+  { id: 'soil-report', name: 'Soil Report (Geotechnical Investigation)', type: 'report' },
+  { id: 'energy-rating', name: 'Energy Rating Report (NatHERS or Section J)', type: 'report' },
+  { id: 'energy-drawings', name: 'Energy-Endorsed Drawings', type: 'drawing' },
+  { id: 'performance-solution', name: 'Performance Solution – Regulation 38 Statement (if applicable)', type: 'report' },
+  { id: 'engineering-schedule', name: 'Engineering Design Schedule / Compliance Summary', type: 'document' },
+  { id: 'sewer-connection', name: 'Site Sewer / Drainage Connection Approval', type: 'document' },
+  { id: 're-establishment-survey', name: 'Re-establishment Survey Plan (Feature & Level)', type: 'drawing' },
+
+  // 3. Architectural & Design Drawings
+  { id: 'arch-plans', name: 'Architectural Plans (Working Drawings – Site, Floor, Elevations, Sections, Roof Plan)', type: 'drawing' },
+  { id: 'design-plans', name: 'Design Plans & Details (Architectural Set)', type: 'drawing' },
+  { id: 'ld-planning', name: 'LD Planning & Basic Property Reports', type: 'report' },
+  { id: '3d-design', name: '3D / Rendered Design Package (if applicable)', type: 'drawing' },
+  { id: 'landscape-design', name: 'Landscape Detail Design Package', type: 'drawing' },
+  { id: 'window-schedule', name: 'Skylight / Window / Door Schedule', type: 'specification' },
+  { id: 'nathers-drawings', name: 'Nathers Energy Drawings (Stamped)', type: 'drawing' },
+  { id: 'form-18', name: 'Form 18 – Partial Compliance (Energy Efficiency)', type: 'document' },
+  { id: 'sec-10-app', name: 'Section 10 Application (BCA / NCC Compliance)', type: 'document' },
+  { id: 'sec-10-det', name: 'Section 10 Determination (Pre-May 2023 NCC)', type: 'document' },
+  { id: 'spec-book', name: 'Specification Book / Building Notes', type: 'specification' },
+  { id: 'site-signage', name: 'Site Signage & Project Sign Plan', type: 'drawing' },
+
+  // 4. Product Certifications & Technical Data
+  { id: 'codemarks', name: 'Manufacturer Codemarks & Product Certificates (e.g., Axon, Knauf, Skylight, Cladding Systems)', type: 'specification' },
+  { id: 'installation-manuals', name: 'Installation Manuals & Technical Datasheets', type: 'specification' },
+  { id: 'warranty-certs', name: 'Warranty Certificates (Cladding, Roofing, Windows, etc.)', type: 'document' },
+  { id: 'bal-report', name: 'Bushfire Attack Level (BAL) Report (if applicable)', type: 'report' },
+  { id: 'acoustic-report', name: 'Acoustic Report / Engineer\'s Certification (if required)', type: 'report' },
+
+  // 5. Protection & Inspection Reports
+  { id: 'protection-forms', name: 'Protection Work Forms (6, 7, 8)', type: 'document' },
+  { id: 'protection-insurance', name: 'Protection Work Insurance Certificate', type: 'document' },
+  { id: 'dilapidation', name: 'Dilapidation Reports (Pre- and Post-Construction)', type: 'report' },
+  { id: 'inspection-reports', name: 'Inspection Reports (e.g., Bored Piers, Frame, Slab, etc.)', type: 'report' },
+  { id: 'surveyor-inspections', name: 'Building Surveyor Inspection Requirements & Sign-Offs', type: 'document' },
+  { id: 'safety-signage', name: 'Site Safety Signage Documentation', type: 'document' },
+
+  // 6. Compliance & Authority Approvals
+  { id: 'building-permit', name: 'Building Permit (Stamped & Signed)', type: 'document' },
+  { id: 'planning-permit', name: 'Planning Permit (if applicable)', type: 'document' },
+  { id: 'energy-compliance', name: 'Energy Efficiency Compliance Certificates', type: 'document' },
+  { id: 'drainage-cert', name: 'Drainage Certificate of Compliance', type: 'document' },
+  { id: 'structural-cert', name: 'Structural Certificate of Compliance (Reg 126)', type: 'document' },
+  { id: 'stormwater-cert', name: 'Stormwater Certificate of Compliance', type: 'document' },
+  { id: 'consent-report', name: 'Consent & Report (if required by adjoining properties or authorities)', type: 'report' },
+  { id: 'melbourne-water', name: 'Melbourne Water / Council Approval Letters', type: 'document' },
+  { id: 'performance-reports', name: 'Performance Solution Reports (Reg 38 / Reg 233)', type: 'report' },
+
+  // 7. Optional / Project-Specific Documents
+  { id: 'construction-mgmt', name: 'Construction Management Plan', type: 'document' },
+  { id: 'environmental-plan', name: 'Environmental / Waste Management Plan', type: 'document' },
+  { id: 'traffic-mgmt', name: 'Traffic Management Plan', type: 'document' },
+  { id: 'site-signoff', name: 'Site Sign-Off Documents', type: 'document' },
+  { id: 'as-built', name: 'As-Built Drawings (post-construction)', type: 'drawing' },
+  { id: 'occupancy-permit', name: 'Occupancy Permit or Certificate of Final Inspection', type: 'document' },
 ];
 interface ProjectDocsPageProps {
   onNavigate: (page: string) => void;
