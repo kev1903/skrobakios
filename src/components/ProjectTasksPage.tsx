@@ -7,15 +7,16 @@ import { TaskListView } from './tasks/TaskListView';
 import { EnhancedTaskView } from './tasks/enhanced/EnhancedTaskView';
 import { TaskBoardView } from './tasks/TaskBoardView';
 import { ProjectSidebar } from './ProjectSidebar';
-import { TaskPageHeader } from './tasks/TaskPageHeader';
-import { TaskSearchAndActions } from './tasks/TaskSearchAndActions';
-import { TaskTabNavigation } from './tasks/TaskTabNavigation';
 import { getStatusColor, getStatusText } from './tasks/utils/taskUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { TaskAttachment } from './tasks/types';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useCompanies } from '@/hooks/useCompanies';
 import { Company } from '@/types/company';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Search, Grid, List, Plus, Download, Kanban, BarChart3, Users, TrendingUp } from 'lucide-react';
 
 interface ProjectTasksPageProps {
   project: Project;
@@ -660,35 +661,107 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       {/* Main Content - Fixed positioning to match Project Control */}
       <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
         <div className="h-full w-full bg-white">
-          {/* Header */}
-          <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
-            <div className="px-6 py-4">
-              <TaskPageHeader project={project} onNavigate={onNavigate} />
+          {/* Compact Header */}
+          <div className="flex-shrink-0 border-b border-border bg-white">
+            <div className="px-4 py-3">
+              {/* Project Title and Status */}
+              <div className="flex items-center justify-between mb-3">
+                <h1 className="text-lg font-semibold text-slate-800">{project.name}</h1>
+                <Badge variant="outline" className={`${getStatusColor(project.status)} text-xs`}>
+                  {getStatusText(project.status)}
+                </Badge>
+              </div>
               
-              <div className="mt-4">
-                <TaskSearchAndActions
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                  viewMode={viewMode}
-                  onViewModeChange={setViewMode}
-                  selectedTasks={selectedTasks}
-                  onAddTask={handleAddTask}
-                  onExport={handleExport}
-                />
+              {/* Combined Search Bar and Actions */}
+              <div className="flex items-center gap-3 mb-3">
+                {/* Search */}
+                <div className="relative flex-1 max-w-xs">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    placeholder="Search tasks..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9 h-9 bg-white border-slate-200"
+                  />
+                </div>
+
+                {/* Spacer */}
+                <div className="flex-1" />
+
+                {/* Action Buttons */}
+                <Button 
+                  onClick={handleAddTask}
+                  variant="default"
+                  size="sm"
+                  className="h-9 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Add Task
+                </Button>
+
+                <Button 
+                  onClick={handleExport}
+                  variant="outline"
+                  size="sm"
+                  className="h-9"
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  Export
+                </Button>
+
+                {/* View Mode Toggle */}
+                <div className="flex border border-slate-200 rounded-md overflow-hidden h-9">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className={`h-full px-3 rounded-none ${viewMode === "list" ? "bg-slate-100" : ""}`}
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setViewMode("grid")}
+                    className={`h-full px-3 rounded-none ${viewMode === "grid" ? "bg-slate-100" : ""}`}
+                  >
+                    <Grid className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
 
-              <div className="mt-4">
-                <TaskTabNavigation
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
-                />
+              {/* Compact Tab Navigation */}
+              <div className="flex gap-1 overflow-x-auto scrollbar-hide border-b -mx-4 px-4">
+                {[
+                  { id: 'list', label: 'List View', icon: List },
+                  { id: 'board', label: 'Board', icon: Kanban },
+                  { id: 'overview', label: 'Overview', icon: BarChart3 },
+                  { id: 'team', label: 'Team workload', icon: Users },
+                  { id: 'insights', label: 'Insights', icon: TrendingUp },
+                ].map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                        activeTab === tab.id
+                          ? 'border-blue-600 text-blue-600'
+                          : 'border-transparent text-slate-600 hover:text-slate-800'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {tab.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
 
           {/* Content Area */}
-          <div className="h-[calc(100%-200px)] overflow-y-auto">
-            <div className="p-6">
+          <div className="h-[calc(100%-140px)] overflow-y-auto">
+            <div className="p-4">
               {renderActiveView()}
             </div>
           </div>
