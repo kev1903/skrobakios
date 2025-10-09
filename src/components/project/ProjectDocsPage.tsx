@@ -158,6 +158,7 @@ export const ProjectDocsPage = ({
   // Category popup dialog state
   const [categoryPopupOpen, setCategoryPopupOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string } | null>(null);
+  const [uploadInCategoryOpen, setUploadInCategoryOpen] = useState(false);
 
   const toggleSection = (sectionId: string) => {
     setOpenSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
@@ -553,26 +554,36 @@ export const ProjectDocsPage = ({
           <DialogHeader>
             <DialogTitle>{selectedCategory?.name}</DialogTitle>
             <DialogDescription>
-              Category details and upload options
+              Upload documents for this category
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              No files have been uploaded for this category yet.
+              Click the button below to upload documents for "{selectedCategory?.name}".
             </p>
-            {projectId && selectedCategory && (
-              <DocumentUpload 
-                projectId={projectId} 
-                onUploadComplete={() => {
-                  refetchDocuments();
-                  setCategoryPopupOpen(false);
-                }}
-                open={false}
-                onOpenChange={() => {}}
-              />
-            )}
+            <Button 
+              onClick={() => setUploadInCategoryOpen(true)}
+              className="w-full"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload Files
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Upload Dialog for Category */}
+      {projectId && selectedCategory && (
+        <DocumentUpload 
+          projectId={projectId} 
+          onUploadComplete={() => {
+            refetchDocuments();
+            setUploadInCategoryOpen(false);
+            setCategoryPopupOpen(false);
+          }}
+          open={uploadInCategoryOpen}
+          onOpenChange={setUploadInCategoryOpen}
+        />
+      )}
     </div>;
 };
