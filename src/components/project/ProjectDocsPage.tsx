@@ -9,8 +9,10 @@ import { useProjects, Project } from '@/hooks/useProjects';
 import { useProjectLinks, ProjectLink } from '@/hooks/useProjectLinks';
 import { ProjectLinkDialog } from './ProjectLinkDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
-import { Plus, FileText, Link, Download, Eye, Edit, Trash2, Upload, ExternalLink, Folder, ChevronRight } from 'lucide-react';
+import { Plus, FileText, Link, Download, Eye, Edit, Trash2, ExternalLink } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
+import { DocumentUpload } from '@/components/project-documents/DocumentUpload';
+import { useProjectDocuments } from '@/hooks/useProjectDocuments';
 interface ProjectDocsPageProps {
   onNavigate: (page: string) => void;
 }
@@ -40,57 +42,14 @@ export const ProjectDocsPage = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState<ProjectLink | undefined>();
 
-  // Mock data for folders
-  const [folders] = useState([
-    {
-      id: '1',
-      name: 'Drawings & Plans',
-      fileCount: 24,
-      lastModified: '2024-01-15',
-      size: '156 MB',
-      type: 'Technical Documents'
-    },
-    {
-      id: '2', 
-      name: 'Specifications',
-      fileCount: 12,
-      lastModified: '2024-01-14',
-      size: '45 MB',
-      type: 'Project Documents'
-    },
-    {
-      id: '3',
-      name: 'Site Photos',
-      fileCount: 89,
-      lastModified: '2024-01-13',
-      size: '234 MB',
-      type: 'Media'
-    },
-    {
-      id: '4',
-      name: 'Contracts & Legal',
-      fileCount: 8,
-      lastModified: '2024-01-12',
-      size: '12 MB',
-      type: 'Legal Documents'
-    },
-    {
-      id: '5',
-      name: 'Invoices & Financial',
-      fileCount: 34,
-      lastModified: '2024-01-11',
-      size: '28 MB',
-      type: 'Financial'
-    },
-    {
-      id: '6',
-      name: 'Reports & Analysis',
-      fileCount: 15,
-      lastModified: '2024-01-10',
-      size: '67 MB',
-      type: 'Reports'
-    }
-  ]);
+  // Project documents management
+  const {
+    documents,
+    loading: documentsLoading,
+    deleteDocument,
+    formatFileSize,
+    refetch: refetchDocuments,
+  } = useProjectDocuments(projectId || undefined);
   useEffect(() => {
     if (projectId) {
       const fetchProject = async () => {
@@ -104,8 +63,19 @@ export const ProjectDocsPage = ({
       fetchProject();
     }
   }, [projectId, getProject]);
-  const getFileIcon = (type: string) => {
-    return <FileText className="w-5 h-5 text-blue-600" />;
+  const getFileIcon = (contentType: string | null) => {
+    if (!contentType) return <FileText className="w-5 h-5 text-muted-foreground/60" />;
+    
+    if (contentType.includes('pdf')) return <FileText className="w-5 h-5 text-red-500" />;
+    if (contentType.includes('image')) return <FileText className="w-5 h-5 text-blue-500" />;
+    if (contentType.includes('word') || contentType.includes('document')) return <FileText className="w-5 h-5 text-blue-600" />;
+    if (contentType.includes('excel') || contentType.includes('spreadsheet')) return <FileText className="w-5 h-5 text-green-600" />;
+    
+    return <FileText className="w-5 h-5 text-muted-foreground/60" />;
+  };
+
+  const handleDownload = (fileUrl: string, fileName: string) => {
+    window.open(fileUrl, '_blank');
   };
   const handleAddLink = () => {
     setLinkDialogMode('create');
@@ -204,45 +174,80 @@ export const ProjectDocsPage = ({
               <div className="p-6">
                 <TabsContent value="files" className="space-y-0 mt-0">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-base font-semibold text-foreground">Project Folders</h3>
-                    <Button size="sm" className="h-8 text-sm">
-                      <Plus className="w-3.5 h-3.5 mr-1.5" />
-                      New Folder
-                    </Button>
+                    <h3 className="text-base font-semibold text-foreground">Project Files</h3>
+                    {projectId && (
+                      <DocumentUpload 
+                        projectId={projectId} 
+                        onUploadComplete={refetchDocuments}
+                      />
+                    )}
                   </div>
                   
-                  <div className="space-y-1">
-                    {folders.map(folder => (
-                      <div 
-                        key={folder.id}
-                        className="group flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-accent/50 transition-colors cursor-pointer"
-                      >
-                        <div className="flex items-center gap-3 min-w-0 flex-1">
-                          <div className="flex-shrink-0">
-                            <Folder className="w-5 h-5 text-muted-foreground/60" strokeWidth={1.5} />
+                  {documentsLoading ? (
+                    <div className="text-center py-8 text-muted-foreground">Loading files...</div>
+                  ) : documents.length === 0 ? (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <FileText className="w-12 h-12 mx-auto mb-3 opacity-20" />
+                      <p>No files uploaded yet</p>
+                      <p className="text-sm mt-1">Upload your first file to get started</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1">
+                      {documents.map(doc => (
+                        <div 
+                          key={doc.id}
+                          className="group flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-accent/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="flex-shrink-0">
+                              {getFileIcon(doc.content_type)}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm text-foreground truncate">{doc.name}</span>
+                                {doc.document_type && (
+                                  <span className="text-xs text-muted-foreground/60 flex-shrink-0">
+                                    {doc.document_type}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground/70 mt-0.5">
+                                <span>{formatFileSize(doc.file_size)}</span>
+                                <span>•</span>
+                                <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+                              </div>
+                            </div>
                           </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm text-foreground">{folder.name}</span>
-                              <span className="text-xs text-muted-foreground/60">
-                                {folder.type}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground/70 mt-0.5">
-                              <span>{folder.fileCount} files</span>
-                              <span>•</span>
-                              <span>{folder.size}</span>
-                              <span>•</span>
-                              <span>Modified {folder.lastModified}</span>
-                            </div>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-7 w-7 p-0"
+                              onClick={() => window.open(doc.file_url, '_blank')}
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-7 w-7 p-0"
+                              onClick={() => handleDownload(doc.file_url, doc.name)}
+                            >
+                              <Download className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-7 w-7 p-0 hover:text-destructive"
+                              onClick={() => deleteDocument(doc.id)}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" strokeWidth={1.5} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </TabsContent>
 
                 <TabsContent value="links" className="space-y-4 mt-0">
