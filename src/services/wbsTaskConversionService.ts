@@ -20,15 +20,18 @@ export class WBSTaskConversionService {
       project_id: projectId,
       task_name: wbsItem.title,
       description: wbsItem.description || '',
-      task_type: wbsItem.category || 'General',
+      task_type: wbsItem.category || 'Task',
       priority: wbsItem.priority || 'Medium',
-      assigned_to: wbsItem.assigned_to || null,
+      assigned_to_name: wbsItem.assigned_to || null,
+      assigned_to_avatar: null,
+      assigned_to_user_id: null,
       due_date: wbsItem.end_date || null,
       status: this.mapWBSStatusToTaskStatus(wbsItem.status),
       progress: wbsItem.progress || 0,
       wbs_item_id: wbsItem.id, // Link to WBS item
-      estimated_hours: wbsItem.estimated_hours,
-      actual_hours: wbsItem.actual_hours,
+      estimated_duration: wbsItem.duration || null,
+      is_milestone: false,
+      is_critical_path: false,
     };
 
     // Insert the task
@@ -128,14 +131,15 @@ export class WBSTaskConversionService {
   private static mapWBSStatusToTaskStatus(wbsStatus?: string): string {
     switch (wbsStatus) {
       case 'Completed':
-        return 'completed';
+        return 'Completed';
       case 'In Progress':
-        return 'in_progress';
-      case 'On Hold':
-        return 'on_hold';
+        return 'In Progress';
       case 'Not Started':
+        return 'Not Started';
+      case 'Pending':
+        return 'Pending';
       default:
-        return 'not_started';
+        return 'Not Started';
     }
   }
 
