@@ -9,7 +9,7 @@ import { useProjects, Project } from '@/hooks/useProjects';
 import { useProjectLinks, ProjectLink } from '@/hooks/useProjectLinks';
 import { ProjectLinkDialog } from './ProjectLinkDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
-import { Plus, FileText, Link, Download, Eye, Edit, Trash2, Upload, ExternalLink } from 'lucide-react';
+import { Plus, FileText, Link, Download, Eye, Edit, Trash2, Upload, ExternalLink, Folder, ChevronRight } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 interface ProjectDocsPageProps {
   onNavigate: (page: string) => void;
@@ -40,32 +40,57 @@ export const ProjectDocsPage = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState<ProjectLink | undefined>();
 
-  // Mock data for files (keeping existing for now)
-  const [files] = useState([{
-    id: '1',
-    name: 'Project Specifications.pdf',
-    type: 'pdf',
-    size: '2.4 MB',
-    uploadedBy: 'John Doe',
-    uploadedAt: '2024-01-15',
-    category: 'Specifications'
-  }, {
-    id: '2',
-    name: 'Site Plans.dwg',
-    type: 'dwg',
-    size: '8.1 MB',
-    uploadedBy: 'Jane Smith',
-    uploadedAt: '2024-01-14',
-    category: 'Drawings'
-  }, {
-    id: '3',
-    name: 'Material List.xlsx',
-    type: 'xlsx',
-    size: '156 KB',
-    uploadedBy: 'Mike Johnson',
-    uploadedAt: '2024-01-13',
-    category: 'Lists'
-  }]);
+  // Mock data for folders
+  const [folders] = useState([
+    {
+      id: '1',
+      name: 'Drawings & Plans',
+      fileCount: 24,
+      lastModified: '2024-01-15',
+      size: '156 MB',
+      type: 'Technical Documents'
+    },
+    {
+      id: '2', 
+      name: 'Specifications',
+      fileCount: 12,
+      lastModified: '2024-01-14',
+      size: '45 MB',
+      type: 'Project Documents'
+    },
+    {
+      id: '3',
+      name: 'Site Photos',
+      fileCount: 89,
+      lastModified: '2024-01-13',
+      size: '234 MB',
+      type: 'Media'
+    },
+    {
+      id: '4',
+      name: 'Contracts & Legal',
+      fileCount: 8,
+      lastModified: '2024-01-12',
+      size: '12 MB',
+      type: 'Legal Documents'
+    },
+    {
+      id: '5',
+      name: 'Invoices & Financial',
+      fileCount: 34,
+      lastModified: '2024-01-11',
+      size: '28 MB',
+      type: 'Financial'
+    },
+    {
+      id: '6',
+      name: 'Reports & Analysis',
+      fileCount: 15,
+      lastModified: '2024-01-10',
+      size: '67 MB',
+      type: 'Reports'
+    }
+  ]);
   useEffect(() => {
     if (projectId) {
       const fetchProject = async () => {
@@ -179,49 +204,65 @@ export const ProjectDocsPage = ({
               <div className="p-6">
                 <TabsContent value="files" className="space-y-4 mt-0">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold">Project Files</h3>
+                    <h3 className="text-lg font-semibold">Project Folders</h3>
                     <Button>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload File
+                      <Plus className="w-4 h-4 mr-2" />
+                      New Folder
                     </Button>
                   </div>
                   
-                  <div className="grid gap-4">
-                    {files.map(file => <Card key={file.id} className="hover:shadow-md transition-shadow">
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              {getFileIcon(file.type)}
-                              <div>
-                                <h4 className="font-medium text-foreground">{file.name}</h4>
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                                  <span>{file.size}</span>
-                                  <span>•</span>
-                                  <span>{file.category}</span>
-                                  <span>•</span>
-                                  <span>Uploaded by {file.uploadedBy}</span>
-                                  <span>•</span>
-                                  <span>{file.uploadedAt}</span>
-                                </div>
-                              </div>
+                  <div className="grid gap-3">
+                    {folders.map(folder => (
+                      <div 
+                        key={folder.id}
+                        className="group flex items-center justify-between p-4 rounded-lg border border-border/40 hover:border-primary/40 hover:bg-accent/30 transition-all duration-200 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-4 min-w-0 flex-1">
+                          <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Folder className="w-6 h-6 text-primary" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold text-foreground">{folder.name}</h4>
+                              <span className="text-xs text-muted-foreground/70 bg-muted/40 px-2 py-0.5 rounded-full flex-shrink-0">
+                                {folder.type}
+                              </span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm">
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Download className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              <span>{folder.fileCount} files</span>
+                              <span>•</span>
+                              <span>{folder.size}</span>
+                              <span>•</span>
+                              <span>Modified {folder.lastModified}</span>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>)}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                          >
+                            <Download className="w-4 h-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                          <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </TabsContent>
 
