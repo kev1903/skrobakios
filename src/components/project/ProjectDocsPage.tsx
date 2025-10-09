@@ -258,7 +258,7 @@ export const ProjectDocsPage: React.FC<ProjectDocsPageProps> = () => {
           {/* Upload Area */}
           <Card className="border-2 border-dashed">
             <div
-              className={`p-8 text-center transition-colors cursor-pointer ${
+              className={`p-3 text-center transition-colors cursor-pointer ${
                 isDragging 
                   ? 'bg-primary/5 border-primary' 
                   : 'hover:bg-accent/30'
@@ -268,13 +268,12 @@ export const ProjectDocsPage: React.FC<ProjectDocsPageProps> = () => {
               onDragLeave={handleDragLeave}
               onClick={() => fileInputRef.current?.click()}
             >
-              <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-              <h3 className="text-lg font-semibold mb-2">Upload Documents</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Drag and drop files here or click to browse
+              <Upload className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
+              <p className="text-xs text-muted-foreground mb-2">
+                Drag and drop files or click to browse
               </p>
               <Button variant="outline" size="sm">
-                <Upload className="w-3 h-3 mr-2" />
+                <Upload className="w-3 h-3 mr-1" />
                 Select Files
               </Button>
               <input
