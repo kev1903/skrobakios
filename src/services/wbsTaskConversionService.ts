@@ -21,6 +21,7 @@ export class WBSTaskConversionService {
       task_name: wbsItem.title,
       description: wbsItem.description || '',
       task_type: wbsItem.category || 'Task',
+      category: wbsItem.category || 'General',
       priority: wbsItem.priority || 'Medium',
       assigned_to_name: wbsItem.assigned_to || null,
       assigned_to_avatar: null,
@@ -29,9 +30,12 @@ export class WBSTaskConversionService {
       status: this.mapWBSStatusToTaskStatus(wbsItem.status),
       progress: wbsItem.progress || 0,
       wbs_item_id: wbsItem.id, // Link to WBS item
-      estimated_duration: wbsItem.duration || null,
+      duration: wbsItem.duration || 0,
+      estimated_hours: wbsItem.estimated_hours || 0,
+      actual_hours: wbsItem.actual_hours || 0,
       is_milestone: false,
       is_critical_path: false,
+      task_number: `TASK-${Date.now() % 100000}`, // Generate a unique task number
     };
 
     // Insert the task

@@ -181,11 +181,11 @@ export const PersonalAnalyticsDashboard = ({ onNavigate }: PersonalAnalyticsDash
         .in('company_id', companyIds)
         .eq('status', 'active');
 
-      // Fetch completed tasks
+      // Fetch completed tasks (tasks table doesn't have company_id, so join with projects)
       const { data: tasks } = await supabase
         .from('tasks')
-        .select('*')
-        .in('company_id', companyIds)
+        .select('*, projects!inner(company_id)')
+        .in('projects.company_id', companyIds)
         .eq('status', 'Completed');
 
       return {

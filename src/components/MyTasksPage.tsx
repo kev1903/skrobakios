@@ -63,7 +63,9 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
         project_id: task.project_id,
         projectName: task.projects?.name || 'Unknown Project',
         taskName: task.task_name,
+        task_number: task.task_number || '',
         taskType: (task.task_type as 'Task' | 'Bug' | 'Feature') || 'Task',
+        category: task.category || 'General',
         priority: task.priority as 'High' | 'Medium' | 'Low',
         assignedTo: {
           name: task.assigned_to_name || '',
@@ -73,7 +75,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
         status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
         progress: task.progress,
         description: task.description,
-        duration: task.estimated_duration,
+        duration: Number(task.duration) || 0,
         is_milestone: task.is_milestone,
         is_critical_path: task.is_critical_path,
         created_at: task.created_at,

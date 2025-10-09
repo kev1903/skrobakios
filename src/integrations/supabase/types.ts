@@ -3561,13 +3561,6 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "quality_checks_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
         ]
       }
       quality_inspections: {
@@ -5006,41 +4999,27 @@ export type Database = {
           successor_task_id?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "task_dependencies_predecessor_task_id_fkey"
-            columns: ["predecessor_task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "task_dependencies_successor_task_id_fkey"
-            columns: ["successor_task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tasks: {
         Row: {
-          actual_duration: number | null
+          actual_hours: number | null
           assigned_to_avatar: string | null
           assigned_to_name: string | null
           assigned_to_user_id: string | null
           category: string | null
-          company_id: string | null
           created_at: string
           description: string | null
           due_date: string | null
-          estimated_duration: number | null
+          duration: number | null
+          estimated_duration: unknown | null
+          estimated_hours: number | null
           id: string
           is_critical_path: boolean | null
           is_milestone: boolean | null
           priority: string
-          progress: number
-          project_id: string | null
+          progress: number | null
+          project_id: string
           status: string
           task_name: string
           task_number: string | null
@@ -5049,22 +5028,23 @@ export type Database = {
           wbs_item_id: string | null
         }
         Insert: {
-          actual_duration?: number | null
+          actual_hours?: number | null
           assigned_to_avatar?: string | null
           assigned_to_name?: string | null
           assigned_to_user_id?: string | null
           category?: string | null
-          company_id?: string | null
           created_at?: string
           description?: string | null
           due_date?: string | null
-          estimated_duration?: number | null
+          duration?: number | null
+          estimated_duration?: unknown | null
+          estimated_hours?: number | null
           id?: string
           is_critical_path?: boolean | null
           is_milestone?: boolean | null
           priority?: string
-          progress?: number
-          project_id?: string | null
+          progress?: number | null
+          project_id: string
           status?: string
           task_name: string
           task_number?: string | null
@@ -5073,22 +5053,23 @@ export type Database = {
           wbs_item_id?: string | null
         }
         Update: {
-          actual_duration?: number | null
+          actual_hours?: number | null
           assigned_to_avatar?: string | null
           assigned_to_name?: string | null
           assigned_to_user_id?: string | null
           category?: string | null
-          company_id?: string | null
           created_at?: string
           description?: string | null
           due_date?: string | null
-          estimated_duration?: number | null
+          duration?: number | null
+          estimated_duration?: unknown | null
+          estimated_hours?: number | null
           id?: string
           is_critical_path?: boolean | null
           is_milestone?: boolean | null
           priority?: string
-          progress?: number
-          project_id?: string | null
+          progress?: number | null
+          project_id?: string
           status?: string
           task_name?: string
           task_number?: string | null
@@ -5867,13 +5848,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "wbs_items_linked_task_id_fkey"
-            columns: ["linked_task_id"]
-            isOneToOne: false
-            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
           {
