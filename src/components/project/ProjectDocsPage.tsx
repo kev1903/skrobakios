@@ -273,8 +273,8 @@ export const ProjectDocsPage: React.FC<ProjectDocsPageProps> = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Drag and drop files here or click to browse
               </p>
-              <Button variant="outline">
-                <Upload className="w-4 h-4 mr-2" />
+              <Button variant="outline" size="sm">
+                <Upload className="w-3 h-3 mr-2" />
                 Select Files
               </Button>
               <input
