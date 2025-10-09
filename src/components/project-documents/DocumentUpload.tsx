@@ -17,18 +17,30 @@ interface DocumentUploadProps {
   onUploadComplete?: () => void;
 }
 
+interface DocumentMetadata {
+  title: string;
+  version: string;
+  author: string;
+  date: string;
+  type: string;
+  status: string;
+}
+
 interface UploadFile {
   id: string;
   file: File;
   progress: number;
   status: 'pending' | 'uploading' | 'complete' | 'error';
   url?: string;
+  metadata?: DocumentMetadata;
 }
 
 export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUploadComplete }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [showMetadataForm, setShowMetadataForm] = useState(false);
+  const [currentFileId, setCurrentFileId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -39,13 +51,41 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
       id: Math.random().toString(36).substr(2, 9),
       file,
       progress: 0,
-      status: 'pending'
+      status: 'pending',
+      metadata: {
+        title: file.name,
+        version: '1.0',
+        author: '',
+        date: new Date().toISOString().split('T')[0],
+        type: 'drawing',
+        status: 'draft'
+      }
     }));
 
     setUploadFiles(prev => [...prev, ...newFiles]);
     
-    // Start uploading files
-    newFiles.forEach(uploadFile => {
+    // Show metadata form for first file
+    if (newFiles.length > 0) {
+      setCurrentFileId(newFiles[0].id);
+      setShowMetadataForm(true);
+    }
+  };
+
+  const handleMetadataUpdate = (fileId: string, field: keyof DocumentMetadata, value: string) => {
+    setUploadFiles(prev => prev.map(f => 
+      f.id === fileId && f.metadata ? { 
+        ...f, 
+        metadata: { ...f.metadata, [field]: value } 
+      } : f
+    ));
+  };
+
+  const handleStartUpload = () => {
+    setShowMetadataForm(false);
+    setCurrentFileId(null);
+    
+    // Start uploading all pending files
+    uploadFiles.filter(f => f.status === 'pending').forEach(uploadFile => {
       handleUpload(uploadFile);
     });
   };
@@ -85,16 +125,24 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
         .from('project-files')
         .getPublicUrl(filePath);
 
-      // Insert record into project_documents table
+      // Insert record into project_documents table with metadata
       const { error: dbError } = await supabase
         .from('project_documents')
         .insert({
           project_id: projectId,
-          name: uploadFile.file.name,
+          name: uploadFile.metadata?.title || uploadFile.file.name,
           file_url: urlData.publicUrl,
           content_type: uploadFile.file.type,
           file_size: uploadFile.file.size,
-          created_by: (await supabase.auth.getUser()).data.user?.id
+          document_type: uploadFile.metadata?.type || 'drawing',
+          created_by: (await supabase.auth.getUser()).data.user?.id,
+          metadata: {
+            version: uploadFile.metadata?.version,
+            author: uploadFile.metadata?.author,
+            date: uploadFile.metadata?.date,
+            status: uploadFile.metadata?.status,
+            original_filename: uploadFile.file.name
+          }
         });
 
       if (dbError) {
@@ -162,6 +210,8 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
     setIsOpen(false);
     setUploadFiles([]);
     setIsDragging(false);
+    setShowMetadataForm(false);
+    setCurrentFileId(null);
   };
 
   return (
@@ -184,6 +234,99 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
         </DialogHeader>
         
         <div className="space-y-4">
+          {/* Metadata Form */}
+          {showMetadataForm && currentFileId && (
+            <div className="space-y-4 border rounded-lg p-4 bg-muted/30">
+              <h4 className="text-sm font-semibold">Document Information</h4>
+              {uploadFiles.filter(f => f.id === currentFileId).map(file => (
+                <div key={file.id} className="space-y-3">
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium">Document Title</label>
+                    <input
+                      type="text"
+                      value={file.metadata?.title || ''}
+                      onChange={(e) => handleMetadataUpdate(file.id, 'title', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                      placeholder="Enter document title"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">Version</label>
+                      <input
+                        type="text"
+                        value={file.metadata?.version || ''}
+                        onChange={(e) => handleMetadataUpdate(file.id, 'version', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                        placeholder="e.g., 1.0"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">Date</label>
+                      <input
+                        type="date"
+                        value={file.metadata?.date || ''}
+                        onChange={(e) => handleMetadataUpdate(file.id, 'date', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium">Author</label>
+                    <input
+                      type="text"
+                      value={file.metadata?.author || ''}
+                      onChange={(e) => handleMetadataUpdate(file.id, 'author', e.target.value)}
+                      className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                      placeholder="Document author"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">Type</label>
+                      <select
+                        value={file.metadata?.type || 'drawing'}
+                        onChange={(e) => handleMetadataUpdate(file.id, 'type', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                      >
+                        <option value="specification">Specification</option>
+                        <option value="drawing">Drawing</option>
+                        <option value="report">Report</option>
+                        <option value="image">Image</option>
+                        <option value="document">Document</option>
+                      </select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">Status</label>
+                      <select
+                        value={file.metadata?.status || 'draft'}
+                        onChange={(e) => handleMetadataUpdate(file.id, 'status', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border rounded-md bg-background"
+                      >
+                        <option value="draft">Draft</option>
+                        <option value="review">Under Review</option>
+                        <option value="approved">Approved</option>
+                        <option value="final">Final</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={handleStartUpload}
+                    className="w-full"
+                  >
+                    Upload Document
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Drop Zone */}
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
