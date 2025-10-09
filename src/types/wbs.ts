@@ -47,6 +47,11 @@ export interface WBSItem {
   estimated_hours?: number; // Estimated hours to complete the task
   actual_hours?: number; // Actual hours spent on the task
   
+  // Task conversion fields
+  is_task_enabled?: boolean; // Whether this WBS item has been converted to a task
+  linked_task_id?: string; // ID of the linked task
+  task_conversion_date?: string; // Date when the WBS item was converted to a task
+  
   // Text formatting (stored as JSONB in database)
   text_formatting?: {
     bold?: boolean;
