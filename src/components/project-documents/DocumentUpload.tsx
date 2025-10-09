@@ -14,7 +14,6 @@ import {
 
 interface DocumentUploadProps {
   projectId: string;
-  categoryId?: string;
   onUploadComplete?: () => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -38,7 +37,7 @@ interface UploadFile {
   metadata?: DocumentMetadata;
 }
 
-export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, categoryId, onUploadComplete, open: controlledOpen, onOpenChange: controlledOnOpenChange }) => {
+export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUploadComplete, open: controlledOpen, onOpenChange: controlledOnOpenChange }) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setIsOpen = controlledOnOpenChange || setInternalOpen;
@@ -135,7 +134,6 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, categ
         .from('project_documents')
         .insert({
           project_id: projectId,
-          category_id: categoryId || null,
           name: uploadFile.metadata?.title || uploadFile.file.name,
           file_url: urlData.publicUrl,
           content_type: uploadFile.file.type,
