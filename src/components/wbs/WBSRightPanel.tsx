@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Trash2, NotebookPen, ListTodo, Unlink, FileText } from 'lucide-react';
 import {
@@ -60,6 +60,8 @@ export const WBSRightPanel = ({
   onRowClick,
   projectId
 }: WBSRightPanelProps) => {
+  const [convertingTaskId, setConvertingTaskId] = useState<string | null>(null);
+
   // Log items for debugging
   console.log('🟣 WBSRightPanel rendering with', items.length, 'items');
   console.log('🟣 Items by level:', items.reduce((acc: any, item: any) => {
@@ -180,19 +182,25 @@ export const WBSRightPanel = ({
              <Button
                variant="ghost"
                size="sm"
-               className="h-6 w-6 p-0 hover:bg-muted"
+               className={`h-6 w-6 p-0 hover:bg-muted relative ${
+                 convertingTaskId === item.id ? 'animate-pulse' : ''
+               }`}
                onClick={(e) => {
                  e.stopPropagation();
                  if (item.is_task_enabled) {
                    onContextMenuAction('view_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
                  } else {
+                   setConvertingTaskId(item.id);
                    onContextMenuAction('convert_to_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
+                   setTimeout(() => setConvertingTaskId(null), 2000);
                  }
                }}
                title={item.is_task_enabled ? "View Task" : "Convert to Task"}
              >
-               <ListTodo className={`w-4 h-4 transition-colors ${
-                 item.is_task_enabled
+               <ListTodo className={`w-4 h-4 transition-all duration-300 ${
+                 convertingTaskId === item.id
+                   ? 'text-blue-600 scale-110 drop-shadow-[0_0_8px_rgba(37,99,235,0.8)]'
+                   : item.is_task_enabled
                    ? 'text-blue-600 hover:text-blue-700' 
                    : 'text-muted-foreground hover:text-foreground'
                }`} />
