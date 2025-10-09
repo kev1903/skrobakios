@@ -395,7 +395,7 @@ export const ProjectDocsPage = ({
                                                 className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors"
                                                 onClick={() => handleDocumentClick(doc)}
                                               >
-                                                {category.name}
+                                                {doc.name}
                                               </span>
                                             </div>
                                             
