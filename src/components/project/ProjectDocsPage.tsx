@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
 import { useProjectLinks, ProjectLink } from '@/hooks/useProjectLinks';
+import { useProjectDocuments } from '@/hooks/useProjectDocuments';
 import { ProjectLinkDialog } from './ProjectLinkDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
-import { Plus, Link, Edit, Trash2, ExternalLink } from 'lucide-react';
+import { Plus, Link, Edit, Trash2, ExternalLink, FileText } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 
 interface ProjectDocsPageProps {
@@ -37,6 +39,9 @@ export const ProjectDocsPage = ({
   const [selectedLink, setSelectedLink] = useState<ProjectLink | undefined>();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState<ProjectLink | undefined>();
+
+  // Project documents management
+  const { documents, loading: docsLoading, deleteDocument, formatFileSize } = useProjectDocuments(projectId || undefined);
   
   useEffect(() => {
     if (projectId) {
@@ -115,91 +120,176 @@ export const ProjectDocsPage = ({
         {/* Header Section */}
         <ProjectPageHeader 
           projectName={project.name}
-          pageTitle="Project Links"
+          pageTitle="Project Documents & Links"
           onNavigate={onNavigate}
         />
         
         <div className="p-6">
-          {/* Main Content */}
-          <div className="bg-card border rounded-lg">
-            {/* Header */}
-            <div className="bg-muted/30 border-b px-6 py-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Link className="h-5 w-5" />
-                  Project Links
-                </h3>
-                <Button onClick={handleAddLink}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Link
-                </Button>
-              </div>
-            </div>
+          <Tabs defaultValue="links" className="w-full">
+            <TabsList className="mb-6">
+              <TabsTrigger value="links" className="flex items-center gap-2">
+                <Link className="h-4 w-4" />
+                Project Links
+              </TabsTrigger>
+              <TabsTrigger value="docs" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Project Docs
+              </TabsTrigger>
+            </TabsList>
 
-            {/* Links Content */}
-            <div className="p-6">
-              {linksLoading ? (
-                <div className="text-center py-8">Loading links...</div>
-              ) : links.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No links added yet. Click "Add Link" to get started.
+            {/* Project Links Tab */}
+            <TabsContent value="links">
+              <div className="bg-card border rounded-lg">
+                {/* Header */}
+                <div className="bg-muted/30 border-b px-6 py-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Link className="h-5 w-5" />
+                      Project Links
+                    </h3>
+                    <Button onClick={handleAddLink}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Link
+                    </Button>
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-2">
-                  {links.map(link => (
-                    <div 
-                      key={link.id} 
-                      className="group flex items-center justify-between p-3 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200"
-                    >
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-2 h-2 rounded-full bg-primary/60 flex-shrink-0" />
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="font-medium text-foreground truncate">{link.title}</h4>
-                            <span className="text-xs text-muted-foreground/70 bg-muted/30 px-2 py-0.5 rounded-full flex-shrink-0">
-                              {link.category}
-                            </span>
-                          </div>
-                          {link.description && (
-                            <p className="text-sm text-muted-foreground/80 truncate">{link.description}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0 hover:bg-primary/10" 
-                          onClick={() => window.open(link.url, '_blank')} 
-                          title="Open link"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0 hover:bg-primary/10" 
-                          onClick={() => handleEditLink(link)} 
-                          title="Edit link"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive" 
-                          onClick={() => handleDeleteLink(link)} 
-                          title="Delete link"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+
+                {/* Links Content */}
+                <div className="p-6">
+                  {linksLoading ? (
+                    <div className="text-center py-8">Loading links...</div>
+                  ) : links.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No links added yet. Click "Add Link" to get started.
                     </div>
-                  ))}
+                  ) : (
+                    <div className="space-y-2">
+                      {links.map(link => (
+                        <div 
+                          key={link.id} 
+                          className="group flex items-center justify-between p-3 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200"
+                        >
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="w-2 h-2 rounded-full bg-primary/60 flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-medium text-foreground truncate">{link.title}</h4>
+                                <span className="text-xs text-muted-foreground/70 bg-muted/30 px-2 py-0.5 rounded-full flex-shrink-0">
+                                  {link.category}
+                                </span>
+                              </div>
+                              {link.description && (
+                                <p className="text-sm text-muted-foreground/80 truncate">{link.description}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 hover:bg-primary/10" 
+                              onClick={() => window.open(link.url, '_blank')} 
+                              title="Open link"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 hover:bg-primary/10" 
+                              onClick={() => handleEditLink(link)} 
+                              title="Edit link"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive" 
+                              onClick={() => handleDeleteLink(link)} 
+                              title="Delete link"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
+            </TabsContent>
+
+            {/* Project Docs Tab */}
+            <TabsContent value="docs">
+              <div className="bg-card border rounded-lg">
+                {/* Header */}
+                <div className="bg-muted/30 border-b px-6 py-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <FileText className="h-5 w-5" />
+                      Project Documents
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Documents Content */}
+                <div className="p-6">
+                  {docsLoading ? (
+                    <div className="text-center py-8">Loading documents...</div>
+                  ) : documents.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No documents uploaded yet.
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {documents.map(doc => (
+                        <div 
+                          key={doc.id} 
+                          className="group flex items-center justify-between p-3 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200"
+                        >
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <FileText className="h-5 w-5 text-primary/60 flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h4 className="font-medium text-foreground truncate">{doc.name}</h4>
+                                <span className="text-xs text-muted-foreground/70 bg-muted/30 px-2 py-0.5 rounded-full flex-shrink-0">
+                                  {formatFileSize(doc.file_size)}
+                                </span>
+                              </div>
+                              <p className="text-sm text-muted-foreground/80">
+                                {new Date(doc.created_at).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 hover:bg-primary/10" 
+                              onClick={() => window.open(doc.file_url, '_blank')} 
+                              title="View document"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive" 
+                              onClick={() => deleteDocument(doc.id)} 
+                              title="Delete document"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
 
