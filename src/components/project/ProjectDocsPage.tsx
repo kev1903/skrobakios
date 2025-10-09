@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
@@ -153,6 +154,10 @@ export const ProjectDocsPage = ({
   // Document edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<ProjectDocument | null>(null);
+  
+  // Category popup dialog state
+  const [categoryPopupOpen, setCategoryPopupOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string } | null>(null);
 
   const toggleSection = (sectionId: string) => {
     setOpenSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
@@ -362,9 +367,16 @@ export const ProjectDocsPage = ({
                                             <div className="flex-shrink-0 flex items-center">
                                               <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
                                             </div>
-                                            <span className="font-medium text-sm text-foreground truncate">
+                                            <Button
+                                              variant="ghost"
+                                              className="font-medium text-sm text-foreground truncate hover:text-primary p-0 h-auto"
+                                              onClick={() => {
+                                                setSelectedCategory({ id: category.id, name: category.name });
+                                                setCategoryPopupOpen(true);
+                                              }}
+                                            >
                                               {category.name}
-                                            </span>
+                                            </Button>
                                           </div>
                                           
                                           <div className="flex items-center gap-4 flex-shrink-0">
@@ -534,5 +546,33 @@ export const ProjectDocsPage = ({
         onDocumentUpdated={refetchDocuments}
         onDelete={deleteDocument}
       />
+
+      {/* Category Popup Dialog */}
+      <Dialog open={categoryPopupOpen} onOpenChange={setCategoryPopupOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedCategory?.name}</DialogTitle>
+            <DialogDescription>
+              Category details and upload options
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              No files have been uploaded for this category yet.
+            </p>
+            {projectId && selectedCategory && (
+              <DocumentUpload 
+                projectId={projectId} 
+                onUploadComplete={() => {
+                  refetchDocuments();
+                  setCategoryPopupOpen(false);
+                }}
+                open={false}
+                onOpenChange={() => {}}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>;
 };
