@@ -85,6 +85,22 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
         .from('project-files')
         .getPublicUrl(filePath);
 
+      // Insert record into project_documents table
+      const { error: dbError } = await supabase
+        .from('project_documents')
+        .insert({
+          project_id: projectId,
+          name: uploadFile.file.name,
+          file_url: urlData.publicUrl,
+          content_type: uploadFile.file.type,
+          file_size: uploadFile.file.size,
+          created_by: (await supabase.auth.getUser()).data.user?.id
+        });
+
+      if (dbError) {
+        throw dbError;
+      }
+
       setUploadFiles(prev => prev.map(f => 
         f.id === uploadFile.id ? { 
           ...f, 
