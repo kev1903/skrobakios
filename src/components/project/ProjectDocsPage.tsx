@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
@@ -11,8 +12,10 @@ import { useProjectDocuments } from '@/hooks/useProjectDocuments';
 import { ProjectLinkDialog } from './ProjectLinkDialog';
 import { DocumentUpload } from '../project-documents/DocumentUpload';
 import { ProjectPageHeader } from './ProjectPageHeader';
-import { Plus, Link, Edit, Trash2, ExternalLink, FileText, Upload, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, Link, Edit, Trash2, ExternalLink, FileText, Upload, ChevronDown, ChevronRight, Tag } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProjectDocsPageProps {
   onNavigate: (page: string) => void;
@@ -47,6 +50,61 @@ export const ProjectDocsPage = ({
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const { toast } = useToast();
+
+  // Document classifications
+  const documentClassifications = [
+    'Draft',
+    'For Review',
+    'For Approval',
+    'Approved',
+    'Superseded',
+    'Archived'
+  ];
+
+  const getClassificationColor = (classification: string) => {
+    switch (classification) {
+      case 'Draft':
+        return 'bg-gray-100 text-gray-700 border-gray-300';
+      case 'For Review':
+        return 'bg-blue-100 text-blue-700 border-blue-300';
+      case 'For Approval':
+        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+      case 'Approved':
+        return 'bg-green-100 text-green-700 border-green-300';
+      case 'Superseded':
+        return 'bg-orange-100 text-orange-700 border-orange-300';
+      case 'Archived':
+        return 'bg-red-100 text-red-700 border-red-300';
+      default:
+        return 'bg-gray-100 text-gray-600 border-gray-300';
+    }
+  };
+
+  const handleClassificationChange = async (documentId: string, classification: string) => {
+    try {
+      const { error } = await supabase
+        .from('project_documents')
+        .update({ document_status: classification })
+        .eq('id', documentId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Classification Updated',
+        description: `Document classification changed to ${classification}`,
+      });
+
+      refetchDocuments();
+    } catch (error) {
+      console.error('Error updating classification:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update document classification',
+        variant: 'destructive',
+      });
+    }
+  };
 
   // Construction document categories
   const constructionDocCategories = [
@@ -326,7 +384,7 @@ export const ProjectDocsPage = ({
                                       )}
                                     </div>
 
-                                    {/* Documents under this item */}
+                                     {/* Documents under this item */}
                                     {itemDocs.length > 0 ? (
                                       <div className="space-y-2 ml-2">
                                         {itemDocs.map(doc => (
@@ -347,25 +405,53 @@ export const ProjectDocsPage = ({
                                                 </div>
                                               </div>
                                             </div>
-                                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="h-7 w-7 p-0 hover:bg-primary/10"
-                                                onClick={() => window.open(doc.file_url, '_blank')}
-                                                title="View document"
-                                              >
-                                                <ExternalLink className="w-3.5 h-3.5" />
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
-                                                onClick={() => deleteDocument(doc.id)}
-                                                title="Delete document"
-                                              >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                              </Button>
+                                            <div className="flex items-center gap-2">
+                                              {/* Classification Dropdown */}
+                                              <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                  <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className={`h-7 px-2 text-xs border ${getClassificationColor(doc.document_status || 'Draft')}`}
+                                                  >
+                                                    <Tag className="w-3 h-3 mr-1" />
+                                                    {doc.document_status || 'Draft'}
+                                                  </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="bg-background z-50">
+                                                  {documentClassifications.map((classification) => (
+                                                    <DropdownMenuItem
+                                                      key={classification}
+                                                      onClick={() => handleClassificationChange(doc.id, classification)}
+                                                      className="cursor-pointer"
+                                                    >
+                                                      <span className={`w-2 h-2 rounded-full mr-2 ${getClassificationColor(classification).split(' ')[0]}`} />
+                                                      {classification}
+                                                    </DropdownMenuItem>
+                                                  ))}
+                                                </DropdownMenuContent>
+                                              </DropdownMenu>
+                                              
+                                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="h-7 w-7 p-0 hover:bg-primary/10"
+                                                  onClick={() => window.open(doc.file_url, '_blank')}
+                                                  title="View document"
+                                                >
+                                                  <ExternalLink className="w-3.5 h-3.5" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="sm"
+                                                  className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                                  onClick={() => deleteDocument(doc.id)}
+                                                  title="Delete document"
+                                                >
+                                                  <Trash2 className="w-3.5 h-3.5" />
+                                                </Button>
+                                              </div>
                                             </div>
                                           </div>
                                         ))}
@@ -415,25 +501,53 @@ export const ProjectDocsPage = ({
                                             </div>
                                           </div>
                                         </div>
-                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-7 w-7 p-0 hover:bg-primary/10"
-                                            onClick={() => window.open(doc.file_url, '_blank')}
-                                            title="View document"
-                                          >
-                                            <ExternalLink className="w-3.5 h-3.5" />
-                                          </Button>
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
-                                            onClick={() => deleteDocument(doc.id)}
-                                            title="Delete document"
-                                          >
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                          </Button>
+                                        <div className="flex items-center gap-2">
+                                          {/* Classification Dropdown */}
+                                          <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className={`h-7 px-2 text-xs border ${getClassificationColor(doc.document_status || 'Draft')}`}
+                                              >
+                                                <Tag className="w-3 h-3 mr-1" />
+                                                {doc.document_status || 'Draft'}
+                                              </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="bg-background z-50">
+                                              {documentClassifications.map((classification) => (
+                                                <DropdownMenuItem
+                                                  key={classification}
+                                                  onClick={() => handleClassificationChange(doc.id, classification)}
+                                                  className="cursor-pointer"
+                                                >
+                                                  <span className={`w-2 h-2 rounded-full mr-2 ${getClassificationColor(classification).split(' ')[0]}`} />
+                                                  {classification}
+                                                </DropdownMenuItem>
+                                              ))}
+                                            </DropdownMenuContent>
+                                          </DropdownMenu>
+                                          
+                                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-7 w-7 p-0 hover:bg-primary/10"
+                                              onClick={() => window.open(doc.file_url, '_blank')}
+                                              title="View document"
+                                            >
+                                              <ExternalLink className="w-3.5 h-3.5" />
+                                            </Button>
+                                            <Button
+                                              variant="ghost"
+                                              size="sm"
+                                              className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                              onClick={() => deleteDocument(doc.id)}
+                                              title="Delete document"
+                                            >
+                                              <Trash2 className="w-3.5 h-3.5" />
+                                            </Button>
+                                          </div>
                                         </div>
                                       </div>
                                     ))}
