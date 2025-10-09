@@ -306,38 +306,73 @@ export const ProjectDocsPage = ({
                               );
                               
                               return (
-                                <div
-                                  key={category.id}
-                                  className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                >
-                                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <div className="flex-shrink-0 flex items-center">
-                                      <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
-                                    </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
+                                <>
+                                  {categoryDocs.length === 0 ? (
+                                    <div
+                                      key={category.id}
+                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
                                     >
-                                      {category.name}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-4 flex-shrink-0">
-                                    <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                      {categoryDocs.length === 0 
-                                        ? 'No files uploaded' 
-                                        : `${categoryDocs.length} file${categoryDocs.length > 1 ? 's' : ''}`}
-                                    </span>
-                                    {projectId && (
-                                      <DocumentUpload 
-                                        projectId={projectId} 
-                                        onUploadComplete={refetchDocuments}
-                                        open={uploadDialogOpen === category.id}
-                                        onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                      />
-                                    )}
-                                  </div>
-                                </div>
+                                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <div className="flex-shrink-0 flex items-center">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                                        </div>
+                                        <span 
+                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                          onClick={() => setUploadDialogOpen(category.id)}
+                                        >
+                                          {category.name}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-center gap-4 flex-shrink-0">
+                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                          No files uploaded
+                                        </span>
+                                        {projectId && (
+                                          <DocumentUpload 
+                                            projectId={projectId} 
+                                            onUploadComplete={refetchDocuments}
+                                            open={uploadDialogOpen === category.id}
+                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    categoryDocs.map((doc, idx) => (
+                                      <div
+                                        key={doc.id}
+                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
+                                      >
+                                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                                          <div className="flex-shrink-0 flex items-center">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                          </div>
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={() => setUploadDialogOpen(category.id)}
+                                          >
+                                            {category.name}
+                                          </span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-4 flex-shrink-0">
+                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                            {formatFileSize(doc.file_size || 0)}
+                                          </span>
+                                          {projectId && idx === 0 && (
+                                            <DocumentUpload 
+                                              projectId={projectId} 
+                                              onUploadComplete={refetchDocuments}
+                                              open={uploadDialogOpen === category.id}
+                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                            />
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
+                                </>
                               );
                             })}
                           </div>
@@ -362,38 +397,73 @@ export const ProjectDocsPage = ({
                               );
                               
                               return (
-                                <div
-                                  key={category.id}
-                                  className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                >
-                                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <div className="flex-shrink-0 flex items-center">
-                                      <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
-                                    </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
+                                <>
+                                  {categoryDocs.length === 0 ? (
+                                    <div
+                                      key={category.id}
+                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
                                     >
-                                      {category.name}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-4 flex-shrink-0">
-                                    <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                      {categoryDocs.length === 0 
-                                        ? 'No files uploaded' 
-                                        : `${categoryDocs.length} file${categoryDocs.length > 1 ? 's' : ''}`}
-                                    </span>
-                                    {projectId && (
-                                      <DocumentUpload 
-                                        projectId={projectId} 
-                                        onUploadComplete={refetchDocuments}
-                                        open={uploadDialogOpen === category.id}
-                                        onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                      />
-                                    )}
-                                  </div>
-                                </div>
+                                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <div className="flex-shrink-0 flex items-center">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                                        </div>
+                                        <span 
+                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                          onClick={() => setUploadDialogOpen(category.id)}
+                                        >
+                                          {category.name}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-center gap-4 flex-shrink-0">
+                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                          No files uploaded
+                                        </span>
+                                        {projectId && (
+                                          <DocumentUpload 
+                                            projectId={projectId} 
+                                            onUploadComplete={refetchDocuments}
+                                            open={uploadDialogOpen === category.id}
+                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    categoryDocs.map((doc, idx) => (
+                                      <div
+                                        key={doc.id}
+                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
+                                      >
+                                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                                          <div className="flex-shrink-0 flex items-center">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                          </div>
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={() => setUploadDialogOpen(category.id)}
+                                          >
+                                            {category.name}
+                                          </span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-4 flex-shrink-0">
+                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                            {formatFileSize(doc.file_size || 0)}
+                                          </span>
+                                          {projectId && idx === 0 && (
+                                            <DocumentUpload 
+                                              projectId={projectId} 
+                                              onUploadComplete={refetchDocuments}
+                                              open={uploadDialogOpen === category.id}
+                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                            />
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
+                                </>
                               );
                             })}
                           </div>
@@ -418,38 +488,73 @@ export const ProjectDocsPage = ({
                               );
                               
                               return (
-                                <div
-                                  key={category.id}
-                                  className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                >
-                                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <div className="flex-shrink-0 flex items-center">
-                                      <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
-                                    </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
+                                <>
+                                  {categoryDocs.length === 0 ? (
+                                    <div
+                                      key={category.id}
+                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
                                     >
-                                      {category.name}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-4 flex-shrink-0">
-                                    <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                      {categoryDocs.length === 0 
-                                        ? 'No files uploaded' 
-                                        : `${categoryDocs.length} file${categoryDocs.length > 1 ? 's' : ''}`}
-                                    </span>
-                                    {projectId && (
-                                      <DocumentUpload 
-                                        projectId={projectId} 
-                                        onUploadComplete={refetchDocuments}
-                                        open={uploadDialogOpen === category.id}
-                                        onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                      />
-                                    )}
-                                  </div>
-                                </div>
+                                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <div className="flex-shrink-0 flex items-center">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                                        </div>
+                                        <span 
+                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                          onClick={() => setUploadDialogOpen(category.id)}
+                                        >
+                                          {category.name}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-center gap-4 flex-shrink-0">
+                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                          No files uploaded
+                                        </span>
+                                        {projectId && (
+                                          <DocumentUpload 
+                                            projectId={projectId} 
+                                            onUploadComplete={refetchDocuments}
+                                            open={uploadDialogOpen === category.id}
+                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    categoryDocs.map((doc, idx) => (
+                                      <div
+                                        key={doc.id}
+                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
+                                      >
+                                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                                          <div className="flex-shrink-0 flex items-center">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                          </div>
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={() => setUploadDialogOpen(category.id)}
+                                          >
+                                            {category.name}
+                                          </span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-4 flex-shrink-0">
+                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                            {formatFileSize(doc.file_size || 0)}
+                                          </span>
+                                          {projectId && idx === 0 && (
+                                            <DocumentUpload 
+                                              projectId={projectId} 
+                                              onUploadComplete={refetchDocuments}
+                                              open={uploadDialogOpen === category.id}
+                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                            />
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
+                                </>
                               );
                             })}
                           </div>
@@ -474,38 +579,73 @@ export const ProjectDocsPage = ({
                               );
                               
                               return (
-                                <div
-                                  key={category.id}
-                                  className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                >
-                                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <div className="flex-shrink-0 flex items-center">
-                                      <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
-                                    </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
+                                <>
+                                  {categoryDocs.length === 0 ? (
+                                    <div
+                                      key={category.id}
+                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
                                     >
-                                      {category.name}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-4 flex-shrink-0">
-                                    <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                      {categoryDocs.length === 0 
-                                        ? 'No files uploaded' 
-                                        : `${categoryDocs.length} file${categoryDocs.length > 1 ? 's' : ''}`}
-                                    </span>
-                                    {projectId && (
-                                      <DocumentUpload 
-                                        projectId={projectId} 
-                                        onUploadComplete={refetchDocuments}
-                                        open={uploadDialogOpen === category.id}
-                                        onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                      />
-                                    )}
-                                  </div>
-                                </div>
+                                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <div className="flex-shrink-0 flex items-center">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                                        </div>
+                                        <span 
+                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                          onClick={() => setUploadDialogOpen(category.id)}
+                                        >
+                                          {category.name}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-center gap-4 flex-shrink-0">
+                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                          No files uploaded
+                                        </span>
+                                        {projectId && (
+                                          <DocumentUpload 
+                                            projectId={projectId} 
+                                            onUploadComplete={refetchDocuments}
+                                            open={uploadDialogOpen === category.id}
+                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    categoryDocs.map((doc, idx) => (
+                                      <div
+                                        key={doc.id}
+                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
+                                      >
+                                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                                          <div className="flex-shrink-0 flex items-center">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                          </div>
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={() => setUploadDialogOpen(category.id)}
+                                          >
+                                            {category.name}
+                                          </span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-4 flex-shrink-0">
+                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                            {formatFileSize(doc.file_size || 0)}
+                                          </span>
+                                          {projectId && idx === 0 && (
+                                            <DocumentUpload 
+                                              projectId={projectId} 
+                                              onUploadComplete={refetchDocuments}
+                                              open={uploadDialogOpen === category.id}
+                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                            />
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
+                                </>
                               );
                             })}
                           </div>
@@ -530,38 +670,73 @@ export const ProjectDocsPage = ({
                               );
                               
                               return (
-                                <div
-                                  key={category.id}
-                                  className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                >
-                                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <div className="flex-shrink-0 flex items-center">
-                                      <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
-                                    </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
+                                <>
+                                  {categoryDocs.length === 0 ? (
+                                    <div
+                                      key={category.id}
+                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
                                     >
-                                      {category.name}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-4 flex-shrink-0">
-                                    <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                      {categoryDocs.length === 0 
-                                        ? 'No files uploaded' 
-                                        : `${categoryDocs.length} file${categoryDocs.length > 1 ? 's' : ''}`}
-                                    </span>
-                                    {projectId && (
-                                      <DocumentUpload 
-                                        projectId={projectId} 
-                                        onUploadComplete={refetchDocuments}
-                                        open={uploadDialogOpen === category.id}
-                                        onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                      />
-                                    )}
-                                  </div>
-                                </div>
+                                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <div className="flex-shrink-0 flex items-center">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                                        </div>
+                                        <span 
+                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                          onClick={() => setUploadDialogOpen(category.id)}
+                                        >
+                                          {category.name}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-center gap-4 flex-shrink-0">
+                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                          No files uploaded
+                                        </span>
+                                        {projectId && (
+                                          <DocumentUpload 
+                                            projectId={projectId} 
+                                            onUploadComplete={refetchDocuments}
+                                            open={uploadDialogOpen === category.id}
+                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    categoryDocs.map((doc, idx) => (
+                                      <div
+                                        key={doc.id}
+                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
+                                      >
+                                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                                          <div className="flex-shrink-0 flex items-center">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                          </div>
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={() => setUploadDialogOpen(category.id)}
+                                          >
+                                            {category.name}
+                                          </span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-4 flex-shrink-0">
+                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                            {formatFileSize(doc.file_size || 0)}
+                                          </span>
+                                          {projectId && idx === 0 && (
+                                            <DocumentUpload 
+                                              projectId={projectId} 
+                                              onUploadComplete={refetchDocuments}
+                                              open={uploadDialogOpen === category.id}
+                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                            />
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
+                                </>
                               );
                             })}
                           </div>
@@ -586,38 +761,73 @@ export const ProjectDocsPage = ({
                               );
                               
                               return (
-                                <div
-                                  key={category.id}
-                                  className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                >
-                                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <div className="flex-shrink-0 flex items-center">
-                                      <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
-                                    </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
+                                <>
+                                  {categoryDocs.length === 0 ? (
+                                    <div
+                                      key={category.id}
+                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
                                     >
-                                      {category.name}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-4 flex-shrink-0">
-                                    <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                      {categoryDocs.length === 0 
-                                        ? 'No files uploaded' 
-                                        : `${categoryDocs.length} file${categoryDocs.length > 1 ? 's' : ''}`}
-                                    </span>
-                                    {projectId && (
-                                      <DocumentUpload 
-                                        projectId={projectId} 
-                                        onUploadComplete={refetchDocuments}
-                                        open={uploadDialogOpen === category.id}
-                                        onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                      />
-                                    )}
-                                  </div>
-                                </div>
+                                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <div className="flex-shrink-0 flex items-center">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                                        </div>
+                                        <span 
+                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                          onClick={() => setUploadDialogOpen(category.id)}
+                                        >
+                                          {category.name}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-center gap-4 flex-shrink-0">
+                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                          No files uploaded
+                                        </span>
+                                        {projectId && (
+                                          <DocumentUpload 
+                                            projectId={projectId} 
+                                            onUploadComplete={refetchDocuments}
+                                            open={uploadDialogOpen === category.id}
+                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    categoryDocs.map((doc, idx) => (
+                                      <div
+                                        key={doc.id}
+                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
+                                      >
+                                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                                          <div className="flex-shrink-0 flex items-center">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                          </div>
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={() => setUploadDialogOpen(category.id)}
+                                          >
+                                            {category.name}
+                                          </span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-4 flex-shrink-0">
+                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                            {formatFileSize(doc.file_size || 0)}
+                                          </span>
+                                          {projectId && idx === 0 && (
+                                            <DocumentUpload 
+                                              projectId={projectId} 
+                                              onUploadComplete={refetchDocuments}
+                                              open={uploadDialogOpen === category.id}
+                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                            />
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
+                                </>
                               );
                             })}
                           </div>
@@ -642,38 +852,73 @@ export const ProjectDocsPage = ({
                               );
                               
                               return (
-                                <div
-                                  key={category.id}
-                                  className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
-                                >
-                                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                                    <div className="flex-shrink-0 flex items-center">
-                                      <div className={`w-1.5 h-1.5 rounded-full ${categoryDocs.length > 0 ? 'bg-green-500' : 'bg-muted-foreground/50'}`} />
-                                    </div>
-                                    <span 
-                                      className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                      onClick={() => setUploadDialogOpen(category.id)}
+                                <>
+                                  {categoryDocs.length === 0 ? (
+                                    <div
+                                      key={category.id}
+                                      className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
                                     >
-                                      {category.name}
-                                    </span>
-                                  </div>
-                                  
-                                  <div className="flex items-center gap-4 flex-shrink-0">
-                                    <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
-                                      {categoryDocs.length === 0 
-                                        ? 'No files uploaded' 
-                                        : `${categoryDocs.length} file${categoryDocs.length > 1 ? 's' : ''}`}
-                                    </span>
-                                    {projectId && (
-                                      <DocumentUpload 
-                                        projectId={projectId} 
-                                        onUploadComplete={refetchDocuments}
-                                        open={uploadDialogOpen === category.id}
-                                        onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
-                                      />
-                                    )}
-                                  </div>
-                                </div>
+                                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <div className="flex-shrink-0 flex items-center">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                                        </div>
+                                        <span 
+                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                          onClick={() => setUploadDialogOpen(category.id)}
+                                        >
+                                          {category.name}
+                                        </span>
+                                      </div>
+                                      
+                                      <div className="flex items-center gap-4 flex-shrink-0">
+                                        <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                          No files uploaded
+                                        </span>
+                                        {projectId && (
+                                          <DocumentUpload 
+                                            projectId={projectId} 
+                                            onUploadComplete={refetchDocuments}
+                                            open={uploadDialogOpen === category.id}
+                                            onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                          />
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    categoryDocs.map((doc, idx) => (
+                                      <div
+                                        key={doc.id}
+                                        className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
+                                      >
+                                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                                          <div className="flex-shrink-0 flex items-center">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                          </div>
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={() => setUploadDialogOpen(category.id)}
+                                          >
+                                            {category.name}
+                                          </span>
+                                        </div>
+                                        
+                                        <div className="flex items-center gap-4 flex-shrink-0">
+                                          <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                            {formatFileSize(doc.file_size || 0)}
+                                          </span>
+                                          {projectId && idx === 0 && (
+                                            <DocumentUpload 
+                                              projectId={projectId} 
+                                              onUploadComplete={refetchDocuments}
+                                              open={uploadDialogOpen === category.id}
+                                              onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
+                                            />
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
+                                </>
                               );
                             })}
                           </div>
