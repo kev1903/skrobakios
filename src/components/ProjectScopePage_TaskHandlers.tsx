@@ -33,9 +33,6 @@ export const createTaskConversionHandlers = (
       
       toast.success(`Successfully converted "${wbsItem.title}" to a detailed task`);
       
-      // Navigate to project tasks page to show the newly created task
-      onNavigate(`project-tasks?projectId=${project.id}`);
-      
     } catch (error) {
       console.error('Error converting WBS to task:', error);
       toast.error('Failed to convert WBS item to task');
