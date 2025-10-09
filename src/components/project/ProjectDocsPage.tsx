@@ -159,6 +159,9 @@ export const ProjectDocsPage = ({
   const [categoryPopupOpen, setCategoryPopupOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string } | null>(null);
   const [uploadInCategoryOpen, setUploadInCategoryOpen] = useState(false);
+  
+  // Section upload dialog state
+  const [sectionUploadOpen, setSectionUploadOpen] = useState<string | null>(null);
 
   const toggleSection = (sectionId: string) => {
     setOpenSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
@@ -342,12 +345,29 @@ export const ProjectDocsPage = ({
                             open={openSections[sectionKey] !== false} 
                             onOpenChange={() => toggleSection(sectionKey)}
                           >
-                            <CollapsibleTrigger className="w-full">
-                              <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors cursor-pointer rounded-md">
-                                <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                            <CollapsibleTrigger asChild>
+                              <div className="flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/40 transition-colors rounded-md">
+                                <button 
+                                  className="flex items-center gap-2 cursor-pointer flex-1 text-left"
+                                  type="button"
+                                >
                                   <ChevronDown className={`w-4 h-4 transition-transform ${openSections[sectionKey] !== false ? '' : '-rotate-90'}`} />
-                                  {section.number}. {section.name}
-                                </h4>
+                                  <h4 className="text-sm font-semibold text-foreground">
+                                    {section.number}. {section.name}
+                                  </h4>
+                                </button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 px-2 text-xs"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSectionUploadOpen(sectionKey);
+                                  }}
+                                >
+                                  <Upload className="w-3.5 h-3.5 mr-1.5" />
+                                  Upload
+                                </Button>
                               </div>
                             </CollapsibleTrigger>
                             <CollapsibleContent>
@@ -583,6 +603,21 @@ export const ProjectDocsPage = ({
           }}
           open={uploadInCategoryOpen}
           onOpenChange={setUploadInCategoryOpen}
+        />
+      )}
+
+      {/* Upload Dialog for Sections */}
+      {projectId && sectionUploadOpen && (
+        <DocumentUpload 
+          projectId={projectId} 
+          onUploadComplete={() => {
+            refetchDocuments();
+            setSectionUploadOpen(null);
+          }}
+          open={!!sectionUploadOpen}
+          onOpenChange={(open) => {
+            if (!open) setSectionUploadOpen(null);
+          }}
         />
       )}
     </div>;
