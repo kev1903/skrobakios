@@ -220,9 +220,8 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
       setIsOpen(open);
     }}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Plus className="w-4 h-4 mr-2" />
-          Upload Documents
+        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+          <Upload className="w-3.5 h-3.5" />
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">

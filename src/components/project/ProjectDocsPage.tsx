@@ -9,10 +9,21 @@ import { useProjects, Project } from '@/hooks/useProjects';
 import { useProjectLinks, ProjectLink } from '@/hooks/useProjectLinks';
 import { ProjectLinkDialog } from './ProjectLinkDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
-import { Plus, FileText, Link, Download, Eye, Edit, Trash2, ExternalLink } from 'lucide-react';
+import { Plus, FileText, Link, Download, Eye, Edit, Trash2, ExternalLink, Upload } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { DocumentUpload } from '@/components/project-documents/DocumentUpload';
 import { useProjectDocuments } from '@/hooks/useProjectDocuments';
+
+const documentCategories = [
+  { id: 'architectural', name: 'Architectural Plans', type: 'drawing' },
+  { id: 'structural', name: 'Structural Drawings', type: 'drawing' },
+  { id: 'specifications', name: 'Project Specifications', type: 'specification' },
+  { id: 'reports', name: 'Site Reports', type: 'report' },
+  { id: 'permits', name: 'Permits & Approvals', type: 'document' },
+  { id: 'contracts', name: 'Contracts', type: 'document' },
+  { id: 'photos', name: 'Site Photos', type: 'image' },
+  { id: 'correspondence', name: 'Correspondence', type: 'document' },
+];
 interface ProjectDocsPageProps {
   onNavigate: (page: string) => void;
 }
@@ -175,77 +186,54 @@ export const ProjectDocsPage = ({
                 <TabsContent value="files" className="space-y-0 mt-0">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-base font-semibold text-foreground">Project Files</h3>
-                    {projectId && (
-                      <DocumentUpload 
-                        projectId={projectId} 
-                        onUploadComplete={refetchDocuments}
-                      />
-                    )}
                   </div>
                   
                   {documentsLoading ? (
                     <div className="text-center py-8 text-muted-foreground">Loading files...</div>
-                  ) : documents.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground">
-                      <FileText className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                      <p>No files uploaded yet</p>
-                      <p className="text-sm mt-1">Upload your first file to get started</p>
-                    </div>
                   ) : (
                     <div className="space-y-1">
-                      {documents.map(doc => (
-                        <div 
-                          key={doc.id}
-                          className="group flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-accent/50 transition-colors"
-                        >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div className="flex-shrink-0">
-                              {getFileIcon(doc.content_type)}
+                      {documentCategories.map((category) => {
+                        const categoryDocs = documents.filter(doc => 
+                          doc.document_type === category.type
+                        );
+                        
+                        return (
+                          <div
+                            key={category.id}
+                            className="group flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-accent/50 transition-colors border border-transparent hover:border-border/40"
+                          >
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <div className="flex-shrink-0">
+                                <FileText className="w-4 h-4 text-muted-foreground/60" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium text-sm text-foreground">{category.name}</span>
+                                </div>
+                                <p className="text-xs text-muted-foreground/70 mt-0.5">
+                                  {categoryDocs.length === 0 
+                                    ? 'No files uploaded' 
+                                    : `${categoryDocs.length} file${categoryDocs.length > 1 ? 's' : ''}`}
+                                </p>
+                              </div>
                             </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-sm text-foreground truncate">{doc.name}</span>
-                                {doc.document_type && (
-                                  <span className="text-xs text-muted-foreground/60 flex-shrink-0">
-                                    {doc.document_type}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground/70 mt-0.5">
-                                <span>{formatFileSize(doc.file_size)}</span>
-                                <span>•</span>
-                                <span>{new Date(doc.created_at).toLocaleDateString()}</span>
-                              </div>
+                            
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              {categoryDocs.length > 0 && (
+                                <span className="text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  {categoryDocs.length}
+                                </span>
+                              )}
+                              {projectId && (
+                                <DocumentUpload 
+                                  projectId={projectId} 
+                                  onUploadComplete={refetchDocuments}
+                                />
+                              )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-7 w-7 p-0"
-                              onClick={() => window.open(doc.file_url, '_blank')}
-                            >
-                              <Eye className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-7 w-7 p-0"
-                              onClick={() => handleDownload(doc.file_url, doc.name)}
-                            >
-                              <Download className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-7 w-7 p-0 hover:text-destructive"
-                              onClick={() => deleteDocument(doc.id)}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </TabsContent>
