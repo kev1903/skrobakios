@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Users, Calendar, TrendingUp, Plus, Filter, Download, Building2, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Users, Calendar, TrendingUp, Plus, Filter, Download, Building2, CheckCircle2, Clock, AlertTriangle, Sparkles } from "lucide-react";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
 import { useSortPreferences, SortDirection } from "@/hooks/useSortPreferences";
@@ -150,6 +150,19 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
           </div>
           
           <div className={`flex items-center gap-3 ${isMobile ? 'flex-wrap' : ''}`}>
+            {/* SkAI Assistant Button - Prominent */}
+            <Button 
+              className="relative bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse-subtle"
+              onClick={() => {
+                // Dispatch custom event to open AI chat
+                window.dispatchEvent(new CustomEvent('open-ai-chat'));
+              }}
+              size={isMobile ? "sm" : "default"}
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {isMobile ? 'SkAI' : 'Ask SkAI Assistant'}
+            </Button>
+            
             {!isMobile && (
               <>
                 <Button variant="outline" size="sm" className="glass-hover bg-white/70 border-blue-200/50">

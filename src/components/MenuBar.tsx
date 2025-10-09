@@ -114,6 +114,17 @@ const barRef = useRef<HTMLDivElement>(null);
     };
   }, []);
 
+  // Listen for open-ai-chat event from other components
+  useEffect(() => {
+    const handleOpenAiChat = () => {
+      setShowAiChat(true);
+    };
+    window.addEventListener('open-ai-chat', handleOpenAiChat);
+    return () => {
+      window.removeEventListener('open-ai-chat', handleOpenAiChat);
+    };
+  }, []);
+
   // Load projects
   useEffect(() => {
     const loadProjects = async () => {
