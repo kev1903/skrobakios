@@ -135,8 +135,6 @@ export const useWBS = (projectId: string) => {
         console.log('🔄 Auto-setting progress to 0% for not started task');
       }
 
-      await WBSService.updateWBSItem(id, updates);
-
       // Check if progress or status was updated to trigger parent rollups
       const touchesProgressOrStatus =
         Object.prototype.hasOwnProperty.call(updates, 'progress') ||
@@ -152,7 +150,7 @@ export const useWBS = (projectId: string) => {
 
       let parentsToUpdate: Array<{id: string, progress: number, status: WBSItem['status']}> = [];
 
-      // Update local state and optionally auto-schedule dependents
+      // OPTIMISTIC UPDATE: Update local state FIRST for instant UI feedback
       setWBSItems((prev) => {
         let updated = updateItemsRecursively(prev, id, updates);
 
@@ -189,6 +187,9 @@ export const useWBS = (projectId: string) => {
 
         return updated;
       });
+
+      // Then persist to database (async, in background)
+      await WBSService.updateWBSItem(id, updates);
 
       // Save parent rollup updates to database (outside setState)
       if (parentsToUpdate.length > 0) {
