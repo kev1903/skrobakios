@@ -121,7 +121,7 @@ export const WBSRightPanel = ({
             <div className="px-2 flex items-center justify-start h-full text-muted-foreground text-xs">
               <div className="flex items-center gap-1 w-full">
                 {item.is_task_enabled && (
-                  <ListTodo className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                  <ListTodo className="w-3 h-3 text-green-600 flex-shrink-0" />
                 )}
                 {projectId ? (
                   <SimpleTeamAssignment
@@ -199,9 +199,9 @@ export const WBSRightPanel = ({
              >
                <ListTodo className={`w-4 h-4 transition-all duration-300 ${
                  convertingTaskId === item.id
-                   ? 'text-blue-600 scale-110 drop-shadow-[0_0_8px_rgba(37,99,235,0.8)]'
+                   ? 'text-green-600 scale-110 drop-shadow-[0_0_8px_rgba(22,163,74,0.8)]'
                    : item.is_task_enabled
-                   ? 'text-blue-600 hover:text-blue-700' 
+                   ? 'text-green-600 hover:text-green-700' 
                    : 'text-muted-foreground hover:text-foreground'
                }`} />
              </Button>
