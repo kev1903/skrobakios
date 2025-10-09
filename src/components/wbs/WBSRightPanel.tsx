@@ -192,17 +192,17 @@ export const WBSRightPanel = ({
                  } else {
                    setConvertingTaskId(item.id);
                    onContextMenuAction('convert_to_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
-                   setTimeout(() => setConvertingTaskId(null), 2000);
+                   setTimeout(() => setConvertingTaskId(null), 1500);
                  }
                }}
                title={item.is_task_enabled ? "View Task" : "Convert to Task"}
              >
                <ListTodo className={`w-4 h-4 transition-all duration-300 ${
-                 convertingTaskId === item.id
-                   ? 'text-green-600 scale-110 drop-shadow-[0_0_8px_rgba(22,163,74,0.8)]'
-                   : item.is_task_enabled
+                 item.is_task_enabled
                    ? 'text-green-600 hover:text-green-700' 
                    : 'text-muted-foreground hover:text-foreground'
+               } ${
+                 convertingTaskId === item.id ? 'scale-110 drop-shadow-[0_0_8px_rgba(22,163,74,0.8)]' : ''
                }`} />
              </Button>
            </div>
