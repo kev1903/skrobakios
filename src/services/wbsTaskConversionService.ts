@@ -47,18 +47,6 @@ export class WBSTaskConversionService {
 
     if (taskError) throw taskError;
 
-    // Update WBS item to link back to task
-    const { error: wbsError } = await supabase
-      .from('wbs_items')
-      .update({
-        linked_task_id: task.id,
-        is_task_enabled: true,
-        task_conversion_date: new Date().toISOString(),
-      })
-      .eq('id', wbsItem.id);
-
-    if (wbsError) throw wbsError;
-
     console.log('✅ Successfully converted WBS to Task:', task.id);
     return task;
   }
@@ -117,16 +105,6 @@ export class WBSTaskConversionService {
         .delete()
         .eq('id', wbsData.linked_task_id);
     }
-
-    // Update WBS item to remove linkage
-    await supabase
-      .from('wbs_items')
-      .update({
-        linked_task_id: null,
-        is_task_enabled: false,
-        task_conversion_date: null,
-      })
-      .eq('id', wbsItemId);
   }
 
   /**
