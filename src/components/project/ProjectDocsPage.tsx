@@ -268,7 +268,7 @@ export const ProjectDocsPage = ({
                   {documentsLoading ? (
                     <div className="text-center py-8 text-muted-foreground">Loading files...</div>
                   ) : (
-                    <div className="space-y-1">
+                    <div className="space-y-0.5">
                       {documentCategories.map((category) => {
                         const categoryDocs = documents.filter(doc => 
                           doc.document_type === category.type
@@ -277,30 +277,21 @@ export const ProjectDocsPage = ({
                         return (
                           <div
                             key={category.id}
-                            className="group flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-accent/50 transition-colors border border-transparent hover:border-border/40"
+                            className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/20 last:border-b-0"
                           >
                             <div className="flex items-center gap-3 min-w-0 flex-1">
                               <div className="flex-shrink-0">
-                                <FileText className="w-4 h-4 text-muted-foreground/60" />
+                                <FileText className="w-4 h-4 text-muted-foreground/50" />
                               </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium text-sm text-foreground">{category.name}</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground/70 mt-0.5">
-                                  {categoryDocs.length === 0 
-                                    ? 'No files uploaded' 
-                                    : `${categoryDocs.length} file${categoryDocs.length > 1 ? 's' : ''}`}
-                                </p>
-                              </div>
+                              <span className="font-medium text-sm text-foreground truncate">{category.name}</span>
                             </div>
                             
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              {categoryDocs.length > 0 && (
-                                <span className="text-xs text-muted-foreground px-2 py-1 rounded bg-muted/50 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  {categoryDocs.length}
-                                </span>
-                              )}
+                            <div className="flex items-center gap-4 flex-shrink-0">
+                              <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
+                                {categoryDocs.length === 0 
+                                  ? 'No files uploaded' 
+                                  : `${categoryDocs.length} file${categoryDocs.length > 1 ? 's' : ''}`}
+                              </span>
                               {projectId && (
                                 <DocumentUpload 
                                   projectId={projectId} 
