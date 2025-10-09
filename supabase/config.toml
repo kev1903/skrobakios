@@ -74,3 +74,6 @@ verify_jwt = false
 
 [functions.daily-check-reset]
 verify_jwt = false
+
+[functions.generate-ai-suggestions]
+verify_jwt = true

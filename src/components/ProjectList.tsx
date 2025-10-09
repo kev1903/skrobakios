@@ -152,14 +152,14 @@ export const ProjectList = ({ onNavigate, onSelectProject }: ProjectListProps) =
           <div className={`flex items-center gap-3 ${isMobile ? 'flex-wrap' : ''}`}>
             {/* SkAI Assistant Button - Prominent */}
             <Button 
-              className="relative bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse-subtle"
+              className="relative bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
               onClick={() => {
                 // Dispatch custom event to open AI chat
                 window.dispatchEvent(new CustomEvent('open-ai-chat'));
               }}
               size={isMobile ? "sm" : "default"}
             >
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
               {isMobile ? 'SkAI' : 'Ask SkAI Assistant'}
             </Button>
             

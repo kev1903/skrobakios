@@ -170,6 +170,71 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_suggestions: {
+        Row: {
+          action_items: Json | null
+          actioned: boolean | null
+          category: string
+          company_id: string
+          created_at: string | null
+          description: string
+          dismissed: boolean | null
+          expires_at: string | null
+          id: string
+          metadata: Json | null
+          priority: string
+          project_id: string | null
+          suggestion_type: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          action_items?: Json | null
+          actioned?: boolean | null
+          category: string
+          company_id: string
+          created_at?: string | null
+          description: string
+          dismissed?: boolean | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          project_id?: string | null
+          suggestion_type: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          action_items?: Json | null
+          actioned?: boolean | null
+          category?: string
+          company_id?: string
+          created_at?: string | null
+          description?: string
+          dismissed?: boolean | null
+          expires_at?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string
+          project_id?: string | null
+          suggestion_type?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_suggestions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -6367,6 +6432,10 @@ export type Database = {
           deleted_company_id: string
           deletion_result: Json
         }[]
+      }
+      cleanup_old_suggestions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       copy_monday_blocks_to_weekdays: {
         Args: { target_user_id: string }
