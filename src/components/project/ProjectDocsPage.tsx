@@ -373,7 +373,8 @@ export const ProjectDocsPage = ({
                                             </span>
                                             {projectId && (
                                               <DocumentUpload 
-                                                projectId={projectId} 
+                                                projectId={projectId}
+                                                categoryId={category.id}
                                                 onUploadComplete={refetchDocuments}
                                                 open={uploadDialogOpen === category.id}
                                                 onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
@@ -440,7 +441,8 @@ export const ProjectDocsPage = ({
                                               </Button>
                                               {projectId && idx === 0 && (
                                                 <DocumentUpload 
-                                                  projectId={projectId} 
+                                                  projectId={projectId}
+                                                  categoryId={category.id}
                                                   onUploadComplete={refetchDocuments}
                                                   open={uploadDialogOpen === category.id}
                                                   onOpenChange={(open) => setUploadDialogOpen(open ? category.id : null)}
