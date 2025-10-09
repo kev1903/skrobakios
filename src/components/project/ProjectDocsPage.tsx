@@ -440,10 +440,28 @@ export const ProjectDocsPage = ({
                                               )}
                                             </div>
                                             
-                                            <div className="flex items-center gap-4 flex-shrink-0">
+                                            <div className="flex items-center gap-2 flex-shrink-0">
                                               <span className="text-xs text-muted-foreground/70 min-w-[100px] text-right">
                                                 {formatFileSize(doc.file_size || 0)}
                                               </span>
+                                              <Button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                className="h-8 w-8 p-0 hover:bg-primary/10"
+                                                onClick={() => window.open(doc.file_url, '_blank')}
+                                                title="View file"
+                                              >
+                                                <Eye className="w-4 h-4" />
+                                              </Button>
+                                              <Button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                className="h-8 w-8 p-0 hover:bg-primary/10"
+                                                onClick={() => handleDownload(doc.file_url, doc.name)}
+                                                title="Download file"
+                                              >
+                                                <Download className="w-4 h-4" />
+                                              </Button>
                                               {projectId && idx === 0 && (
                                                 <DocumentUpload 
                                                   projectId={projectId} 
