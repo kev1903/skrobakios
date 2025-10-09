@@ -17,6 +17,8 @@ import { DocumentUpload } from '@/components/project-documents/DocumentUpload';
 import { useProjectDocuments } from '@/hooks/useProjectDocuments';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useDocumentCategories } from '@/hooks/useDocumentCategories';
+import { DocumentEditDialog } from './DocumentEditDialog';
+import type { ProjectDocument } from '@/hooks/useProjectDocuments';
 
 const documentCategories = [
   // 1. Application & Administrative Documents
@@ -148,8 +150,17 @@ export const ProjectDocsPage = ({
   // Upload dialog state
   const [uploadDialogOpen, setUploadDialogOpen] = useState<string | null>(null);
 
+  // Document edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<ProjectDocument | null>(null);
+
   const toggleSection = (sectionId: string) => {
     setOpenSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
+  };
+
+  const handleDocumentClick = (doc: ProjectDocument) => {
+    setSelectedDocument(doc);
+    setEditDialogOpen(true);
   };
 
   // Project documents management
@@ -376,11 +387,14 @@ export const ProjectDocsPage = ({
                                             key={doc.id}
                                             className="group flex items-center justify-between px-4 py-2 hover:bg-accent/30 transition-colors border-b border-border/10 last:border-b-0"
                                           >
-                                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                                             <div className="flex items-center gap-3 min-w-0 flex-1">
                                               <div className="flex-shrink-0 flex items-center">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                                               </div>
-                                              <span className="font-medium text-sm text-foreground truncate">
+                                              <span 
+                                                className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors"
+                                                onClick={() => handleDocumentClick(doc)}
+                                              >
                                                 {category.name}
                                               </span>
                                             </div>
@@ -511,5 +525,13 @@ export const ProjectDocsPage = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Document Edit Dialog */}
+      <DocumentEditDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        document={selectedDocument}
+        onDocumentUpdated={refetchDocuments}
+      />
     </div>;
 };
