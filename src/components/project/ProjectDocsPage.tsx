@@ -145,8 +145,49 @@ export const ProjectDocsPage = ({
   // Upload dialog state
   const [uploadDialogOpen, setUploadDialogOpen] = useState<string | null>(null);
 
+  // Title editing state
+  const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
+  const [customTitles, setCustomTitles] = useState<Record<string, string>>(() => {
+    const stored = localStorage.getItem(`project-${projectId}-custom-titles`);
+    return stored ? JSON.parse(stored) : {};
+  });
+  const [editTitleValue, setEditTitleValue] = useState<string>('');
+
   const toggleSection = (sectionId: string) => {
     setOpenSections(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
+  };
+
+  const handleTitleClick = (categoryId: string, currentTitle: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingTitleId(categoryId);
+    setEditTitleValue(customTitles[categoryId] || currentTitle);
+  };
+
+  const handleTitleSave = (categoryId: string) => {
+    const trimmedValue = editTitleValue.trim();
+    if (trimmedValue) {
+      const newCustomTitles = { ...customTitles, [categoryId]: trimmedValue };
+      setCustomTitles(newCustomTitles);
+      localStorage.setItem(`project-${projectId}-custom-titles`, JSON.stringify(newCustomTitles));
+    }
+    setEditingTitleId(null);
+  };
+
+  const handleTitleCancel = () => {
+    setEditingTitleId(null);
+    setEditTitleValue('');
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent, categoryId: string) => {
+    if (e.key === 'Enter') {
+      handleTitleSave(categoryId);
+    } else if (e.key === 'Escape') {
+      handleTitleCancel();
+    }
+  };
+
+  const getTitleDisplay = (categoryId: string, defaultTitle: string) => {
+    return customTitles[categoryId] || defaultTitle;
   };
 
   // Project documents management
@@ -316,12 +357,25 @@ export const ProjectDocsPage = ({
                                         <div className="flex-shrink-0 flex items-center">
                                           <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
                                         </div>
-                                        <span 
-                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                          onClick={() => setUploadDialogOpen(category.id)}
-                                        >
-                                          {category.name}
-                                        </span>
+                                        {editingTitleId === category.id ? (
+                                          <input
+                                            type="text"
+                                            value={editTitleValue}
+                                            onChange={(e) => setEditTitleValue(e.target.value)}
+                                            onBlur={() => handleTitleSave(category.id)}
+                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                            autoFocus
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        ) : (
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                          >
+                                            {getTitleDisplay(category.id, category.name)}
+                                          </span>
+                                        )}
                                       </div>
                                       
                                       <div className="flex items-center gap-4 flex-shrink-0">
@@ -348,12 +402,25 @@ export const ProjectDocsPage = ({
                                           <div className="flex-shrink-0 flex items-center">
                                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                                           </div>
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={() => setUploadDialogOpen(category.id)}
-                                          >
-                                            {category.name}
-                                          </span>
+                                          {editingTitleId === category.id ? (
+                                            <input
+                                              type="text"
+                                              value={editTitleValue}
+                                              onChange={(e) => setEditTitleValue(e.target.value)}
+                                              onBlur={() => handleTitleSave(category.id)}
+                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                              autoFocus
+                                              onClick={(e) => e.stopPropagation()}
+                                            />
+                                          ) : (
+                                            <span 
+                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                            >
+                                              {getTitleDisplay(category.id, category.name)}
+                                            </span>
+                                          )}
                                         </div>
                                         
                                         <div className="flex items-center gap-4 flex-shrink-0">
@@ -498,12 +565,25 @@ export const ProjectDocsPage = ({
                                         <div className="flex-shrink-0 flex items-center">
                                           <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
                                         </div>
-                                        <span 
-                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                          onClick={() => setUploadDialogOpen(category.id)}
-                                        >
-                                          {category.name}
-                                        </span>
+                                        {editingTitleId === category.id ? (
+                                          <input
+                                            type="text"
+                                            value={editTitleValue}
+                                            onChange={(e) => setEditTitleValue(e.target.value)}
+                                            onBlur={() => handleTitleSave(category.id)}
+                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                            autoFocus
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        ) : (
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                          >
+                                            {getTitleDisplay(category.id, category.name)}
+                                          </span>
+                                        )}
                                       </div>
                                       
                                       <div className="flex items-center gap-4 flex-shrink-0">
@@ -530,12 +610,25 @@ export const ProjectDocsPage = ({
                                           <div className="flex-shrink-0 flex items-center">
                                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                                           </div>
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={() => setUploadDialogOpen(category.id)}
-                                          >
-                                            {category.name}
-                                          </span>
+                                          {editingTitleId === category.id ? (
+                                            <input
+                                              type="text"
+                                              value={editTitleValue}
+                                              onChange={(e) => setEditTitleValue(e.target.value)}
+                                              onBlur={() => handleTitleSave(category.id)}
+                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                              autoFocus
+                                              onClick={(e) => e.stopPropagation()}
+                                            />
+                                          ) : (
+                                            <span 
+                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                            >
+                                              {getTitleDisplay(category.id, category.name)}
+                                            </span>
+                                          )}
                                         </div>
                                         
                                         <div className="flex items-center gap-4 flex-shrink-0">
@@ -589,12 +682,25 @@ export const ProjectDocsPage = ({
                                         <div className="flex-shrink-0 flex items-center">
                                           <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
                                         </div>
-                                        <span 
-                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                          onClick={() => setUploadDialogOpen(category.id)}
-                                        >
-                                          {category.name}
-                                        </span>
+                                        {editingTitleId === category.id ? (
+                                          <input
+                                            type="text"
+                                            value={editTitleValue}
+                                            onChange={(e) => setEditTitleValue(e.target.value)}
+                                            onBlur={() => handleTitleSave(category.id)}
+                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                            autoFocus
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        ) : (
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                          >
+                                            {getTitleDisplay(category.id, category.name)}
+                                          </span>
+                                        )}
                                       </div>
                                       
                                       <div className="flex items-center gap-4 flex-shrink-0">
@@ -621,12 +727,25 @@ export const ProjectDocsPage = ({
                                           <div className="flex-shrink-0 flex items-center">
                                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                                           </div>
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={() => setUploadDialogOpen(category.id)}
-                                          >
-                                            {category.name}
-                                          </span>
+                                          {editingTitleId === category.id ? (
+                                            <input
+                                              type="text"
+                                              value={editTitleValue}
+                                              onChange={(e) => setEditTitleValue(e.target.value)}
+                                              onBlur={() => handleTitleSave(category.id)}
+                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                              autoFocus
+                                              onClick={(e) => e.stopPropagation()}
+                                            />
+                                          ) : (
+                                            <span 
+                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                            >
+                                              {getTitleDisplay(category.id, category.name)}
+                                            </span>
+                                          )}
                                         </div>
                                         
                                         <div className="flex items-center gap-4 flex-shrink-0">
@@ -680,12 +799,25 @@ export const ProjectDocsPage = ({
                                         <div className="flex-shrink-0 flex items-center">
                                           <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
                                         </div>
-                                        <span 
-                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                          onClick={() => setUploadDialogOpen(category.id)}
-                                        >
-                                          {category.name}
-                                        </span>
+                                        {editingTitleId === category.id ? (
+                                          <input
+                                            type="text"
+                                            value={editTitleValue}
+                                            onChange={(e) => setEditTitleValue(e.target.value)}
+                                            onBlur={() => handleTitleSave(category.id)}
+                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                            autoFocus
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        ) : (
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                          >
+                                            {getTitleDisplay(category.id, category.name)}
+                                          </span>
+                                        )}
                                       </div>
                                       
                                       <div className="flex items-center gap-4 flex-shrink-0">
@@ -712,12 +844,25 @@ export const ProjectDocsPage = ({
                                           <div className="flex-shrink-0 flex items-center">
                                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                                           </div>
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={() => setUploadDialogOpen(category.id)}
-                                          >
-                                            {category.name}
-                                          </span>
+                                          {editingTitleId === category.id ? (
+                                            <input
+                                              type="text"
+                                              value={editTitleValue}
+                                              onChange={(e) => setEditTitleValue(e.target.value)}
+                                              onBlur={() => handleTitleSave(category.id)}
+                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                              autoFocus
+                                              onClick={(e) => e.stopPropagation()}
+                                            />
+                                          ) : (
+                                            <span 
+                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                            >
+                                              {getTitleDisplay(category.id, category.name)}
+                                            </span>
+                                          )}
                                         </div>
                                         
                                         <div className="flex items-center gap-4 flex-shrink-0">
@@ -771,12 +916,25 @@ export const ProjectDocsPage = ({
                                         <div className="flex-shrink-0 flex items-center">
                                           <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
                                         </div>
-                                        <span 
-                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                          onClick={() => setUploadDialogOpen(category.id)}
-                                        >
-                                          {category.name}
-                                        </span>
+                                        {editingTitleId === category.id ? (
+                                          <input
+                                            type="text"
+                                            value={editTitleValue}
+                                            onChange={(e) => setEditTitleValue(e.target.value)}
+                                            onBlur={() => handleTitleSave(category.id)}
+                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                            autoFocus
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        ) : (
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                          >
+                                            {getTitleDisplay(category.id, category.name)}
+                                          </span>
+                                        )}
                                       </div>
                                       
                                       <div className="flex items-center gap-4 flex-shrink-0">
@@ -803,12 +961,25 @@ export const ProjectDocsPage = ({
                                           <div className="flex-shrink-0 flex items-center">
                                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                                           </div>
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={() => setUploadDialogOpen(category.id)}
-                                          >
-                                            {category.name}
-                                          </span>
+                                          {editingTitleId === category.id ? (
+                                            <input
+                                              type="text"
+                                              value={editTitleValue}
+                                              onChange={(e) => setEditTitleValue(e.target.value)}
+                                              onBlur={() => handleTitleSave(category.id)}
+                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                              autoFocus
+                                              onClick={(e) => e.stopPropagation()}
+                                            />
+                                          ) : (
+                                            <span 
+                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                            >
+                                              {getTitleDisplay(category.id, category.name)}
+                                            </span>
+                                          )}
                                         </div>
                                         
                                         <div className="flex items-center gap-4 flex-shrink-0">
@@ -862,12 +1033,25 @@ export const ProjectDocsPage = ({
                                         <div className="flex-shrink-0 flex items-center">
                                           <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
                                         </div>
-                                        <span 
-                                          className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                          onClick={() => setUploadDialogOpen(category.id)}
-                                        >
-                                          {category.name}
-                                        </span>
+                                        {editingTitleId === category.id ? (
+                                          <input
+                                            type="text"
+                                            value={editTitleValue}
+                                            onChange={(e) => setEditTitleValue(e.target.value)}
+                                            onBlur={() => handleTitleSave(category.id)}
+                                            onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                            className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                            autoFocus
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
+                                        ) : (
+                                          <span 
+                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                            onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                          >
+                                            {getTitleDisplay(category.id, category.name)}
+                                          </span>
+                                        )}
                                       </div>
                                       
                                       <div className="flex items-center gap-4 flex-shrink-0">
@@ -894,12 +1078,25 @@ export const ProjectDocsPage = ({
                                           <div className="flex-shrink-0 flex items-center">
                                             <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                                           </div>
-                                          <span 
-                                            className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
-                                            onClick={() => setUploadDialogOpen(category.id)}
-                                          >
-                                            {category.name}
-                                          </span>
+                                          {editingTitleId === category.id ? (
+                                            <input
+                                              type="text"
+                                              value={editTitleValue}
+                                              onChange={(e) => setEditTitleValue(e.target.value)}
+                                              onBlur={() => handleTitleSave(category.id)}
+                                              onKeyDown={(e) => handleTitleKeyDown(e, category.id)}
+                                              className="font-medium text-sm text-foreground bg-background border border-primary rounded px-2 py-1 flex-1 min-w-0"
+                                              autoFocus
+                                              onClick={(e) => e.stopPropagation()}
+                                            />
+                                          ) : (
+                                            <span 
+                                              className="font-medium text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" 
+                                              onClick={(e) => handleTitleClick(category.id, category.name, e)}
+                                            >
+                                              {getTitleDisplay(category.id, category.name)}
+                                            </span>
+                                          )}
                                         </div>
                                         
                                         <div className="flex items-center gap-4 flex-shrink-0">
