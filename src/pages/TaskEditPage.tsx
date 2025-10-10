@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Task } from '@/components/tasks/TaskContext';
 import { useTaskContext } from '@/components/tasks/useTaskContext';
-import { ArrowLeft, Trash2, Save, FileText, Upload, MessageSquare, CheckSquare, DollarSign, Sparkles } from 'lucide-react';
+import { ArrowLeft, Trash2, Save, FileText, Upload, MessageSquare, CheckSquare, DollarSign, Sparkles, Edit2, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
@@ -269,41 +270,6 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
     }
   };
 
-  const toggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
-
-  const getPriorityBadgeColor = (priority: string) => {
-    switch (priority) {
-      case 'High':
-        return 'bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/30';
-      case 'Medium':
-        return 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30';
-      case 'Low':
-        return 'bg-green-500/20 text-green-700 dark:text-green-300 border-green-500/30';
-      default:
-        return 'bg-gray-500/20 text-gray-700 dark:text-gray-300 border-gray-500/30';
-    }
-  };
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status) {
-      case 'Completed':
-        return 'bg-green-500/20 text-green-700 dark:text-green-300 border-green-500/30';
-      case 'In Progress':
-        return 'bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/30';
-      case 'Pending':
-        return 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30';
-      case 'Not Started':
-        return 'bg-gray-500/20 text-gray-700 dark:text-gray-300 border-gray-500/30';
-      default:
-        return 'bg-gray-500/20 text-gray-700 dark:text-gray-300 border-gray-500/30';
-    }
-  };
-
   return (
     <div className="h-screen overflow-hidden">
       {/* Project Sidebar */}
@@ -432,92 +398,10 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
                   <TaskAISummaryTab taskId={editedTask.id} />
                 </TabsContent>
               </Tabs>
-                  <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-base font-semibold">Subtasks</h3>
-                    </div>
-                    {expandedSections.subtasks ? (
-                      <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform" />
-                    )}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="px-6 py-4 border-t">
-                    <SubtasksList taskId={editedTask.id} projectMembers={[]} />
-                  </CollapsibleContent>
-                </Collapsible>
-
-                {/* Activity Section */}
-                <Collapsible
-                  open={expandedSections.activity}
-                  onOpenChange={() => toggleSection('activity')}
-                  className="bg-card rounded-lg border shadow-sm overflow-hidden"
-                >
-                  <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-base font-semibold">Activity & Comments</h3>
-                    </div>
-                    {expandedSections.activity ? (
-                      <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform" />
-                    )}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="px-6 py-4 border-t">
-                    <TaskCommentsActivity taskId={editedTask.id} />
-                  </CollapsibleContent>
-                </Collapsible>
-              </div>
-
-              {/* Sidebar - Right Column (1/3) */}
-              <div className="space-y-6">
-                {/* Attachments Section */}
-                <Collapsible
-                  open={expandedSections.attachments}
-                  onOpenChange={() => toggleSection('attachments')}
-                  className="bg-card rounded-lg border shadow-sm overflow-hidden"
-                >
-                  <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-base font-semibold">Attachments</h3>
-                    </div>
-                    {expandedSections.attachments ? (
-                      <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform" />
-                    )}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="px-6 py-4 border-t">
-                    <TaskAttachmentsDisplay taskId={editedTask.id} />
-                  </CollapsibleContent>
-                </Collapsible>
-
-                {/* Workflow Section */}
-                <Collapsible
-                  open={expandedSections.workflow}
-                  onOpenChange={() => toggleSection('workflow')}
-                  className="bg-card rounded-lg border shadow-sm overflow-hidden"
-                >
-                  <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-base font-semibold">Workflow</h3>
-                    </div>
-                    {expandedSections.workflow ? (
-                      <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform" />
-                    ) : (
-                      <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform" />
-                    )}
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="px-6 py-4 border-t">
-                    <SubmittalWorkflow taskId={editedTask.id} projectMembers={[]} />
-                  </CollapsibleContent>
-                </Collapsible>
-              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };
