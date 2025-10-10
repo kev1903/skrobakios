@@ -609,16 +609,21 @@ export const exportIssueReportToPDF = async (reportId: string, projectId: string
       const attachmentAreaWidth = pageWidth - 40; // Full width minus margins (20 each side)
       const attachmentAreaHeight = 120;
       let attachmentY = yPos;
+      const maxAttachmentsPerRow = 3; // Define outside the if block for later use
       
       if (issue.attachments && issue.attachments.length > 0) {
-        // Multiple attachments handling - limit to 2 for better fit
-        const maxAttachmentsToShow = Math.min(2, issue.attachments.length);
-        const attachmentWidth = attachmentAreaWidth / maxAttachmentsToShow - 5;
+        // Multiple attachments handling - show all attachments (max 3 per row)
+        const maxAttachmentsToShow = issue.attachments.length;
+        const attachmentsInFirstRow = Math.min(maxAttachmentsPerRow, maxAttachmentsToShow);
+        const attachmentWidth = attachmentAreaWidth / attachmentsInFirstRow - 5;
         const attachmentHeight = 85;
         
         for (let i = 0; i < maxAttachmentsToShow; i++) {
           const attachment = issue.attachments[i];
-          const attachmentX = 20 + (i * (attachmentWidth + 5));
+          const rowIndex = Math.floor(i / maxAttachmentsPerRow);
+          const colIndex = i % maxAttachmentsPerRow;
+          const attachmentX = 20 + (colIndex * (attachmentWidth + 5));
+          const currentAttachmentY = attachmentY + (rowIndex * (attachmentHeight + 5));
           
           if (attachment.type?.startsWith('image/')) {
             try {
@@ -650,7 +655,7 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
                 pdf.setFillColor(0, 0, 0);
                 pdf.setDrawColor(0, 0, 0);
                 const badgeX = attachmentX + attachmentWidth - 15;
-                const badgeY = attachmentY + 5;
+                const badgeY = currentAttachmentY + 5;
                 pdf.circle(badgeX, badgeY, 8, 'F');
                 pdf.setFontSize(8);
                 pdf.setTextColor(255, 255, 255);
@@ -660,27 +665,27 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
             } catch (imageError) {
               // Fallback for failed image load
               pdf.setFillColor(240, 240, 240);
-              pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight, 'F');
+              pdf.rect(attachmentX, currentAttachmentY, attachmentWidth, attachmentHeight, 'F');
               pdf.setDrawColor(200, 200, 200);
-              pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
+              pdf.rect(attachmentX, currentAttachmentY, attachmentWidth, attachmentHeight);
               pdf.setFontSize(10);
               pdf.setTextColor(120, 120, 120);
-              pdf.text('Image', attachmentX + attachmentWidth/2, attachmentY + attachmentHeight/2 - 5, { align: 'center' });
-              pdf.text('Failed', attachmentX + attachmentWidth/2, attachmentY + attachmentHeight/2 + 5, { align: 'center' });
+              pdf.text('Image', attachmentX + attachmentWidth/2, currentAttachmentY + attachmentHeight/2 - 5, { align: 'center' });
+              pdf.text('Failed', attachmentX + attachmentWidth/2, currentAttachmentY + attachmentHeight/2 + 5, { align: 'center' });
               pdf.setTextColor(0, 0, 0);
             }
           } else {
             // File attachment with icon and name
             pdf.setFillColor(245, 245, 245);
-            pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight, 'F');
+            pdf.rect(attachmentX, currentAttachmentY, attachmentWidth, attachmentHeight, 'F');
             pdf.setDrawColor(200, 200, 200);
-            pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
+            pdf.rect(attachmentX, currentAttachmentY, attachmentWidth, attachmentHeight);
             
             // File icon
             pdf.setFillColor(100, 100, 100);
             const iconSize = 20;
             const iconX = attachmentX + (attachmentWidth - iconSize) / 2;
-            const iconY = attachmentY + 15;
+            const iconY = currentAttachmentY + 15;
             pdf.rect(iconX, iconY, iconSize, iconSize * 1.2, 'F');
             
             // File name
@@ -688,17 +693,9 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
             pdf.setTextColor(60, 60, 60);
             const fileName = attachment.name || 'File';
             const truncatedName = fileName.length > 15 ? fileName.substring(0, 12) + '...' : fileName;
-            pdf.text(truncatedName, attachmentX + attachmentWidth/2, attachmentY + attachmentHeight - 15, { align: 'center' });
+            pdf.text(truncatedName, attachmentX + attachmentWidth/2, currentAttachmentY + attachmentHeight - 15, { align: 'center' });
             pdf.setTextColor(0, 0, 0);
           }
-        }
-        
-        // Show attachment count if more than 2
-        if (issue.attachments.length > 2) {
-          pdf.setFontSize(9);
-          pdf.setTextColor(80, 80, 80);
-          pdf.text(`+${issue.attachments.length - 2} more attachments`, 20, attachmentY + attachmentHeight + 15);
-          pdf.setTextColor(0, 0, 0);
         }
       } else {
         // No attachment placeholder
@@ -732,8 +729,13 @@ pdf.addImage(dataUrl, format, drawX, drawY, drawW, drawH);
       
       // Description box - positioned below attachments in landscape format
       const descriptionBoxX = 20;
-      // Use actual image height (85) when images exist, otherwise use full area height (120)
-      const actualAttachmentHeight = issue.attachments && issue.attachments.length > 0 ? 85 : attachmentAreaHeight;
+      // Calculate total attachment area height including all rows
+      const totalAttachmentRows = issue.attachments && issue.attachments.length > 0 
+        ? Math.ceil(issue.attachments.length / maxAttachmentsPerRow) 
+        : 1;
+      const actualAttachmentHeight = issue.attachments && issue.attachments.length > 0 
+        ? (85 * totalAttachmentRows) + (5 * (totalAttachmentRows - 1))
+        : attachmentAreaHeight;
       const descriptionBoxY = attachmentY + actualAttachmentHeight + 5;
       const descriptionBoxWidth = 170; // Wide landscape format
       const descriptionBoxHeight = 40;
@@ -1317,15 +1319,20 @@ export const exportSelectedIssuesToPDF = async (
       const attachmentAreaWidth = pageWidth - 40;
       const attachmentAreaHeight = 120;
       let attachmentY = yPos;
+      const maxAttachmentsPerRow2 = 3; // Define for later use
       
       if (issue.attachments && issue.attachments.length > 0) {
-        const maxAttachmentsToShow = Math.min(3, issue.attachments.length);
-        const attachmentWidth = attachmentAreaWidth / maxAttachmentsToShow - 5;
+        const maxAttachmentsToShow = issue.attachments.length; // Show all attachments
+        const attachmentsInFirstRow = Math.min(maxAttachmentsPerRow2, maxAttachmentsToShow);
+        const attachmentWidth = attachmentAreaWidth / attachmentsInFirstRow - 5;
         const attachmentHeight = 70;
         
         for (let attachmentIndex = 0; attachmentIndex < maxAttachmentsToShow; attachmentIndex++) {
           const attachment = issue.attachments[attachmentIndex];
-          const attachmentX = 20 + (attachmentIndex * (attachmentWidth + 5));
+          const rowIndex = Math.floor(attachmentIndex / maxAttachmentsPerRow2);
+          const colIndex = attachmentIndex % maxAttachmentsPerRow2;
+          const attachmentX = 20 + (colIndex * (attachmentWidth + 5));
+          const currentAttachmentY2 = attachmentY + (rowIndex * (attachmentHeight + 5));
           
           if (attachment.type?.startsWith('image/')) {
             try {
@@ -1352,7 +1359,7 @@ export const exportSelectedIssuesToPDF = async (
                 pdf.setFillColor(0, 0, 0);
                 pdf.setDrawColor(0, 0, 0);
                 const badgeX = attachmentX + attachmentWidth - 10;
-                const badgeY = attachmentY + 4;
+                const badgeY = currentAttachmentY2 + 4;
                 pdf.circle(badgeX, badgeY, 5, 'F');
                 pdf.setFontSize(8);
                 pdf.setFont('helvetica', 'bold');
@@ -1363,41 +1370,34 @@ export const exportSelectedIssuesToPDF = async (
               }
             } catch (imageError) {
               pdf.setFillColor(240, 240, 240);
-              pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight, 'F');
+              pdf.rect(attachmentX, currentAttachmentY2, attachmentWidth, attachmentHeight, 'F');
               pdf.setDrawColor(200, 200, 200);
-              pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
+              pdf.rect(attachmentX, currentAttachmentY2, attachmentWidth, attachmentHeight);
               pdf.setFontSize(10);
               pdf.setTextColor(120, 120, 120);
-              pdf.text('Image', attachmentX + attachmentWidth/2, attachmentY + attachmentHeight/2 - 5, { align: 'center' });
-              pdf.text('Failed', attachmentX + attachmentWidth/2, attachmentY + attachmentHeight/2 + 5, { align: 'center' });
+              pdf.text('Image', attachmentX + attachmentWidth/2, currentAttachmentY2 + attachmentHeight/2 - 5, { align: 'center' });
+              pdf.text('Failed', attachmentX + attachmentWidth/2, currentAttachmentY2 + attachmentHeight/2 + 5, { align: 'center' });
               pdf.setTextColor(0, 0, 0);
             }
           } else {
             pdf.setFillColor(245, 245, 245);
-            pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight, 'F');
+            pdf.rect(attachmentX, currentAttachmentY2, attachmentWidth, attachmentHeight, 'F');
             pdf.setDrawColor(200, 200, 200);
-            pdf.rect(attachmentX, attachmentY, attachmentWidth, attachmentHeight);
+            pdf.rect(attachmentX, currentAttachmentY2, attachmentWidth, attachmentHeight);
             
             pdf.setFillColor(100, 100, 100);
             const iconSize = 20;
             const iconX = attachmentX + (attachmentWidth - iconSize) / 2;
-            const iconY = attachmentY + 15;
+            const iconY = currentAttachmentY2 + 15;
             pdf.rect(iconX, iconY, iconSize, iconSize * 1.2, 'F');
             
             pdf.setFontSize(8);
             pdf.setTextColor(60, 60, 60);
             const fileName = attachment.name || 'File';
             const truncatedName = fileName.length > 15 ? fileName.substring(0, 12) + '...' : fileName;
-            pdf.text(truncatedName, attachmentX + attachmentWidth/2, attachmentY + attachmentHeight - 15, { align: 'center' });
+            pdf.text(truncatedName, attachmentX + attachmentWidth/2, currentAttachmentY2 + attachmentHeight - 15, { align: 'center' });
             pdf.setTextColor(0, 0, 0);
           }
-        }
-        
-        if (issue.attachments.length > 3) {
-          pdf.setFontSize(9);
-          pdf.setTextColor(80, 80, 80);
-          pdf.text(`+${issue.attachments.length - 3} more attachments`, 20, attachmentY + attachmentHeight + 15);
-          pdf.setTextColor(0, 0, 0);
         }
       } else {
         pdf.setFillColor(250, 250, 250);
@@ -1427,7 +1427,13 @@ export const exportSelectedIssuesToPDF = async (
       }
       
       const descriptionBoxX = 20;
-      const actualAttachmentHeight = issue.attachments && issue.attachments.length > 0 ? 70 : attachmentAreaHeight;
+      // Calculate total attachment area height including all rows
+      const totalAttachmentRows2 = issue.attachments && issue.attachments.length > 0 
+        ? Math.ceil(issue.attachments.length / maxAttachmentsPerRow2) 
+        : 1;
+      const actualAttachmentHeight = issue.attachments && issue.attachments.length > 0 
+        ? (70 * totalAttachmentRows2) + (5 * (totalAttachmentRows2 - 1))
+        : attachmentAreaHeight;
       const descriptionBoxY = attachmentY + actualAttachmentHeight + 5;
       const descriptionBoxWidth = 170;
       const descriptionBoxHeight = 40;
