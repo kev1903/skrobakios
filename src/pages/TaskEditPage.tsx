@@ -324,12 +324,16 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
       {/* Main Content - Fixed positioning to match Project Tasks */}
       <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
         <div className="h-full w-full flex flex-col bg-background">
-          {/* Unified Header with Project Name, Back Button, Task Title, and Actions */}
-          <div className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="px-6 h-[72px] flex items-center justify-between pt-2">
+          {/* Two-bar Header Structure */}
+          <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            {/* First Bar - Project Name Only */}
+            <div className="px-6 h-14 flex items-center border-b border-border">
+              <h1 className="text-xl font-bold text-foreground font-inter">{project?.name || 'Project'}</h1>
+            </div>
+            
+            {/* Second Bar - Navigation and Actions */}
+            <div className="px-6 h-14 flex items-center justify-between border-b border-border">
               <div className="flex items-center gap-4">
-                <h1 className="text-2xl font-bold text-foreground font-inter">{project?.name || 'Project'}</h1>
-                <div className="h-6 w-px bg-border" />
                 <Button variant="ghost" size="sm" onClick={handleBack}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Tasks
