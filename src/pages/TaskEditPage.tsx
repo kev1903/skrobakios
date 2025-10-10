@@ -323,104 +323,51 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
       {/* Main Content - Fixed positioning to match Project Tasks */}
       <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
-        <div className="h-full w-full flex flex-col bg-gradient-to-br from-background to-muted/20">
-          {/* Enhanced Header with Task Title and Actions */}
-          <div className="flex-shrink-0 border-b backdrop-blur-xl bg-card/95 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Single Row - Task Title First, Then Badges and Action Buttons */}
-          <div className="flex items-center gap-4 py-3">
-            {/* Task Title - First/Left */}
-            <div className="flex-shrink-0">
-              <EditableTaskTitle 
-                taskName={editedTask.taskName}
-                onTaskNameChange={handleTaskNameChange}
-              />
+        <div className="h-full w-full flex flex-col bg-gradient-to-br from-background to-muted/20 overflow-y-auto">
+          <div className="max-w-6xl mx-auto w-full p-6">
+            {/* Header - Simple Back Button and Title */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-4">
+                <Button variant="ghost" onClick={handleBack}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Tasks
+                </Button>
+                <h1 className="text-2xl font-bold text-foreground">
+                  {editedTask.taskName}
+                </h1>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button 
+                  onClick={handleMarkComplete}
+                  variant={editedTask.status === 'Completed' ? 'default' : 'outline'}
+                  size="sm"
+                  disabled={editedTask.status === 'Completed'}
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  Mark Complete
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleDelete} 
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  onClick={handleSave}
+                  disabled={!hasUnsavedChanges}
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save
+                </Button>
+              </div>
             </div>
 
-            {/* Middle - Back and Badges */}
-            <div className="flex items-center gap-3">
-              <div className="h-5 w-px bg-border" />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBack}
-                className="shrink-0 hover:bg-accent"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                <span>Back</span>
-              </Button>
-              <Badge variant="outline" className={`${getPriorityBadgeColor(editedTask.priority)} text-xs font-medium px-3`}>
-                {editedTask.priority}
-              </Badge>
-              <Badge variant="outline" className={`${getStatusBadgeColor(editedTask.status)} text-xs font-medium px-3`}>
-                {editedTask.status}
-              </Badge>
-              {editedTask.task_number && (
-                <span className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded">
-                  {editedTask.task_number}
-                </span>
-              )}
-            </div>
-
-            {/* Spacer */}
-            <div className="flex-1" />
-            
-            {/* Right side - Action Buttons */}
-            <div className="flex items-center gap-1 flex-shrink-0">
-              <Button 
-                onClick={handleMarkComplete}
-                variant={editedTask.status === 'Completed' ? 'default' : 'outline'}
-                size="sm"
-                className="flex items-center gap-2"
-                disabled={editedTask.status === 'Completed'}
-              >
-                <Check className="w-4 h-4" />
-                <span className="hidden sm:inline">Mark Complete</span>
-              </Button>
-              {editedTask.task_number && (
-                <Badge variant="outline" className="text-xs font-mono hidden lg:flex">
-                  #{editedTask.task_number}
-                </Badge>
-              )}
-              <div className="h-5 w-px bg-border mx-1" />
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                <Paperclip className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                <Timer className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                <MessageSquare className="w-4 h-4" />
-              </Button>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-                <Link className="w-4 h-4" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleDelete} 
-                className="text-muted-foreground hover:text-destructive"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-              <Button 
-                variant="default" 
-                size="sm" 
-                onClick={handleSave}
-                className="ml-2 bg-primary hover:bg-primary/90"
-              >
-                <Save className="w-4 h-4 mr-2" />
-                Save
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Main Task Details - Left Column (2/3) */}
             <div className="lg:col-span-2 space-y-4">
               {/* Task Edit Form */}
@@ -528,8 +475,7 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
           </div>
         </div>
       </div>
-        </div>
-      </div>
+    </div>
     </div>
   );
 };
