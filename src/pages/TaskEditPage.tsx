@@ -193,7 +193,7 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
       const confirmed = window.confirm('You have unsaved changes. Are you sure you want to leave?');
       if (!confirmed) return;
     }
-    window.history.back();
+    onNavigate('project-tasks');
   };
 
   const handleTaskUpdate = (updates: Partial<Task>) => {
