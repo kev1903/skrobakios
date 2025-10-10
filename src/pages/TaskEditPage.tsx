@@ -1,25 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Task } from '@/components/tasks/TaskContext';
 import { useTaskContext } from '@/components/tasks/useTaskContext';
-import { EnhancedTaskEditForm } from '@/components/tasks/enhanced/EnhancedTaskEditForm';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, ArrowLeft, Edit2, Check, Paperclip, Timer, MessageSquare, Link, Trash2, Save } from 'lucide-react';
-import { SubtasksList } from '@/components/tasks/subtasks';
-import { TaskCommentsActivity } from '@/components/tasks/TaskCommentsActivity';
-import { SubmittalWorkflow } from '@/components/tasks/SubmittalWorkflow';
-import { TaskAttachmentsDisplay } from '@/components/tasks/TaskAttachmentsDisplay';
-import { WorkflowStatusPipeline, WorkflowStage } from '@/components/tasks/WorkflowStatusPipeline';
-import { RoleAssignmentCard } from '@/components/tasks/RoleAssignmentCard';
-import { SubmittalStatusCard } from '@/components/tasks/SubmittalStatusCard';
+import { ArrowLeft, Trash2, Save, FileText, Upload, MessageSquare, CheckSquare, DollarSign, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { Project } from '@/hooks/useProjects';
 import { getStatusColor, getStatusText } from '@/components/tasks/utils/taskUtils';
+import { TaskDetailsTab } from '@/components/tasks/tabs/TaskDetailsTab';
+import { TaskSubmittalsTab } from '@/components/tasks/tabs/TaskSubmittalsTab';
+import { TaskReviewsTab } from '@/components/tasks/tabs/TaskReviewsTab';
+import { TaskQATab } from '@/components/tasks/tabs/TaskQATab';
+import { TaskCostsTab } from '@/components/tasks/tabs/TaskCostsTab';
+import { TaskAISummaryTab } from '@/components/tasks/tabs/TaskAISummaryTab';
+import { useUserPermissionsContext } from '@/contexts/UserPermissionsContext';
 
 // Editable Task Title Component
 const EditableTaskTitle = ({ taskName, onTaskNameChange }: { taskName: string; onTaskNameChange?: (name: string) => void }) => {
@@ -86,14 +83,9 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
   const [project, setProject] = useState<Project | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [expandedSections, setExpandedSections] = useState({
-    attachments: false,
-    subtasks: true,
-    workflow: false,
-    activity: false
-  });
-  const [workflowStage, setWorkflowStage] = useState<WorkflowStage>('pending');
+  const [activeTab, setActiveTab] = useState('details');
   const { toast } = useToast();
+  const { canViewSubModule } = useUserPermissionsContext();
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -378,110 +370,68 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
             </div>
           </div>
 
-          {/* Scrollable Content */}
+          {/* Scrollable Content with Tabs */}
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-7xl mx-auto w-full p-6 space-y-6">
-              {/* Workflow Status Pipeline */}
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold mb-4">Task Workflow Status</h2>
-                <WorkflowStatusPipeline
-                  currentStage={workflowStage}
-                  onStageChange={setWorkflowStage}
-                  submittalCount={3}
-                  approvedCount={1}
-                />
-              </div>
+            <div className="max-w-7xl mx-auto w-full p-6">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-6 mb-6">
+                  <TabsTrigger value="details" className="flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    <span className="hidden sm:inline">Details</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="submittals" className="flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    <span className="hidden sm:inline">Submittals</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="reviews" 
+                    className="flex items-center gap-2"
+                    disabled={!canViewSubModule('tasks', 'reviews')}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    <span className="hidden sm:inline">Reviews</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="qa" className="flex items-center gap-2">
+                    <CheckSquare className="w-4 h-4" />
+                    <span className="hidden sm:inline">QA/QC</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="costs" className="flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    <span className="hidden sm:inline">Costs</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="summary" className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    <span className="hidden sm:inline">Summary</span>
+                  </TabsTrigger>
+                </TabsList>
 
-              {/* Role Assignments */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <RoleAssignmentCard
-                  role="assignee"
-                  name={editedTask.assignedTo?.name || 'Unassigned'}
-                  avatar={editedTask.assignedTo?.avatar}
-                  status={editedTask.status}
-                />
-                <RoleAssignmentCard
-                  role="reviewer"
-                  name="John Smith"
-                  avatar=""
-                  email="john.smith@example.com"
-                  status="Active"
-                />
-              </div>
-
-              {/* Submittals by Status */}
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold mb-4">Files & Submittals</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Pending Review</h3>
-                    <div className="space-y-2">
-                      <SubmittalStatusCard
-                        title="Structural Drawings"
-                        status="Pending"
-                        submittedBy="Mike Johnson"
-                        submittedDate={new Date()}
-                        fileCount={5}
-                      />
-                      <SubmittalStatusCard
-                        title="Material Specifications"
-                        status="Pending"
-                        submittedBy="Sarah Davis"
-                        submittedDate={new Date(Date.now() - 86400000)}
-                        fileCount={3}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-2">In Review</h3>
-                    <div className="space-y-2">
-                      <SubmittalStatusCard
-                        title="Electrical Plans"
-                        status="In Review"
-                        submittedBy="Tom Wilson"
-                        submittedDate={new Date(Date.now() - 172800000)}
-                        reviewedBy="John Smith"
-                        fileCount={8}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Approved</h3>
-                    <div className="space-y-2">
-                      <SubmittalStatusCard
-                        title="Site Plans"
-                        status="Approved"
-                        submittedBy="Mike Johnson"
-                        submittedDate={new Date(Date.now() - 259200000)}
-                        reviewedBy="John Smith"
-                        fileCount={4}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Main Content Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Main Task Details - Left Column (2/3) */}
-                <div className="lg:col-span-2 space-y-6">
-                {/* Task Edit Form */}
-                <div className="bg-card rounded-lg border shadow-sm p-6">
-                  <EnhancedTaskEditForm
-                    task={editedTask}
-                    projectId={editedTask.project_id}
-                    onTaskUpdate={handleTaskUpdate}
-                    onSave={handleSave}
-                    onCancel={handleCancel}
+                <TabsContent value="details" className="mt-0">
+                  <TaskDetailsTab 
+                    task={editedTask} 
+                    onUpdate={handleTaskUpdate}
                   />
-                </div>
+                </TabsContent>
 
-                {/* Subtasks Section */}
-                <Collapsible
-                  open={expandedSections.subtasks}
-                  onOpenChange={() => toggleSection('subtasks')}
-                  className="bg-card rounded-lg border shadow-sm overflow-hidden"
-                >
+                <TabsContent value="submittals" className="mt-0">
+                  <TaskSubmittalsTab taskId={editedTask.id} />
+                </TabsContent>
+
+                <TabsContent value="reviews" className="mt-0">
+                  <TaskReviewsTab taskId={editedTask.id} />
+                </TabsContent>
+
+                <TabsContent value="qa" className="mt-0">
+                  <TaskQATab taskId={editedTask.id} />
+                </TabsContent>
+
+                <TabsContent value="costs" className="mt-0">
+                  <TaskCostsTab taskId={editedTask.id} />
+                </TabsContent>
+
+                <TabsContent value="summary" className="mt-0">
+                  <TaskAISummaryTab taskId={editedTask.id} />
+                </TabsContent>
+              </Tabs>
                   <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-accent/50 transition-colors">
                     <div className="flex items-center gap-3">
                       <h3 className="text-base font-semibold">Subtasks</h3>

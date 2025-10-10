@@ -5088,6 +5088,56 @@ export type Database = {
         }
         Relationships: []
       }
+      task_costs: {
+        Row: {
+          actual_cost: number | null
+          cost_description: string | null
+          cost_type: string
+          created_at: string
+          created_by: string | null
+          estimated_cost: number | null
+          id: string
+          impact_level: string | null
+          justification: string | null
+          task_id: string
+          updated_at: string
+        }
+        Insert: {
+          actual_cost?: number | null
+          cost_description?: string | null
+          cost_type: string
+          created_at?: string
+          created_by?: string | null
+          estimated_cost?: number | null
+          id?: string
+          impact_level?: string | null
+          justification?: string | null
+          task_id: string
+          updated_at?: string
+        }
+        Update: {
+          actual_cost?: number | null
+          cost_description?: string | null
+          cost_type?: string
+          created_at?: string
+          created_by?: string | null
+          estimated_cost?: number | null
+          id?: string
+          impact_level?: string | null
+          justification?: string | null
+          task_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_costs_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_dependencies: {
         Row: {
           created_at: string
@@ -5117,6 +5167,166 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      task_qa: {
+        Row: {
+          attachments: Json | null
+          checked_at: string | null
+          checked_by: string | null
+          checklist_item: string
+          created_at: string
+          id: string
+          notes: string | null
+          qa_type: string
+          status: string
+          task_id: string
+          updated_at: string
+        }
+        Insert: {
+          attachments?: Json | null
+          checked_at?: string | null
+          checked_by?: string | null
+          checklist_item: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          qa_type: string
+          status?: string
+          task_id: string
+          updated_at?: string
+        }
+        Update: {
+          attachments?: Json | null
+          checked_at?: string | null
+          checked_by?: string | null
+          checklist_item?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          qa_type?: string
+          status?: string
+          task_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_qa_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_reviews: {
+        Row: {
+          created_at: string
+          id: string
+          rating: number | null
+          review_comments: string | null
+          review_status: string
+          reviewed_at: string | null
+          reviewer_id: string | null
+          submittal_id: string
+          task_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rating?: number | null
+          review_comments?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          submittal_id: string
+          task_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rating?: number | null
+          review_comments?: string | null
+          review_status?: string
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          submittal_id?: string
+          task_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_reviews_submittal_id_fkey"
+            columns: ["submittal_id"]
+            isOneToOne: false
+            referencedRelation: "task_submittals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_reviews_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_submittals: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_size: number | null
+          file_url: string | null
+          id: string
+          status: string
+          submittal_name: string
+          submittal_type: string | null
+          submitted_at: string | null
+          submitted_by: string | null
+          task_id: string
+          updated_at: string
+          version: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          status?: string
+          submittal_name: string
+          submittal_type?: string | null
+          submitted_at?: string | null
+          submitted_by?: string | null
+          task_id: string
+          updated_at?: string
+          version?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          status?: string
+          submittal_name?: string
+          submittal_type?: string | null
+          submitted_at?: string | null
+          submitted_by?: string | null
+          task_id?: string
+          updated_at?: string
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_submittals_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {
