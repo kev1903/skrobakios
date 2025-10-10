@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Edit, MoreHorizontal, Trash2, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +47,7 @@ export const TaskListView = ({
   const [localAddTaskDialogOpen, setLocalAddTaskDialogOpen] = useState(false);
   const [taskTypeFilter, setTaskTypeFilter] = useState<'All' | 'Task' | 'Bug' | 'Feature'>('All');
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   // Filter tasks based on project and task type
@@ -64,7 +65,7 @@ export const TaskListView = ({
     console.log('Task clicked:', task);
     // Navigate to task edit page
     const currentPage = searchParams.get('page') || 'home';
-    window.location.href = `/?page=task-edit&taskId=${task.id}&from=${currentPage}`;
+    navigate(`/?page=task-edit&taskId=${task.id}&from=${currentPage}`);
   };
 
   const handleAddTask = () => {
