@@ -343,11 +343,11 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
                 <TabsList className="grid w-full grid-cols-6 mb-6">
                   <TabsTrigger value="details" className="flex items-center gap-2">
                     <FileText className="w-4 h-4" />
-                    <span className="hidden sm:inline">Details</span>
+                    <span className="hidden sm:inline">1. Details</span>
                   </TabsTrigger>
                   <TabsTrigger value="submittals" className="flex items-center gap-2">
                     <Upload className="w-4 h-4" />
-                    <span className="hidden sm:inline">Submittals</span>
+                    <span className="hidden sm:inline">2. Submittals</span>
                   </TabsTrigger>
                   <TabsTrigger 
                     value="reviews" 
@@ -355,19 +355,19 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
                     disabled={!canViewSubModule('tasks', 'reviews')}
                   >
                     <MessageSquare className="w-4 h-4" />
-                    <span className="hidden sm:inline">Reviews</span>
+                    <span className="hidden sm:inline">3. Reviews</span>
                   </TabsTrigger>
                   <TabsTrigger value="qa" className="flex items-center gap-2">
                     <CheckSquare className="w-4 h-4" />
-                    <span className="hidden sm:inline">QA/QC</span>
+                    <span className="hidden sm:inline">4. Q&A</span>
                   </TabsTrigger>
                   <TabsTrigger value="costs" className="flex items-center gap-2">
                     <DollarSign className="w-4 h-4" />
-                    <span className="hidden sm:inline">Costs</span>
+                    <span className="hidden sm:inline">5. Costs</span>
                   </TabsTrigger>
                   <TabsTrigger value="summary" className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4" />
-                    <span className="hidden sm:inline">Summary</span>
+                    <span className="hidden sm:inline">6. AI Summary</span>
                   </TabsTrigger>
                 </TabsList>
 
