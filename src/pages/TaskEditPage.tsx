@@ -12,6 +12,9 @@ import { SubtasksList } from '@/components/tasks/subtasks';
 import { TaskCommentsActivity } from '@/components/tasks/TaskCommentsActivity';
 import { SubmittalWorkflow } from '@/components/tasks/SubmittalWorkflow';
 import { TaskAttachmentsDisplay } from '@/components/tasks/TaskAttachmentsDisplay';
+import { WorkflowStatusPipeline, WorkflowStage } from '@/components/tasks/WorkflowStatusPipeline';
+import { RoleAssignmentCard } from '@/components/tasks/RoleAssignmentCard';
+import { SubmittalStatusCard } from '@/components/tasks/SubmittalStatusCard';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
@@ -89,6 +92,7 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
     workflow: false,
     activity: false
   });
+  const [workflowStage, setWorkflowStage] = useState<WorkflowStage>('pending');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -377,6 +381,86 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-7xl mx-auto w-full p-6 space-y-6">
+              {/* Workflow Status Pipeline */}
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold mb-4">Task Workflow Status</h2>
+                <WorkflowStatusPipeline
+                  currentStage={workflowStage}
+                  onStageChange={setWorkflowStage}
+                  submittalCount={3}
+                  approvedCount={1}
+                />
+              </div>
+
+              {/* Role Assignments */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <RoleAssignmentCard
+                  role="assignee"
+                  name={editedTask.assignedTo?.name || 'Unassigned'}
+                  avatar={editedTask.assignedTo?.avatar}
+                  status={editedTask.status}
+                />
+                <RoleAssignmentCard
+                  role="reviewer"
+                  name="John Smith"
+                  avatar=""
+                  email="john.smith@example.com"
+                  status="Active"
+                />
+              </div>
+
+              {/* Submittals by Status */}
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold mb-4">Files & Submittals</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Pending Review</h3>
+                    <div className="space-y-2">
+                      <SubmittalStatusCard
+                        title="Structural Drawings"
+                        status="Pending"
+                        submittedBy="Mike Johnson"
+                        submittedDate={new Date()}
+                        fileCount={5}
+                      />
+                      <SubmittalStatusCard
+                        title="Material Specifications"
+                        status="Pending"
+                        submittedBy="Sarah Davis"
+                        submittedDate={new Date(Date.now() - 86400000)}
+                        fileCount={3}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">In Review</h3>
+                    <div className="space-y-2">
+                      <SubmittalStatusCard
+                        title="Electrical Plans"
+                        status="In Review"
+                        submittedBy="Tom Wilson"
+                        submittedDate={new Date(Date.now() - 172800000)}
+                        reviewedBy="John Smith"
+                        fileCount={8}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Approved</h3>
+                    <div className="space-y-2">
+                      <SubmittalStatusCard
+                        title="Site Plans"
+                        status="Approved"
+                        submittedBy="Mike Johnson"
+                        submittedDate={new Date(Date.now() - 259200000)}
+                        reviewedBy="John Smith"
+                        fileCount={4}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Main Content Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Task Details - Left Column (2/3) */}
