@@ -83,6 +83,7 @@ import { StakeholdersPage } from "@/pages/StakeholdersPage";
 import { ProjectProcurementPage } from "@/pages/ProjectProcurementPage";
 import { AiChatSidebar } from "@/components/AiChatSidebar";
 import { ProjectScopePage } from "@/components/ProjectScopePage";
+import { TaskEditPage } from "@/pages/TaskEditPage";
 
 
 interface ContentRendererProps {
@@ -138,6 +139,8 @@ export const ContentRenderer = ({
       return <MyTasksPage onNavigate={onNavigate} />;
     case "task-create":
       return <NewTaskPage />;
+    case "task-edit":
+      return <TaskEditPage onNavigate={onNavigate} />;
     case "milestones":
       return <MilestonePage onNavigate={onNavigate} />;
     case "time-management":

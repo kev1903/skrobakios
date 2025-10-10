@@ -16,7 +16,6 @@ import { MyTasksTableView } from './my-tasks/MyTasksTableView';
 import { MyTasksLoadingState } from './my-tasks/MyTasksLoadingState';
 import { MyTasksEmptyState } from './my-tasks/MyTasksEmptyState';
 import { MyTasksCalendarView } from './my-tasks/MyTasksCalendarView';
-import { TaskEditSidePanel } from './tasks/TaskEditSidePanel';
 import { SortField, SortDirection, ViewMode } from './my-tasks/types';
 
 interface MyTasksPageProps {
@@ -30,8 +29,6 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [loading, setLoading] = useState(true);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const { userProfile } = useUser();
   const { toast } = useToast();
 
@@ -174,12 +171,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
 
   const handleTaskClick = (task: Task) => {
     // Navigate to task edit page with task ID
-    onNavigate(`task-edit?id=${task.id}`);
-  };
-
-  const handleCloseSidePanel = () => {
-    setIsSidePanelOpen(false);
-    setSelectedTask(null);
+    onNavigate(`task-edit&taskId=${task.id}&from=my-tasks`);
   };
 
   const handleDragEnd = async (result: DropResult) => {
@@ -385,12 +377,6 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
         </div>
       </div>
 
-      <TaskEditSidePanel
-        task={selectedTask}
-        isOpen={isSidePanelOpen}
-        onClose={handleCloseSidePanel}
-        projectId={selectedTask?.project_id}
-      />
     </div>
   );
 };

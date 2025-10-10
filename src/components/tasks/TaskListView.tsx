@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Edit, MoreHorizontal, Trash2, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +21,6 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useTaskContext } from './useTaskContext';
-import { TaskEditSidePanel } from './TaskEditSidePanel';
 import { AddTaskButton } from './AddTaskButton';
 import { AddTaskDialog } from './AddTaskDialog';
 import { Task } from './TaskContext';
@@ -44,11 +44,10 @@ export const TaskListView = ({
   onCloseAddTaskDialog
 }: TaskListViewProps) => {
   const { tasks, deleteTask } = useTaskContext();
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const [localAddTaskDialogOpen, setLocalAddTaskDialogOpen] = useState(false);
   const [taskTypeFilter, setTaskTypeFilter] = useState<'All' | 'Task' | 'Bug' | 'Feature'>('All');
   const isMobile = useIsMobile();
+  const [searchParams] = useSearchParams();
 
   // Filter tasks based on project and task type
   const filteredTasks = useMemo(() => {
@@ -63,14 +62,9 @@ export const TaskListView = ({
 
   const handleTaskClick = (task: Task) => {
     console.log('Task clicked:', task);
-    setSelectedTask(task);
-    setIsSidePanelOpen(true);
-    console.log('Side panel should open now');
-  };
-
-  const handleCloseSidePanel = () => {
-    setIsSidePanelOpen(false);
-    setSelectedTask(null);
+    // Navigate to task edit page
+    const currentPage = searchParams.get('page') || 'home';
+    window.location.href = `/?page=task-edit&taskId=${task.id}&from=${currentPage}`;
   };
 
   const handleAddTask = () => {
@@ -443,13 +437,6 @@ export const TaskListView = ({
       </div>
 
       {viewMode === "grid" ? renderGridView() : renderListView()}
-
-      <TaskEditSidePanel
-        task={selectedTask}
-        isOpen={isSidePanelOpen}
-        onClose={handleCloseSidePanel}
-        projectId={projectId}
-      />
 
       <AddTaskDialog
         isOpen={isAddTaskDialogOpen || localAddTaskDialogOpen}

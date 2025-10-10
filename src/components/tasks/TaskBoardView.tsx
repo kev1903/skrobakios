@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTaskContext } from './useTaskContext';
 import { TaskBoardColumn } from './TaskBoardColumn';
-import { TaskEditSidePanel } from './TaskEditSidePanel';
 import { Task } from './TaskContext';
 
 export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
   const { tasks, addTask, updateTask } = useTaskContext();
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const statusColumns = [
     { id: 'Not Started', title: 'Not Started', color: 'bg-gray-50' },
@@ -24,19 +24,14 @@ export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
 
   const handleTaskClick = (task: Task) => {
     console.log('Board task clicked:', task);
-    // Don't open side panel for temporary tasks being edited
+    // Don't navigate for temporary tasks being edited
     if (task.id.startsWith('temp-')) {
       return;
     }
     
-    setSelectedTask(task);
-    setIsSidePanelOpen(true);
-    console.log('Board side panel should open now');
-  };
-
-  const handleCloseSidePanel = () => {
-    setIsSidePanelOpen(false);
-    setSelectedTask(null);
+    // Navigate to task edit page with task ID
+    const currentPage = searchParams.get('page') || 'home';
+    navigate(`/?page=task-edit&taskId=${task.id}&from=${currentPage}`);
   };
 
 
@@ -123,12 +118,6 @@ export const TaskBoardView = ({ projectId }: { projectId?: string }) => {
           </div>
         ))}
       </div>
-
-      <TaskEditSidePanel
-        task={selectedTask}
-        isOpen={isSidePanelOpen}
-        onClose={handleCloseSidePanel}
-      />
     </>
   );
 };
