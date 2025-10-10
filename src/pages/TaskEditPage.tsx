@@ -285,22 +285,16 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
       {/* Main Content - Fixed positioning to match Project Tasks */}
       <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
-        <div className="h-full w-full flex flex-col bg-background">
-          {/* Two-bar Header Structure */}
-          <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            {/* First Bar - Project Name Only */}
-            <div className="px-6 h-[72px] flex items-center border-b border-border">
-              <h1 className="text-2xl font-bold text-foreground font-inter">{project?.name || 'Project'}</h1>
-            </div>
-            
-            {/* Second Bar - Navigation and Actions */}
-            <div className="px-6 h-14 flex items-center justify-between border-b border-border">
-              <div className="flex items-center gap-4">
-                <Button variant="ghost" size="sm" onClick={handleBack}>
+        <div className="h-full w-full flex flex-col bg-muted/30">
+          {/* Single Header Bar with Breadcrumb */}
+          <div className="sticky top-0 z-30 bg-background border-b border-border">
+            <div className="px-6 h-16 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground hover:text-foreground">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Tasks
                 </Button>
-                <div className="h-6 w-px bg-border" />
+                <span className="text-muted-foreground">/</span>
                 <h2 className="text-lg font-semibold text-foreground">
                   {editedTask.taskName}
                 </h2>
@@ -338,37 +332,54 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
           {/* Scrollable Content with Tabs */}
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-7xl mx-auto w-full p-6">
+            <div className="max-w-7xl mx-auto w-full px-6 py-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-6 mb-6">
-                  <TabsTrigger value="details" className="flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    <span className="hidden sm:inline">1. Details</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="submittals" className="flex items-center gap-2">
-                    <Upload className="w-4 h-4" />
-                    <span className="hidden sm:inline">2. Submittals</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="reviews" 
-                    className="flex items-center gap-2"
-                    disabled={!canViewSubModule('tasks', 'reviews')}
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span className="hidden sm:inline">3. Reviews</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="qa" className="flex items-center gap-2">
-                    <CheckSquare className="w-4 h-4" />
-                    <span className="hidden sm:inline">4. Q&A</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="costs" className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4" />
-                    <span className="hidden sm:inline">5. Costs</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="summary" className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    <span className="hidden sm:inline">6. AI Summary</span>
-                  </TabsTrigger>
+                <TabsList className="w-full bg-background border-b border-border rounded-none h-auto p-0 mb-6">
+                  <div className="flex items-center gap-0 w-full">
+                    <TabsTrigger 
+                      value="details" 
+                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span className="text-sm">1. Details</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="submittals" 
+                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span className="text-sm">2. Submittals</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="reviews" 
+                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                      disabled={!canViewSubModule('tasks', 'reviews')}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span className="text-sm">3. Reviews</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="qa" 
+                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                    >
+                      <CheckSquare className="w-4 h-4" />
+                      <span className="text-sm">4. Q&A</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="costs" 
+                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                    >
+                      <DollarSign className="w-4 h-4" />
+                      <span className="text-sm">5. Costs</span>
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="summary" 
+                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span className="text-sm">6. AI Summary</span>
+                    </TabsTrigger>
+                  </div>
                 </TabsList>
 
                 <TabsContent value="details" className="mt-0">
