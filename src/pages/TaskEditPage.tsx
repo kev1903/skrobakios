@@ -288,10 +288,19 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
       {/* Enhanced Header with Task Title and Actions */}
       <div className="flex-shrink-0 border-b backdrop-blur-xl bg-card/95 shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Single Row - Back, Badges, Task Title and Action Buttons */}
+          {/* Single Row - Task Title First, Then Badges and Action Buttons */}
           <div className="flex items-center gap-4 py-3">
-            {/* Left side - Back and Badges */}
+            {/* Task Title - First/Left */}
+            <div className="flex-shrink-0">
+              <EditableTaskTitle 
+                taskName={editedTask.taskName}
+                onTaskNameChange={handleTaskNameChange}
+              />
+            </div>
+
+            {/* Middle - Back and Badges */}
             <div className="flex items-center gap-3">
+              <div className="h-5 w-px bg-border" />
               <Button
                 variant="ghost"
                 size="sm"
@@ -301,7 +310,6 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 <span>Back</span>
               </Button>
-              <div className="h-5 w-px bg-border" />
               <Badge variant="outline" className={`${getPriorityBadgeColor(editedTask.priority)} text-xs font-medium px-3`}>
                 {editedTask.priority}
               </Badge>
@@ -315,13 +323,8 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
               )}
             </div>
 
-            {/* Center - Task Title */}
-            <div className="flex-1 min-w-0">
-              <EditableTaskTitle 
-                taskName={editedTask.taskName}
-                onTaskNameChange={handleTaskNameChange}
-              />
-            </div>
+            {/* Spacer */}
+            <div className="flex-1" />
             
             {/* Right side - Action Buttons */}
             <div className="flex items-center gap-1 flex-shrink-0">
