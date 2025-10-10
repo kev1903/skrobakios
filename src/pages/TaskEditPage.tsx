@@ -17,7 +17,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { Project } from '@/hooks/useProjects';
 import { getStatusColor, getStatusText } from '@/components/tasks/utils/taskUtils';
-import { ProjectPageHeader } from '@/components/project/ProjectPageHeader';
 
 // Editable Task Title Component
 const EditableTaskTitle = ({ taskName, onTaskNameChange }: { taskName: string; onTaskNameChange?: (name: string) => void }) => {
@@ -311,15 +310,6 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
   return (
     <div className="h-screen overflow-hidden">
-      {/* Top Bar with Project Name */}
-      {project && (
-        <ProjectPageHeader
-          projectName={project.name}
-          pageTitle="Task Details"
-          onNavigate={onNavigate}
-        />
-      )}
-
       {/* Project Sidebar */}
       {project && (
         <ProjectSidebar
@@ -332,19 +322,22 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
       )}
 
       {/* Main Content - Fixed positioning to match Project Tasks */}
-      <div className="fixed left-40 right-0 top-[84px] bottom-0 overflow-hidden">
-        <div className="h-full w-full flex flex-col bg-background overflow-y-auto">
-          <div className="max-w-7xl mx-auto w-full p-6 space-y-6">
-            {/* Header - Back Button and Title in one row */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+      <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
+        <div className="h-full w-full flex flex-col bg-background">
+          {/* Unified Header with Project Name, Back Button, Task Title, and Actions */}
+          <div className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="px-6 h-[72px] flex items-center justify-between pt-2">
+              <div className="flex items-center gap-4">
+                <h1 className="text-2xl font-bold text-foreground font-inter">{project?.name || 'Project'}</h1>
+                <div className="h-6 w-px bg-border" />
                 <Button variant="ghost" size="sm" onClick={handleBack}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Tasks
                 </Button>
-                <h1 className="text-xl font-semibold text-foreground">
+                <div className="h-6 w-px bg-border" />
+                <h2 className="text-lg font-semibold text-foreground">
                   {editedTask.taskName}
-                </h1>
+                </h2>
               </div>
               <div className="flex items-center gap-2">
                 <Button 
@@ -375,11 +368,15 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
                 </Button>
               </div>
             </div>
+          </div>
 
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Main Task Details - Left Column (2/3) */}
-              <div className="lg:col-span-2 space-y-6">
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="max-w-7xl mx-auto w-full p-6 space-y-6">
+              {/* Main Content Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main Task Details - Left Column (2/3) */}
+                <div className="lg:col-span-2 space-y-6">
                 {/* Task Edit Form */}
                 <div className="bg-card rounded-lg border shadow-sm p-6">
                   <EnhancedTaskEditForm
@@ -479,9 +476,9 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
                 </Collapsible>
               </div>
             </div>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };
