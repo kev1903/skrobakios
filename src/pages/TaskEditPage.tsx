@@ -333,16 +333,17 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
       {/* Main Content - Fixed positioning to match Project Tasks */}
       <div className="fixed left-40 right-0 top-[84px] bottom-0 overflow-hidden">
-        <div className="h-full w-full flex flex-col bg-gradient-to-br from-background to-muted/20 overflow-y-auto">
-          <div className="max-w-6xl mx-auto w-full p-6">
+        <div className="h-full w-full flex flex-col bg-background overflow-y-auto">
+          <div className="max-w-7xl mx-auto w-full p-6 space-y-6">
             {/* Header - Simple Back Button and Title */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-4">
-                <Button variant="ghost" onClick={handleBack}>
+            <div className="flex items-center justify-between pb-4 border-b">
+              <div className="flex items-center space-x-3">
+                <Button variant="ghost" size="sm" onClick={handleBack}>
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Tasks
                 </Button>
-                <h1 className="text-2xl font-bold text-foreground">
+                <div className="h-4 w-px bg-border" />
+                <h1 className="text-xl font-semibold text-foreground">
                   {editedTask.taskName}
                 </h1>
               </div>
@@ -377,112 +378,108 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
             </div>
 
             {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {/* Main Task Details - Left Column (2/3) */}
-            <div className="lg:col-span-2 space-y-4">
-              {/* Task Edit Form */}
-              <div className="backdrop-blur-xl bg-card/90 rounded-xl border shadow-sm p-4">
-                <EnhancedTaskEditForm
-                  task={editedTask}
-                  projectId={editedTask.project_id}
-                  onTaskUpdate={handleTaskUpdate}
-                  onSave={handleSave}
-                  onCancel={handleCancel}
-                />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Main Task Details - Left Column (2/3) */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Task Edit Form */}
+                <div className="bg-card rounded-lg border shadow-sm p-6">
+                  <EnhancedTaskEditForm
+                    task={editedTask}
+                    projectId={editedTask.project_id}
+                    onTaskUpdate={handleTaskUpdate}
+                    onSave={handleSave}
+                    onCancel={handleCancel}
+                  />
+                </div>
+
+                {/* Subtasks Section */}
+                <Collapsible
+                  open={expandedSections.subtasks}
+                  onOpenChange={() => toggleSection('subtasks')}
+                  className="bg-card rounded-lg border shadow-sm overflow-hidden"
+                >
+                  <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-base font-semibold">Subtasks</h3>
+                    </div>
+                    {expandedSections.subtasks ? (
+                      <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform" />
+                    )}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-6 py-4 border-t">
+                    <SubtasksList taskId={editedTask.id} projectMembers={[]} />
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Activity Section */}
+                <Collapsible
+                  open={expandedSections.activity}
+                  onOpenChange={() => toggleSection('activity')}
+                  className="bg-card rounded-lg border shadow-sm overflow-hidden"
+                >
+                  <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-base font-semibold">Activity & Comments</h3>
+                    </div>
+                    {expandedSections.activity ? (
+                      <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform" />
+                    )}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-6 py-4 border-t">
+                    <TaskCommentsActivity taskId={editedTask.id} />
+                  </CollapsibleContent>
+                </Collapsible>
               </div>
 
-              {/* Subtasks Section */}
-              <Collapsible
-                open={expandedSections.subtasks}
-                onOpenChange={() => toggleSection('subtasks')}
-                className="backdrop-blur-xl bg-card/90 rounded-xl border shadow-sm overflow-hidden"
-              >
-                <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 hover:bg-accent/50 transition-colors border-b">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-1 h-4 rounded-full ${expandedSections.subtasks ? 'bg-primary' : 'bg-muted'}`} />
-                    <h3 className="text-sm font-semibold">Subtasks</h3>
-                  </div>
-                  {expandedSections.subtasks ? (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform" />
-                  )}
-                </CollapsibleTrigger>
-                <CollapsibleContent className="p-4">
-                  <SubtasksList taskId={editedTask.id} projectMembers={[]} />
-                </CollapsibleContent>
-              </Collapsible>
+              {/* Sidebar - Right Column (1/3) */}
+              <div className="space-y-6">
+                {/* Attachments Section */}
+                <Collapsible
+                  open={expandedSections.attachments}
+                  onOpenChange={() => toggleSection('attachments')}
+                  className="bg-card rounded-lg border shadow-sm overflow-hidden"
+                >
+                  <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-base font-semibold">Attachments</h3>
+                    </div>
+                    {expandedSections.attachments ? (
+                      <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform" />
+                    )}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-6 py-4 border-t">
+                    <TaskAttachmentsDisplay taskId={editedTask.id} />
+                  </CollapsibleContent>
+                </Collapsible>
 
-              {/* Activity Section */}
-              <Collapsible
-                open={expandedSections.activity}
-                onOpenChange={() => toggleSection('activity')}
-                className="backdrop-blur-xl bg-card/90 rounded-xl border shadow-sm overflow-hidden"
-              >
-                <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 hover:bg-accent/50 transition-colors border-b">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-1 h-4 rounded-full ${expandedSections.activity ? 'bg-primary' : 'bg-muted'}`} />
-                    <h3 className="text-sm font-semibold">Activity & Comments</h3>
-                  </div>
-                  {expandedSections.activity ? (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform" />
-                  )}
-                </CollapsibleTrigger>
-                <CollapsibleContent className="p-4">
-                  <TaskCommentsActivity taskId={editedTask.id} />
-                </CollapsibleContent>
-              </Collapsible>
+                {/* Workflow Section */}
+                <Collapsible
+                  open={expandedSections.workflow}
+                  onOpenChange={() => toggleSection('workflow')}
+                  className="bg-card rounded-lg border shadow-sm overflow-hidden"
+                >
+                  <CollapsibleTrigger className="flex items-center justify-between w-full px-6 py-4 hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-base font-semibold">Workflow</h3>
+                    </div>
+                    {expandedSections.workflow ? (
+                      <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform" />
+                    ) : (
+                      <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform" />
+                    )}
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-6 py-4 border-t">
+                    <SubmittalWorkflow taskId={editedTask.id} projectMembers={[]} />
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
             </div>
-
-            {/* Sidebar - Right Column (1/3) */}
-            <div className="space-y-4">
-              {/* Attachments Section */}
-              <Collapsible
-                open={expandedSections.attachments}
-                onOpenChange={() => toggleSection('attachments')}
-                className="backdrop-blur-xl bg-card/90 rounded-xl border shadow-sm overflow-hidden"
-              >
-                <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 hover:bg-accent/50 transition-colors border-b">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-1 h-4 rounded-full ${expandedSections.attachments ? 'bg-primary' : 'bg-muted'}`} />
-                    <h3 className="text-sm font-semibold">Attachments</h3>
-                  </div>
-                  {expandedSections.attachments ? (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform" />
-                  )}
-                </CollapsibleTrigger>
-                <CollapsibleContent className="p-4">
-                  <TaskAttachmentsDisplay taskId={editedTask.id} />
-                </CollapsibleContent>
-              </Collapsible>
-
-              {/* Workflow Section */}
-              <Collapsible
-                open={expandedSections.workflow}
-                onOpenChange={() => toggleSection('workflow')}
-                className="backdrop-blur-xl bg-card/90 rounded-xl border shadow-sm overflow-hidden"
-              >
-                <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 hover:bg-accent/50 transition-colors border-b">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-1 h-4 rounded-full ${expandedSections.workflow ? 'bg-primary' : 'bg-muted'}`} />
-                    <h3 className="text-sm font-semibold">Workflow</h3>
-                  </div>
-                  {expandedSections.workflow ? (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform" />
-                  )}
-                </CollapsibleTrigger>
-                <CollapsibleContent className="p-4">
-                  <SubmittalWorkflow taskId={editedTask.id} projectMembers={[]} />
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-          </div>
         </div>
       </div>
     </div>
