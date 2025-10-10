@@ -327,8 +327,8 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
           {/* Two-bar Header Structure */}
           <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             {/* First Bar - Project Name Only */}
-            <div className="px-6 h-14 flex items-center border-b border-border">
-              <h1 className="text-xl font-bold text-foreground font-inter">{project?.name || 'Project'}</h1>
+            <div className="px-6 h-[72px] flex items-center border-b border-border">
+              <h1 className="text-2xl font-bold text-foreground font-inter">{project?.name || 'Project'}</h1>
             </div>
             
             {/* Second Bar - Navigation and Actions */}
