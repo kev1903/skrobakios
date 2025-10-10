@@ -25,46 +25,43 @@ export const SubtaskItem = ({ subtask, onToggleComplete, onSubtaskClick, onDelet
   return (
     <div 
       key={subtask.id} 
-      className="flex items-center space-x-3 p-3 rounded-lg border bg-gray-50 hover:bg-gray-100 transition-colors group"
+      className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-accent/50 transition-colors group"
     >
       <button
         onClick={(e) => {
           e.stopPropagation();
           onToggleComplete(subtask.id);
         }}
-        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+        className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
           subtask.completed 
-            ? 'bg-green-500 border-green-500 text-white' 
-            : 'border-gray-300 hover:border-green-400'
+            ? 'bg-primary border-primary text-primary-foreground' 
+            : 'border-muted-foreground/40 hover:border-primary'
         }`}
       >
-        {subtask.completed && <Check className="w-2.5 h-2.5" />}
+        {subtask.completed && <Check className="w-3 h-3" />}
       </button>
     
       <div 
-        className="flex-1 min-w-0 cursor-pointer"
+        className="flex-1 min-w-0 cursor-pointer flex items-center gap-2"
         onClick={() => onSubtaskClick?.(subtask)}
       >
-        <p className={`text-sm font-medium truncate ${
-          subtask.completed ? 'line-through text-gray-500' : 'text-gray-900'
+        <span className={`text-sm truncate ${
+          subtask.completed ? 'line-through text-muted-foreground' : 'text-foreground'
         }`}>
           {subtask.title}
-        </p>
-        {subtask.description && (
-          <p className="text-xs text-gray-600 mt-1">{subtask.description}</p>
-        )}
-      </div>
-      
-      <div className="flex items-center space-x-3 flex-shrink-0">
+        </span>
         {subtask.due_date && (
-          <span className="text-xs text-gray-600 font-medium">
+          <span className="text-xs text-muted-foreground">
             {formatDate(subtask.due_date)}
           </span>
         )}
+      </div>
+      
+      <div className="flex items-center gap-1.5 flex-shrink-0">
         {subtask.assigned_to_name && (
-          <Avatar className="w-6 h-6">
+          <Avatar className="w-5 h-5">
             <AvatarImage src={subtask.assigned_to_avatar} />
-            <AvatarFallback className="text-xs">
+            <AvatarFallback className="text-[10px]">
               {subtask.assigned_to_name.split(' ').map(n => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
@@ -78,13 +75,13 @@ export const SubtaskItem = ({ subtask, onToggleComplete, onSubtaskClick, onDelet
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100">
-              <MoreVertical className="w-4 h-4" />
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100">
+              <MoreVertical className="w-3 h-3" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => onDelete(subtask.id)} className="text-red-600">
-              <Trash2 className="w-4 h-4 mr-2" />
+            <DropdownMenuItem onClick={() => onDelete(subtask.id)} className="text-destructive text-xs">
+              <Trash2 className="w-3 h-3 mr-2" />
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

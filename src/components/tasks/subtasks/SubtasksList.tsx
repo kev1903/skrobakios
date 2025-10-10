@@ -46,20 +46,23 @@ export const SubtasksList = ({ taskId, projectMembers, onSubtaskClick }: Subtask
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">Subtasks</h3>
+        <span className="text-sm text-muted-foreground">
+          {subtasks.filter(st => st.completed).length} of {subtasks.length} completed
+        </span>
         <Button 
-          variant="outline" 
+          variant="ghost" 
           size="sm"
           onClick={() => setIsAddingSubtask(true)}
+          className="h-7 text-xs"
         >
-          <Plus className="w-4 h-4 mr-2" />
-          Add subtask
+          <Plus className="w-3 h-3 mr-1" />
+          Add
         </Button>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1">
         {subtasks.map((subtask) => (
           <SubtaskItem
             key={subtask.id}
