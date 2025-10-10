@@ -285,44 +285,45 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
   return (
     <div className="h-full flex flex-col bg-gradient-to-br from-background to-muted/20">
-      {/* Enhanced Header with Task Title */}
+      {/* Enhanced Header with Task Title and Actions */}
       <div className="flex-shrink-0 border-b backdrop-blur-xl bg-card/95 shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Top Row - Back and Badges */}
-          <div className="flex items-center gap-3 py-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleBack}
-              className="shrink-0 hover:bg-accent"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              <span>Back</span>
-            </Button>
-            <div className="h-5 w-px bg-border" />
-            <Badge variant="outline" className={`${getPriorityBadgeColor(editedTask.priority)} text-xs font-medium px-3`}>
-              {editedTask.priority}
-            </Badge>
-            <Badge variant="outline" className={`${getStatusBadgeColor(editedTask.status)} text-xs font-medium px-3`}>
-              {editedTask.status}
-            </Badge>
-            {editedTask.task_number && (
-              <span className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded">
-                {editedTask.task_number}
-              </span>
-            )}
-          </div>
+          {/* Single Row - Back, Badges, Task Title and Action Buttons */}
+          <div className="flex items-center gap-4 py-3">
+            {/* Left side - Back and Badges */}
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBack}
+                className="shrink-0 hover:bg-accent"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                <span>Back</span>
+              </Button>
+              <div className="h-5 w-px bg-border" />
+              <Badge variant="outline" className={`${getPriorityBadgeColor(editedTask.priority)} text-xs font-medium px-3`}>
+                {editedTask.priority}
+              </Badge>
+              <Badge variant="outline" className={`${getStatusBadgeColor(editedTask.status)} text-xs font-medium px-3`}>
+                {editedTask.status}
+              </Badge>
+              {editedTask.task_number && (
+                <span className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded">
+                  {editedTask.task_number}
+                </span>
+              )}
+            </div>
 
-          {/* Bottom Row - Task Title and Action Buttons */}
-          <div className="flex items-center justify-between py-4 border-t border-border/50">
-            <div className="flex-1 min-w-0 mr-4">
+            {/* Center - Task Title */}
+            <div className="flex-1 min-w-0">
               <EditableTaskTitle 
                 taskName={editedTask.taskName}
                 onTaskNameChange={handleTaskNameChange}
               />
             </div>
             
-            {/* Action Buttons */}
+            {/* Right side - Action Buttons */}
             <div className="flex items-center gap-1 flex-shrink-0">
               <Button 
                 onClick={handleMarkComplete}
@@ -335,7 +336,7 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
                 <span className="hidden sm:inline">Mark Complete</span>
               </Button>
               {editedTask.task_number && (
-                <Badge variant="outline" className="text-xs font-mono hidden md:flex">
+                <Badge variant="outline" className="text-xs font-mono hidden lg:flex">
                   #{editedTask.task_number}
                 </Badge>
               )}
