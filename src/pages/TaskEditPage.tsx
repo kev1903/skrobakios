@@ -13,6 +13,7 @@ import { TaskCommentsActivity } from '@/components/tasks/TaskCommentsActivity';
 import { SubmittalWorkflow } from '@/components/tasks/SubmittalWorkflow';
 import { TaskAttachmentsDisplay } from '@/components/tasks/TaskAttachmentsDisplay';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TaskEditPageProps {
   onNavigate: (page: string) => void;
@@ -24,6 +25,7 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
   const { tasks, updateTask, deleteTask } = useTaskContext();
   const [editedTask, setEditedTask] = useState<Task | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [expandedSections, setExpandedSections] = useState({
     attachments: false,
     subtasks: true,
@@ -33,14 +35,82 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (taskId) {
-      const task = tasks.find(t => t.id === taskId);
-      if (task) {
-        setEditedTask({ ...task });
-        setHasUnsavedChanges(false);
+    const fetchTask = async () => {
+      if (!taskId) {
+        setLoading(false);
+        return;
       }
-    }
-  }, [taskId, tasks]);
+
+      setLoading(true);
+      try {
+        // First try to find in context
+        const contextTask = tasks.find(t => t.id === taskId);
+        if (contextTask) {
+          setEditedTask({ ...contextTask });
+          setHasUnsavedChanges(false);
+          setLoading(false);
+          return;
+        }
+
+        // If not in context, fetch from database
+        const { data, error } = await supabase
+          .from('tasks')
+          .select('*')
+          .eq('id', taskId)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          // Map the database task to Task type
+          const mappedTask: Task = {
+            id: data.id,
+            project_id: data.project_id,
+            taskName: data.task_name || '',
+            task_number: data.task_number || '',
+            taskType: (data.task_type || 'Task') as 'Task' | 'Bug' | 'Feature',
+            priority: (data.priority || 'Medium') as 'High' | 'Medium' | 'Low',
+            assignedTo: {
+              name: data.assigned_to_name || '',
+              avatar: data.assigned_to_avatar || '',
+              userId: data.assigned_to_user_id
+            },
+            dueDate: data.due_date ? new Date(data.due_date).toLocaleDateString() : '',
+            status: (data.status || 'Not Started') as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
+            progress: data.progress || 0,
+            description: data.description || '',
+            duration: data.estimated_hours || 0,
+            is_milestone: data.is_milestone || false,
+            is_critical_path: data.is_critical_path || false,
+            created_at: data.created_at,
+            updated_at: data.updated_at
+          };
+
+          setEditedTask(mappedTask);
+          setHasUnsavedChanges(false);
+        }
+      } catch (error) {
+        console.error('Error fetching task:', error);
+        toast({
+          title: "Error loading task",
+          description: "Could not load the task. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTask();
+  }, [taskId, tasks, toast]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-muted-foreground">Loading task...</p>
+      </div>
+    );
+  }
 
   if (!editedTask) {
     return (
