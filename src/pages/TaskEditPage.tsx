@@ -480,5 +480,6 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
         </div>
       </div>
     </div>
+    </div>
   );
 };
