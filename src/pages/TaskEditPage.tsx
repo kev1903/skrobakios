@@ -2,18 +2,71 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Task } from '@/components/tasks/TaskContext';
 import { useTaskContext } from '@/components/tasks/useTaskContext';
-import { TaskEditHeader } from '@/components/tasks/TaskEditHeader';
 import { EnhancedTaskEditForm } from '@/components/tasks/enhanced/EnhancedTaskEditForm';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, ArrowLeft } from 'lucide-react';
+import { ChevronDown, ChevronRight, ArrowLeft, Edit2, Check, Paperclip, Timer, MessageSquare, Link, Trash2, Save } from 'lucide-react';
 import { SubtasksList } from '@/components/tasks/subtasks';
 import { TaskCommentsActivity } from '@/components/tasks/TaskCommentsActivity';
 import { SubmittalWorkflow } from '@/components/tasks/SubmittalWorkflow';
 import { TaskAttachmentsDisplay } from '@/components/tasks/TaskAttachmentsDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+
+// Editable Task Title Component
+const EditableTaskTitle = ({ taskName, onTaskNameChange }: { taskName: string; onTaskNameChange?: (name: string) => void }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(taskName);
+
+  useEffect(() => {
+    setEditValue(taskName);
+  }, [taskName]);
+
+  const handleSave = () => {
+    if (editValue.trim() && onTaskNameChange) {
+      onTaskNameChange(editValue.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditValue(taskName);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      handleCancel();
+    }
+  };
+
+  if (isEditing) {
+    return (
+      <Input
+        value={editValue}
+        onChange={(e) => setEditValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleSave}
+        className="text-2xl font-bold border-0 focus-visible:ring-0 px-0 h-auto bg-transparent"
+        autoFocus
+      />
+    );
+  }
+
+  return (
+    <div 
+      className="flex items-center gap-2 cursor-pointer hover:bg-accent/30 p-2 -ml-2 rounded-md transition-colors group"
+      onClick={() => setIsEditing(true)}
+    >
+      <h1 className="text-2xl font-bold text-foreground">{taskName}</h1>
+      <Edit2 className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+    </div>
+  );
+};
 
 interface TaskEditPageProps {
   onNavigate: (page: string) => void;
@@ -232,10 +285,11 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
   return (
     <div className="h-full flex flex-col bg-gradient-to-br from-background to-muted/20">
-      {/* Compact Header */}
-      <div className="flex-shrink-0 border-b backdrop-blur-xl bg-card/80 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center justify-between gap-4">
+      {/* Enhanced Header with Task Title */}
+      <div className="flex-shrink-0 border-b backdrop-blur-xl bg-card/95 shadow-sm sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Top Row - Back, Badges, Actions */}
+          <div className="flex items-center justify-between py-3 border-b border-border/50">
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
@@ -244,27 +298,77 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
                 className="shrink-0 hover:bg-accent"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Back</span>
+                <span>Back</span>
               </Button>
-              <div className="h-6 w-px bg-border" />
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className={`${getPriorityBadgeColor(editedTask.priority)} text-xs`}>
-                  {editedTask.priority}
-                </Badge>
-                <Badge variant="outline" className={`${getStatusBadgeColor(editedTask.status)} text-xs`}>
-                  {editedTask.status}
-                </Badge>
-                {editedTask.task_number && (
-                  <span className="text-xs text-muted-foreground font-mono">{editedTask.task_number}</span>
-                )}
-              </div>
+              <div className="h-5 w-px bg-border" />
+              <Badge variant="outline" className={`${getPriorityBadgeColor(editedTask.priority)} text-xs font-medium px-3`}>
+                {editedTask.priority}
+              </Badge>
+              <Badge variant="outline" className={`${getStatusBadgeColor(editedTask.status)} text-xs font-medium px-3`}>
+                {editedTask.status}
+              </Badge>
+              {editedTask.task_number && (
+                <span className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded">
+                  {editedTask.task_number}
+                </span>
+              )}
             </div>
-            <TaskEditHeader
-              task={editedTask}
+            
+            {/* Action Buttons */}
+            <div className="flex items-center gap-1">
+              <Button 
+                onClick={handleMarkComplete}
+                variant={editedTask.status === 'Completed' ? 'default' : 'outline'}
+                size="sm"
+                className="flex items-center gap-2"
+                disabled={editedTask.status === 'Completed'}
+              >
+                <Check className="w-4 h-4" />
+                <span className="hidden sm:inline">Mark Complete</span>
+              </Button>
+              {editedTask.task_number && (
+                <Badge variant="outline" className="text-xs font-mono hidden md:flex">
+                  #{editedTask.task_number}
+                </Badge>
+              )}
+              <div className="h-5 w-px bg-border mx-1" />
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <Paperclip className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <Timer className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <MessageSquare className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <Link className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleDelete} 
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={handleSave}
+                className="ml-2 bg-primary hover:bg-primary/90"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save
+              </Button>
+            </div>
+          </div>
+
+          {/* Bottom Row - Task Title */}
+          <div className="py-4">
+            <EditableTaskTitle 
+              taskName={editedTask.taskName}
               onTaskNameChange={handleTaskNameChange}
-              onMarkComplete={handleMarkComplete}
-              onDelete={handleDelete}
-              onSave={handleSave}
             />
           </div>
         </div>
