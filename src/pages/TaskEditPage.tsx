@@ -17,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { Project } from '@/hooks/useProjects';
 import { getStatusColor, getStatusText } from '@/components/tasks/utils/taskUtils';
+import { ProjectPageHeader } from '@/components/project/ProjectPageHeader';
 
 // Editable Task Title Component
 const EditableTaskTitle = ({ taskName, onTaskNameChange }: { taskName: string; onTaskNameChange?: (name: string) => void }) => {
@@ -310,6 +311,15 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
   return (
     <div className="h-screen overflow-hidden">
+      {/* Top Bar with Project Name */}
+      {project && (
+        <ProjectPageHeader
+          projectName={project.name}
+          pageTitle="Task Details"
+          onNavigate={onNavigate}
+        />
+      )}
+
       {/* Project Sidebar */}
       {project && (
         <ProjectSidebar
@@ -322,7 +332,7 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
       )}
 
       {/* Main Content - Fixed positioning to match Project Tasks */}
-      <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
+      <div className="fixed left-40 right-0 top-[84px] bottom-0 overflow-hidden">
         <div className="h-full w-full flex flex-col bg-background overflow-y-auto">
           <div className="max-w-7xl mx-auto w-full p-6 space-y-6">
             {/* Header - Back Button and Title in one row */}
