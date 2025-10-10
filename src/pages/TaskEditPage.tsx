@@ -14,6 +14,9 @@ import { SubmittalWorkflow } from '@/components/tasks/SubmittalWorkflow';
 import { TaskAttachmentsDisplay } from '@/components/tasks/TaskAttachmentsDisplay';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ProjectSidebar } from '@/components/ProjectSidebar';
+import { Project } from '@/hooks/useProjects';
+import { getStatusColor, getStatusText } from '@/components/tasks/utils/taskUtils';
 
 // Editable Task Title Component
 const EditableTaskTitle = ({ taskName, onTaskNameChange }: { taskName: string; onTaskNameChange?: (name: string) => void }) => {
@@ -77,6 +80,7 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
   const taskId = searchParams.get('taskId');
   const { tasks, updateTask, deleteTask } = useTaskContext();
   const [editedTask, setEditedTask] = useState<Task | null>(null);
+  const [project, setProject] = useState<Project | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [loading, setLoading] = useState(true);
   const [expandedSections, setExpandedSections] = useState({
@@ -101,6 +105,17 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
         if (contextTask) {
           setEditedTask({ ...contextTask });
           setHasUnsavedChanges(false);
+          
+          // Fetch project data
+          if (contextTask.project_id) {
+            const { data: projectData } = await supabase
+              .from('projects')
+              .select('*')
+              .eq('id', contextTask.project_id)
+              .single();
+            if (projectData) setProject(projectData as unknown as Project);
+          }
+          
           setLoading(false);
           return;
         }
@@ -141,6 +156,16 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
           setEditedTask(mappedTask);
           setHasUnsavedChanges(false);
+          
+          // Fetch project data
+          if (data.project_id) {
+            const { data: projectData } = await supabase
+              .from('projects')
+              .select('*')
+              .eq('id', data.project_id)
+              .single();
+            if (projectData) setProject(projectData as unknown as Project);
+          }
         }
       } catch (error) {
         console.error('Error fetching task:', error);
@@ -284,9 +309,23 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-background to-muted/20">
-      {/* Enhanced Header with Task Title and Actions */}
-      <div className="flex-shrink-0 border-b backdrop-blur-xl bg-card/95 shadow-sm sticky top-0 z-10">
+    <div className="h-screen overflow-hidden">
+      {/* Project Sidebar */}
+      {project && (
+        <ProjectSidebar
+          project={project}
+          onNavigate={onNavigate}
+          getStatusColor={getStatusColor}
+          getStatusText={getStatusText}
+          activeSection="tasks"
+        />
+      )}
+
+      {/* Main Content - Fixed positioning to match Project Tasks */}
+      <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
+        <div className="h-full w-full flex flex-col bg-gradient-to-br from-background to-muted/20">
+          {/* Enhanced Header with Task Title and Actions */}
+          <div className="flex-shrink-0 border-b backdrop-blur-xl bg-card/95 shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Single Row - Task Title First, Then Badges and Action Buttons */}
           <div className="flex items-center gap-4 py-3">
@@ -487,6 +526,8 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
               </Collapsible>
             </div>
           </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>
