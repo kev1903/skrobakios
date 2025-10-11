@@ -35,6 +35,7 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [totalDocs, setTotalDocs] = useState(0);
+  const [isHoveringSync, setIsHoveringSync] = useState(false);
   const { toast } = useToast();
 
   const fetchDocumentInfo = async (sourceIds: string[]) => {
@@ -145,6 +146,38 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
     }
   };
 
+  const stopSync = async () => {
+    try {
+      // Update all processing and pending jobs to failed status
+      const { error } = await supabase
+        .from('knowledge_sync_jobs')
+        .update({ 
+          status: 'failed',
+          error_message: 'Sync cancelled by user',
+          completed_at: new Date().toISOString()
+        })
+        .eq('project_id', projectId)
+        .in('status', ['processing', 'pending']);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Sync Stopped',
+        description: 'AI processing has been cancelled',
+      });
+
+      setSyncing(false);
+      fetchJobs();
+    } catch (error) {
+      console.error('Error stopping sync:', error);
+      toast({
+        title: 'Stop Failed',
+        description: 'Failed to stop knowledge sync',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const processingJob = jobs.find(j => j.status === 'processing');
   const pendingJobs = jobs.filter(j => j.status === 'pending');
   const completedJobs = jobs.filter(j => j.status === 'completed');
@@ -187,15 +220,16 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
           <h3 className="font-semibold">AI Knowledge Status</h3>
         </div>
         <Button
-          onClick={triggerManualSync}
-          disabled={syncing}
+          onClick={syncing ? stopSync : triggerManualSync}
+          onMouseEnter={() => setIsHoveringSync(true)}
+          onMouseLeave={() => setIsHoveringSync(false)}
           size="sm"
           variant="outline"
         >
           {syncing ? (
             <>
               <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-              Syncing...
+              {isHoveringSync ? 'Stop Sync' : 'Syncing...'}
             </>
           ) : (
             <>
