@@ -21,7 +21,7 @@ interface UserPermissionsContextType {
   refetch: () => Promise<void>;
 }
 
-const UserPermissionsContext = createContext<UserPermissionsContextType | undefined>(undefined);
+export const UserPermissionsContext = createContext<UserPermissionsContextType | undefined>(undefined);
 
 interface UserPermissionsProviderProps {
   children: React.ReactNode;

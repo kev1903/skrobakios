@@ -17,7 +17,7 @@ import { TaskReviewsTab } from '@/components/tasks/tabs/TaskReviewsTab';
 import { TaskQATab } from '@/components/tasks/tabs/TaskQATab';
 import { TaskCostsTab } from '@/components/tasks/tabs/TaskCostsTab';
 import { TaskAISummaryTab } from '@/components/tasks/tabs/TaskAISummaryTab';
-import { useUserPermissionsContext } from '@/contexts/UserPermissionsContext';
+import { UserPermissionsContext } from '@/contexts/UserPermissionsContext';
 
 // Editable Task Title Component
 const EditableTaskTitle = ({ taskName, onTaskNameChange }: { taskName: string; onTaskNameChange?: (name: string) => void }) => {
@@ -86,7 +86,10 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('details');
   const { toast } = useToast();
-  const { canViewSubModule } = useUserPermissionsContext();
+  
+  // Optional permissions context - may not be available if no company is selected
+  const permissionsContext = React.useContext(UserPermissionsContext);
+  const canViewSubModule = permissionsContext?.canViewSubModule ?? (() => true);
 
   useEffect(() => {
     const fetchTask = async () => {
