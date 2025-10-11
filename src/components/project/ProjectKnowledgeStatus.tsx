@@ -35,7 +35,6 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [totalDocs, setTotalDocs] = useState(0);
-  const [isHoveringSync, setIsHoveringSync] = useState(false);
   const { toast } = useToast();
 
   const fetchDocumentInfo = async (sourceIds: string[]) => {
@@ -219,25 +218,35 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
           <Brain className="h-5 w-5 text-primary" />
           <h3 className="font-semibold">AI Knowledge Status</h3>
         </div>
-        <Button
-          onClick={syncing ? stopSync : triggerManualSync}
-          onMouseEnter={() => setIsHoveringSync(true)}
-          onMouseLeave={() => setIsHoveringSync(false)}
-          size="sm"
-          variant="outline"
-        >
-          {syncing ? (
-            <>
-              <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-              {isHoveringSync ? 'Stop Sync' : 'Syncing...'}
-            </>
-          ) : (
-            <>
-              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-              Sync Now
-            </>
+        <div className="flex gap-2">
+          <Button
+            onClick={triggerManualSync}
+            disabled={syncing}
+            size="sm"
+            variant="outline"
+          >
+            {syncing ? (
+              <>
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                Syncing...
+              </>
+            ) : (
+              <>
+                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                Sync Now
+              </>
+            )}
+          </Button>
+          {syncing && (
+            <Button
+              onClick={stopSync}
+              size="sm"
+              variant="destructive"
+            >
+              Stop
+            </Button>
           )}
-        </Button>
+        </div>
       </div>
 
       <div className="space-y-4">
