@@ -1414,6 +1414,10 @@ export type Database = {
       }
       document_categories: {
         Row: {
+          ai_framework: string | null
+          ai_guardrails: string | null
+          ai_instructions: string | null
+          ai_prompt: string | null
           created_at: string
           description: string | null
           document_type: string
@@ -1426,6 +1430,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ai_framework?: string | null
+          ai_guardrails?: string | null
+          ai_instructions?: string | null
+          ai_prompt?: string | null
           created_at?: string
           description?: string | null
           document_type: string
@@ -1438,6 +1446,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ai_framework?: string | null
+          ai_guardrails?: string | null
+          ai_instructions?: string | null
+          ai_prompt?: string | null
           created_at?: string
           description?: string | null
           document_type?: string
