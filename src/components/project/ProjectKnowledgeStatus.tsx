@@ -136,18 +136,6 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
 
   return (
     <Card className="backdrop-blur-xl bg-background border border-border rounded-lg shadow-sm flex flex-col h-[600px]">
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center gap-2.5">
-          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Brain className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">SkAI Project Study</h3>
-            <p className="text-xs text-muted-foreground">AI-powered document insights</p>
-          </div>
-        </div>
-      </div>
-
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {messages.map((message) => (
