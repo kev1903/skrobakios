@@ -631,7 +631,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                     {categoryDocs.length > 0 && (
                                       <Badge 
                                         variant="outline" 
-                                        className="h-7 px-2 text-xs border-primary/30 text-primary"
+                                        className="h-7 px-2 text-xs border-blue-500/30 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20"
                                       >
                                         <Brain className="w-3 h-3 mr-1" />
                                         {categoryAnalysisProgress[category.id]?.progress || 0}/{categoryDocs.length} Analyzed
