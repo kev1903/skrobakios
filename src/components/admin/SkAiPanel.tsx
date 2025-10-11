@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Building2, HardHat, FileText } from "lucide-react";
 import { KnowledgeSection } from './skai/KnowledgeSection';
+import { ProjectKnowledgeSection } from './skai/ProjectKnowledgeSection';
 import { useCompany } from '@/contexts/CompanyContext';
 
 export const SkAiPanel: React.FC = () => {
@@ -51,12 +52,7 @@ export const SkAiPanel: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="project" className="space-y-6">
-          <KnowledgeSection
-            type="project"
-            title="Project Knowledge"
-            description="Project-specific guidelines, templates, and methodologies"
-            companyId={currentCompany?.id}
-          />
+          <ProjectKnowledgeSection />
         </TabsContent>
       </Tabs>
     </div>
