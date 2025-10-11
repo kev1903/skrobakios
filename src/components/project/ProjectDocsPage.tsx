@@ -515,7 +515,7 @@ export const ProjectDocsPage = ({
                                   </>}
                                 <Button variant="ghost" size="sm" onClick={e => {
                                 e.stopPropagation();
-                                handleUploadClick(category.id);
+                                handleUploadClick(category.dbId || category.id);
                               }} className="h-7 w-7 p-0">
                                   <Upload className="w-3.5 h-3.5" />
                                 </Button>
