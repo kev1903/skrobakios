@@ -221,183 +221,189 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
   }
 
   return (
-    <Card className="backdrop-blur-xl bg-card/50 border border-border p-4">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Brain className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-foreground">AI Knowledge Status</h3>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={triggerManualSync}
-            disabled={syncing}
-            size="sm"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground"
-          >
-            {syncing ? (
-              <>
-                <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                Analyzing...
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                Analyse with SkAi
-              </>
-            )}
-          </Button>
-          {syncing && (
-            <Button
-              onClick={stopSync}
-              size="sm"
-              variant="destructive"
-            >
-              Stop
-            </Button>
-          )}
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {/* Overall Progress */}
-        {jobs.length > 0 && (
-          <div className="space-y-2.5 mb-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground font-medium">
-                Overall Progress
-              </span>
-              <span className="text-sm text-foreground font-medium">
-                {completedCount} of {totalJobs} completed
-              </span>
-            </div>
-            <Progress value={progressPercentage} className="h-2.5" />
+    <Card className="backdrop-blur-xl bg-background border border-border rounded-lg shadow-sm">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2.5">
+            <Brain className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold text-foreground">AI Knowledge Status</h3>
           </div>
-        )}
+          <div className="flex gap-2">
+            <Button
+              onClick={triggerManualSync}
+              disabled={syncing}
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
+            >
+              {syncing ? (
+                <>
+                  <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                  Analyse with SkAi
+                </>
+              )}
+            </Button>
+            {syncing && (
+              <Button
+                onClick={stopSync}
+                size="sm"
+                variant="destructive"
+              >
+                Stop
+              </Button>
+            )}
+          </div>
+        </div>
 
-        {/* Currently Processing */}
-        {processingJob && (
-          <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-900 p-3 space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-pulse" />
-                <div className="absolute inset-0 animate-ping">
-                  <Sparkles className="h-4 w-4 text-blue-400 opacity-75" />
-                </div>
-              </div>
-              <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                AI Processing in Progress
-              </span>
-            </div>
-            <div className="flex items-start gap-2 ml-6">
-              <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-blue-800 dark:text-blue-200 font-medium truncate">
-                  {getDocumentName(processingJob.source_id)}
-                </p>
-                <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
-                  Extracting specifications, dates, risks, and compliance data...
-                </p>
-              </div>
-            </div>
-            {processingJob.started_at && (
-              <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 ml-6">
-                <Clock className="h-3 w-3" />
-                <span>
-                  Started {new Date(processingJob.started_at).toLocaleTimeString()}
+        <div className="space-y-5">
+          {/* Overall Progress */}
+          {jobs.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground font-medium">
+                  Overall Progress
+                </span>
+                <span className="text-sm text-foreground font-semibold">
+                  {completedCount} of {totalJobs} completed
                 </span>
               </div>
-            )}
-          </div>
-        )}
-
-        {/* Pending Queue */}
-        {pendingJobs.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>Queued ({pendingJobs.length})</span>
+              <Progress value={progressPercentage} className="h-2" />
             </div>
-            <div className="space-y-1.5 ml-6">
-              {pendingJobs.slice(0, 3).map((job) => (
-                <div key={job.id} className="flex items-center gap-2 text-sm">
-                  <FileText className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                  <span className="text-muted-foreground truncate text-xs">
-                    {getDocumentName(job.source_id)}
-                  </span>
-                  <Badge variant="outline" className="ml-auto text-xs">
-                    {getDocumentType(job.source_id)}
-                  </Badge>
+          )}
+
+          {/* Currently Processing */}
+          {processingJob && (
+            <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-900 p-4 space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-pulse" />
+                  <div className="absolute inset-0 animate-ping">
+                    <Sparkles className="h-4 w-4 text-blue-400 opacity-75" />
+                  </div>
                 </div>
-              ))}
-              {pendingJobs.length > 3 && (
-                <p className="text-xs text-muted-foreground">
-                  +{pendingJobs.length - 3} more in queue
-                </p>
+                <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  AI Processing in Progress
+                </span>
+              </div>
+              <div className="flex items-start gap-2 ml-6">
+                <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-blue-800 dark:text-blue-200 font-medium truncate">
+                    {getDocumentName(processingJob.source_id)}
+                  </p>
+                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
+                    Extracting specifications, dates, risks, and compliance data...
+                  </p>
+                </div>
+              </div>
+              {processingJob.started_at && (
+                <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 ml-6">
+                  <Clock className="h-3 w-3" />
+                  <span>
+                    Started {new Date(processingJob.started_at).toLocaleTimeString()}
+                  </span>
+                </div>
               )}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Recent Completions */}
-        {completedJobs.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <span>Recently Completed</span>
-            </div>
-            <div className="space-y-1.5 ml-6">
-              {completedJobs.slice(0, 3).map((job) => (
-                <div key={job.id} className="flex items-center justify-between gap-2 text-sm">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
-                    <span className="text-muted-foreground truncate text-xs">
-                      {getDocumentName(job.source_id)}
-                    </span>
+          {/* Pending Queue */}
+          {pendingJobs.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">Queued ({pendingJobs.length})</span>
+              </div>
+              <div className="space-y-2">
+                {pendingJobs.slice(0, 3).map((job) => (
+                  <div key={job.id} className="flex items-center justify-between gap-3 py-2 px-3 rounded-md hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="text-sm text-foreground truncate">
+                        {getDocumentName(job.source_id)}
+                      </span>
+                    </div>
+                    <Badge variant="outline" className="text-xs shrink-0">
+                      {getDocumentType(job.source_id)}
+                    </Badge>
                   </div>
-                  {job.completed_at && (
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">
-                      {new Date(job.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  )}
-                </div>
-              ))}
+                ))}
+                {pendingJobs.length > 3 && (
+                  <p className="text-xs text-muted-foreground pl-3 pt-1">
+                    +{pendingJobs.length - 3} more in queue
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Failed Jobs */}
-        {failedJobs.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-destructive">
-              <AlertCircle className="h-4 w-4" />
-              <span>Failed ({failedJobs.length})</span>
-            </div>
-            <div className="space-y-1.5 ml-6">
-              {failedJobs.slice(0, 2).map((job) => (
-                <div key={job.id} className="flex items-start gap-2 text-sm">
-                  <AlertCircle className="h-3.5 w-3.5 text-destructive flex-shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-destructive text-xs truncate">
-                      {getDocumentName(job.source_id)}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {job.error_message || 'Processing failed'}
-                    </p>
+          {/* Recent Completions */}
+          {completedJobs.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-500" />
+                <span className="text-sm font-medium text-foreground">Recently Completed</span>
+              </div>
+              <div className="space-y-2">
+                {completedJobs.slice(0, 3).map((job) => (
+                  <div key={job.id} className="flex items-center justify-between gap-3 py-2 px-3 rounded-md hover:bg-accent/50 transition-colors">
+                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                      <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-foreground truncate">
+                        {getDocumentName(job.source_id)}
+                      </span>
+                    </div>
+                    {job.completed_at && (
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {new Date(job.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Empty State */}
-        {jobs.length === 0 && (
-          <div className="text-center py-6 text-sm text-muted-foreground space-y-2">
-            <Brain className="h-8 w-8 mx-auto text-muted-foreground/50" />
-            <p className="font-medium">No knowledge extraction jobs yet</p>
-            <p className="text-xs">Upload documents to get started with AI analysis</p>
-          </div>
-        )}
+          {/* Failed Jobs */}
+          {failedJobs.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-destructive" />
+                <span className="text-sm font-medium text-destructive">Failed ({failedJobs.length})</span>
+              </div>
+              <div className="space-y-2">
+                {failedJobs.slice(0, 2).map((job) => (
+                  <div key={job.id} className="flex items-start gap-2.5 py-2 px-3 rounded-md bg-destructive/5">
+                    <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-destructive truncate font-medium">
+                        {getDocumentName(job.source_id)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {job.error_message || 'Processing failed'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {jobs.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground space-y-3">
+              <Brain className="h-10 w-10 mx-auto text-muted-foreground/30" />
+              <div>
+                <p className="font-medium text-sm">No knowledge extraction jobs yet</p>
+                <p className="text-xs mt-1">Upload documents to get started with AI analysis</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </Card>
   );
