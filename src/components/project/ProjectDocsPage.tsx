@@ -177,9 +177,9 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
           onNavigate={onNavigate}
         />
         
-        <div className="p-6 flex gap-6">
+        <div className="p-6 flex gap-6 min-h-[calc(100vh-180px)]">
           {/* Left Column - Project Docs & Links */}
-          <div className="flex-1 pr-6">
+          <div className="flex-1 pr-6 max-w-[50%]">
             <Tabs defaultValue="docs" className="w-full">
               <TabsList className="mb-6">
                 <TabsTrigger value="docs" className="flex items-center gap-2">
@@ -381,10 +381,10 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
         </div>
 
         {/* Vertical Divider */}
-        <div className="w-px bg-border h-full" />
+        <div className="w-px bg-border self-stretch" />
 
         {/* Right Column - Project Knowledge */}
-        <div className="flex-1 pl-6">
+        <div className="flex-1 pl-6 max-w-[50%]">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-foreground">Project Knowledge</h2>
             <Button onClick={() => setUploadDialogOpen(true)}>
