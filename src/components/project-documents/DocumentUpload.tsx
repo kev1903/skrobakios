@@ -325,9 +325,13 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
                         className="w-full px-2.5 py-1.5 text-sm border rounded-md bg-background"
                       >
                         <option value="draft">Draft</option>
-                        <option value="review">Under Review</option>
+                        <option value="for_review">For Review</option>
+                        <option value="under_review">Under Review</option>
                         <option value="approved">Approved</option>
                         <option value="final">Final</option>
+                        <option value="superseded">Superseded</option>
+                        <option value="void">Void</option>
+                        <option value="archived">Archived</option>
                       </select>
                     </div>
                   </div>
