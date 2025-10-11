@@ -10,6 +10,7 @@ import { useProjectLinks, ProjectLink } from '@/hooks/useProjectLinks';
 import { useProjectDocuments } from '@/hooks/useProjectDocuments';
 import { ProjectLinkDialog } from './ProjectLinkDialog';
 import { DocumentUpload } from '../project-documents/DocumentUpload';
+import { DocumentEditDialog } from './DocumentEditDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
 import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
@@ -43,6 +44,10 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
   const [selectedLink, setSelectedLink] = useState<ProjectLink | undefined>();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState<ProjectLink | undefined>();
+
+  // Document edit dialog state
+  const [editDocDialogOpen, setEditDocDialogOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<any | undefined>();
 
   // Document categories
   const documentCategories = [
@@ -121,6 +126,21 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
     } else if (selectedLink) {
       await updateLink(selectedLink.id, data);
     }
+  };
+
+  const handleDocumentClick = (doc: any) => {
+    setSelectedDocument(doc);
+    setEditDocDialogOpen(true);
+  };
+
+  const handleDocumentUpdated = () => {
+    refetchDocuments();
+    setEditDocDialogOpen(false);
+  };
+
+  const handleDocumentDelete = async (docId: string) => {
+    await deleteDocument(docId);
+    setEditDocDialogOpen(false);
   };
   
   if (!project) {
@@ -232,7 +252,10 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                     <div className="flex items-center gap-3 min-w-0 flex-1">
                                       <FileText className="h-5 w-5 text-primary/80 flex-shrink-0" />
                                       <div className="min-w-0 flex-1">
-                                        <p className="text-sm font-medium text-foreground truncate">
+                                        <p 
+                                          className="text-sm font-medium text-foreground truncate cursor-pointer hover:text-primary transition-colors"
+                                          onClick={() => handleDocumentClick(doc)}
+                                        >
                                           {doc.name}
                                         </p>
                                         <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
@@ -395,6 +418,15 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Document Edit Dialog */}
+      <DocumentEditDialog
+        open={editDocDialogOpen}
+        onOpenChange={setEditDocDialogOpen}
+        document={selectedDocument}
+        onDocumentUpdated={handleDocumentUpdated}
+        onDelete={handleDocumentDelete}
+      />
     </div>
   );
 };
