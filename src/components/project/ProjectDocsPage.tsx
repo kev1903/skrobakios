@@ -393,20 +393,23 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                             
                             {/* Progress Bar */}
                             {categoryAnalysisProgress[category.id]?.analyzing && (
-                              <div className="mt-2 px-2 space-y-1">
+                              <div className="mt-3 px-2 space-y-2">
                                 <div className="flex items-center justify-between text-xs">
-                                  <span className="text-muted-foreground flex items-center gap-1">
-                                    <Sparkles className="h-3 w-3 text-primary" />
+                                  <span className="text-muted-foreground flex items-center gap-1.5">
+                                    <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
                                     Analyzing documents...
                                   </span>
-                                  <span className="text-muted-foreground">
-                                    {categoryAnalysisProgress[category.id].progress} / {categoryAnalysisProgress[category.id].total}
+                                  <span className="text-sm font-semibold text-primary">
+                                    {Math.round((categoryAnalysisProgress[category.id].progress / categoryAnalysisProgress[category.id].total) * 100)}%
                                   </span>
                                 </div>
                                 <Progress 
                                   value={(categoryAnalysisProgress[category.id].progress / categoryAnalysisProgress[category.id].total) * 100} 
-                                  className="h-1.5"
+                                  className="h-2"
                                 />
+                                <div className="text-xs text-muted-foreground text-right">
+                                  {categoryAnalysisProgress[category.id].progress} of {categoryAnalysisProgress[category.id].total} documents
+                                </div>
                               </div>
                             )}
                           </div>
