@@ -34,7 +34,7 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
   const [documents, setDocuments] = useState<Record<string, DocumentInfo>>({});
   const [analysisResults, setAnalysisResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
+  
   const [totalDocs, setTotalDocs] = useState(0);
   const { toast } = useToast();
 
@@ -150,73 +150,6 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
     };
   }, [projectId]);
 
-  const triggerManualSync = async () => {
-    setSyncing(true);
-    try {
-      // First, delete all existing jobs for this project to reset the analysis
-      const { error: deleteError } = await supabase
-        .from('knowledge_sync_jobs')
-        .delete()
-        .eq('project_id', projectId);
-
-      if (deleteError) throw deleteError;
-
-      // Then create fresh jobs
-      const { data, error } = await supabase.functions.invoke('sync-project-knowledge', {
-        body: { projectId, companyId }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Analysis Started',
-        description: 'SkAi is analyzing your project documents...',
-      });
-
-      fetchJobs();
-    } catch (error) {
-      console.error('Error triggering sync:', error);
-      toast({
-        title: 'Analysis Failed',
-        description: 'Failed to start knowledge analysis',
-        variant: 'destructive'
-      });
-    } finally {
-      setSyncing(false);
-    }
-  };
-
-  const stopSync = async () => {
-    try {
-      // Update all processing and pending jobs to failed status
-      const { error } = await supabase
-        .from('knowledge_sync_jobs')
-        .update({ 
-          status: 'failed',
-          error_message: 'Analysis cancelled by user',
-          completed_at: new Date().toISOString()
-        })
-        .eq('project_id', projectId)
-        .in('status', ['processing', 'pending']);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Analysis Stopped',
-        description: 'SkAi analysis has been cancelled',
-      });
-
-      setSyncing(false);
-      fetchJobs();
-    } catch (error) {
-      console.error('Error stopping sync:', error);
-      toast({
-        title: 'Stop Failed',
-        description: 'Failed to stop analysis',
-        variant: 'destructive'
-      });
-    }
-  };
 
   const processingJob = jobs.find(j => j.status === 'processing');
   const pendingJobs = jobs.filter(j => j.status === 'pending');
@@ -254,35 +187,6 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
           <div className="flex items-center gap-2.5">
             <Brain className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold text-foreground">AI Knowledge Status</h3>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              onClick={triggerManualSync}
-              disabled={syncing}
-              size="sm"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"
-            >
-              {syncing ? (
-                <>
-                  <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                  Analyse with SkAi
-                </>
-              )}
-            </Button>
-            {syncing && (
-              <Button
-                onClick={stopSync}
-                size="sm"
-                variant="destructive"
-              >
-                Stop
-              </Button>
-            )}
           </div>
         </div>
 
