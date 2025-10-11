@@ -177,18 +177,20 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
           onNavigate={onNavigate}
         />
         
-        <div className="p-6">
-          <Tabs defaultValue="docs" className="w-full">
-            <TabsList className="mb-6">
-              <TabsTrigger value="docs" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Project Docs
-              </TabsTrigger>
-              <TabsTrigger value="links" className="flex items-center gap-2">
-                <Link className="h-4 w-4" />
-                Project Links
-              </TabsTrigger>
-            </TabsList>
+        <div className="p-6 flex gap-6">
+          {/* Left Column - Project Docs & Links */}
+          <div className="flex-1">
+            <Tabs defaultValue="docs" className="w-full">
+              <TabsList className="mb-6">
+                <TabsTrigger value="docs" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Project Docs
+                </TabsTrigger>
+                <TabsTrigger value="links" className="flex items-center gap-2">
+                  <Link className="h-4 w-4" />
+                  Project Links
+                </TabsTrigger>
+              </TabsList>
 
             {/* Project Docs Tab */}
             <TabsContent value="docs">
@@ -377,6 +379,24 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
             </TabsContent>
           </Tabs>
         </div>
+
+        {/* Right Column - Project Knowledge */}
+        <div className="flex-1 border-l border-white/[0.08] pl-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-foreground">Project Knowledge</h2>
+            <Button onClick={() => setUploadDialogOpen(true)}>
+              <Upload className="w-4 h-4 mr-2" />
+              Upload
+            </Button>
+          </div>
+
+          <div className="backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] rounded-2xl p-6">
+            <p className="text-sm text-muted-foreground">
+              Upload documents, notes, and other knowledge resources for this project.
+            </p>
+          </div>
+        </div>
+      </div>
       </div>
 
       {/* Document Upload Dialog */}
