@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,7 +16,7 @@ import { DocumentEditDialog } from './DocumentEditDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
 import { ProjectKnowledgeStatus } from './ProjectKnowledgeStatus';
 import { CategoryDialog } from './CategoryDialog';
-import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2 } from 'lucide-react';
+import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -627,20 +628,15 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                   </>
                                 ) : (
                                   <>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleRestartAnalysis(category.id);
-                                      }}
-                                      className="h-7 px-2 text-xs text-amber-600 hover:text-amber-700"
-                                      title="Restart analysis"
-                                      disabled={categoryDocs.length === 0}
-                                    >
-                                      <RotateCw className="w-3.5 h-3.5 mr-1" />
-                                      Restart
-                                    </Button>
+                                    {categoryDocs.length > 0 && (
+                                      <Badge 
+                                        variant="outline" 
+                                        className="h-7 px-2 text-xs border-primary/30 text-primary"
+                                      >
+                                        <Brain className="w-3 h-3 mr-1" />
+                                        {categoryAnalysisProgress[category.id]?.progress || 0}/{categoryDocs.length} Analyzed
+                                      </Badge>
+                                    )}
                                     <Button
                                       variant="ghost"
                                       size="sm"
