@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import * as pdfjs from "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.mjs";
+// @ts-ignore
+import pdfParse from "npm:pdf-parse@1.1.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -79,30 +80,11 @@ serve(async (req) => {
         
         console.log(`PDF downloaded (${Math.round(pdfBuffer.byteLength / 1024)}KB), extracting text...`);
         
-        // Extract text using pdfjs
-        const loadingTask = pdfjs.getDocument({
-          data: new Uint8Array(pdfBuffer),
-          useWorkerFetch: false,
-          isEvalSupported: false,
-          useSystemFonts: true,
-        });
+        // Extract text using pdf-parse
+        const pdfData = await pdfParse(Buffer.from(pdfBuffer));
+        extractedText = pdfData.text;
         
-        const pdf = await loadingTask.promise;
-        const textParts: string[] = [];
-        
-        // Extract text from each page
-        for (let pageNum = 1; pageNum <= Math.min(pdf.numPages, 50); pageNum++) {
-          const page = await pdf.getPage(pageNum);
-          const textContent = await page.getTextContent();
-          const pageText = textContent.items
-            .map((item: any) => item.str)
-            .join(' ');
-          textParts.push(pageText);
-        }
-        
-        extractedText = textParts.join('\n\n');
-        
-        console.log(`Text extracted: ${extractedText.length} characters from ${Math.min(pdf.numPages, 50)} pages`);
+        console.log(`Text extracted: ${extractedText.length} characters from ${pdfData.numpages} pages`);
         
         // Store extracted text in database for future use
         await supabase
