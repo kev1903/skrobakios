@@ -14,6 +14,7 @@ import { DocumentUpload } from '../project-documents/DocumentUpload';
 import { DocumentEditDialog } from './DocumentEditDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
 import { ProjectKnowledgeStatus } from './ProjectKnowledgeStatus';
+import { CategoryDialog } from './CategoryDialog';
 import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { useToast } from '@/hooks/use-toast';
@@ -58,8 +59,11 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
   const [categoryAnalysisProgress, setCategoryAnalysisProgress] = useState<Record<string, { analyzing: boolean; progress: number; total: number }>>({});
   const [activeAnalysisControllers, setActiveAnalysisControllers] = useState<Record<string, AbortController>>({});
 
-  // Document categories
-  const documentCategories = [
+  // Category dialog state
+  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
+
+  // Document categories - now dynamic
+  const [documentCategories, setDocumentCategories] = useState([
     {
       id: 'architectural',
       title: 'Architectural',
@@ -70,7 +74,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
       title: 'Structural Engineering',
       icon: FileText,
     },
-  ];
+  ]);
 
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories(prev => ({
@@ -408,6 +412,19 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
     // Start fresh analysis
     await handleAnalyzeCategory(categoryId);
   };
+
+  const handleAddCategory = (title: string) => {
+    const newCategory = {
+      id: title.toLowerCase().replace(/\s+/g, '-'),
+      title: title,
+      icon: FileText,
+    };
+    setDocumentCategories(prev => [...prev, newCategory]);
+    toast({
+      title: 'Category Added',
+      description: `"${title}" category has been created`,
+    });
+  };
   
   if (!project) {
     return (
@@ -460,6 +477,13 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
 
             {/* Project Docs Tab */}
             <TabsContent value="docs">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-foreground">Document Categories</h2>
+                <Button onClick={() => setCategoryDialogOpen(true)} variant="outline" size="sm">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Category
+                </Button>
+              </div>
               <div className="space-y-4">
                 {documentCategories.map(category => {
                   const isExpanded = expandedCategories[category.id];
@@ -771,6 +795,13 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
           }
         }}
         categoryId={selectedCategory || undefined}
+      />
+
+      {/* Category Dialog */}
+      <CategoryDialog
+        open={categoryDialogOpen}
+        onOpenChange={setCategoryDialogOpen}
+        onSubmit={handleAddCategory}
       />
 
       {/* Project Link Dialog */}
