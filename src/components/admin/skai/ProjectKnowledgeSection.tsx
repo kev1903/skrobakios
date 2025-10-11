@@ -46,15 +46,13 @@ export const ProjectKnowledgeSection: React.FC = () => {
   const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set([1]));
 
   useEffect(() => {
+    fetchDocumentCategories();
     if (currentCompany?.id) {
       fetchProjectsKnowledge();
-      fetchDocumentCategories();
     }
   }, [currentCompany?.id]);
 
   const fetchDocumentCategories = async () => {
-    if (!currentCompany?.id) return;
-    
     try {
       setCategoriesLoading(true);
       
