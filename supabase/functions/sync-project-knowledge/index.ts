@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { getDocument } from "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -62,7 +63,58 @@ serve(async (req) => {
 
     console.log("Document found:", document.name, "Type:", document.content_type);
 
-    const extractedText = document.extracted_text;
+    let extractedText = document.extracted_text;
+
+    // Extract text from PDF if not already extracted
+    if (!extractedText && document.content_type === 'application/pdf') {
+      console.log("Extracting text from PDF...");
+      
+      try {
+        // Download the PDF file
+        const pdfResponse = await fetch(document.file_url);
+        if (!pdfResponse.ok) {
+          throw new Error('Failed to download PDF');
+        }
+        const pdfBuffer = await pdfResponse.arrayBuffer();
+        
+        console.log(`PDF downloaded (${Math.round(pdfBuffer.byteLength / 1024)}KB), extracting text...`);
+        
+        // Extract text using pdfjs
+        const loadingTask = getDocument({
+          data: new Uint8Array(pdfBuffer),
+          useWorkerFetch: false,
+          isEvalSupported: false,
+          useSystemFonts: true,
+        });
+        
+        const pdf = await loadingTask.promise;
+        const textParts: string[] = [];
+        
+        // Extract text from each page
+        for (let pageNum = 1; pageNum <= Math.min(pdf.numPages, 50); pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items
+            .map((item: any) => item.str)
+            .join(' ');
+          textParts.push(pageText);
+        }
+        
+        extractedText = textParts.join('\n\n');
+        
+        console.log(`Text extracted: ${extractedText.length} characters from ${Math.min(pdf.numPages, 50)} pages`);
+        
+        // Store extracted text in database for future use
+        await supabase
+          .from("project_documents")
+          .update({ extracted_text: extractedText })
+          .eq("id", documentId);
+          
+      } catch (pdfError) {
+        console.error("Error extracting PDF text:", pdfError);
+        // Continue without extracted text - AI will analyze based on metadata
+      }
+    }
 
     console.log("Analyzing document with SkAi...");
 
