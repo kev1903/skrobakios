@@ -321,8 +321,17 @@ export const ProjectDocsPage = ({
     }
   };
   const handleAnalyzeCategory = async (categoryId: string) => {
+    // Get all documents for this category using the DB ID
     const categoryDocs = getDocumentsByCategory(categoryId);
-    if (categoryDocs.length === 0) return;
+    
+    if (categoryDocs.length === 0) {
+      toast({
+        title: "No Documents",
+        description: "This category has no documents to analyze",
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Create abort controller for this analysis
     const controller = new AbortController();
@@ -331,56 +340,98 @@ export const ProjectDocsPage = ({
       [categoryId]: controller
     }));
 
-    // Set analyzing state
-    setCategoryAnalysisProgress(prev => ({
-      ...prev,
-      [categoryId]: {
-        analyzing: true,
-        progress: 0,
-        total: categoryDocs.length
-      }
-    }));
-
-    // Trigger analysis for all documents sequentially to avoid overload
-    for (const doc of categoryDocs) {
-      if (controller.signal.aborted) break;
-      await handleAnalyzeDocument(doc.id, doc.name, controller.signal);
-      // Small delay between requests
-      await new Promise(resolve => setTimeout(resolve, 500));
+    // Get documents that need analysis (no ai_summary or processing status is pending/failed)
+    const docsToAnalyze = categoryDocs.filter(doc => 
+      !doc.ai_summary || doc.processing_status === 'pending' || doc.processing_status === 'failed'
+    );
+    
+    if (docsToAnalyze.length === 0) {
+      toast({
+        title: "All documents analyzed",
+        description: "All documents in this category have already been analyzed",
+      });
+      setCategoryAnalysisProgress(prev => ({
+        ...prev,
+        [categoryId]: { analyzing: false, progress: categoryDocs.length, total: categoryDocs.length }
+      }));
+      return;
     }
 
-    // Set up polling to update progress
-    const pollProgress = async () => {
-      if (controller.signal.aborted) return;
-      await refetchDocuments();
-      await updateCategoryProgress(categoryId);
+    // Count already analyzed documents
+    const alreadyAnalyzed = categoryDocs.filter(doc => doc.ai_summary && doc.ai_summary.trim().length > 0).length;
+    
+    // Set initial analyzing state
+    setCategoryAnalysisProgress(prev => ({
+      ...prev,
+      [categoryId]: { analyzing: true, progress: alreadyAnalyzed, total: categoryDocs.length }
+    }));
 
-      // Check if all documents are analyzed
-      const currentDocs = getDocumentsByCategory(categoryId);
-      const allAnalyzed = currentDocs.every(doc => doc.ai_summary && doc.ai_summary.trim().length > 0);
-      if (allAnalyzed) {
+    toast({
+      title: "Starting SkAi Analysis",
+      description: `Analyzing ${docsToAnalyze.length} document${docsToAnalyze.length > 1 ? 's' : ''}...`,
+    });
+
+    // Analyze documents sequentially to avoid overload
+    let completed = 0;
+    for (const doc of docsToAnalyze) {
+      // Check if analysis was stopped
+      if (controller.signal.aborted) {
+        toast({
+          title: "Analysis Stopped",
+          description: "Document analysis has been stopped",
+          variant: "destructive",
+        });
+        break;
+      }
+
+      try {
+        console.log(`📄 Analyzing document: ${doc.name} (ID: ${doc.id})`);
+        await handleAnalyzeDocument(doc.id, doc.name, controller.signal);
+        completed++;
+        
+        // Small delay between requests
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Update progress immediately after each document
         setCategoryAnalysisProgress(prev => ({
           ...prev,
-          [categoryId]: {
-            analyzing: false,
-            progress: currentDocs.length,
-            total: currentDocs.length
+          [categoryId]: { 
+            analyzing: true, 
+            progress: alreadyAnalyzed + completed, 
+            total: categoryDocs.length 
           }
         }));
-        setActiveAnalysisControllers(prev => {
-          const newControllers = {
-            ...prev
-          };
-          delete newControllers[categoryId];
-          return newControllers;
-        });
-      } else if (categoryAnalysisProgress[categoryId]?.analyzing) {
-        setTimeout(pollProgress, 3000);
-      }
-    };
 
-    // Start polling after a delay
-    setTimeout(pollProgress, 3000);
+        // Refetch documents to show updated analysis in real-time
+        await refetchDocuments();
+        
+      } catch (error) {
+        console.error(`❌ Failed to analyze ${doc.name}:`, error);
+        toast({
+          title: "Analysis Error",
+          description: `Failed to analyze ${doc.name}`,
+          variant: "destructive",
+        });
+      }
+    }
+
+    // Final refetch to ensure all updates are visible
+    await refetchDocuments();
+
+    // Update progress to final state
+    await updateCategoryProgress(categoryId);
+
+    // Clean up
+    setActiveAnalysisControllers(prev => {
+      const newControllers = { ...prev };
+      delete newControllers[categoryId];
+      return newControllers;
+    });
+
+    toast({
+      title: "Analysis Complete",
+      description: `Successfully analyzed ${completed} document${completed !== 1 ? 's' : ''}`,
+    });
   };
   const handleStopAnalysis = async (categoryId: string) => {
     // Abort ongoing requests
