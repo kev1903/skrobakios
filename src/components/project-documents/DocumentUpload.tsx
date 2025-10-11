@@ -406,17 +406,6 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
             </div>
           )}
 
-          {/* Upload Instructions */}
-          <div className="text-[11px] text-muted-foreground bg-muted/50 p-3 rounded-lg">
-            <strong>Document Types:</strong>
-            <ul className="mt-2 space-y-1">
-              <li>• <strong>Specifications:</strong> Technical specs, requirements documents</li>
-              <li>• <strong>Drawings:</strong> Architectural plans, engineering drawings, CAD files</li>
-              <li>• <strong>Reports:</strong> Site reports, analysis documents, compliance reports</li>
-              <li>• <strong>Images:</strong> Site photos, reference images, progress photos</li>
-              <li>• <strong>Documents:</strong> Contracts, permits, correspondence</li>
-            </ul>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
