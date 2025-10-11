@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -13,7 +14,7 @@ import { DocumentUpload } from '../project-documents/DocumentUpload';
 import { DocumentEditDialog } from './DocumentEditDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
 import { ProjectKnowledgeStatus } from './ProjectKnowledgeStatus';
-import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles } from 'lucide-react';
+import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2 } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -52,6 +53,9 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
   // Document edit dialog state
   const [editDocDialogOpen, setEditDocDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any | undefined>();
+
+  // Analysis progress tracking
+  const [categoryAnalysisProgress, setCategoryAnalysisProgress] = useState<Record<string, { analyzing: boolean; progress: number; total: number }>>({});
 
   // Document categories
   const documentCategories = [
@@ -96,8 +100,74 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
         }
       };
       fetchProject();
+
+      // Subscribe to real-time analysis progress updates
+      const channel = supabase
+        .channel('analysis-progress')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'project_documents',
+            filter: `project_id=eq.${projectId}`
+          },
+          async (payload) => {
+            // Update progress when documents are analyzed
+            if (payload.eventType === 'UPDATE' && payload.new.processing_status === 'completed') {
+              // Recalculate progress for affected category
+              const documentType = payload.new.document_type;
+              if (documentType) {
+                await updateCategoryProgress(documentType);
+              }
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [projectId, getProject]);
+
+  const updateCategoryProgress = async (categoryId: string) => {
+    try {
+      const categoryDocs = documents.filter(doc => 
+        doc.document_type?.toLowerCase() === categoryId.toLowerCase()
+      );
+      
+      const total = categoryDocs.length;
+      if (total === 0) {
+        setCategoryAnalysisProgress(prev => ({
+          ...prev,
+          [categoryId]: { analyzing: false, progress: 0, total: 0 }
+        }));
+        return;
+      }
+
+      const { data: analyzedDocs } = await supabase
+        .from('project_documents')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('document_type', categoryId)
+        .not('ai_summary', 'is', null);
+
+      const analyzed = analyzedDocs?.length || 0;
+      const isAnalyzing = analyzed < total;
+
+      setCategoryAnalysisProgress(prev => ({
+        ...prev,
+        [categoryId]: {
+          analyzing: isAnalyzing,
+          progress: analyzed,
+          total: total
+        }
+      }));
+    } catch (error) {
+      console.error('Error updating category progress:', error);
+    }
+  };
   
   const handleAddLink = () => {
     setLinkDialogMode('create');
@@ -172,6 +242,38 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
       });
     }
   };
+
+  const handleAnalyzeCategory = async (categoryId: string) => {
+    const categoryDocs = getDocumentsByCategory(categoryId);
+    
+    if (categoryDocs.length === 0) return;
+
+    // Set analyzing state
+    setCategoryAnalysisProgress(prev => ({
+      ...prev,
+      [categoryId]: {
+        analyzing: true,
+        progress: 0,
+        total: categoryDocs.length
+      }
+    }));
+
+    // Trigger analysis for all documents
+    categoryDocs.forEach(doc => {
+      handleAnalyzeDocument(doc.id, doc.name);
+    });
+
+    // Update progress periodically
+    const progressInterval = setInterval(() => {
+      updateCategoryProgress(categoryId);
+    }, 2000);
+
+    // Clear interval after estimated completion time
+    setTimeout(() => {
+      clearInterval(progressInterval);
+      updateCategoryProgress(categoryId);
+    }, categoryDocs.length * 10000); // Estimate 10s per document
+  };
   
   if (!project) {
     return (
@@ -239,52 +341,74 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                       <div className="border border-border rounded-lg overflow-hidden hover:border-border/60 transition-all duration-200">
                         {/* Category Header */}
                         <CollapsibleTrigger asChild>
-                          <div className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-accent/50 transition-colors">
-                            <div className="flex items-center gap-2.5">
-                              {isExpanded ? (
-                                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" />
-                              ) : (
-                                <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform" />
-                              )}
-                              <Icon className="h-4 w-4 text-foreground" />
-                              <h3 className="text-sm font-medium text-foreground">
-                                {category.title}
-                              </h3>
-                              {categoryDocs.length > 0 && (
-                                <span className="text-xs text-muted-foreground bg-accent px-2 py-0.5 rounded-full">
-                                  {categoryDocs.length}
-                                </span>
-                              )}
+                          <div className="px-4 py-2">
+                            <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded p-2">
+                              <div className="flex items-center gap-2.5">
+                                {isExpanded ? (
+                                  <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" />
+                                ) : (
+                                  <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform" />
+                                )}
+                                <Icon className="h-4 w-4 text-foreground" />
+                                <h3 className="text-sm font-medium text-foreground">
+                                  {category.title}
+                                </h3>
+                                {categoryDocs.length > 0 && (
+                                  <span className="text-xs text-muted-foreground bg-accent px-2 py-0.5 rounded-full">
+                                    {categoryDocs.length}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAnalyzeCategory(category.id);
+                                  }}
+                                  className="h-7 w-7 p-0 text-primary hover:text-primary/80"
+                                  title="Analyze all with SkAi"
+                                  disabled={categoryDocs.length === 0 || categoryAnalysisProgress[category.id]?.analyzing}
+                                >
+                                  {categoryAnalysisProgress[category.id]?.analyzing ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                  ) : (
+                                    <Sparkles className="w-3.5 h-3.5" />
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleUploadClick(category.id);
+                                  }}
+                                  className="h-7 w-7 p-0"
+                                >
+                                  <Upload className="w-3.5 h-3.5" />
+                                </Button>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  // Analyze all documents in this category
-                                  categoryDocs.forEach(doc => {
-                                    handleAnalyzeDocument(doc.id, doc.name);
-                                  });
-                                }}
-                                className="h-7 w-7 p-0 text-primary hover:text-primary/80"
-                                title="Analyze all with SkAi"
-                                disabled={categoryDocs.length === 0}
-                              >
-                                <Sparkles className="w-3.5 h-3.5" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleUploadClick(category.id);
-                                }}
-                                className="h-7 w-7 p-0"
-                              >
-                                <Upload className="w-3.5 h-3.5" />
-                              </Button>
-                            </div>
+                            
+                            {/* Progress Bar */}
+                            {categoryAnalysisProgress[category.id]?.analyzing && (
+                              <div className="mt-2 px-2 space-y-1">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground flex items-center gap-1">
+                                    <Sparkles className="h-3 w-3 text-primary" />
+                                    Analyzing documents...
+                                  </span>
+                                  <span className="text-muted-foreground">
+                                    {categoryAnalysisProgress[category.id].progress} / {categoryAnalysisProgress[category.id].total}
+                                  </span>
+                                </div>
+                                <Progress 
+                                  value={(categoryAnalysisProgress[category.id].progress / categoryAnalysisProgress[category.id].total) * 100} 
+                                  className="h-1.5"
+                                />
+                              </div>
+                            )}
                           </div>
                         </CollapsibleTrigger>
 
