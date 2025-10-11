@@ -183,13 +183,6 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
   return (
     <Card className="backdrop-blur-xl bg-background border border-border rounded-lg shadow-sm">
       <div className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2.5">
-            <Brain className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold text-foreground">AI Knowledge Status</h3>
-          </div>
-        </div>
-
         <div className="space-y-4">
           {/* Analysis Results */}
           {analysisResults.length > 0 ? (
