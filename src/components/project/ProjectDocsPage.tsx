@@ -427,34 +427,10 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
         <div className="flex-1 pl-6 max-w-[50%]">
           <h2 className="text-xl font-semibold text-foreground mb-6">AI Knowledge Extraction</h2>
 
-          <div className="space-y-6">
-            <ProjectKnowledgeStatus 
-              projectId={projectId!}
-              companyId={project.company_id}
-            />
-
-            <div className="backdrop-blur-xl bg-card/50 border border-border rounded-lg p-6">
-              <h3 className="text-sm font-semibold text-foreground mb-3">How it works</h3>
-              <ul className="text-sm text-muted-foreground space-y-2.5">
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">•</span>
-                  <span>Documents are automatically processed when uploaded</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">•</span>
-                  <span>AI extracts key specifications, dates, risks, and compliance requirements</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">•</span>
-                  <span>Knowledge is used to power SkAi assistant responses</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-primary mt-0.5">•</span>
-                  <span>Confidence scores indicate extraction quality</span>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <ProjectKnowledgeStatus 
+            projectId={projectId!}
+            companyId={project.company_id}
+          />
         </div>
       </div>
       </div>
