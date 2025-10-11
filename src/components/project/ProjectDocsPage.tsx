@@ -665,10 +665,15 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                 </Button>
                               </div>
                             </div>
-                            
+                          </div>
+                        </CollapsibleTrigger>
+
+                        {/* Category Content */}
+                        <CollapsibleContent>
+                          <div className="px-4 pb-3 pt-1">
                             {/* Progress Bar - Show during analysis or when complete */}
                             {categoryAnalysisProgress[category.id] && categoryAnalysisProgress[category.id].total > 0 && (
-                              <div className="mt-3 space-y-2">
+                              <div className="mb-3 space-y-2 bg-accent/30 p-3 rounded-lg">
                                 {(() => {
                                   const progress = categoryAnalysisProgress[category.id];
                                   const percentage = Math.round((progress.progress / progress.total) * 100);
@@ -711,12 +716,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                 })()}
                               </div>
                             )}
-                          </div>
-                        </CollapsibleTrigger>
-
-                        {/* Category Content */}
-                        <CollapsibleContent>
-                          <div className="px-4 pb-3 pt-1">
+                          
                             {categoryDocs.length > 0 ? (
                               <div className="space-y-1">
                                 {categoryDocs.map(doc => (
