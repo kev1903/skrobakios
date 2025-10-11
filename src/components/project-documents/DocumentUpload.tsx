@@ -231,10 +231,22 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
       </DialogTrigger>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-base">
-            <Upload className="h-4 w-4" />
-            Upload Project Documents
-          </DialogTitle>
+          <div className="flex items-center justify-between gap-4">
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Upload className="h-4 w-4" />
+              Upload Project Documents
+            </DialogTitle>
+            {uploadFiles.some(f => f.status === 'pending') && (
+              <Button 
+                onClick={handleStartUpload}
+                size="sm"
+                className="shrink-0"
+              >
+                <Upload className="w-3.5 h-3.5 mr-1.5" />
+                Upload {uploadFiles.filter(f => f.status === 'pending').length} {uploadFiles.filter(f => f.status === 'pending').length === 1 ? 'File' : 'Files'}
+              </Button>
+            )}
+          </div>
         </DialogHeader>
         
         <div className="space-y-3">
@@ -319,13 +331,6 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
                       </select>
                     </div>
                   </div>
-
-                  <Button 
-                    onClick={handleStartUpload}
-                    className="w-full"
-                  >
-                    Upload Document
-                  </Button>
                 </div>
               ))}
             </div>
