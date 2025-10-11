@@ -133,8 +133,7 @@ export const ProjectKnowledgeSection: React.FC = () => {
           id,
           name,
           status,
-          project_documents(count),
-          project_contracts(count)
+          project_documents(count)
         `)
         .eq('company_id', currentCompany.id);
 
@@ -167,7 +166,7 @@ export const ProjectKnowledgeSection: React.FC = () => {
           project_name: project.name,
           status: project.status || 'active',
           document_count: project.project_documents?.[0]?.count || 0,
-          contract_count: project.project_contracts?.[0]?.count || 0,
+          contract_count: 0,
           last_synced: knowledge?.last_synced || null,
           knowledge_sources: knowledge?.sources || []
         };
@@ -198,7 +197,6 @@ export const ProjectKnowledgeSection: React.FC = () => {
         .select(`
           *,
           project_documents(*),
-          project_contracts(*),
           tasks(*),
           activities(*),
           estimates(*)
@@ -231,17 +229,6 @@ export const ProjectKnowledgeSection: React.FC = () => {
         knowledgeContent += `\n`;
       }
 
-      // Add contracts information
-      if (projectData.project_contracts?.length > 0) {
-        knowledgeSources.push('Contracts');
-        knowledgeContent += `## Contracts (${projectData.project_contracts.length})\n`;
-        projectData.project_contracts.forEach((contract: any) => {
-          knowledgeContent += `- ${contract.contract_name || 'Unnamed Contract'}\n`;
-          knowledgeContent += `  Type: ${contract.contract_type}\n`;
-          knowledgeContent += `  Value: $${contract.contract_value || 0}\n`;
-        });
-        knowledgeContent += `\n`;
-      }
 
       // Add tasks summary
       if (projectData.tasks?.length > 0) {
@@ -289,7 +276,6 @@ export const ProjectKnowledgeSection: React.FC = () => {
             project_name: projectData.name,
             sources: knowledgeSources,
             document_count: projectData.project_documents?.length || 0,
-            contract_count: projectData.project_contracts?.length || 0,
             task_count: projectData.tasks?.length || 0
           },
           is_active: true
@@ -483,13 +469,6 @@ export const ProjectKnowledgeSection: React.FC = () => {
                     <div>
                       <div className="text-sm font-medium">{project.document_count}</div>
                       <div className="text-xs text-muted-foreground">Documents</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="text-sm font-medium">{project.contract_count}</div>
-                      <div className="text-xs text-muted-foreground">Contracts</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
