@@ -381,7 +381,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
         </div>
 
         {/* Vertical Divider */}
-        <div className="w-px bg-gradient-to-b from-transparent via-white/[0.15] to-transparent" />
+        <div className="w-px bg-border h-full" />
 
         {/* Right Column - Project Knowledge */}
         <div className="flex-1 pl-6">
