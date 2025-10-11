@@ -32,10 +32,27 @@ interface DocumentInfo {
 export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatusProps) => {
   const [jobs, setJobs] = useState<SyncJob[]>([]);
   const [documents, setDocuments] = useState<Record<string, DocumentInfo>>({});
+  const [analysisResults, setAnalysisResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [totalDocs, setTotalDocs] = useState(0);
   const { toast } = useToast();
+
+  const fetchAnalysisResults = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('project_documents')
+        .select('*')
+        .eq('project_id', projectId)
+        .not('ai_summary', 'is', null)
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+      setAnalysisResults(data || []);
+    } catch (error) {
+      console.error('Error fetching analysis results:', error);
+    }
+  };
 
   const fetchDocumentInfo = async (sourceIds: string[]) => {
     try {
@@ -86,6 +103,9 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
         .eq('processing_status', 'completed');
       
       setTotalDocs(count || 0);
+
+      // Fetch analysis results
+      await fetchAnalysisResults();
     } catch (error) {
       console.error('Error fetching sync jobs:', error);
     } finally {
@@ -109,6 +129,18 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
         },
         () => {
           fetchJobs();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'project_documents',
+          filter: `project_id=eq.${projectId}`
+        },
+        () => {
+          fetchAnalysisResults();
         }
       )
       .subscribe();
@@ -191,11 +223,6 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
   const completedJobs = jobs.filter(j => j.status === 'completed');
   const failedJobs = jobs.filter(j => j.status === 'failed');
 
-  // Calculate progress
-  const totalJobs = jobs.length;
-  const completedCount = completedJobs.length;
-  const progressPercentage = totalJobs > 0 ? (completedCount / totalJobs) * 100 : 0;
-
   // Get document name helper
   const getDocumentName = (sourceId?: string) => {
     if (!sourceId) return 'Unknown document';
@@ -214,7 +241,7 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
       <Card className="p-4">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <RefreshCw className="h-4 w-4 animate-spin" />
-          Loading knowledge status...
+          Loading analysis results...
         </div>
       </Card>
     );
@@ -259,147 +286,108 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
           </div>
         </div>
 
-        <div className="space-y-5">
-          {/* Overall Progress */}
-          {jobs.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground font-medium">
-                  Overall Progress
-                </span>
-                <span className="text-sm text-foreground font-semibold">
-                  {completedCount} of {totalJobs} completed
-                </span>
-              </div>
-              <Progress value={progressPercentage} className="h-2" />
-            </div>
-          )}
-
-          {/* Currently Processing */}
-          {processingJob && (
-            <div className="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-900 p-4 space-y-2">
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-pulse" />
-                  <div className="absolute inset-0 animate-ping">
-                    <Sparkles className="h-4 w-4 text-blue-400 opacity-75" />
-                  </div>
-                </div>
-                <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                  AI Processing in Progress
-                </span>
-              </div>
-              <div className="flex items-start gap-2 ml-6">
-                <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-blue-800 dark:text-blue-200 font-medium truncate">
-                    {getDocumentName(processingJob.source_id)}
-                  </p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
-                    Extracting specifications, dates, risks, and compliance data...
-                  </p>
-                </div>
-              </div>
-              {processingJob.started_at && (
-                <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 ml-6">
-                  <Clock className="h-3 w-3" />
-                  <span>
-                    Started {new Date(processingJob.started_at).toLocaleTimeString()}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Pending Queue */}
-          {pendingJobs.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">Queued ({pendingJobs.length})</span>
-              </div>
-              <div className="space-y-2">
-                {pendingJobs.slice(0, 3).map((job) => (
-                  <div key={job.id} className="flex items-center justify-between gap-3 py-2 px-3 rounded-md hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="text-sm text-foreground truncate">
-                        {getDocumentName(job.source_id)}
-                      </span>
+        <div className="space-y-4">
+          {/* Analysis Results */}
+          {analysisResults.length > 0 ? (
+            <div className="space-y-4">
+              {analysisResults.map((doc) => (
+                <div key={doc.id} className="rounded-lg border border-border bg-card p-4 space-y-3">
+                  {/* Document Header */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                      <FileText className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-sm font-semibold text-foreground truncate">
+                          {doc.name}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {doc.document_type || 'document'}
+                          </Badge>
+                          {doc.ai_confidence > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              Confidence: {Math.round(doc.ai_confidence * 100)}%
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <Badge variant="outline" className="text-xs shrink-0">
-                      {getDocumentType(job.source_id)}
-                    </Badge>
+                    <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
                   </div>
-                ))}
-                {pendingJobs.length > 3 && (
-                  <p className="text-xs text-muted-foreground pl-3 pt-1">
-                    +{pendingJobs.length - 3} more in queue
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
 
-          {/* Recent Completions */}
-          {completedJobs.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-500" />
-                <span className="text-sm font-medium text-foreground">Recently Completed</span>
-              </div>
-              <div className="space-y-2">
-                {completedJobs.slice(0, 3).map((job) => (
-                  <div key={job.id} className="flex items-center justify-between gap-3 py-2 px-3 rounded-md hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-foreground truncate">
-                        {getDocumentName(job.source_id)}
-                      </span>
-                    </div>
-                    {job.completed_at && (
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">
-                        {new Date(job.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Failed Jobs */}
-          {failedJobs.length > 0 && (
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-destructive" />
-                <span className="text-sm font-medium text-destructive">Failed ({failedJobs.length})</span>
-              </div>
-              <div className="space-y-2">
-                {failedJobs.slice(0, 2).map((job) => (
-                  <div key={job.id} className="flex items-start gap-2.5 py-2 px-3 rounded-md bg-destructive/5">
-                    <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-destructive truncate font-medium">
-                        {getDocumentName(job.source_id)}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {job.error_message || 'Processing failed'}
+                  {/* AI Summary */}
+                  {doc.ai_summary && (
+                    <div className="space-y-1.5">
+                      <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        AI Summary
+                      </h5>
+                      <p className="text-sm text-foreground leading-relaxed">
+                        {doc.ai_summary}
                       </p>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+                  )}
 
-          {/* Empty State */}
-          {jobs.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground space-y-3">
-              <Brain className="h-10 w-10 mx-auto text-muted-foreground/30" />
+                  {/* Metadata */}
+                  {doc.metadata && Object.keys(doc.metadata).length > 0 && (
+                    <div className="space-y-2">
+                      <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        Key Information
+                      </h5>
+                      <div className="grid grid-cols-2 gap-2">
+                        {doc.metadata.date && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="text-xs text-foreground">
+                              Date: {doc.metadata.date}
+                            </span>
+                          </div>
+                        )}
+                        {doc.metadata.status && (
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="text-xs">
+                              {doc.metadata.status}
+                            </Badge>
+                          </div>
+                        )}
+                        {doc.metadata.author && (
+                          <div className="text-xs text-muted-foreground col-span-2">
+                            Author: {doc.metadata.author}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Rationale */}
+                  {doc.ai_rationale && (
+                    <div className="space-y-1.5 pt-2 border-t border-border">
+                      <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        Analysis Notes
+                      </h5>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {doc.ai_rationale}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Timestamp */}
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground pt-2 border-t border-border">
+                    <Clock className="h-3 w-3" />
+                    <span>
+                      Analyzed {new Date(doc.updated_at).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-muted-foreground space-y-3">
+              <Brain className="h-12 w-12 mx-auto text-muted-foreground/30" />
               <div>
-                <p className="font-medium text-sm">No knowledge extraction jobs yet</p>
-                <p className="text-xs mt-1">Upload documents to get started with AI analysis</p>
+                <p className="font-medium text-sm">No analysis results yet</p>
+                <p className="text-xs mt-1">
+                  Click the <Sparkles className="h-3 w-3 inline" /> icon on a document category to start AI analysis
+                </p>
               </div>
             </div>
           )}
