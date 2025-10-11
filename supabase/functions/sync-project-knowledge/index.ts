@@ -62,33 +62,7 @@ serve(async (req) => {
 
     console.log("Document found:", document.name, "Type:", document.content_type);
 
-    let extractedText = document.extracted_text;
-    let pdfBase64 = null;
-
-    // For PDFs, convert to base64 for vision analysis if text not already extracted
-    if (!extractedText && document.content_type === 'application/pdf') {
-      console.log("Preparing PDF for vision analysis...");
-      
-      try {
-        // Download the PDF file
-        const pdfResponse = await fetch(document.file_url);
-        if (!pdfResponse.ok) {
-          throw new Error('Failed to download PDF');
-        }
-        const pdfBuffer = await pdfResponse.arrayBuffer();
-        
-        // Convert to base64
-        const base64 = btoa(
-          new Uint8Array(pdfBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
-        );
-        pdfBase64 = base64;
-        
-        console.log(`PDF prepared for analysis (${Math.round(pdfBuffer.byteLength / 1024)}KB)`);
-      } catch (pdfError) {
-        console.error("Error preparing PDF:", pdfError);
-        // Continue without PDF data
-      }
-    }
+    const extractedText = document.extracted_text;
 
     console.log("Analyzing document with SkAi...");
 
@@ -102,35 +76,19 @@ serve(async (req) => {
 
 Provide a comprehensive but concise summary (max 500 words) that would be useful for project management.`;
 
-    // Build user message with document content
-    let userContent: any[] = [
-      {
-        type: "text",
-        text: `Analyze this construction project document:
+    const userPrompt = `Analyze this construction project document:
 
 Document Name: ${document.name}
 Document Type: ${document.document_type || 'Unknown'}
 File Type: ${document.content_type || 'Unknown'}
 
-${extractedText ? `Document Content:\n${extractedText.substring(0, 15000)}` : ''}
+${extractedText ? `Document Content:\n${extractedText.substring(0, 15000)}` : 'Note: Full document text is not available. Please provide analysis based on the document name, type, and general construction project management best practices for this type of document.'}
 
-Please provide a detailed analysis of this document focusing on construction project management aspects. Include key insights, potential risks, and actionable recommendations.`
-      }
-    ];
+Please provide a detailed analysis of this document focusing on construction project management aspects. Include key insights, potential risks, and actionable recommendations.`;
 
-    // Add PDF as inline data if available
-    if (pdfBase64) {
-      userContent.push({
-        type: "image_url",
-        image_url: {
-          url: `data:application/pdf;base64,${pdfBase64}`
-        }
-      });
-    }
+    console.log("Calling Lovable AI for text-based analysis...");
 
-    console.log("Calling Lovable AI with", pdfBase64 ? "PDF document" : "text content");
-
-    // Call Lovable AI with vision support
+    // Call Lovable AI
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -141,7 +99,7 @@ Please provide a detailed analysis of this document focusing on construction pro
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: userContent }
+          { role: "user", content: userPrompt }
         ],
         temperature: 0.7,
         max_tokens: 2000
