@@ -15,7 +15,7 @@ import { DocumentUpload } from '../project-documents/DocumentUpload';
 import { DocumentEditDialog } from './DocumentEditDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
 import { ProjectKnowledgeStatus } from './ProjectKnowledgeStatus';
-import { CategoryDialog } from './CategoryDialog';
+
 import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { useToast } from '@/hooks/use-toast';
@@ -75,8 +75,6 @@ export const ProjectDocsPage = ({
   }>>({});
   const [activeAnalysisControllers, setActiveAnalysisControllers] = useState<Record<string, AbortController>>({});
 
-  // Category dialog state
-  const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
   // Document categories - loaded from database
   const [documentCategories, setDocumentCategories] = useState<Array<{
@@ -458,39 +456,6 @@ export const ProjectDocsPage = ({
     // Start fresh analysis
     await handleAnalyzeCategory(categoryId);
   };
-  const handleAddCategory = async (title: string) => {
-    if (!projectId || !project?.company_id) return;
-    try {
-      const {
-        data,
-        error
-      } = await supabase.from('project_document_categories').insert({
-        project_id: projectId,
-        company_id: project.company_id,
-        title: title,
-        sort_order: documentCategories.length
-      }).select().single();
-      if (error) throw error;
-      const newCategory = {
-        id: title.toLowerCase().replace(/\s+/g, '-'),
-        title: title,
-        icon: FileText,
-        dbId: data.id
-      };
-      setDocumentCategories(prev => [...prev, newCategory]);
-      toast({
-        title: 'Category Added',
-        description: `"${title}" category has been created`
-      });
-    } catch (error) {
-      console.error('Error adding category:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to add category',
-        variant: 'destructive'
-      });
-    }
-  };
   if (!project) {
     return <div className="flex items-center justify-center h-screen">
         <div className="text-center">
@@ -528,12 +493,8 @@ export const ProjectDocsPage = ({
 
             {/* Project Docs Tab */}
             <TabsContent value="docs">
-              <div className="flex justify-between items-center mb-4">
+              <div className="mb-4">
                 <h2 className="text-xl font-semibold text-foreground">Document Categories</h2>
-                <Button onClick={() => setCategoryDialogOpen(true)} variant="outline" size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Category
-                </Button>
               </div>
               <div className="space-y-4">
                 {documentCategories.map(category => {
@@ -754,9 +715,6 @@ export const ProjectDocsPage = ({
         }, 1000);
       }
     }} categoryId={selectedCategory || undefined} />
-
-      {/* Category Dialog */}
-      <CategoryDialog open={categoryDialogOpen} onOpenChange={setCategoryDialogOpen} onSubmit={handleAddCategory} />
 
       {/* Project Link Dialog */}
       <ProjectLinkDialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen} mode={linkDialogMode} projectId={projectId || ''} link={selectedLink} onSubmit={handleLinkSubmit} />
