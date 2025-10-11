@@ -146,9 +146,7 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
                     <Sparkles className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1">
-                    <div className="bg-muted/50 rounded-lg p-3">
                       <p className="text-sm text-muted-foreground">{message.content}</p>
-                    </div>
                   </div>
                 </div>
               ) : (
