@@ -554,7 +554,7 @@ export const ProjectDocsPage = ({
                                   </span>}
                               </div>
                               <div className="flex items-center gap-1">
-                                {categoryAnalysisProgress[category.id]?.analyzing ? <>
+                                {categoryAnalysisProgress[category.dbId || category.id]?.analyzing ? <>
                                     <Button variant="ghost" size="sm" onClick={e => {
                                   e.stopPropagation();
                                   handleStopAnalysis(category.dbId || category.id);
@@ -565,7 +565,7 @@ export const ProjectDocsPage = ({
                                   </> : <>
                                     {categoryDocs.length > 0 && <Badge variant="outline" className="h-7 px-2 text-xs border-blue-500/30 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20">
                                         <Brain className="w-3 h-3 mr-1" />
-                                        {categoryAnalysisProgress[category.id]?.progress || 0}/{categoryDocs.length} Analyzed
+                                        {categoryAnalysisProgress[category.dbId || category.id]?.progress || 0}/{categoryDocs.length} Analyzed
                                       </Badge>}
                                     <Button variant="ghost" size="sm" onClick={e => {
                                   e.stopPropagation();
@@ -589,9 +589,9 @@ export const ProjectDocsPage = ({
                         <CollapsibleContent>
                           <div className="px-4 pb-3 pt-1">
                             {/* Progress Bar - Show during analysis or when complete */}
-                            {categoryAnalysisProgress[category.id] && categoryAnalysisProgress[category.id].total > 0 && <div className="mb-3 space-y-2 bg-accent/30 p-3 rounded-lg">
+                            {categoryAnalysisProgress[category.dbId || category.id] && categoryAnalysisProgress[category.dbId || category.id].total > 0 && <div className="mb-3 space-y-2 bg-accent/30 p-3 rounded-lg">
                                 {(() => {
-                              const progress = categoryAnalysisProgress[category.id];
+                              const progress = categoryAnalysisProgress[category.dbId || category.id];
                               const percentage = Math.round(progress.progress / progress.total * 100);
                               const isComplete = progress.progress >= progress.total;
                               return <>
