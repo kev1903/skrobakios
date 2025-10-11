@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,6 +11,7 @@ interface ExtractionRequest {
   type: 'document' | 'invoice' | 'quote' | 'contract';
   projectId: string;
   projectName: string;
+  categoryId?: string;
   data: {
     file_url?: string;
     content_type?: string;
@@ -47,14 +49,55 @@ serve(async (req) => {
     console.log('Processing extraction request:', {
       type: requestData.type,
       projectId: requestData.projectId,
-      projectName: requestData.projectName
+      projectName: requestData.projectName,
+      categoryId: requestData.categoryId
     });
+
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     let systemPrompt = '';
     let userPrompt = '';
 
     if (requestData.type === 'document') {
-      systemPrompt = `You are an expert construction project analyst specializing in technical drawings, specifications, and project documentation. Extract comprehensive knowledge from construction documents.
+      // Fetch category AI configuration if category_id is provided
+      let categoryConfig = null;
+      if (requestData.categoryId) {
+        const { data, error } = await supabase
+          .from('document_categories')
+          .select('ai_prompt, ai_instructions, ai_guardrails, ai_framework, name')
+          .eq('id', requestData.categoryId)
+          .single();
+        
+        if (error) {
+          console.warn('Failed to fetch category config:', error);
+        } else {
+          categoryConfig = data;
+          console.log('Using category-specific AI config for:', data.name);
+        }
+      }
+
+      // Build system prompt - use category config if available
+      if (categoryConfig?.ai_prompt) {
+        systemPrompt = categoryConfig.ai_prompt;
+        
+        // Append additional context if provided
+        if (categoryConfig.ai_instructions) {
+          systemPrompt += `\n\n## Instructions:\n${categoryConfig.ai_instructions}`;
+        }
+        
+        if (categoryConfig.ai_guardrails) {
+          systemPrompt += `\n\n## Guardrails:\n${categoryConfig.ai_guardrails}`;
+        }
+        
+        if (categoryConfig.ai_framework) {
+          systemPrompt += `\n\n## Framework:\n${categoryConfig.ai_framework}`;
+        }
+      } else {
+        // Default prompt if no category config
+        systemPrompt = `You are an expert construction project analyst specializing in technical drawings, specifications, and project documentation. Extract comprehensive knowledge from construction documents.
 
 Your task is to analyze the document and provide:
 1. **Key Specifications**: Materials, dimensions, standards, codes
@@ -66,6 +109,7 @@ Your task is to analyze the document and provide:
 7. **Technical Details**: Specific requirements, tolerances, quality criteria
 
 Format your response as structured markdown with clear sections. Be specific and reference exact details from the document.`;
+      }
 
       const documentInfo = `
 Document Name: ${requestData.data.name || 'Unknown'}

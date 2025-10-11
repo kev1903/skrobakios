@@ -50,7 +50,7 @@ serve(async (req) => {
     // Fetch the document
     const { data: document, error: docError } = await supabase
       .from("project_documents")
-      .select("*")
+      .select("*, category:document_categories(id, name, ai_prompt, ai_instructions, ai_guardrails, ai_framework)")
       .eq("id", documentId)
       .single();
 
@@ -60,6 +60,12 @@ serve(async (req) => {
         JSON.stringify({ error: "Document not found" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Extract category configuration
+    const categoryConfig = Array.isArray(document.category) ? document.category[0] : document.category;
+    if (categoryConfig) {
+      console.log("Using category-specific AI config for:", categoryConfig.name);
     }
 
     console.log("Document found:", document.name, "Type:", document.content_type);
@@ -100,8 +106,28 @@ serve(async (req) => {
 
     console.log("Analyzing document with SkAi...");
 
-    // Prepare the prompt for AI analysis
-    const systemPrompt = `You are SkAi, an expert construction project document analyst. Analyze the provided document and extract key information including:
+    // Prepare the prompt for AI analysis using category-specific configuration
+    let systemPrompt = '';
+    
+    if (categoryConfig?.ai_prompt) {
+      // Use category-specific prompt
+      systemPrompt = categoryConfig.ai_prompt;
+      
+      // Append additional category configuration
+      if (categoryConfig.ai_instructions) {
+        systemPrompt += `\n\n## Instructions:\n${categoryConfig.ai_instructions}`;
+      }
+      
+      if (categoryConfig.ai_guardrails) {
+        systemPrompt += `\n\n## Guardrails:\n${categoryConfig.ai_guardrails}`;
+      }
+      
+      if (categoryConfig.ai_framework) {
+        systemPrompt += `\n\n## Framework:\n${categoryConfig.ai_framework}`;
+      }
+    } else {
+      // Default prompt if no category config
+      systemPrompt = `You are SkAi, an expert construction project document analyst. Analyze the provided document and extract key information including:
 - Document type and purpose
 - Key findings and important details
 - Potential risks or issues identified
@@ -109,12 +135,14 @@ serve(async (req) => {
 - Relevant dates, costs, or quantities mentioned
 
 Provide a comprehensive but concise summary (max 500 words) that would be useful for project management.`;
+    }
 
     const userPrompt = `Analyze this construction project document:
 
 Document Name: ${document.name}
 Document Type: ${document.document_type || 'Unknown'}
 File Type: ${document.content_type || 'Unknown'}
+${categoryConfig ? `Category: ${categoryConfig.name}` : ''}
 
 ${extractedText ? `Document Content:\n${extractedText.substring(0, 15000)}` : 'Note: Full document text is not available. Please provide analysis based on the document name, type, and general construction project management best practices for this type of document.'}
 

@@ -135,11 +135,12 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
         .from('project_documents')
         .insert({
           project_id: projectId,
+          category_id: categoryId || null,
           name: uploadFile.metadata?.title || uploadFile.file.name,
           file_url: urlData.publicUrl,
           content_type: uploadFile.file.type,
           file_size: uploadFile.file.size,
-          document_type: categoryId || uploadFile.metadata?.type || 'drawing',
+          document_type: uploadFile.metadata?.type || 'drawing',
           created_by: (await supabase.auth.getUser()).data.user?.id,
           metadata: {
             version: uploadFile.metadata?.version,
