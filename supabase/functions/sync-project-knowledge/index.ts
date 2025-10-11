@@ -60,7 +60,55 @@ serve(async (req) => {
       );
     }
 
-    console.log("Analyzing document:", document.name);
+    console.log("Document found:", document.name, "Type:", document.content_type);
+
+    let extractedText = document.extracted_text;
+
+    // Extract text from PDF if not already extracted
+    if (!extractedText && document.content_type === 'application/pdf') {
+      console.log("Extracting text from PDF...");
+      
+      try {
+        // Download the PDF file
+        const pdfResponse = await fetch(document.file_url);
+        if (!pdfResponse.ok) {
+          throw new Error('Failed to download PDF');
+        }
+        const pdfBlob = await pdfResponse.blob();
+        
+        // Call extract-pdf-text function
+        const formData = new FormData();
+        formData.append('file', pdfBlob, document.name);
+        
+        const extractResponse = await fetch(`${supabaseUrl}/functions/v1/extract-pdf-text`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${supabaseKey}`,
+          },
+          body: formData
+        });
+
+        if (extractResponse.ok) {
+          const extractData = await extractResponse.json();
+          extractedText = extractData.text;
+          
+          // Save extracted text to document
+          await supabase
+            .from("project_documents")
+            .update({ extracted_text: extractedText })
+            .eq("id", documentId);
+          
+          console.log(`Extracted ${extractedText?.length || 0} characters from PDF`);
+        } else {
+          console.warn("PDF extraction failed, proceeding with basic analysis");
+        }
+      } catch (extractError) {
+        console.error("Error extracting PDF text:", extractError);
+        // Continue with basic analysis even if extraction fails
+      }
+    }
+
+    console.log("Analyzing document with SkAi...");
 
     // Prepare the prompt for AI analysis
     const systemPrompt = `You are SkAi, an expert construction project document analyst. Analyze the provided document and extract key information including:
@@ -70,13 +118,15 @@ serve(async (req) => {
 - Recommendations or action items
 - Relevant dates, costs, or quantities mentioned
 
-Provide a comprehensive but concise summary that would be useful for project management.`;
+Provide a comprehensive but concise summary (max 500 words) that would be useful for project management.`;
 
     const userPrompt = `Analyze this construction project document:
 
 Document Name: ${document.name}
 Document Type: ${document.document_type || 'Unknown'}
 File Type: ${document.content_type || 'Unknown'}
+
+${extractedText ? `Document Content:\n${extractedText.substring(0, 15000)}` : 'Note: No text content available. Please provide general insights based on the document name and type.'}
 
 Please provide a detailed analysis of this document focusing on construction project management aspects. Include key insights, potential risks, and actionable recommendations.`;
 
@@ -96,7 +146,7 @@ Please provide a detailed analysis of this document focusing on construction pro
           { role: "user", content: userPrompt }
         ],
         temperature: 0.7,
-        max_tokens: 1500
+        max_tokens: 2000
       }),
     });
 
@@ -107,7 +157,7 @@ Please provide a detailed analysis of this document focusing on construction pro
       // Update status to failed
       await supabase
         .from("project_documents")
-        .update({ processing_status: 'failed' })
+        .update({ processing_status: 'failed', error_message: errorText })
         .eq("id", documentId);
       
       if (aiResponse.status === 429) {
@@ -135,7 +185,7 @@ Please provide a detailed analysis of this document focusing on construction pro
       console.error("No analysis generated from AI");
       await supabase
         .from("project_documents")
-        .update({ processing_status: 'failed' })
+        .update({ processing_status: 'failed', error_message: 'No analysis generated' })
         .eq("id", documentId);
       
       return new Response(
@@ -171,6 +221,7 @@ Please provide a detailed analysis of this document focusing on construction pro
         success: true,
         documentId,
         summary: aiSummary,
+        hasExtractedText: !!extractedText,
         message: "Document analysis completed successfully"
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

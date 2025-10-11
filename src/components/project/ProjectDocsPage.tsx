@@ -108,19 +108,26 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
         .on(
           'postgres_changes',
           {
-            event: '*',
+            event: 'UPDATE',
             schema: 'public',
             table: 'project_documents',
             filter: `project_id=eq.${projectId}`
           },
           async (payload) => {
+            console.log('Document update received:', payload);
             // Update progress when documents are analyzed
-            if (payload.eventType === 'UPDATE' && payload.new.processing_status === 'completed') {
+            if (payload.new.ai_summary && payload.new.ai_summary.trim().length > 0) {
               // Recalculate progress for affected category
               const documentType = payload.new.document_type;
               if (documentType) {
+                await refetchDocuments(); // Refresh document list
                 await updateCategoryProgress(documentType);
-                refetchDocuments(); // Refresh document list
+                
+                // Show success toast
+                toast({
+                  title: 'Analysis Complete',
+                  description: `${payload.new.name} has been analyzed`,
+                });
               }
             }
           }
@@ -157,20 +164,14 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
         return;
       }
 
-      const { data: analyzedDocs } = await supabase
-        .from('project_documents')
-        .select('id')
-        .eq('project_id', projectId)
-        .eq('document_type', categoryId)
-        .not('ai_summary', 'is', null);
-
-      const analyzed = analyzedDocs?.length || 0;
-      const isAnalyzing = analyzed < total;
+      // Count documents with actual AI summaries (not just completed status)
+      const analyzed = categoryDocs.filter(doc => doc.ai_summary && doc.ai_summary.trim().length > 0).length;
+      const isAnalyzing = categoryAnalysisProgress[categoryId]?.analyzing || false;
 
       setCategoryAnalysisProgress(prev => ({
         ...prev,
         [categoryId]: {
-          analyzing: isAnalyzing,
+          analyzing: isAnalyzing && analyzed < total,
           progress: analyzed,
           total: total
         }
@@ -230,6 +231,8 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
 
   const handleAnalyzeDocument = async (documentId: string, documentName: string, signal?: AbortSignal) => {
     try {
+      console.log('Triggering analysis for:', documentName, documentId);
+      
       const { data, error } = await supabase.functions.invoke('sync-project-knowledge', {
         body: { 
           projectId, 
@@ -239,10 +242,20 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
       });
 
       if (signal?.aborted) {
-        return; // Don't process if cancelled
+        console.log('Analysis cancelled for:', documentName);
+        return;
       }
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      console.log('Analysis response:', data);
+
+      if (!data || !data.success) {
+        throw new Error(data?.error || 'Analysis failed');
+      }
 
       toast({
         title: 'Analysis Started',
@@ -250,12 +263,13 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
       });
     } catch (error) {
       if (signal?.aborted) {
-        return; // Ignore cancelled requests
+        return;
       }
       console.error('Error triggering document analysis:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to start document analysis';
       toast({
         title: 'Analysis Failed',
-        description: 'Failed to start document analysis',
+        description: errorMessage,
         variant: 'destructive'
       });
     }
@@ -283,32 +297,45 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
       }
     }));
 
-    // Trigger analysis for all documents
-    const analysisPromises = categoryDocs.map(doc => 
-      handleAnalyzeDocument(doc.id, doc.name, controller.signal)
-    );
+    // Trigger analysis for all documents sequentially to avoid overload
+    for (const doc of categoryDocs) {
+      if (controller.signal.aborted) break;
+      await handleAnalyzeDocument(doc.id, doc.name, controller.signal);
+      // Small delay between requests
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
 
-    await Promise.all(analysisPromises);
-
-    // Update progress periodically
-    const progressInterval = setInterval(() => {
-      if (controller.signal.aborted) {
-        clearInterval(progressInterval);
-        return;
+    // Set up polling to update progress
+    const pollProgress = async () => {
+      if (controller.signal.aborted) return;
+      await refetchDocuments();
+      await updateCategoryProgress(categoryId);
+      
+      // Check if all documents are analyzed
+      const currentDocs = getDocumentsByCategory(categoryId);
+      const allAnalyzed = currentDocs.every(doc => doc.ai_summary && doc.ai_summary.trim().length > 0);
+      
+      if (allAnalyzed) {
+        setCategoryAnalysisProgress(prev => ({
+          ...prev,
+          [categoryId]: {
+            analyzing: false,
+            progress: currentDocs.length,
+            total: currentDocs.length
+          }
+        }));
+        setActiveAnalysisControllers(prev => {
+          const newControllers = { ...prev };
+          delete newControllers[categoryId];
+          return newControllers;
+        });
+      } else if (categoryAnalysisProgress[categoryId]?.analyzing) {
+        setTimeout(pollProgress, 3000);
       }
-      updateCategoryProgress(categoryId);
-    }, 2000);
+    };
 
-    // Clear interval after estimated completion time
-    setTimeout(() => {
-      clearInterval(progressInterval);
-      updateCategoryProgress(categoryId);
-      setActiveAnalysisControllers(prev => {
-        const newControllers = { ...prev };
-        delete newControllers[categoryId];
-        return newControllers;
-      });
-    }, categoryDocs.length * 10000);
+    // Start polling after a delay
+    setTimeout(pollProgress, 3000);
   };
 
   const handleStopAnalysis = async (categoryId: string) => {
