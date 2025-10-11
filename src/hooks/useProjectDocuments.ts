@@ -48,12 +48,26 @@ export const useProjectDocuments = (projectId: string | undefined) => {
 
   const deleteDocument = async (documentId: string) => {
     try {
+      // Get the document to extract file path
+      const document = documents.find(doc => doc.id === documentId);
+      
+      // Delete from database first
       const { error } = await supabase
         .from('project_documents')
         .delete()
         .eq('id', documentId);
 
       if (error) throw error;
+
+      // Delete file from storage if exists
+      if (document?.file_url) {
+        const filePath = document.file_url.split('/').pop();
+        if (filePath) {
+          await supabase.storage
+            .from('project-documents')
+            .remove([filePath]);
+        }
+      }
 
       setDocuments(prev => prev.filter(doc => doc.id !== documentId));
       toast({
