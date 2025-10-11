@@ -119,6 +119,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
               const documentType = payload.new.document_type;
               if (documentType) {
                 await updateCategoryProgress(documentType);
+                refetchDocuments(); // Refresh document list
               }
             }
           }
@@ -130,6 +131,15 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
       };
     }
   }, [projectId, getProject]);
+
+  // Initialize progress tracking when documents load
+  useEffect(() => {
+    if (documents.length > 0 && projectId) {
+      documentCategories.forEach(category => {
+        updateCategoryProgress(category.id);
+      });
+    }
+  }, [documents.length, projectId]);
 
   const updateCategoryProgress = async (categoryId: string) => {
     try {
@@ -573,9 +583,38 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
         open={uploadDialogOpen}
         onOpenChange={setUploadDialogOpen}
         projectId={projectId || undefined}
-        onUploadComplete={() => {
-          refetchDocuments();
+        onUploadComplete={async () => {
+          await refetchDocuments();
           setUploadDialogOpen(false);
+          
+          // Auto-trigger analysis for newly uploaded documents
+          if (selectedCategory) {
+            setTimeout(async () => {
+              const { data: newDocs } = await supabase
+                .from('project_documents')
+                .select('id, name')
+                .eq('project_id', projectId)
+                .eq('document_type', selectedCategory)
+                .is('ai_summary', null)
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+              if (newDocs && newDocs.length > 0) {
+                toast({
+                  title: 'Starting AI Analysis',
+                  description: `SkAi is analyzing ${newDocs.length} document${newDocs.length > 1 ? 's' : ''}...`,
+                });
+                
+                // Trigger analysis for each new document
+                for (const doc of newDocs) {
+                  await handleAnalyzeDocument(doc.id, doc.name);
+                }
+                
+                // Update progress tracking
+                await updateCategoryProgress(selectedCategory);
+              }
+            }, 1000);
+          }
         }}
         categoryId={selectedCategory || undefined}
       />
