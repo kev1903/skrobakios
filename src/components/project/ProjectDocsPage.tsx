@@ -128,7 +128,13 @@ export const ProjectDocsPage = ({
     setUploadDialogOpen(true);
   };
   const getDocumentsByCategory = (categoryId: string) => {
-    return documents.filter(doc => doc.document_type?.toLowerCase() === categoryId.toLowerCase());
+    // Get category info to match both new (category_id) and old (document_type) documents
+    const category = documentCategories.find(c => c.dbId === categoryId);
+    return documents.filter(doc => {
+      // Match by category_id (new approach) or document_type (backwards compatibility)
+      return doc.category_id === categoryId || 
+             (category && doc.document_type?.toLowerCase() === category.id.toLowerCase());
+    });
   };
   useEffect(() => {
     if (projectId) {
@@ -176,13 +182,17 @@ export const ProjectDocsPage = ({
   useEffect(() => {
     if (documents.length > 0 && projectId) {
       documentCategories.forEach(category => {
-        updateCategoryProgress(category.id);
+        updateCategoryProgress(category.dbId || category.id);
       });
     }
   }, [documents.length, projectId]);
   const updateCategoryProgress = async (categoryId: string) => {
     try {
-      const categoryDocs = documents.filter(doc => doc.document_type?.toLowerCase() === categoryId.toLowerCase());
+      const category = documentCategories.find(c => c.dbId === categoryId);
+      const categoryDocs = documents.filter(doc => 
+        doc.category_id === categoryId ||
+        (category && doc.document_type?.toLowerCase() === category.id.toLowerCase())
+      );
       const total = categoryDocs.length;
       if (total === 0) {
         setCategoryAnalysisProgress(prev => ({
@@ -469,7 +479,7 @@ export const ProjectDocsPage = ({
               <div className="space-y-4">
                 {documentCategories.map(category => {
                   const isExpanded = expandedCategories[category.id];
-                  const categoryDocs = getDocumentsByCategory(category.id);
+                  const categoryDocs = getDocumentsByCategory(category.dbId || category.id);
                   const Icon = category.icon;
                   return <Collapsible key={category.id} open={isExpanded} onOpenChange={() => toggleCategory(category.id)}>
                       <div className={`border border-border rounded-lg overflow-hidden hover:border-border/60 transition-all duration-200 ${previewFilterCategory === category.id ? 'ring-2 ring-primary/50 border-primary' : ''}`}>
@@ -496,7 +506,7 @@ export const ProjectDocsPage = ({
                                 {categoryAnalysisProgress[category.id]?.analyzing ? <>
                                     <Button variant="ghost" size="sm" onClick={e => {
                                   e.stopPropagation();
-                                  handleStopAnalysis(category.id);
+                                  handleStopAnalysis(category.dbId || category.id);
                                 }} className="h-7 px-2 text-xs text-destructive hover:text-destructive/80" title="Stop analysis">
                                       <XCircle className="w-3.5 h-3.5 mr-1" />
                                       Stop
@@ -508,7 +518,7 @@ export const ProjectDocsPage = ({
                                       </Badge>}
                                     <Button variant="ghost" size="sm" onClick={e => {
                                   e.stopPropagation();
-                                  handleAnalyzeCategory(category.id);
+                                  handleAnalyzeCategory(category.dbId || category.id);
                                 }} className="h-7 w-7 p-0 text-primary hover:text-primary/80" title="Analyze all with SkAi" disabled={categoryDocs.length === 0}>
                                       <Sparkles className="w-3.5 h-3.5" />
                                     </Button>
@@ -665,7 +675,7 @@ export const ProjectDocsPage = ({
         setTimeout(async () => {
           const {
             data: newDocs
-          } = await supabase.from('project_documents').select('id, name').eq('project_id', projectId).eq('document_type', selectedCategory).is('ai_summary', null).order('created_at', {
+          } = await supabase.from('project_documents').select('id, name').eq('project_id', projectId).eq('category_id', selectedCategory).is('ai_summary', null).order('created_at', {
             ascending: false
           }).limit(5);
           if (newDocs && newDocs.length > 0) {
