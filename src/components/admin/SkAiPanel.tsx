@@ -1,8 +1,7 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building2, HardHat, FileText } from "lucide-react";
+import { Building2, HardHat } from "lucide-react";
 import { KnowledgeSection } from './skai/KnowledgeSection';
-import { ProjectKnowledgeSection } from './skai/ProjectKnowledgeSection';
 import { useCompany } from '@/contexts/CompanyContext';
 
 export const SkAiPanel: React.FC = () => {
@@ -18,7 +17,7 @@ export const SkAiPanel: React.FC = () => {
       </div>
 
       <Tabs defaultValue="business" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="business" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             Business Knowledge
@@ -26,10 +25,6 @@ export const SkAiPanel: React.FC = () => {
           <TabsTrigger value="industry" className="flex items-center gap-2">
             <HardHat className="h-4 w-4" />
             Industry Knowledge
-          </TabsTrigger>
-          <TabsTrigger value="project" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Project Knowledge
           </TabsTrigger>
         </TabsList>
 
@@ -49,10 +44,6 @@ export const SkAiPanel: React.FC = () => {
             description="Construction industry standards, regulations, and best practices"
             companyId={currentCompany?.id}
           />
-        </TabsContent>
-
-        <TabsContent value="project" className="space-y-6">
-          <ProjectKnowledgeSection />
         </TabsContent>
       </Tabs>
     </div>
