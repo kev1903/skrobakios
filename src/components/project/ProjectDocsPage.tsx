@@ -13,8 +13,10 @@ import { DocumentUpload } from '../project-documents/DocumentUpload';
 import { DocumentEditDialog } from './DocumentEditDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
 import { ProjectKnowledgeStatus } from './ProjectKnowledgeStatus';
-import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink } from 'lucide-react';
+import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProjectDocsPageProps {
   onNavigate: (page: string) => void;
@@ -25,6 +27,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
   const projectId = searchParams.get('projectId');
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
+  const { toast } = useToast();
 
   // Project documents management
   const { documents, loading: docsLoading, deleteDocument, formatFileSize, refetch: refetchDocuments } = useProjectDocuments(projectId || undefined);
@@ -142,6 +145,32 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
   const handleDocumentDelete = async (docId: string) => {
     await deleteDocument(docId);
     setEditDocDialogOpen(false);
+  };
+
+  const handleAnalyzeDocument = async (documentId: string, documentName: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-project-knowledge', {
+        body: { 
+          projectId, 
+          companyId: project?.company_id,
+          documentId // Pass specific document to analyze
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Analysis Started',
+        description: `SkAi is analyzing ${documentName}...`,
+      });
+    } catch (error) {
+      console.error('Error triggering document analysis:', error);
+      toast({
+        title: 'Analysis Failed',
+        description: 'Failed to start document analysis',
+        variant: 'destructive'
+      });
+    }
   };
   
   if (!project) {
@@ -268,6 +297,18 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleAnalyzeDocument(doc.id, doc.name);
+                                        }}
+                                        className="h-7 w-7 p-0 text-primary hover:text-primary/80"
+                                        title="Analyze with SkAi"
+                                      >
+                                        <Sparkles className="h-3.5 w-3.5" />
+                                      </Button>
                                       <Button
                                         variant="ghost"
                                         size="sm"

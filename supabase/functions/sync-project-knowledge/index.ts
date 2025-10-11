@@ -25,7 +25,38 @@ serve(async (req) => {
     if (requestBody.projectId && requestBody.companyId) {
       console.log('Manual sync requested for project:', requestBody.projectId);
       
-      // Create a manual sync job for documents with valid categories only
+      // Check if analyzing a single document
+      if (requestBody.documentId) {
+        console.log('Analyzing single document:', requestBody.documentId);
+        
+        // Create job for specific document only
+        const { error: insertError } = await supabase
+          .from('knowledge_sync_jobs')
+          .insert({
+            project_id: requestBody.projectId,
+            company_id: requestBody.companyId,
+            job_type: 'document',
+            source_id: requestBody.documentId,
+            status: 'pending'
+          });
+        
+        if (insertError) throw insertError;
+        
+        // Update document status to 'processing'
+        await supabase
+          .from('project_documents')
+          .update({ processing_status: 'processing' })
+          .eq('id', requestBody.documentId);
+        
+        return new Response(JSON.stringify({ 
+          message: 'Single document analysis started',
+          jobs_created: 1 
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      // Otherwise, create jobs for all documents with valid categories
       const { data: docs, error: docsError } = await supabase
         .from('project_documents')
         .select('id, processing_status, document_type')
