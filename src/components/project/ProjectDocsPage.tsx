@@ -209,7 +209,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                       <div className="border border-border rounded-lg overflow-hidden hover:border-border/60 transition-all duration-200">
                         {/* Category Header */}
                         <CollapsibleTrigger asChild>
-                          <div className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-accent/50 transition-colors">
+                          <div className="flex items-center justify-between px-4 py-2 cursor-pointer hover:bg-accent/50 transition-colors">
                             <div className="flex items-center gap-2.5">
                               {isExpanded ? (
                                 <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" />
@@ -233,10 +233,9 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                 e.stopPropagation();
                                 handleUploadClick(category.id);
                               }}
-                              className="gap-1.5 h-7 text-xs"
+                              className="h-7 w-7 p-0"
                             >
                               <Upload className="w-3.5 h-3.5" />
-                              Upload
                             </Button>
                           </div>
                         </CollapsibleTrigger>
