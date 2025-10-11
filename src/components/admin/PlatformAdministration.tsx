@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Server, Building2, Shield, Activity, AlertTriangle, Users } from "lucide-react";
+import { Settings, Server, Building2, Shield, Activity, AlertTriangle, Users, Brain } from "lucide-react";
 import { PlatformSettingsPanel } from './PlatformSettingsPanel';
+import { SkAiPanel } from './SkAiPanel';
 
 import { SystemMonitoringPanel } from './SystemMonitoringPanel';
 import { CompanyManagementPanel } from './CompanyManagementPanel';
@@ -64,7 +65,7 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
         </div>
 
       <Tabs defaultValue="settings" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 bg-card border border-border rounded-lg">
+        <TabsList className="grid w-full grid-cols-7 bg-card border border-border rounded-lg">
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Settings
@@ -94,6 +95,10 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
             <Activity className="h-4 w-4" />
             Audit
           </TabsTrigger>
+          <TabsTrigger value="skai" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            SkAi
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="settings" className="space-y-6">
@@ -119,6 +124,10 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
 
         <TabsContent value="audit" className="space-y-6">
           <AuditLogsPanel />
+        </TabsContent>
+
+        <TabsContent value="skai" className="space-y-6">
+          <SkAiPanel />
         </TabsContent>
       </Tabs>
       </div>
