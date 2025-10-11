@@ -62,19 +62,79 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
   // Category dialog state
   const [categoryDialogOpen, setCategoryDialogOpen] = useState(false);
 
-  // Document categories - now dynamic
-  const [documentCategories, setDocumentCategories] = useState([
-    {
-      id: 'architectural',
-      title: 'Architectural',
-      icon: FileText,
-    },
-    {
-      id: 'structural',
-      title: 'Structural Engineering',
-      icon: FileText,
-    },
-  ]);
+  // Document categories - loaded from database
+  const [documentCategories, setDocumentCategories] = useState<Array<{
+    id: string;
+    title: string;
+    icon: any;
+    dbId?: string;
+  }>>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+
+  // Load categories from database
+  useEffect(() => {
+    const loadCategories = async () => {
+      if (!projectId || !project?.company_id) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('project_document_categories')
+          .select('*')
+          .eq('project_id', projectId)
+          .order('sort_order', { ascending: true });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const loadedCategories = data.map((cat: any) => ({
+            id: cat.title.toLowerCase().replace(/\s+/g, '-'),
+            title: cat.title,
+            icon: FileText,
+            dbId: cat.id
+          }));
+          setDocumentCategories(loadedCategories);
+        } else {
+          // Initialize with default categories if none exist
+          const defaultCategories = [
+            { title: 'Architectural', sort_order: 0 },
+            { title: 'Structural Engineering', sort_order: 1 },
+          ];
+
+          for (const cat of defaultCategories) {
+            await supabase.from('project_document_categories').insert({
+              project_id: projectId,
+              company_id: project.company_id,
+              title: cat.title,
+              sort_order: cat.sort_order,
+            });
+          }
+
+          // Reload after initialization
+          const { data: newData } = await supabase
+            .from('project_document_categories')
+            .select('*')
+            .eq('project_id', projectId)
+            .order('sort_order', { ascending: true });
+
+          if (newData) {
+            const loadedCategories = newData.map((cat: any) => ({
+              id: cat.title.toLowerCase().replace(/\s+/g, '-'),
+              title: cat.title,
+              icon: FileText,
+              dbId: cat.id
+            }));
+            setDocumentCategories(loadedCategories);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, [projectId, project?.company_id]);
 
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories(prev => ({
@@ -417,17 +477,44 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
     await handleAnalyzeCategory(categoryId);
   };
 
-  const handleAddCategory = (title: string) => {
-    const newCategory = {
-      id: title.toLowerCase().replace(/\s+/g, '-'),
-      title: title,
-      icon: FileText,
-    };
-    setDocumentCategories(prev => [...prev, newCategory]);
-    toast({
-      title: 'Category Added',
-      description: `"${title}" category has been created`,
-    });
+  const handleAddCategory = async (title: string) => {
+    if (!projectId || !project?.company_id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('project_document_categories')
+        .insert({
+          project_id: projectId,
+          company_id: project.company_id,
+          title: title,
+          sort_order: documentCategories.length,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const newCategory = {
+        id: title.toLowerCase().replace(/\s+/g, '-'),
+        title: title,
+        icon: FileText,
+        dbId: data.id
+      };
+      
+      setDocumentCategories(prev => [...prev, newCategory]);
+      
+      toast({
+        title: 'Category Added',
+        description: `"${title}" category has been created`,
+      });
+    } catch (error) {
+      console.error('Error adding category:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to add category',
+        variant: 'destructive',
+      });
+    }
   };
   
   if (!project) {
