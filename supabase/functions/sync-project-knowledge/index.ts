@@ -25,12 +25,13 @@ serve(async (req) => {
     if (requestBody.projectId && requestBody.companyId) {
       console.log('Manual sync requested for project:', requestBody.projectId);
       
-      // Create a manual sync job for all documents that need processing
+      // Create a manual sync job for documents with valid categories only
       const { data: docs, error: docsError } = await supabase
         .from('project_documents')
-        .select('id, processing_status')
+        .select('id, processing_status, document_type')
         .eq('project_id', requestBody.projectId)
-        .in('processing_status', ['pending', 'completed']);
+        .in('processing_status', ['pending', 'completed'])
+        .in('document_type', ['architectural', 'structural']);
 
       if (docsError) throw docsError;
 
