@@ -37,6 +37,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+  const [previewFilterCategory, setPreviewFilterCategory] = useState<string | null>(null);
 
   // Project links management
   const {
@@ -588,12 +589,22 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                       open={isExpanded}
                       onOpenChange={() => toggleCategory(category.id)}
                     >
-                      <div className="border border-border rounded-lg overflow-hidden hover:border-border/60 transition-all duration-200">
+                      <div className={`border border-border rounded-lg overflow-hidden hover:border-border/60 transition-all duration-200 ${previewFilterCategory === category.id ? 'ring-2 ring-primary/50 border-primary' : ''}`}>
                         {/* Category Header */}
                         <CollapsibleTrigger asChild>
                           <div className="px-4 py-2">
-                            <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded p-2">
-                              <div className="flex items-center gap-2.5">
+                            <div 
+                              className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded p-2"
+                              onClick={(e) => {
+                                // Set preview filter when clicking on category
+                                if (e.target === e.currentTarget || (e.target as HTMLElement).closest('.category-title-area')) {
+                                  setPreviewFilterCategory(category.id);
+                                }
+                              }}
+                            >
+                              <div className="flex items-center gap-2.5 category-title-area"
+                                onClick={() => setPreviewFilterCategory(category.id)}
+                              >
                                 {isExpanded ? (
                                   <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" />
                                 ) : (
@@ -862,6 +873,9 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
           <ProjectKnowledgeStatus
             projectId={projectId!}
             companyId={project.company_id}
+            filterCategoryId={previewFilterCategory}
+            filterCategoryName={previewFilterCategory ? documentCategories.find(c => c.id === previewFilterCategory)?.title : undefined}
+            onClearFilter={() => setPreviewFilterCategory(null)}
           />
         </div>
       </div>
