@@ -221,18 +221,18 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
   }
 
   return (
-    <Card className="p-4">
+    <Card className="backdrop-blur-xl bg-card/50 border border-border p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <Brain className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">AI Knowledge Status</h3>
+          <h3 className="font-semibold text-foreground">AI Knowledge Status</h3>
         </div>
         <div className="flex gap-2">
           <Button
             onClick={triggerManualSync}
             disabled={syncing}
             size="sm"
-            variant="outline"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             {syncing ? (
               <>
@@ -241,7 +241,7 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
               </>
             ) : (
               <>
-                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                <Sparkles className="h-3.5 w-3.5 mr-1.5" />
                 Analyse with SkAi
               </>
             )}
@@ -261,16 +261,16 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
       <div className="space-y-4">
         {/* Overall Progress */}
         {jobs.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-2.5 mb-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground font-medium">
                 Overall Progress
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-sm text-foreground font-medium">
                 {completedCount} of {totalJobs} completed
               </span>
             </div>
-            <Progress value={progressPercentage} className="h-2" />
+            <Progress value={progressPercentage} className="h-2.5" />
           </div>
         )}
 
@@ -347,14 +347,16 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
             </div>
             <div className="space-y-1.5 ml-6">
               {completedJobs.slice(0, 3).map((job) => (
-                <div key={job.id} className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
-                  <span className="text-muted-foreground truncate text-xs">
-                    {getDocumentName(job.source_id)}
-                  </span>
+                <div key={job.id} className="flex items-center justify-between gap-2 text-sm">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-green-600 flex-shrink-0" />
+                    <span className="text-muted-foreground truncate text-xs">
+                      {getDocumentName(job.source_id)}
+                    </span>
+                  </div>
                   {job.completed_at && (
-                    <span className="text-xs text-muted-foreground ml-auto whitespace-nowrap">
-                      {new Date(job.completed_at).toLocaleTimeString()}
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {new Date(job.completed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   )}
                 </div>
