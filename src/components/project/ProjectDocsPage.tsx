@@ -859,11 +859,11 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
         {/* Vertical Divider */}
         <div className="w-px bg-border self-stretch" />
 
-        {/* Right Column - AI Knowledge Status */}
+        {/* Right Column - SkAI Project Study Preview */}
         <div className="flex-1 pl-6 max-w-[50%]">
-          <h2 className="text-xl font-semibold text-foreground mb-6">AI Knowledge Extraction</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-6">SkAI Project Study Preview</h2>
 
-          <ProjectKnowledgeStatus 
+          <ProjectKnowledgeStatus
             projectId={projectId!}
             companyId={project.company_id}
           />

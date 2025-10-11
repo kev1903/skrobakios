@@ -142,7 +142,7 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
             <Brain className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-foreground">SkAi Analysis</h3>
+            <h3 className="text-lg font-semibold text-foreground">SkAI Project Study</h3>
             <p className="text-xs text-muted-foreground">AI-powered document insights</p>
           </div>
         </div>
