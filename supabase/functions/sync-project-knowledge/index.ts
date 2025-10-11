@@ -25,18 +25,18 @@ serve(async (req) => {
     if (requestBody.projectId && requestBody.companyId) {
       console.log('Manual sync requested for project:', requestBody.projectId);
       
-      // Create a manual sync job for all completed documents
-      const { data: completedDocs, error: docsError } = await supabase
+      // Create a manual sync job for all documents that need processing
+      const { data: docs, error: docsError } = await supabase
         .from('project_documents')
-        .select('id')
+        .select('id, processing_status')
         .eq('project_id', requestBody.projectId)
-        .eq('processing_status', 'completed');
+        .in('processing_status', ['pending', 'completed']);
 
       if (docsError) throw docsError;
 
-      if (!completedDocs || completedDocs.length === 0) {
+      if (!docs || docs.length === 0) {
         return new Response(JSON.stringify({ 
-          message: 'No completed documents to process',
+          message: 'No documents to process',
           processed: 0 
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -44,8 +44,9 @@ serve(async (req) => {
       }
 
       // Create jobs for each document
-      for (const doc of completedDocs) {
-        await supabase
+      let jobsCreated = 0;
+      for (const doc of docs) {
+        const { error: insertError } = await supabase
           .from('knowledge_sync_jobs')
           .insert({
             project_id: requestBody.projectId,
@@ -54,11 +55,22 @@ serve(async (req) => {
             source_id: doc.id,
             status: 'pending'
           });
+        
+        if (!insertError) {
+          jobsCreated++;
+          // Update document status to 'processing'
+          await supabase
+            .from('project_documents')
+            .update({ processing_status: 'processing' })
+            .eq('id', doc.id);
+        }
       }
+
+      console.log(`Created ${jobsCreated} sync jobs`);
 
       return new Response(JSON.stringify({ 
         message: 'Manual sync jobs created',
-        jobs_created: completedDocs.length 
+        jobs_created: jobsCreated 
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -116,6 +128,14 @@ serve(async (req) => {
           .eq('id', job.id);
 
         console.log(`Job ${job.id} completed successfully`);
+        
+        // Update document status to 'completed'
+        if (job.job_type === 'document' && job.source_id) {
+          await supabase
+            .from('project_documents')
+            .update({ processing_status: 'completed' })
+            .eq('id', job.source_id);
+        }
       } catch (error) {
         console.error(`Job ${job.id} failed:`, error);
         
@@ -132,6 +152,17 @@ serve(async (req) => {
             completed_at: newRetryCount >= maxRetries ? new Date().toISOString() : null
           })
           .eq('id', job.id);
+        
+        // Update document status to 'failed'
+        if (newRetryCount >= maxRetries && job.job_type === 'document' && job.source_id) {
+          await supabase
+            .from('project_documents')
+            .update({ 
+              processing_status: 'failed',
+              error_message: error.message 
+            })
+            .eq('id', job.source_id);
+        }
       }
     }
 

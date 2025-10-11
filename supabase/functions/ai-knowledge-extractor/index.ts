@@ -71,15 +71,17 @@ Format your response as structured markdown with clear sections. Be specific and
 Document Name: ${requestData.data.name || 'Unknown'}
 Document Type: ${requestData.data.document_type || 'Unknown'}
 Content Type: ${requestData.data.content_type || 'Unknown'}
+File URL: ${requestData.data.file_url || 'Not provided'}
 
-Extracted Text:
-${requestData.data.extracted_text || 'No text available'}
+${requestData.data.extracted_text 
+  ? `Extracted Text:\n${requestData.data.extracted_text}` 
+  : 'Note: This document has not been OCR processed yet. Analyze based on the file name, type, and metadata provided above.'}
 `;
 
       userPrompt = `Analyze this construction project document for project "${requestData.projectName}":\n\n${documentInfo}\n\nProvide comprehensive knowledge extraction as structured markdown.`;
     }
 
-    console.log('Calling Lovable AI with Gemini 2.5 Pro...');
+    console.log('Calling Lovable AI with Gemini 2.5 Flash...');
     
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -88,12 +90,11 @@ ${requestData.data.extracted_text || 'No text available'}
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-pro',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.3, // Lower temperature for more consistent extraction
+        ]
       }),
     });
 
