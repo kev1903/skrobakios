@@ -121,6 +121,15 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
   const triggerManualSync = async () => {
     setSyncing(true);
     try {
+      // First, delete all existing jobs for this project to reset the analysis
+      const { error: deleteError } = await supabase
+        .from('knowledge_sync_jobs')
+        .delete()
+        .eq('project_id', projectId);
+
+      if (deleteError) throw deleteError;
+
+      // Then create fresh jobs
       const { data, error } = await supabase.functions.invoke('sync-project-knowledge', {
         body: { projectId, companyId }
       });
