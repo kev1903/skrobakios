@@ -4471,6 +4471,62 @@ export type Database = {
         }
         Relationships: []
       }
+      skai_knowledge: {
+        Row: {
+          category: string | null
+          company_id: string | null
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          knowledge_type: Database["public"]["Enums"]["knowledge_type"]
+          metadata: Json | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          category?: string | null
+          company_id?: string | null
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          knowledge_type: Database["public"]["Enums"]["knowledge_type"]
+          metadata?: Json | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          category?: string | null
+          company_id?: string | null
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          knowledge_type?: Database["public"]["Enums"]["knowledge_type"]
+          metadata?: Json | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skai_knowledge_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skai_memory: {
         Row: {
           action_history: Json | null
@@ -7418,6 +7474,7 @@ export type Database = {
         | "paid"
         | "overdue"
         | "void"
+      knowledge_type: "business" | "industry" | "project"
       member_role: "project_admin" | "editor" | "viewer" | "guest"
       payment_method: "bank_transfer" | "check" | "cash" | "card" | "other"
       stakeholder_category:
@@ -7577,6 +7634,7 @@ export const Constants = {
       compliance_status: ["valid", "expired", "expiring"],
       file_kind: ["invoice_pdf", "receipt", "bill_pdf", "other"],
       invoice_status: ["draft", "sent", "part_paid", "paid", "overdue", "void"],
+      knowledge_type: ["business", "industry", "project"],
       member_role: ["project_admin", "editor", "viewer", "guest"],
       payment_method: ["bank_transfer", "check", "cash", "card", "other"],
       stakeholder_category: [
