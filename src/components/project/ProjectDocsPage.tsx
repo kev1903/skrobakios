@@ -389,7 +389,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
             <h2 className="text-xl font-semibold text-foreground">Project Knowledge</h2>
             <Button onClick={() => setUploadDialogOpen(true)}>
               <Upload className="w-4 h-4 mr-2" />
-              Upload
+              Update Project Knowledge
             </Button>
           </div>
 
