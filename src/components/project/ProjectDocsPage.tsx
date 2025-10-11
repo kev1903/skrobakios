@@ -233,10 +233,21 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
     try {
       console.log('Triggering analysis for:', documentName, documentId);
       
+      // Validate required data
+      if (!projectId || !project?.company_id) {
+        console.error('Missing required data:', { projectId, companyId: project?.company_id });
+        toast({
+          title: "Analysis failed",
+          description: "Project data is not loaded yet. Please wait and try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       const { data, error } = await supabase.functions.invoke('sync-project-knowledge', {
         body: { 
           projectId, 
-          companyId: project?.company_id,
+          companyId: project.company_id,
           documentId
         }
       });
