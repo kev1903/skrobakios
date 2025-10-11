@@ -13,6 +13,8 @@ serve(async (req) => {
 
   try {
     const { projectId, companyId, documentId } = await req.json();
+    
+    console.log("Received analysis request:", { projectId, companyId, documentId });
 
     if (!projectId || !documentId) {
       return new Response(
@@ -26,13 +28,22 @@ serve(async (req) => {
     const lovableApiKey = Deno.env.get("LOVABLE_API_KEY");
 
     if (!lovableApiKey) {
+      console.error("LOVABLE_API_KEY not configured");
       return new Response(
-        JSON.stringify({ error: "LOVABLE_API_KEY not configured. Please add it in Supabase secrets." }),
+        JSON.stringify({ error: "LOVABLE_API_KEY not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Update status to processing
+    await supabase
+      .from("project_documents")
+      .update({ processing_status: 'processing' })
+      .eq("id", documentId);
+
+    console.log("Fetching document:", documentId);
 
     // Fetch the document
     const { data: document, error: docError } = await supabase
@@ -42,11 +53,14 @@ serve(async (req) => {
       .single();
 
     if (docError || !document) {
+      console.error("Document not found:", docError);
       return new Response(
         JSON.stringify({ error: "Document not found" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log("Analyzing document:", document.name);
 
     // Prepare the prompt for AI analysis
     const systemPrompt = `You are SkAi, an expert construction project document analyst. Analyze the provided document and extract key information including:
@@ -62,9 +76,11 @@ Provide a comprehensive but concise summary that would be useful for project man
 
 Document Name: ${document.name}
 Document Type: ${document.document_type || 'Unknown'}
-Category: ${document.category || 'Uncategorized'}
+File Type: ${document.content_type || 'Unknown'}
 
-Please provide a detailed analysis of this document focusing on construction project management aspects.`;
+Please provide a detailed analysis of this document focusing on construction project management aspects. Include key insights, potential risks, and actionable recommendations.`;
+
+    console.log("Calling Lovable AI...");
 
     // Call Lovable AI
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -80,11 +96,20 @@ Please provide a detailed analysis of this document focusing on construction pro
           { role: "user", content: userPrompt }
         ],
         temperature: 0.7,
-        max_tokens: 1000
+        max_tokens: 1500
       }),
     });
 
     if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error("AI API error:", aiResponse.status, errorText);
+      
+      // Update status to failed
+      await supabase
+        .from("project_documents")
+        .update({ processing_status: 'failed' })
+        .eq("id", documentId);
+      
       if (aiResponse.status === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
@@ -97,8 +122,6 @@ Please provide a detailed analysis of this document focusing on construction pro
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await aiResponse.text();
-      console.error("AI API error:", aiResponse.status, errorText);
       return new Response(
         JSON.stringify({ error: "AI analysis failed", details: errorText }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -109,11 +132,19 @@ Please provide a detailed analysis of this document focusing on construction pro
     const aiSummary = aiResult.choices?.[0]?.message?.content;
 
     if (!aiSummary) {
+      console.error("No analysis generated from AI");
+      await supabase
+        .from("project_documents")
+        .update({ processing_status: 'failed' })
+        .eq("id", documentId);
+      
       return new Response(
         JSON.stringify({ error: "No analysis generated" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log("AI analysis completed, updating document...");
 
     // Update the document with AI summary
     const { error: updateError } = await supabase
@@ -132,6 +163,8 @@ Please provide a detailed analysis of this document focusing on construction pro
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    console.log("Document analysis completed successfully");
 
     return new Response(
       JSON.stringify({
