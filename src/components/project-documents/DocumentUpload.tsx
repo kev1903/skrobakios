@@ -365,37 +365,62 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
           </div>
 
           {/* Upload Progress */}
-          {uploadFiles.length > 0 && (
+          {uploadFiles.length > 0 && !showMetadataForm && (
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Uploading Files</h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-medium">
+                  {uploadFiles.some(f => f.status === 'uploading') ? 'Uploading Files' : 'Files Ready'}
+                </h4>
+                <span className="text-xs text-muted-foreground">
+                  {uploadFiles.filter(f => f.status === 'complete').length} / {uploadFiles.length} completed
+                </span>
+              </div>
               <div className="max-h-48 overflow-y-auto space-y-2">
                 {uploadFiles.map(file => (
-                  <div key={file.id} className="flex items-center space-x-2 p-2.5 border rounded-lg">
+                  <div 
+                    key={file.id} 
+                    className={`flex items-center space-x-2 p-2.5 border rounded-lg transition-all ${
+                      file.status === 'complete' ? 'bg-success/5 border-success/20' : 
+                      file.status === 'error' ? 'bg-destructive/5 border-destructive/20' :
+                      file.status === 'uploading' ? 'bg-primary/5 border-primary/20' :
+                      'bg-background'
+                    }`}
+                  >
                     {getFileIcon(file.file.name)}
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">{file.file.name}</p>
                       <p className="text-[10px] text-muted-foreground mb-1.5">
                         {(file.file.size / 1024 / 1024).toFixed(2)} MB
+                        {file.status === 'uploading' && ' • Uploading...'}
+                        {file.status === 'complete' && ' • Complete'}
+                        {file.status === 'error' && ' • Failed'}
+                        {file.status === 'pending' && ' • Pending'}
                       </p>
-                      <div className="flex items-center space-x-2">
-                        <Progress value={file.progress} className="flex-1 h-1.5" />
-                        <span className="text-[10px] text-muted-foreground min-w-[30px]">
-                          {file.progress}%
-                        </span>
-                      </div>
+                      {(file.status === 'uploading' || file.status === 'complete') && (
+                        <div className="flex items-center space-x-2">
+                          <Progress value={file.progress} className="flex-1 h-1.5" />
+                          <span className="text-[10px] font-semibold text-foreground min-w-[35px] text-right">
+                            {Math.round(file.progress)}%
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center space-x-1">
                       {file.status === 'complete' && (
-                        <Check className="h-3.5 w-3.5 text-success" />
+                        <Check className="h-4 w-4 text-success" />
                       )}
                       {file.status === 'error' && (
-                        <X className="h-3.5 w-3.5 text-destructive" />
+                        <X className="h-4 w-4 text-destructive" />
+                      )}
+                      {file.status === 'uploading' && (
+                        <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                       )}
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => removeFile(file.id)}
                         className="h-6 w-6 p-0"
+                        disabled={file.status === 'uploading'}
                       >
                         <X className="h-3 w-3" />
                       </Button>
