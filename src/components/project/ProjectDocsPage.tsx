@@ -256,7 +256,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                       <div className="min-w-0 flex-1">
                                         <p 
                                           className="text-sm font-medium text-foreground truncate cursor-pointer hover:text-primary transition-colors"
-                                          onClick={() => handleDocumentClick(doc)}
+                                          onClick={() => setUploadDialogOpen(true)}
                                         >
                                           {doc.name}
                                         </p>
