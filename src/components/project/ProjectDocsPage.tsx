@@ -256,17 +256,35 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                 </span>
                               )}
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleUploadClick(category.id);
-                              }}
-                              className="h-7 w-7 p-0"
-                            >
-                              <Upload className="w-3.5 h-3.5" />
-                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Analyze all documents in this category
+                                  categoryDocs.forEach(doc => {
+                                    handleAnalyzeDocument(doc.id, doc.name);
+                                  });
+                                }}
+                                className="h-7 w-7 p-0 text-primary hover:text-primary/80"
+                                title="Analyze all with SkAi"
+                                disabled={categoryDocs.length === 0}
+                              >
+                                <Sparkles className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleUploadClick(category.id);
+                                }}
+                                className="h-7 w-7 p-0"
+                              >
+                                <Upload className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
                           </div>
                         </CollapsibleTrigger>
 
@@ -297,18 +315,6 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleAnalyzeDocument(doc.id, doc.name);
-                                        }}
-                                        className="h-7 w-7 p-0 text-primary hover:text-primary/80"
-                                        title="Analyze with SkAi"
-                                      >
-                                        <Sparkles className="h-3.5 w-3.5" />
-                                      </Button>
                                       <Button
                                         variant="ghost"
                                         size="sm"
