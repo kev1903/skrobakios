@@ -85,59 +85,29 @@ export const ProjectDocsPage = ({
   }>>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
-  // Load categories from database
+  // Load categories from global document_categories database
   useEffect(() => {
     const loadCategories = async () => {
-      if (!projectId || !project?.company_id) return;
       try {
         const {
           data,
           error
-        } = await supabase.from('project_document_categories').select('*').eq('project_id', projectId).order('sort_order', {
-          ascending: true
-        });
+        } = await supabase
+          .from('document_categories')
+          .select('*')
+          .eq('is_active', true)
+          .order('sort_order', { ascending: true });
+          
         if (error) throw error;
+        
         if (data && data.length > 0) {
           const loadedCategories = data.map((cat: any) => ({
-            id: cat.title.toLowerCase().replace(/\s+/g, '-'),
-            title: cat.title,
+            id: cat.name.toLowerCase().replace(/\s+/g, '-'),
+            title: cat.name,
             icon: FileText,
             dbId: cat.id
           }));
           setDocumentCategories(loadedCategories);
-        } else {
-          // Initialize with default categories if none exist
-          const defaultCategories = [{
-            title: 'Architectural',
-            sort_order: 0
-          }, {
-            title: 'Structural Engineering',
-            sort_order: 1
-          }];
-          for (const cat of defaultCategories) {
-            await supabase.from('project_document_categories').insert({
-              project_id: projectId,
-              company_id: project.company_id,
-              title: cat.title,
-              sort_order: cat.sort_order
-            });
-          }
-
-          // Reload after initialization
-          const {
-            data: newData
-          } = await supabase.from('project_document_categories').select('*').eq('project_id', projectId).order('sort_order', {
-            ascending: true
-          });
-          if (newData) {
-            const loadedCategories = newData.map((cat: any) => ({
-              id: cat.title.toLowerCase().replace(/\s+/g, '-'),
-              title: cat.title,
-              icon: FileText,
-              dbId: cat.id
-            }));
-            setDocumentCategories(loadedCategories);
-          }
         }
       } catch (error) {
         console.error('Error loading categories:', error);
@@ -146,7 +116,7 @@ export const ProjectDocsPage = ({
       }
     };
     loadCategories();
-  }, [projectId, project?.company_id]);
+  }, []);
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories(prev => ({
       ...prev,
