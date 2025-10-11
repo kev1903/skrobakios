@@ -2169,6 +2169,56 @@ export type Database = {
           },
         ]
       }
+      knowledge_sync_jobs: {
+        Row: {
+          company_id: string
+          completed_at: string | null
+          created_at: string | null
+          error_message: string | null
+          id: string
+          job_type: string
+          project_id: string | null
+          retry_count: number | null
+          source_id: string | null
+          started_at: string | null
+          status: string | null
+        }
+        Insert: {
+          company_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          job_type: string
+          project_id?: string | null
+          retry_count?: number | null
+          source_id?: string | null
+          started_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          job_type?: string
+          project_id?: string | null
+          retry_count?: number | null
+          source_id?: string | null
+          started_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_sync_jobs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           avatar_url: string | null
@@ -4473,6 +4523,7 @@ export type Database = {
       }
       skai_knowledge: {
         Row: {
+          ai_confidence: number | null
           category: string | null
           company_id: string | null
           content: string
@@ -4481,13 +4532,17 @@ export type Database = {
           id: string
           is_active: boolean | null
           knowledge_type: Database["public"]["Enums"]["knowledge_type"]
+          last_processed_at: string | null
           metadata: Json | null
+          processing_status: string | null
+          source_ids: Json | null
           tags: string[] | null
           title: string
           updated_at: string | null
           updated_by: string | null
         }
         Insert: {
+          ai_confidence?: number | null
           category?: string | null
           company_id?: string | null
           content: string
@@ -4496,13 +4551,17 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           knowledge_type: Database["public"]["Enums"]["knowledge_type"]
+          last_processed_at?: string | null
           metadata?: Json | null
+          processing_status?: string | null
+          source_ids?: Json | null
           tags?: string[] | null
           title: string
           updated_at?: string | null
           updated_by?: string | null
         }
         Update: {
+          ai_confidence?: number | null
           category?: string | null
           company_id?: string | null
           content?: string
@@ -4511,7 +4570,10 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           knowledge_type?: Database["public"]["Enums"]["knowledge_type"]
+          last_processed_at?: string | null
           metadata?: Json | null
+          processing_status?: string | null
+          source_ids?: Json | null
           tags?: string[] | null
           title?: string
           updated_at?: string | null
