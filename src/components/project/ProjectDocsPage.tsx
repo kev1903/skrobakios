@@ -14,7 +14,7 @@ import { DocumentUpload } from '../project-documents/DocumentUpload';
 import { DocumentEditDialog } from './DocumentEditDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
 import { ProjectKnowledgeStatus } from './ProjectKnowledgeStatus';
-import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2 } from 'lucide-react';
+import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,6 +56,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
 
   // Analysis progress tracking
   const [categoryAnalysisProgress, setCategoryAnalysisProgress] = useState<Record<string, { analyzing: boolean; progress: number; total: number }>>({});
+  const [activeAnalysisControllers, setActiveAnalysisControllers] = useState<Record<string, AbortController>>({});
 
   // Document categories
   const documentCategories = [
@@ -227,15 +228,19 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
     setEditDocDialogOpen(false);
   };
 
-  const handleAnalyzeDocument = async (documentId: string, documentName: string) => {
+  const handleAnalyzeDocument = async (documentId: string, documentName: string, signal?: AbortSignal) => {
     try {
       const { data, error } = await supabase.functions.invoke('sync-project-knowledge', {
         body: { 
           projectId, 
           companyId: project?.company_id,
-          documentId // Pass specific document to analyze
+          documentId
         }
       });
+
+      if (signal?.aborted) {
+        return; // Don't process if cancelled
+      }
 
       if (error) throw error;
 
@@ -244,6 +249,9 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
         description: `SkAi is analyzing ${documentName}...`,
       });
     } catch (error) {
+      if (signal?.aborted) {
+        return; // Ignore cancelled requests
+      }
       console.error('Error triggering document analysis:', error);
       toast({
         title: 'Analysis Failed',
@@ -258,6 +266,13 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
     
     if (categoryDocs.length === 0) return;
 
+    // Create abort controller for this analysis
+    const controller = new AbortController();
+    setActiveAnalysisControllers(prev => ({
+      ...prev,
+      [categoryId]: controller
+    }));
+
     // Set analyzing state
     setCategoryAnalysisProgress(prev => ({
       ...prev,
@@ -269,12 +284,18 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
     }));
 
     // Trigger analysis for all documents
-    categoryDocs.forEach(doc => {
-      handleAnalyzeDocument(doc.id, doc.name);
-    });
+    const analysisPromises = categoryDocs.map(doc => 
+      handleAnalyzeDocument(doc.id, doc.name, controller.signal)
+    );
+
+    await Promise.all(analysisPromises);
 
     // Update progress periodically
     const progressInterval = setInterval(() => {
+      if (controller.signal.aborted) {
+        clearInterval(progressInterval);
+        return;
+      }
       updateCategoryProgress(categoryId);
     }, 2000);
 
@@ -282,7 +303,72 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
     setTimeout(() => {
       clearInterval(progressInterval);
       updateCategoryProgress(categoryId);
-    }, categoryDocs.length * 10000); // Estimate 10s per document
+      setActiveAnalysisControllers(prev => {
+        const newControllers = { ...prev };
+        delete newControllers[categoryId];
+        return newControllers;
+      });
+    }, categoryDocs.length * 10000);
+  };
+
+  const handleStopAnalysis = async (categoryId: string) => {
+    // Abort ongoing requests
+    const controller = activeAnalysisControllers[categoryId];
+    if (controller) {
+      controller.abort();
+    }
+
+    // Reset processing status for documents in this category
+    const categoryDocs = getDocumentsByCategory(categoryId);
+    for (const doc of categoryDocs) {
+      if (doc.processing_status === 'processing') {
+        await supabase
+          .from('project_documents')
+          .update({ processing_status: null })
+          .eq('id', doc.id);
+      }
+    }
+
+    // Clear analysis state
+    setCategoryAnalysisProgress(prev => ({
+      ...prev,
+      [categoryId]: {
+        analyzing: false,
+        progress: 0,
+        total: categoryDocs.length
+      }
+    }));
+
+    setActiveAnalysisControllers(prev => {
+      const newControllers = { ...prev };
+      delete newControllers[categoryId];
+      return newControllers;
+    });
+
+    toast({
+      title: 'Analysis Stopped',
+      description: 'SkAi analysis has been stopped',
+    });
+  };
+
+  const handleRestartAnalysis = async (categoryId: string) => {
+    // Reset all documents in category
+    const categoryDocs = getDocumentsByCategory(categoryId);
+    for (const doc of categoryDocs) {
+      await supabase
+        .from('project_documents')
+        .update({ 
+          processing_status: null,
+          ai_summary: null 
+        })
+        .eq('id', doc.id);
+    }
+
+    // Refetch documents to update UI
+    await refetchDocuments();
+
+    // Start fresh analysis
+    await handleAnalyzeCategory(categoryId);
   };
   
   if (!project) {
@@ -370,23 +456,53 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                                 )}
                               </div>
                               <div className="flex items-center gap-1">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleAnalyzeCategory(category.id);
-                                  }}
-                                  className="h-7 w-7 p-0 text-primary hover:text-primary/80"
-                                  title="Analyze all with SkAi"
-                                  disabled={categoryDocs.length === 0 || categoryAnalysisProgress[category.id]?.analyzing}
-                                >
-                                  {categoryAnalysisProgress[category.id]?.analyzing ? (
-                                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                                  ) : (
-                                    <Sparkles className="w-3.5 h-3.5" />
-                                  )}
-                                </Button>
+                                {categoryAnalysisProgress[category.id]?.analyzing ? (
+                                  <>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleStopAnalysis(category.id);
+                                      }}
+                                      className="h-7 px-2 text-xs text-destructive hover:text-destructive/80"
+                                      title="Stop analysis"
+                                    >
+                                      <XCircle className="w-3.5 h-3.5 mr-1" />
+                                      Stop
+                                    </Button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRestartAnalysis(category.id);
+                                      }}
+                                      className="h-7 px-2 text-xs text-amber-600 hover:text-amber-700"
+                                      title="Restart analysis"
+                                      disabled={categoryDocs.length === 0}
+                                    >
+                                      <RotateCw className="w-3.5 h-3.5 mr-1" />
+                                      Restart
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleAnalyzeCategory(category.id);
+                                      }}
+                                      className="h-7 w-7 p-0 text-primary hover:text-primary/80"
+                                      title="Analyze all with SkAi"
+                                      disabled={categoryDocs.length === 0}
+                                    >
+                                      <Sparkles className="w-3.5 h-3.5" />
+                                    </Button>
+                                  </>
+                                )}
                                 <Button
                                   variant="ghost"
                                   size="sm"

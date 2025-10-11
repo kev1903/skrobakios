@@ -14,6 +14,8 @@ export interface ProjectDocument {
   created_by: string | null;
   document_status: string | null;
   category_id: string | null;
+  processing_status: string | null;
+  ai_summary: string | null;
 }
 
 export const useProjectDocuments = (projectId: string | undefined) => {
