@@ -80,8 +80,8 @@ serve(async (req) => {
         
         console.log(`PDF downloaded (${Math.round(pdfBuffer.byteLength / 1024)}KB), extracting text...`);
         
-        // Extract text using pdf-parse
-        const pdfData = await pdfParse(Buffer.from(pdfBuffer));
+        // Extract text using pdf-parse (pass Uint8Array directly)
+        const pdfData = await pdfParse(new Uint8Array(pdfBuffer));
         extractedText = pdfData.text;
         
         console.log(`Text extracted: ${extractedText.length} characters from ${pdfData.numpages} pages`);
