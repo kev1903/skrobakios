@@ -192,10 +192,42 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
                         <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
                       </div>
 
-                      <div className="space-y-1">
-                        <p className="text-sm text-foreground leading-relaxed">
-                          {message.content}
-                        </p>
+                      <div className="space-y-3">
+                        {message.content.split(/\*\*([^*]+)\*\*/g).map((part, index) => {
+                          if (index % 2 === 1) {
+                            // This is a bolded section
+                            return (
+                              <h5 key={index} className="text-sm font-semibold text-foreground mt-3">
+                                {part}
+                              </h5>
+                            );
+                          } else if (part.trim()) {
+                            // Regular text, split by bullet points or line breaks
+                            return part.split(/\n/).map((line, lineIndex) => {
+                              const trimmedLine = line.trim();
+                              if (!trimmedLine) return null;
+                              
+                              // Check if it's a bullet point
+                              if (trimmedLine.startsWith('*') || trimmedLine.startsWith('-') || trimmedLine.startsWith('•')) {
+                                return (
+                                  <div key={`${index}-${lineIndex}`} className="flex gap-2 ml-4">
+                                    <span className="text-primary mt-1">•</span>
+                                    <p className="text-sm text-muted-foreground leading-relaxed flex-1">
+                                      {trimmedLine.replace(/^[*\-•]\s*/, '')}
+                                    </p>
+                                  </div>
+                                );
+                              }
+                              
+                              return (
+                                <p key={`${index}-${lineIndex}`} className="text-sm text-muted-foreground leading-relaxed">
+                                  {trimmedLine}
+                                </p>
+                              );
+                            });
+                          }
+                          return null;
+                        })}
                       </div>
 
                       {message.metadata && Object.keys(message.metadata).length > 0 && (
