@@ -63,10 +63,11 @@ serve(async (req) => {
     console.log("Document found:", document.name, "Type:", document.content_type);
 
     let extractedText = document.extracted_text;
+    let pdfBase64 = null;
 
-    // Extract text from PDF if not already extracted
+    // For PDFs, convert to base64 for vision analysis if text not already extracted
     if (!extractedText && document.content_type === 'application/pdf') {
-      console.log("Extracting text from PDF...");
+      console.log("Preparing PDF for vision analysis...");
       
       try {
         // Download the PDF file
@@ -74,37 +75,18 @@ serve(async (req) => {
         if (!pdfResponse.ok) {
           throw new Error('Failed to download PDF');
         }
-        const pdfBlob = await pdfResponse.blob();
+        const pdfBuffer = await pdfResponse.arrayBuffer();
         
-        // Call extract-pdf-text function
-        const formData = new FormData();
-        formData.append('file', pdfBlob, document.name);
+        // Convert to base64
+        const base64 = btoa(
+          new Uint8Array(pdfBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+        );
+        pdfBase64 = base64;
         
-        const extractResponse = await fetch(`${supabaseUrl}/functions/v1/extract-pdf-text`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${supabaseKey}`,
-          },
-          body: formData
-        });
-
-        if (extractResponse.ok) {
-          const extractData = await extractResponse.json();
-          extractedText = extractData.text;
-          
-          // Save extracted text to document
-          await supabase
-            .from("project_documents")
-            .update({ extracted_text: extractedText })
-            .eq("id", documentId);
-          
-          console.log(`Extracted ${extractedText?.length || 0} characters from PDF`);
-        } else {
-          console.warn("PDF extraction failed, proceeding with basic analysis");
-        }
-      } catch (extractError) {
-        console.error("Error extracting PDF text:", extractError);
-        // Continue with basic analysis even if extraction fails
+        console.log(`PDF prepared for analysis (${Math.round(pdfBuffer.byteLength / 1024)}KB)`);
+      } catch (pdfError) {
+        console.error("Error preparing PDF:", pdfError);
+        // Continue without PDF data
       }
     }
 
@@ -120,19 +102,35 @@ serve(async (req) => {
 
 Provide a comprehensive but concise summary (max 500 words) that would be useful for project management.`;
 
-    const userPrompt = `Analyze this construction project document:
+    // Build user message with document content
+    let userContent: any[] = [
+      {
+        type: "text",
+        text: `Analyze this construction project document:
 
 Document Name: ${document.name}
 Document Type: ${document.document_type || 'Unknown'}
 File Type: ${document.content_type || 'Unknown'}
 
-${extractedText ? `Document Content:\n${extractedText.substring(0, 15000)}` : 'Note: No text content available. Please provide general insights based on the document name and type.'}
+${extractedText ? `Document Content:\n${extractedText.substring(0, 15000)}` : ''}
 
-Please provide a detailed analysis of this document focusing on construction project management aspects. Include key insights, potential risks, and actionable recommendations.`;
+Please provide a detailed analysis of this document focusing on construction project management aspects. Include key insights, potential risks, and actionable recommendations.`
+      }
+    ];
 
-    console.log("Calling Lovable AI...");
+    // Add PDF as inline data if available
+    if (pdfBase64) {
+      userContent.push({
+        type: "image_url",
+        image_url: {
+          url: `data:application/pdf;base64,${pdfBase64}`
+        }
+      });
+    }
 
-    // Call Lovable AI
+    console.log("Calling Lovable AI with", pdfBase64 ? "PDF document" : "text content");
+
+    // Call Lovable AI with vision support
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -143,7 +141,7 @@ Please provide a detailed analysis of this document focusing on construction pro
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
+          { role: "user", content: userContent }
         ],
         temperature: 0.7,
         max_tokens: 2000
