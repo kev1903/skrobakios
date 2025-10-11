@@ -128,16 +128,16 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
       if (error) throw error;
 
       toast({
-        title: 'Sync Started',
-        description: 'AI is processing your project documents...',
+        title: 'Analysis Started',
+        description: 'SkAi is analyzing your project documents...',
       });
 
       fetchJobs();
     } catch (error) {
       console.error('Error triggering sync:', error);
       toast({
-        title: 'Sync Failed',
-        description: 'Failed to start knowledge sync',
+        title: 'Analysis Failed',
+        description: 'Failed to start knowledge analysis',
         variant: 'destructive'
       });
     } finally {
@@ -152,7 +152,7 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
         .from('knowledge_sync_jobs')
         .update({ 
           status: 'failed',
-          error_message: 'Sync cancelled by user',
+          error_message: 'Analysis cancelled by user',
           completed_at: new Date().toISOString()
         })
         .eq('project_id', projectId)
@@ -161,8 +161,8 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
       if (error) throw error;
 
       toast({
-        title: 'Sync Stopped',
-        description: 'AI processing has been cancelled',
+        title: 'Analysis Stopped',
+        description: 'SkAi analysis has been cancelled',
       });
 
       setSyncing(false);
@@ -171,7 +171,7 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
       console.error('Error stopping sync:', error);
       toast({
         title: 'Stop Failed',
-        description: 'Failed to stop knowledge sync',
+        description: 'Failed to stop analysis',
         variant: 'destructive'
       });
     }
@@ -228,12 +228,12 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
             {syncing ? (
               <>
                 <RefreshCw className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                Syncing...
+                Analyzing...
               </>
             ) : (
               <>
                 <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-                Sync Now
+                Analyse with SkAi
               </>
             )}
           </Button>
