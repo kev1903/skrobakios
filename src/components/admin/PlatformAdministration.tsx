@@ -57,15 +57,10 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Platform Administration</h1>
-            <p className="text-muted-foreground">Comprehensive platform management and control center</p>
-          </div>
-        </div>
-
       <Tabs defaultValue="settings" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7 bg-card border border-border rounded-lg">
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="text-2xl font-bold text-foreground whitespace-nowrap">Platform Administration</h1>
+          <TabsList className="flex-1 grid grid-cols-7 bg-card border border-border rounded-lg">
           <TabsTrigger value="settings" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Settings
@@ -100,6 +95,7 @@ export const PlatformAdministration: React.FC<PlatformAdministrationProps> = ({ 
             SkAi
           </TabsTrigger>
         </TabsList>
+        </div>
 
         <TabsContent value="settings" className="space-y-6">
           <PlatformSettingsPanel />
