@@ -206,36 +206,36 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                       open={isExpanded}
                       onOpenChange={() => toggleCategory(category.id)}
                     >
-                      <div className="backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] rounded-2xl overflow-hidden hover:bg-white/[0.05] transition-all duration-300">
+                      <div className="border border-border rounded-lg overflow-hidden hover:border-border/60 transition-all duration-200">
                         {/* Category Header */}
                         <CollapsibleTrigger asChild>
-                          <div className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-white/[0.03] transition-colors">
-                            <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-between px-4 py-2.5 cursor-pointer hover:bg-accent/50 transition-colors">
+                            <div className="flex items-center gap-2.5">
                               {isExpanded ? (
-                                <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform" />
+                                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" />
                               ) : (
-                                <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform" />
+                                <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform" />
                               )}
-                              <Icon className="h-5 w-5 text-foreground" />
-                              <h3 className="text-lg font-semibold text-foreground">
+                              <Icon className="h-4 w-4 text-foreground" />
+                              <h3 className="text-sm font-medium text-foreground">
                                 {category.title}
                               </h3>
                               {categoryDocs.length > 0 && (
-                                <span className="text-xs text-muted-foreground bg-white/[0.05] px-2.5 py-1 rounded-full border border-white/[0.08]">
+                                <span className="text-xs text-muted-foreground bg-accent px-2 py-0.5 rounded-full">
                                   {categoryDocs.length}
                                 </span>
                               )}
                             </div>
                             <Button
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleUploadClick(category.id);
                               }}
-                              className="gap-2"
+                              className="gap-1.5 h-7 text-xs"
                             >
-                              <Upload className="w-4 h-4" />
+                              <Upload className="w-3.5 h-3.5" />
                               Upload
                             </Button>
                           </div>
@@ -243,56 +243,55 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
 
                         {/* Category Content */}
                         <CollapsibleContent>
-                          <div className="px-6 pb-6 pt-2">
+                          <div className="px-4 pb-3 pt-1">
                             {categoryDocs.length > 0 ? (
-                              <div className="space-y-2">
+                              <div className="space-y-1">
                                 {categoryDocs.map(doc => (
                                   <div
                                     key={doc.id}
-                                    className="group flex items-center justify-between p-3 rounded-lg border border-white/[0.08] hover:border-white/[0.15] hover:bg-white/[0.03] transition-all duration-200"
+                                    className="group flex items-center justify-between p-2 rounded hover:bg-accent/50 transition-all duration-200"
                                   >
-                                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                                      <FileText className="h-5 w-5 text-primary/80 flex-shrink-0" />
+                                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                      <FileText className="h-4 w-4 text-primary/70 flex-shrink-0" />
                                       <div className="min-w-0 flex-1">
                                         <p 
-                                          className="text-sm font-medium text-foreground truncate cursor-pointer hover:text-primary transition-colors"
+                                          className="text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors"
                                           onClick={() => handleDocumentClick(doc)}
                                         >
                                           {doc.name}
                                         </p>
-                                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                           <span>{formatFileSize(doc.file_size)}</span>
                                           <span>•</span>
                                           <span>{new Date(doc.created_at).toLocaleDateString()}</span>
                                         </div>
                                       </div>
                                     </div>
-                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                       <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => window.open(doc.file_url, '_blank')}
-                                        className="h-8 w-8 p-0"
+                                        className="h-7 w-7 p-0"
                                       >
-                                        <Download className="h-4 w-4" />
+                                        <Download className="h-3.5 w-3.5" />
                                       </Button>
                                       <Button
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => deleteDocument(doc.id)}
-                                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                        className="h-7 w-7 p-0 text-destructive hover:text-destructive"
                                       >
-                                        <Trash2 className="h-4 w-4" />
+                                        <Trash2 className="h-3.5 w-3.5" />
                                       </Button>
                                     </div>
                                   </div>
                                 ))}
                               </div>
                             ) : (
-                              <div className="text-center py-8 text-muted-foreground">
-                                <FileText className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                                <p className="text-sm">No documents uploaded yet</p>
-                                <p className="text-xs mt-1">Click Upload to add files to this category</p>
+                              <div className="text-center py-6 text-muted-foreground">
+                                <FileText className="h-10 w-10 mx-auto mb-2 opacity-20" />
+                                <p className="text-xs">No documents uploaded yet</p>
                               </div>
                             )}
                           </div>
