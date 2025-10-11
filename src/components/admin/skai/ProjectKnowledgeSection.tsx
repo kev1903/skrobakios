@@ -58,33 +58,19 @@ export const ProjectKnowledgeSection: React.FC = () => {
     try {
       setCategoriesLoading(true);
       
-      // Get all project documents with their category info to see which categories are in use
-      const { data: docsData, error: docsError } = await supabase
-        .from('project_documents')
-        .select(`
-          category_id,
-          document_categories!inner(*)
-        `)
-        .not('category_id', 'is', null);
+      // Fetch document categories directly from the table
+      const { data, error } = await supabase
+        .from('document_categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('section_number', { ascending: true })
+        .order('sort_order', { ascending: true });
 
-      if (docsError) throw docsError;
-
-      // Extract unique categories that are actually being used
-      const usedCategoriesMap = new Map<string, DocumentCategory>();
-      docsData?.forEach((doc: any) => {
-        if (doc.document_categories) {
-          const cat = doc.document_categories;
-          if (!usedCategoriesMap.has(cat.id)) {
-            usedCategoriesMap.set(cat.id, cat);
-          }
-        }
-      });
-
-      const usedCategories = Array.from(usedCategoriesMap.values());
+      if (error) throw error;
 
       // Group categories by section
       const sectionMap = new Map<number, SectionData>();
-      usedCategories.forEach(category => {
+      data?.forEach(category => {
         if (!sectionMap.has(category.section_number)) {
           sectionMap.set(category.section_number, {
             section_number: category.section_number,
