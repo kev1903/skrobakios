@@ -668,7 +668,7 @@ export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
                             
                             {/* Progress Bar - Show during analysis or when complete */}
                             {categoryAnalysisProgress[category.id] && categoryAnalysisProgress[category.id].total > 0 && (
-                              <div className="mt-3 px-2 space-y-2">
+                              <div className="mt-3 space-y-2">
                                 {(() => {
                                   const progress = categoryAnalysisProgress[category.id];
                                   const percentage = Math.round((progress.progress / progress.total) * 100);
