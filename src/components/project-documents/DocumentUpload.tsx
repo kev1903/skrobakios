@@ -17,6 +17,7 @@ interface DocumentUploadProps {
   onUploadComplete?: () => void;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  categoryId?: string;
 }
 
 interface DocumentMetadata {
@@ -37,7 +38,7 @@ interface UploadFile {
   metadata?: DocumentMetadata;
 }
 
-export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUploadComplete, open: controlledOpen, onOpenChange: controlledOnOpenChange }) => {
+export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUploadComplete, open: controlledOpen, onOpenChange: controlledOnOpenChange, categoryId }) => {
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setIsOpen = controlledOnOpenChange || setInternalOpen;
@@ -138,7 +139,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
           file_url: urlData.publicUrl,
           content_type: uploadFile.file.type,
           file_size: uploadFile.file.size,
-          document_type: uploadFile.metadata?.type || 'drawing',
+          document_type: categoryId || uploadFile.metadata?.type || 'drawing',
           created_by: (await supabase.auth.getUser()).data.user?.id,
           metadata: {
             version: uploadFile.metadata?.version,

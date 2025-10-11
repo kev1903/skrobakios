@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
@@ -12,24 +11,24 @@ import { useProjectDocuments } from '@/hooks/useProjectDocuments';
 import { ProjectLinkDialog } from './ProjectLinkDialog';
 import { DocumentUpload } from '../project-documents/DocumentUpload';
 import { ProjectPageHeader } from './ProjectPageHeader';
-import { Plus, Link, Edit, Trash2, ExternalLink, FileText, Upload, ChevronDown, ChevronRight, Tag } from 'lucide-react';
+import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 
 interface ProjectDocsPageProps {
   onNavigate: (page: string) => void;
 }
 
-export const ProjectDocsPage = ({
-  onNavigate
-}: ProjectDocsPageProps) => {
+export const ProjectDocsPage = ({ onNavigate }: ProjectDocsPageProps) => {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('projectId');
-  const {
-    getProject
-  } = useProjects();
+  const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
+
+  // Project documents management
+  const { documents, loading: docsLoading, deleteDocument, formatFileSize, refetch: refetchDocuments } = useProjectDocuments(projectId || undefined);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
 
   // Project links management
   const {
@@ -45,157 +44,18 @@ export const ProjectDocsPage = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [linkToDelete, setLinkToDelete] = useState<ProjectLink | undefined>();
 
-  // Project documents management
-  const { documents, loading: docsLoading, deleteDocument, formatFileSize, refetch: refetchDocuments } = useProjectDocuments(projectId || undefined);
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
-  const { toast } = useToast();
-
-  // Document classifications
-  const documentClassifications = [
-    'Draft',
-    'For Review',
-    'For Approval',
-    'Approved',
-    'Superseded',
-    'Archived'
-  ];
-
-  const getClassificationColor = (classification: string) => {
-    switch (classification) {
-      case 'Draft':
-        return 'bg-gray-100 text-gray-700 border-gray-300';
-      case 'For Review':
-        return 'bg-blue-100 text-blue-700 border-blue-300';
-      case 'For Approval':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-300';
-      case 'Approved':
-        return 'bg-green-100 text-green-700 border-green-300';
-      case 'Superseded':
-        return 'bg-orange-100 text-orange-700 border-orange-300';
-      case 'Archived':
-        return 'bg-red-100 text-red-700 border-red-300';
-      default:
-        return 'bg-gray-100 text-gray-600 border-gray-300';
-    }
-  };
-
-  const handleClassificationChange = async (documentId: string, classification: string) => {
-    try {
-      const { error } = await supabase
-        .from('project_documents')
-        .update({ document_status: classification })
-        .eq('id', documentId);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Classification Updated',
-        description: `Document classification changed to ${classification}`,
-      });
-
-      refetchDocuments();
-    } catch (error) {
-      console.error('Error updating classification:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update document classification',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  // Construction document categories
-  const constructionDocCategories = [
+  // Document categories
+  const documentCategories = [
     {
-      id: 'design',
-      title: 'Design Documents',
-      items: [
-        'Architectural Plans',
-        'Structural Drawings',
-        'MEP Drawings (Mechanical, Electrical, Plumbing)',
-        'Civil Engineering Plans',
-        'Landscape Plans',
-        'Interior Design Plans'
-      ]
+      id: 'architectural',
+      title: 'Architectural',
+      icon: FileText,
     },
     {
-      id: 'specifications',
-      title: 'Specifications',
-      items: [
-        'Technical Specifications',
-        'Material Specifications',
-        'Equipment Specifications',
-        'Finish Specifications'
-      ]
+      id: 'structural',
+      title: 'Structural Engineering',
+      icon: FileText,
     },
-    {
-      id: 'contracts',
-      title: 'Contracts & Legal',
-      items: [
-        'Construction Contract',
-        'Subcontractor Agreements',
-        'Supplier Agreements',
-        'Change Orders',
-        'Insurance Documents'
-      ]
-    },
-    {
-      id: 'permits',
-      title: 'Permits & Approvals',
-      items: [
-        'Building Permits',
-        'Planning Approvals',
-        'Environmental Permits',
-        'Safety Permits',
-        'Utility Approvals'
-      ]
-    },
-    {
-      id: 'schedules',
-      title: 'Schedules',
-      items: [
-        'Construction Schedule',
-        'Milestone Schedule',
-        'Procurement Schedule',
-        'Delivery Schedule'
-      ]
-    },
-    {
-      id: 'reports',
-      title: 'Reports & Documentation',
-      items: [
-        'Site Reports',
-        'Progress Reports',
-        'Quality Reports',
-        'Safety Reports',
-        'Meeting Minutes',
-        'Inspection Reports'
-      ]
-    },
-    {
-      id: 'financial',
-      title: 'Financial Documents',
-      items: [
-        'Cost Estimates',
-        'Invoices',
-        'Payment Applications',
-        'Budget Reports',
-        'Change Order Valuations'
-      ]
-    },
-    {
-      id: 'closeout',
-      title: 'Closeout Documents',
-      items: [
-        'As-Built Drawings',
-        'Operation & Maintenance Manuals',
-        'Warranties',
-        'Certificates of Completion',
-        'Final Inspection Reports'
-      ]
-    }
   ];
 
   const toggleCategory = (categoryId: string) => {
@@ -205,15 +65,14 @@ export const ProjectDocsPage = ({
     }));
   };
 
-  const handleUploadClick = (categoryTitle: string) => {
-    setSelectedCategoryId(categoryTitle);
+  const handleUploadClick = (categoryId: string) => {
+    setSelectedCategory(categoryId);
     setUploadDialogOpen(true);
   };
 
-  const getDocumentsByCategory = (categoryTitle: string) => {
+  const getDocumentsByCategory = (categoryId: string) => {
     return documents.filter(doc => 
-      doc.document_type?.toLowerCase().includes(categoryTitle.toLowerCase()) ||
-      doc.name?.toLowerCase().includes(categoryTitle.toLowerCase())
+      doc.document_type?.toLowerCase() === categoryId.toLowerCase()
     );
   };
   
@@ -268,8 +127,8 @@ export const ProjectDocsPage = ({
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Project Not Found</h2>
-          <p className="text-gray-600 mb-4">The requested project could not be found.</p>
+          <h2 className="text-xl font-semibold text-foreground mb-2">Project Not Found</h2>
+          <p className="text-muted-foreground mb-4">The requested project could not be found.</p>
           <Button onClick={() => onNavigate('projects')}>Back to Projects</Button>
         </div>
       </div>
@@ -314,9 +173,10 @@ export const ProjectDocsPage = ({
             {/* Project Docs Tab */}
             <TabsContent value="docs">
               <div className="space-y-4">
-                {constructionDocCategories.map(category => {
+                {documentCategories.map(category => {
                   const isExpanded = expandedCategories[category.id];
-                  const categoryDocs = getDocumentsByCategory(category.title);
+                  const categoryDocs = getDocumentsByCategory(category.id);
+                  const Icon = category.icon;
                   
                   return (
                     <Collapsible
@@ -324,234 +184,90 @@ export const ProjectDocsPage = ({
                       open={isExpanded}
                       onOpenChange={() => toggleCategory(category.id)}
                     >
-                      <div className="bg-card border rounded-lg overflow-hidden">
+                      <div className="backdrop-blur-xl bg-white/[0.02] border border-white/[0.08] rounded-2xl overflow-hidden hover:bg-white/[0.05] transition-all duration-300">
                         {/* Category Header */}
-                        <div className="bg-muted/30 border-b">
-                          <CollapsibleTrigger asChild>
-                            <div className="flex items-center justify-between px-6 py-3 cursor-pointer hover:bg-muted/50 transition-colors">
-                              <div className="flex items-center gap-2">
-                                {isExpanded ? (
-                                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                                ) : (
-                                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                                )}
-                                <h3 className="text-lg font-semibold flex items-center gap-2">
-                                  <FileText className="h-5 w-5" />
-                                  {category.title}
-                                </h3>
-                                {categoryDocs.length > 0 && (
-                                  <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
-                                    {categoryDocs.length}
-                                  </span>
-                                )}
-                              </div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleUploadClick(category.title);
-                                }}
-                              >
-                                <Upload className="w-4 h-4 mr-2" />
-                                Upload
-                              </Button>
+                        <CollapsibleTrigger asChild>
+                          <div className="flex items-center justify-between px-6 py-4 cursor-pointer hover:bg-white/[0.03] transition-colors">
+                            <div className="flex items-center gap-3">
+                              {isExpanded ? (
+                                <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform" />
+                              ) : (
+                                <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform" />
+                              )}
+                              <Icon className="h-5 w-5 text-foreground" />
+                              <h3 className="text-lg font-semibold text-foreground">
+                                {category.title}
+                              </h3>
+                              {categoryDocs.length > 0 && (
+                                <span className="text-xs text-muted-foreground bg-white/[0.05] px-2.5 py-1 rounded-full border border-white/[0.08]">
+                                  {categoryDocs.length}
+                                </span>
+                              )}
                             </div>
-                          </CollapsibleTrigger>
-                        </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUploadClick(category.id);
+                              }}
+                              className="gap-2"
+                            >
+                              <Upload className="w-4 h-4" />
+                              Upload
+                            </Button>
+                          </div>
+                        </CollapsibleTrigger>
 
                         {/* Category Content */}
                         <CollapsibleContent>
-                          <div className="p-6">
-                            {/* Document Subcategories */}
-                            <div className="space-y-4">
-                              {category.items.map((item, idx) => {
-                                const itemDocs = documents.filter(doc =>
-                                  doc.name?.toLowerCase().includes(item.toLowerCase()) ||
-                                  doc.document_type?.toLowerCase().includes(item.toLowerCase())
-                                );
-
-                                return (
-                                  <div key={idx} className="border-l-2 border-muted pl-4">
-                                    <div className="flex items-center justify-between mb-2">
-                                      <h4 className="text-sm font-medium text-foreground">
-                                        {item}
-                                      </h4>
-                                      {itemDocs.length > 0 && (
-                                        <span className="text-xs text-muted-foreground">
-                                          {itemDocs.length} {itemDocs.length === 1 ? 'file' : 'files'}
-                                        </span>
-                                      )}
+                          <div className="px-6 pb-6 pt-2">
+                            {categoryDocs.length > 0 ? (
+                              <div className="space-y-2">
+                                {categoryDocs.map(doc => (
+                                  <div
+                                    key={doc.id}
+                                    className="group flex items-center justify-between p-3 rounded-lg border border-white/[0.08] hover:border-white/[0.15] hover:bg-white/[0.03] transition-all duration-200"
+                                  >
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                      <FileText className="h-5 w-5 text-primary/80 flex-shrink-0" />
+                                      <div className="min-w-0 flex-1">
+                                        <p className="text-sm font-medium text-foreground truncate">
+                                          {doc.name}
+                                        </p>
+                                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                                          <span>{formatFileSize(doc.file_size)}</span>
+                                          <span>•</span>
+                                          <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+                                        </div>
+                                      </div>
                                     </div>
-
-                                     {/* Documents under this item */}
-                                    {itemDocs.length > 0 ? (
-                                      <div className="space-y-2 ml-2">
-                                        {itemDocs.map(doc => (
-                                          <div
-                                            key={doc.id}
-                                            className="group flex items-center justify-between p-2 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200"
-                                          >
-                                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                                              <FileText className="h-4 w-4 text-primary/60 flex-shrink-0" />
-                                              <div className="min-w-0 flex-1">
-                                                <p className="text-sm font-medium text-foreground truncate">
-                                                  {doc.name}
-                                                </p>
-                                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                                  <span>{formatFileSize(doc.file_size)}</span>
-                                                  <span>•</span>
-                                                  <span>{new Date(doc.created_at).toLocaleDateString()}</span>
-                                                </div>
-                                              </div>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                              {/* Classification Dropdown */}
-                                              <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                  <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className={`h-7 px-2 text-xs border ${getClassificationColor(doc.document_status || 'Draft')}`}
-                                                  >
-                                                    <Tag className="w-3 h-3 mr-1" />
-                                                    {doc.document_status || 'Draft'}
-                                                  </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="bg-background z-50">
-                                                  {documentClassifications.map((classification) => (
-                                                    <DropdownMenuItem
-                                                      key={classification}
-                                                      onClick={() => handleClassificationChange(doc.id, classification)}
-                                                      className="cursor-pointer"
-                                                    >
-                                                      <span className={`w-2 h-2 rounded-full mr-2 ${getClassificationColor(classification).split(' ')[0]}`} />
-                                                      {classification}
-                                                    </DropdownMenuItem>
-                                                  ))}
-                                                </DropdownMenuContent>
-                                              </DropdownMenu>
-                                              
-                                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                                <Button
-                                                  variant="ghost"
-                                                  size="sm"
-                                                  className="h-7 w-7 p-0 hover:bg-primary/10"
-                                                  onClick={() => window.open(doc.file_url, '_blank')}
-                                                  title="View document"
-                                                >
-                                                  <ExternalLink className="w-3.5 h-3.5" />
-                                                </Button>
-                                                <Button
-                                                  variant="ghost"
-                                                  size="sm"
-                                                  className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
-                                                  onClick={() => deleteDocument(doc.id)}
-                                                  title="Delete document"
-                                                >
-                                                  <Trash2 className="w-3.5 h-3.5" />
-                                                </Button>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    ) : (
-                                      <p className="text-xs text-muted-foreground ml-2">
-                                        No documents uploaded yet
-                                      </p>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-
-                            {/* Show all documents for this category at the bottom if any don't match subcategories */}
-                            {categoryDocs.filter(doc => 
-                              !category.items.some(item => 
-                                doc.name?.toLowerCase().includes(item.toLowerCase()) ||
-                                doc.document_type?.toLowerCase().includes(item.toLowerCase())
-                              )
-                            ).length > 0 && (
-                              <div className="mt-4 pt-4 border-t">
-                                <h4 className="text-sm font-medium text-foreground mb-2">Other Documents</h4>
-                                <div className="space-y-2">
-                                  {categoryDocs
-                                    .filter(doc => 
-                                      !category.items.some(item => 
-                                        doc.name?.toLowerCase().includes(item.toLowerCase()) ||
-                                        doc.document_type?.toLowerCase().includes(item.toLowerCase())
-                                      )
-                                    )
-                                    .map(doc => (
-                                      <div
-                                        key={doc.id}
-                                        className="group flex items-center justify-between p-2 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200"
+                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => window.open(doc.file_url, '_blank')}
+                                        className="h-8 w-8 p-0"
                                       >
-                                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                                          <FileText className="h-4 w-4 text-primary/60 flex-shrink-0" />
-                                          <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-medium text-foreground truncate">
-                                              {doc.name}
-                                            </p>
-                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                              <span>{formatFileSize(doc.file_size)}</span>
-                                              <span>•</span>
-                                              <span>{new Date(doc.created_at).toLocaleDateString()}</span>
-                                            </div>
-                                          </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                          {/* Classification Dropdown */}
-                                          <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                              <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className={`h-7 px-2 text-xs border ${getClassificationColor(doc.document_status || 'Draft')}`}
-                                              >
-                                                <Tag className="w-3 h-3 mr-1" />
-                                                {doc.document_status || 'Draft'}
-                                              </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="bg-background z-50">
-                                              {documentClassifications.map((classification) => (
-                                                <DropdownMenuItem
-                                                  key={classification}
-                                                  onClick={() => handleClassificationChange(doc.id, classification)}
-                                                  className="cursor-pointer"
-                                                >
-                                                  <span className={`w-2 h-2 rounded-full mr-2 ${getClassificationColor(classification).split(' ')[0]}`} />
-                                                  {classification}
-                                                </DropdownMenuItem>
-                                              ))}
-                                            </DropdownMenuContent>
-                                          </DropdownMenu>
-                                          
-                                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-7 w-7 p-0 hover:bg-primary/10"
-                                              onClick={() => window.open(doc.file_url, '_blank')}
-                                              title="View document"
-                                            >
-                                              <ExternalLink className="w-3.5 h-3.5" />
-                                            </Button>
-                                            <Button
-                                              variant="ghost"
-                                              size="sm"
-                                              className="h-7 w-7 p-0 hover:bg-destructive/10 hover:text-destructive"
-                                              onClick={() => deleteDocument(doc.id)}
-                                              title="Delete document"
-                                            >
-                                              <Trash2 className="w-3.5 h-3.5" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
-                                </div>
+                                        <Download className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => deleteDocument(doc.id)}
+                                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-center py-8 text-muted-foreground">
+                                <FileText className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                                <p className="text-sm">No documents uploaded yet</p>
+                                <p className="text-xs mt-1">Click Upload to add files to this category</p>
                               </div>
                             )}
                           </div>
@@ -560,125 +276,109 @@ export const ProjectDocsPage = ({
                     </Collapsible>
                   );
                 })}
-
-                {docsLoading && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    Loading documents...
-                  </div>
-                )}
               </div>
             </TabsContent>
 
             {/* Project Links Tab */}
             <TabsContent value="links">
-              <div className="bg-card border rounded-lg">
-                {/* Header */}
-                <div className="bg-muted/30 border-b px-6 py-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold flex items-center gap-2">
-                      <Link className="h-5 w-5" />
-                      Project Links
-                    </h3>
-                    <Button onClick={handleAddLink}>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Link
-                    </Button>
-                  </div>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold text-foreground">Project Links</h2>
+                  <Button onClick={handleAddLink}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Link
+                  </Button>
                 </div>
 
-                {/* Links Content */}
-                <div className="p-6">
-                  {linksLoading ? (
-                    <div className="text-center py-8">Loading links...</div>
-                  ) : links.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No links added yet. Click "Add Link" to get started.
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {links.map(link => (
-                        <div 
-                          key={link.id} 
-                          className="group flex items-center justify-between p-3 rounded-lg border border-border/40 hover:border-border hover:bg-accent/20 transition-all duration-200"
-                        >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div className="w-2 h-2 rounded-full bg-primary/60 flex-shrink-0" />
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-medium text-foreground truncate">{link.title}</h4>
-                                <span className="text-xs text-muted-foreground/70 bg-muted/30 px-2 py-0.5 rounded-full flex-shrink-0">
-                                  {link.category}
-                                </span>
-                              </div>
-                              {link.description && (
-                                <p className="text-sm text-muted-foreground/80 truncate">{link.description}</p>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0 hover:bg-primary/10" 
-                              onClick={() => window.open(link.url, '_blank')} 
-                              title="Open link"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0 hover:bg-primary/10" 
-                              onClick={() => handleEditLink(link)} 
-                              title="Edit link"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive" 
-                              onClick={() => handleDeleteLink(link)} 
-                              title="Delete link"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                {linksLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Loading links...
+                  </div>
+                ) : links.length > 0 ? (
+                  <div className="space-y-2">
+                    {links.map(link => (
+                      <div
+                        key={link.id}
+                        className="group flex items-center justify-between p-4 rounded-lg border border-white/[0.08] hover:border-white/[0.15] hover:bg-white/[0.03] transition-all duration-200"
+                      >
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          <Link className="h-5 w-5 text-primary/80 flex-shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-foreground truncate">
+                              {link.title}
+                            </p>
+                            {link.description && (
+                              <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                                {link.description}
+                              </p>
+                            )}
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => window.open(link.url, '_blank')}
+                            className="h-8 w-8 p-0"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditLink(link)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteLink(link)}
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Link className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                    <p className="text-sm">No links added yet</p>
+                    <p className="text-xs mt-1">Click Add Link to create your first project link</p>
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
         </div>
       </div>
 
-      {/* Link Dialog */}
-      {projectId && (
-        <>
-          <ProjectLinkDialog 
-            open={linkDialogOpen} 
-            onOpenChange={setLinkDialogOpen} 
-            onSubmit={handleLinkSubmit} 
-            link={selectedLink} 
-            projectId={projectId} 
-            mode={linkDialogMode} 
-          />
-          <DocumentUpload
-            projectId={projectId}
-            open={uploadDialogOpen}
-            onOpenChange={setUploadDialogOpen}
-            onUploadComplete={() => {
-              refetchDocuments();
-              setUploadDialogOpen(false);
-            }}
-          />
-        </>
-      )}
+      {/* Document Upload Dialog */}
+      <DocumentUpload
+        open={uploadDialogOpen}
+        onOpenChange={setUploadDialogOpen}
+        projectId={projectId || undefined}
+        onUploadComplete={() => {
+          refetchDocuments();
+          setUploadDialogOpen(false);
+        }}
+        categoryId={selectedCategory || undefined}
+      />
 
-      {/* Delete Confirmation Dialog */}
+      {/* Project Link Dialog */}
+      <ProjectLinkDialog
+        open={linkDialogOpen}
+        onOpenChange={setLinkDialogOpen}
+        mode={linkDialogMode}
+        projectId={projectId || ''}
+        link={selectedLink}
+        onSubmit={handleLinkSubmit}
+      />
+
+      {/* Delete Link Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -689,7 +389,9 @@ export const ProjectDocsPage = ({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteLink}>Delete</AlertDialogAction>
+            <AlertDialogAction onClick={confirmDeleteLink} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
