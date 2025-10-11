@@ -18,9 +18,53 @@ serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   try {
-    console.log('Starting knowledge sync job processor...');
+    const requestBody = await req.json().catch(() => ({}));
+    console.log('Starting knowledge sync...', requestBody);
 
-    // Get pending jobs (limit 5 per run to avoid timeout)
+    // Check if this is a manual sync request
+    if (requestBody.projectId && requestBody.companyId) {
+      console.log('Manual sync requested for project:', requestBody.projectId);
+      
+      // Create a manual sync job for all completed documents
+      const { data: completedDocs, error: docsError } = await supabase
+        .from('project_documents')
+        .select('id')
+        .eq('project_id', requestBody.projectId)
+        .eq('processing_status', 'completed');
+
+      if (docsError) throw docsError;
+
+      if (!completedDocs || completedDocs.length === 0) {
+        return new Response(JSON.stringify({ 
+          message: 'No completed documents to process',
+          processed: 0 
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Create jobs for each document
+      for (const doc of completedDocs) {
+        await supabase
+          .from('knowledge_sync_jobs')
+          .insert({
+            project_id: requestBody.projectId,
+            company_id: requestBody.companyId,
+            job_type: 'document',
+            source_id: doc.id,
+            status: 'pending'
+          });
+      }
+
+      return new Response(JSON.stringify({ 
+        message: 'Manual sync jobs created',
+        jobs_created: completedDocs.length 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Otherwise, process pending jobs from queue
     const { data: pendingJobs, error: jobsError } = await supabase
       .from('knowledge_sync_jobs')
       .select('*')
