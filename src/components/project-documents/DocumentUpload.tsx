@@ -63,7 +63,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
         author: '',
         date: new Date().toISOString().split('T')[0],
         type: 'drawing',
-        status: 'draft'
+        status: 'issue_for_review'
       }
     }));
 
@@ -320,18 +320,15 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium">Status</label>
                       <select
-                        value={file.metadata?.status || 'draft'}
+                        value={file.metadata?.status || 'issue_for_review'}
                         onChange={(e) => handleMetadataUpdate(file.id, 'status', e.target.value)}
                         className="w-full px-2.5 py-1.5 text-sm border rounded-md bg-background"
                       >
-                        <option value="draft">Draft</option>
-                        <option value="for_review">For Review</option>
-                        <option value="under_review">Under Review</option>
-                        <option value="approved">Approved</option>
-                        <option value="final">Final</option>
-                        <option value="superseded">Superseded</option>
+                        <option value="issue_for_review">Issue for Review</option>
+                        <option value="issue_for_approval">Issue for Approval</option>
+                        <option value="issue_for_construction">Issue for Construction</option>
+                        <option value="issue_for_use">Issue for Use</option>
                         <option value="void">Void</option>
-                        <option value="archived">Archived</option>
                       </select>
                     </div>
                   </div>

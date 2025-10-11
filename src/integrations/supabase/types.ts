@@ -7467,14 +7467,11 @@ export type Database = {
       business_type: "sole_trader" | "partnership" | "company" | "trust"
       compliance_status: "valid" | "expired" | "expiring"
       document_status_enum:
-        | "draft"
-        | "for_review"
-        | "under_review"
-        | "approved"
-        | "final"
-        | "superseded"
+        | "issue_for_review"
+        | "issue_for_approval"
+        | "issue_for_construction"
+        | "issue_for_use"
         | "void"
-        | "archived"
       file_kind: "invoice_pdf" | "receipt" | "bill_pdf" | "other"
       invoice_status:
         | "draft"
@@ -7642,14 +7639,11 @@ export const Constants = {
       business_type: ["sole_trader", "partnership", "company", "trust"],
       compliance_status: ["valid", "expired", "expiring"],
       document_status_enum: [
-        "draft",
-        "for_review",
-        "under_review",
-        "approved",
-        "final",
-        "superseded",
+        "issue_for_review",
+        "issue_for_approval",
+        "issue_for_construction",
+        "issue_for_use",
         "void",
-        "archived",
       ],
       file_kind: ["invoice_pdf", "receipt", "bill_pdf", "other"],
       invoice_status: ["draft", "sent", "part_paid", "paid", "overdue", "void"],
