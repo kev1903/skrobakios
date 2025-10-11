@@ -230,7 +230,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className="pr-10">
           <div className="flex items-center justify-between gap-4">
             <DialogTitle className="flex items-center gap-2 text-base">
               <Upload className="h-4 w-4" />
