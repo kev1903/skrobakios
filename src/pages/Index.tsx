@@ -26,7 +26,6 @@ const Index = () => {
     // Initialize based on current route - if we're on root path, show auth page
     return window.location.pathname === "/" ? "auth" : "auth";
   });
-  const [mobileView, setMobileView] = useState<'chat' | 'app'>('app');
   const previousPageRef = useRef<string>("auth");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
   const isMobile = useIsMobile();
@@ -165,13 +164,19 @@ const Index = () => {
             
             {/* Main content area - fills remaining space */}
             <div className="flex-1 min-h-0 overflow-hidden">
-              {mobileView === 'chat' ? (
-                // AI Chat view on mobile - Show full screen chat modal in menu bar instead
-                <div className="w-full h-full flex items-center justify-center">
-                  <p className="text-muted-foreground">Click the AI chat icon in the menu bar to start chatting</p>
+              {currentPage === 'ai-chat' ? (
+                // AI Chat view on mobile - Show full screen
+                <div className="w-full h-full">
+                  <ContentRenderer 
+                    currentPage={currentPage}
+                    onNavigate={handleNavigate}
+                    onSelectProject={handleSelectProject}
+                    selectedProject={selectedProject}
+                    currentProject={currentProject}
+                  />
                 </div>
               ) : (
-                // App view on mobile
+                // App view on mobile with page layout
                 <div className="w-full h-full">
                   <PageLayout currentPage={currentPage} onNavigate={handleNavigate} disableSpacing>
                     <div className="w-full h-full">
