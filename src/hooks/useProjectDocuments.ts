@@ -24,7 +24,11 @@ export const useProjectDocuments = (projectId: string | undefined) => {
   const { toast } = useToast();
 
   const fetchDocuments = async () => {
-    if (!projectId) return;
+    if (!projectId) {
+      // Clear documents if no projectId
+      setDocuments([]);
+      return;
+    }
     
     setLoading(true);
     try {
@@ -35,7 +39,10 @@ export const useProjectDocuments = (projectId: string | undefined) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setDocuments(data || []);
+      
+      // Ensure we only set documents that match the current projectId
+      const filteredData = (data || []).filter(doc => doc.project_id === projectId);
+      setDocuments(filteredData);
     } catch (error) {
       console.error('Error fetching documents:', error);
       toast({
@@ -95,6 +102,8 @@ export const useProjectDocuments = (projectId: string | undefined) => {
   };
 
   useEffect(() => {
+    // Clear documents immediately when projectId changes
+    setDocuments([]);
     fetchDocuments();
   }, [projectId]);
 

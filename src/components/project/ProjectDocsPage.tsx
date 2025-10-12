@@ -136,6 +136,15 @@ export const ProjectDocsPage = ({
              (category && doc.document_type?.toLowerCase() === category.id.toLowerCase());
     });
   };
+  
+  // Clear state when projectId changes
+  useEffect(() => {
+    setProject(null);
+    setExpandedCategories({});
+    setCategoryAnalysisProgress({});
+    setActiveAnalysisControllers({});
+  }, [projectId]);
+  
   useEffect(() => {
     if (projectId) {
       const fetchProject = async () => {
