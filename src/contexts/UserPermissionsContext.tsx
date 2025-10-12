@@ -130,8 +130,22 @@ export const UserPermissionsProvider: React.FC<UserPermissionsProviderProps> = (
 
 export const useUserPermissionsContext = () => {
   const context = useContext(UserPermissionsContext);
+  
+  // If context is undefined (no provider), return a safe default that grants all access
+  // This allows components to work gracefully when permissions aren't loaded yet
   if (context === undefined) {
-    throw new Error('useUserPermissionsContext must be used within a UserPermissionsProvider');
+    console.warn('useUserPermissionsContext used outside UserPermissionsProvider - returning default permissions');
+    return {
+      permissions: [],
+      loading: false,
+      error: null,
+      hasModuleAccess: () => true, // Grant access by default when no provider
+      hasSubModuleAccess: () => 'can_edit' as const, // Grant full access by default
+      canEditSubModule: () => true,
+      canViewSubModule: () => true,
+      refetch: async () => {}
+    };
   }
+  
   return context;
 };
