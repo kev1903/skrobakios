@@ -66,7 +66,24 @@ export const ProjectChat = ({ projectId, projectName }: ProjectChatProps) => {
         console.log(`Saving ${messages.length} messages for project ${projectId}`);
         localStorage.setItem(storageKey, JSON.stringify(messages));
       } catch (e) {
-        console.error('Failed to save messages for', projectId, e);
+        // Handle quota exceeded errors gracefully
+        if (e instanceof Error && e.name === 'QuotaExceededError') {
+          console.warn('localStorage quota exceeded, clearing old data');
+          // Try to clear space by removing old project chats
+          try {
+            const keys = Object.keys(localStorage);
+            const projectChatKeys = keys.filter(k => k.startsWith('project-chat-'));
+            // Keep only the 5 most recent project chats
+            const sortedKeys = projectChatKeys.sort().slice(0, -5);
+            sortedKeys.forEach(key => localStorage.removeItem(key));
+            // Try again
+            localStorage.setItem(storageKey, JSON.stringify(messages));
+          } catch (cleanupError) {
+            console.error('Failed to save messages even after cleanup:', cleanupError);
+          }
+        } else {
+          console.error('Failed to save messages for', projectId, e);
+        }
       }
     }
   }, [messages, storageKey, projectId]);

@@ -442,10 +442,26 @@ export const BusinessMapPage = ({
             });
 
             if (hasChanges) {
-              // Save to localStorage for now (could be extended to database)
+              // Save to localStorage with error handling
               const saveKey = `business-map-positions-${currentCompany.id}`;
-              localStorage.setItem(saveKey, JSON.stringify(currentPositions));
-              setLastSavedPositions(currentPositions);
+              try {
+                localStorage.setItem(saveKey, JSON.stringify(currentPositions));
+                setLastSavedPositions(currentPositions);
+              } catch (e) {
+                if (e instanceof Error && e.name === 'QuotaExceededError') {
+                  console.warn('localStorage quota exceeded for map positions');
+                  // Clear old map position data
+                  const keys = Object.keys(localStorage);
+                  const mapKeys = keys.filter(k => k.startsWith('business-map-positions-') && k !== saveKey);
+                  mapKeys.forEach(key => localStorage.removeItem(key));
+                  try {
+                    localStorage.setItem(saveKey, JSON.stringify(currentPositions));
+                    setLastSavedPositions(currentPositions);
+                  } catch (retryError) {
+                    console.error('Failed to save map positions even after cleanup:', retryError);
+                  }
+                }
+              }
               
               // toast.success('Map layout auto-saved', { duration: 1000 });
             }

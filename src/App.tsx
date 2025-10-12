@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -287,6 +287,33 @@ const App = () => {
       },
     },
   }));
+
+  // Cleanup old localStorage data on app init to prevent quota issues
+  useEffect(() => {
+    try {
+      // Remove old chat messages that are now stored in database
+      localStorage.removeItem('aiChatMessages');
+      
+      // Clean up old project chat data (keep only last 5)
+      const keys = Object.keys(localStorage);
+      const projectChatKeys = keys.filter(k => k.startsWith('project-chat-'));
+      if (projectChatKeys.length > 5) {
+        const sortedKeys = projectChatKeys.sort().slice(0, -5);
+        sortedKeys.forEach(key => localStorage.removeItem(key));
+      }
+      
+      // Clean up old cache data
+      const cacheKeys = keys.filter(k => k.includes('_cache') && k !== 'projects_cache');
+      if (cacheKeys.length > 10) {
+        const sortedCacheKeys = cacheKeys.sort().slice(0, -10);
+        sortedCacheKeys.forEach(key => localStorage.removeItem(key));
+      }
+      
+      console.log('localStorage cleanup completed');
+    } catch (e) {
+      console.error('Error during localStorage cleanup:', e);
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

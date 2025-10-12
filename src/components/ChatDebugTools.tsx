@@ -1,21 +1,47 @@
 import React from 'react';
 import { Button } from './ui/button';
-import { Trash2, AlertTriangle } from 'lucide-react';
+import { Trash2, Database } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { safeJsonParse } from '@/utils/secureJson';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCompany } from '@/contexts/CompanyContext';
 
 export function ChatDebugTools() {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const { currentCompany } = useCompany();
 
-  const clearChatHistory = () => {
+  const clearChatHistory = async () => {
     try {
+      if (!user || !currentCompany) {
+        toast({
+          title: "Error",
+          description: "Please log in and select a company first.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Clear from database
+      const { error } = await supabase
+        .from('chat_messages')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('company_id', currentCompany.id);
+
+      if (error) throw error;
+
+      // Clear old localStorage data
       localStorage.removeItem('aiChatMessages');
+      localStorage.removeItem('currentConversationId');
+
       toast({
         title: "Chat history cleared",
-        description: "All stored chat messages have been removed. Please refresh the page.",
+        description: "All chat messages have been removed. Please refresh the page.",
       });
+      
       // Force page reload to reset chat state
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 500);
     } catch (error) {
       console.error('Failed to clear chat history:', error);
       toast({
@@ -26,35 +52,17 @@ export function ChatDebugTools() {
     }
   };
 
-  const inspectChatHistory = () => {
-    const raw = localStorage.getItem('aiChatMessages');
-    if (raw) {
-      const messages = safeJsonParse(raw, { fallback: [] });
-      console.log('Current chat history:', messages);
-        
-      // Check for non-English messages
-      const nonEnglishMessages = messages.filter((m: any) => {
-        return /[^\x00-\x7F]/.test(m.content);
-      });
+  const cleanupLocalStorage = () => {
+    try {
+      // Remove old chat messages that are no longer needed
+      localStorage.removeItem('aiChatMessages');
       
-      if (nonEnglishMessages.length > 0) {
-        console.warn('Found non-English messages:', nonEnglishMessages);
-        toast({
-          title: "Non-English messages detected",
-          description: `Found ${nonEnglishMessages.length} non-English messages in chat history. Check console for details.`,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Chat history clean",
-          description: "No non-English messages found in chat history.",
-        });
-      }
-    } else {
       toast({
-        title: "No chat history",
-        description: "No chat messages found in localStorage.",
+        title: "Storage cleaned",
+        description: "Removed old chat data from localStorage.",
       });
+    } catch (error) {
+      console.error('Failed to cleanup localStorage:', error);
     }
   };
 
