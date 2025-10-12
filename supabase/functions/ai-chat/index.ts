@@ -11,23 +11,35 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper function to get user's active company
+async function getUserActiveCompany(supabase: any, userId: string) {
+  const { data: companyMembers } = await supabase
+    .from('company_members')
+    .select('company_id, companies(name)')
+    .eq('user_id', userId)
+    .eq('status', 'active')
+    .limit(1);
+
+  if (!companyMembers?.length) {
+    return null;
+  }
+
+  return {
+    id: companyMembers[0].company_id,
+    name: companyMembers[0].companies?.name
+  };
+}
+
 // Helper function to get project data
 async function getProjectData(supabase: any, userId: string, projectId?: string) {
   try {
-    // Get user's active company
-    const { data: companyMembers } = await supabase
-      .from('company_members')
-      .select('company_id, companies(name)')
-      .eq('user_id', userId)
-      .eq('status', 'active')
-      .limit(1);
-
-    if (!companyMembers?.length) {
+    const company = await getUserActiveCompany(supabase, userId);
+    if (!company) {
       return { projects: [], tasks: [], costs: [], leads: [], wbsItems: [] };
     }
 
-    const companyId = companyMembers[0].company_id;
-    const companyName = companyMembers[0].companies?.name;
+    const companyId = company.id;
+    const companyName = company.name;
 
     // Get projects
     let projectsQuery = supabase
@@ -140,7 +152,7 @@ serve(async (req) => {
       throw new Error('Invalid JSON in request body');
     }
 
-    const { message, conversation = [], context = {}, imageData, documentContent } = requestBody;
+    const { message, conversation = [], context = {}, imageData, documentContent, conversationId, companyId: requestCompanyId } = requestBody;
 
     if (!message && !imageData && !documentContent) {
       throw new Error('Message, image data, or document content is required');
@@ -148,6 +160,24 @@ serve(async (req) => {
 
     console.log('Processing AI chat request for user:', user.email);
     console.log('Project context:', context);
+
+    // Get user's active company for data isolation
+    const company = await getUserActiveCompany(supabase, user.id);
+    if (!company) {
+      return new Response(
+        JSON.stringify({ error: 'No active company found. Please select a company first.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Ensure the request is for the user's active company
+    const activeCompanyId = requestCompanyId || company.id;
+    if (activeCompanyId !== company.id) {
+      return new Response(
+        JSON.stringify({ error: 'Access denied to this company data' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     // Validate and ensure we have proper project context
     const validProjectId = context.projectId || context.project_id;
@@ -304,12 +334,31 @@ When users request data modifications, use the available database operations to 
       console.warn('Response language detected as potentially non-English');
     }
 
+    // Store the assistant response in database for company-level isolation
+    try {
+      await supabase
+        .from('chat_messages')
+        .insert({
+          user_id: user.id,
+          company_id: activeCompanyId,
+          conversation_id: chatConversationId,
+          content: generatedResponse,
+          role: 'assistant',
+          context: context || {},
+          image_data: null,
+          attachments: []
+        });
+    } catch (error) {
+      console.error('Error storing assistant message:', error);
+      // Continue even if storage fails
+    }
+
     // Log interaction for analytics
     await supabase
       .from('ai_chat_interactions')
       .insert({
         user_id: user.id,
-        company_id: projectData.company ? null : null,
+        company_id: activeCompanyId,
         project_id: validProjectId || null,
         command_text: message,
         response_summary: generatedResponse.substring(0, 200),
@@ -320,7 +369,8 @@ When users request data modifications, use the available database operations to 
 
     return new Response(JSON.stringify({ 
       response: generatedResponse,
-      message: generatedResponse 
+      message: generatedResponse,
+      conversationId: chatConversationId
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

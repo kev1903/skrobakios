@@ -576,6 +576,56 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_messages: {
+        Row: {
+          attachments: Json | null
+          company_id: string
+          content: string
+          context: Json | null
+          conversation_id: string
+          created_at: string
+          id: string
+          image_data: string | null
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          company_id: string
+          content: string
+          context?: Json | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          image_data?: string | null
+          role: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          company_id?: string
+          content?: string
+          context?: Json | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          image_data?: string | null
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commitments: {
         Row: {
           attachments: Json | null

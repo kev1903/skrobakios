@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCompany } from '@/contexts/CompanyContext';
 import { AiChatAuth } from './AiChatAuth';
 import { ChatDebugTools } from './ChatDebugTools';
 import { ChatAttachment, type ChatAttachmentData } from './chat/ChatAttachment';
@@ -49,29 +50,10 @@ export function AiChatSidebar({
   onNavigate,
   fullScreen = false
 }: AiChatSidebarProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    try {
-      const raw = localStorage.getItem('aiChatMessages');
-      if (raw) {
-        const parsed = JSON.parse(raw) as Array<{ id: string; content: string; role: 'user' | 'assistant'; timestamp: string | Date }>;
-        
-        // Filter out any non-English messages to prevent Korean text issues
-        const englishMessages = parsed.filter(m => {
-          const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
-          if (hasNonEnglish) {
-            console.warn('Filtered out non-English message:', m.content.substring(0, 50));
-          }
-          return !hasNonEnglish;
-        });
-        
-        return englishMessages.map(m => ({ ...m, timestamp: new Date(m.timestamp) }));
-      }
-    } catch (e) {
-      console.error('Failed to load chat history', e);
-      // Clear corrupted localStorage
-      localStorage.removeItem('aiChatMessages');
-    }
-    return [];
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [conversationId, setConversationId] = useState<string>(() => {
+    // Try to get from localStorage or generate new
+    return localStorage.getItem('currentConversationId') || crypto.randomUUID();
   });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -87,6 +69,57 @@ export function AiChatSidebar({
     loading,
     isAuthenticated
   } = useAuth();
+  const { currentCompany } = useCompany();
+
+  // Load messages from database based on current company
+  useEffect(() => {
+    const loadMessages = async () => {
+      if (!isAuthenticated || !currentCompany || !user) {
+        setMessages([]);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('chat_messages')
+          .select('*')
+          .eq('company_id', currentCompany.id)
+          .eq('conversation_id', conversationId)
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const loadedMessages = data.map(msg => ({
+            id: msg.id,
+            content: msg.content,
+            role: msg.role as 'user' | 'assistant',
+            timestamp: new Date(msg.created_at),
+            imageData: msg.image_data,
+            attachments: (msg.attachments || []) as unknown as ChatAttachmentData[]
+          }));
+          setMessages(loadedMessages);
+        } else {
+          // No messages, start with welcome message
+          const userName = (userProfile?.first_name && userProfile?.first_name.trim().length > 0)
+            ? userProfile?.first_name
+            : (user.email || 'there');
+          
+          const welcomeMessage: ChatMessage = {
+            id: 'welcome',
+            content: `Hello, ${userName}! How can I assist you with ${currentCompany.name} today?`,
+            role: 'assistant',
+            timestamp: new Date()
+          };
+          setMessages([welcomeMessage]);
+        }
+      } catch (error) {
+        console.error('Error loading messages:', error);
+      }
+    };
+
+    loadMessages();
+  }, [isAuthenticated, currentCompany, conversationId, user, userProfile]);
 
   // Get context from current route and screen
   const getScreenContext = (): ContextData => {
@@ -142,23 +175,10 @@ export function AiChatSidebar({
     }
   }, [isCollapsed, messages.length]);
 
-  // Save messages to localStorage with non-English filtering
+  // Save conversation ID to localStorage
   useEffect(() => {
-    try {
-      // Filter out any non-English messages before saving
-      const englishMessages = messages.filter(m => {
-        const hasNonEnglish = /[^\x00-\x7F]/.test(m.content);
-        if (hasNonEnglish) {
-          console.warn('Preventing storage of non-English message:', m.content.substring(0, 50));
-        }
-        return !hasNonEnglish;
-      });
-      
-      localStorage.setItem('aiChatMessages', JSON.stringify(englishMessages));
-    } catch (e) {
-      console.error('Failed to save messages', e);
-    }
-  }, [messages]);
+    localStorage.setItem('currentConversationId', conversationId);
+  }, [conversationId]);
 
   // Fetch user profile when authenticated
   useEffect(() => {
@@ -214,6 +234,16 @@ export function AiChatSidebar({
   const sendMessage = async (messageText?: string) => {
     const textToSend = messageText || input;
     if (!textToSend.trim() || isLoading) return;
+
+    if (!currentCompany) {
+      toast({
+        title: "No Company Selected",
+        description: "Please select a company before using the chat.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
       content: textToSend,
@@ -244,6 +274,8 @@ export function AiChatSidebar({
           message: currentInput,
           conversation,
           context,
+          conversationId: conversationId,
+          companyId: currentCompany.id,
           imageData: messages[messages.length - 1]?.imageData // Include image data if present
         }
       });
@@ -265,6 +297,12 @@ export function AiChatSidebar({
       if (!data.response || typeof data.response !== 'string') {
         throw new Error('Invalid response format from AI service');
       }
+
+      // Update conversation ID if returned from backend
+      if (data.conversationId) {
+        setConversationId(data.conversationId);
+      }
+
       const aiMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         content: data.response,
@@ -404,26 +442,28 @@ export function AiChatSidebar({
           fullScreen
             ? "w-full h-screen bg-background border-0 shadow-none flex flex-col"
             : "fixed right-0 top-[var(--header-height)] h-[calc(100vh-var(--header-height))] bg-background border-l border-border shadow-lg transition-all duration-300 z-40 flex flex-col",
-          fullScreen ? "w-full" : (isCollapsed ? "w-16" : "w-full max-w-96 md:w-96")
+          fullScreen ? "w-full" : (isCollapsed ? "w-16" : "w-full sm:max-w-sm md:max-w-md lg:max-w-96")
         )}>
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
-           <div className="flex items-center gap-2 overflow-hidden">
-             <Avatar className="h-8 w-8 flex-shrink-0">
+          <div className="flex items-center justify-between p-3 md:p-4 border-b border-border flex-shrink-0">
+           <div className="flex items-center gap-2 overflow-hidden min-w-0">
+             <Avatar className="h-7 w-7 md:h-8 md:w-8 flex-shrink-0">
                <AvatarImage src="/placeholder.svg" />
                <AvatarFallback>
-                 <Bot className="h-4 w-4" />
+                 <Bot className="h-3 w-3 md:h-4 md:w-4" />
                </AvatarFallback>
              </Avatar>
-             <div className="min-w-0">
-               <h3 className="font-semibold text-sm truncate">SkAi</h3>
-               <p className="text-xs text-muted-foreground truncate">Construction Management AI</p>
+             <div className="min-w-0 flex-1">
+               <h3 className="font-semibold text-xs md:text-sm truncate">SkAi</h3>
+               <p className="text-[10px] md:text-xs text-muted-foreground truncate">
+                 {currentCompany?.name || 'Construction Management AI'}
+               </p>
              </div>
            </div>
            {/* Only show toggle when not in full screen mode */}
            {!fullScreen && (
-             <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="h-8 w-8 p-0 flex-shrink-0">
-               {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+             <Button variant="ghost" size="sm" onClick={onToggleCollapse} className="h-7 w-7 md:h-8 md:w-8 p-0 flex-shrink-0">
+               {isCollapsed ? <ChevronLeft className="h-3 w-3 md:h-4 md:w-4" /> : <ChevronRight className="h-3 w-3 md:h-4 md:w-4" />}
              </Button>
            )}
          </div>
@@ -442,136 +482,148 @@ export function AiChatSidebar({
                  </div>
                </div>}
 
-             {/* Show chat interface if authenticated */}
-             {isAuthenticated && !loading && <>
-                 {/* Authentication status indicator */}
-                 {user && <div className="px-4 py-2 border-b border-border bg-muted/50">
-                     <div className="flex items-center gap-2">
-                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                       <span className="text-xs text-muted-foreground">
-                         Signed in as {userProfile?.first_name && userProfile?.last_name 
-                           ? `${userProfile.first_name} ${userProfile.last_name}` 
-                           : user.email}
-                       </span>
-                     </div>
-                   </div>}
+              {/* Show chat interface if authenticated */}
+              {isAuthenticated && !loading && <>
+                  {/* Authentication status indicator */}
+                  {user && currentCompany && <div className="px-3 md:px-4 py-2 border-b border-border bg-muted/50">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></div>
+                        <span className="text-[10px] md:text-xs text-muted-foreground truncate">
+                          {userProfile?.first_name && userProfile?.last_name 
+                            ? `${userProfile.first_name} ${userProfile.last_name}` 
+                            : user.email} • {currentCompany.name}
+                        </span>
+                      </div>
+                    </div>}
 
-                  {/* Messages */}
-                  <div
-                    className={cn("flex-1 overflow-y-auto p-4 space-y-4")}
-                    style={ fullScreen ? { paddingBottom: 'calc(env(safe-area-inset-bottom) + var(--mobile-bottom-bar-height, 80px) + 88px)' } : undefined }
-                  >
-                   {messages.length === 0 && <div className="text-center text-muted-foreground py-8">
-                       <Bot className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                       <p className="text-sm">Hello! I'm Skai, your AI assistant for Skrobaki.</p>
-                       <p className="text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
-                     </div>}
-                   
-                   {messages.map(message => <div key={message.id} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                       {message.role === 'assistant' && <Avatar className="h-8 w-8 flex-shrink-0">
-                           <AvatarFallback>
-                             <Bot className="h-4 w-4" />
-                           </AvatarFallback>
-                         </Avatar>}
-                       
-                        <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
-                          <div className={`rounded-lg p-3 text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
-                            {message.imageData && (
-                              <div className="mb-2">
-                                <img 
-                                  src={message.imageData} 
-                                  alt="Shared photo" 
-                                  className="max-w-48 max-h-48 rounded-lg object-cover"
-                                />
-                              </div>
-                            )}
-                            {message.attachments && message.attachments.length > 0 && (
-                              <div className="mb-2 space-y-2">
-                                {message.attachments.map((attachment) => (
-                                  <ChatAttachment 
-                                    key={attachment.id} 
-                                    attachment={attachment} 
-                                    className="max-w-xs"
-                                  />
-                                ))}
-                              </div>
-                            )}
-                            {message.content}
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1 px-1">
-                            {formatTime(message.timestamp)}
-                          </p>
-                        </div>
-
-                       {message.role === 'user' && <Avatar className="h-8 w-8 flex-shrink-0">
-                           <AvatarFallback>
-                             <User className="h-4 w-4" />
-                           </AvatarFallback>
-                         </Avatar>}
-                     </div>)}
-                   
-                   {isLoading && <div className="flex gap-3">
-                       <Avatar className="h-8 w-8">
-                         <AvatarFallback>
-                           <Bot className="h-4 w-4" />
-                         </AvatarFallback>
-                       </Avatar>
-                       <div className="bg-muted rounded-lg p-3 text-sm">
-                         <div className="flex space-x-1">
-                           <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-                           <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
-                     animationDelay: '0.1s'
-                   }} />
-                           <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{
-                     animationDelay: '0.2s'
-                   }} />
+                   {/* Messages */}
+                   <div
+                     className={cn("flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4")}
+                     style={ fullScreen ? { paddingBottom: 'calc(env(safe-area-inset-bottom) + var(--mobile-bottom-bar-height, 80px) + 88px)' } : undefined }
+                   >
+                    {messages.length === 0 && <div className="text-center text-muted-foreground py-6 md:py-8">
+                        <Bot className="h-10 w-10 md:h-12 md:w-12 mx-auto mb-3 md:mb-4 opacity-50" />
+                        <p className="text-xs md:text-sm">Hello! I'm Skai, your AI assistant for {currentCompany?.name || 'Skrobaki'}.</p>
+                        <p className="text-[10px] md:text-xs mt-1">I can help you with projects, tasks, scheduling, and more!</p>
+                      </div>}
+                    
+                    {messages.map(message => <div key={message.id} className={`flex gap-2 md:gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        {message.role === 'assistant' && <Avatar className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0">
+                            <AvatarFallback>
+                              <Bot className="h-3 w-3 md:h-4 md:w-4" />
+                            </AvatarFallback>
+                          </Avatar>}
+                        
+                         <div className={`max-w-[85%] md:max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
+                           <div className={`rounded-lg p-2 md:p-3 text-xs md:text-sm ${message.role === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'}`}>
+                             {message.imageData && (
+                               <div className="mb-2">
+                                 <img 
+                                   src={message.imageData} 
+                                   alt="Shared photo" 
+                                   className="max-w-32 max-h-32 md:max-w-48 md:max-h-48 rounded-lg object-cover"
+                                 />
+                               </div>
+                             )}
+                             {message.attachments && message.attachments.length > 0 && (
+                               <div className="mb-2 space-y-2">
+                                 {message.attachments.map((attachment) => (
+                                   <ChatAttachment 
+                                     key={attachment.id} 
+                                     attachment={attachment} 
+                                     className="max-w-xs"
+                                   />
+                                 ))}
+                               </div>
+                             )}
+                             <div className="break-words">{message.content}</div>
+                           </div>
+                           <p className="text-[9px] md:text-xs text-muted-foreground mt-1 px-1">
+                             {formatTime(message.timestamp)}
+                           </p>
                          </div>
-                       </div>
-                     </div>}
-                   <div ref={messagesEndRef} />
-                 </div>
 
-                  {/* Input area */}
-                  <div
-                    className={cn(
-                      "absolute left-0 right-0 p-4 border-t border-border bg-background z-40",
-                      "bottom-0"
-                    )}
-                    style={{
-                      bottom: fullScreen
-                        ? 'var(--mobile-bottom-bar-height, 80px)'
-                        : 0
-                    }}
-                  >
-                     <div className="flex gap-2">
-                       <PhotoUploadButton 
-                         onPhotoSelected={handlePhotoSelected}
-                         disabled={isLoading || !isAuthenticated}
-                       />
-                       <Button 
-                         variant="outline" 
-                         size="sm" 
-                         onClick={() => fileInputRef.current?.click()}
-                         disabled={isLoading || !isAuthenticated}
-                         className="flex-shrink-0"
-                       >
-                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                         </svg>
-                       </Button>
-                       <input
-                         ref={fileInputRef}
-                         type="file"
-                         accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.mp4,.mov,.avi"
-                         onChange={handleFileUpload}
-                         className="hidden"
-                       />
-                       <Input value={input} onChange={e => setInput(e.target.value)} onKeyPress={handleKeyPress} placeholder="Ask me anything about your projects..." className="flex-1" disabled={isLoading} />
-                       <Button onClick={() => sendMessage()} disabled={!input.trim() || isLoading || !isAuthenticated} size="sm" className="flex-shrink-0">
-                         <Send className="h-4 w-4" />
-                       </Button>
-                     </div>
+                        {message.role === 'user' && <Avatar className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0">
+                            <AvatarFallback>
+                              <User className="h-3 w-3 md:h-4 md:w-4" />
+                            </AvatarFallback>
+                          </Avatar>}
+                      </div>)}
+                    
+                    {isLoading && <div className="flex gap-2 md:gap-3">
+                        <Avatar className="h-6 w-6 md:h-8 md:w-8">
+                          <AvatarFallback>
+                            <Bot className="h-3 w-3 md:h-4 md:w-4" />
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="bg-muted rounded-lg p-2 md:p-3 text-xs md:text-sm">
+                          <div className="flex space-x-1">
+                            <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full animate-bounce" />
+                            <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full animate-bounce" style={{
+                      animationDelay: '0.1s'
+                    }} />
+                            <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full animate-bounce" style={{
+                      animationDelay: '0.2s'
+                    }} />
+                          </div>
+                        </div>
+                      </div>}
+                    <div ref={messagesEndRef} />
                   </div>
+
+                   {/* Input area */}
+                   <div
+                     className={cn(
+                       "absolute left-0 right-0 p-2 md:p-4 border-t border-border bg-background z-40",
+                       "bottom-0"
+                     )}
+                     style={{
+                       bottom: fullScreen
+                         ? 'var(--mobile-bottom-bar-height, 80px)'
+                         : 0
+                     }}
+                   >
+                      <div className="flex gap-1.5 md:gap-2">
+                        <PhotoUploadButton 
+                          onPhotoSelected={handlePhotoSelected}
+                          disabled={isLoading || !isAuthenticated}
+                        />
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isLoading || !isAuthenticated}
+                          className="flex-shrink-0 h-8 w-8 md:h-9 md:w-9 p-0"
+                        >
+                          <svg className="h-3 w-3 md:h-4 md:w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                          </svg>
+                        </Button>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.mp4,.mov,.avi"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                        />
+                        <Input 
+                          value={input} 
+                          onChange={e => setInput(e.target.value)} 
+                          onKeyPress={handleKeyPress} 
+                          placeholder="Ask me anything..." 
+                          className="flex-1 text-xs md:text-sm h-8 md:h-9" 
+                          disabled={isLoading} 
+                        />
+                        <Button 
+                          onClick={() => sendMessage()} 
+                          disabled={!input.trim() || isLoading || !isAuthenticated} 
+                          size="sm" 
+                          className="flex-shrink-0 h-8 w-8 md:h-9 md:w-9 p-0"
+                        >
+                          <Send className="h-3 w-3 md:h-4 md:w-4" />
+                        </Button>
+                      </div>
+                   </div>
 
          {/* Debug Tools - Only shown when there might be language issues */}
          <ChatDebugTools />
