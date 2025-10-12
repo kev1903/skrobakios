@@ -115,6 +115,15 @@ serve(async (req) => {
       throw new Error('Invalid authentication token');
     }
 
+    // Get user profile for first name
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('first_name, last_name')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    const userName = profile?.first_name || user.email?.split('@')[0] || 'there';
+
     // Parse request body with better error handling
     let requestBody;
     try {
@@ -160,6 +169,9 @@ serve(async (req) => {
 
     // Build enhanced system prompt with project context
     const systemPrompt = `You are SkAI, a professional construction management assistant for Skrobaki. 
+
+USER: ${userName}
+IMPORTANT: When greeting or addressing the user, always use "${userName}" and never use their email address.
 
 RESPONSE STYLE: Be conversational, natural, and concise. Respond like a knowledgeable colleague would - direct, helpful, and to the point. Avoid unnecessary formatting, emojis, or bullet points unless specifically requested.
 
