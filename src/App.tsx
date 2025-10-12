@@ -346,7 +346,8 @@ const AppContent = () => {
   };
 
   const isMobile = useIsMobile();
-  const showMenuBar = user && !isLandingPage && !isAuthPage && !isSignUpPage;
+  const isAiChatPage = location.pathname === "/" && searchParams.get('page') === 'ai-chat';
+  const showMenuBar = user && !isLandingPage && !isAuthPage && !isSignUpPage && !(isMobile && isAiChatPage);
 
   return (
     <AppContextProvider>
