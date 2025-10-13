@@ -16,8 +16,10 @@ import { DocumentEditDialog } from './DocumentEditDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
 import { ProjectKnowledgeStatus } from './ProjectKnowledgeStatus';
 import { DocumentChatBar } from './DocumentChatBar';
+import { CategoryAIConfigDialog } from '../admin/skai/CategoryAIConfigDialog';
+import { ScopeGenerationDialog } from './ScopeGenerationDialog';
 
-import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain } from 'lucide-react';
+import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain, Package } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -70,6 +72,7 @@ export const ProjectDocsPage = ({
   // Selected document for analysis preview
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const [documentChatOpen, setDocumentChatOpen] = useState(false);
+  const [scopeDialogOpen, setScopeDialogOpen] = useState(false);
 
   // Analysis progress tracking
   const [categoryAnalysisProgress, setCategoryAnalysisProgress] = useState<Record<string, {
@@ -992,5 +995,16 @@ export const ProjectDocsPage = ({
 
       {/* Document Edit Dialog */}
       <DocumentEditDialog open={editDocDialogOpen} onOpenChange={setEditDocDialogOpen} document={selectedDocument} onDocumentUpdated={handleDocumentUpdated} onDelete={handleDocumentDelete} />
+
+      {/* Scope Generation Dialog */}
+      {project && (
+        <ScopeGenerationDialog
+          open={scopeDialogOpen}
+          onOpenChange={setScopeDialogOpen}
+          projectId={projectId!}
+          companyId={project.company_id}
+          documents={documents}
+        />
+      )}
     </div>;
 };

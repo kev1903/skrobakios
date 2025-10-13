@@ -83,3 +83,6 @@ verify_jwt = false
 
 [functions.sync-project-knowledge]
 verify_jwt = false
+
+[functions.generate-project-scope]
+verify_jwt = true
