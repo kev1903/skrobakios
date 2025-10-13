@@ -144,6 +144,17 @@ export const ProjectDocsPage = ({
     setCategoryAnalysisProgress({});
     setActiveAnalysisControllers({});
   }, [projectId]);
+
+  // Update category progress when documents change (including real-time updates)
+  useEffect(() => {
+    if (documentCategories.length > 0 && documents.length > 0) {
+      documentCategories.forEach(category => {
+        if (category.dbId) {
+          updateCategoryProgress(category.dbId);
+        }
+      });
+    }
+  }, [documents, documentCategories]);
   
   useEffect(() => {
     if (projectId) {

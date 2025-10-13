@@ -107,6 +107,41 @@ export const useProjectDocuments = (projectId: string | undefined) => {
     fetchDocuments();
   }, [projectId]);
 
+  // Real-time subscription for document updates
+  useEffect(() => {
+    if (!projectId) return;
+
+    const channel = supabase
+      .channel(`project-documents-${projectId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'project_documents',
+          filter: `project_id=eq.${projectId}`
+        },
+        (payload) => {
+          console.log('Document update received:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            setDocuments(prev => [payload.new as ProjectDocument, ...prev]);
+          } else if (payload.eventType === 'UPDATE') {
+            setDocuments(prev => prev.map(doc => 
+              doc.id === payload.new.id ? payload.new as ProjectDocument : doc
+            ));
+          } else if (payload.eventType === 'DELETE') {
+            setDocuments(prev => prev.filter(doc => doc.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [projectId]);
+
   return {
     documents,
     loading,
