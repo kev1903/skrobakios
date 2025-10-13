@@ -899,6 +899,7 @@ export const ProjectDocsPage = ({
           </div>
         </div>
       </div>
+      </div>
 
       {/* Floating Chat Button */}
       {selectedDocumentId && !documentChatOpen && (
