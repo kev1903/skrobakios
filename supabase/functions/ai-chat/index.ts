@@ -341,7 +341,7 @@ When users request data modifications, use the available database operations to 
         .insert({
           user_id: user.id,
           company_id: activeCompanyId,
-          conversation_id: chatConversationId,
+          conversation_id: conversationId,
           content: generatedResponse,
           role: 'assistant',
           context: context || {},
@@ -370,7 +370,7 @@ When users request data modifications, use the available database operations to 
     return new Response(JSON.stringify({ 
       response: generatedResponse,
       message: generatedResponse,
-      conversationId: chatConversationId
+      conversationId: conversationId
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

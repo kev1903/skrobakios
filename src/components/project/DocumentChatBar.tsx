@@ -98,8 +98,8 @@ export const DocumentChatBar = ({ documentId, documentName, documentContent, isO
   }
 
   return (
-    <div className={`fixed bottom-6 right-6 z-50 bg-background border border-border rounded-xl shadow-2xl transition-all duration-300 ${
-      isMinimized ? 'w-96 h-16' : 'w-96 h-[500px]'
+    <div className={`fixed bottom-8 right-8 z-[100] bg-background border-2 border-primary/20 rounded-xl shadow-2xl transition-all duration-300 ${
+      isMinimized ? 'w-96 h-16' : 'w-96 h-[520px]'
     }`}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30 rounded-t-xl">
