@@ -189,6 +189,11 @@ export const ProjectDocsPage = ({
         
         const docId = payload.new.id;
         
+        // Always refetch documents when processing status changes
+        if (payload.new.processing_status) {
+          await refetchDocuments();
+        }
+        
         // Update individual document progress based on processing_status
         if (payload.new.processing_status === 'processing') {
           setDocumentAnalysisProgress(prev => ({
@@ -196,19 +201,20 @@ export const ProjectDocsPage = ({
             [docId]: { analyzing: true, progress: 50 }
           }));
         } else if (payload.new.processing_status === 'completed') {
-          // Set to 100% briefly before removing
+          // Set to 100% and then remove
           setDocumentAnalysisProgress(prev => ({
             ...prev,
             [docId]: { analyzing: true, progress: 100 }
           }));
           
-          // Remove progress indicator after animation
-          setTimeout(() => {
+          // Remove progress indicator and refetch
+          setTimeout(async () => {
             setDocumentAnalysisProgress(prev => {
               const newState = { ...prev };
               delete newState[docId];
               return newState;
             });
+            await refetchDocuments(); // Ensure UI is fully updated
           }, 1000);
         } else if (payload.new.processing_status === 'failed') {
           setDocumentAnalysisProgress(prev => {
@@ -216,15 +222,15 @@ export const ProjectDocsPage = ({
             delete newState[docId];
             return newState;
           });
+          await refetchDocuments();
         }
         
-        // Update progress when documents are analyzed
+        // Update category progress when documents are analyzed
         if (payload.new.ai_summary && payload.new.ai_summary.trim().length > 0) {
           // Recalculate progress for affected category
-          const documentType = payload.new.document_type;
-          if (documentType) {
-            await refetchDocuments(); // Refresh document list
-            await updateCategoryProgress(documentType);
+          const categoryId = payload.new.category_id || payload.new.document_type;
+          if (categoryId) {
+            await updateCategoryProgress(categoryId);
 
             // Show success toast
             toast({
@@ -402,11 +408,16 @@ export const ProjectDocsPage = ({
         throw new Error(data?.error || 'Analysis failed');
       }
       
-      // Update progress to show processing
+      // Update progress to show processing - real-time subscription will update to 100%
       setDocumentAnalysisProgress(prev => ({
         ...prev,
         [documentId]: { analyzing: true, progress: 75 }
       }));
+      
+      // Refetch to ensure UI updates
+      setTimeout(async () => {
+        await refetchDocuments();
+      }, 2000);
       
       toast({
         title: 'Analysis Started',
