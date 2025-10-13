@@ -616,7 +616,7 @@ export const ProjectDocsPage = ({
         {/* Header Section */}
         <ProjectPageHeader projectName={project.name} pageTitle="Project Documents & Links" onNavigate={onNavigate} />
         
-        <div className="p-6 flex gap-6 min-h-[calc(100vh-180px)]">
+        <div className="p-6 flex gap-6 h-[calc(100vh-180px)]">
           {/* Left Column - Project Docs & Links */}
           <div className="flex-1 pr-6 max-w-[50%]">
             <Tabs defaultValue="docs" className="w-full">
@@ -887,8 +887,8 @@ export const ProjectDocsPage = ({
         <div className="w-px bg-border self-stretch" />
 
         {/* Right Column - SkAI Project Study Preview */}
-        <div className="flex-1 pl-6 max-w-[50%] flex flex-col">
-          <div className="flex-1 overflow-auto mb-4">
+        <div className="flex-1 pl-6 max-w-[50%] flex flex-col h-full">
+          <div className="flex-1 overflow-auto mb-4 min-h-0">
             <ProjectKnowledgeStatus 
               projectId={projectId!} 
               companyId={project.company_id} 
@@ -898,7 +898,7 @@ export const ProjectDocsPage = ({
           </div>
           
           {selectedDocumentId && (
-            <div className="h-[400px] border border-border rounded-lg overflow-hidden">
+            <div className="h-[400px] border border-border rounded-lg overflow-hidden flex-shrink-0">
               <DocumentChatBar
                 documentId={selectedDocumentId}
                 documentName={documents.find(d => d.id === selectedDocumentId)?.name || 'Document'}
