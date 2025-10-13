@@ -677,10 +677,10 @@ export const ProjectDocsPage = ({
                                           e.stopPropagation();
                                           handleAnalyzeDocument(doc.id, doc.name);
                                         }} 
-                                        className="h-7 w-7 p-0 text-primary hover:text-primary/80"
+                                        className="h-7 w-7 p-0 text-primary hover:text-primary/80 hover:scale-110 transition-all duration-200"
                                         title="Re-analyze with SkAi"
                                       >
-                                        <RotateCw className="h-3.5 w-3.5" />
+                                        <Sparkles className="h-3.5 w-3.5 animate-pulse" />
                                       </Button>
                                       <Button 
                                         variant="ghost" 
