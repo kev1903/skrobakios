@@ -67,15 +67,34 @@ serve(async (req) => {
     if (isVisualDocument && requestData.data.file_url) {
       try {
         console.log('Downloading visual document for analysis:', requestData.data.file_url);
-        const fileResponse = await fetch(requestData.data.file_url);
         
-        if (fileResponse.ok) {
-          const fileBuffer = await fileResponse.arrayBuffer();
-          const uint8Array = new Uint8Array(fileBuffer);
-          documentImageBase64 = btoa(String.fromCharCode(...uint8Array));
-          console.log('Successfully converted document to base64 for vision analysis');
+        // Extract storage path from the public URL
+        // URL format: https://PROJECT.supabase.co/storage/v1/object/public/BUCKET/PATH
+        const urlParts = requestData.data.file_url.split('/storage/v1/object/public/');
+        if (urlParts.length === 2) {
+          const pathParts = urlParts[1].split('/');
+          const bucket = pathParts[0];
+          const path = pathParts.slice(1).join('/');
+          
+          console.log(`Downloading from storage: bucket=${bucket}, path=${decodeURIComponent(path)}`);
+          
+          // Download file using Supabase storage client
+          const { data: fileData, error: downloadError } = await supabase
+            .storage
+            .from(bucket)
+            .download(decodeURIComponent(path));
+          
+          if (downloadError) {
+            console.error('Supabase storage download error:', downloadError);
+          } else if (fileData) {
+            // Convert blob to base64
+            const fileBuffer = await fileData.arrayBuffer();
+            const uint8Array = new Uint8Array(fileBuffer);
+            documentImageBase64 = btoa(String.fromCharCode(...uint8Array));
+            console.log(`Successfully converted document to base64 (${fileData.size} bytes)`);
+          }
         } else {
-          console.warn('Failed to download document:', fileResponse.status);
+          console.warn('Could not parse storage URL:', requestData.data.file_url);
         }
       } catch (downloadError) {
         console.error('Error downloading document for vision analysis:', downloadError);
