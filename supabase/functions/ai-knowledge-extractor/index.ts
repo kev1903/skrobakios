@@ -50,13 +50,37 @@ serve(async (req) => {
       type: requestData.type,
       projectId: requestData.projectId,
       projectName: requestData.projectName,
-      categoryId: requestData.categoryId
+      categoryId: requestData.categoryId,
+      contentType: requestData.data.content_type
     });
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Check if document is visual (image or PDF) and download it
+    let documentImageBase64: string | null = null;
+    const isVisualDocument = requestData.data.content_type?.startsWith('image/') || 
+                             requestData.data.content_type === 'application/pdf';
+    
+    if (isVisualDocument && requestData.data.file_url) {
+      try {
+        console.log('Downloading visual document for analysis:', requestData.data.file_url);
+        const fileResponse = await fetch(requestData.data.file_url);
+        
+        if (fileResponse.ok) {
+          const fileBuffer = await fileResponse.arrayBuffer();
+          const uint8Array = new Uint8Array(fileBuffer);
+          documentImageBase64 = btoa(String.fromCharCode(...uint8Array));
+          console.log('Successfully converted document to base64 for vision analysis');
+        } else {
+          console.warn('Failed to download document:', fileResponse.status);
+        }
+      } catch (downloadError) {
+        console.error('Error downloading document for vision analysis:', downloadError);
+      }
+    }
 
     let systemPrompt = '';
     let userPrompt = '';
@@ -96,8 +120,53 @@ serve(async (req) => {
           systemPrompt += `\n\n## Framework:\n${categoryConfig.ai_framework}`;
         }
       } else {
-        // Default prompt if no category config
-        systemPrompt = `You are an expert construction project analyst specializing in technical drawings, specifications, and project documentation. Extract comprehensive knowledge from construction documents.
+        // Default prompt with enhanced vision analysis capabilities
+        if (documentImageBase64) {
+          systemPrompt = `You are an expert construction project analyst with advanced visual analysis capabilities. You specialize in analyzing technical drawings, floor plans, elevations, sections, site plans, and construction documentation.
+
+When analyzing visual documents (drawings, plans, diagrams), extract:
+
+1. **Drawing Information**:
+   - Drawing type (floor plan, elevation, section, detail, site plan)
+   - Scale and dimensions (measure and extract all dimensions shown)
+   - Drawing number and revision details
+   - Title block information
+
+2. **Spatial Analysis**:
+   - Room names, numbers, and purposes
+   - Room dimensions and areas
+   - Door and window locations with sizes
+   - Wall types and thicknesses
+   - Circulation paths and access points
+
+3. **Technical Details**:
+   - Materials specified (finishes, structural elements)
+   - Symbols and their meanings
+   - Annotations and notes
+   - Grid lines and references
+   - Level markers and heights
+
+4. **Construction Elements**:
+   - Structural systems visible
+   - MEP (Mechanical, Electrical, Plumbing) elements shown
+   - Special features or equipment
+   - Construction methods indicated
+
+5. **Compliance & Standards**:
+   - Building codes referenced
+   - Accessibility requirements
+   - Fire safety elements
+   - Australian Standards (AS) mentioned
+
+6. **Key Insights**:
+   - Critical design decisions
+   - Potential construction challenges
+   - Coordination points with other trades
+   - Important specifications or requirements
+
+Format your response as structured markdown with clear sections. Be extremely detailed and extract ALL visible information from the drawing.`;
+        } else {
+          systemPrompt = `You are an expert construction project analyst specializing in technical drawings, specifications, and project documentation. Extract comprehensive knowledge from construction documents.
 
 Your task is to analyze the document and provide:
 1. **Key Specifications**: Materials, dimensions, standards, codes
@@ -109,6 +178,7 @@ Your task is to analyze the document and provide:
 7. **Technical Details**: Specific requirements, tolerances, quality criteria
 
 Format your response as structured markdown with clear sections. Be specific and reference exact details from the document.`;
+        }
       }
 
       const documentInfo = `
@@ -122,10 +192,44 @@ ${requestData.data.extracted_text
   : 'Note: This document has not been OCR processed yet. Analyze based on the file name, type, and metadata provided above.'}
 `;
 
-      userPrompt = `Analyze this construction project document for project "${requestData.projectName}":\n\n${documentInfo}\n\nProvide comprehensive knowledge extraction as structured markdown.`;
+      if (documentImageBase64) {
+        userPrompt = `Analyze this construction drawing/visual document for project "${requestData.projectName}".
+
+The document is provided as an image. Perform a comprehensive visual analysis and extract ALL information visible in the drawing.
+
+Document Metadata:
+${documentInfo}
+
+Provide a detailed analysis of everything you can see in the drawing, including dimensions, room names, annotations, symbols, materials, and any technical specifications visible.`;
+      } else {
+        userPrompt = `Analyze this construction project document for project "${requestData.projectName}":\n\n${documentInfo}\n\nProvide comprehensive knowledge extraction as structured markdown.`;
+      }
     }
 
-    console.log('Calling Lovable AI with Gemini 2.5 Flash...');
+    console.log('Calling Lovable AI with Gemini 2.5 Flash (vision-enabled)...');
+    
+    // Build messages array with vision support
+    const messages: any[] = [
+      { role: 'system', content: systemPrompt }
+    ];
+
+    // If we have an image, send it with the user message
+    if (documentImageBase64) {
+      messages.push({
+        role: 'user',
+        content: [
+          { type: 'text', text: userPrompt },
+          { 
+            type: 'image_url', 
+            image_url: { 
+              url: `data:${requestData.data.content_type || 'image/png'};base64,${documentImageBase64}` 
+            } 
+          }
+        ]
+      });
+    } else {
+      messages.push({ role: 'user', content: userPrompt });
+    }
     
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -135,10 +239,7 @@ ${requestData.data.extracted_text
       },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ]
+        messages: messages
       }),
     });
 
