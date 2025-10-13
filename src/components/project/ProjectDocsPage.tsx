@@ -733,10 +733,12 @@ export const ProjectDocsPage = ({
                                         ? 'bg-primary/10 border-l-2 border-primary' 
                                         : 'hover:bg-accent/50'
                                     }`}
-                                    onClick={() => {
-                                      // Select document to show its analysis
-                                      setSelectedDocumentId(doc.id);
-                                    }}
+                                     onClick={() => {
+                                       // Select document to show its analysis
+                                       console.log('📄 Document clicked:', doc.id, doc.name);
+                                       setSelectedDocumentId(doc.id);
+                                       setDocumentChatOpen(true); // Auto-open chat when document is clicked
+                                     }}
                                   >
                                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                       <FileText className="h-4 w-4 text-primary/70 flex-shrink-0" />
