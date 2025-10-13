@@ -22,6 +22,7 @@ interface DocumentUploadProps {
 
 interface DocumentMetadata {
   title: string;
+  documentNumber: string;
   version: string;
   author: string;
   date: string;
@@ -59,6 +60,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
       status: 'pending',
       metadata: {
         title: file.name,
+        documentNumber: '',
         version: '1.0',
         author: '',
         date: new Date().toISOString().split('T')[0],
@@ -143,6 +145,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
           document_type: uploadFile.metadata?.type || 'drawing',
           created_by: (await supabase.auth.getUser()).data.user?.id,
           metadata: {
+            documentNumber: uploadFile.metadata?.documentNumber,
             version: uploadFile.metadata?.version,
             author: uploadFile.metadata?.author,
             date: uploadFile.metadata?.date,
@@ -265,6 +268,17 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({ projectId, onUpl
                       onChange={(e) => handleMetadataUpdate(file.id, 'title', e.target.value)}
                       className="w-full px-2.5 py-1.5 text-sm border rounded-md bg-background"
                       placeholder="Enter document title"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium">Document Number</label>
+                    <input
+                      type="text"
+                      value={file.metadata?.documentNumber || ''}
+                      onChange={(e) => handleMetadataUpdate(file.id, 'documentNumber', e.target.value)}
+                      className="w-full px-2.5 py-1.5 text-sm border rounded-md bg-background"
+                      placeholder="e.g., A000, SK-001"
                     />
                   </div>
                   
