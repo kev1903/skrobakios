@@ -9,6 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 interface KnowledgeStatusProps {
   projectId: string;
   companyId: string;
+  selectedDocumentId?: string | null;
+  onClearSelection?: () => void;
 }
 
 interface SyncJob {
@@ -39,7 +41,7 @@ interface ChatMessage {
   timestamp: Date;
 }
 
-export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatusProps) => {
+export const ProjectKnowledgeStatus = ({ projectId, companyId, selectedDocumentId, onClearSelection }: KnowledgeStatusProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
@@ -136,9 +138,40 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatus
 
   return (
     <Card className="backdrop-blur-xl bg-background border border-border rounded-lg shadow-sm flex flex-col h-[600px]">
+      {selectedDocumentId && (
+        <div className="px-4 py-3 border-b border-border bg-accent/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-primary" />
+              <p className="text-sm font-medium text-foreground">
+                Viewing document analysis
+              </p>
+            </div>
+            <button
+              onClick={onClearSelection}
+              className="text-xs text-primary hover:underline cursor-pointer"
+            >
+              Show All
+            </button>
+          </div>
+        </div>
+      )}
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
-          {messages.map((message) => (
+          {messages
+            .filter((message) => {
+              // Always show system messages if no document is selected
+              if (message.type === 'system') return !selectedDocumentId;
+              
+              // If a document is selected, only show that document's analysis
+              if (selectedDocumentId) {
+                return message.id === selectedDocumentId;
+              }
+              
+              // Otherwise show all analysis messages
+              return true;
+            })
+            .map((message) => (
             <div key={message.id} className="flex gap-3">
               {message.type === 'system' ? (
                 <div className="flex gap-3 w-full">

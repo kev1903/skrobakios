@@ -65,6 +65,9 @@ export const ProjectDocsPage = ({
   // Document edit dialog state
   const [editDocDialogOpen, setEditDocDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<any | undefined>();
+  
+  // Selected document for analysis preview
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
 
   // Analysis progress tracking
   const [categoryAnalysisProgress, setCategoryAnalysisProgress] = useState<Record<string, {
@@ -635,25 +638,69 @@ export const ProjectDocsPage = ({
                               </div>}
                           
                             {categoryDocs.length > 0 ? <div className="space-y-1">
-                                {categoryDocs.map(doc => <div key={doc.id} className="group flex items-center justify-between p-2 rounded hover:bg-accent/50 transition-all duration-200">
+                                {categoryDocs.map(doc => <div 
+                                    key={doc.id} 
+                                    className={`group flex items-center justify-between p-2 rounded transition-all duration-200 cursor-pointer ${
+                                      selectedDocumentId === doc.id 
+                                        ? 'bg-primary/10 border-l-2 border-primary' 
+                                        : 'hover:bg-accent/50'
+                                    }`}
+                                    onClick={() => {
+                                      // Select document to show its analysis
+                                      setSelectedDocumentId(doc.id);
+                                    }}
+                                  >
                                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
                                       <FileText className="h-4 w-4 text-primary/70 flex-shrink-0" />
                                       <div className="min-w-0 flex-1">
-                                        <p className="text-sm text-foreground truncate cursor-pointer hover:text-primary transition-colors" onClick={() => handleDocumentClick(doc)}>
+                                        <p className="text-sm text-foreground truncate">
                                           {doc.name}
                                         </p>
                                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                           <span>{formatFileSize(doc.file_size)}</span>
                                           <span>•</span>
                                           <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+                                          {doc.ai_summary && (
+                                            <>
+                                              <span>•</span>
+                                              <CheckCircle2 className="h-3 w-3 text-green-600" />
+                                            </>
+                                          )}
                                         </div>
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                      <Button variant="ghost" size="sm" onClick={() => window.open(doc.file_url, '_blank')} className="h-7 w-7 p-0">
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDocumentClick(doc);
+                                        }} 
+                                        className="h-7 w-7 p-0"
+                                      >
+                                        <Edit className="h-3.5 w-3.5" />
+                                      </Button>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          window.open(doc.file_url, '_blank');
+                                        }} 
+                                        className="h-7 w-7 p-0"
+                                      >
                                         <Download className="h-3.5 w-3.5" />
                                       </Button>
-                                      <Button variant="ghost" size="sm" onClick={() => deleteDocument(doc.id)} className="h-7 w-7 p-0 text-destructive hover:text-destructive">
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          deleteDocument(doc.id);
+                                        }} 
+                                        className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                                      >
                                         <Trash2 className="h-3.5 w-3.5" />
                                       </Button>
                                     </div>
@@ -725,7 +772,12 @@ export const ProjectDocsPage = ({
         <div className="flex-1 pl-6 max-w-[50%]">
           
 
-          <ProjectKnowledgeStatus projectId={projectId!} companyId={project.company_id} />
+          <ProjectKnowledgeStatus 
+            projectId={projectId!} 
+            companyId={project.company_id} 
+            selectedDocumentId={selectedDocumentId}
+            onClearSelection={() => setSelectedDocumentId(null)}
+          />
         </div>
       </div>
       </div>
