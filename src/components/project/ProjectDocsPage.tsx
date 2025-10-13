@@ -15,6 +15,7 @@ import { DocumentUpload } from '../project-documents/DocumentUpload';
 import { DocumentEditDialog } from './DocumentEditDialog';
 import { ProjectPageHeader } from './ProjectPageHeader';
 import { ProjectKnowledgeStatus } from './ProjectKnowledgeStatus';
+import { DocumentChatBar } from './DocumentChatBar';
 
 import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
@@ -886,15 +887,25 @@ export const ProjectDocsPage = ({
         <div className="w-px bg-border self-stretch" />
 
         {/* Right Column - SkAI Project Study Preview */}
-        <div className="flex-1 pl-6 max-w-[50%]">
+        <div className="flex-1 pl-6 max-w-[50%] flex flex-col">
+          <div className="flex-1 overflow-auto mb-4">
+            <ProjectKnowledgeStatus 
+              projectId={projectId!} 
+              companyId={project.company_id} 
+              selectedDocumentId={selectedDocumentId}
+              onClearSelection={() => setSelectedDocumentId(null)}
+            />
+          </div>
           
-
-          <ProjectKnowledgeStatus 
-            projectId={projectId!} 
-            companyId={project.company_id} 
-            selectedDocumentId={selectedDocumentId}
-            onClearSelection={() => setSelectedDocumentId(null)}
-          />
+          {selectedDocumentId && (
+            <div className="h-[400px] border border-border rounded-lg overflow-hidden">
+              <DocumentChatBar
+                documentId={selectedDocumentId}
+                documentName={documents.find(d => d.id === selectedDocumentId)?.name || 'Document'}
+                documentContent={documents.find(d => d.id === selectedDocumentId)?.ai_summary || undefined}
+              />
+            </div>
+          )}
         </div>
       </div>
       </div>
