@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Sparkles } from "lucide-react";
+import { Send, Sparkles, X, Minimize2, Maximize2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,9 +17,12 @@ interface DocumentChatBarProps {
   documentId: string;
   documentName: string;
   documentContent?: string;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export const DocumentChatBar = ({ documentId, documentName, documentContent }: DocumentChatBarProps) => {
+export const DocumentChatBar = ({ documentId, documentName, documentContent, isOpen, onClose }: DocumentChatBarProps) => {
+  const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -90,75 +93,105 @@ export const DocumentChatBar = ({ documentId, documentName, documentContent }: D
     }
   };
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <div className="flex flex-col h-full border-t border-border bg-muted/20">
-      {/* Chat Header */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-background/50">
-        <Sparkles className="w-4 h-4 text-primary" />
-        <span className="text-sm font-medium">Chat with SkAi about this document</span>
-      </div>
-
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-4 max-h-[300px]">
-        <div className="space-y-3">
-          {messages.length === 0 && (
-            <div className="text-center text-muted-foreground text-sm py-6">
-              <Sparkles className="w-6 h-6 mx-auto mb-2 opacity-50" />
-              <p>Ask SkAi anything about this document</p>
-            </div>
-          )}
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[85%] p-3 rounded-lg text-sm ${
-                  message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-background border border-border'
-                }`}
-              >
-                {message.content}
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-background border border-border p-3 rounded-lg text-sm">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                </div>
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
+    <div className={`fixed bottom-6 right-6 z-50 bg-background border border-border rounded-xl shadow-2xl transition-all duration-300 ${
+      isMinimized ? 'w-96 h-16' : 'w-96 h-[500px]'
+    }`}>
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30 rounded-t-xl">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium">Chat about {documentName}</span>
         </div>
-      </ScrollArea>
-
-      {/* Input */}
-      <div className="p-4 border-t border-border bg-background">
-        <div className="flex space-x-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Ask about this document..."
-            disabled={isLoading}
-            className="flex-1"
-          />
+        <div className="flex items-center space-x-1">
           <Button
-            onClick={sendMessage}
-            disabled={!input.trim() || isLoading}
+            variant="ghost"
             size="sm"
-            className="px-3"
+            onClick={() => setIsMinimized(!isMinimized)}
+            className="w-8 h-8 p-0"
           >
-            <Send className="w-4 h-4" />
+            {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="w-8 h-8 p-0"
+          >
+            <X className="w-4 h-4" />
           </Button>
         </div>
       </div>
+
+      {!isMinimized && (
+        <>
+          {/* Messages */}
+          <ScrollArea className="h-[calc(100%-120px)] p-4">
+            <div className="space-y-3">
+              {messages.length === 0 && (
+                <div className="text-center text-muted-foreground text-sm py-6">
+                  <Sparkles className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                  <p>Ask SkAi anything about this document</p>
+                </div>
+              )}
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[85%] p-3 rounded-lg text-sm ${
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-background border border-border'
+                    }`}
+                  >
+                    {message.content}
+                  </div>
+                </div>
+              ))}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-background border border-border p-3 rounded-lg text-sm">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+
+          {/* Input */}
+          <div className="p-4 border-t border-border bg-background">
+            <div className="flex space-x-2">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask about this document..."
+                disabled={isLoading}
+                className="flex-1"
+              />
+              <Button
+                onClick={sendMessage}
+                disabled={!input.trim() || isLoading}
+                size="sm"
+                className="px-3"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

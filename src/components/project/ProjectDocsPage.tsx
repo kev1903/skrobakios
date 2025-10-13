@@ -69,6 +69,7 @@ export const ProjectDocsPage = ({
   
   // Selected document for analysis preview
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [documentChatOpen, setDocumentChatOpen] = useState(false);
 
   // Analysis progress tracking
   const [categoryAnalysisProgress, setCategoryAnalysisProgress] = useState<Record<string, {
@@ -888,7 +889,7 @@ export const ProjectDocsPage = ({
 
         {/* Right Column - SkAI Project Study Preview */}
         <div className="flex-1 pl-6 max-w-[50%] flex flex-col h-full">
-          <div className="flex-1 overflow-auto mb-4 min-h-0">
+          <div className="flex-1 overflow-auto">
             <ProjectKnowledgeStatus 
               projectId={projectId!} 
               companyId={project.company_id} 
@@ -896,19 +897,32 @@ export const ProjectDocsPage = ({
               onClearSelection={() => setSelectedDocumentId(null)}
             />
           </div>
-          
-          {selectedDocumentId && (
-            <div className="h-[400px] border border-border rounded-lg overflow-hidden flex-shrink-0">
-              <DocumentChatBar
-                documentId={selectedDocumentId}
-                documentName={documents.find(d => d.id === selectedDocumentId)?.name || 'Document'}
-                documentContent={documents.find(d => d.id === selectedDocumentId)?.ai_summary || undefined}
-              />
-            </div>
-          )}
         </div>
       </div>
-      </div>
+
+      {/* Floating Chat Button */}
+      {selectedDocumentId && !documentChatOpen && (
+        <div className="fixed bottom-6 right-6 z-40">
+          <Button
+            onClick={() => setDocumentChatOpen(true)}
+            size="lg"
+            className="rounded-full w-14 h-14 shadow-lg hover:scale-105 transition-transform bg-primary hover:bg-primary/90"
+          >
+            <Sparkles className="w-6 h-6" />
+          </Button>
+        </div>
+      )}
+
+      {/* Floating Document Chat */}
+      {selectedDocumentId && (
+        <DocumentChatBar
+          documentId={selectedDocumentId}
+          documentName={documents.find(d => d.id === selectedDocumentId)?.name || 'Document'}
+          documentContent={documents.find(d => d.id === selectedDocumentId)?.ai_summary || undefined}
+          isOpen={documentChatOpen}
+          onClose={() => setDocumentChatOpen(false)}
+        />
+      )}
 
       {/* Document Upload Dialog */}
       <DocumentUpload open={uploadDialogOpen} onOpenChange={setUploadDialogOpen} projectId={projectId || undefined} onUploadComplete={async () => {
