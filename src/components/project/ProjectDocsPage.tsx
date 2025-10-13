@@ -648,8 +648,23 @@ export const ProjectDocsPage = ({
 
             {/* Project Docs Tab */}
             <TabsContent value="docs">
-              <div className="mb-4">
+              <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-foreground">Document Categories</h2>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setScopeDialogOpen(true)}
+                    disabled={documents.filter(d => d.processing_status === 'completed' && (d as any).metadata).length === 0}
+                    className="gap-2"
+                  >
+                    <Package className="w-4 h-4" />
+                    Generate Scope
+                  </Button>
+                  <Button onClick={() => setUploadDialogOpen(true)} className="gap-2">
+                    <Upload className="w-4 h-4" />
+                    Upload Documents
+                  </Button>
+                </div>
               </div>
               <div className="space-y-4">
                 {documentCategories.map(category => {
