@@ -675,6 +675,18 @@ export const ProjectDocsPage = ({
                                         size="sm" 
                                         onClick={(e) => {
                                           e.stopPropagation();
+                                          handleAnalyzeDocument(doc.id, doc.name);
+                                        }} 
+                                        className="h-7 w-7 p-0 text-primary hover:text-primary/80"
+                                        title="Re-analyze with SkAi"
+                                      >
+                                        <RotateCw className="h-3.5 w-3.5" />
+                                      </Button>
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           handleDocumentClick(doc);
                                         }} 
                                         className="h-7 w-7 p-0"
