@@ -189,26 +189,46 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId, selectedDocumentI
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="bg-card border border-border rounded-lg p-4 space-y-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-start gap-2 min-w-0 flex-1">
-                          <FileText className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                          <div className="min-w-0 flex-1">
-                            <h4 className="text-sm font-semibold text-foreground truncate">
-                              {message.documentName}
-                            </h4>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline" className="text-xs">
-                                {message.documentType || 'document'}
-                              </Badge>
-                              {message.confidence && message.confidence > 0 && (
-                                <span className="text-xs text-muted-foreground">
-                                  {Math.round(message.confidence * 100)}% confidence
-                                </span>
-                              )}
-                            </div>
-                          </div>
+                      {/* Document Summary Section */}
+                      <div className="bg-accent/30 border border-border/50 rounded-md p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-base font-semibold text-foreground">
+                            {message.documentName}
+                          </h4>
+                          <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
                         </div>
-                        <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground font-medium">Type:</span>
+                            <Badge variant="outline" className="text-xs">
+                              {message.documentType || 'Document'}
+                            </Badge>
+                          </div>
+                          {message.metadata?.author && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-muted-foreground font-medium">Author:</span>
+                              <span className="text-foreground text-xs">
+                                {message.metadata.author}
+                              </span>
+                            </div>
+                          )}
+                          {message.metadata?.date && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-muted-foreground font-medium">Date:</span>
+                              <span className="text-foreground text-xs">
+                                {message.metadata.date}
+                              </span>
+                            </div>
+                          )}
+                          {message.confidence && message.confidence > 0 && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-muted-foreground font-medium">Confidence:</span>
+                              <span className="text-foreground text-xs">
+                                {Math.round(message.confidence * 100)}%
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       <div className="space-y-3">
@@ -249,25 +269,11 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId, selectedDocumentI
                         })}
                       </div>
 
-                      {message.metadata && Object.keys(message.metadata).length > 0 && (
+                      {message.metadata?.status && (
                         <div className="pt-2 border-t border-border">
-                          <div className="flex flex-wrap gap-2">
-                            {message.metadata.date && (
-                              <Badge variant="secondary" className="text-xs">
-                                📅 {message.metadata.date}
-                              </Badge>
-                            )}
-                            {message.metadata.status && (
-                              <Badge variant="secondary" className="text-xs">
-                                {message.metadata.status}
-                              </Badge>
-                            )}
-                            {message.metadata.author && (
-                              <Badge variant="secondary" className="text-xs">
-                                👤 {message.metadata.author}
-                              </Badge>
-                            )}
-                          </div>
+                          <Badge variant="secondary" className="text-xs">
+                            {message.metadata.status}
+                          </Badge>
                         </div>
                       )}
 
