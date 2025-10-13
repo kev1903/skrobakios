@@ -214,14 +214,38 @@ Please provide a detailed analysis of this document focusing on construction pro
 
     console.log("AI analysis completed, updating document...");
 
-    // Update the document with AI summary
+    // Prepare update object
+    const updateData: any = {
+      ai_summary: aiSummary,
+      processing_status: 'completed',
+      updated_at: new Date().toISOString()
+    };
+
+    // Check if we got structured data from tool calling (for visual documents)
+    const message = aiResult.choices[0].message;
+    if (message.tool_calls && message.tool_calls.length > 0) {
+      const toolCall = message.tool_calls[0];
+      if (toolCall.function?.name === 'extract_drawing_data') {
+        try {
+          const structuredData = JSON.parse(toolCall.function.arguments);
+          console.log('Saving structured drawing data to metadata:', {
+            drawing_type: structuredData?.drawing_info?.type,
+            spaces_count: structuredData?.spaces?.length || 0,
+            scope_items_count: structuredData?.construction_scope?.length || 0
+          });
+          
+          // Store structured data in metadata field
+          updateData.metadata = structuredData;
+        } catch (parseError) {
+          console.error('Failed to parse structured data:', parseError);
+        }
+      }
+    }
+
+    // Update the document with AI summary and optional structured data
     const { error: updateError } = await supabase
       .from("project_documents")
-      .update({
-        ai_summary: aiSummary,
-        processing_status: 'completed',
-        updated_at: new Date().toISOString()
-      })
+      .update(updateData)
       .eq("id", documentId);
 
     if (updateError) {
