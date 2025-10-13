@@ -76,6 +76,12 @@ export const ProjectDocsPage = ({
     total: number;
   }>>({});
   const [activeAnalysisControllers, setActiveAnalysisControllers] = useState<Record<string, AbortController>>({});
+  
+  // Individual document analysis progress
+  const [documentAnalysisProgress, setDocumentAnalysisProgress] = useState<Record<string, {
+    analyzing: boolean;
+    progress: number;
+  }>>({});
 
 
   // Document categories - loaded from database
@@ -178,6 +184,38 @@ export const ProjectDocsPage = ({
         filter: `project_id=eq.${projectId}`
       }, async payload => {
         console.log('Document update received:', payload);
+        
+        const docId = payload.new.id;
+        
+        // Update individual document progress based on processing_status
+        if (payload.new.processing_status === 'processing') {
+          setDocumentAnalysisProgress(prev => ({
+            ...prev,
+            [docId]: { analyzing: true, progress: 50 }
+          }));
+        } else if (payload.new.processing_status === 'completed') {
+          // Set to 100% briefly before removing
+          setDocumentAnalysisProgress(prev => ({
+            ...prev,
+            [docId]: { analyzing: true, progress: 100 }
+          }));
+          
+          // Remove progress indicator after animation
+          setTimeout(() => {
+            setDocumentAnalysisProgress(prev => {
+              const newState = { ...prev };
+              delete newState[docId];
+              return newState;
+            });
+          }, 1000);
+        } else if (payload.new.processing_status === 'failed') {
+          setDocumentAnalysisProgress(prev => {
+            const newState = { ...prev };
+            delete newState[docId];
+            return newState;
+          });
+        }
+        
         // Update progress when documents are analyzed
         if (payload.new.ai_summary && payload.new.ai_summary.trim().length > 0) {
           // Recalculate progress for affected category
@@ -290,6 +328,12 @@ export const ProjectDocsPage = ({
     try {
       console.log('Triggering analysis for:', documentName, documentId);
 
+      // Set initial analyzing state
+      setDocumentAnalysisProgress(prev => ({
+        ...prev,
+        [documentId]: { analyzing: true, progress: 0 }
+      }));
+
       // Validate required data
       if (!projectId || !project?.company_id) {
         console.error('Missing required data:', {
@@ -301,8 +345,20 @@ export const ProjectDocsPage = ({
           description: "Project data is not loaded yet. Please wait and try again.",
           variant: "destructive"
         });
+        setDocumentAnalysisProgress(prev => {
+          const newState = { ...prev };
+          delete newState[documentId];
+          return newState;
+        });
         return;
       }
+      
+      // Update progress to show started
+      setDocumentAnalysisProgress(prev => ({
+        ...prev,
+        [documentId]: { analyzing: true, progress: 25 }
+      }));
+      
       const {
         data,
         error
@@ -313,18 +369,43 @@ export const ProjectDocsPage = ({
           documentId
         }
       });
+      
       if (signal?.aborted) {
         console.log('Analysis cancelled for:', documentName);
+        setDocumentAnalysisProgress(prev => {
+          const newState = { ...prev };
+          delete newState[documentId];
+          return newState;
+        });
         return;
       }
+      
       if (error) {
         console.error('Edge function error:', error);
+        setDocumentAnalysisProgress(prev => {
+          const newState = { ...prev };
+          delete newState[documentId];
+          return newState;
+        });
         throw error;
       }
+      
       console.log('Analysis response:', data);
       if (!data || !data.success) {
+        setDocumentAnalysisProgress(prev => {
+          const newState = { ...prev };
+          delete newState[documentId];
+          return newState;
+        });
         throw new Error(data?.error || 'Analysis failed');
       }
+      
+      // Update progress to show processing
+      setDocumentAnalysisProgress(prev => ({
+        ...prev,
+        [documentId]: { analyzing: true, progress: 75 }
+      }));
+      
       toast({
         title: 'Analysis Started',
         description: `SkAi is analyzing ${documentName}...`
@@ -339,6 +420,11 @@ export const ProjectDocsPage = ({
         title: 'Analysis Failed',
         description: errorMessage,
         variant: 'destructive'
+      });
+      setDocumentAnalysisProgress(prev => {
+        const newState = { ...prev };
+        delete newState[documentId];
+        return newState;
       });
     }
   };
@@ -660,13 +746,32 @@ export const ProjectDocsPage = ({
                                           <span>{formatFileSize(doc.file_size)}</span>
                                           <span>•</span>
                                           <span>{new Date(doc.created_at).toLocaleDateString()}</span>
-                                          {doc.ai_summary && (
+                                          {doc.ai_summary && !documentAnalysisProgress[doc.id] && (
                                             <>
                                               <span>•</span>
                                               <CheckCircle2 className="h-3 w-3 text-green-600" />
                                             </>
                                           )}
                                         </div>
+                                        
+                                        {/* Individual Document Progress Bar */}
+                                        {documentAnalysisProgress[doc.id]?.analyzing && (
+                                          <div className="mt-2 space-y-1">
+                                            <div className="flex items-center justify-between text-xs">
+                                              <span className="text-primary flex items-center gap-1">
+                                                <Sparkles className="h-3 w-3 animate-pulse" />
+                                                Analyzing...
+                                              </span>
+                                              <span className="text-primary font-semibold">
+                                                {documentAnalysisProgress[doc.id].progress}%
+                                              </span>
+                                            </div>
+                                            <Progress 
+                                              value={documentAnalysisProgress[doc.id].progress} 
+                                              className="h-1.5" 
+                                            />
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
