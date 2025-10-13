@@ -9,9 +9,6 @@ import { useToast } from '@/hooks/use-toast';
 interface KnowledgeStatusProps {
   projectId: string;
   companyId: string;
-  filterCategoryId?: string | null;
-  filterCategoryName?: string;
-  onClearFilter?: () => void;
 }
 
 interface SyncJob {
@@ -42,7 +39,7 @@ interface ChatMessage {
   timestamp: Date;
 }
 
-export const ProjectKnowledgeStatus = ({ projectId, companyId, filterCategoryId, filterCategoryName, onClearFilter }: KnowledgeStatusProps) => {
+export const ProjectKnowledgeStatus = ({ projectId, companyId }: KnowledgeStatusProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'welcome',
@@ -139,35 +136,9 @@ export const ProjectKnowledgeStatus = ({ projectId, companyId, filterCategoryId,
 
   return (
     <Card className="backdrop-blur-xl bg-background border border-border rounded-lg shadow-sm flex flex-col h-[600px]">
-      {filterCategoryId && (
-        <div className="px-4 py-2 border-b border-border bg-accent/30">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              Showing analysis for: <span className="font-medium text-foreground">{filterCategoryName || filterCategoryId}</span>
-            </p>
-            <button
-              onClick={onClearFilter}
-              className="text-xs text-primary hover:underline cursor-pointer"
-            >
-              View All
-            </button>
-          </div>
-        </div>
-      )}
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
-          {messages
-            .filter((message) => {
-              // Always show system messages
-              if (message.type === 'system') return true;
-              
-              // If no filter is set, show all analysis messages
-              if (!filterCategoryId) return true;
-              
-              // Filter by document type matching the category
-              return message.documentType === filterCategoryId;
-            })
-            .map((message) => (
+          {messages.map((message) => (
             <div key={message.id} className="flex gap-3">
               {message.type === 'system' ? (
                 <div className="flex gap-3 w-full">
