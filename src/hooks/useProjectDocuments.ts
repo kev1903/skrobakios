@@ -16,6 +16,7 @@ export interface ProjectDocument {
   category_id: string | null;
   processing_status: string | null;
   ai_summary: string | null;
+  metadata?: any;
 }
 
 export const useProjectDocuments = (projectId: string | undefined) => {

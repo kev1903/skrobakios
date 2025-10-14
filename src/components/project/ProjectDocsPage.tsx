@@ -881,13 +881,19 @@ export const ProjectDocsPage = ({
               </div>
             </TabsContent>
 
-            {/* Gallery Tab */}
+            {/* Smart Gallery Tab */}
             <TabsContent value="gallery">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-foreground">Project Gallery</h2>
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground">Smart Gallery</h2>
+                  <p className="text-sm text-muted-foreground">AI-powered image organization and analysis</p>
+                </div>
                 <Button 
-                  variant="outline"
-                  onClick={() => handleUploadClick('gallery')}
+                  variant="default"
+                  onClick={() => {
+                    setSelectedCategory('gallery');
+                    setUploadDialogOpen(true);
+                  }}
                   className="gap-2"
                 >
                   <Upload className="w-4 h-4" />
@@ -895,33 +901,96 @@ export const ProjectDocsPage = ({
                 </Button>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {documents
                   .filter(doc => doc.content_type?.startsWith('image/'))
-                  .map(doc => (
-                    <div 
-                      key={doc.id}
-                      className="group relative aspect-square rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all cursor-pointer"
-                      onClick={() => handleDocumentClick(doc)}
-                    >
-                      <img 
-                        src={doc.file_url} 
-                        alt={doc.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200" />
-                      <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <p className="text-white text-xs font-medium truncate">{doc.name}</p>
-                        <p className="text-white/70 text-xs">{formatFileSize(doc.file_size)}</p>
+                  .map(doc => {
+                    const aiTags = doc.metadata?.ai_tags || [];
+                    const aiDescription = doc.metadata?.ai_description || '';
+                    const isAnalyzing = documentAnalysisProgress[doc.id]?.analyzing;
+                    
+                    return (
+                      <div 
+                        key={doc.id}
+                        className="group relative aspect-square rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all cursor-pointer"
+                        onClick={() => handleDocumentClick(doc)}
+                      >
+                        <img 
+                          src={doc.file_url} 
+                          alt={doc.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                        />
+                        
+                        {/* Analyzing overlay */}
+                        {isAnalyzing && (
+                          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                            <div className="text-center text-white">
+                              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2" />
+                              <p className="text-xs">AI Analyzing...</p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Hover overlay with AI insights */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <div className="absolute bottom-0 left-0 right-0 p-3 space-y-2">
+                            <p className="text-white text-xs font-medium truncate">{doc.name}</p>
+                            <p className="text-white/70 text-xs">{formatFileSize(doc.file_size)}</p>
+                            
+                            {/* AI Description */}
+                            {aiDescription && (
+                              <p className="text-white/90 text-xs line-clamp-2 italic">
+                                {aiDescription}
+                              </p>
+                            )}
+                            
+                            {/* AI Tags */}
+                            {aiTags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {aiTags.slice(0, 3).map((tag: string, idx: number) => (
+                                  <Badge 
+                                    key={idx} 
+                                    variant="secondary" 
+                                    className="text-xs bg-white/20 text-white border-white/30"
+                                  >
+                                    {tag}
+                                  </Badge>
+                                ))}
+                                {aiTags.length > 3 && (
+                                  <Badge variant="secondary" className="text-xs bg-white/20 text-white border-white/30">
+                                    +{aiTags.length - 3}
+                                  </Badge>
+                                )}
+                              </div>
+                            )}
+                            
+                            {/* AI Analysis button */}
+                            {!doc.ai_summary && !isAnalyzing && (
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                className="w-full mt-2 gap-1"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAnalyzeDocument(doc.id, doc.name);
+                                }}
+                              >
+                                <Brain className="w-3 h-3" />
+                                Analyze with AI
+                              </Button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 
                 {documents.filter(doc => doc.content_type?.startsWith('image/')).length === 0 && (
                   <div className="col-span-full text-center py-12 text-muted-foreground">
                     <ImageIcon className="h-16 w-16 mx-auto mb-4 opacity-30" />
-                    <p className="text-sm">No images uploaded yet</p>
-                    <p className="text-xs mt-1">Click Upload Images to add photos to your gallery</p>
+                    <h3 className="text-lg font-semibold mb-2">Smart Gallery</h3>
+                    <p className="text-sm mb-2">Upload images and let AI analyze them automatically</p>
+                    <p className="text-xs">AI will detect objects, extract text, and provide insights</p>
                   </div>
                 )}
               </div>
