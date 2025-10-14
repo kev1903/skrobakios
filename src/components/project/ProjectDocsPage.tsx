@@ -1029,6 +1029,10 @@ export const ProjectDocsPage = ({
         documentContent={selectedDocumentId ? (documents.find(d => d.id === selectedDocumentId)?.ai_summary || undefined) : undefined}
         isOpen={documentChatOpen}
         onClose={() => setDocumentChatOpen(false)}
+        currentPage="Project Docs"
+        currentTab={activeTab === 'docs' ? 'Project Docs' : activeTab === 'links' ? 'Project Links' : 'Gallery'}
+        projectId={projectId || undefined}
+        projectName={project?.name}
       />
 
       {/* Document Upload Dialog */}

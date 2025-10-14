@@ -14,14 +14,30 @@ interface Message {
 }
 
 interface DocumentChatBarProps {
-  documentId: string;
-  documentName: string;
+  documentId?: string;
+  documentName?: string;
   documentContent?: string;
   isOpen: boolean;
   onClose: () => void;
+  currentPage?: string;
+  currentTab?: string;
+  selectedCategory?: string;
+  projectId?: string;
+  projectName?: string;
 }
 
-export const DocumentChatBar = ({ documentId, documentName, documentContent, isOpen, onClose }: DocumentChatBarProps) => {
+export const DocumentChatBar = ({ 
+  documentId, 
+  documentName, 
+  documentContent, 
+  isOpen, 
+  onClose,
+  currentPage,
+  currentTab,
+  selectedCategory,
+  projectId,
+  projectName
+}: DocumentChatBarProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -57,10 +73,50 @@ export const DocumentChatBar = ({ documentId, documentName, documentContent, isO
         content: msg.content
       }));
 
+      // Build context string based on available information
+      let contextParts: string[] = [];
+      
+      if (projectName) {
+        contextParts.push(`Project: "${projectName}"`);
+      }
+      
+      if (currentPage) {
+        contextParts.push(`Current Page: ${currentPage}`);
+      }
+      
+      if (currentTab) {
+        contextParts.push(`Current Tab: ${currentTab}`);
+      }
+      
+      if (selectedCategory) {
+        contextParts.push(`Selected Category: ${selectedCategory}`);
+      }
+      
+      if (documentId && documentName) {
+        contextParts.push(`Viewing Document: "${documentName}" (ID: ${documentId})`);
+      }
+      
+      if (documentContent) {
+        contextParts.push(`Document Content Summary: ${documentContent.substring(0, 2000)}`);
+      }
+
+      const contextString = contextParts.length > 0 
+        ? `Context:\n${contextParts.join('\n')}\n\nUser question: ${userMessage.content}`
+        : userMessage.content;
+
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
-          message: `Context: User is asking about document "${documentName}" (ID: ${documentId}). ${documentContent ? `Document content: ${documentContent.substring(0, 2000)}` : ''}\n\nUser question: ${userMessage.content}`,
-          conversation: conversation
+          message: contextString,
+          conversation: conversation,
+          context: {
+            projectId,
+            projectName,
+            currentPage,
+            currentTab,
+            selectedCategory,
+            documentId,
+            documentName
+          }
         }
       });
 
@@ -103,7 +159,9 @@ export const DocumentChatBar = ({ documentId, documentName, documentContent, isO
       <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30 rounded-t-xl">
         <div className="flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium">Chat about {documentName}</span>
+          <span className="text-sm font-medium">
+            {documentName ? `Chat about ${documentName}` : currentTab ? `SkAi - ${currentTab}` : 'SkAi Chat'}
+          </span>
         </div>
         <div className="flex items-center space-x-1">
           <Button
@@ -133,7 +191,13 @@ export const DocumentChatBar = ({ documentId, documentName, documentContent, isO
           {messages.length === 0 && (
             <div className="text-center text-muted-foreground text-sm py-6">
               <Sparkles className="w-6 h-6 mx-auto mb-2 opacity-50" />
-              <p>Ask SkAi anything about this document</p>
+              <p>
+                {documentName 
+                  ? `Ask SkAi anything about ${documentName}` 
+                  : currentTab 
+                  ? `Ask SkAi about the ${currentTab} tab` 
+                  : 'Ask SkAi anything about this project'}
+              </p>
             </div>
           )}
           {messages.map((message) => (
@@ -174,7 +238,7 @@ export const DocumentChatBar = ({ documentId, documentName, documentContent, isO
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask about this document..."
+            placeholder={documentName ? `Ask about ${documentName}...` : currentTab ? `Ask about ${currentTab}...` : "Ask SkAi..."}
             disabled={isLoading}
             className="flex-1"
           />
