@@ -718,37 +718,6 @@ export const ProjectDocsPage = ({
                         {/* Category Content */}
                         <CollapsibleContent>
                           <div className="px-4 pb-3 pt-1">
-                            {/* Progress Bar - Show during analysis or when complete */}
-                            {categoryAnalysisProgress[category.dbId || category.id] && categoryAnalysisProgress[category.dbId || category.id].total > 0 && <div className="mb-3 space-y-2 bg-accent/30 p-3 rounded-lg">
-                                {(() => {
-                              const progress = categoryAnalysisProgress[category.dbId || category.id];
-                              const percentage = Math.round(progress.progress / progress.total * 100);
-                              const isComplete = progress.progress >= progress.total;
-                              return <>
-                                      <div className="flex items-center justify-between text-xs">
-                                        <span className="text-muted-foreground flex items-center gap-1.5">
-                                          {progress.analyzing ? <>
-                                              <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
-                                              Analyzing documents...
-                                            </> : isComplete ? <>
-                                              <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-                                              Analysis Complete
-                                            </> : <>
-                                              <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
-                                              Analyzing documents...
-                                            </>}
-                                        </span>
-                                        <span className={`text-sm font-semibold ${isComplete ? 'text-green-600' : 'text-primary'}`}>
-                                          {percentage}%
-                                        </span>
-                                      </div>
-                                      <Progress value={percentage} className="h-2" />
-                                      <div className="text-xs text-muted-foreground text-right">
-                                        {progress.progress} of {progress.total} documents
-                                      </div>
-                                    </>;
-                            })()}
-                              </div>}
                           
                             {categoryDocs.length > 0 ? <div className="space-y-1">
                                 {categoryDocs.map(doc => <div 
