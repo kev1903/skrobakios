@@ -154,7 +154,7 @@ ${categoryConfig ? `Category: ${categoryConfig.name}` : ''}
 
 ${extractedText ? `Document Content:\n${extractedText.substring(0, 10000)}` : 'Note: This is a large PDF file. Please analyze based on the document name, type, and construction project management best practices. Extract comprehensive scope data including spaces, construction elements, materials, openings, services, external works, and compliance requirements based on typical architectural drawing standards.'}
 
-Please provide detailed scope extraction focusing on construction project management aspects. Extract all measurable quantities, materials, and specifications that can be identified.
+Please provide detailed scope extraction focusing on construction project management aspects. Extract all measurable quantities, materials, and specifications that can be identified.`;
 
     console.log("Calling Lovable AI for comprehensive scope extraction...");
 
