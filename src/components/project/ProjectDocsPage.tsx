@@ -1077,34 +1077,34 @@ export const ProjectDocsPage = ({
       <AlertDialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
         <AlertDialogContent className="max-w-7xl w-[95vw] max-h-[95vh] p-0 overflow-hidden border-0 !z-[99999]">
           {previewImageDoc && (
-            <div className="flex flex-col h-full bg-black/95">
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 bg-background/10 backdrop-blur-sm border-b border-white/10">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-white truncate">{previewImageDoc.name}</h3>
-                  <p className="text-sm text-white/70">{formatFileSize(previewImageDoc.file_size)}</p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setImagePreviewOpen(false)}
-                  className="hover:bg-white/10 text-white"
-                >
-                  <XCircle className="w-5 h-5" />
-                </Button>
-              </div>
+            <div className="relative flex flex-col h-full bg-black">
+              {/* Close Button - Floating */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setImagePreviewOpen(false)}
+                className="absolute top-4 right-4 z-50 hover:bg-white/10 text-white rounded-full w-10 h-10 p-0"
+              >
+                <XCircle className="w-6 h-6" />
+              </Button>
               
-              {/* Image Container */}
-              <div className="flex-1 overflow-auto bg-black flex items-center justify-center">
+              {/* Image Container with Floating Name */}
+              <div className="flex-1 overflow-auto bg-black flex items-center justify-center relative">
                 <img 
                   src={previewImageDoc.file_url} 
                   alt={previewImageDoc.name}
-                  className="max-w-full max-h-[75vh] object-contain"
+                  className="max-w-full max-h-[85vh] object-contain"
                 />
+                
+                {/* Floating Image Name */}
+                <div className="absolute bottom-6 left-6 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg">
+                  <h3 className="text-base font-semibold text-white">{previewImageDoc.name}</h3>
+                  <p className="text-sm text-white/70">{formatFileSize(previewImageDoc.file_size)}</p>
+                </div>
               </div>
               
-              {/* Details Footer */}
-              <div className="p-4 border-t space-y-3 bg-background">
+              {/* Details Footer - No border */}
+              <div className="p-4 space-y-3 bg-black/60 backdrop-blur-sm">
                 {(() => {
                   const aiTags = previewImageDoc.metadata?.ai_tags || [];
                   const aiDescription = previewImageDoc.metadata?.ai_description || '';
