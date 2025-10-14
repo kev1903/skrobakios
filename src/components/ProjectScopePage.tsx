@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal, ChevronsDown, ChevronsUp, NotebookPen, Clock, DollarSign, Settings } from 'lucide-react';
+import { ChevronRight, ChevronDown, Plus, Edit2, Trash2, GripVertical, Copy, MoreHorizontal, ChevronsDown, ChevronsUp, NotebookPen, Clock, DollarSign, Settings, MessageSquare } from 'lucide-react';
 import { WBSTaskConversionService } from '@/services/wbsTaskConversionService';
 import { TaskDetailPanel } from '@/components/tasks/TaskDetailPanel';
 import { createTaskConversionHandlers } from '@/components/ProjectScopePage_TaskHandlers';
@@ -39,6 +39,7 @@ import { renumberAllWBSItems, buildHierarchy } from '@/utils/wbsUtils';
 import { WBSService } from '@/services/wbsService';
 import { useWBS, WBSItem } from '@/hooks/useWBS';
 import { SimpleTeamAssignment } from '@/components/tasks/enhanced/SimpleTeamAssignment';
+import { DocumentChatBar } from '@/components/project/DocumentChatBar';
 
 interface ProjectScopePageProps {
   project: Project;
@@ -98,6 +99,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   const { currentCompany } = useCompany();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('scope');
+  const [documentChatOpen, setDocumentChatOpen] = useState(false);
   const [dragIndicator, setDragIndicator] = useState<{ type: string; droppableId: string; index: number } | null>(null);
   const [editingItem, setEditingItem] = useState<{ id: string; type: 'phase' | 'component' | 'element' | 'task'; field: string } | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -1840,6 +1842,26 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Floating Chat Icon */}
+        {!documentChatOpen && (
+          <button
+            onClick={() => setDocumentChatOpen(true)}
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group hover:scale-110"
+            aria-label="Open chat"
+          >
+            <MessageSquare className="w-6 h-6" />
+          </button>
+        )}
+
+        {/* Document Chat Bar */}
+        <DocumentChatBar
+          documentId={project.id}
+          documentName={project.name}
+          documentContent={`Project Scope for ${project.name}`}
+          isOpen={documentChatOpen}
+          onClose={() => setDocumentChatOpen(false)}
+        />
       </div>
     );
   };
