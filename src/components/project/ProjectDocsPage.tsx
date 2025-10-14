@@ -660,10 +660,6 @@ export const ProjectDocsPage = ({
                     <Package className="w-4 h-4" />
                     Generate Scope
                   </Button>
-                  <Button onClick={() => setUploadDialogOpen(true)} className="gap-2">
-                    <Upload className="w-4 h-4" />
-                    Upload Documents
-                  </Button>
                 </div>
               </div>
               <div className="space-y-4">
