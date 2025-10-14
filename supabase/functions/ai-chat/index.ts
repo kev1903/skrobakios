@@ -30,6 +30,26 @@ async function getUserActiveCompany(supabase: any, userId: string) {
   };
 }
 
+// Helper function to get document data
+async function getDocumentData(supabase: any, documentId?: string) {
+  if (!documentId) {
+    return null;
+  }
+
+  try {
+    const { data: document } = await supabase
+      .from('project_documents')
+      .select('id, document_name, ai_summary, metadata, analysis_status, file_size, created_at')
+      .eq('id', documentId)
+      .maybeSingle();
+
+    return document;
+  } catch (error) {
+    console.error('Error fetching document data:', error);
+    return null;
+  }
+}
+
 // Helper function to get project data
 async function getProjectData(supabase: any, userId: string, projectId?: string) {
   try {
@@ -185,6 +205,17 @@ serve(async (req) => {
       console.warn('No project ID provided in context');
     }
 
+    // Get document data if documentId is provided
+    const validDocumentId = context.documentId;
+    const documentData = await getDocumentData(supabase, validDocumentId);
+    
+    if (documentData) {
+      console.log('Document found:', documentData.document_name);
+      console.log('Document analysis status:', documentData.analysis_status);
+      console.log('Document has AI summary:', !!documentData.ai_summary);
+      console.log('Document has metadata:', !!documentData.metadata);
+    }
+
     // Get project data based on context
     const projectData = await getProjectData(supabase, user.id, validProjectId);
 
@@ -196,6 +227,25 @@ serve(async (req) => {
     console.log('Current project found:', currentProject?.name || 'None');
     console.log('Total projects available:', projectData.projects?.length || 0);
     console.log('WBS items for project:', projectData.wbsItems?.length || 0);
+
+    // Build document context if available
+    let documentContext = '';
+    if (documentData) {
+      documentContext = `
+CURRENT DOCUMENT: ${documentData.document_name}
+DOCUMENT ANALYSIS STATUS: ${documentData.analysis_status}
+
+${documentData.ai_summary ? `DOCUMENT AI SUMMARY:
+${documentData.ai_summary}
+` : ''}
+
+${documentData.metadata ? `EXTRACTED DOCUMENT DATA:
+${JSON.stringify(documentData.metadata, null, 2)}
+` : ''}
+
+IMPORTANT: You have FULL ACCESS to this document's analyzed content above. You can see and analyze all the extracted data, scope items, spaces, materials, and specifications from the document.
+`;
+    }
 
     // Build enhanced system prompt with project context
     const systemPrompt = `You are SkAI, a professional construction management assistant for Skrobaki. 
@@ -219,6 +269,8 @@ ${projectData.wbsItems?.slice(0, 5).map((item: any) =>
   `${item.wbs_id} - ${item.title} (${item.status}, ${item.progress}%)`
 ).join('\n') || 'No WBS items available for this project'}
 
+${documentContext}
+
 CAPABILITIES:
 - Answer questions about project status, progress, costs, and tasks
 - Provide insights and recommendations based on project data
@@ -230,11 +282,13 @@ CAPABILITIES:
 
 DOCUMENT ANALYSIS CAPABILITIES:
 When analyzing uploaded documents (PDFs, drawings, plans):
+- You have FULL ACCESS to the analyzed document content shown above
 - Extract scope of work items from construction documents
 - Identify key specifications, materials, and requirements
 - Break down complex plans into manageable work packages
 - Suggest WBS items based on document content
 - Analyze drawings for potential risks or considerations
+- Answer detailed questions about the document using the extracted data
 
 RESPONSE GUIDELINES:
 1. Keep responses brief and focused (typically 2-3 sentences)
@@ -242,6 +296,7 @@ RESPONSE GUIDELINES:
 3. Use natural language without excessive formatting
 4. When making database changes, simply confirm what was done
 5. Be professional but approachable
+6. When asked about documents, use the EXTRACTED DOCUMENT DATA provided above
 
 When users request data modifications, use the available database operations to make changes and confirm completion naturally.`;
 
