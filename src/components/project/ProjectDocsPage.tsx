@@ -87,6 +87,9 @@ export const ProjectDocsPage = ({
     analyzing: boolean;
     progress: number;
   }>>({});
+  
+  // Active tab tracking
+  const [activeTab, setActiveTab] = useState<string>("docs");
 
 
   // Document categories - loaded from database
@@ -634,7 +637,7 @@ export const ProjectDocsPage = ({
         <div className="p-6 flex gap-6 h-[calc(100vh-180px)]">
           {/* Left Column - Project Docs & Links */}
           <div className="flex-1 pr-6 max-w-[50%]">
-            <Tabs defaultValue="docs" className="w-full">
+            <Tabs defaultValue="docs" value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="mb-6">
                 <TabsTrigger value="docs" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
@@ -1001,15 +1004,113 @@ export const ProjectDocsPage = ({
         {/* Vertical Divider */}
         <div className="w-px bg-border self-stretch" />
 
-        {/* Right Column - SkAI Project Study Preview */}
+        {/* Right Column - Preview Panel */}
         <div className="flex-1 pl-6 max-w-[50%] flex flex-col h-full">
           <div className="flex-1 overflow-auto">
-            <ProjectKnowledgeStatus 
-              projectId={projectId!} 
-              companyId={project.company_id} 
-              selectedDocumentId={selectedDocumentId}
-              onClearSelection={() => setSelectedDocumentId(null)}
-            />
+            {activeTab === 'gallery' && selectedDocumentId ? (
+              // Gallery Image Preview
+              <div className="h-full flex flex-col">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-foreground">Image Preview</h2>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setSelectedDocumentId(null)}
+                  >
+                    <XCircle className="w-4 h-4 mr-2" />
+                    Close
+                  </Button>
+                </div>
+                
+                {(() => {
+                  const selectedDoc = documents.find(d => d.id === selectedDocumentId);
+                  if (!selectedDoc) return null;
+                  
+                  const aiTags = selectedDoc.metadata?.ai_tags || [];
+                  const aiDescription = selectedDoc.metadata?.ai_description || '';
+                  
+                  return (
+                    <div className="space-y-4">
+                      {/* Image Display */}
+                      <div className="rounded-lg overflow-hidden border border-border bg-muted/20">
+                        <img 
+                          src={selectedDoc.file_url} 
+                          alt={selectedDoc.name}
+                          className="w-full h-auto max-h-[60vh] object-contain"
+                        />
+                      </div>
+                      
+                      {/* Image Details */}
+                      <div className="space-y-3">
+                        <div>
+                          <h3 className="text-lg font-semibold text-foreground mb-1">{selectedDoc.name}</h3>
+                          <p className="text-sm text-muted-foreground">{formatFileSize(selectedDoc.file_size)}</p>
+                        </div>
+                        
+                        {/* AI Description */}
+                        {aiDescription && (
+                          <div className="p-4 rounded-lg bg-primary/5 border border-primary/10">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Brain className="w-4 h-4 text-primary" />
+                              <p className="text-sm font-medium text-foreground">AI Analysis</p>
+                            </div>
+                            <p className="text-sm text-muted-foreground italic">{aiDescription}</p>
+                          </div>
+                        )}
+                        
+                        {/* AI Tags */}
+                        {aiTags.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-foreground mb-2">Tags</p>
+                            <div className="flex flex-wrap gap-2">
+                              {aiTags.map((tag: string, idx: number) => (
+                                <Badge 
+                                  key={idx} 
+                                  variant="secondary"
+                                  className="bg-primary/10 text-primary border-primary/20"
+                                >
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Actions */}
+                        <div className="flex gap-2 pt-2">
+                          {!selectedDoc.ai_summary && !documentAnalysisProgress[selectedDoc.id]?.analyzing && (
+                            <Button
+                              variant="outline"
+                              className="gap-2"
+                              onClick={() => handleAnalyzeDocument(selectedDoc.id, selectedDoc.name)}
+                            >
+                              <Brain className="w-4 h-4" />
+                              Analyze with AI
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            className="gap-2"
+                            onClick={() => window.open(selectedDoc.file_url, '_blank')}
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            Open
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            ) : (
+              // Default Document Analysis View
+              <ProjectKnowledgeStatus 
+                projectId={projectId!} 
+                companyId={project.company_id} 
+                selectedDocumentId={selectedDocumentId}
+                onClearSelection={() => setSelectedDocumentId(null)}
+              />
+            )}
           </div>
         </div>
       </div>
