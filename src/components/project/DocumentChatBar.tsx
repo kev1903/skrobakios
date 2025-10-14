@@ -37,6 +37,13 @@ export const DocumentChatBar = ({ documentId, documentName, documentContent, isO
     scrollToBottom();
   }, [messages]);
 
+  // Reset minimized state when chat is opened
+  useEffect(() => {
+    if (isOpen) {
+      setIsMinimized(false);
+    }
+  }, [isOpen]);
+
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
