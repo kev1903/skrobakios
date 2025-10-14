@@ -1103,18 +1103,7 @@ export const ProjectDocsPage = ({
                     );
                   })()}
                 </div>
-              ) : (
-                // Gallery Placeholder
-                <div className="h-full flex flex-col items-center justify-center text-center px-8">
-                  <div className="rounded-full bg-primary/10 p-6 mb-4">
-                    <ImageIcon className="w-12 h-12 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">Image Preview</h3>
-                  <p className="text-muted-foreground max-w-md">
-                    Select an image from the gallery to view it in full detail with AI-powered analysis and insights
-                  </p>
-                </div>
-              )
+              ) : null
             ) : (
               // Default Document Analysis View
               <ProjectKnowledgeStatus 
