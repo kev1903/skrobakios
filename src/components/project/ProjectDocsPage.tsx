@@ -1075,21 +1075,21 @@ export const ProjectDocsPage = ({
 
       {/* Image Preview Dialog */}
       <AlertDialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
-        <AlertDialogContent className="max-w-7xl w-[95vw] max-h-[95vh] p-0 overflow-hidden border-0 !z-[99999]">
+        <AlertDialogContent className="max-w-7xl w-[95vw] max-h-[95vh] p-0 overflow-hidden border-0 !z-[99999] bg-transparent">
           {previewImageDoc && (
-            <div className="relative flex flex-col h-full bg-black">
+            <div className="relative flex flex-col h-full bg-transparent">
               {/* Close Button - Floating */}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setImagePreviewOpen(false)}
-                className="absolute top-4 right-4 z-50 hover:bg-white/10 text-white rounded-full w-10 h-10 p-0"
+                className="absolute top-4 right-4 z-50 hover:bg-black/20 text-white rounded-full w-10 h-10 p-0 bg-black/40 backdrop-blur-sm"
               >
                 <XCircle className="w-6 h-6" />
               </Button>
               
               {/* Image Container with Floating Name */}
-              <div className="flex-1 overflow-auto bg-black flex items-center justify-center relative">
+              <div className="flex-1 overflow-auto bg-transparent flex items-center justify-center relative">
                 <img 
                   src={previewImageDoc.file_url} 
                   alt={previewImageDoc.name}
