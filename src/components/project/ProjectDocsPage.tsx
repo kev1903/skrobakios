@@ -1010,7 +1010,7 @@ export const ProjectDocsPage = ({
       </div>
 
       {/* Floating Chat Button */}
-      {selectedDocumentId && !documentChatOpen && (
+      {!documentChatOpen && (
         <div className="fixed bottom-6 right-6 z-40">
           <Button
             onClick={() => setDocumentChatOpen(true)}
@@ -1023,15 +1023,13 @@ export const ProjectDocsPage = ({
       )}
 
       {/* Floating Document Chat */}
-      {selectedDocumentId && (
-        <DocumentChatBar
-          documentId={selectedDocumentId}
-          documentName={documents.find(d => d.id === selectedDocumentId)?.name || 'Document'}
-          documentContent={documents.find(d => d.id === selectedDocumentId)?.ai_summary || undefined}
-          isOpen={documentChatOpen}
-          onClose={() => setDocumentChatOpen(false)}
-        />
-      )}
+      <DocumentChatBar
+        documentId={selectedDocumentId || undefined}
+        documentName={selectedDocumentId ? (documents.find(d => d.id === selectedDocumentId)?.name || 'Document') : undefined}
+        documentContent={selectedDocumentId ? (documents.find(d => d.id === selectedDocumentId)?.ai_summary || undefined) : undefined}
+        isOpen={documentChatOpen}
+        onClose={() => setDocumentChatOpen(false)}
+      />
 
       {/* Document Upload Dialog */}
       <DocumentUpload open={uploadDialogOpen} onOpenChange={setUploadDialogOpen} projectId={projectId || undefined} onUploadComplete={async () => {
