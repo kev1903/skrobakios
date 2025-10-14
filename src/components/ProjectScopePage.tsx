@@ -1856,11 +1856,12 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
         {/* Document Chat Bar */}
         <DocumentChatBar
-          documentId={project.id}
-          documentName={project.name}
-          documentContent={`Project Scope for ${project.name}`}
           isOpen={documentChatOpen}
           onClose={() => setDocumentChatOpen(false)}
+          currentPage="Project Control"
+          currentTab={activeTab === 'scope' ? 'Scope' : activeTab === 'time' ? 'Time' : 'Cost'}
+          projectId={project.id}
+          projectName={project.name}
         />
       </div>
     );
