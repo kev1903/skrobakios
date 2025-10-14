@@ -1139,31 +1139,6 @@ export const ProjectDocsPage = ({
                           </div>
                         </div>
                       )}
-                      
-                      {/* Actions */}
-                      <div className="flex gap-2 pt-2">
-                        <Button
-                          variant="outline"
-                          className="gap-2"
-                          onClick={() => window.open(previewImageDoc.file_url, '_blank')}
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          Open Original
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="gap-2"
-                          onClick={() => {
-                            setImagePreviewOpen(false);
-                            setTimeout(() => {
-                              setSelectedDocumentId(previewImageDoc.id);
-                            }, 100);
-                          }}
-                        >
-                          <FileText className="w-4 h-4" />
-                          View in Panel
-                        </Button>
-                      </div>
                     </>
                   );
                 })()}
