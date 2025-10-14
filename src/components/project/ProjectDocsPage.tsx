@@ -1190,7 +1190,7 @@ export const ProjectDocsPage = ({
 
       {/* Image Preview Dialog */}
       <AlertDialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
-        <AlertDialogContent className="max-w-5xl w-[90vw] max-h-[90vh] p-0 overflow-hidden z-[100]">
+        <AlertDialogContent className="max-w-5xl w-[90vw] max-h-[90vh] p-0 overflow-hidden border-0 z-[9999]">
           {previewImageDoc && (
             <div className="flex flex-col h-full">
               {/* Header */}
