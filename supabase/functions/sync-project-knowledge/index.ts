@@ -156,9 +156,59 @@ ${extractedText ? `Document Content:\n${extractedText.substring(0, 10000)}` : 'N
 
 Please provide detailed scope extraction focusing on construction project management aspects. Extract all measurable quantities, materials, and specifications that can be identified.`;
 
-    console.log("Calling Lovable AI for comprehensive scope extraction...");
+    console.log("Calling Lovable AI for comprehensive analysis...");
 
-    // Define comprehensive scope extraction tool
+    // STEP 1: Get comprehensive text analysis first
+    const analysisResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${lovableApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 2000
+      }),
+    });
+
+    if (!analysisResponse.ok) {
+      const errorText = await analysisResponse.text();
+      console.error("AI API error (analysis):", analysisResponse.status, errorText);
+      
+      await supabase
+        .from("project_documents")
+        .update({ processing_status: 'failed', error_message: errorText })
+        .eq("id", documentId);
+      
+      if (analysisResponse.status === 429) {
+        return new Response(
+          JSON.stringify({ error: "Rate limit exceeded. Please try again later." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (analysisResponse.status === 402) {
+        return new Response(
+          JSON.stringify({ error: "Payment required. Please add credits to your Lovable workspace." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      return new Response(
+        JSON.stringify({ error: "AI analysis failed", details: errorText }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const analysisResult = await analysisResponse.json();
+    const comprehensiveAnalysis = analysisResult.choices?.[0]?.message?.content || '';
+    
+    console.log("Comprehensive analysis completed, now extracting scope data...");
+
+    // STEP 2: Extract structured scope data using tool calling
     const scopeExtractionTool = {
       type: "function",
       function: {
@@ -343,18 +393,21 @@ Please provide detailed scope extraction focusing on construction project manage
             has_compliance: !!structuredData?.compliance
           });
           
-          // Generate a text summary from structured data
-          aiSummary = `Construction Scope Analysis Complete\n\n`;
+          // Combine comprehensive analysis with scope extraction summary
+          let scopeSummary = `\n\n## Construction Scope Data Extracted\n\n`;
           if (structuredData.drawing_info) {
-            aiSummary += `Drawing Type: ${structuredData.drawing_info.type || 'Not specified'}\n`;
-            aiSummary += `Scale: ${structuredData.drawing_info.scale || 'Not specified'}\n`;
-            aiSummary += `Level: ${structuredData.drawing_info.level || 'Not specified'}\n\n`;
+            scopeSummary += `**Drawing Type:** ${structuredData.drawing_info.type || 'Not specified'}\n`;
+            scopeSummary += `**Scale:** ${structuredData.drawing_info.scale || 'Not specified'}\n`;
+            scopeSummary += `**Level:** ${structuredData.drawing_info.level || 'Not specified'}\n\n`;
           }
-          aiSummary += `Extracted ${structuredData.construction_scope?.length || 0} construction scope items\n`;
-          aiSummary += `Identified ${structuredData.spaces?.length || 0} spaces\n`;
-          aiSummary += `Found ${structuredData.openings?.length || 0} openings (doors/windows)\n`;
-          aiSummary += `Documented ${structuredData.services?.length || 0} service elements\n`;
-          aiSummary += `Recorded ${structuredData.external_works?.length || 0} external works items\n`;
+          scopeSummary += `- **Construction Scope Items:** ${structuredData.construction_scope?.length || 0}\n`;
+          scopeSummary += `- **Spaces Identified:** ${structuredData.spaces?.length || 0}\n`;
+          scopeSummary += `- **Openings (Doors/Windows):** ${structuredData.openings?.length || 0}\n`;
+          scopeSummary += `- **Service Elements:** ${structuredData.services?.length || 0}\n`;
+          scopeSummary += `- **External Works Items:** ${structuredData.external_works?.length || 0}\n`;
+          
+          // Combine comprehensive analysis with scope data
+          aiSummary = comprehensiveAnalysis + scopeSummary;
           
           // Prepare update with structured data
           const updateData: any = {
