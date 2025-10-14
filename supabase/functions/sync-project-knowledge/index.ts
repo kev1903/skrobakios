@@ -206,6 +206,8 @@ Please provide detailed scope extraction focusing on construction project manage
     const analysisResult = await analysisResponse.json();
     const comprehensiveAnalysis = analysisResult.choices?.[0]?.message?.content || '';
     
+    console.log("Comprehensive analysis length:", comprehensiveAnalysis.length, "characters");
+    console.log("Comprehensive analysis preview:", comprehensiveAnalysis.substring(0, 200));
     console.log("Comprehensive analysis completed, now extracting scope data...");
 
     // STEP 2: Extract structured scope data using tool calling
@@ -408,6 +410,10 @@ Please provide detailed scope extraction focusing on construction project manage
           
           // Combine comprehensive analysis with scope data
           aiSummary = comprehensiveAnalysis + scopeSummary;
+          
+          console.log("Combined analysis length:", aiSummary.length);
+          console.log("Comprehensive part length:", comprehensiveAnalysis.length);
+          console.log("Scope summary length:", scopeSummary.length);
           
           // Prepare update with structured data
           const updateData: any = {
