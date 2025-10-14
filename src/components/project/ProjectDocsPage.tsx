@@ -894,7 +894,7 @@ export const ProjectDocsPage = ({
                 <Button 
                   variant="default"
                   onClick={() => {
-                    setSelectedCategory('gallery');
+                    setSelectedCategory(null);
                     setUploadDialogOpen(true);
                   }}
                   className="gap-2"
