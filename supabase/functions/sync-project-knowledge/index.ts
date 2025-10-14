@@ -148,9 +148,120 @@ ${extractedText ? `Document Content:\n${extractedText.substring(0, 15000)}` : 'N
 
 Please provide a detailed analysis of this document focusing on construction project management aspects. Include key insights, potential risks, and actionable recommendations.`;
 
-    console.log("Calling Lovable AI for text-based analysis...");
+    console.log("Calling Lovable AI for comprehensive scope extraction...");
 
-    // Call Lovable AI
+    // Define comprehensive scope extraction tool
+    const scopeExtractionTool = {
+      type: "function",
+      function: {
+        name: "extract_construction_scope",
+        description: "Extract comprehensive construction scope data from the document including spaces, materials, elements, and compliance information",
+        parameters: {
+          type: "object",
+          properties: {
+            drawing_info: {
+              type: "object",
+              properties: {
+                type: { type: "string", description: "Drawing type (floor plan, elevation, section, detail, etc.)" },
+                scale: { type: "string", description: "Drawing scale" },
+                level: { type: "string", description: "Building level or floor" },
+                discipline: { type: "string", description: "Discipline (architectural, structural, mechanical, etc.)" }
+              }
+            },
+            spaces: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  area_sqm: { type: "number" },
+                  floor_level: { type: "string" },
+                  ceiling_height_m: { type: "number" },
+                  function: { type: "string" }
+                },
+                required: ["name"]
+              }
+            },
+            construction_scope: {
+              type: "array",
+              description: "Bill of quantities items extracted from the document",
+              items: {
+                type: "object",
+                properties: {
+                  category: { type: "string", description: "Category (walls, doors, windows, finishes, etc.)" },
+                  item_code: { type: "string" },
+                  description: { type: "string" },
+                  unit: { type: "string", description: "Unit of measure (m, m2, m3, nr, etc.)" },
+                  quantity: { type: "number" },
+                  location: { type: "string" },
+                  specification: { type: "string" },
+                  material: { type: "string" },
+                  finish: { type: "string" }
+                },
+                required: ["category", "description", "unit", "quantity"]
+              }
+            },
+            openings: {
+              type: "array",
+              description: "Doors and windows schedule",
+              items: {
+                type: "object",
+                properties: {
+                  type: { type: "string", enum: ["door", "window"] },
+                  mark: { type: "string" },
+                  width_mm: { type: "number" },
+                  height_mm: { type: "number" },
+                  material: { type: "string" },
+                  finish: { type: "string" },
+                  location: { type: "string" },
+                  quantity: { type: "number" }
+                },
+                required: ["type", "mark"]
+              }
+            },
+            services: {
+              type: "array",
+              description: "MEP and services information",
+              items: {
+                type: "object",
+                properties: {
+                  system: { type: "string", description: "electrical, plumbing, hvac, fire, etc." },
+                  description: { type: "string" },
+                  location: { type: "string" },
+                  specification: { type: "string" }
+                }
+              }
+            },
+            external_works: {
+              type: "array",
+              description: "External and site works",
+              items: {
+                type: "object",
+                properties: {
+                  element: { type: "string", description: "paving, fencing, landscaping, drainage, etc." },
+                  description: { type: "string" },
+                  area_or_length: { type: "number" },
+                  unit: { type: "string" },
+                  material: { type: "string" }
+                }
+              }
+            },
+            compliance: {
+              type: "object",
+              properties: {
+                building_code_references: { type: "array", items: { type: "string" } },
+                accessibility_features: { type: "array", items: { type: "string" } },
+                fire_safety_elements: { type: "array", items: { type: "string" } },
+                environmental_considerations: { type: "array", items: { type: "string" } }
+              }
+            }
+          },
+          required: ["construction_scope"]
+        }
+      }
+    };
+
+    // Call Lovable AI with scope extraction tool
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -163,8 +274,10 @@ Please provide a detailed analysis of this document focusing on construction pro
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
         ],
-        temperature: 0.7,
-        max_tokens: 2000
+        tools: [scopeExtractionTool],
+        tool_choice: { type: "function", function: { name: "extract_construction_scope" } },
+        temperature: 0.3,
+        max_tokens: 4000
       }),
     });
 
@@ -221,23 +334,27 @@ Please provide a detailed analysis of this document focusing on construction pro
       updated_at: new Date().toISOString()
     };
 
-    // Check if we got structured data from tool calling (for visual documents)
+    // Extract structured scope data from tool calling
     const message = aiResult.choices[0].message;
     if (message.tool_calls && message.tool_calls.length > 0) {
       const toolCall = message.tool_calls[0];
-      if (toolCall.function?.name === 'extract_drawing_data') {
+      if (toolCall.function?.name === 'extract_construction_scope') {
         try {
           const structuredData = JSON.parse(toolCall.function.arguments);
-          console.log('Saving structured drawing data to metadata:', {
+          console.log('Extracted comprehensive scope data:', {
             drawing_type: structuredData?.drawing_info?.type,
             spaces_count: structuredData?.spaces?.length || 0,
-            scope_items_count: structuredData?.construction_scope?.length || 0
+            scope_items_count: structuredData?.construction_scope?.length || 0,
+            openings_count: structuredData?.openings?.length || 0,
+            services_count: structuredData?.services?.length || 0,
+            external_works_count: structuredData?.external_works?.length || 0,
+            has_compliance: !!structuredData?.compliance
           });
           
-          // Store structured data in metadata field
+          // Store comprehensive structured data in metadata field
           updateData.metadata = structuredData;
         } catch (parseError) {
-          console.error('Failed to parse structured data:', parseError);
+          console.error('Failed to parse structured scope data:', parseError);
         }
       }
     }
