@@ -19,7 +19,7 @@ import { DocumentChatBar } from './DocumentChatBar';
 import { CategoryAIConfigDialog } from '../admin/skai/CategoryAIConfigDialog';
 import { ScopeGenerationDialog } from './ScopeGenerationDialog';
 
-import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain, Package } from 'lucide-react';
+import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain, Package, ImageIcon } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -644,6 +644,10 @@ export const ProjectDocsPage = ({
                   <Link className="h-4 w-4" />
                   Project Links
                 </TabsTrigger>
+                <TabsTrigger value="gallery" className="flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4" />
+                  Gallery
+                </TabsTrigger>
               </TabsList>
 
             {/* Project Docs Tab */}
@@ -874,6 +878,52 @@ export const ProjectDocsPage = ({
                     <p className="text-sm">No links added yet</p>
                     <p className="text-xs mt-1">Click Add Link to create your first project link</p>
                   </div>}
+              </div>
+            </TabsContent>
+
+            {/* Gallery Tab */}
+            <TabsContent value="gallery">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-foreground">Project Gallery</h2>
+                <Button 
+                  variant="outline"
+                  onClick={() => handleUploadClick('gallery')}
+                  className="gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  Upload Images
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {documents
+                  .filter(doc => doc.content_type?.startsWith('image/'))
+                  .map(doc => (
+                    <div 
+                      key={doc.id}
+                      className="group relative aspect-square rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all cursor-pointer"
+                      onClick={() => handleDocumentClick(doc)}
+                    >
+                      <img 
+                        src={doc.file_url} 
+                        alt={doc.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200" />
+                      <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <p className="text-white text-xs font-medium truncate">{doc.name}</p>
+                        <p className="text-white/70 text-xs">{formatFileSize(doc.file_size)}</p>
+                      </div>
+                    </div>
+                  ))}
+                
+                {documents.filter(doc => doc.content_type?.startsWith('image/')).length === 0 && (
+                  <div className="col-span-full text-center py-12 text-muted-foreground">
+                    <ImageIcon className="h-16 w-16 mx-auto mb-4 opacity-30" />
+                    <p className="text-sm">No images uploaded yet</p>
+                    <p className="text-xs mt-1">Click Upload Images to add photos to your gallery</p>
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
