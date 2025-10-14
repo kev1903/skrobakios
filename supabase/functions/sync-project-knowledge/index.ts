@@ -72,35 +72,42 @@ serve(async (req) => {
 
     let extractedText = document.extracted_text;
 
-    // Extract text from PDF if not already extracted
+    // Extract text from PDF if not already extracted (with size limits)
     if (!extractedText && document.content_type === 'application/pdf') {
-      console.log("Extracting text from PDF...");
+      const maxFileSize = 5 * 1024 * 1024; // 5MB limit for text extraction
       
-      try {
-        // Download the PDF file
-        const pdfResponse = await fetch(document.file_url);
-        if (!pdfResponse.ok) {
-          throw new Error('Failed to download PDF');
-        }
-        const pdfBuffer = await pdfResponse.arrayBuffer();
+      if (document.file_size && document.file_size > maxFileSize) {
+        console.log(`PDF too large for text extraction (${Math.round(document.file_size / 1024 / 1024)}MB), skipping...`);
+        // Continue without text extraction for large files
+      } else {
+        console.log("Extracting text from PDF...");
         
-        console.log(`PDF downloaded (${Math.round(pdfBuffer.byteLength / 1024)}KB), extracting text...`);
-        
-        // Extract text using pdf-parse (pass Uint8Array directly)
-        const pdfData = await pdfParse(new Uint8Array(pdfBuffer));
-        extractedText = pdfData.text;
-        
-        console.log(`Text extracted: ${extractedText.length} characters from ${pdfData.numpages} pages`);
-        
-        // Store extracted text in database for future use
-        await supabase
-          .from("project_documents")
-          .update({ extracted_text: extractedText })
-          .eq("id", documentId);
+        try {
+          // Download the PDF file
+          const pdfResponse = await fetch(document.file_url);
+          if (!pdfResponse.ok) {
+            throw new Error('Failed to download PDF');
+          }
+          const pdfBuffer = await pdfResponse.arrayBuffer();
           
-      } catch (pdfError) {
-        console.error("Error extracting PDF text:", pdfError);
-        // Continue without extracted text - AI will analyze based on metadata
+          console.log(`PDF downloaded (${Math.round(pdfBuffer.byteLength / 1024)}KB), extracting text...`);
+          
+          // Extract text using pdf-parse (pass Uint8Array directly)
+          const pdfData = await pdfParse(new Uint8Array(pdfBuffer));
+          extractedText = pdfData.text;
+          
+          console.log(`Text extracted: ${extractedText.length} characters from ${pdfData.numpages} pages`);
+          
+          // Store extracted text in database for future use
+          await supabase
+            .from("project_documents")
+            .update({ extracted_text: extractedText })
+            .eq("id", documentId);
+            
+        } catch (pdfError) {
+          console.error("Error extracting PDF text:", pdfError);
+          // Continue without extracted text - AI will analyze based on metadata
+        }
       }
     }
 
@@ -142,11 +149,12 @@ Provide a comprehensive but concise summary (max 500 words) that would be useful
 Document Name: ${document.name}
 Document Type: ${document.document_type || 'Unknown'}
 File Type: ${document.content_type || 'Unknown'}
+File Size: ${document.file_size ? `${Math.round(document.file_size / 1024 / 1024)}MB` : 'Unknown'}
 ${categoryConfig ? `Category: ${categoryConfig.name}` : ''}
 
-${extractedText ? `Document Content:\n${extractedText.substring(0, 15000)}` : 'Note: Full document text is not available. Please provide analysis based on the document name, type, and general construction project management best practices for this type of document.'}
+${extractedText ? `Document Content:\n${extractedText.substring(0, 10000)}` : 'Note: This is a large PDF file. Please analyze based on the document name, type, and construction project management best practices. Extract comprehensive scope data including spaces, construction elements, materials, openings, services, external works, and compliance requirements based on typical architectural drawing standards.'}
 
-Please provide a detailed analysis of this document focusing on construction project management aspects. Include key insights, potential risks, and actionable recommendations.`;
+Please provide detailed scope extraction focusing on construction project management aspects. Extract all measurable quantities, materials, and specifications that can be identified.
 
     console.log("Calling Lovable AI for comprehensive scope extraction...");
 
