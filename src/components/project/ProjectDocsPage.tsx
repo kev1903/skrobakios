@@ -1102,47 +1102,6 @@ export const ProjectDocsPage = ({
                   <p className="text-sm text-white/70">{formatFileSize(previewImageDoc.file_size)}</p>
                 </div>
               </div>
-              
-              {/* Details Footer - No border */}
-              <div className="p-4 space-y-3 bg-black/60 backdrop-blur-sm">
-                {(() => {
-                  const aiTags = previewImageDoc.metadata?.ai_tags || [];
-                  const aiDescription = previewImageDoc.metadata?.ai_description || '';
-                  
-                  return (
-                    <>
-                      {/* AI Description */}
-                      {aiDescription && (
-                        <div className="p-3 rounded-lg bg-primary/5 border border-primary/10">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Brain className="w-4 h-4 text-primary" />
-                            <p className="text-sm font-medium text-foreground">AI Analysis</p>
-                          </div>
-                          <p className="text-sm text-muted-foreground">{aiDescription}</p>
-                        </div>
-                      )}
-                      
-                      {/* AI Tags */}
-                      {aiTags.length > 0 && (
-                        <div>
-                          <p className="text-sm font-medium text-foreground mb-2">Tags</p>
-                          <div className="flex flex-wrap gap-2">
-                            {aiTags.map((tag: string, idx: number) => (
-                              <Badge 
-                                key={idx} 
-                                variant="secondary"
-                                className="bg-primary/10 text-primary border-primary/20"
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  );
-                })()}
-              </div>
             </div>
           )}
         </AlertDialogContent>
