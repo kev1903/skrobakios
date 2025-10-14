@@ -731,7 +731,6 @@ export const ProjectDocsPage = ({
                                        // Select document to show its analysis
                                        console.log('📄 Document clicked:', doc.id, doc.name);
                                        setSelectedDocumentId(doc.id);
-                                       setDocumentChatOpen(true); // Auto-open chat when document is clicked
                                      }}
                                   >
                                     <div className="flex items-center gap-2.5 min-w-0 flex-1">
