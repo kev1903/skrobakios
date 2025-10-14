@@ -318,9 +318,86 @@ Please provide detailed scope extraction focusing on construction project manage
     }
 
     const aiResult = await aiResponse.json();
-    const aiSummary = aiResult.choices?.[0]?.message?.content;
+    const message = aiResult.choices?.[0]?.message;
+    
+    // When using tool_choice, the AI returns structured data via tool_calls
+    // We need to handle this differently than text responses
+    let aiSummary = message?.content || '';
+    let hasStructuredData = false;
 
-    if (!aiSummary) {
+    // Extract structured scope data from tool calling
+    if (message?.tool_calls && message.tool_calls.length > 0) {
+      const toolCall = message.tool_calls[0];
+      if (toolCall.function?.name === 'extract_construction_scope') {
+        try {
+          const structuredData = JSON.parse(toolCall.function.arguments);
+          hasStructuredData = true;
+          
+          console.log('Extracted comprehensive scope data:', {
+            drawing_type: structuredData?.drawing_info?.type,
+            spaces_count: structuredData?.spaces?.length || 0,
+            scope_items_count: structuredData?.construction_scope?.length || 0,
+            openings_count: structuredData?.openings?.length || 0,
+            services_count: structuredData?.services?.length || 0,
+            external_works_count: structuredData?.external_works?.length || 0,
+            has_compliance: !!structuredData?.compliance
+          });
+          
+          // Generate a text summary from structured data
+          aiSummary = `Construction Scope Analysis Complete\n\n`;
+          if (structuredData.drawing_info) {
+            aiSummary += `Drawing Type: ${structuredData.drawing_info.type || 'Not specified'}\n`;
+            aiSummary += `Scale: ${structuredData.drawing_info.scale || 'Not specified'}\n`;
+            aiSummary += `Level: ${structuredData.drawing_info.level || 'Not specified'}\n\n`;
+          }
+          aiSummary += `Extracted ${structuredData.construction_scope?.length || 0} construction scope items\n`;
+          aiSummary += `Identified ${structuredData.spaces?.length || 0} spaces\n`;
+          aiSummary += `Found ${structuredData.openings?.length || 0} openings (doors/windows)\n`;
+          aiSummary += `Documented ${structuredData.services?.length || 0} service elements\n`;
+          aiSummary += `Recorded ${structuredData.external_works?.length || 0} external works items\n`;
+          
+          // Prepare update with structured data
+          const updateData: any = {
+            ai_summary: aiSummary,
+            metadata: structuredData,
+            processing_status: 'completed',
+            updated_at: new Date().toISOString()
+          };
+
+          const { error: updateError } = await supabase
+            .from("project_documents")
+            .update(updateData)
+            .eq("id", documentId);
+
+          if (updateError) {
+            console.error("Error updating document:", updateError);
+            return new Response(
+              JSON.stringify({ error: "Failed to save analysis", details: updateError.message }),
+              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+
+          console.log("Document analysis completed successfully");
+
+          return new Response(
+            JSON.stringify({
+              success: true,
+              documentId,
+              summary: aiSummary,
+              hasStructuredData: true,
+              message: "Document analysis completed successfully"
+            }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+          
+        } catch (parseError) {
+          console.error('Failed to parse structured scope data:', parseError);
+          aiSummary = "Analysis completed but failed to parse structured data. Please review the document manually.";
+        }
+      }
+    }
+
+    if (!aiSummary || aiSummary.trim() === '') {
       console.error("No analysis generated from AI");
       await supabase
         .from("project_documents")
@@ -333,41 +410,15 @@ Please provide detailed scope extraction focusing on construction project manage
       );
     }
 
+    // Fallback for non-structured responses
     console.log("AI analysis completed, updating document...");
 
-    // Prepare update object
     const updateData: any = {
       ai_summary: aiSummary,
       processing_status: 'completed',
       updated_at: new Date().toISOString()
     };
 
-    // Extract structured scope data from tool calling
-    const message = aiResult.choices[0].message;
-    if (message.tool_calls && message.tool_calls.length > 0) {
-      const toolCall = message.tool_calls[0];
-      if (toolCall.function?.name === 'extract_construction_scope') {
-        try {
-          const structuredData = JSON.parse(toolCall.function.arguments);
-          console.log('Extracted comprehensive scope data:', {
-            drawing_type: structuredData?.drawing_info?.type,
-            spaces_count: structuredData?.spaces?.length || 0,
-            scope_items_count: structuredData?.construction_scope?.length || 0,
-            openings_count: structuredData?.openings?.length || 0,
-            services_count: structuredData?.services?.length || 0,
-            external_works_count: structuredData?.external_works?.length || 0,
-            has_compliance: !!structuredData?.compliance
-          });
-          
-          // Store comprehensive structured data in metadata field
-          updateData.metadata = structuredData;
-        } catch (parseError) {
-          console.error('Failed to parse structured scope data:', parseError);
-        }
-      }
-    }
-
-    // Update the document with AI summary and optional structured data
     const { error: updateError } = await supabase
       .from("project_documents")
       .update(updateData)
