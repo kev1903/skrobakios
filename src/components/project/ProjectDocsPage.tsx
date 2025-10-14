@@ -639,211 +639,227 @@ export const ProjectDocsPage = ({
         <ProjectPageHeader projectName={project.name} pageTitle="Project Documents & Links" onNavigate={onNavigate} />
         
         <div className="p-6 h-[calc(100vh-180px)]">
-          {/* Full Width Content - Project Docs & Links & Gallery */}
-          <div className="w-full h-full">
-            <Tabs defaultValue="docs" value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
-              <TabsList className="mb-6">
-                <TabsTrigger value="docs" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Project Docs
-                </TabsTrigger>
-                <TabsTrigger value="links" className="flex items-center gap-2">
-                  <Link className="h-4 w-4" />
-                  Project Links
-                </TabsTrigger>
-                <TabsTrigger value="gallery" className="flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4" />
-                  Gallery
-                </TabsTrigger>
-              </TabsList>
+          <Tabs defaultValue="docs" value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
+            <TabsList className="mb-6">
+              <TabsTrigger value="docs" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Project Docs
+              </TabsTrigger>
+              <TabsTrigger value="links" className="flex items-center gap-2">
+                <Link className="h-4 w-4" />
+                Project Links
+              </TabsTrigger>
+              <TabsTrigger value="gallery" className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4" />
+                Gallery
+              </TabsTrigger>
+            </TabsList>
 
-            {/* Project Docs Tab */}
-            <TabsContent value="docs">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-foreground">Document Categories</h2>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline"
-                    onClick={() => setScopeDialogOpen(true)}
-                    disabled={documents.filter(d => d.processing_status === 'completed' && (d as any).metadata).length === 0}
-                    className="gap-2"
-                  >
-                    <Package className="w-4 h-4" />
-                    Generate Scope
-                  </Button>
-                </div>
-              </div>
-              <div className="space-y-4">
-                {documentCategories.map(category => {
-                  const isExpanded = expandedCategories[category.id];
-                  const categoryDocs = getDocumentsByCategory(category.dbId || category.id);
-                  const Icon = category.icon;
-                  return <Collapsible key={category.id} open={isExpanded} onOpenChange={() => toggleCategory(category.id)}>
-                      <div className={`border border-border rounded-lg overflow-hidden hover:border-border/60 transition-all duration-200`}>
-                        {/* Category Header */}
-                        <CollapsibleTrigger asChild>
-                          <div className="px-4 py-2">
-                            <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded p-2">
-                              <div className="flex items-center gap-2.5 category-title-area">
-                                {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" /> : <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform" />}
-                                <Icon className="h-4 w-4 text-foreground" />
-                                <h3 className="text-sm font-medium text-foreground">
-                                  {category.title}
-                                </h3>
-                                {categoryDocs.length > 0 && <span className="text-xs text-muted-foreground bg-accent px-2 py-0.5 rounded-full">
-                                    {categoryDocs.length}
-                                  </span>}
-                              </div>
-                              <div className="flex items-center gap-1">
-                                {categoryAnalysisProgress[category.dbId || category.id]?.analyzing ? <>
+            {/* Project Docs Tab - Two Column Layout */}
+            <TabsContent value="docs" className="flex-1 overflow-hidden">
+              <div className="flex gap-6 h-full">
+                {/* Left Column - Document Categories */}
+                <div className="flex-1 pr-6 max-w-[50%] overflow-auto">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-xl font-semibold text-foreground">Document Categories</h2>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline"
+                        onClick={() => setScopeDialogOpen(true)}
+                        disabled={documents.filter(d => d.processing_status === 'completed' && (d as any).metadata).length === 0}
+                        className="gap-2"
+                      >
+                        <Package className="w-4 h-4" />
+                        Generate Scope
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    {documentCategories.map(category => {
+                      const isExpanded = expandedCategories[category.id];
+                      const categoryDocs = getDocumentsByCategory(category.dbId || category.id);
+                      const Icon = category.icon;
+                      return <Collapsible key={category.id} open={isExpanded} onOpenChange={() => toggleCategory(category.id)}>
+                          <div className={`border border-border rounded-lg overflow-hidden hover:border-border/60 transition-all duration-200`}>
+                            {/* Category Header */}
+                            <CollapsibleTrigger asChild>
+                              <div className="px-4 py-2">
+                                <div className="flex items-center justify-between cursor-pointer hover:bg-accent/50 transition-colors rounded p-2">
+                                  <div className="flex items-center gap-2.5 category-title-area">
+                                    {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" /> : <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform" />}
+                                    <Icon className="h-4 w-4 text-foreground" />
+                                    <h3 className="text-sm font-medium text-foreground">
+                                      {category.title}
+                                    </h3>
+                                    {categoryDocs.length > 0 && <span className="text-xs text-muted-foreground bg-accent px-2 py-0.5 rounded-full">
+                                        {categoryDocs.length}
+                                      </span>}
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    {categoryAnalysisProgress[category.dbId || category.id]?.analyzing ? <>
+                                        <Button variant="ghost" size="sm" onClick={e => {
+                                      e.stopPropagation();
+                                      handleStopAnalysis(category.dbId || category.id);
+                                    }} className="h-7 px-2 text-xs text-destructive hover:text-destructive/80" title="Stop analysis">
+                                          <XCircle className="w-3.5 h-3.5 mr-1" />
+                                          Stop
+                                        </Button>
+                                      </> : <>
+                                        {categoryDocs.length > 0 && <Badge variant="outline" className="h-7 px-2 text-xs border-blue-500/30 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20">
+                                            <Brain className="w-3 h-3 mr-1" />
+                                            {categoryAnalysisProgress[category.dbId || category.id]?.progress || 0}/{categoryDocs.length} Analyzed
+                                          </Badge>}
+                                        <Button variant="ghost" size="sm" onClick={e => {
+                                      e.stopPropagation();
+                                      handleAnalyzeCategory(category.dbId || category.id);
+                                    }} className="h-7 w-7 p-0 text-primary hover:text-primary/80" title="Analyze all with SkAi" disabled={categoryDocs.length === 0}>
+                                          <Sparkles className="w-3.5 h-3.5" />
+                                        </Button>
+                                      </>}
                                     <Button variant="ghost" size="sm" onClick={e => {
-                                  e.stopPropagation();
-                                  handleStopAnalysis(category.dbId || category.id);
-                                }} className="h-7 px-2 text-xs text-destructive hover:text-destructive/80" title="Stop analysis">
-                                      <XCircle className="w-3.5 h-3.5 mr-1" />
-                                      Stop
+                                    e.stopPropagation();
+                                    handleUploadClick(category.dbId || category.id);
+                                  }} className="h-7 w-7 p-0">
+                                      <Upload className="w-3.5 h-3.5" />
                                     </Button>
-                                  </> : <>
-                                    {categoryDocs.length > 0 && <Badge variant="outline" className="h-7 px-2 text-xs border-blue-500/30 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20">
-                                        <Brain className="w-3 h-3 mr-1" />
-                                        {categoryAnalysisProgress[category.dbId || category.id]?.progress || 0}/{categoryDocs.length} Analyzed
-                                      </Badge>}
-                                    <Button variant="ghost" size="sm" onClick={e => {
-                                  e.stopPropagation();
-                                  handleAnalyzeCategory(category.dbId || category.id);
-                                }} className="h-7 w-7 p-0 text-primary hover:text-primary/80" title="Analyze all with SkAi" disabled={categoryDocs.length === 0}>
-                                      <Sparkles className="w-3.5 h-3.5" />
-                                    </Button>
-                                  </>}
-                                <Button variant="ghost" size="sm" onClick={e => {
-                                e.stopPropagation();
-                                handleUploadClick(category.dbId || category.id);
-                              }} className="h-7 w-7 p-0">
-                                  <Upload className="w-3.5 h-3.5" />
-                                </Button>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
-                        </CollapsibleTrigger>
+                            </CollapsibleTrigger>
 
-                        {/* Category Content */}
-                        <CollapsibleContent>
-                          <div className="px-4 pb-3 pt-1">
-                          
-                            {categoryDocs.length > 0 ? <div className="space-y-1">
-                                {categoryDocs.map(doc => <div 
-                                    key={doc.id} 
-                                    className={`group flex items-center justify-between p-2 rounded transition-all duration-200 cursor-pointer ${
-                                      selectedDocumentId === doc.id 
-                                        ? 'bg-primary/10 border-l-2 border-primary' 
-                                        : 'hover:bg-accent/50'
-                                    }`}
-                                     onClick={() => {
-                                       // Select document to show its analysis
-                                       console.log('📄 Document clicked:', doc.id, doc.name);
-                                       setSelectedDocumentId(doc.id);
-                                     }}
-                                  >
-                                    <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                                      <FileText className="h-4 w-4 text-primary/70 flex-shrink-0" />
-                                      <div className="min-w-0 flex-1">
-                                        <p className="text-sm text-foreground truncate">
-                                          {doc.name}
-                                        </p>
-                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                          <span>{formatFileSize(doc.file_size)}</span>
-                                          <span>•</span>
-                                          <span>{new Date(doc.created_at).toLocaleDateString()}</span>
-                                          {doc.ai_summary && !documentAnalysisProgress[doc.id] && (
-                                            <>
+                            {/* Category Content */}
+                            <CollapsibleContent>
+                              <div className="px-4 pb-3 pt-1">
+                              
+                                {categoryDocs.length > 0 ? <div className="space-y-1">
+                                    {categoryDocs.map(doc => <div 
+                                        key={doc.id} 
+                                        className={`group flex items-center justify-between p-2 rounded transition-all duration-200 cursor-pointer ${
+                                          selectedDocumentId === doc.id 
+                                            ? 'bg-primary/10 border-l-2 border-primary' 
+                                            : 'hover:bg-accent/50'
+                                        }`}
+                                         onClick={() => {
+                                           // Select document to show its analysis
+                                           console.log('📄 Document clicked:', doc.id, doc.name);
+                                           setSelectedDocumentId(doc.id);
+                                         }}
+                                      >
+                                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                                          <FileText className="h-4 w-4 text-primary/70 flex-shrink-0" />
+                                          <div className="min-w-0 flex-1">
+                                            <p className="text-sm text-foreground truncate">
+                                              {doc.name}
+                                            </p>
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                              <span>{formatFileSize(doc.file_size)}</span>
                                               <span>•</span>
-                                              <CheckCircle2 className="h-3 w-3 text-green-600" />
-                                            </>
-                                          )}
-                                        </div>
-                                        
-                                        {/* Individual Document Progress Bar */}
-                                        {documentAnalysisProgress[doc.id]?.analyzing && (
-                                          <div className="mt-2 space-y-1">
-                                            <div className="flex items-center justify-between text-xs">
-                                              <span className="text-primary flex items-center gap-1">
-                                                <Sparkles className="h-3 w-3 animate-pulse" />
-                                                Analyzing...
-                                              </span>
-                                              <span className="text-primary font-semibold">
-                                                {documentAnalysisProgress[doc.id].progress}%
-                                              </span>
+                                              <span>{new Date(doc.created_at).toLocaleDateString()}</span>
+                                              {doc.ai_summary && !documentAnalysisProgress[doc.id] && (
+                                                <>
+                                                  <span>•</span>
+                                                  <CheckCircle2 className="h-3 w-3 text-green-600" />
+                                                </>
+                                              )}
                                             </div>
-                                            <Progress 
-                                              value={documentAnalysisProgress[doc.id].progress} 
-                                              className="h-1.5" 
-                                            />
+                                            
+                                            {/* Individual Document Progress Bar */}
+                                            {documentAnalysisProgress[doc.id]?.analyzing && (
+                                              <div className="mt-2 space-y-1">
+                                                <div className="flex items-center justify-between text-xs">
+                                                  <span className="text-primary flex items-center gap-1">
+                                                    <Sparkles className="h-3 w-3 animate-pulse" />
+                                                    Analyzing...
+                                                  </span>
+                                                  <span className="text-primary font-semibold">
+                                                    {documentAnalysisProgress[doc.id].progress}%
+                                                  </span>
+                                                </div>
+                                                <Progress 
+                                                  value={documentAnalysisProgress[doc.id].progress} 
+                                                  className="h-1.5" 
+                                                />
+                                              </div>
+                                            )}
                                           </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleAnalyzeDocument(doc.id, doc.name);
-                                        }} 
-                                        className="h-7 w-7 p-0 text-primary hover:text-primary/80 hover:scale-110 transition-all duration-200"
-                                        title="Re-analyze with SkAi"
-                                      >
-                                        <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-                                      </Button>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleDocumentClick(doc);
-                                        }} 
-                                        className="h-7 w-7 p-0"
-                                      >
-                                        <Edit className="h-3.5 w-3.5" />
-                                      </Button>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          window.open(doc.file_url, '_blank');
-                                        }} 
-                                        className="h-7 w-7 p-0"
-                                      >
-                                        <Download className="h-3.5 w-3.5" />
-                                      </Button>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          deleteDocument(doc.id);
-                                        }} 
-                                        className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                                      >
-                                        <Trash2 className="h-3.5 w-3.5" />
-                                      </Button>
-                                    </div>
-                                  </div>)}
-                              </div> : <div className="text-center py-6 text-muted-foreground">
-                                <FileText className="h-10 w-10 mx-auto mb-2 opacity-20" />
-                                <p className="text-xs">No documents uploaded yet</p>
-                              </div>}
+                                        </div>
+                                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                          <Button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleAnalyzeDocument(doc.id, doc.name);
+                                            }} 
+                                            className="h-7 w-7 p-0 text-primary hover:text-primary/80 hover:scale-110 transition-all duration-200"
+                                            title="Re-analyze with SkAi"
+                                          >
+                                            <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+                                          </Button>
+                                          <Button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              handleDocumentClick(doc);
+                                            }} 
+                                            className="h-7 w-7 p-0"
+                                          >
+                                            <Edit className="h-3.5 w-3.5" />
+                                          </Button>
+                                          <Button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              window.open(doc.file_url, '_blank');
+                                            }} 
+                                            className="h-7 w-7 p-0"
+                                          >
+                                            <Download className="h-3.5 w-3.5" />
+                                          </Button>
+                                          <Button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              deleteDocument(doc.id);
+                                            }} 
+                                            className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                                          >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                          </Button>
+                                        </div>
+                                      </div>)}
+                                  </div> : <div className="text-center py-6 text-muted-foreground">
+                                    <FileText className="h-10 w-10 mx-auto mb-2 opacity-20" />
+                                    <p className="text-xs">No documents uploaded yet</p>
+                                  </div>}
+                              </div>
+                            </CollapsibleContent>
                           </div>
-                        </CollapsibleContent>
-                      </div>
-                    </Collapsible>;
-                })}
+                        </Collapsible>;
+                    })}
+                  </div>
+                </div>
+
+                {/* Vertical Divider */}
+                <div className="w-px bg-border self-stretch" />
+
+                {/* Right Column - SkAi Analysis Panel */}
+                <div className="flex-1 pl-6 max-w-[50%] flex flex-col h-full overflow-auto">
+                  <ProjectKnowledgeStatus 
+                    projectId={projectId!} 
+                    companyId={project.company_id} 
+                    selectedDocumentId={selectedDocumentId}
+                    onClearSelection={() => setSelectedDocumentId(null)}
+                  />
+                </div>
               </div>
             </TabsContent>
 
-            {/* Project Links Tab */}
-            <TabsContent value="links">
+            {/* Project Links Tab - Full Width */}
+            <TabsContent value="links" className="flex-1 overflow-auto">
               <div className="space-y-4">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-semibold text-foreground">Project Links</h2>
@@ -991,7 +1007,6 @@ export const ProjectDocsPage = ({
             </TabsContent>
           </Tabs>
         </div>
-      </div>
       </div>
 
       {/* Floating Chat Button */}
