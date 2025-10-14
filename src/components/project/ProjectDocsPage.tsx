@@ -90,6 +90,10 @@ export const ProjectDocsPage = ({
   
   // Active tab tracking
   const [activeTab, setActiveTab] = useState<string>("docs");
+  
+  // Image preview dialog state
+  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+  const [previewImageDoc, setPreviewImageDoc] = useState<any | null>(null);
 
 
   // Document categories - loaded from database
@@ -916,7 +920,10 @@ export const ProjectDocsPage = ({
                       <div 
                         key={doc.id}
                         className="group relative aspect-square rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all cursor-pointer"
-                        onClick={() => handleDocumentClick(doc)}
+                        onClick={() => {
+                          setPreviewImageDoc(doc);
+                          setImagePreviewOpen(true);
+                        }}
                       >
                         <img 
                           src={doc.file_url} 
@@ -965,22 +972,6 @@ export const ProjectDocsPage = ({
                                   </Badge>
                                 )}
                               </div>
-                            )}
-                            
-                            {/* AI Analysis button */}
-                            {!doc.ai_summary && !isAnalyzing && (
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                className="w-full mt-2 gap-1"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAnalyzeDocument(doc.id, doc.name);
-                                }}
-                              >
-                                <Brain className="w-3 h-3" />
-                                Analyze with AI
-                              </Button>
                             )}
                           </div>
                         </div>
@@ -1197,6 +1188,105 @@ export const ProjectDocsPage = ({
       {/* Document Edit Dialog */}
       <DocumentEditDialog open={editDocDialogOpen} onOpenChange={setEditDocDialogOpen} document={selectedDocument} onDocumentUpdated={handleDocumentUpdated} onDelete={handleDocumentDelete} />
 
+      {/* Image Preview Dialog */}
+      <AlertDialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
+        <AlertDialogContent className="max-w-5xl w-[90vw] max-h-[90vh] p-0 overflow-hidden">
+          {previewImageDoc && (
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-foreground truncate">{previewImageDoc.name}</h3>
+                  <p className="text-sm text-muted-foreground">{formatFileSize(previewImageDoc.file_size)}</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setImagePreviewOpen(false)}
+                >
+                  <XCircle className="w-4 h-4" />
+                </Button>
+              </div>
+              
+              {/* Image Container */}
+              <div className="flex-1 overflow-auto bg-muted/20 p-6 flex items-center justify-center">
+                <img 
+                  src={previewImageDoc.file_url} 
+                  alt={previewImageDoc.name}
+                  className="max-w-full max-h-[70vh] object-contain rounded-lg"
+                />
+              </div>
+              
+              {/* Details Footer */}
+              <div className="p-4 border-t space-y-3 bg-background">
+                {(() => {
+                  const aiTags = previewImageDoc.metadata?.ai_tags || [];
+                  const aiDescription = previewImageDoc.metadata?.ai_description || '';
+                  
+                  return (
+                    <>
+                      {/* AI Description */}
+                      {aiDescription && (
+                        <div className="p-3 rounded-lg bg-primary/5 border border-primary/10">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Brain className="w-4 h-4 text-primary" />
+                            <p className="text-sm font-medium text-foreground">AI Analysis</p>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{aiDescription}</p>
+                        </div>
+                      )}
+                      
+                      {/* AI Tags */}
+                      {aiTags.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-foreground mb-2">Tags</p>
+                          <div className="flex flex-wrap gap-2">
+                            {aiTags.map((tag: string, idx: number) => (
+                              <Badge 
+                                key={idx} 
+                                variant="secondary"
+                                className="bg-primary/10 text-primary border-primary/20"
+                              >
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Actions */}
+                      <div className="flex gap-2 pt-2">
+                        <Button
+                          variant="outline"
+                          className="gap-2"
+                          onClick={() => window.open(previewImageDoc.file_url, '_blank')}
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          Open Original
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="gap-2"
+                          onClick={() => {
+                            setImagePreviewOpen(false);
+                            setTimeout(() => {
+                              setSelectedDocumentId(previewImageDoc.id);
+                            }, 100);
+                          }}
+                        >
+                          <FileText className="w-4 h-4" />
+                          View in Panel
+                        </Button>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+        </AlertDialogContent>
+      </AlertDialog>
+      
       {/* Scope Generation Dialog */}
       {project && (
         <ScopeGenerationDialog
