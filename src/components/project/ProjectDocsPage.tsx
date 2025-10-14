@@ -1190,30 +1190,31 @@ export const ProjectDocsPage = ({
 
       {/* Image Preview Dialog */}
       <AlertDialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
-        <AlertDialogContent className="max-w-5xl w-[90vw] max-h-[90vh] p-0 overflow-hidden border-0 z-[9999]">
+        <AlertDialogContent className="max-w-7xl w-[95vw] max-h-[95vh] p-0 overflow-hidden border-0 !z-[99999]">
           {previewImageDoc && (
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full bg-black/95">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b">
+              <div className="flex items-center justify-between p-4 bg-background/10 backdrop-blur-sm border-b border-white/10">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-lg font-semibold text-foreground truncate">{previewImageDoc.name}</h3>
-                  <p className="text-sm text-muted-foreground">{formatFileSize(previewImageDoc.file_size)}</p>
+                  <h3 className="text-lg font-semibold text-white truncate">{previewImageDoc.name}</h3>
+                  <p className="text-sm text-white/70">{formatFileSize(previewImageDoc.file_size)}</p>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setImagePreviewOpen(false)}
+                  className="hover:bg-white/10 text-white"
                 >
-                  <XCircle className="w-4 h-4" />
+                  <XCircle className="w-5 h-5" />
                 </Button>
               </div>
               
               {/* Image Container */}
-              <div className="flex-1 overflow-auto bg-muted/20 p-6 flex items-center justify-center">
+              <div className="flex-1 overflow-auto bg-black flex items-center justify-center">
                 <img 
                   src={previewImageDoc.file_url} 
                   alt={previewImageDoc.name}
-                  className="max-w-full max-h-[70vh] object-contain rounded-lg"
+                  className="max-w-full max-h-[75vh] object-contain"
                 />
               </div>
               
