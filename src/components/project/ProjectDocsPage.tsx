@@ -19,7 +19,7 @@ import { DocumentChatBar } from './DocumentChatBar';
 import { CategoryAIConfigDialog } from '../admin/skai/CategoryAIConfigDialog';
 import { ScopeGenerationDialog } from './ScopeGenerationDialog';
 
-import { FileText, Upload, ChevronDown, ChevronRight, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain, Package, ImageIcon } from 'lucide-react';
+import { FileText, Upload, ChevronDown, ChevronRight, ChevronLeft, Download, Trash2, Link, Plus, Edit, ExternalLink, Sparkles, Loader2, XCircle, RotateCw, CheckCircle2, Brain, Package, ImageIcon } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../tasks/utils/taskUtils';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -1076,34 +1076,78 @@ export const ProjectDocsPage = ({
       {/* Image Preview Dialog */}
       <AlertDialog open={imagePreviewOpen} onOpenChange={setImagePreviewOpen}>
         <AlertDialogContent className="max-w-7xl w-[95vw] max-h-[95vh] p-0 overflow-hidden border-0 !z-[99999] bg-transparent">
-          {previewImageDoc && (
-            <div className="relative flex flex-col h-full bg-transparent">
-              {/* Close Button - Floating */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setImagePreviewOpen(false)}
-                className="absolute top-4 right-4 z-50 hover:bg-black/20 text-white rounded-full w-10 h-10 p-0 bg-black/40 backdrop-blur-sm"
-              >
-                <XCircle className="w-6 h-6" />
-              </Button>
-              
-              {/* Image Container with Floating Name */}
-              <div className="flex-1 overflow-auto bg-transparent flex items-center justify-center relative">
-                <img 
-                  src={previewImageDoc.file_url} 
-                  alt={previewImageDoc.name}
-                  className="max-w-full max-h-[85vh] object-contain"
-                />
+          {previewImageDoc && (() => {
+            const imageDocuments = documents.filter(doc => doc.content_type?.startsWith('image/'));
+            const currentIndex = imageDocuments.findIndex(doc => doc.id === previewImageDoc.id);
+            const hasPrevious = currentIndex > 0;
+            const hasNext = currentIndex < imageDocuments.length - 1;
+            
+            const handlePrevious = () => {
+              if (hasPrevious) {
+                setPreviewImageDoc(imageDocuments[currentIndex - 1]);
+              }
+            };
+            
+            const handleNext = () => {
+              if (hasNext) {
+                setPreviewImageDoc(imageDocuments[currentIndex + 1]);
+              }
+            };
+            
+            return (
+              <div className="relative flex flex-col h-full bg-transparent">
+                {/* Close Button - Floating */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setImagePreviewOpen(false)}
+                  className="absolute top-4 right-4 z-50 hover:bg-black/20 text-white rounded-full w-10 h-10 p-0 bg-black/40 backdrop-blur-sm"
+                >
+                  <XCircle className="w-6 h-6" />
+                </Button>
                 
-                {/* Floating Image Name */}
-                <div className="absolute bottom-6 left-6 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg">
-                  <h3 className="text-base font-semibold text-white">{previewImageDoc.name}</h3>
-                  <p className="text-sm text-white/70">{formatFileSize(previewImageDoc.file_size)}</p>
+                {/* Image Container with Navigation */}
+                <div className="flex-1 overflow-auto bg-transparent flex items-center justify-center relative">
+                  {/* Previous Button */}
+                  {hasPrevious && (
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      onClick={handlePrevious}
+                      className="absolute left-4 z-50 hover:bg-black/40 text-white rounded-full w-12 h-12 p-0 bg-black/30 backdrop-blur-sm"
+                    >
+                      <ChevronLeft className="w-8 h-8" />
+                    </Button>
+                  )}
+                  
+                  {/* Image */}
+                  <img 
+                    src={previewImageDoc.file_url} 
+                    alt={previewImageDoc.name}
+                    className="max-w-full max-h-[85vh] object-contain"
+                  />
+                  
+                  {/* Next Button */}
+                  {hasNext && (
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      onClick={handleNext}
+                      className="absolute right-4 z-50 hover:bg-black/40 text-white rounded-full w-12 h-12 p-0 bg-black/30 backdrop-blur-sm"
+                    >
+                      <ChevronRight className="w-8 h-8" />
+                    </Button>
+                  )}
+                  
+                  {/* Floating Image Name */}
+                  <div className="absolute bottom-6 left-6 bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg">
+                    <h3 className="text-base font-semibold text-white">{previewImageDoc.name}</h3>
+                    <p className="text-sm text-white/70">{formatFileSize(previewImageDoc.file_size)}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </AlertDialogContent>
       </AlertDialog>
       
