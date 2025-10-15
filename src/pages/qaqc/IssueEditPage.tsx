@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { useSearchParams } from 'react-router-dom';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { useProjects, Project } from '@/hooks/useProjects';
-import { ArrowLeft, Save, AlertTriangle, Upload, Paperclip, X } from 'lucide-react';
+import { ArrowLeft, Save, AlertTriangle, Upload, Paperclip, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { RFIComments } from '@/components/qaqc/RFIComments';
@@ -36,6 +36,8 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
   const { getProject } = useProjects();
   const [project, setProject] = useState<Project | null>(null);
   const [issueData, setIssueData] = useState<any>(null);
+  const [allIssues, setAllIssues] = useState<any[]>([]);
+  const [currentIndex, setCurrentIndex] = useState<number>(-1);
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -72,6 +74,32 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
       fetchProject();
     }
   }, [projectId, getProject]);
+
+  // Fetch all issues for navigation
+  useEffect(() => {
+    if (projectId) {
+      const fetchAllIssues = async () => {
+        try {
+          const { data: issues, error } = await supabase
+            .from('issues')
+            .select('id, title, created_at')
+            .eq('project_id', projectId)
+            .order('created_at', { ascending: true });
+
+          if (error) throw error;
+
+          if (issues) {
+            setAllIssues(issues);
+            const index = issues.findIndex(issue => issue.id === issueId);
+            setCurrentIndex(index);
+          }
+        } catch (error) {
+          console.error('Failed to fetch issues:', error);
+        }
+      };
+      fetchAllIssues();
+    }
+  }, [projectId, issueId]);
 
   useEffect(() => {
     if (issueId) {
@@ -387,6 +415,20 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
     }
   };
 
+  const handleNavigatePrevious = () => {
+    if (currentIndex > 0 && allIssues[currentIndex - 1]) {
+      const prevIssue = allIssues[currentIndex - 1];
+      onNavigate(`qaqc-issue-edit?projectId=${projectId}&issueId=${prevIssue.id}`);
+    }
+  };
+
+  const handleNavigateNext = () => {
+    if (currentIndex < allIssues.length - 1 && allIssues[currentIndex + 1]) {
+      const nextIssue = allIssues[currentIndex + 1];
+      onNavigate(`qaqc-issue-edit?projectId=${projectId}&issueId=${nextIssue.id}`);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -420,7 +462,30 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
         activeSection="qaqc"
       />
 
-      <div className="flex-1 ml-48 overflow-hidden">
+      <div className="flex-1 ml-48 overflow-hidden relative">
+        {/* Navigation Arrows */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleNavigatePrevious}
+          disabled={currentIndex <= 0}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 h-12 w-12 rounded-full bg-background/80 backdrop-blur-sm border-2 border-primary/20 shadow-lg hover:bg-primary hover:text-primary-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          title="Previous Issue"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleNavigateNext}
+          disabled={currentIndex >= allIssues.length - 1}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 h-12 w-12 rounded-full bg-background/80 backdrop-blur-sm border-2 border-primary/20 shadow-lg hover:bg-primary hover:text-primary-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          title="Next Issue"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </Button>
+
         <div className="h-full overflow-y-auto p-6">
           <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -434,6 +499,11 @@ export const IssueEditPage = ({ onNavigate }: IssueEditPageProps) => {
                 <h1 className="text-2xl font-bold text-foreground">Edit Issue</h1>
               </div>
             </div>
+            {allIssues.length > 0 && currentIndex >= 0 && (
+              <div className="text-sm text-muted-foreground">
+                Issue {currentIndex + 1} of {allIssues.length}
+              </div>
+            )}
           </div>
 
           <Card>
