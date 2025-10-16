@@ -86,3 +86,6 @@ verify_jwt = false
 
 [functions.generate-project-scope]
 verify_jwt = true
+
+[functions.ai-file-analysis]
+verify_jwt = true

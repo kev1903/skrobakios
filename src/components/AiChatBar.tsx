@@ -122,7 +122,63 @@ export const AiChatBar = () => {
     e.stopPropagation();
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const processFile = async (file: File) => {
+    try {
+      // Convert file to base64
+      const reader = new FileReader();
+      const fileData = await new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
+      // Add user message showing file upload
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        content: `📎 Uploaded ${file.name} for analysis`,
+        role: 'user',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, userMessage]);
+      setIsLoading(true);
+
+      // Call edge function to analyze file
+      const { data, error } = await supabase.functions.invoke('ai-file-analysis', {
+        body: {
+          fileData,
+          fileType: file.type,
+          fileName: file.name
+        }
+      });
+
+      if (error) throw error;
+
+      // Add AI response
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: data.analysis,
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, aiMessage]);
+
+      toast({
+        title: "Analysis complete",
+        description: "SkAi has analyzed your file.",
+      });
+    } catch (error) {
+      console.error('Error processing file:', error);
+      toast({
+        title: "Error",
+        description: "Failed to analyze file. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
@@ -143,13 +199,16 @@ export const AiChatBar = () => {
       return;
     }
 
+    // Process first file only
     if (validFiles.length > 0) {
-      toast({
-        title: "Files received",
-        description: `${validFiles.length} file(s) ready to process.`,
-      });
-      // TODO: Handle file processing here
-      console.log('Files dropped:', validFiles);
+      await processFile(validFiles[0]);
+      
+      if (validFiles.length > 1) {
+        toast({
+          title: "Multiple files detected",
+          description: "Processing first file only. Please drop one file at a time.",
+        });
+      }
     }
   };
 
