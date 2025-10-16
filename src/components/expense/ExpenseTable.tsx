@@ -25,7 +25,8 @@ interface ExpenseRecord {
   amount: number;
   method: string;
   status: "paid" | "pending";
-  category: string;
+  account_code?: string;
+  account_name?: string;
   invoiceNumber?: string;
   notes?: string;
   attachments?: string[];
@@ -71,6 +72,22 @@ export const ExpenseTable = () => {
 
       if (error) throw error;
 
+      // Fetch account names for display
+      const accountCodes = [...new Set(expenseData?.map(r => r.account_code).filter(Boolean))];
+      let accountsMap: Record<string, string> = {};
+      
+      if (accountCodes.length > 0) {
+        const { data: accountsData } = await supabase
+          .from('expense_accounts')
+          .select('account_code, account_name')
+          .in('account_code', accountCodes);
+        
+        accountsMap = (accountsData || []).reduce((acc, a) => {
+          acc[a.account_code] = a.account_name;
+          return acc;
+        }, {} as Record<string, string>);
+      }
+
       // Transform to match UI format
       const transformedData: ExpenseRecord[] = (expenseData || []).map(record => ({
         id: record.id,
@@ -81,7 +98,8 @@ export const ExpenseTable = () => {
         amount: Number(record.amount),
         method: record.payment_method,
         status: record.status as "paid" | "pending",
-        category: record.category || 'Construction',
+        account_code: record.account_code || undefined,
+        account_name: record.account_code ? accountsMap[record.account_code] : undefined,
         invoiceNumber: record.invoice_number || undefined,
         notes: record.notes || undefined,
         attachments: (Array.isArray(record.attachments) ? record.attachments : []) as string[]
@@ -194,7 +212,7 @@ export const ExpenseTable = () => {
                   </TableHead>
                   <TableHead>Vendor / Supplier</TableHead>
                   <TableHead>Project</TableHead>
-                  <TableHead>Category</TableHead>
+                  <TableHead>Account</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>
                     <Button
@@ -241,9 +259,14 @@ export const ExpenseTable = () => {
                       <TableCell>{record.vendor}</TableCell>
                       <TableCell>{record.project}</TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="font-normal">
-                          {record.category}
-                        </Badge>
+                        {record.account_code ? (
+                          <div className="flex flex-col">
+                            <span className="font-mono text-xs text-muted-foreground">{record.account_code}</span>
+                            <span className="text-sm">{record.account_name}</span>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">—</span>
+                        )}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {record.description}

@@ -1779,6 +1779,7 @@ export type Database = {
       }
       expense_transactions: {
         Row: {
+          account_code: string | null
           amount: number
           attachments: Json | null
           category: string
@@ -1797,6 +1798,7 @@ export type Database = {
           vendor_supplier: string
         }
         Insert: {
+          account_code?: string | null
           amount?: number
           attachments?: Json | null
           category?: string
@@ -1815,6 +1817,7 @@ export type Database = {
           vendor_supplier: string
         }
         Update: {
+          account_code?: string | null
           amount?: number
           attachments?: Json | null
           category?: string
@@ -1833,6 +1836,13 @@ export type Database = {
           vendor_supplier?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "expense_transactions_account_code_fkey"
+            columns: ["account_code"]
+            isOneToOne: false
+            referencedRelation: "expense_accounts"
+            referencedColumns: ["account_code"]
+          },
           {
             foreignKeyName: "expense_transactions_company_id_fkey"
             columns: ["company_id"]
@@ -2039,6 +2049,7 @@ export type Database = {
       }
       income_transactions: {
         Row: {
+          account_code: string | null
           amount: number
           attachments: Json | null
           category: string | null
@@ -2058,6 +2069,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          account_code?: string | null
           amount: number
           attachments?: Json | null
           category?: string | null
@@ -2077,6 +2089,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          account_code?: string | null
           amount?: number
           attachments?: Json | null
           category?: string | null
@@ -2096,6 +2109,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "income_transactions_account_code_fkey"
+            columns: ["account_code"]
+            isOneToOne: false
+            referencedRelation: "expense_accounts"
+            referencedColumns: ["account_code"]
+          },
           {
             foreignKeyName: "income_transactions_company_id_fkey"
             columns: ["company_id"]

@@ -31,7 +31,8 @@ interface IncomeRecord {
   amount: number;
   method: string;
   status: "received" | "pending";
-  category: string;
+  account_code?: string;
+  account_name?: string;
   invoiceNumber?: string;
   notes?: string;
   attachments?: string[];
@@ -52,11 +53,14 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: In
   const [isSaving, setIsSaving] = useState(false);
   const [projects, setProjects] = useState<Array<{ id: string; name: string }>>([]);
   const [projectComboboxOpen, setProjectComboboxOpen] = useState(false);
+  const [accounts, setAccounts] = useState<Array<{ account_code: string; account_name: string }>>([]);
+  const [accountComboboxOpen, setAccountComboboxOpen] = useState(false);
 
-  // Fetch projects when drawer opens
+  // Fetch projects and accounts when drawer opens
   useEffect(() => {
     if (open) {
       fetchProjects();
+      fetchAccounts();
     }
   }, [open]);
 
@@ -66,6 +70,34 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: In
       setProjects(projectsData.map(p => ({ id: p.id, name: p.name })));
     } catch (error) {
       console.error('Error fetching projects:', error);
+    }
+  };
+
+  const fetchAccounts = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: companyMember } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .limit(1)
+        .maybeSingle();
+
+      if (!companyMember) return;
+
+      const { data } = await supabase
+        .from('expense_accounts')
+        .select('account_code, account_name')
+        .eq('company_id', companyMember.company_id)
+        .eq('is_active', true)
+        .order('account_code');
+
+      setAccounts(data || []);
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
     }
   };
 
@@ -95,7 +127,7 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: In
           description: editedRecord.description,
           amount: editedRecord.amount,
           payment_method: editedRecord.method,
-          category: editedRecord.category,
+          account_code: editedRecord.account_code || null,
           status: editedRecord.status,
           invoice_number: editedRecord.invoiceNumber || null,
           notes: editedRecord.notes || null,
@@ -354,22 +386,86 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: In
             </div>
 
             <div>
-              <Label className="text-sm font-medium text-muted-foreground">Category</Label>
+              <Label className="text-sm font-medium text-muted-foreground">Account</Label>
               {isEditing ? (
-                <Select
-                  value={currentRecord.category}
-                  onValueChange={(value) => setEditedRecord(prev => prev ? { ...prev, category: value } : null)}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Consultancy">Consultancy</SelectItem>
-                    <SelectItem value="Construction">Construction</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Popover open={accountComboboxOpen} onOpenChange={setAccountComboboxOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-full justify-between mt-1"
+                    >
+                      {currentRecord.account_code ? (
+                        <div className="flex flex-col items-start">
+                          <span className="font-mono text-xs">{currentRecord.account_code}</span>
+                          <span className="text-sm">{currentRecord.account_name}</span>
+                        </div>
+                      ) : (
+                        <span>Select account...</span>
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0 bg-popover">
+                    <Command className="bg-popover">
+                      <CommandInput placeholder="Search accounts..." />
+                      <CommandList>
+                        <CommandEmpty>No account found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="none"
+                            onSelect={() => {
+                              setEditedRecord(prev => prev ? { ...prev, account_code: undefined, account_name: undefined } : null);
+                              setAccountComboboxOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                !currentRecord.account_code ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            None
+                          </CommandItem>
+                          {accounts.map((account) => (
+                            <CommandItem
+                              key={account.account_code}
+                              value={`${account.account_code} ${account.account_name}`}
+                              onSelect={() => {
+                                setEditedRecord(prev => prev ? { 
+                                  ...prev, 
+                                  account_code: account.account_code,
+                                  account_name: account.account_name
+                                } : null);
+                                setAccountComboboxOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  currentRecord.account_code === account.account_code ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              <div className="flex flex-col">
+                                <span className="font-mono text-xs text-muted-foreground">{account.account_code}</span>
+                                <span>{account.account_name}</span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               ) : (
-                <p className="text-base mt-1">{currentRecord.category}</p>
+                currentRecord.account_code ? (
+                  <div className="mt-1">
+                    <p className="font-mono text-xs text-muted-foreground">{currentRecord.account_code}</p>
+                    <p className="text-base">{currentRecord.account_name}</p>
+                  </div>
+                ) : (
+                  <p className="text-base mt-1 text-muted-foreground">—</p>
+                )
               )}
             </div>
 
