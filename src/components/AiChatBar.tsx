@@ -136,14 +136,8 @@ export const AiChatBar = () => {
 
   const processFile = async (file: File) => {
     try {
-      // Convert file to base64
-      const reader = new FileReader();
-      const fileData = await new Promise<string>((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
+      setIsLoading(true);
+      
       // Add user message showing file upload
       const userMessage: Message = {
         id: Date.now().toString(),
@@ -152,32 +146,82 @@ export const AiChatBar = () => {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, userMessage]);
-      setIsLoading(true);
 
-      // Call edge function to analyze file
-      const { data, error } = await supabase.functions.invoke('ai-file-analysis', {
-        body: {
-          fileData,
-          fileType: file.type,
-          fileName: file.name
-        }
-      });
+      // For PDFs, we need to extract text first
+      if (file.type === 'application/pdf') {
+        // Convert PDF to base64
+        const reader = new FileReader();
+        const fileData = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
 
-      if (error) throw error;
+        // Send to ai-chat with document context
+        const { data, error } = await supabase.functions.invoke('ai-chat', {
+          body: {
+            message: `I've uploaded a financial document (${file.name}). Please analyze it and extract key financial information like transaction amounts, dates, categories, income, expenses, and any other relevant financial data.`,
+            conversation: messages.map(msg => ({
+              role: msg.role,
+              content: msg.content
+            })),
+            context: {
+              currentPage: 'finance',
+              pageContext: 'financial_analysis',
+              documentName: file.name,
+              documentType: 'pdf'
+            },
+            documentContent: fileData
+          }
+        });
 
-      // Add AI response
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: data.analysis,
-        role: 'assistant',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, aiMessage]);
+        if (error) throw error;
 
-      toast({
-        title: "Analysis complete",
-        description: "SkAi has analyzed your file.",
-      });
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: data.response || data.message,
+          role: 'assistant',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiMessage]);
+
+        toast({
+          title: "Analysis complete",
+          description: "Financial document analyzed successfully.",
+        });
+      } else {
+        // For images, convert to base64
+        const reader = new FileReader();
+        const fileData = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+        // Call ai-file-analysis for images
+        const { data, error } = await supabase.functions.invoke('ai-file-analysis', {
+          body: {
+            fileData,
+            fileType: file.type,
+            fileName: file.name
+          }
+        });
+
+        if (error) throw error;
+
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: data.analysis,
+          role: 'assistant',
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiMessage]);
+
+        toast({
+          title: "Analysis complete",
+          description: "Image analyzed successfully.",
+        });
+      }
     } catch (error) {
       console.error('Error processing file:', error);
       toast({

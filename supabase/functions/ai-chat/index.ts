@@ -365,8 +365,21 @@ When users request data modifications, use the available database operations to 
         }
       ];
     } else if (documentContent) {
-      // Handle document content analysis
-      userMessage.content = message || 'Please analyze this document content in the context of construction management.';
+      // Handle PDF document analysis using vision API
+      // Gemini can analyze PDFs directly through image_url
+      userMessage.content = [
+        {
+          type: 'text',
+          text: message || 'Please analyze this document content.'
+        },
+        {
+          type: 'image_url',
+          image_url: {
+            url: documentContent,
+            detail: 'high'
+          }
+        }
+      ];
     } else {
       // Text only
       userMessage.content = message;
