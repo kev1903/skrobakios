@@ -40,9 +40,9 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       case 'income':
         return <IncomePage onNavigate={onNavigate} />;
       case 'expenses':
-        return <ExpensePage onNavigate={onNavigate} />;
+        return <ExpensePage onNavigate={onNavigate} onTabChange={handleTabChange} />;
       case 'expense-settings':
-        return <ExpenseSettingsPage onNavigate={onNavigate} />;
+        return <ExpenseSettingsPage onNavigate={onNavigate} onTabChange={handleTabChange} />;
       case 'analytics':
       case 'recurring':
         return (

@@ -25,9 +25,10 @@ interface ExpenseAccount {
 
 interface ExpenseSettingsPageProps {
   onNavigate?: (page: string) => void;
+  onTabChange?: (tab: string) => void;
 }
 
-export const ExpenseSettingsPage = ({ onNavigate }: ExpenseSettingsPageProps) => {
+export const ExpenseSettingsPage = ({ onNavigate, onTabChange }: ExpenseSettingsPageProps) => {
   const [accounts, setAccounts] = useState<ExpenseAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -230,7 +231,7 @@ export const ExpenseSettingsPage = ({ onNavigate }: ExpenseSettingsPageProps) =>
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onNavigate?.('finance')}
+              onClick={() => onTabChange?.('expenses')}
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />

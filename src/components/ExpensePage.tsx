@@ -5,9 +5,10 @@ import { Settings } from "lucide-react";
 
 interface ExpensePageProps {
   onNavigate?: (page: string) => void;
+  onTabChange?: (tab: string) => void;
 }
 
-export const ExpensePage = ({ onNavigate }: ExpensePageProps) => {
+export const ExpensePage = ({ onNavigate, onTabChange }: ExpensePageProps) => {
   return (
     <div className="w-full bg-gradient-to-br from-background to-muted/20">
       <div className="p-6 space-y-6">
@@ -22,7 +23,7 @@ export const ExpensePage = ({ onNavigate }: ExpensePageProps) => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onNavigate?.('expense-settings')}
+            onClick={() => onTabChange?.('expense-settings')}
             className="gap-2"
           >
             <Settings className="h-4 w-4" />
