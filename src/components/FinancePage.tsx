@@ -41,7 +41,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       case 'analytics':
       case 'recurring':
         return (
-          <div className="flex-1 flex items-center justify-center p-8">
+          <div className="w-full flex items-center justify-center p-8">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-foreground mb-2">
                 {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Module

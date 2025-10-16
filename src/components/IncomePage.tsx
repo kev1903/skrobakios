@@ -9,7 +9,7 @@ interface IncomePageProps {
 
 export const IncomePage = ({ onNavigate }: IncomePageProps) => {
   return (
-    <div className="flex-1 bg-gradient-to-br from-background to-muted/20">
+    <div className="w-full bg-gradient-to-br from-background to-muted/20">
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

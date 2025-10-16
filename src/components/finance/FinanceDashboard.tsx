@@ -105,7 +105,7 @@ export const FinanceDashboard = () => {
   ];
 
   return (
-    <div className="flex-1 bg-background">
+    <div className="w-full bg-background">
       <div className="p-8 space-y-8">
         {/* Header */}
         <div>

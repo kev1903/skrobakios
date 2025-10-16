@@ -11,7 +11,7 @@ interface BillsPageProps {
 
 export const BillsPage = ({ onNavigate }: BillsPageProps) => {
   return (
-    <div className="flex-1 bg-background">
+    <div className="w-full bg-background">
       <div className="p-6 space-y-6">
         <BillsHeader onNavigate={onNavigate} />
         <BillsSummaryCards />
