@@ -3,6 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent } from '@/components/ui/card';
 import { MoreHorizontal, Eye, Edit, Trash2, FileDown, Download, Archive, CheckCircle } from 'lucide-react';
 import {
   DropdownMenu,
@@ -24,6 +25,7 @@ interface QAQCTableProps {
   onBulkAction?: (action: string, selectedIds: string[]) => void;
   selectedItems?: string[];
   setSelectedItems?: (items: string[]) => void;
+  isMobile?: boolean;
 }
 
 const getStatusColor = (status: string, type: string) => {
@@ -94,7 +96,8 @@ export const QAQCTable = ({
   onExportPDF, 
   onBulkAction, 
   selectedItems = [], 
-  setSelectedItems 
+  setSelectedItems,
+  isMobile = false
 }: QAQCTableProps) => {
 
   const handleSelectAll = (checked: boolean) => {
@@ -127,7 +130,115 @@ export const QAQCTable = ({
   if (!data || data.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-muted-foreground">No records found. Create your first {type} item to get started.</p>
+        <p className="text-muted-foreground text-sm">No records found. Create your first {type} item to get started.</p>
+      </div>
+    );
+  }
+
+  // Mobile card view
+  if (isMobile) {
+    return (
+      <div className="space-y-3">
+        {data.map((item) => (
+          <Card key={item.id} className="overflow-hidden">
+            <CardContent className="p-3">
+              {type === 'checklists' && (
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between">
+                    <button 
+                      className="text-sm font-semibold text-blue-600 hover:underline"
+                      onClick={() => onNavigate?.(`qaqc-checklist-detail?projectId=${item.project_id}&checklistId=${item.id}`)}
+                    >
+                      {item.checklist_number}
+                    </button>
+                    <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
+                  </div>
+                  <p className="text-sm font-medium">{item.title}</p>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <div>Type: <span className="capitalize">{item.type}</span></div>
+                    <div>Assigned: {item.assigned_to || '-'}</div>
+                    <div>Due: {formatDate(item.due_date)}</div>
+                  </div>
+                </div>
+              )}
+              
+              {type === 'issueReports' && (
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between">
+                    <button 
+                      className="text-sm font-semibold text-blue-600 hover:underline flex-1 text-left"
+                      onClick={() => onNavigate?.(`qaqc-issue-report-detail?projectId=${item.project_id}&reportId=${item.id}`)}
+                    >
+                      {item.title}
+                    </button>
+                    <Badge className={getStatusColor(item.status, 'issues')}>{item.status || 'active'}</Badge>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Created: {formatDate(item.created_at)}
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1 text-xs h-8"
+                      onClick={() => onNavigate?.(`qaqc-issue-report-edit?projectId=${item.project_id}&reportId=${item.id}`)}
+                    >
+                      <Edit className="w-3 h-3 mr-1" />
+                      Edit
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex-1 text-xs h-8"
+                      onClick={() => onExportPDF?.(item.id, 'issueReport')}
+                    >
+                      <FileDown className="w-3 h-3 mr-1" />
+                      PDF
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-xs h-8 text-red-600"
+                      onClick={() => onDelete?.(item.id, 'issueReport')}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {type === 'inspections' && (
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between">
+                    <span className="text-sm font-semibold">{item.inspection_number}</span>
+                    <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
+                  </div>
+                  <p className="text-sm font-medium">{item.title}</p>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <div>Type: <span className="capitalize">{item.type}</span></div>
+                    <div>Inspector: {item.inspector || '-'}</div>
+                    <div>Scheduled: {formatDate(item.scheduled_date)}</div>
+                  </div>
+                </div>
+              )}
+              
+              {type === 'plans' && (
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between">
+                    <span className="text-sm font-semibold">{item.plan_number}</span>
+                    <Badge className={getStatusColor(item.status, type)}>{item.status}</Badge>
+                  </div>
+                  <p className="text-sm font-medium">{item.title}</p>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <div>Type: <span className="capitalize">{item.type}</span></div>
+                    <div>Responsible: {item.responsible_party || '-'}</div>
+                    <div>Phase: {item.phase || '-'}</div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }
