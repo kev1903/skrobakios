@@ -1,22 +1,108 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { supabase } from "@/integrations/supabase/client";
 
-const monthlyData = [
-  { month: "Jan", income: 45000 },
-  { month: "Feb", income: 52000 },
-  { month: "Mar", income: 48000 },
-  { month: "Apr", income: 61000 },
-  { month: "May", income: 55000 },
-  { month: "Jun", income: 67000 },
-  { month: "Jul", income: 72000 },
-  { month: "Aug", income: 68000 },
-  { month: "Sep", income: 75000 },
-  { month: "Oct", income: 82000 },
-  { month: "Nov", income: 78000 },
-  { month: "Dec", income: 85000 },
-];
+interface MonthlyData {
+  month: string;
+  income: number;
+}
 
 export const IncomeTrendChart = () => {
+  const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchMonthlyData();
+  }, []);
+
+  const fetchMonthlyData = async () => {
+    try {
+      setLoading(true);
+      
+      // Get user's active company
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: companyMember } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .limit(1)
+        .maybeSingle();
+
+      if (!companyMember) return;
+
+      const { data: incomeData, error } = await supabase
+        .from('income_transactions')
+        .select('transaction_date, amount')
+        .eq('company_id', companyMember.company_id)
+        .eq('status', 'received');
+
+      if (error) throw error;
+
+      // Group by month and sum amounts
+      const monthMap = new Map<string, number>();
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      
+      incomeData?.forEach(record => {
+        const date = new Date(record.transaction_date);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`;
+        const monthName = monthNames[date.getMonth()];
+        const currentAmount = monthMap.get(monthKey) || 0;
+        monthMap.set(monthKey, currentAmount + Number(record.amount));
+      });
+
+      // Convert to array and sort by date
+      const chartData = Array.from(monthMap.entries())
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([key, income]) => {
+          const [, monthIndex] = key.split('-');
+          return {
+            month: monthNames[parseInt(monthIndex)],
+            income: income
+          };
+        });
+
+      setMonthlyData(chartData);
+    } catch (error) {
+      console.error('Error fetching monthly data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-lg">Monthly Income Trend</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+            Loading chart data...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (monthlyData.length === 0) {
+    return (
+      <Card className="glass-card">
+        <CardHeader>
+          <CardTitle className="text-lg">Monthly Income Trend</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+            No income data available
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="glass-card">
       <CardHeader>
