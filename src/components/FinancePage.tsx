@@ -7,6 +7,7 @@ import { CashFlowPage } from "./CashFlowPage";
 import { FinanceSettingsPage } from "./FinanceSettingsPage";
 import { IncomePage } from "./IncomePage";
 import { ExpensePage } from "./ExpensePage";
+import { ExpenseSettingsPage } from "./ExpenseSettingsPage";
 import { AiChatBar } from "./AiChatBar";
 
 interface FinancePageProps {
@@ -40,6 +41,8 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
         return <IncomePage onNavigate={onNavigate} />;
       case 'expenses':
         return <ExpensePage onNavigate={onNavigate} />;
+      case 'expense-settings':
+        return <ExpenseSettingsPage onNavigate={onNavigate} />;
       case 'analytics':
       case 'recurring':
         return (

@@ -1,5 +1,7 @@
 import { ExpenseTable } from "./expense/ExpenseTable";
 import { ExpenseTrendChart } from "./expense/ExpenseTrendChart";
+import { Button } from "@/components/ui/button";
+import { Settings } from "lucide-react";
 
 interface ExpensePageProps {
   onNavigate?: (page: string) => void;
@@ -17,6 +19,15 @@ export const ExpensePage = ({ onNavigate }: ExpensePageProps) => {
               Track and manage all expense transactions
             </p>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onNavigate?.('expense-settings')}
+            className="gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </Button>
         </div>
 
         {/* Monthly Trend Chart */}
