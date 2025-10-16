@@ -1717,6 +1717,71 @@ export type Database = {
           },
         ]
       }
+      expense_transactions: {
+        Row: {
+          amount: number
+          attachments: Json | null
+          category: string
+          company_id: string
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          invoice_number: string | null
+          notes: string | null
+          payment_method: string
+          project_name: string | null
+          status: string
+          transaction_date: string
+          updated_at: string
+          vendor_supplier: string
+        }
+        Insert: {
+          amount?: number
+          attachments?: Json | null
+          category?: string
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          payment_method: string
+          project_name?: string | null
+          status?: string
+          transaction_date: string
+          updated_at?: string
+          vendor_supplier: string
+        }
+        Update: {
+          amount?: number
+          attachments?: Json | null
+          category?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          payment_method?: string
+          project_name?: string | null
+          status?: string
+          transaction_date?: string
+          updated_at?: string
+          vendor_supplier?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_transactions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       external_calendar_events: {
         Row: {
           attendees: Json | null
