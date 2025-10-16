@@ -50,12 +50,12 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: In
   const [projects, setProjects] = useState<Array<{ id: string; name: string }>>([]);
   const [projectComboboxOpen, setProjectComboboxOpen] = useState(false);
 
-  // Fetch projects when drawer opens
+  // Fetch projects when drawer opens or when entering edit mode
   useEffect(() => {
-    if (open && isEditing) {
+    if (open) {
       fetchProjects();
     }
-  }, [open, isEditing]);
+  }, [open]);
 
   const fetchProjects = async () => {
     try {
