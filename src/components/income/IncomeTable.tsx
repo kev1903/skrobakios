@@ -70,10 +70,15 @@ export const IncomeTable = () => {
 
       if (error) throw error;
 
-      // If no data and should seed, automatically populate
-      if ((!incomeData || incomeData.length === 0) && shouldSeedIfEmpty) {
-        await seedInitialData();
-        return;
+      // Auto-seed if empty, or check for missing transactions
+      if (shouldSeedIfEmpty) {
+        if (!incomeData || incomeData.length === 0) {
+          await seedInitialData();
+          return;
+        } else if (incomeData.length < 18) {
+          // Check if we need to add new transactions
+          await seedInitialData();
+        }
       }
 
       // Transform to match UI format
@@ -149,7 +154,27 @@ export const IncomeTable = () => {
         { date: '2025-10-14', client: 'Vishal Bhasin', project: '43 Iris Rd', description: 'Project transfer', amount: 20000.00, method: 'NetBank Transfer' },
       ];
 
-      const recordsToInsert = incomeData.map(record => ({
+      // Get existing transactions to avoid duplicates
+      const { data: existingData } = await supabase
+        .from('income_transactions')
+        .select('transaction_date, client_source, description, amount')
+        .eq('company_id', companyMember.company_id);
+
+      // Filter out transactions that already exist
+      const existingKeys = new Set(
+        (existingData || []).map(r => `${r.transaction_date}-${r.client_source}-${r.description}-${r.amount}`)
+      );
+
+      const newRecords = incomeData.filter(record => 
+        !existingKeys.has(`${record.date}-${record.client}-${record.description}-${record.amount}`)
+      );
+
+      if (newRecords.length === 0) {
+        console.log('All transactions already exist');
+        return;
+      }
+
+      const recordsToInsert = newRecords.map(record => ({
         company_id: companyMember.company_id,
         transaction_date: record.date,
         client_source: record.client,
@@ -170,7 +195,7 @@ export const IncomeTable = () => {
 
       toast({
         title: "Success",
-        description: `Loaded ${data.length} income records`,
+        description: `Added ${data.length} new income records`,
       });
       
       await fetchIncomeData();
