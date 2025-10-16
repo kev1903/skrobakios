@@ -5,6 +5,7 @@ import { InvoicesPage } from "./InvoicesPage";
 import { BillsPage } from "./BillsPage";
 import { CashFlowPage } from "./CashFlowPage";
 import { FinanceSettingsPage } from "./FinanceSettingsPage";
+import { IncomePage } from "./IncomePage";
 
 interface FinancePageProps {
   onNavigate?: (page: string) => void;
@@ -34,6 +35,7 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       case 'finance-settings':
         return <FinanceSettingsPage onNavigate={onNavigate} />;
       case 'income':
+        return <IncomePage onNavigate={onNavigate} />;
       case 'expenses':
       case 'analytics':
       case 'recurring':
