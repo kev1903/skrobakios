@@ -3,20 +3,52 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 
-interface MonthlyData {
+interface TransactionData {
   month: string;
   income: number;
+  transactionAmount: number;
+  client: string;
+  description: string;
+  date: string;
 }
 
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload as TransactionData;
+    return (
+      <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
+        <p className="text-sm font-semibold text-foreground mb-1">{data.date}</p>
+        <p className="text-xs text-muted-foreground mb-2">{data.client}</p>
+        <p className="text-xs text-muted-foreground mb-2 line-clamp-1">{data.description}</p>
+        <div className="space-y-1">
+          <p className="text-sm text-foreground">
+            <span className="text-muted-foreground">Transaction: </span>
+            <span className="font-semibold text-primary">
+              ${data.transactionAmount.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          </p>
+          <p className="text-sm text-foreground border-t border-border pt-1">
+            <span className="text-muted-foreground">Cumulative: </span>
+            <span className="font-bold">
+              ${data.income.toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+          </p>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export const IncomeTrendChart = () => {
-  const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
+  const [transactionData, setTransactionData] = useState<TransactionData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchMonthlyData();
+    fetchTransactionData();
   }, []);
 
-  const fetchMonthlyData = async () => {
+  const fetchTransactionData = async () => {
     try {
       setLoading(true);
       
@@ -36,7 +68,7 @@ export const IncomeTrendChart = () => {
 
       const { data: incomeData, error } = await supabase
         .from('income_transactions')
-        .select('transaction_date, amount')
+        .select('transaction_date, amount, client_source, description')
         .eq('company_id', companyMember.company_id)
         .eq('status', 'received')
         .order('transaction_date', { ascending: true });
@@ -45,21 +77,31 @@ export const IncomeTrendChart = () => {
 
       // Create a data point for each transaction with cumulative total
       let cumulativeTotal = 0;
-      const chartData: MonthlyData[] = (incomeData || []).map(record => {
-        cumulativeTotal += Number(record.amount);
+      const chartData: TransactionData[] = (incomeData || []).map(record => {
+        const transactionAmount = Number(record.amount);
+        cumulativeTotal += transactionAmount;
         const date = new Date(record.transaction_date);
-        const formattedDate = date.toLocaleDateString('en-US', { 
+        const shortDate = date.toLocaleDateString('en-US', { 
           day: 'numeric',
           month: 'short'
         });
+        const fullDate = date.toLocaleDateString('en-AU', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        });
         
         return {
-          month: formattedDate,
-          income: cumulativeTotal
+          month: shortDate,
+          income: cumulativeTotal,
+          transactionAmount: transactionAmount,
+          client: record.client_source,
+          description: record.description,
+          date: fullDate
         };
       });
 
-      setMonthlyData(chartData);
+      setTransactionData(chartData);
     } catch (error) {
       console.error('Error fetching transaction data:', error);
     } finally {
@@ -82,7 +124,7 @@ export const IncomeTrendChart = () => {
     );
   }
 
-  if (monthlyData.length === 0) {
+  if (transactionData.length === 0) {
     return (
       <Card className="glass-card">
         <CardHeader>
@@ -104,7 +146,7 @@ export const IncomeTrendChart = () => {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={monthlyData}>
+          <LineChart data={transactionData}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
             <XAxis 
               dataKey="month" 
@@ -116,14 +158,7 @@ export const IncomeTrendChart = () => {
               fontSize={12}
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
             />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "8px",
-              }}
-              formatter={(value: number) => [`$${value.toLocaleString()}`, "Income"]}
-            />
+            <Tooltip content={<CustomTooltip />} />
             <Line 
               type="monotone" 
               dataKey="income" 
