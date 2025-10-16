@@ -284,7 +284,7 @@ export const ExpenseDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: E
                         <ChevronsUpDown className="h-4 w-4 opacity-50" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-popover z-50" align="start" side="bottom" sideOffset={4}>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-popover" align="start" side="bottom" sideOffset={8} collisionPadding={20}>
                       <Command className="bg-popover">
                         <CommandInput placeholder="Search projects..." />
                         <CommandList className="max-h-[200px] overflow-y-auto">
@@ -412,7 +412,7 @@ export const ExpenseDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: E
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[400px] p-0 bg-popover z-50" align="start" side="bottom" sideOffset={4}>
+                  <PopoverContent className="w-[400px] p-0 bg-popover" align="start" side="bottom" sideOffset={8} collisionPadding={20}>
                     <Command className="bg-popover">
                       <CommandInput placeholder="Search accounts..." />
                       <CommandList className="max-h-[300px] overflow-y-auto">
