@@ -65,7 +65,9 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
         onBack={handleBack}
       />
       
-      {renderContent()}
+      <div className="flex-1 overflow-y-auto">
+        {renderContent()}
+      </div>
       
       {/* SkAi Floating Chat - Consistent across all finance pages */}
       <AiChatBar />
