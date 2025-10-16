@@ -64,7 +64,7 @@ export const AddSubtaskForm = ({ projectMembers, onAddSubtask, onCancel }: AddSu
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {projectMembers.map((member) => (
+                {projectMembers.filter(member => member.name && member.name.trim() !== '').map((member) => (
                   <SelectItem key={member.name} value={member.name}>
                     <div className="flex items-center space-x-2">
                       <Avatar className="w-5 h-5">

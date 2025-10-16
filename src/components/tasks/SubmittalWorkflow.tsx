@@ -243,7 +243,7 @@ export const SubmittalWorkflow = ({ taskId, projectMembers }: SubmittalWorkflowP
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {projectMembers.map((member) => (
+                    {projectMembers.filter(member => member.name && member.name.trim() !== '').map((member) => (
                       <SelectItem key={member.name} value={member.name}>
                         {member.name}
                       </SelectItem>
@@ -269,7 +269,7 @@ export const SubmittalWorkflow = ({ taskId, projectMembers }: SubmittalWorkflowP
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {projectMembers.map((member) => (
+                    {projectMembers.filter(member => member.name && member.name.trim() !== '').map((member) => (
                       <SelectItem key={member.name} value={member.name}>
                         {member.name}
                       </SelectItem>

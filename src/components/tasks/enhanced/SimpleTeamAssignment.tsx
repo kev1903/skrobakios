@@ -55,7 +55,10 @@ export function SimpleTeamAssignment({
         <SelectItem value="unassigned" className="text-xs py-2 px-2 cursor-pointer">
           <span className="text-muted-foreground">Unassigned</span>
         </SelectItem>
-        {teamMembers?.map((member) => (
+        {teamMembers?.filter(member => {
+          const memberId = member.user_id || member.id;
+          return memberId && memberId.trim() !== '';
+        }).map((member) => (
           <SelectItem 
             key={member.id} 
             value={member.user_id || member.id} 
