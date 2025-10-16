@@ -38,36 +38,30 @@ export const IncomeTrendChart = () => {
         .from('income_transactions')
         .select('transaction_date, amount')
         .eq('company_id', companyMember.company_id)
-        .eq('status', 'received');
+        .eq('status', 'received')
+        .order('transaction_date', { ascending: true });
 
       if (error) throw error;
 
-      // Group by month and sum amounts
-      const monthMap = new Map<string, number>();
-      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      
-      incomeData?.forEach(record => {
+      // Create a data point for each transaction with cumulative total
+      let cumulativeTotal = 0;
+      const chartData: MonthlyData[] = (incomeData || []).map(record => {
+        cumulativeTotal += Number(record.amount);
         const date = new Date(record.transaction_date);
-        const monthKey = `${date.getFullYear()}-${String(date.getMonth()).padStart(2, '0')}`;
-        const monthName = monthNames[date.getMonth()];
-        const currentAmount = monthMap.get(monthKey) || 0;
-        monthMap.set(monthKey, currentAmount + Number(record.amount));
-      });
-
-      // Convert to array and sort by date
-      const chartData = Array.from(monthMap.entries())
-        .sort((a, b) => a[0].localeCompare(b[0]))
-        .map(([key, income]) => {
-          const [, monthIndex] = key.split('-');
-          return {
-            month: monthNames[parseInt(monthIndex)],
-            income: income
-          };
+        const formattedDate = date.toLocaleDateString('en-US', { 
+          day: 'numeric',
+          month: 'short'
         });
+        
+        return {
+          month: formattedDate,
+          income: cumulativeTotal
+        };
+      });
 
       setMonthlyData(chartData);
     } catch (error) {
-      console.error('Error fetching monthly data:', error);
+      console.error('Error fetching transaction data:', error);
     } finally {
       setLoading(false);
     }
