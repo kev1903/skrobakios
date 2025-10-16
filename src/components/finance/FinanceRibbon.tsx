@@ -36,7 +36,7 @@ export const FinanceRibbon = ({ activeTab, onTabChange, onBack }: FinanceRibbonP
   ];
 
   return (
-    <div className="w-64 h-screen bg-card/50 backdrop-blur-xl border-r border-border/50 flex flex-col">
+    <div className="w-64 h-full bg-card/50 backdrop-blur-xl border-r border-border/50 flex flex-col flex-shrink-0">
       {/* Header */}
       <div className="p-6 border-b border-border/50">
         <div className="flex items-center justify-between mb-4">
