@@ -452,6 +452,11 @@ export const ExpenseSettingsPage = ({ onNavigate, onTabChange }: ExpenseSettings
         title: "Success",
         description: `Successfully imported ${expensesData.length} expense transactions`,
       });
+
+      // Switch back to expenses tab to show imported data
+      setTimeout(() => {
+        onTabChange?.('expenses');
+      }, 500);
     } catch (error: any) {
       console.error('Error importing expenses:', error);
       toast({
