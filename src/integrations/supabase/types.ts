@@ -1912,6 +1912,78 @@ export type Database = {
           },
         ]
       }
+      income_transactions: {
+        Row: {
+          amount: number
+          attachments: Json | null
+          client_source: string
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          description: string
+          id: string
+          invoice_number: string | null
+          notes: string | null
+          payment_method: string
+          project_id: string | null
+          project_name: string | null
+          status: string
+          transaction_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          attachments?: Json | null
+          client_source: string
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          description: string
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          payment_method: string
+          project_id?: string | null
+          project_name?: string | null
+          status?: string
+          transaction_date: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          attachments?: Json | null
+          client_source?: string
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string
+          id?: string
+          invoice_number?: string | null
+          notes?: string | null
+          payment_method?: string
+          project_id?: string | null
+          project_name?: string | null
+          status?: string
+          transaction_date?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "income_transactions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "income_transactions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_allocations: {
         Row: {
           account_id: string | null

@@ -89,3 +89,6 @@ verify_jwt = true
 
 [functions.ai-file-analysis]
 verify_jwt = true
+
+[functions.seed-income-data]
+verify_jwt = true

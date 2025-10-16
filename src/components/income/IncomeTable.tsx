@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -11,8 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowUpDown, Search, Filter } from "lucide-react";
+import { ArrowUpDown, Search, Filter, RefreshCw } from "lucide-react";
 import { IncomeDetailsDrawer } from "./IncomeDetailsDrawer";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface IncomeRecord {
   id: string;
@@ -28,61 +30,99 @@ interface IncomeRecord {
   attachments?: string[];
 }
 
-const sampleData: IncomeRecord[] = [
-  {
-    id: "1",
-    date: "2025-07-14",
-    client: "Stripe - INV#0302",
-    project: "Gaskett Court",
-    description: "Progress Payment",
-    amount: 6201.91,
-    method: "Stripe",
-    status: "received",
-    invoiceNumber: "INV#0302",
-    notes: "Q2 progress payment received",
-  },
-  {
-    id: "2",
-    date: "2025-08-12",
-    client: "MECON Claim",
-    project: "Thanet St Malvern",
-    description: "Insurance Claim",
-    amount: 10000.00,
-    method: "Bank",
-    status: "received",
-    notes: "Insurance claim processed",
-  },
-  {
-    id: "3",
-    date: "2025-09-20",
-    client: "Ekta Bhasin",
-    project: "43 Iris Rd",
-    description: "Deposit",
-    amount: 20000.00,
-    method: "Bank",
-    status: "received",
-  },
-  {
-    id: "4",
-    date: "2025-09-25",
-    client: "Ekta Bhasin",
-    project: "43 Iris Rd",
-    description: "Final Claim",
-    amount: 4000.00,
-    method: "Bank",
-    status: "pending",
-    notes: "Awaiting client approval",
-  },
-];
-
 export const IncomeTable = () => {
-  const [data, setData] = useState<IncomeRecord[]>(sampleData);
+  const [data, setData] = useState<IncomeRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [sortColumn, setSortColumn] = useState<"date" | "amount" | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRecord, setSelectedRecord] = useState<IncomeRecord | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { toast } = useToast();
+
+  const fetchIncomeData = async () => {
+    try {
+      setLoading(true);
+      
+      // Get user's active company
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: companyMember } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .limit(1)
+        .maybeSingle();
+
+      if (!companyMember) {
+        setData([]);
+        return;
+      }
+
+      const { data: incomeData, error } = await supabase
+        .from('income_transactions')
+        .select('*')
+        .eq('company_id', companyMember.company_id)
+        .order('transaction_date', { ascending: false });
+
+      if (error) throw error;
+
+      // Transform to match UI format
+      const transformedData: IncomeRecord[] = (incomeData || []).map(record => ({
+        id: record.id,
+        date: record.transaction_date,
+        client: record.client_source,
+        project: record.project_name || '—',
+        description: record.description,
+        amount: Number(record.amount),
+        method: record.payment_method,
+        status: record.status as "received" | "pending",
+        invoiceNumber: record.invoice_number || undefined,
+        notes: record.notes || undefined,
+        attachments: (Array.isArray(record.attachments) ? record.attachments : []) as string[]
+      }));
+
+      setData(transformedData);
+    } catch (error) {
+      console.error('Error fetching income data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load income data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const seedInitialData = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('seed-income-data');
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: `Loaded ${data.count} income records`,
+      });
+      
+      await fetchIncomeData();
+    } catch (error) {
+      console.error('Error seeding data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load initial data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchIncomeData();
+  }, []);
 
   const handleSort = (column: "date" | "amount") => {
     if (sortColumn === column) {
@@ -133,6 +173,15 @@ export const IncomeTable = () => {
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">Income Table</CardTitle>
             <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={seedInitialData}
+                disabled={loading}
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Load Data
+              </Button>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -191,10 +240,16 @@ export const IncomeTable = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData.length === 0 ? (
+                {loading ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      No income records found
+                      Loading income records...
+                    </TableCell>
+                  </TableRow>
+                ) : filteredData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      No income records found. Click "Load Data" to populate with initial data.
                     </TableCell>
                   </TableRow>
                 ) : (
