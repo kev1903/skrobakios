@@ -6,6 +6,7 @@ import { BillsPage } from "./BillsPage";
 import { CashFlowPage } from "./CashFlowPage";
 import { FinanceSettingsPage } from "./FinanceSettingsPage";
 import { IncomePage } from "./IncomePage";
+import { AiChatBar } from "./AiChatBar";
 
 interface FinancePageProps {
   onNavigate?: (page: string) => void;
@@ -65,6 +66,9 @@ export const FinancePage = ({ onNavigate }: FinancePageProps) => {
       />
       
       {renderContent()}
+      
+      {/* SkAi Floating Chat - Consistent across all finance pages */}
+      <AiChatBar />
     </div>
   );
 };

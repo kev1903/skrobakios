@@ -19,6 +19,7 @@ export const AiChatBar = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -29,6 +30,20 @@ export const AiChatBar = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Initialize welcome message when chat opens for the first time
+  useEffect(() => {
+    if (isOpen && !hasInitialized && messages.length === 0) {
+      const welcomeMessage: Message = {
+        id: 'welcome',
+        content: "Hi! I'm SkAi, your AI assistant. I can help you with financial insights, answer questions about your income, expenses, and provide recommendations. How can I assist you today?",
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      setMessages([welcomeMessage]);
+      setHasInitialized(true);
+    }
+  }, [isOpen, hasInitialized, messages.length]);
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -86,13 +101,19 @@ export const AiChatBar = () => {
     }
   };
 
+  const handleOpen = () => {
+    setIsOpen(true);
+    setIsMinimized(false); // Ensure it opens fully expanded
+  };
+
   if (!isOpen) {
     return (
       <div className="fixed bottom-6 right-6 z-50">
         <Button
-          onClick={() => setIsOpen(true)}
+          onClick={handleOpen}
           size="lg"
           className="rounded-full w-14 h-14 shadow-lg hover:scale-105 transition-transform bg-primary hover:bg-primary/90"
+          aria-label="Open SkAi Chat"
         >
           <MessageCircle className="w-6 h-6" />
         </Button>
@@ -107,8 +128,8 @@ export const AiChatBar = () => {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30 rounded-t-xl">
         <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-          <span className="font-medium text-sm">Skai</span>
+          <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+          <span className="font-medium text-sm">SkAi Assistant</span>
         </div>
         <div className="flex items-center space-x-1">
           <Button
@@ -116,6 +137,7 @@ export const AiChatBar = () => {
             size="sm"
             onClick={() => setIsMinimized(!isMinimized)}
             className="w-8 h-8 p-0"
+            aria-label={isMinimized ? "Maximize chat" : "Minimize chat"}
           >
             {isMinimized ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
           </Button>
@@ -124,6 +146,7 @@ export const AiChatBar = () => {
             size="sm"
             onClick={() => setIsOpen(false)}
             className="w-8 h-8 p-0"
+            aria-label="Close chat"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -135,13 +158,6 @@ export const AiChatBar = () => {
           {/* Messages */}
           <ScrollArea className="flex-1 h-64 p-4">
             <div className="space-y-4">
-              {messages.length === 0 && (
-                <div className="text-center text-muted-foreground text-sm py-8">
-                  <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>Hi! I'm Skai.</p>
-                  <p>Ask me anything about your projects!</p>
-                </div>
-              )}
               {messages.map((message) => (
                 <div
                   key={message.id}
