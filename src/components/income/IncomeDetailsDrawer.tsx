@@ -20,6 +20,7 @@ import { FileText, Download, Edit, X, Save, Check, ChevronsUpDown } from "lucide
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useProjects } from "@/hooks/useProjects";
 
 interface IncomeRecord {
   id: string;
@@ -44,13 +45,14 @@ interface IncomeDetailsDrawerProps {
 
 export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: IncomeDetailsDrawerProps) => {
   const { toast } = useToast();
+  const { getProjects } = useProjects();
   const [isEditing, setIsEditing] = useState(false);
   const [editedRecord, setEditedRecord] = useState<IncomeRecord | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [projects, setProjects] = useState<Array<{ id: string; name: string }>>([]);
   const [projectComboboxOpen, setProjectComboboxOpen] = useState(false);
 
-  // Fetch projects when drawer opens or when entering edit mode
+  // Fetch projects when drawer opens
   useEffect(() => {
     if (open) {
       fetchProjects();
@@ -59,28 +61,8 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: In
 
   const fetchProjects = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: companyMember } = await supabase
-        .from('company_members')
-        .select('company_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .limit(1)
-        .maybeSingle();
-
-      if (!companyMember) return;
-
-      const { data: projectsData, error } = await supabase
-        .from('projects')
-        .select('id, name')
-        .eq('company_id', companyMember.company_id)
-        .order('name');
-
-      if (error) throw error;
-
-      setProjects(projectsData || []);
+      const projectsData = await getProjects();
+      setProjects(projectsData.map(p => ({ id: p.id, name: p.name })));
     } catch (error) {
       console.error('Error fetching projects:', error);
     }
