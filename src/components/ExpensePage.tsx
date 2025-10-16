@@ -100,7 +100,7 @@ export const ExpensePage = ({ onNavigate, onTabChange }: ExpensePageProps) => {
         description: expense.desc,
         amount: expense.amount,
         payment_method: expense.method,
-        status: expense.method.includes('Card') ? 'Paid' : 'Paid',
+        status: 'paid',
         account_code: mapToAccountCode(expense.vendor, expense.desc),
         created_by: user.id,
       }));
