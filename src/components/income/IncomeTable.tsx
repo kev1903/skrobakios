@@ -106,13 +106,68 @@ export const IncomeTable = () => {
 
   const seedInitialData = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('seed-income-data');
-      
+      // Get user's active company
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const { data: companyMember } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .limit(1)
+        .maybeSingle();
+
+      if (!companyMember) {
+        toast({
+          title: "Error",
+          description: "No active company found",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Income data to seed
+      const incomeData = [
+        { date: '2025-07-09', client: 'Mr Benjamin & Mrs Jac', project: 'Site Surveillance', description: 'Site surveillance payment', amount: 1100.00, method: 'Fast Transfer' },
+        { date: '2025-07-10', client: 'City of Kingston', project: null, description: 'Direct credit', amount: 2000.00, method: 'Direct Credit' },
+        { date: '2025-07-14', client: 'Stripe', project: 'Horace Street', description: 'Stripe-HbAHF1qLMS', amount: 6201.91, method: 'Direct Credit' },
+        { date: '2025-07-16', client: 'Mr Peter Wayne-Good', project: null, description: 'Credit to account (Peter Tiyago)', amount: 1650.00, method: 'Fast Transfer' },
+        { date: '2025-07-16', client: 'TPM Consulting', project: '21 Sugarloaf Rd', description: 'INV-0309 Final Invoice', amount: 2609.20, method: 'Fast Transfer' },
+        { date: '2025-08-05', client: 'Vishal Bhasin', project: '43 Iris Rd', description: 'Bank transfer', amount: 1630.00, method: 'NetBank' },
+        { date: '2025-08-06', client: 'Stripe', project: null, description: 'Stripe-1Cord6Q8llT', amount: 4398.43, method: 'Direct Credit' },
+        { date: '2025-08-12', client: 'Mr Benjamin & Mrs Jac', project: 'Base Thanet', description: 'Payment for base works', amount: 7000.00, method: 'Fast Transfer' },
+        { date: '2025-08-12', client: 'WBC OLP MECON', project: 'Insurance Claim', description: 'MECON Claim 18118', amount: 10000.00, method: 'Direct Credit' },
+        { date: '2025-08-01', client: 'Leongatha Christian R', project: null, description: 'Gravel refund', amount: 221.00, method: 'Fast Transfer' },
+        { date: '2025-09-05', client: 'Stripe', project: 'High Society Café', description: 'Stripe-PYKfOuJqbrr', amount: 6201.91, method: 'Direct Credit' },
+        { date: '2025-09-07', client: 'Ekta Bhasin', project: '43 Iris Rd', description: 'Deposit Invoice SK_25011', amount: 5452.92, method: 'Fast Transfer' },
+        { date: '2025-09-16', client: 'Mr Benjamin & Mrs Jac', project: 'Thanet St', description: 'Concrete cutting Thanet', amount: 400.00, method: 'Fast Transfer' },
+        { date: '2025-09-18', client: 'Stripe', project: null, description: 'Stripe-Pl4TlFpayWc', amount: 2199.06, method: 'Direct Credit' },
+        { date: '2025-09-20', client: 'Ekta Bhasin', project: '43 Iris Rd', description: 'Inv 0328', amount: 20000.00, method: 'Fast Transfer' },
+      ];
+
+      const recordsToInsert = incomeData.map(record => ({
+        company_id: companyMember.company_id,
+        transaction_date: record.date,
+        client_source: record.client,
+        project_name: record.project || '—',
+        description: record.description,
+        amount: record.amount,
+        payment_method: record.method,
+        status: 'received',
+        created_by: user.id
+      }));
+
+      const { data, error } = await supabase
+        .from('income_transactions')
+        .insert(recordsToInsert)
+        .select();
+
       if (error) throw error;
-      
+
       toast({
         title: "Success",
-        description: `Loaded ${data.count} income records`,
+        description: `Loaded ${data.length} income records`,
       });
       
       await fetchIncomeData();
