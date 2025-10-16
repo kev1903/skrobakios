@@ -1,40 +1,40 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { ArrowLeft, RefreshCw, Plus, Download, Upload, Mail, Bell, ChevronDown, Repeat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 interface InvoicesHeaderProps {
   onNavigate?: (page: string) => void;
   onInvoicesSync?: () => void;
 }
+
 export const InvoicesHeader = ({
   onNavigate,
   onInvoicesSync
 }: InvoicesHeaderProps) => {
   const navigate = useNavigate();
   const [isSyncing, setIsSyncing] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+
   const handleSyncInvoices = async () => {
     try {
       setIsSyncing(true);
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('xero-sync', {
-        body: {
-          action: 'sync'
-        }
+      const { data, error } = await supabase.functions.invoke('xero-sync', {
+        body: { action: 'sync' }
       });
       if (error) throw error;
       toast({
         title: "Success",
         description: "Invoices synced successfully from Xero"
       });
-
-      // Notify parent to refresh the table
       onInvoicesSync?.();
     } catch (error) {
       console.error('Sync error:', error);
@@ -49,35 +49,98 @@ export const InvoicesHeader = ({
   };
   
   const handleBackClick = () => {
-    console.log('Back button clicked!');
-    console.log('onNavigate:', onNavigate);
     if (onNavigate) {
-      console.log('Calling onNavigate with "finance"');
       onNavigate('finance');
     } else {
-      console.log('Calling navigate with "/finance"');
       navigate('/finance');
     }
   };
   
-  return <div className="mb-8">
+  return (
+    <div className="space-y-6">
+      {/* Header with breadcrumb */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" onClick={handleBackClick} className="flex items-center space-x-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleBackClick} 
+            className="flex items-center space-x-2"
+          >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Invoices</h1>
-            <p className="text-gray-600">Manage and track all your invoices synced from Xero</p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Button className="flex items-center space-x-2" onClick={handleSyncInvoices} disabled={isSyncing}>
-            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-            <span>{isSyncing ? 'Syncing...' : 'Sync Invoices'}</span>
+            <span>Back to Finance</span>
           </Button>
         </div>
       </div>
-    </div>;
+
+      {/* Title and Actions */}
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <p className="text-sm text-primary mb-1">Sales overview ›</p>
+            <h1 className="text-3xl font-bold text-foreground">Invoices</h1>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center flex-wrap gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Plus className="w-4 h-4 mr-2" />
+                New Invoice
+                <ChevronDown className="w-4 h-4 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-48 bg-popover">
+              <DropdownMenuItem onClick={() => navigate('/invoice/create')}>
+                New Invoice
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                New Draft Invoice
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button variant="outline">
+            <Repeat className="w-4 h-4 mr-2" />
+            New Repeating Invoice
+          </Button>
+
+          <Button variant="outline">
+            New Credit Note
+          </Button>
+
+          <Button variant="outline">
+            <Mail className="w-4 h-4 mr-2" />
+            Send Statements
+          </Button>
+
+          <Button variant="outline">
+            <Upload className="w-4 h-4 mr-2" />
+            Import
+          </Button>
+
+          <Button variant="outline">
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+
+          <Button 
+            variant="outline" 
+            onClick={handleSyncInvoices} 
+            disabled={isSyncing}
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+            {isSyncing ? 'Syncing...' : 'Sync from Xero'}
+          </Button>
+
+          <Button variant="outline" className="ml-auto">
+            <Bell className="w-4 h-4 mr-2" />
+            Invoice Reminders: On
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 };

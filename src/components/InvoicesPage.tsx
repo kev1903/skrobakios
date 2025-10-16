@@ -1,7 +1,5 @@
 
 import { InvoicesHeader } from "./invoices/InvoicesHeader";
-import { InvoicesSummaryCards } from "./invoices/InvoicesSummaryCards";
-import { InvoicesWarningBanner } from "./invoices/InvoicesWarningBanner";
 import { InvoicesTable } from "./invoices/InvoicesTable";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -19,14 +17,12 @@ export const InvoicesPage = ({ onNavigate }: InvoicesPageProps) => {
   };
 
   return (
-    <div className="w-full bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="w-full bg-background">
       <div className="p-6 space-y-6">
         <InvoicesHeader 
           onNavigate={onNavigate || (() => navigate('/finance'))} 
           onInvoicesSync={handleInvoicesSync}
         />
-        <InvoicesSummaryCards key={`summary-${refreshTrigger}`} />
-        <InvoicesWarningBanner key={`warning-${refreshTrigger}`} />
         <InvoicesTable key={`table-${refreshTrigger}`} />
       </div>
     </div>

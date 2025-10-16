@@ -13,27 +13,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { 
-  Filter, 
   MoreHorizontal, 
-  AlertTriangle,
   ArrowUpDown,
   Eye,
   Edit,
   FileText,
-  Check
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -59,7 +49,7 @@ export const InvoicesTable = () => {
   const [invoices, setInvoices] = useState<XeroInvoice[]>([]);
   const [allocatedInvoices, setAllocatedInvoices] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [statusFilters, setStatusFilters] = useState<string[]>(["PAID", "AUTHORISED", "SENT", "DRAFT", "OVERDUE"]); // Exclude DELETED by default
+  const [activeTab, setActiveTab] = useState<string>("all");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -118,33 +108,56 @@ export const InvoicesTable = () => {
     }
   };
 
-  // Get all unique statuses from invoices
-  const availableStatuses = [...new Set(invoices.map(invoice => invoice.status).filter(Boolean))];
-
   const filteredInvoices = invoices.filter(invoice => {
     // Search filter
     const matchesSearch = invoice.invoice_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      invoice.contact_name?.toLowerCase().includes(searchQuery.toLowerCase());
+      invoice.contact_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invoice.reference?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    // Status filter
-    const matchesStatus = statusFilters.length === 0 || 
-      (invoice.status && statusFilters.includes(invoice.status));
+    // Tab filter
+    let matchesTab = true;
+    switch (activeTab) {
+      case 'draft':
+        matchesTab = invoice.status === 'DRAFT';
+        break;
+      case 'awaiting_approval':
+        matchesTab = invoice.status === 'SUBMITTED';
+        break;
+      case 'awaiting_payment':
+        matchesTab = invoice.status === 'AUTHORISED' || invoice.status === 'SENT';
+        break;
+      case 'paid':
+        matchesTab = invoice.status === 'PAID';
+        break;
+      case 'repeating':
+        matchesTab = invoice.type === 'ACCRECREPEAT';
+        break;
+      case 'all':
+      default:
+        matchesTab = true;
+    }
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesTab;
   });
+
+  // Calculate status counts
+  const statusCounts = {
+    all: invoices.length,
+    draft: invoices.filter(i => i.status === 'DRAFT').length,
+    awaiting_approval: invoices.filter(i => i.status === 'SUBMITTED').length,
+    awaiting_payment: invoices.filter(i => i.status === 'AUTHORISED' || i.status === 'SENT').length,
+    paid: invoices.filter(i => i.status === 'PAID').length,
+    repeating: invoices.filter(i => i.type === 'ACCRECREPEAT').length,
+  };
 
   // Calculate total amount due for filtered invoices
   const totalAmountDue = filteredInvoices.reduce((sum, invoice) => {
     return sum + (invoice.amount_due || 0);
   }, 0);
 
-  const handleStatusFilterChange = (status: string, checked: boolean) => {
-    if (checked) {
-      setStatusFilters([...statusFilters, status]);
-    } else {
-      setStatusFilters(statusFilters.filter(s => s !== status));
-    }
-  };
+  const totalPaid = filteredInvoices.reduce((sum, invoice) => {
+    return sum + ((invoice.total || 0) - (invoice.amount_due || 0));
+  }, 0);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -235,237 +248,209 @@ export const InvoicesTable = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border">
-      {/* Table Controls */}
-      <div className="p-4 border-b flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Select defaultValue="batch-actions">
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="batch-actions">Batch Actions</SelectItem>
-              <SelectItem value="mark-paid">Mark as Paid</SelectItem>
-              <SelectItem value="send-reminder">Send Reminder</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center space-x-2">
-                <Filter className="w-4 h-4" />
-                <span>Filters</span>
-                {statusFilters.length > 0 && (
-                  <Badge variant="secondary" className="ml-1">
-                    {statusFilters.length}
-                  </Badge>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56 z-50 bg-white border shadow-lg">
-              <div className="p-2">
-                <div className="text-sm font-medium mb-2">Filter by Status</div>
-                {availableStatuses.map((status) => (
-                  <div key={status} className="flex items-center space-x-2 py-1">
-                    <Checkbox
-                      id={`status-${status}`}
-                      checked={statusFilters.includes(status)}
-                      onCheckedChange={(checked) => 
-                        handleStatusFilterChange(status, checked as boolean)
-                      }
-                    />
-                    <label 
-                      htmlFor={`status-${status}`}
-                      className="text-sm cursor-pointer flex-1"
-                    >
-                      {status}
-                    </label>
-                  </div>
-                ))}
-                {statusFilters.length > 0 && (
-                  <div className="mt-2 pt-2 border-t">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setStatusFilters([])}
-                      className="w-full text-xs"
-                    >
-                      Clear filters
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
+      {/* Tab Filters */}
+      <div className="border-b">
+        <div className="flex items-center px-6 space-x-1">
+          <button
+            onClick={() => setActiveTab('all')}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'all'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setActiveTab('draft')}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'draft'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Draft <span className="text-xs">({statusCounts.draft})</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('awaiting_approval')}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'awaiting_approval'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Awaiting Approval <span className="text-xs">({statusCounts.awaiting_approval})</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('awaiting_payment')}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'awaiting_payment'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Awaiting Payment <span className="text-xs">({statusCounts.awaiting_payment})</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('paid')}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'paid'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Paid
+          </button>
+          <button
+            onClick={() => setActiveTab('repeating')}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'repeating'
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Repeating
+          </button>
         </div>
+      </div>
 
+      {/* Search Bar */}
+      <div className="p-4 border-b flex items-center justify-end">
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">Sort by:</span>
-            <Select defaultValue="oldest-expected">
-              <SelectTrigger className="w-48">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="oldest-expected">Oldest expected date</SelectItem>
-                <SelectItem value="newest-expected">Newest expected date</SelectItem>
-                <SelectItem value="amount-high">Amount (High to Low)</SelectItem>
-                <SelectItem value="amount-low">Amount (Low to High)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
+          <span className="text-sm text-muted-foreground">
+            {filteredInvoices.length} items
+          </span>
           <Input
-            placeholder="Search by invoice number or customer"
+            placeholder="Search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-80"
+            className="w-64"
           />
         </div>
       </div>
 
       {/* Table */}
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-12">
-              <Checkbox
-                checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
-                onCheckedChange={handleSelectAll}
-              />
-            </TableHead>
-            <TableHead>Due Date</TableHead>
-            <TableHead>Invoice Number</TableHead>
-            <TableHead>Contact</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="text-center">Reconciled</TableHead>
-            <TableHead className="text-right">
-              <div className="flex flex-col items-end">
-                <span>Amount Due</span>
-                <span className="text-xs font-normal text-gray-500">
-                  Total: {formatCurrency(totalAmountDue, filteredInvoices[0]?.currency_code)}
-                </span>
-              </div>
-            </TableHead>
-            <TableHead className="w-12"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-           {filteredInvoices.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={7} className="text-center py-8 text-gray-500">
-                {invoices.length === 0 
-                  ? "No invoices found. Connect to Xero and sync your data to see invoices here." 
-                  : "No invoices match your search criteria."
-                }
-              </TableCell>
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="w-12">
+                <Checkbox
+                  checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
+                  onCheckedChange={handleSelectAll}
+                />
+              </TableHead>
+              <TableHead>Number</TableHead>
+              <TableHead>Ref</TableHead>
+              <TableHead>To</TableHead>
+              <TableHead>
+                <Button variant="ghost" size="sm" className="h-auto p-0 font-semibold">
+                  Date
+                  <ArrowUpDown className="ml-2 h-3 w-3" />
+                </Button>
+              </TableHead>
+              <TableHead>Due Date</TableHead>
+              <TableHead className="text-right">Paid</TableHead>
+              <TableHead className="text-right">Due</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Sent</TableHead>
+              <TableHead className="w-12"></TableHead>
             </TableRow>
-          ) : (
-            filteredInvoices.map((invoice) => (
-              <TableRow key={invoice.id}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedInvoices.includes(invoice.id)}
-                    onCheckedChange={(checked) => 
-                      handleSelectInvoice(invoice.id, checked as boolean)
-                    }
-                  />
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <span>{formatDate(invoice.due_date)}</span>
-                    {isOverdue(invoice.due_date, invoice.status) && (
-                      <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs">
-                        OVERDUE
-                      </Badge>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell className="font-medium">
-                  {invoice.invoice_number || 'N/A'}
-                  {invoice.reference && (
-                    <div className="text-xs text-gray-500 mt-1">{invoice.reference}</div>
-                  )}
-                </TableCell>
-                <TableCell>{invoice.contact_name || 'N/A'}</TableCell>
-                <TableCell>
-                  {getStatusBadge(invoice.status)}
-                </TableCell>
-                <TableCell className="text-center">
-                  {allocatedInvoices.has(invoice.id) && (
-                    <Check className="w-5 h-5 text-green-600 mx-auto" />
-                  )}
-                </TableCell>
-                <TableCell className="text-right font-medium">
-                  {formatCurrency(invoice.amount_due, invoice.currency_code)}
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem 
-                        onClick={() => navigate(`/invoice-details/${invoice.id}`)}
-                        className="flex items-center space-x-2"
-                      >
-                        <Eye className="w-4 h-4" />
-                        <span>View Details</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="flex items-center space-x-2">
-                        <Edit className="w-4 h-4" />
-                        <span>Edit Invoice</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="flex items-center space-x-2">
-                        <FileText className="w-4 h-4" />
-                        <span>Download PDF</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+          </TableHeader>
+          <TableBody>
+            {filteredInvoices.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
+                  {invoices.length === 0 
+                    ? "No invoices found. Connect to Xero and sync your data to see invoices here." 
+                    : "No invoices match your search criteria."
+                  }
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-
-      {/* Summary Footer */}
-      <div className="p-4 border-t bg-gray-50 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-600">
-            Showing {filteredInvoices.length} of {invoices.length} invoices
-          </span>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">Status indicators:</span>
-            <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-              PAID
-            </Badge>
-            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300">
-              SENT
-            </Badge>
-            <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-300">
-              DRAFT
-            </Badge>
-            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
-              OVERDUE
-            </Badge>
-          </div>
-        </div>
-        {filteredInvoices.length > 0 && (
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => {
-              fetchInvoices();
-              fetchAllocatedInvoices();
-            }}
-            className="flex items-center space-x-2"
-          >
-            <span>Refresh</span>
-          </Button>
-        )}
+            ) : (
+              filteredInvoices.map((invoice) => (
+                <TableRow key={invoice.id} className="hover:bg-muted/50">
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedInvoices.includes(invoice.id)}
+                      onCheckedChange={(checked) => 
+                        handleSelectInvoice(invoice.id, checked as boolean)
+                      }
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <button 
+                      onClick={() => navigate(`/invoice-details/${invoice.id}`)}
+                      className="text-primary hover:underline font-medium"
+                    >
+                      {invoice.invoice_number || 'N/A'}
+                    </button>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {invoice.reference || '—'}
+                  </TableCell>
+                  <TableCell>
+                    <button 
+                      className="text-primary hover:underline"
+                    >
+                      {invoice.contact_name || 'N/A'}
+                    </button>
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {formatDate(invoice.date)}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {formatDate(invoice.due_date)}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency((invoice.total || 0) - (invoice.amount_due || 0), invoice.currency_code)}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency(invoice.amount_due, invoice.currency_code)}
+                  </TableCell>
+                  <TableCell>
+                    {getStatusBadge(invoice.status)}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {invoice.status === 'PAID' || invoice.status === 'SENT' ? (
+                      <span className="text-green-600">Viewed</span>
+                    ) : (
+                      '—'
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48 bg-popover">
+                        <DropdownMenuItem 
+                          onClick={() => navigate(`/invoice-details/${invoice.id}`)}
+                          className="flex items-center space-x-2"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span>View Details</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="flex items-center space-x-2">
+                          <Edit className="w-4 h-4" />
+                          <span>Edit Invoice</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="flex items-center space-x-2">
+                          <FileText className="w-4 h-4" />
+                          <span>Download PDF</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
+
     </div>
   );
 };
