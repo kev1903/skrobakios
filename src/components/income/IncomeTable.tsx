@@ -144,6 +144,9 @@ export const IncomeTable = () => {
         { date: '2025-09-16', client: 'Mr Benjamin & Mrs Jac', project: 'Thanet St', description: 'Concrete cutting Thanet', amount: 400.00, method: 'Fast Transfer' },
         { date: '2025-09-18', client: 'Stripe', project: null, description: 'Stripe-Pl4TlFpayWc', amount: 2199.06, method: 'Direct Credit' },
         { date: '2025-09-20', client: 'Ekta Bhasin', project: '43 Iris Rd', description: 'Inv 0328', amount: 20000.00, method: 'Fast Transfer' },
+        { date: '2025-10-02', client: 'Mr Benjamin & Mrs Jac', project: 'Timber purchase', description: 'Payment for timber', amount: 4512.30, method: 'Fast Transfer' },
+        { date: '2025-10-03', client: 'Mrs Nomsa Sithandekil', project: 'Render Inv0319', description: 'Render invoice payment', amount: 1560.00, method: 'Fast Transfer' },
+        { date: '2025-10-14', client: 'Vishal Bhasin', project: '43 Iris Rd', description: 'Project transfer', amount: 20000.00, method: 'NetBank Transfer' },
       ];
 
       const recordsToInsert = incomeData.map(record => ({
