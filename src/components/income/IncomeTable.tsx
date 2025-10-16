@@ -25,6 +25,7 @@ interface IncomeRecord {
   amount: number;
   method: string;
   status: "received" | "pending";
+  category: string;
   invoiceNumber?: string;
   notes?: string;
   attachments?: string[];
@@ -91,6 +92,7 @@ export const IncomeTable = () => {
         amount: Number(record.amount),
         method: record.payment_method,
         status: record.status as "received" | "pending",
+        category: record.category || 'Construction',
         invoiceNumber: record.invoice_number || undefined,
         notes: record.notes || undefined,
         attachments: (Array.isArray(record.attachments) ? record.attachments : []) as string[]
@@ -134,24 +136,24 @@ export const IncomeTable = () => {
 
       // Income data to seed
       const incomeData = [
-        { date: '2025-07-09', client: 'Mr Benjamin & Mrs Jac', project: 'Site Surveillance', description: 'Site surveillance payment', amount: 1100.00, method: 'Fast Transfer' },
-        { date: '2025-07-10', client: 'City of Kingston', project: null, description: 'Direct credit', amount: 2000.00, method: 'Direct Credit' },
-        { date: '2025-07-14', client: 'Stripe', project: 'Horace Street', description: 'Stripe-HbAHF1qLMS', amount: 6201.91, method: 'Direct Credit' },
-        { date: '2025-07-16', client: 'Mr Peter Wayne-Good', project: null, description: 'Credit to account (Peter Tiyago)', amount: 1650.00, method: 'Fast Transfer' },
-        { date: '2025-07-16', client: 'TPM Consulting', project: '21 Sugarloaf Rd', description: 'INV-0309 Final Invoice', amount: 2609.20, method: 'Fast Transfer' },
-        { date: '2025-08-05', client: 'Vishal Bhasin', project: '43 Iris Rd', description: 'Bank transfer', amount: 1630.00, method: 'NetBank' },
-        { date: '2025-08-06', client: 'Stripe', project: null, description: 'Stripe-1Cord6Q8llT', amount: 4398.43, method: 'Direct Credit' },
-        { date: '2025-08-12', client: 'Mr Benjamin & Mrs Jac', project: 'Base Thanet', description: 'Payment for base works', amount: 7000.00, method: 'Fast Transfer' },
-        { date: '2025-08-12', client: 'WBC OLP MECON', project: 'Insurance Claim', description: 'MECON Claim 18118', amount: 10000.00, method: 'Direct Credit' },
-        { date: '2025-08-01', client: 'Leongatha Christian R', project: null, description: 'Gravel refund', amount: 221.00, method: 'Fast Transfer' },
-        { date: '2025-09-05', client: 'Stripe', project: 'High Society Café', description: 'Stripe-PYKfOuJqbrr', amount: 6201.91, method: 'Direct Credit' },
-        { date: '2025-09-07', client: 'Ekta Bhasin', project: '43 Iris Rd', description: 'Deposit Invoice SK_25011', amount: 5452.92, method: 'Fast Transfer' },
-        { date: '2025-09-16', client: 'Mr Benjamin & Mrs Jac', project: 'Thanet St', description: 'Concrete cutting Thanet', amount: 400.00, method: 'Fast Transfer' },
-        { date: '2025-09-18', client: 'Stripe', project: null, description: 'Stripe-Pl4TlFpayWc', amount: 2199.06, method: 'Direct Credit' },
-        { date: '2025-09-20', client: 'Ekta Bhasin', project: '43 Iris Rd', description: 'Inv 0328', amount: 20000.00, method: 'Fast Transfer' },
-        { date: '2025-10-02', client: 'Mr Benjamin & Mrs Jac', project: 'Timber purchase', description: 'Payment for timber', amount: 4512.30, method: 'Fast Transfer' },
-        { date: '2025-10-03', client: 'Mrs Nomsa Sithandekil', project: 'Render Inv0319', description: 'Render invoice payment', amount: 1560.00, method: 'Fast Transfer' },
-        { date: '2025-10-14', client: 'Vishal Bhasin', project: '43 Iris Rd', description: 'Project transfer', amount: 20000.00, method: 'NetBank Transfer' },
+        { date: '2025-07-09', client: 'Mr Benjamin & Mrs Jac', project: 'Site Surveillance', description: 'Site surveillance payment', amount: 1100.00, method: 'Fast Transfer', category: 'Consultancy' },
+        { date: '2025-07-10', client: 'City of Kingston', project: null, description: 'Direct credit', amount: 2000.00, method: 'Direct Credit', category: 'Construction' },
+        { date: '2025-07-14', client: 'Stripe', project: 'Horace Street', description: 'Stripe-HbAHF1qLMS', amount: 6201.91, method: 'Direct Credit', category: 'Construction' },
+        { date: '2025-07-16', client: 'Mr Peter Wayne-Good', project: null, description: 'Credit to account (Peter Tiyago)', amount: 1650.00, method: 'Fast Transfer', category: 'Consultancy' },
+        { date: '2025-07-16', client: 'TPM Consulting', project: '21 Sugarloaf Rd', description: 'INV-0309 Final Invoice', amount: 2609.20, method: 'Fast Transfer', category: 'Consultancy' },
+        { date: '2025-08-05', client: 'Vishal Bhasin', project: '43 Iris Rd', description: 'Bank transfer', amount: 1630.00, method: 'NetBank', category: 'Construction' },
+        { date: '2025-08-06', client: 'Stripe', project: null, description: 'Stripe-1Cord6Q8llT', amount: 4398.43, method: 'Direct Credit', category: 'Construction' },
+        { date: '2025-08-12', client: 'Mr Benjamin & Mrs Jac', project: 'Base Thanet', description: 'Payment for base works', amount: 7000.00, method: 'Fast Transfer', category: 'Construction' },
+        { date: '2025-08-12', client: 'WBC OLP MECON', project: 'Insurance Claim', description: 'MECON Claim 18118', amount: 10000.00, method: 'Direct Credit', category: 'Construction' },
+        { date: '2025-08-01', client: 'Leongatha Christian R', project: null, description: 'Gravel refund', amount: 221.00, method: 'Fast Transfer', category: 'Construction' },
+        { date: '2025-09-05', client: 'Stripe', project: 'High Society Café', description: 'Stripe-PYKfOuJqbrr', amount: 6201.91, method: 'Direct Credit', category: 'Construction' },
+        { date: '2025-09-07', client: 'Ekta Bhasin', project: '43 Iris Rd', description: 'Deposit Invoice SK_25011', amount: 5452.92, method: 'Fast Transfer', category: 'Construction' },
+        { date: '2025-09-16', client: 'Mr Benjamin & Mrs Jac', project: 'Thanet St', description: 'Concrete cutting Thanet', amount: 400.00, method: 'Fast Transfer', category: 'Construction' },
+        { date: '2025-09-18', client: 'Stripe', project: null, description: 'Stripe-Pl4TlFpayWc', amount: 2199.06, method: 'Direct Credit', category: 'Construction' },
+        { date: '2025-09-20', client: 'Ekta Bhasin', project: '43 Iris Rd', description: 'Inv 0328', amount: 20000.00, method: 'Fast Transfer', category: 'Construction' },
+        { date: '2025-10-02', client: 'Mr Benjamin & Mrs Jac', project: 'Timber purchase', description: 'Payment for timber', amount: 4512.30, method: 'Fast Transfer', category: 'Construction' },
+        { date: '2025-10-03', client: 'Mrs Nomsa Sithandekil', project: 'Render Inv0319', description: 'Render invoice payment', amount: 1560.00, method: 'Fast Transfer', category: 'Construction' },
+        { date: '2025-10-14', client: 'Vishal Bhasin', project: '43 Iris Rd', description: 'Project transfer', amount: 20000.00, method: 'NetBank Transfer', category: 'Construction' },
       ];
 
       // Get existing transactions to avoid duplicates
@@ -182,6 +184,7 @@ export const IncomeTable = () => {
         description: record.description,
         amount: record.amount,
         payment_method: record.method,
+        category: record.category || 'Construction',
         status: 'received',
         created_by: user.id
       }));
@@ -303,6 +306,7 @@ export const IncomeTable = () => {
                   </TableHead>
                   <TableHead>Client / Source</TableHead>
                   <TableHead>Project</TableHead>
+                  <TableHead>Category</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>
                     <Button
@@ -322,13 +326,13 @@ export const IncomeTable = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       Loading income records...
                     </TableCell>
                   </TableRow>
                 ) : filteredData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       No income records found.
                     </TableCell>
                   </TableRow>
@@ -348,6 +352,11 @@ export const IncomeTable = () => {
                       </TableCell>
                       <TableCell>{record.client}</TableCell>
                       <TableCell>{record.project}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="font-normal">
+                          {record.category}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="text-muted-foreground">
                         {record.description}
                       </TableCell>

@@ -1916,6 +1916,7 @@ export type Database = {
         Row: {
           amount: number
           attachments: Json | null
+          category: string | null
           client_source: string
           company_id: string
           created_at: string | null
@@ -1934,6 +1935,7 @@ export type Database = {
         Insert: {
           amount: number
           attachments?: Json | null
+          category?: string | null
           client_source: string
           company_id: string
           created_at?: string | null
@@ -1952,6 +1954,7 @@ export type Database = {
         Update: {
           amount?: number
           attachments?: Json | null
+          category?: string | null
           client_source?: string
           company_id?: string
           created_at?: string | null

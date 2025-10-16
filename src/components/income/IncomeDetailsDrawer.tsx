@@ -31,6 +31,7 @@ interface IncomeRecord {
   amount: number;
   method: string;
   status: "received" | "pending";
+  category: string;
   invoiceNumber?: string;
   notes?: string;
   attachments?: string[];
@@ -94,6 +95,7 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: In
           description: editedRecord.description,
           amount: editedRecord.amount,
           payment_method: editedRecord.method,
+          category: editedRecord.category,
           status: editedRecord.status,
           invoice_number: editedRecord.invoiceNumber || null,
           notes: editedRecord.notes || null,
@@ -348,6 +350,26 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: In
                 </Select>
               ) : (
                 <p className="text-base mt-1">{currentRecord.method}</p>
+              )}
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">Category</Label>
+              {isEditing ? (
+                <Select
+                  value={currentRecord.category}
+                  onValueChange={(value) => setEditedRecord(prev => prev ? { ...prev, category: value } : null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Consultancy">Consultancy</SelectItem>
+                    <SelectItem value="Construction">Construction</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p className="text-base mt-1">{currentRecord.category}</p>
               )}
             </div>
 
