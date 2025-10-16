@@ -95,7 +95,12 @@ export const ExpenseDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: E
         .eq('is_active', true)
         .order('account_code');
 
-      setAccounts(data || []);
+      // Filter out accounts with empty or null account_code
+      const validAccounts = (data || []).filter(
+        account => account.account_code && account.account_code.trim() !== ''
+      );
+      
+      setAccounts(validAccounts);
     } catch (error) {
       console.error('Error fetching accounts:', error);
     }
