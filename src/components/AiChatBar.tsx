@@ -19,6 +19,7 @@ export const AiChatBar = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -104,6 +105,54 @@ export const AiChatBar = () => {
     setIsOpen(true);
   };
 
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    const validFiles = files.filter(file => {
+      const isImage = file.type.startsWith('image/');
+      const isPdf = file.type === 'application/pdf';
+      return isImage || isPdf;
+    });
+
+    if (validFiles.length === 0) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload only images or PDF files.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (validFiles.length > 0) {
+      toast({
+        title: "Files received",
+        description: `${validFiles.length} file(s) ready to process.`,
+      });
+      // TODO: Handle file processing here
+      console.log('Files dropped:', validFiles);
+    }
+  };
+
   if (!isOpen) {
     return (
       <div className="fixed bottom-6 right-6 z-50">
@@ -139,7 +188,21 @@ export const AiChatBar = () => {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 h-64 p-4">
+      <ScrollArea 
+        className="flex-1 h-64 p-4 relative"
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {isDragging && (
+          <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded-lg flex items-center justify-center z-10 backdrop-blur-sm">
+            <div className="text-center">
+              <p className="text-primary font-medium">Drop images or PDFs here</p>
+              <p className="text-sm text-muted-foreground mt-1">Supported: JPG, PNG, GIF, WEBP, PDF</p>
+            </div>
+          </div>
+        )}
         <div className="space-y-4">
           {messages.map((message) => (
             <div
