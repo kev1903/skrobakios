@@ -36,7 +36,7 @@ export const AiChatBar = () => {
     if (isOpen && !hasInitialized && messages.length === 0) {
       const welcomeMessage: Message = {
         id: 'welcome',
-        content: "Hi! I'm SkAi, your AI assistant. I can help you with financial insights, answer questions about your income, expenses, and provide recommendations. How can I assist you today?",
+        content: "Hi! I'm SkAi, your AI financial assistant. I can help you analyze budgets, track costs, review invoices, and provide financial insights across your projects. How can I assist you today?",
         role: 'assistant',
         timestamp: new Date()
       };
@@ -68,7 +68,11 @@ export const AiChatBar = () => {
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: {
           message: userMessage.content,
-          conversation: conversation
+          conversation: conversation,
+          context: {
+            currentPage: 'finance',
+            pageContext: 'financial_analysis'
+          }
         }
       });
 
