@@ -82,27 +82,29 @@ export const FinanceSettingsPage = ({ onNavigate }: FinanceSettingsPageProps) =>
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-4">
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={() => onNavigate?.("finance")}
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Finance Settings</h1>
-              <p className="text-gray-600">Configure your finance dashboard preferences</p>
+    <div className="flex-1 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header */}
+            <div className="mb-8">
+              <div className="flex items-center gap-4 mb-4">
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => onNavigate?.("finance")}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">Finance Settings</h1>
+                  <p className="text-gray-600">Configure your finance dashboard preferences</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Settings Content */}
-        <div className="bg-white rounded-lg shadow-sm p-6 space-y-8">
+            {/* Settings Content */}
+            <div className="bg-white rounded-lg shadow-sm p-6 space-y-8">
           <GeneralSettingsSection 
             settings={settings}
             onInputChange={handleInputChange}
@@ -131,9 +133,11 @@ export const FinanceSettingsPage = ({ onNavigate }: FinanceSettingsPageProps) =>
 
           {/* Save Button */}
           <div className="flex justify-end pt-4">
-            <Button onClick={handleSave}>
-              Save Settings
-            </Button>
+              <Button onClick={handleSave}>
+                Save Settings
+              </Button>
+            </div>
+            </div>
           </div>
         </div>
       </div>

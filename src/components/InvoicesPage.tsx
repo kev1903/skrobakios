@@ -19,14 +19,18 @@ export const InvoicesPage = ({ onNavigate }: InvoicesPageProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-      <InvoicesHeader 
-        onNavigate={onNavigate || (() => navigate('/finance'))} 
-        onInvoicesSync={handleInvoicesSync}
-      />
-      <InvoicesSummaryCards key={`summary-${refreshTrigger}`} />
-      <InvoicesWarningBanner key={`warning-${refreshTrigger}`} />
-      <InvoicesTable key={`table-${refreshTrigger}`} />
+    <div className="flex-1 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-6 space-y-6">
+          <InvoicesHeader 
+            onNavigate={onNavigate || (() => navigate('/finance'))} 
+            onInvoicesSync={handleInvoicesSync}
+          />
+          <InvoicesSummaryCards key={`summary-${refreshTrigger}`} />
+          <InvoicesWarningBanner key={`warning-${refreshTrigger}`} />
+          <InvoicesTable key={`table-${refreshTrigger}`} />
+        </div>
+      </div>
     </div>
   );
 };

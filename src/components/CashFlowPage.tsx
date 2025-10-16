@@ -10,18 +10,22 @@ export const CashFlowPage = ({ onNavigate }: CashFlowPageProps) => {
   const [selectedScenario, setSelectedScenario] = useState("base");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
-      <CashFlowHeader 
-        selectedScenario={selectedScenario}
-        setSelectedScenario={setSelectedScenario}
-      />
+    <div className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-6 space-y-6">
+          <CashFlowHeader 
+            selectedScenario={selectedScenario}
+            setSelectedScenario={setSelectedScenario}
+          />
 
-      <CashFlowCards />
+          <CashFlowCards />
 
-      <CashFlowChart />
+          <CashFlowChart />
 
-      {/* Cash Flow Tables */}
-      <CashFlowTables />
+          {/* Cash Flow Tables */}
+          <CashFlowTables />
+        </div>
+      </div>
     </div>
   );
 };

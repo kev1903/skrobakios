@@ -11,12 +11,16 @@ interface BillsPageProps {
 
 export const BillsPage = ({ onNavigate }: BillsPageProps) => {
   return (
-    <div className="min-h-screen bg-background p-6">
-      <BillsHeader onNavigate={onNavigate} />
-      <BillsSummaryCards />
-      <BillsChart />
-      <BillsWarningBanner />
-      <BillsTable />
+    <div className="flex-1 bg-background overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-6 space-y-6">
+          <BillsHeader onNavigate={onNavigate} />
+          <BillsSummaryCards />
+          <BillsChart />
+          <BillsWarningBanner />
+          <BillsTable />
+        </div>
+      </div>
     </div>
   );
 };
