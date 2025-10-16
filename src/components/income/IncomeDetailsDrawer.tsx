@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Sheet,
   SheetContent,
@@ -8,7 +9,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Download, Edit, Link as LinkIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { DatePicker } from "@/components/ui/date-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FileText, Download, Edit, X, Save } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface IncomeRecord {
   id: string;
@@ -28,10 +36,69 @@ interface IncomeDetailsDrawerProps {
   record: IncomeRecord | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUpdate?: () => void;
 }
 
-export const IncomeDetailsDrawer = ({ record, open, onOpenChange }: IncomeDetailsDrawerProps) => {
+export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: IncomeDetailsDrawerProps) => {
+  const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedRecord, setEditedRecord] = useState<IncomeRecord | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
   if (!record) return null;
+
+  const handleEdit = () => {
+    setEditedRecord({ ...record });
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    setEditedRecord(null);
+    setIsEditing(false);
+  };
+
+  const handleSave = async () => {
+    if (!editedRecord) return;
+
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('income_transactions')
+        .update({
+          transaction_date: editedRecord.date,
+          client_source: editedRecord.client,
+          project_name: editedRecord.project,
+          description: editedRecord.description,
+          amount: editedRecord.amount,
+          payment_method: editedRecord.method,
+          status: editedRecord.status,
+          invoice_number: editedRecord.invoiceNumber || null,
+          notes: editedRecord.notes || null,
+        })
+        .eq('id', editedRecord.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Income transaction updated successfully",
+      });
+
+      setIsEditing(false);
+      onUpdate?.();
+    } catch (error) {
+      console.error('Error updating transaction:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update transaction",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const currentRecord = isEditing && editedRecord ? editedRecord : record;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -39,27 +106,58 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange }: IncomeDetail
         <SheetHeader>
           <SheetTitle>Income Details</SheetTitle>
           <SheetDescription>
-            View and manage income transaction details
+            {isEditing ? "Edit income transaction details" : "View and manage income transaction details"}
           </SheetDescription>
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
-          {/* Status Badge */}
+          {/* Status Badge and Action Buttons */}
           <div className="flex items-center justify-between">
-            <Badge
-              variant={record.status === "received" ? "default" : "secondary"}
-              className={
-                record.status === "received"
-                  ? "bg-green-500/10 text-green-600"
-                  : "bg-orange-500/10 text-orange-600"
-              }
-            >
-              {record.status === "received" ? "✓ Received" : "◆ Pending"}
-            </Badge>
-            <Button variant="outline" size="sm">
-              <Edit className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
+            {isEditing ? (
+              <Select
+                value={currentRecord.status}
+                onValueChange={(value: "received" | "pending") => 
+                  setEditedRecord(prev => prev ? { ...prev, status: value } : null)
+                }
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="received">✓ Received</SelectItem>
+                  <SelectItem value="pending">◆ Pending</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Badge
+                variant={currentRecord.status === "received" ? "default" : "secondary"}
+                className={
+                  currentRecord.status === "received"
+                    ? "bg-green-500/10 text-green-600"
+                    : "bg-orange-500/10 text-orange-600"
+                }
+              >
+                {currentRecord.status === "received" ? "✓ Received" : "◆ Pending"}
+              </Badge>
+            )}
+            
+            {isEditing ? (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleCancel} disabled={isSaving}>
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={handleSave} disabled={isSaving}>
+                  <Save className="h-4 w-4 mr-2" />
+                  {isSaving ? "Saving..." : "Save"}
+                </Button>
+              </div>
+            ) : (
+              <Button variant="outline" size="sm" onClick={handleEdit}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+            )}
           </div>
 
           <Separator />
@@ -67,96 +165,179 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange }: IncomeDetail
           {/* Main Details */}
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Date</label>
-              <p className="text-base mt-1">
-                {new Date(record.date).toLocaleDateString("en-AU", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Client / Source</label>
-              <p className="text-base font-medium mt-1">{record.client}</p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Project</label>
-              <p className="text-base mt-1">{record.project}</p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Description</label>
-              <p className="text-base mt-1">{record.description}</p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Amount</label>
-              <p className="text-2xl font-bold mt-1">
-                ${record.amount.toLocaleString("en-AU", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2,
-                })}
-              </p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Payment Method</label>
-              <p className="text-base mt-1">{record.method}</p>
-            </div>
-
-            {record.invoiceNumber && (
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Invoice Number</label>
-                <div className="flex items-center gap-2 mt-1">
-                  <p className="text-base">{record.invoiceNumber}</p>
-                  <Button variant="ghost" size="sm">
-                    <LinkIcon className="h-3 w-3" />
-                  </Button>
+              <Label className="text-sm font-medium text-muted-foreground">Date</Label>
+              {isEditing ? (
+                <div className="mt-1">
+                  <DatePicker
+                    date={new Date(currentRecord.date)}
+                    onDateChange={(date) => 
+                      setEditedRecord(prev => prev ? { ...prev, date: date?.toISOString().split('T')[0] || prev.date } : null)
+                    }
+                    className="w-full h-10"
+                    formatString="d MMMM yyyy"
+                  />
                 </div>
-              </div>
-            )}
+              ) : (
+                <p className="text-base mt-1">
+                  {new Date(currentRecord.date).toLocaleDateString("en-AU", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">Client / Source</Label>
+              {isEditing ? (
+                <Input
+                  value={currentRecord.client}
+                  onChange={(e) => setEditedRecord(prev => prev ? { ...prev, client: e.target.value } : null)}
+                  className="mt-1"
+                />
+              ) : (
+                <p className="text-base font-medium mt-1">{currentRecord.client}</p>
+              )}
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">Project</Label>
+              {isEditing ? (
+                <Input
+                  value={currentRecord.project}
+                  onChange={(e) => setEditedRecord(prev => prev ? { ...prev, project: e.target.value } : null)}
+                  className="mt-1"
+                />
+              ) : (
+                <p className="text-base mt-1">{currentRecord.project}</p>
+              )}
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">Description</Label>
+              {isEditing ? (
+                <Input
+                  value={currentRecord.description}
+                  onChange={(e) => setEditedRecord(prev => prev ? { ...prev, description: e.target.value } : null)}
+                  className="mt-1"
+                />
+              ) : (
+                <p className="text-base mt-1">{currentRecord.description}</p>
+              )}
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">Amount</Label>
+              {isEditing ? (
+                <Input
+                  type="number"
+                  step="0.01"
+                  value={currentRecord.amount}
+                  onChange={(e) => setEditedRecord(prev => prev ? { ...prev, amount: parseFloat(e.target.value) || 0 } : null)}
+                  className="mt-1"
+                />
+              ) : (
+                <p className="text-2xl font-bold mt-1">
+                  ${currentRecord.amount.toLocaleString("en-AU", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">Payment Method</Label>
+              {isEditing ? (
+                <Select
+                  value={currentRecord.method}
+                  onValueChange={(value) => setEditedRecord(prev => prev ? { ...prev, method: value } : null)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Fast Transfer">Fast Transfer</SelectItem>
+                    <SelectItem value="Direct Credit">Direct Credit</SelectItem>
+                    <SelectItem value="NetBank">NetBank</SelectItem>
+                    <SelectItem value="Cash">Cash</SelectItem>
+                    <SelectItem value="Cheque">Cheque</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p className="text-base mt-1">{currentRecord.method}</p>
+              )}
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-muted-foreground">Invoice Number</Label>
+              {isEditing ? (
+                <Input
+                  value={currentRecord.invoiceNumber || ''}
+                  onChange={(e) => setEditedRecord(prev => prev ? { ...prev, invoiceNumber: e.target.value } : null)}
+                  className="mt-1"
+                  placeholder="Optional"
+                />
+              ) : (
+                currentRecord.invoiceNumber && (
+                  <p className="text-base mt-1">{currentRecord.invoiceNumber}</p>
+                )
+              )}
+            </div>
           </div>
 
           <Separator />
 
           {/* Notes */}
-          {record.notes && (
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Notes</label>
-              <p className="text-sm mt-2 p-3 bg-muted/50 rounded-md">{record.notes}</p>
-            </div>
-          )}
-
-          {/* Attachments */}
           <div>
-            <label className="text-sm font-medium text-muted-foreground mb-3 block">
-              Attachments
-            </label>
-            <div className="space-y-2">
-              <Button variant="outline" className="w-full justify-start" size="sm">
-                <FileText className="h-4 w-4 mr-2" />
-                Payment_Proof.pdf
-                <Download className="h-4 w-4 ml-auto" />
-              </Button>
-            </div>
+            <Label className="text-sm font-medium text-muted-foreground">Notes</Label>
+            {isEditing ? (
+              <Textarea
+                value={currentRecord.notes || ''}
+                onChange={(e) => setEditedRecord(prev => prev ? { ...prev, notes: e.target.value } : null)}
+                className="mt-2"
+                placeholder="Add notes..."
+                rows={3}
+              />
+            ) : (
+              currentRecord.notes && (
+                <p className="text-sm mt-2 p-3 bg-muted/50 rounded-md">{currentRecord.notes}</p>
+              )
+            )}
           </div>
 
-          <Separator />
+          {!isEditing && (
+            <>
+              {/* Attachments */}
+              <div>
+                <label className="text-sm font-medium text-muted-foreground mb-3 block">
+                  Attachments
+                </label>
+                <div className="space-y-2">
+                  <Button variant="outline" className="w-full justify-start" size="sm">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Payment_Proof.pdf
+                    <Download className="h-4 w-4 ml-auto" />
+                  </Button>
+                </div>
+              </div>
 
-          {/* Actions */}
-          <div className="flex gap-2">
-            <Button variant="outline" className="flex-1">
-              <FileText className="h-4 w-4 mr-2" />
-              View Invoice
-            </Button>
-            <Button variant="outline" className="flex-1">
-              <Download className="h-4 w-4 mr-2" />
-              Download
-            </Button>
-          </div>
+              <Separator />
+
+              {/* Actions */}
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1">
+                  <FileText className="h-4 w-4 mr-2" />
+                  View Invoice
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </SheetContent>
     </Sheet>

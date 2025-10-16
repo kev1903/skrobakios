@@ -371,6 +371,7 @@ export const IncomeTable = () => {
         record={selectedRecord}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
+        onUpdate={fetchIncomeData}
       />
     </>
   );
