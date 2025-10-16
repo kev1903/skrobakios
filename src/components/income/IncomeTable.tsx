@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowUpDown, Search, Filter, RefreshCw } from "lucide-react";
+import { ArrowUpDown, Search, Filter } from "lucide-react";
 import { IncomeDetailsDrawer } from "./IncomeDetailsDrawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -41,7 +41,7 @@ export const IncomeTable = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { toast } = useToast();
 
-  const fetchIncomeData = async () => {
+  const fetchIncomeData = async (shouldSeedIfEmpty = false) => {
     try {
       setLoading(true);
       
@@ -69,6 +69,12 @@ export const IncomeTable = () => {
         .order('transaction_date', { ascending: false });
 
       if (error) throw error;
+
+      // If no data and should seed, automatically populate
+      if ((!incomeData || incomeData.length === 0) && shouldSeedIfEmpty) {
+        await seedInitialData();
+        return;
+      }
 
       // Transform to match UI format
       const transformedData: IncomeRecord[] = (incomeData || []).map(record => ({
@@ -121,7 +127,7 @@ export const IncomeTable = () => {
   };
 
   useEffect(() => {
-    fetchIncomeData();
+    fetchIncomeData(true);
   }, []);
 
   const handleSort = (column: "date" | "amount") => {
@@ -173,15 +179,6 @@ export const IncomeTable = () => {
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">Income Table</CardTitle>
             <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={seedInitialData}
-                disabled={loading}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Load Data
-              </Button>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -249,7 +246,7 @@ export const IncomeTable = () => {
                 ) : filteredData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      No income records found. Click "Load Data" to populate with initial data.
+                      No income records found.
                     </TableCell>
                   </TableRow>
                 ) : (
