@@ -227,62 +227,69 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: In
             <div>
               <Label className="text-sm font-medium text-muted-foreground">Project</Label>
               {isEditing ? (
-                <Popover open={projectComboboxOpen} onOpenChange={setProjectComboboxOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={projectComboboxOpen}
-                      className="w-full justify-between mt-1 h-10 font-normal"
-                    >
-                      {currentRecord.project || "Select project..."}
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-full p-0 bg-popover" align="start">
-                    <Command className="bg-popover">
-                      <CommandInput placeholder="Search projects..." />
-                      <CommandList>
-                        <CommandEmpty>No project found.</CommandEmpty>
-                        <CommandGroup>
-                          <CommandItem
-                            value="—"
-                            onSelect={() => {
-                              setEditedRecord(prev => prev ? { ...prev, project: '—' } : null);
-                              setProjectComboboxOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                currentRecord.project === '—' ? "opacity-100" : "opacity-0"
-                              )}
-                            />
-                            None
-                          </CommandItem>
-                          {projects.map((project) => (
+                <div className="relative mt-1">
+                  <Input
+                    value={currentRecord.project}
+                    onChange={(e) => setEditedRecord(prev => prev ? { ...prev, project: e.target.value } : null)}
+                    placeholder="Type or select project..."
+                    className="pr-10"
+                  />
+                  <Popover open={projectComboboxOpen} onOpenChange={setProjectComboboxOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                        type="button"
+                      >
+                        <ChevronsUpDown className="h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 bg-popover" align="start">
+                      <Command className="bg-popover">
+                        <CommandInput placeholder="Search projects..." />
+                        <CommandList>
+                          <CommandEmpty>No project found. Type to create a custom entry.</CommandEmpty>
+                          <CommandGroup>
                             <CommandItem
-                              key={project.id}
-                              value={project.name}
+                              value="—"
                               onSelect={() => {
-                                setEditedRecord(prev => prev ? { ...prev, project: project.name } : null);
+                                setEditedRecord(prev => prev ? { ...prev, project: '—' } : null);
                                 setProjectComboboxOpen(false);
                               }}
                             >
                               <Check
                                 className={cn(
                                   "mr-2 h-4 w-4",
-                                  currentRecord.project === project.name ? "opacity-100" : "opacity-0"
+                                  currentRecord.project === '—' ? "opacity-100" : "opacity-0"
                                 )}
                               />
-                              {project.name}
+                              None
                             </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                            {projects.map((project) => (
+                              <CommandItem
+                                key={project.id}
+                                value={project.name}
+                                onSelect={() => {
+                                  setEditedRecord(prev => prev ? { ...prev, project: project.name } : null);
+                                  setProjectComboboxOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    currentRecord.project === project.name ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {project.name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               ) : (
                 <p className="text-base mt-1">{currentRecord.project}</p>
               )}
