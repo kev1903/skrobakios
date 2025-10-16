@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
@@ -14,9 +14,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, Download, Edit, X, Save } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { FileText, Download, Edit, X, Save, Check, ChevronsUpDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 interface IncomeRecord {
   id: string;
@@ -44,6 +47,44 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: In
   const [isEditing, setIsEditing] = useState(false);
   const [editedRecord, setEditedRecord] = useState<IncomeRecord | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [projects, setProjects] = useState<Array<{ id: string; name: string }>>([]);
+  const [projectComboboxOpen, setProjectComboboxOpen] = useState(false);
+
+  // Fetch projects when drawer opens
+  useEffect(() => {
+    if (open && isEditing) {
+      fetchProjects();
+    }
+  }, [open, isEditing]);
+
+  const fetchProjects = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: companyMember } = await supabase
+        .from('company_members')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .limit(1)
+        .maybeSingle();
+
+      if (!companyMember) return;
+
+      const { data: projectsData, error } = await supabase
+        .from('projects')
+        .select('id, name')
+        .eq('company_id', companyMember.company_id)
+        .order('name');
+
+      if (error) throw error;
+
+      setProjects(projectsData || []);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
+  };
 
   if (!record) return null;
 
@@ -204,11 +245,62 @@ export const IncomeDetailsDrawer = ({ record, open, onOpenChange, onUpdate }: In
             <div>
               <Label className="text-sm font-medium text-muted-foreground">Project</Label>
               {isEditing ? (
-                <Input
-                  value={currentRecord.project}
-                  onChange={(e) => setEditedRecord(prev => prev ? { ...prev, project: e.target.value } : null)}
-                  className="mt-1"
-                />
+                <Popover open={projectComboboxOpen} onOpenChange={setProjectComboboxOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={projectComboboxOpen}
+                      className="w-full justify-between mt-1 h-10 font-normal"
+                    >
+                      {currentRecord.project || "Select project..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0 bg-popover" align="start">
+                    <Command className="bg-popover">
+                      <CommandInput placeholder="Search projects..." />
+                      <CommandList>
+                        <CommandEmpty>No project found.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem
+                            value="—"
+                            onSelect={() => {
+                              setEditedRecord(prev => prev ? { ...prev, project: '—' } : null);
+                              setProjectComboboxOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                currentRecord.project === '—' ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            None
+                          </CommandItem>
+                          {projects.map((project) => (
+                            <CommandItem
+                              key={project.id}
+                              value={project.name}
+                              onSelect={() => {
+                                setEditedRecord(prev => prev ? { ...prev, project: project.name } : null);
+                                setProjectComboboxOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  currentRecord.project === project.name ? "opacity-100" : "opacity-0"
+                                )}
+                              />
+                              {project.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               ) : (
                 <p className="text-base mt-1">{currentRecord.project}</p>
               )}
