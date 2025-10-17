@@ -1,6 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// @ts-ignore - pdf-parse types
+import pdfParse from 'https://esm.sh/pdf-parse@1.1.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -55,71 +57,31 @@ interface ContractData {
 }
 
 async function extractTextFromPDF(fileContent: Uint8Array): Promise<string> {
-  console.log('[PDF EXTRACTION] Starting text extraction from PDF...');
+  console.log('[PDF EXTRACTION v3] Starting with pdf-parse library...');
   try {
-    // Convert PDF bytes to string for text extraction
-    const decoder = new TextDecoder('utf-8', { fatal: false });
-    const pdfString = decoder.decode(fileContent);
+    console.log('[PDF EXTRACTION v3] PDF size:', fileContent.length, 'bytes');
     
-    console.log('[PDF EXTRACTION] PDF size:', fileContent.length, 'bytes');
+    // Use pdf-parse library for proper PDF text extraction
+    const data = await pdfParse(fileContent);
     
-    // Extract all text between parentheses (Tj operators)
-    const textMatches = pdfString.match(/\(([^)]+)\)\s*Tj/g) || [];
-    let extractedText = textMatches
-      .map(match => match.replace(/\(([^)]+)\)\s*Tj/, '$1'))
-      .join(' ');
+    console.log('[PDF EXTRACTION v3] Pages:', data.numpages);
+    console.log('[PDF EXTRACTION v3] Extracted text length:', data.text?.length || 0);
+    console.log('[PDF EXTRACTION v3] Sample text:', data.text?.substring(0, 300));
     
-    console.log('[PDF EXTRACTION] Text from Tj operators:', extractedText.length, 'chars');
+    if (!data.text || data.text.trim().length < 50) {
+      throw new Error(`Only extracted ${data.text?.length || 0} characters. PDF may be image-based or encrypted.`);
+    }
     
-    // Also extract text from TJ operators (arrays)
-    const tjArrayMatches = pdfString.match(/\[(.*?)\]\s*TJ/g) || [];
-    const tjArrayText = tjArrayMatches
-      .map(match => {
-        const content = match.replace(/\[(.*?)\]\s*TJ/, '$1');
-        return content.match(/\(([^)]+)\)/g)?.map(m => m.replace(/[()]/g, '')).join(' ') || '';
-      })
-      .join(' ');
-    
-    extractedText += ' ' + tjArrayText;
-    console.log('[PDF EXTRACTION] After TJ arrays:', extractedText.length, 'chars');
-    
-    // Clean up escape sequences and extra whitespace
-    extractedText = extractedText
-      .replace(/\\n/g, ' ')
-      .replace(/\\r/g, '')
-      .replace(/\\t/g, ' ')
-      .replace(/\\/g, '')
+    // Clean up the text
+    const cleanedText = data.text
       .replace(/\s+/g, ' ')
       .trim();
     
-    // If we didn't get much text, try a more aggressive extraction
-    if (extractedText.length < 100) {
-      console.log('[PDF EXTRACTION] Low text yield, trying aggressive extraction...');
-      const aggressiveText = pdfString
-        .replace(/[^\x20-\x7E\n]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .split(' ')
-        .filter(word => word.length > 2 && /[a-zA-Z]/.test(word))
-        .join(' ')
-        .trim();
-      
-      if (aggressiveText.length > extractedText.length) {
-        extractedText = aggressiveText;
-        console.log('[PDF EXTRACTION] Aggressive extraction yielded:', extractedText.length, 'chars');
-      }
-    }
-    
-    console.log('[PDF EXTRACTION] Final extracted text length:', extractedText.length);
-    console.log('[PDF EXTRACTION] Sample text:', extractedText.substring(0, 200));
-    
-    if (extractedText.length < 50) {
-      throw new Error(`Only extracted ${extractedText.length} characters. PDF may be image-based, encrypted, or use unsupported encoding.`);
-    }
-    
-    return extractedText;
+    console.log('[PDF EXTRACTION v3] SUCCESS - Final text length:', cleanedText.length);
+    return cleanedText;
   } catch (error) {
-    console.error('[PDF EXTRACTION] Error:', error);
-    throw new Error(`PDF text extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    console.error('[PDF EXTRACTION v3] Error:', error);
+    throw new Error(`PDF parsing failed: ${error instanceof Error ? error.message : 'Unknown error'}. The PDF may be image-based or use unsupported encoding.`);
   }
 }
 
@@ -263,7 +225,7 @@ serve(async (req) => {
       );
     }
 
-    console.log('===== PROCESS CONTRACT v2.0 START =====');
+    console.log('===== PROCESS CONTRACT v3.0 START =====');
     console.log('Processing contract:', { fileUrl, fileName, projectId, name });
 
     // Download the file
@@ -275,8 +237,8 @@ serve(async (req) => {
     const fileContent = new Uint8Array(await fileResponse.arrayBuffer());
     console.log('Downloaded file, size:', fileContent.length);
 
-    // Extract text from PDF (NEW CODE)
-    console.log('[STEP 1/2] Extracting text from PDF...');
+    // Extract text from PDF using pdf-parse library
+    console.log('[STEP 1/2] Extracting text from PDF with pdf-parse...');
     const pdfText = await extractTextFromPDF(fileContent);
     console.log('[STEP 1/2] Text extraction complete. Length:', pdfText.length);
     
@@ -284,7 +246,7 @@ serve(async (req) => {
     console.log('[STEP 2/2] Sending extracted text to Lovable AI Gemini...');
     const contractData = await extractContractDataWithLovableAI(pdfText);
     console.log('[STEP 2/2] AI processing complete.');
-    console.log('===== PROCESS CONTRACT v2.0 SUCCESS =====');
+    console.log('===== PROCESS CONTRACT v3.0 SUCCESS =====');
 
     // If extractOnly is true, just return the data without saving
     if (extractOnly) {
