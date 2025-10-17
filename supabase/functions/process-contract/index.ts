@@ -54,7 +54,26 @@ interface ContractData {
   ai_confidence: number;
 }
 
-async function extractContractDataWithLovableAI(fileContent: Uint8Array): Promise<ContractData> {
+async function extractTextFromPDF(fileContent: Uint8Array): Promise<string> {
+  try {
+    const decoder = new TextDecoder('utf-8');
+    const text = decoder.decode(fileContent);
+    
+    // Simple text extraction from PDF
+    const textMatches = text.match(/\/T\s*\(([^)]*)\)/g);
+    if (textMatches) {
+      return textMatches.map(m => m.replace(/\/T\s*\(|\)/g, '')).join(' ');
+    }
+    
+    // Fallback: try to extract any readable text
+    return text.replace(/[^\x20-\x7E\n]/g, '').trim();
+  } catch (error) {
+    console.error('Text extraction error:', error);
+    throw new Error('Failed to extract text from PDF');
+  }
+}
+
+async function extractContractDataWithLovableAI(extractedText: string): Promise<ContractData> {
   const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
   
   if (!lovableApiKey) {
@@ -63,35 +82,41 @@ async function extractContractDataWithLovableAI(fileContent: Uint8Array): Promis
 
   console.log('Starting extraction with Lovable AI Gemini');
 
-  // Convert PDF to base64
-  const base64Content = btoa(String.fromCharCode(...fileContent));
+  const systemPrompt = `You are an expert at extracting contract data from documents with special focus on payment structures. 
+Extract all relevant contract information including customer details, contract value, dates, terms, and DETAILED payment information.
+Return ONLY valid JSON with no additional text or formatting.`;
 
-  const requestBody = {
-    model: 'google/gemini-2.5-flash',
-    messages: [
-      {
-        role: 'system',
-        content: 'You are an expert at extracting contract data from PDFs with special focus on payment structures. Extract all relevant contract information including customer details, contract value, dates, terms, and DETAILED payment information including stage payments, progress payments, deposit terms, retention amounts, and payment schedules. Return valid JSON only.'
-      },
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'text',
-            text: 'Extract all contract details from this document with special attention to payment structures and tables. Include: 1) Customer information (name, email, phone, address), 2) Contract value/amount, 3) Important dates (contract date, start date, end date), 4) Scope of work, 5) DETAILED PAYMENT INFORMATION including: - Stage payments (each stage with name, description, amount, percentage, due date), - Progress payments (milestones with percentages and amounts), - Payment tables and schedules with structured data, - Deposit amount and percentage, - Retention amounts and percentages, - Final payment details, - Payment methods, - Late payment penalties or terms. 6) PAYMENT TABLES: Extract any payment tables showing stages, percentages, amounts, descriptions, and work involved. Format these as structured arrays with consistent column headers. Extract ALL payment-related information and tables you can find. Return ONLY valid JSON matching this structure: {"customer_name": string, "customer_email": string, "customer_phone": string, "customer_address": string, "contract_value": string, "contract_date": string, "start_date": string, "end_date": string, "scope_of_work": string, "payment_terms": string, "stage_payments": array, "progress_payments": array, "payment_tables": array, "payment_schedule": string, "deposit_amount": string, "deposit_percentage": string, "retention_amount": string, "retention_percentage": string, "final_payment": string, "payment_method": string, "late_payment_terms": string, "ai_summary": string, "ai_confidence": number}'
-          },
-          {
-            type: 'image_url',
-            image_url: {
-              url: `data:application/pdf;base64,${base64Content}`
-            }
-          }
-        ]
-      }
-    ]
-  };
+  const userPrompt = `Extract all contract details from this document text with special attention to payment structures and tables.
 
-  console.log('Sending request to Lovable AI Gateway');
+Document Text:
+${extractedText}
+
+Extract and return ONLY a JSON object with these fields:
+{
+  "customer_name": string (required),
+  "customer_email": string or null,
+  "customer_phone": string or null,
+  "customer_address": string or null,
+  "contract_value": string (total contract value),
+  "contract_date": string or null,
+  "start_date": string or null,
+  "end_date": string or null,
+  "scope_of_work": string or null,
+  "payment_terms": string or null,
+  "stage_payments": array of {stage, description, amount, percentage, due_date} or [],
+  "progress_payments": array of {milestone, percentage, amount, description} or [],
+  "payment_tables": array of {table_name, columns, rows} or [],
+  "payment_schedule": string or null,
+  "deposit_amount": string or null,
+  "deposit_percentage": string or null,
+  "retention_amount": string or null,
+  "retention_percentage": string or null,
+  "final_payment": string or null,
+  "payment_method": string or null,
+  "late_payment_terms": string or null,
+  "ai_summary": string (brief summary of contract),
+  "ai_confidence": number (0-100)
+}`;
 
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
@@ -99,34 +124,70 @@ async function extractContractDataWithLovableAI(fileContent: Uint8Array): Promis
       'Authorization': `Bearer ${lovableApiKey}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(requestBody),
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ]
+    }),
   });
 
   console.log('Response status:', response.status);
 
-  const responseData = await response.json();
-  console.log('Response body:', JSON.stringify(responseData, null, 2));
-
   if (!response.ok) {
+    const errorData = await response.json();
+    console.error('Lovable AI error:', errorData);
+    
     if (response.status === 429) {
       throw new Error('Rate limit exceeded. Please try again later.');
     }
     if (response.status === 402) {
       throw new Error('Payment required. Please add credits to your Lovable AI workspace.');
     }
-    throw new Error(`Lovable AI API error: ${responseData.error?.message || 'Unknown error'}`);
+    throw new Error(`Lovable AI API error: ${errorData.error?.message || 'Unknown error'}`);
   }
 
-  const extractedText = responseData.choices[0].message.content;
-  console.log('Extracted text:', extractedText);
+  const responseData = await response.json();
+  console.log('AI Response received');
+
+  const extractedContent = responseData.choices[0].message.content;
+  console.log('Extracted content:', extractedContent);
 
   // Parse JSON from the response
-  const jsonMatch = extractedText.match(/\{[\s\S]*\}/);
+  const jsonMatch = extractedContent.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
     throw new Error('Failed to extract JSON from AI response');
   }
 
-  return JSON.parse(jsonMatch[0]);
+  const parsed = JSON.parse(jsonMatch[0]);
+  
+  // Ensure required fields have defaults
+  return {
+    customer_name: parsed.customer_name || 'Unknown',
+    customer_email: parsed.customer_email || undefined,
+    customer_phone: parsed.customer_phone || undefined,
+    customer_address: parsed.customer_address || undefined,
+    contract_value: parsed.contract_value || '0',
+    contract_date: parsed.contract_date || undefined,
+    start_date: parsed.start_date || undefined,
+    end_date: parsed.end_date || undefined,
+    scope_of_work: parsed.scope_of_work || undefined,
+    payment_terms: parsed.payment_terms || undefined,
+    stage_payments: parsed.stage_payments || [],
+    progress_payments: parsed.progress_payments || [],
+    payment_tables: parsed.payment_tables || [],
+    payment_schedule: parsed.payment_schedule || undefined,
+    deposit_amount: parsed.deposit_amount || undefined,
+    deposit_percentage: parsed.deposit_percentage || undefined,
+    retention_amount: parsed.retention_amount || undefined,
+    retention_percentage: parsed.retention_percentage || undefined,
+    final_payment: parsed.final_payment || undefined,
+    payment_method: parsed.payment_method || undefined,
+    late_payment_terms: parsed.late_payment_terms || undefined,
+    ai_summary: parsed.ai_summary || 'Contract processed successfully',
+    ai_confidence: parsed.ai_confidence || 85
+  };
 }
 
 
@@ -162,8 +223,13 @@ serve(async (req) => {
     const fileContent = new Uint8Array(await fileResponse.arrayBuffer());
     console.log('Downloaded file, size:', fileContent.length);
 
+    // Extract text from PDF
+    console.log('Extracting text from PDF...');
+    const extractedText = await extractTextFromPDF(fileContent);
+    console.log('Text extracted, length:', extractedText.length);
+
     // Extract contract data using Lovable AI Gemini
-    const contractData = await extractContractDataWithLovableAI(fileContent);
+    const contractData = await extractContractDataWithLovableAI(extractedText);
 
     // If extractOnly is true, just return the data without saving
     if (extractOnly) {
