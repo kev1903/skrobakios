@@ -356,61 +356,61 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
           <div className="space-y-6 py-2 overflow-y-auto flex-1">
             {/* Extracted Contract Data Preview */}
             <div className="space-y-4">
+              {/* AI ANALYSIS - Moved to Top */}
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h3 className="font-semibold text-sm mb-2 text-blue-800 uppercase">AI Analysis</h3>
+                <p className="text-sm text-blue-700 mb-2 leading-relaxed">{extractedData?.ai_summary}</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-blue-600">Confidence:</span>
+                  <div className="bg-blue-200 rounded-full h-2 flex-1 max-w-20">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all" 
+                      style={{ width: `${(extractedData?.ai_confidence || 0) * 100}%` }}
+                    ></div>
+                  </div>
+                  <span className="text-xs font-medium text-blue-600">{Math.round((extractedData?.ai_confidence || 0) * 100)}%</span>
+                </div>
+              </div>
+
               <div className="bg-muted/50 p-4 rounded-lg">
                 <h3 className="font-semibold text-sm mb-3 text-muted-foreground">CUSTOMER INFORMATION</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-xs text-muted-foreground">Customer Name</Label>
-                    {editMode ? (
-                      <Input
-                        value={extractedData?.customer_name || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_name: e.target.value }))}
-                        className="h-8 text-sm"
-                        placeholder="Customer name"
-                      />
-                    ) : (
-                      <p className="font-medium">{extractedData?.customer_name || 'Not found'}</p>
-                    )}
+                    <Input
+                      value={extractedData?.customer_name || ''}
+                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_name: e.target.value }))}
+                      className="h-8 text-sm"
+                      placeholder="Customer name"
+                    />
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Email</Label>
-                    {editMode ? (
-                      <Input
-                        value={extractedData?.customer_email || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_email: e.target.value }))}
-                        className="h-8 text-sm"
-                        placeholder="customer@email.com"
-                        type="email"
-                      />
-                    ) : (
-                      <p className="text-sm">{extractedData?.customer_email || 'Not found'}</p>
-                    )}
+                    <Input
+                      value={extractedData?.customer_email || ''}
+                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_email: e.target.value }))}
+                      className="h-8 text-sm"
+                      placeholder="customer@email.com"
+                      type="email"
+                    />
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Phone</Label>
-                    {editMode ? (
-                      <Input
-                        value={extractedData?.customer_phone || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_phone: e.target.value }))}
-                        className="h-8 text-sm"
-                        placeholder="Phone number"
-                      />
-                    ) : (
-                      <p className="text-sm">{extractedData?.customer_phone || 'Not found'}</p>
-                    )}
+                    <Input
+                      value={extractedData?.customer_phone || ''}
+                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_phone: e.target.value }))}
+                      className="h-8 text-sm"
+                      placeholder="Phone number"
+                    />
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Address</Label>
-                    {editMode ? (
-                      <Textarea
-                        value={extractedData?.customer_address || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_address: e.target.value }))}
-                        className="min-h-[60px] text-sm"
-                        placeholder="Customer address"
-                      />
-                    ) : (
-                      <p className="text-sm">{extractedData?.customer_address || 'Not found'}</p>
-                    )}
+                    <Textarea
+                      value={extractedData?.customer_address || ''}
+                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), customer_address: e.target.value }))}
+                      className="min-h-[60px] text-sm"
+                      placeholder="Customer address"
+                    />
                   </div>
                 </div>
               </div>
@@ -420,93 +420,65 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-xs text-muted-foreground">Contract Value</Label>
-                    {editMode ? (
-                      <Input
-                        value={extractedData?.contract_value || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), contract_value: e.target.value }))}
-                        className="h-8 text-sm font-medium text-green-600"
-                        placeholder="$0.00"
-                      />
-                    ) : (
-                      <p className="font-medium text-lg text-green-600">{extractedData?.contract_value || 'Not found'}</p>
-                    )}
+                    <Input
+                      value={extractedData?.contract_value || ''}
+                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), contract_value: e.target.value }))}
+                      className="h-8 text-sm font-medium text-green-600"
+                      placeholder="$0.00"
+                    />
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Contract Date</Label>
-                    {editMode ? (
-                      <Input
-                        value={extractedData?.contract_date || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), contract_date: e.target.value }))}
-                        className="h-8 text-sm"
-                        placeholder="YYYY-MM-DD"
-                        type="date"
-                      />
-                    ) : (
-                      <p className="text-sm">{extractedData?.contract_date || 'Not found'}</p>
-                    )}
+                    <Input
+                      value={extractedData?.contract_date || ''}
+                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), contract_date: e.target.value }))}
+                      className="h-8 text-sm"
+                      placeholder="YYYY-MM-DD"
+                      type="date"
+                    />
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">Start Date</Label>
-                    {editMode ? (
-                      <Input
-                        value={extractedData?.start_date || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), start_date: e.target.value }))}
-                        className="h-8 text-sm"
-                        placeholder="YYYY-MM-DD"
-                        type="date"
-                      />
-                    ) : (
-                      <p className="text-sm">{extractedData?.start_date || 'Not found'}</p>
-                    )}
+                    <Input
+                      value={extractedData?.start_date || ''}
+                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), start_date: e.target.value }))}
+                      className="h-8 text-sm"
+                      placeholder="YYYY-MM-DD"
+                      type="date"
+                    />
                   </div>
                   <div>
                     <Label className="text-xs text-muted-foreground">End Date</Label>
-                    {editMode ? (
-                      <Input
-                        value={extractedData?.end_date || ''}
-                        onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), end_date: e.target.value }))}
-                        className="h-8 text-sm"
-                        placeholder="YYYY-MM-DD"
-                        type="date"
-                      />
-                    ) : (
-                      <p className="text-sm">{extractedData?.end_date || 'Not found'}</p>
-                    )}
+                    <Input
+                      value={extractedData?.end_date || ''}
+                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), end_date: e.target.value }))}
+                      className="h-8 text-sm"
+                      placeholder="YYYY-MM-DD"
+                      type="date"
+                    />
                   </div>
                 </div>
               </div>
 
-              {(extractedData?.scope_of_work || editMode) && (
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-sm mb-2 text-muted-foreground">SCOPE OF WORK</h3>
-                  {editMode ? (
-                    <Textarea
-                      value={extractedData?.scope_of_work || ''}
-                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), scope_of_work: e.target.value }))}
-                      className="min-h-[100px] text-sm"
-                      placeholder="Describe the scope of work..."
-                    />
-                  ) : (
-                    <p className="text-sm">{extractedData.scope_of_work}</p>
-                  )}
-                </div>
-              )}
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-semibold text-sm mb-2 text-muted-foreground">SCOPE OF WORK</h3>
+                <Textarea
+                  value={extractedData?.scope_of_work || ''}
+                  onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), scope_of_work: e.target.value }))}
+                  className="min-h-[100px] text-sm"
+                  placeholder="Describe the scope of work..."
+                />
+              </div>
 
-              {(extractedData?.payment_terms || editMode) && (
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-sm mb-2 text-muted-foreground">PAYMENT TERMS</h3>
-                  {editMode ? (
-                    <Textarea
-                      value={extractedData?.payment_terms || ''}
-                      onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), payment_terms: e.target.value }))}
-                      className="min-h-[80px] text-sm"
-                      placeholder="Describe the payment terms..."
-                    />
-                  ) : (
-                    <p className="text-sm">{extractedData.payment_terms}</p>
-                  )}
-                </div>
-              )}
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h3 className="font-semibold text-sm mb-2 text-muted-foreground">PAYMENT TERMS</h3>
+                <Textarea
+                  value={extractedData?.payment_terms || ''}
+                  onChange={(e) => setExtractedData(prev => ({ ...(prev || {}), payment_terms: e.target.value }))}
+                  className="min-h-[80px] text-sm"
+                  placeholder="Describe the payment terms..."
+                />
+              </div>
 
               {/* Unified Payment Schedule Table */}
               {(extractedData?.stage_payments?.length > 0 || 
@@ -698,20 +670,6 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                 )}
               </div>
 
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <h3 className="font-semibold text-sm mb-2 text-blue-800">AI ANALYSIS</h3>
-                <p className="text-sm text-blue-700 mb-2">{extractedData?.ai_summary}</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-blue-600">Confidence:</span>
-                  <div className="bg-blue-200 rounded-full h-2 flex-1 max-w-20">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full" 
-                      style={{ width: `${(extractedData?.ai_confidence || 0) * 100}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-xs text-blue-600">{Math.round((extractedData?.ai_confidence || 0) * 100)}%</span>
-                </div>
-              </div>
             </div>
           </div>
         )}
