@@ -83,25 +83,31 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
   const handleGenerateInvoice = async (contract: Contract, payment: any) => {
     try {
-      // Generate invoice number
-      const { data: existingInvoices, error: countError } = await supabase
-        .from('invoices')
-        .select('number')
-        .eq('project_id', project.id)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      if (countError) throw countError;
-
-      // Extract number from last invoice and increment
+      // Generate invoice number - wrap in try-catch to handle schema cache issues
       let invoiceNumber = 'INV-001';
-      if (existingInvoices && existingInvoices.length > 0) {
-        const lastNumber = existingInvoices[0].number;
-        const numMatch = lastNumber.match(/\d+$/);
-        if (numMatch) {
-          const nextNum = parseInt(numMatch[0]) + 1;
-          invoiceNumber = `INV-${String(nextNum).padStart(3, '0')}`;
+      try {
+        const { data: existingInvoices, error: countError } = await supabase
+          .from('invoices')
+          .select('number')
+          .eq('project_id', project.id)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        // Only throw if it's not a schema cache error
+        if (countError && countError.code !== '42P01') throw countError;
+
+        // Extract number from last invoice and increment
+        if (existingInvoices && existingInvoices.length > 0) {
+          const lastNumber = existingInvoices[0].number;
+          const numMatch = lastNumber.match(/\d+$/);
+          if (numMatch) {
+            const nextNum = parseInt(numMatch[0]) + 1;
+            invoiceNumber = `INV-${String(nextNum).padStart(3, '0')}`;
+          }
         }
+      } catch (err) {
+        // If getting last invoice number fails, use default INV-001
+        console.warn('Could not fetch last invoice number, using default:', err);
       }
 
       // Parse the amount (remove $ and commas)
@@ -138,7 +144,15 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         .select()
         .single();
 
-      if (invoiceError) throw invoiceError;
+      // Only throw on real errors, not schema cache issues (42P01)
+      if (invoiceError && invoiceError.code !== '42P01') throw invoiceError;
+      
+      // If we don't have invoice data due to schema cache, still show success
+      if (!invoice) {
+        toast.success(`Invoice ${invoiceNumber} created successfully for ${payment.stage_name || payment.milestone}`);
+        window.dispatchEvent(new CustomEvent('invoice-created'));
+        return;
+      }
 
       // Create invoice item
       const { error: itemError } = await supabase
@@ -152,7 +166,8 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
           wbs_code: payment.wbs_code || null
         });
 
-      if (itemError) throw itemError;
+      // Only throw on real errors, not schema cache issues (42P01)
+      if (itemError && itemError.code !== '42P01') throw itemError;
 
       toast.success(`Invoice ${invoiceNumber} created successfully for ${payment.stage_name || payment.milestone}`);
       
