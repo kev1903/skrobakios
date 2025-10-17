@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Eye, FileText, DollarSign, MoreHorizontal, CheckCircle, Trash2 } from 'lucide-react';
+import { Eye, Plus, Trash2, ChevronRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface Invoice {
   id: string;
@@ -20,6 +22,9 @@ interface Invoice {
   status: string;
   total: number;
   paid_to_date: number;
+  payment_method?: string;
+  milestone_stage?: string;
+  notes?: string;
   created_at: string;
 }
 
@@ -216,7 +221,9 @@ export const IncomeTable = ({
   if (invoices.length === 0) {
     return (
       <div className="text-center py-12">
-        <DollarSign className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+        <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+          <Eye className="h-8 w-8 text-muted-foreground" />
+        </div>
         <h3 className="text-lg font-semibold text-foreground mb-2">No Invoices Found</h3>
         <p className="text-muted-foreground">
           {statusFilter === 'all' 
@@ -230,69 +237,99 @@ export const IncomeTable = ({
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">View</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Due date</th>
-              <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-              <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+      <div className="border rounded-lg overflow-hidden bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead className="w-12"></TableHead>
+              <TableHead className="text-foreground font-medium">Invoice Number</TableHead>
+              <TableHead className="text-foreground font-medium">Invoice Date</TableHead>
+              <TableHead className="text-foreground font-medium">Due Date</TableHead>
+              <TableHead className="text-foreground font-medium text-right">Amount Billed</TableHead>
+              <TableHead className="text-foreground font-medium text-right">Amount Paid</TableHead>
+              <TableHead className="text-foreground font-medium">Status</TableHead>
+              <TableHead className="text-foreground font-medium">Payment Method</TableHead>
+              <TableHead className="text-foreground font-medium">Milestone/Stage</TableHead>
+              <TableHead className="text-foreground font-medium">Notes</TableHead>
+              <TableHead className="text-foreground font-medium text-center">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {invoices.map((invoice) => (
-              <tr key={invoice.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <input type="checkbox" className="rounded border-gray-300" />
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{invoice.client_name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{invoice.number}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(invoice.issue_date)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(invoice.due_date)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">{formatCurrency(invoice.total)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <Badge variant={getStatusBadgeVariant(invoice.status)} className="text-xs">
+              <TableRow key={invoice.id} className="hover:bg-muted/30">
+                <TableCell>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-6 w-6 p-0"
+                  >
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                </TableCell>
+                <TableCell className="font-medium text-foreground">
+                  {invoice.number}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatDate(invoice.issue_date)}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {formatDate(invoice.due_date)}
+                </TableCell>
+                <TableCell className="text-right font-medium text-foreground">
+                  {formatCurrency(invoice.total)}
+                </TableCell>
+                <TableCell className="text-right font-medium text-foreground">
+                  {formatCurrency(invoice.paid_to_date)}
+                </TableCell>
+                <TableCell>
+                  <Badge 
+                    variant={getStatusBadgeVariant(invoice.status)}
+                    className="text-xs font-medium"
+                  >
                     {getStatusText(invoice.status)}
                   </Badge>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-center">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 hover:bg-gray-100"
-                      >
-                        <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => handleMarkAsPaid(invoice.id, invoice.total)}
-                        disabled={invoice.status === 'paid'}
-                      >
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                        Mark as Paid
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleDeleteInvoice(invoice.id)}
-                        className="text-destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete Invoice
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </td>
-              </tr>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {invoice.payment_method || '-'}
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  {invoice.milestone_stage || '-'}
+                </TableCell>
+                <TableCell className="text-muted-foreground max-w-[200px] truncate">
+                  {invoice.notes || '-'}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center justify-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-muted"
+                    >
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-muted"
+                      onClick={() => handleMarkAsPaid(invoice.id, invoice.total)}
+                      disabled={invoice.status === 'paid'}
+                    >
+                      <Plus className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-destructive/10"
+                      onClick={() => handleDeleteInvoice(invoice.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
