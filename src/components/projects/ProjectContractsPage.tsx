@@ -81,10 +81,90 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     });
   };
 
-  const handleGenerateInvoice = (contract: Contract, payment: any) => {
-    // TODO: Implement invoice generation logic
-    toast.success(`Generating invoice for ${payment.stage_name || payment.milestone}...`);
-    console.log('Generate invoice for:', { contract, payment });
+  const handleGenerateInvoice = async (contract: Contract, payment: any) => {
+    try {
+      // Generate invoice number
+      const { data: existingInvoices, error: countError } = await supabase
+        .from('invoices')
+        .select('number')
+        .eq('project_id', project.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (countError) throw countError;
+
+      // Extract number from last invoice and increment
+      let invoiceNumber = 'INV-001';
+      if (existingInvoices && existingInvoices.length > 0) {
+        const lastNumber = existingInvoices[0].number;
+        const numMatch = lastNumber.match(/\d+$/);
+        if (numMatch) {
+          const nextNum = parseInt(numMatch[0]) + 1;
+          invoiceNumber = `INV-${String(nextNum).padStart(3, '0')}`;
+        }
+      }
+
+      // Parse the amount (remove $ and commas)
+      const amountStr = payment.amount?.toString().replace(/[$,]/g, '') || '0';
+      const amount = parseFloat(amountStr);
+
+      // Calculate dates
+      const issueDate = new Date().toISOString().split('T')[0];
+      let dueDate = new Date();
+      
+      if (payment.due_date) {
+        dueDate = new Date(payment.due_date);
+      } else if (payment.due_days) {
+        const days = parseInt(payment.due_days);
+        dueDate.setDate(dueDate.getDate() + days);
+      } else {
+        dueDate.setDate(dueDate.getDate() + 30); // Default 30 days
+      }
+
+      // Create the invoice
+      const { data: invoice, error: invoiceError } = await supabase
+        .from('invoices')
+        .insert({
+          project_id: project.id,
+          number: invoiceNumber,
+          client_name: project.name,
+          issue_date: issueDate,
+          due_date: dueDate.toISOString().split('T')[0],
+          status: 'draft',
+          total: amount,
+          paid_to_date: 0,
+          milestone_stage: payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`,
+          notes: `Generated from contract: ${contract.name}${payment.description ? `\n${payment.description}` : ''}${payment.trigger ? `\nTrigger: ${payment.trigger}` : ''}`,
+          payment_method: null
+        })
+        .select()
+        .single();
+
+      if (invoiceError) throw invoiceError;
+
+      // Create invoice item
+      const { error: itemError } = await supabase
+        .from('invoice_items')
+        .insert({
+          invoice_id: invoice.id,
+          description: payment.stage_name || payment.milestone || `Payment Stage ${payment.sequence || ''}`,
+          qty: 1,
+          rate: amount,
+          amount: amount,
+          wbs_code: payment.wbs_code || null
+        });
+
+      if (itemError) throw itemError;
+
+      toast.success(`Invoice ${invoiceNumber} created successfully for ${payment.stage_name || payment.milestone}`);
+      
+      // Trigger refresh of income data by dispatching a custom event
+      window.dispatchEvent(new CustomEvent('invoice-created'));
+      
+    } catch (error) {
+      console.error('Error generating invoice:', error);
+      toast.error('Failed to generate invoice. Please try again.');
+    }
   };
 
   const loadContracts = async () => {

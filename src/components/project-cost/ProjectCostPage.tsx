@@ -135,6 +135,18 @@ export const ProjectCostPage = ({
   React.useEffect(() => {
     loadIncomeData();
     loadExpenseData();
+    
+    // Listen for invoice-created events from contract page
+    const handleInvoiceCreated = () => {
+      loadIncomeData();
+      setRefreshTrigger(prev => prev + 1);
+    };
+    
+    window.addEventListener('invoice-created', handleInvoiceCreated);
+    
+    return () => {
+      window.removeEventListener('invoice-created', handleInvoiceCreated);
+    };
   }, [project.id]);
 
   const getVarianceStatus = (variance: number) => {
