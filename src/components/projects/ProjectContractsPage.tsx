@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight } from 'lucide-react';
+import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight, FileCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "../ProjectSidebar";
@@ -79,6 +79,12 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       }
       return newSet;
     });
+  };
+
+  const handleGenerateInvoice = (contract: Contract, payment: any) => {
+    // TODO: Implement invoice generation logic
+    toast.success(`Generating invoice for ${payment.stage_name || payment.milestone}...`);
+    console.log('Generate invoice for:', { contract, payment });
   };
 
   const loadContracts = async () => {
@@ -387,15 +393,26 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                                               </div>
                                             </div>
                                           </div>
-                                          <div className="text-right flex-shrink-0">
-                                            <div className="text-lg font-bold text-green-600">
-                                              {payment.amount}
-                                            </div>
-                                            {payment.percentage && (
-                                              <div className="text-xs font-medium text-muted-foreground mt-1">
-                                                {payment.percentage}% of total
+                                          <div className="flex items-center gap-3">
+                                            <div className="text-right flex-shrink-0">
+                                              <div className="text-lg font-bold text-green-600">
+                                                {payment.amount}
                                               </div>
-                                            )}
+                                              {payment.percentage && (
+                                                <div className="text-xs font-medium text-muted-foreground mt-1">
+                                                  {payment.percentage}% of total
+                                                </div>
+                                              )}
+                                            </div>
+                                            <Button
+                                              size="sm"
+                                              variant="default"
+                                              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white h-8"
+                                              onClick={() => handleGenerateInvoice(contract, payment)}
+                                            >
+                                              <FileCheck className="h-3.5 w-3.5" />
+                                              <span className="text-xs font-medium">Generate Invoice</span>
+                                            </Button>
                                           </div>
                                         </div>
                                       </div>
