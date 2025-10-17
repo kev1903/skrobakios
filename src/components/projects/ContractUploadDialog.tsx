@@ -244,7 +244,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[1200px] h-[800px]">
+      <DialogContent className="sm:max-w-[1200px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -262,7 +262,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
         </DialogHeader>
 
         {!showPreview ? (
-          <div className="space-y-6 py-4">
+          <div className="space-y-6 py-4 overflow-y-auto flex-1">
             {/* Drag & Drop Zone */}
             <div
               className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
@@ -334,7 +334,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
             {/* No additional form fields needed */}
           </div>
         ) : (
-          <div className="space-y-6 py-2 max-h-[600px] overflow-y-auto">
+          <div className="space-y-6 py-2 overflow-y-auto flex-1">
             {/* Extracted Contract Data Preview */}
             <div className="space-y-4">
               <div className="bg-muted/50 p-4 rounded-lg">
