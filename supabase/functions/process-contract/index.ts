@@ -1,8 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-// @ts-ignore - pdf-parse types
-import pdfParse from 'https://esm.sh/pdf-parse@1.1.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -56,53 +54,45 @@ interface ContractData {
   ai_confidence: number;
 }
 
-async function extractTextFromPDF(fileContent: Uint8Array): Promise<string> {
-  console.log('[PDF EXTRACTION v3] Starting with pdf-parse library...');
-  try {
-    console.log('[PDF EXTRACTION v3] PDF size:', fileContent.length, 'bytes');
-    
-    // Use pdf-parse library for proper PDF text extraction
-    const data = await pdfParse(fileContent);
-    
-    console.log('[PDF EXTRACTION v3] Pages:', data.numpages);
-    console.log('[PDF EXTRACTION v3] Extracted text length:', data.text?.length || 0);
-    console.log('[PDF EXTRACTION v3] Sample text:', data.text?.substring(0, 300));
-    
-    if (!data.text || data.text.trim().length < 50) {
-      throw new Error(`Only extracted ${data.text?.length || 0} characters. PDF may be image-based or encrypted.`);
-    }
-    
-    // Clean up the text
-    const cleanedText = data.text
-      .replace(/\s+/g, ' ')
-      .trim();
-    
-    console.log('[PDF EXTRACTION v3] SUCCESS - Final text length:', cleanedText.length);
-    return cleanedText;
-  } catch (error) {
-    console.error('[PDF EXTRACTION v3] Error:', error);
-    throw new Error(`PDF parsing failed: ${error instanceof Error ? error.message : 'Unknown error'}. The PDF may be image-based or use unsupported encoding.`);
+function convertPDFToBase64(fileContent: Uint8Array): string {
+  console.log('[PDF CONVERSION] Converting PDF to base64...');
+  console.log('[PDF CONVERSION] PDF size:', fileContent.length, 'bytes');
+  
+  // Convert Uint8Array to base64
+  let binary = '';
+  const len = fileContent.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(fileContent[i]);
   }
+  const base64 = btoa(binary);
+  
+  console.log('[PDF CONVERSION] Base64 length:', base64.length);
+  return `data:application/pdf;base64,${base64}`;
 }
 
-async function extractContractDataWithLovableAI(pdfText: string): Promise<ContractData> {
+async function extractContractDataWithLovableAI(pdfBase64: string): Promise<ContractData> {
   const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
   
   if (!lovableApiKey) {
     throw new Error('Lovable API key not configured');
   }
 
-  console.log('Starting extraction with Lovable AI Gemini');
-  console.log('Text to analyze (first 500 chars):', pdfText.substring(0, 500));
+  console.log('Starting visual analysis with Lovable AI Gemini (SkAI)');
 
-  const systemPrompt = `You are an expert at extracting contract data from documents with special focus on payment structures. 
-Extract all relevant contract information including customer details, contract value, dates, terms, and DETAILED payment information.
+  const systemPrompt = `You are SkAI, an expert AI assistant that visually analyzes construction contracts and documents. 
+You can see and understand PDF layouts, tables, text formatting, logos, and visual structure.
+Extract all relevant contract information including customer details, contract value, dates, payment schedules, and terms.
+Pay special attention to payment tables, stage breakdowns, and any visual formatting that indicates structure.
 Return ONLY valid JSON with no additional text or formatting.`;
 
-  const userPrompt = `Extract all contract details from this document text with special attention to payment structures and tables.
+  const userPrompt = `Visually analyze this PDF contract document. Look at the layout, tables, formatting, and structure to extract comprehensive contract details.
 
-Document Text:
-${pdfText}
+Pay special attention to:
+- Visual payment tables and their structure
+- Stage payment breakdowns with percentages and amounts
+- Any formatted sections indicating milestones or phases
+- Header information with customer and project details
+- Contract terms and conditions sections
 
 Extract and return ONLY a JSON object with these fields:
 {
@@ -140,8 +130,25 @@ Extract and return ONLY a JSON object with these fields:
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
+        { 
+          role: 'system', 
+          content: systemPrompt 
+        },
+        { 
+          role: 'user', 
+          content: [
+            {
+              type: 'text',
+              text: userPrompt
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: pdfBase64
+              }
+            }
+          ]
+        }
       ]
     }),
   });
@@ -225,7 +232,7 @@ serve(async (req) => {
       );
     }
 
-    console.log('===== PROCESS CONTRACT v3.0 START =====');
+    console.log('===== PROCESS CONTRACT v4.0 START (SkAI Visual Analysis) =====');
     console.log('Processing contract:', { fileUrl, fileName, projectId, name });
 
     // Download the file
@@ -237,16 +244,16 @@ serve(async (req) => {
     const fileContent = new Uint8Array(await fileResponse.arrayBuffer());
     console.log('Downloaded file, size:', fileContent.length);
 
-    // Extract text from PDF using pdf-parse library
-    console.log('[STEP 1/2] Extracting text from PDF with pdf-parse...');
-    const pdfText = await extractTextFromPDF(fileContent);
-    console.log('[STEP 1/2] Text extraction complete. Length:', pdfText.length);
+    // Convert PDF to base64 for visual analysis
+    console.log('[STEP 1/2] Converting PDF to base64 for SkAI visual analysis...');
+    const pdfBase64 = convertPDFToBase64(fileContent);
+    console.log('[STEP 1/2] PDF conversion complete.');
     
-    // Extract contract data using Lovable AI Gemini
-    console.log('[STEP 2/2] Sending extracted text to Lovable AI Gemini...');
-    const contractData = await extractContractDataWithLovableAI(pdfText);
-    console.log('[STEP 2/2] AI processing complete.');
-    console.log('===== PROCESS CONTRACT v3.0 SUCCESS =====');
+    // Visual analysis using Lovable AI Gemini (SkAI)
+    console.log('[STEP 2/2] SkAI performing visual analysis of contract...');
+    const contractData = await extractContractDataWithLovableAI(pdfBase64);
+    console.log('[STEP 2/2] SkAI visual analysis complete.');
+    console.log('===== PROCESS CONTRACT v4.0 SUCCESS =====');
 
     // If extractOnly is true, just return the data without saving
     if (extractOnly) {
