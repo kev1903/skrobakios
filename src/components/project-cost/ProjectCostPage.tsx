@@ -172,7 +172,7 @@ export const ProjectCostPage = ({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 ml-48 h-screen overflow-y-auto bg-background">
+      <div className="flex-1 ml-48 h-screen overflow-hidden bg-background flex flex-col">
         {/* Header Section */}
         <ProjectPageHeader 
           projectName={project.name}
@@ -196,9 +196,9 @@ export const ProjectCostPage = ({
           }
         />
         
-        <div className="p-6 min-h-full">
+        <div className="flex-1 overflow-hidden flex flex-col">
           {/* Summary Cards - Dynamic based on active tab */}
-          <div className="mb-3 bg-card border rounded-lg p-2">
+          <div className="m-6 mb-3 bg-card border rounded-lg p-2">
             <div className="grid grid-cols-4 gap-2">
               {activeTab === 'income' && (
                 <>
@@ -304,8 +304,8 @@ export const ProjectCostPage = ({
           </div>
 
           {/* Main Content with Tabs */}
-          <div className="bg-card border rounded-lg">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="mx-6 mb-6 bg-card border rounded-lg flex-1 flex flex-col overflow-hidden">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
               {/* Tab Header */}
               <div className="bg-muted/30 border-b px-6 py-3">
                 <div className="flex items-center justify-between">
@@ -419,8 +419,8 @@ export const ProjectCostPage = ({
               </div>
 
               {/* Tab Content */}
-              <div className="p-6">
-                <TabsContent value="income" className="mt-0">
+              <div className="flex-1 overflow-hidden">
+                <TabsContent value="income" className="mt-0 h-full overflow-y-auto p-6">
                   <div className="space-y-6">
                     {/* Income Actions */}
                     <div className="flex justify-between items-center">
@@ -458,7 +458,7 @@ export const ProjectCostPage = ({
                   </div>
                 </TabsContent>
 
-                <TabsContent value="expense" className="mt-0">
+                <TabsContent value="expense" className="mt-0 h-full overflow-y-auto p-6">
                   {expenseStatusFilter === 'inbox' ? (
                     <ExpensesModule 
                       projectId={project.id}
@@ -497,7 +497,7 @@ export const ProjectCostPage = ({
                   )}
                 </TabsContent>
                 
-                <TabsContent value="analytics" className="mt-0">
+                <TabsContent value="analytics" className="mt-0 h-full overflow-y-auto p-6">
                   <AnalyticsModule 
                     projectId={project.id} 
                     formatCurrency={formatCurrency}
@@ -505,7 +505,7 @@ export const ProjectCostPage = ({
                   />
                 </TabsContent>
                 
-                <TabsContent value="cost-control" className="mt-0">
+                <TabsContent value="cost-control" className="mt-0 h-full overflow-y-auto p-6">
                   <TaskCostTable tasks={tasks} onUpdateTask={updateTask} wbsItems={wbsItems} />
                 </TabsContent>
               </div>
