@@ -54,17 +54,71 @@ interface ContractData {
   ai_confidence: number;
 }
 
-function encodeFileAsBase64(fileContent: Uint8Array): string {
-  // Convert Uint8Array to base64 string
-  let binary = '';
-  const len = fileContent.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(fileContent[i]);
+async function extractTextFromPDF(fileContent: Uint8Array): Promise<string> {
+  try {
+    // Convert Uint8Array to text
+    const decoder = new TextDecoder('utf-8', { fatal: false });
+    let text = decoder.decode(fileContent);
+    
+    // Extract text content between stream markers
+    const streamRegex = /stream\s*([\s\S]*?)\s*endstream/g;
+    let matches;
+    let extractedText = '';
+    
+    while ((matches = streamRegex.exec(text)) !== null) {
+      const streamContent = matches[1];
+      // Try to extract readable text
+      const readable = streamContent.replace(/[^\x20-\x7E\s]/g, '');
+      if (readable.trim().length > 0) {
+        extractedText += readable + ' ';
+      }
+    }
+    
+    // Also try to extract text from BT/ET markers (text objects)
+    const textObjectRegex = /BT\s*([\s\S]*?)\s*ET/g;
+    while ((matches = textObjectRegex.exec(text)) !== null) {
+      const textContent = matches[1];
+      // Extract text from Tj and TJ operators
+      const tjRegex = /\((.*?)\)\s*T[jJ]/g;
+      let tjMatch;
+      while ((tjMatch = tjRegex.exec(textContent)) !== null) {
+        extractedText += tjMatch[1] + ' ';
+      }
+    }
+    
+    // Clean up the text
+    extractedText = extractedText
+      .replace(/\s+/g, ' ')
+      .replace(/\\n/g, '\n')
+      .replace(/\\r/g, '')
+      .trim();
+    
+    if (extractedText.length < 50) {
+      // Fallback: try to extract any printable text
+      const fallbackText = text
+        .replace(/[^\x20-\x7E\n\r]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      if (fallbackText.length > extractedText.length) {
+        extractedText = fallbackText;
+      }
+    }
+    
+    console.log('Extracted text length:', extractedText.length);
+    
+    if (extractedText.length < 50) {
+      throw new Error('Unable to extract sufficient text from PDF. The file may be image-based or encrypted.');
+    }
+    
+    return extractedText;
+  } catch (error) {
+    console.error('PDF text extraction error:', error);
+    throw new Error('Failed to extract text from PDF. Please ensure the PDF contains extractable text.');
   }
-  return btoa(binary);
 }
 
-async function extractContractDataWithLovableAI(fileContent: Uint8Array): Promise<ContractData> {
+async function extractContractDataWithLovableAI(pdfText: string): Promise<ContractData> {
   const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
   
   if (!lovableApiKey) {
@@ -72,15 +126,16 @@ async function extractContractDataWithLovableAI(fileContent: Uint8Array): Promis
   }
 
   console.log('Starting extraction with Lovable AI Gemini');
+  console.log('Text to analyze (first 500 chars):', pdfText.substring(0, 500));
 
-  // Encode PDF as base64 for Gemini
-  const base64Content = encodeFileAsBase64(fileContent);
-
-  const systemPrompt = `You are an expert at extracting contract data from PDF documents with special focus on payment structures. 
+  const systemPrompt = `You are an expert at extracting contract data from documents with special focus on payment structures. 
 Extract all relevant contract information including customer details, contract value, dates, terms, and DETAILED payment information.
 Return ONLY valid JSON with no additional text or formatting.`;
 
-  const userPrompt = `Analyze this PDF contract document and extract all contract details with special attention to payment structures and tables.
+  const userPrompt = `Extract all contract details from this document text with special attention to payment structures and tables.
+
+Document Text:
+${pdfText}
 
 Extract and return ONLY a JSON object with these fields:
 {
@@ -118,25 +173,8 @@ Extract and return ONLY a JSON object with these fields:
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       messages: [
-        { 
-          role: 'system', 
-          content: systemPrompt 
-        },
-        { 
-          role: 'user', 
-          content: [
-            {
-              type: 'text',
-              text: userPrompt
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:application/pdf;base64,${base64Content}`
-              }
-            }
-          ]
-        }
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
       ]
     }),
   });
@@ -231,9 +269,13 @@ serve(async (req) => {
     const fileContent = new Uint8Array(await fileResponse.arrayBuffer());
     console.log('Downloaded file, size:', fileContent.length);
 
-    // Extract contract data using Lovable AI Gemini with PDF vision
-    console.log('Processing PDF with Lovable AI Gemini...');
-    const contractData = await extractContractDataWithLovableAI(fileContent);
+    // Extract text from PDF
+    console.log('Extracting text from PDF...');
+    const pdfText = await extractTextFromPDF(fileContent);
+    
+    // Extract contract data using Lovable AI Gemini
+    console.log('Processing extracted text with Lovable AI Gemini...');
+    const contractData = await extractContractDataWithLovableAI(pdfText);
 
     // If extractOnly is true, just return the data without saving
     if (extractOnly) {
