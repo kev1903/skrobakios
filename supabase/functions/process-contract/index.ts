@@ -54,17 +54,20 @@ interface ContractData {
   ai_confidence: number;
 }
 
-async function extractContractDataWithOpenAI(fileId: string): Promise<ContractData> {
-  const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+async function extractContractDataWithLovableAI(fileContent: Uint8Array): Promise<ContractData> {
+  const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
   
-  if (!openAIApiKey) {
-    throw new Error('OpenAI API key not configured');
+  if (!lovableApiKey) {
+    throw new Error('Lovable API key not configured');
   }
 
-  console.log('Starting extractWithOpenAI with fileId:', fileId);
+  console.log('Starting extraction with Lovable AI Gemini');
+
+  // Convert PDF to base64
+  const base64Content = btoa(String.fromCharCode(...fileContent));
 
   const requestBody = {
-    model: 'gpt-4o-mini',
+    model: 'google/gemini-2.5-flash',
     messages: [
       {
         role: 'system',
@@ -75,111 +78,25 @@ async function extractContractDataWithOpenAI(fileId: string): Promise<ContractDa
         content: [
           {
             type: 'text',
-            text: 'Extract all contract details from this document with special attention to payment structures and tables. Include: 1) Customer information (name, email, phone, address), 2) Contract value/amount, 3) Important dates (contract date, start date, end date), 4) Scope of work, 5) DETAILED PAYMENT INFORMATION including: - Stage payments (each stage with name, description, amount, percentage, due date), - Progress payments (milestones with percentages and amounts), - Payment tables and schedules with structured data, - Deposit amount and percentage, - Retention amounts and percentages, - Final payment details, - Payment methods, - Late payment penalties or terms. 6) PAYMENT TABLES: Extract any payment tables showing stages, percentages, amounts, descriptions, and work involved. Format these as structured arrays with consistent column headers. Extract ALL payment-related information and tables you can find.'
+            text: 'Extract all contract details from this document with special attention to payment structures and tables. Include: 1) Customer information (name, email, phone, address), 2) Contract value/amount, 3) Important dates (contract date, start date, end date), 4) Scope of work, 5) DETAILED PAYMENT INFORMATION including: - Stage payments (each stage with name, description, amount, percentage, due date), - Progress payments (milestones with percentages and amounts), - Payment tables and schedules with structured data, - Deposit amount and percentage, - Retention amounts and percentages, - Final payment details, - Payment methods, - Late payment penalties or terms. 6) PAYMENT TABLES: Extract any payment tables showing stages, percentages, amounts, descriptions, and work involved. Format these as structured arrays with consistent column headers. Extract ALL payment-related information and tables you can find. Return ONLY valid JSON matching this structure: {"customer_name": string, "customer_email": string, "customer_phone": string, "customer_address": string, "contract_value": string, "contract_date": string, "start_date": string, "end_date": string, "scope_of_work": string, "payment_terms": string, "stage_payments": array, "progress_payments": array, "payment_tables": array, "payment_schedule": string, "deposit_amount": string, "deposit_percentage": string, "retention_amount": string, "retention_percentage": string, "final_payment": string, "payment_method": string, "late_payment_terms": string, "ai_summary": string, "ai_confidence": number}'
           },
           {
-            type: 'file',
-            file: {
-              file_id: fileId
+            type: 'image_url',
+            image_url: {
+              url: `data:application/pdf;base64,${base64Content}`
             }
           }
         ]
       }
-    ],
-    response_format: {
-      type: 'json_schema',
-      json_schema: {
-        name: 'ContractExtraction',
-        schema: {
-          type: 'object',
-          required: ['customer_name', 'ai_summary', 'ai_confidence'],
-          additionalProperties: false,
-          properties: {
-            customer_name: { type: 'string' },
-            customer_email: { type: 'string' },
-            customer_phone: { type: 'string' },
-            customer_address: { type: 'string' },
-            contract_value: { type: 'string' },
-            contract_date: { type: 'string' },
-            start_date: { type: 'string' },
-            end_date: { type: 'string' },
-            scope_of_work: { type: 'string' },
-            payment_terms: { type: 'string' },
-            stage_payments: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  stage: { type: 'string' },
-                  description: { type: 'string' },
-                  amount: { type: 'string' },
-                  percentage: { type: 'string' },
-                  due_date: { type: 'string' }
-                }
-              }
-            },
-            progress_payments: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  milestone: { type: 'string' },
-                  percentage: { type: 'string' },
-                  amount: { type: 'string' },
-                  description: { type: 'string' }
-                }
-              }
-            },
-            payment_tables: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  table_name: { type: 'string' },
-                  columns: { 
-                    type: 'array', 
-                    items: { type: 'string' }
-                  },
-                  rows: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        stage_name: { type: 'string' },
-                        description: { type: 'string' },
-                        percentage: { type: 'string' },
-                        amount: { type: 'string' },
-                        work_involved: { type: 'string' }
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            payment_schedule: { type: 'string' },
-            deposit_amount: { type: 'string' },
-            deposit_percentage: { type: 'string' },
-            retention_amount: { type: 'string' },
-            retention_percentage: { type: 'string' },
-            final_payment: { type: 'string' },
-            payment_method: { type: 'string' },
-            late_payment_terms: { type: 'string' },
-            ai_summary: { type: 'string' },
-            ai_confidence: { type: 'number' }
-          }
-        },
-        strict: false
-      }
-    },
-    temperature: 0.1
+    ]
   };
 
-  console.log('Request body:', JSON.stringify(requestBody, null, 2));
+  console.log('Sending request to Lovable AI Gateway');
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${openAIApiKey}`,
+      'Authorization': `Bearer ${lovableApiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(requestBody),
@@ -191,44 +108,27 @@ async function extractContractDataWithOpenAI(fileId: string): Promise<ContractDa
   console.log('Response body:', JSON.stringify(responseData, null, 2));
 
   if (!response.ok) {
-    throw new Error(`OpenAI API error: ${responseData.error?.message || 'Unknown error'}`);
+    if (response.status === 429) {
+      throw new Error('Rate limit exceeded. Please try again later.');
+    }
+    if (response.status === 402) {
+      throw new Error('Payment required. Please add credits to your Lovable AI workspace.');
+    }
+    throw new Error(`Lovable AI API error: ${responseData.error?.message || 'Unknown error'}`);
   }
 
   const extractedText = responseData.choices[0].message.content;
   console.log('Extracted text:', extractedText);
 
-  return JSON.parse(extractedText);
-}
-
-async function uploadFileToOpenAI(fileContent: Uint8Array, fileName: string): Promise<string> {
-  const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-  
-  if (!openAIApiKey) {
-    throw new Error('OpenAI API key not configured');
+  // Parse JSON from the response
+  const jsonMatch = extractedText.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error('Failed to extract JSON from AI response');
   }
 
-  // Create form data for file upload
-  const formData = new FormData();
-  formData.append('file', new File([new Uint8Array(fileContent)], fileName, { type: 'application/pdf' }));
-  formData.append('purpose', 'assistants');
-
-  const response = await fetch('https://api.openai.com/v1/files', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${openAIApiKey}`,
-    },
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(`Failed to upload file to OpenAI: ${error.error?.message || 'Unknown error'}`);
-  }
-
-  const data = await response.json();
-  console.log('File uploaded to OpenAI:', data.id);
-  return data.id;
+  return JSON.parse(jsonMatch[0]);
 }
+
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -262,11 +162,8 @@ serve(async (req) => {
     const fileContent = new Uint8Array(await fileResponse.arrayBuffer());
     console.log('Downloaded file, size:', fileContent.length);
 
-    // Upload to OpenAI
-    const openAIFileId = await uploadFileToOpenAI(fileContent, fileName);
-
-    // Extract contract data using OpenAI
-    const contractData = await extractContractDataWithOpenAI(openAIFileId);
+    // Extract contract data using Lovable AI Gemini
+    const contractData = await extractContractDataWithLovableAI(fileContent);
 
     // If extractOnly is true, just return the data without saving
     if (extractOnly) {
