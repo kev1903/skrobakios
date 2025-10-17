@@ -559,35 +559,67 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                   )}
                 </div>
                 {extractedData?.payment_schedule && extractedData.payment_schedule.length > 0 && (
-                  <div className="mt-3">
-                    <Label className="text-xs text-muted-foreground">Payment Schedule</Label>
-                    <div className="space-y-2 mt-2">
+                  <div className="mt-6 p-5 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent border-2 border-primary/20 rounded-xl shadow-sm">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                      </div>
+                      <h3 className="font-bold text-base text-foreground">Payment Schedule</h3>
+                      <div className="ml-auto px-3 py-1 bg-primary/10 rounded-full">
+                        <span className="text-xs font-semibold text-primary">
+                          {Array.isArray(extractedData.payment_schedule) ? extractedData.payment_schedule.length : 0} Milestones
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
                       {Array.isArray(extractedData.payment_schedule) ? (
                         extractedData.payment_schedule.map((payment: any, idx: number) => (
-                          <div key={idx} className="p-3 bg-muted/30 rounded-lg">
-                            <div className="flex justify-between items-start mb-1">
-                              <span className="font-medium text-sm">
-                                {payment.stage_name || payment.milestone || `Stage ${payment.sequence || idx + 1}`}
-                              </span>
-                              <span className="text-sm font-semibold">{payment.amount}</span>
-                            </div>
-                            {payment.percentage && (
-                              <div className="text-xs text-muted-foreground">
-                                {payment.percentage}% of total
+                          <div key={idx} className="p-4 bg-background border border-border rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex items-center gap-3">
+                                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm">
+                                  {payment.sequence || idx + 1}
+                                </div>
+                                <span className="font-semibold text-base text-foreground">
+                                  {payment.stage_name || payment.milestone || `Stage ${payment.sequence || idx + 1}`}
+                                </span>
                               </div>
-                            )}
+                              <div className="text-right">
+                                <div className="text-lg font-bold text-green-600">{payment.amount}</div>
+                                {payment.percentage && (
+                                  <div className="text-xs font-medium text-muted-foreground">
+                                    {payment.percentage}% of total
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                             {payment.description && (
-                              <p className="text-xs text-muted-foreground mt-1">{payment.description}</p>
+                              <p className="text-sm text-muted-foreground mt-2 pl-11 leading-relaxed">{payment.description}</p>
                             )}
                             {payment.trigger && (
-                              <div className="text-xs text-primary mt-1">
-                                Trigger: {payment.trigger}
+                              <div className="flex items-center gap-2 mt-3 pl-11">
+                                <div className="px-3 py-1 bg-primary/5 border border-primary/20 rounded-full">
+                                  <span className="text-xs font-medium text-primary">
+                                    📍 Trigger: {payment.trigger}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                            {(payment.due_date || payment.due_days) && (
+                              <div className="flex items-center gap-2 mt-2 pl-11">
+                                <div className="px-3 py-1 bg-orange-50 border border-orange-200 rounded-full">
+                                  <span className="text-xs font-medium text-orange-700">
+                                    🗓️ Due: {payment.due_date || `${payment.due_days} days`}
+                                  </span>
+                                </div>
                               </div>
                             )}
                           </div>
                         ))
                       ) : (
-                        <p className="text-sm">{String(extractedData.payment_schedule)}</p>
+                        <p className="text-sm text-muted-foreground">{String(extractedData.payment_schedule)}</p>
                       )}
                     </div>
                   </div>
