@@ -656,10 +656,38 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
                     </div>
                   )}
                 </div>
-                {extractedData?.payment_schedule && (
+                {extractedData?.payment_schedule && extractedData.payment_schedule.length > 0 && (
                   <div className="mt-3">
                     <Label className="text-xs text-muted-foreground">Payment Schedule</Label>
-                    <p className="text-sm">{extractedData.payment_schedule}</p>
+                    <div className="space-y-2 mt-2">
+                      {Array.isArray(extractedData.payment_schedule) ? (
+                        extractedData.payment_schedule.map((payment: any, idx: number) => (
+                          <div key={idx} className="p-3 bg-muted/30 rounded-lg">
+                            <div className="flex justify-between items-start mb-1">
+                              <span className="font-medium text-sm">
+                                {payment.stage_name || payment.milestone || `Stage ${payment.sequence || idx + 1}`}
+                              </span>
+                              <span className="text-sm font-semibold">{payment.amount}</span>
+                            </div>
+                            {payment.percentage && (
+                              <div className="text-xs text-muted-foreground">
+                                {payment.percentage}% of total
+                              </div>
+                            )}
+                            {payment.description && (
+                              <p className="text-xs text-muted-foreground mt-1">{payment.description}</p>
+                            )}
+                            {payment.trigger && (
+                              <div className="text-xs text-primary mt-1">
+                                Trigger: {payment.trigger}
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm">{String(extractedData.payment_schedule)}</p>
+                      )}
+                    </div>
                   </div>
                 )}
                 {extractedData?.late_payment_terms && (
