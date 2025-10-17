@@ -138,7 +138,15 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
       });
 
       if (error) {
-        throw new Error(`Processing failed: ${error.message}`);
+        console.error('Edge function error:', error);
+        // Extract more details from the error
+        const errorMessage = error.message || 'Unknown error';
+        throw new Error(`Processing failed: ${errorMessage}`);
+      }
+
+      if (!data || !data.success || !data.contractData) {
+        console.error('Invalid response from edge function:', data);
+        throw new Error('Processing failed: Invalid response from server');
       }
 
       // Store extracted data and show preview
@@ -153,7 +161,18 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
       toast.success("Contract processed successfully! Review the extracted data below.");
     } catch (error) {
       console.error('Error processing contract:', error);
-      toast.error(`Failed to process contract: ${error.message}`);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+      
+      // Provide more helpful error messages
+      if (errorMsg.includes('Failed to extract')) {
+        toast.error("Unable to extract text from PDF. The file may be image-based, encrypted, or use unsupported encoding. Please ensure your PDF contains selectable text.");
+      } else if (errorMsg.includes('Rate limit')) {
+        toast.error("Rate limit exceeded. Please try again in a few moments.");
+      } else if (errorMsg.includes('Payment required')) {
+        toast.error("AI processing credits depleted. Please contact support.");
+      } else {
+        toast.error(`Failed to process contract: ${errorMsg}`);
+      }
     } finally {
       setIsUploading(false);
     }
