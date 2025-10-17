@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload } from 'lucide-react';
+import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "../ProjectSidebar";
@@ -66,7 +66,20 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   const [loading, setLoading] = useState(true);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
+  const [expandedContracts, setExpandedContracts] = useState<Set<string>>(new Set());
   const { spacingClasses } = useMenuBarSpacing();
+
+  const toggleContractExpansion = (contractId: string) => {
+    setExpandedContracts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(contractId)) {
+        newSet.delete(contractId);
+      } else {
+        newSet.add(contractId);
+      }
+      return newSet;
+    });
+  };
 
   const loadContracts = async () => {
     try {
@@ -252,61 +265,149 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {contracts.map((contract) => (
-                      <tr key={contract.id} className="hover:bg-gray-50 transition-colors">
-                         <td className="px-4 py-4 whitespace-nowrap">
-                           <input type="checkbox" className="rounded border-gray-300" />
-                         </td>
-                         <td 
-                           className="px-4 py-4 text-sm text-gray-900 cursor-pointer hover:text-blue-600 hover:underline truncate max-w-0" 
-                           onClick={() => handleEditContract(contract)}
-                           title={contract.name}
-                         >
-                           {contract.name}
-                         </td>
-                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(contract.created_at)}</td>
-                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatFileSize(contract.file_size)}</td>
-                          <td className="px-4 py-4 whitespace-nowrap text-sm text-right font-medium text-green-600">
-                            {formatCurrency(contract.contract_amount || 0, contract.contract_data)}
-                          </td>
-                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
-                           {Math.round((contract.confidence || 0) * 100)}%
-                         </td>
-                         <td className="px-4 py-4 whitespace-nowrap text-center">
-                           <Badge variant={getStatusBadgeVariant(contract.status)} className="text-xs">
-                             {getStatusText(contract.status)}
-                           </Badge>
-                         </td>
-                         <td className="px-4 py-4 whitespace-nowrap text-center">
-                           <DropdownMenu>
-                             <DropdownMenuTrigger asChild>
-                               <Button
-                                 variant="ghost"
-                                 size="sm"
-                                 className="h-8 w-8 p-0 hover:bg-gray-100"
-                               >
-                                 <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                               </Button>
-                             </DropdownMenuTrigger>
-                             <DropdownMenuContent align="end">
-                               <DropdownMenuItem
-                                 onClick={() => window.open(contract.file_url, '_blank')}
-                               >
-                                 <Eye className="mr-2 h-4 w-4" />
-                                 View Contract
-                               </DropdownMenuItem>
-                               <DropdownMenuItem
-                                 onClick={() => handleDeleteContract(contract.id)}
-                                 className="text-destructive"
-                               >
-                                 <Trash2 className="mr-2 h-4 w-4" />
-                                 Delete Contract
-                               </DropdownMenuItem>
-                             </DropdownMenuContent>
-                           </DropdownMenu>
-                         </td>
-                      </tr>
-                    ))}
+                    {contracts.map((contract) => {
+                      const isExpanded = expandedContracts.has(contract.id);
+                      const paymentSchedule = contract.contract_data?.payment_schedule || [];
+                      const hasPaymentSchedule = Array.isArray(paymentSchedule) && paymentSchedule.length > 0;
+                      
+                      return (
+                        <React.Fragment key={contract.id}>
+                          <tr className="hover:bg-gray-50 transition-colors">
+                            <td className="px-4 py-4 whitespace-nowrap">
+                              <button
+                                onClick={() => toggleContractExpansion(contract.id)}
+                                className="p-1 hover:bg-gray-200 rounded transition-colors"
+                                disabled={!hasPaymentSchedule}
+                              >
+                                {hasPaymentSchedule ? (
+                                  isExpanded ? (
+                                    <ChevronDown className="h-4 w-4 text-gray-600" />
+                                  ) : (
+                                    <ChevronRight className="h-4 w-4 text-gray-600" />
+                                  )
+                                ) : (
+                                  <div className="h-4 w-4" />
+                                )}
+                              </button>
+                            </td>
+                            <td 
+                              className="px-4 py-4 text-sm text-gray-900 cursor-pointer hover:text-blue-600 hover:underline truncate max-w-0" 
+                              onClick={() => handleEditContract(contract)}
+                              title={contract.name}
+                            >
+                              {contract.name}
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(contract.created_at)}</td>
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">{formatFileSize(contract.file_size)}</td>
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-right font-medium text-green-600">
+                              {formatCurrency(contract.contract_amount || 0, contract.contract_data)}
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-right font-medium">
+                              {Math.round((contract.confidence || 0) * 100)}%
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap text-center">
+                              <Badge variant={getStatusBadgeVariant(contract.status)} className="text-xs">
+                                {getStatusText(contract.status)}
+                              </Badge>
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap text-center">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                                  >
+                                    <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => window.open(contract.file_url, '_blank')}
+                                  >
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    View Contract
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleDeleteContract(contract.id)}
+                                    className="text-destructive"
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete Contract
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </td>
+                          </tr>
+                          
+                          {/* Expanded Payment Schedule Row */}
+                          {isExpanded && hasPaymentSchedule && (
+                            <tr className="bg-gradient-to-r from-blue-50/50 via-blue-50/30 to-transparent">
+                              <td colSpan={8} className="px-4 py-6">
+                                <div className="ml-8 space-y-3">
+                                  <div className="flex items-center gap-2 mb-4">
+                                    <DollarSign className="h-5 w-5 text-primary" />
+                                    <h4 className="font-bold text-base text-foreground">Payment Milestones</h4>
+                                    <Badge variant="outline" className="ml-2">
+                                      {paymentSchedule.length} {paymentSchedule.length === 1 ? 'Milestone' : 'Milestones'}
+                                    </Badge>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-1 gap-3">
+                                    {paymentSchedule.map((payment: any, idx: number) => (
+                                      <div 
+                                        key={idx} 
+                                        className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                                      >
+                                        <div className="flex items-start justify-between gap-4">
+                                          <div className="flex items-start gap-3 flex-1">
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex-shrink-0">
+                                              {payment.sequence || idx + 1}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                              <div className="font-semibold text-sm text-foreground mb-1">
+                                                {payment.stage_name || payment.milestone || `Stage ${payment.sequence || idx + 1}`}
+                                              </div>
+                                              {payment.description && (
+                                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                                  {payment.description}
+                                                </p>
+                                              )}
+                                              <div className="flex flex-wrap items-center gap-2 mt-2">
+                                                {payment.trigger && (
+                                                  <Badge variant="secondary" className="text-xs">
+                                                    📍 {payment.trigger}
+                                                  </Badge>
+                                                )}
+                                                {(payment.due_date || payment.due_days) && (
+                                                  <Badge variant="outline" className="text-xs">
+                                                    🗓️ {payment.due_date || `${payment.due_days} days`}
+                                                  </Badge>
+                                                )}
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div className="text-right flex-shrink-0">
+                                            <div className="text-lg font-bold text-green-600">
+                                              {payment.amount}
+                                            </div>
+                                            {payment.percentage && (
+                                              <div className="text-xs font-medium text-muted-foreground mt-1">
+                                                {payment.percentage}% of total
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
                   </tbody>
                     </table>
                   </div>
