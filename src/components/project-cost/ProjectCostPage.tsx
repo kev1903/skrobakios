@@ -422,7 +422,7 @@ export const ProjectCostPage = ({
               <div className="flex-1 overflow-hidden">
                 <TabsContent value="income" className="mt-0 h-full overflow-y-auto p-6">
                   <div className="space-y-6">
-                    {/* Income Actions */}
+                     {/* Income Actions */}
                     <div className="flex justify-between items-center">
                       <div>
                         <h3 className="text-lg font-semibold text-foreground">Project Income</h3>
@@ -447,14 +447,14 @@ export const ProjectCostPage = ({
                       </div>
                     </div>
                      
-                     {/* Contracts and Invoices Hierarchy */}
-                     <ContractsTable
+                     {/* Invoice Table */}
+                     <IncomeTable
                        projectId={project.id}
+                       statusFilter={incomeStatusFilter}
                        formatCurrency={formatCurrency}
                        formatDate={formatDate}
+                       refreshTrigger={refreshTrigger}
                      />
-
-                     {/* Note: Invoices are now shown under their parent contracts above */}
                   </div>
                 </TabsContent>
 
