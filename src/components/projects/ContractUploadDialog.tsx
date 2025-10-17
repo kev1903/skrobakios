@@ -244,7 +244,7 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[1200px] max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-[1200px] max-h-[calc(100vh-var(--header-height,64px)-2rem)] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />

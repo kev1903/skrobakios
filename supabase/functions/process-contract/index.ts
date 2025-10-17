@@ -54,26 +54,17 @@ interface ContractData {
   ai_confidence: number;
 }
 
-async function extractTextFromPDF(fileContent: Uint8Array): Promise<string> {
-  try {
-    const decoder = new TextDecoder('utf-8');
-    const text = decoder.decode(fileContent);
-    
-    // Simple text extraction from PDF
-    const textMatches = text.match(/\/T\s*\(([^)]*)\)/g);
-    if (textMatches) {
-      return textMatches.map(m => m.replace(/\/T\s*\(|\)/g, '')).join(' ');
-    }
-    
-    // Fallback: try to extract any readable text
-    return text.replace(/[^\x20-\x7E\n]/g, '').trim();
-  } catch (error) {
-    console.error('Text extraction error:', error);
-    throw new Error('Failed to extract text from PDF');
+function encodeFileAsBase64(fileContent: Uint8Array): string {
+  // Convert Uint8Array to base64 string
+  let binary = '';
+  const len = fileContent.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(fileContent[i]);
   }
+  return btoa(binary);
 }
 
-async function extractContractDataWithLovableAI(extractedText: string): Promise<ContractData> {
+async function extractContractDataWithLovableAI(fileContent: Uint8Array): Promise<ContractData> {
   const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
   
   if (!lovableApiKey) {
@@ -82,14 +73,14 @@ async function extractContractDataWithLovableAI(extractedText: string): Promise<
 
   console.log('Starting extraction with Lovable AI Gemini');
 
-  const systemPrompt = `You are an expert at extracting contract data from documents with special focus on payment structures. 
+  // Encode PDF as base64 for Gemini
+  const base64Content = encodeFileAsBase64(fileContent);
+
+  const systemPrompt = `You are an expert at extracting contract data from PDF documents with special focus on payment structures. 
 Extract all relevant contract information including customer details, contract value, dates, terms, and DETAILED payment information.
 Return ONLY valid JSON with no additional text or formatting.`;
 
-  const userPrompt = `Extract all contract details from this document text with special attention to payment structures and tables.
-
-Document Text:
-${extractedText}
+  const userPrompt = `Analyze this PDF contract document and extract all contract details with special attention to payment structures and tables.
 
 Extract and return ONLY a JSON object with these fields:
 {
@@ -127,8 +118,25 @@ Extract and return ONLY a JSON object with these fields:
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
+        { 
+          role: 'system', 
+          content: systemPrompt 
+        },
+        { 
+          role: 'user', 
+          content: [
+            {
+              type: 'text',
+              text: userPrompt
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:application/pdf;base64,${base64Content}`
+              }
+            }
+          ]
+        }
       ]
     }),
   });
@@ -223,13 +231,9 @@ serve(async (req) => {
     const fileContent = new Uint8Array(await fileResponse.arrayBuffer());
     console.log('Downloaded file, size:', fileContent.length);
 
-    // Extract text from PDF
-    console.log('Extracting text from PDF...');
-    const extractedText = await extractTextFromPDF(fileContent);
-    console.log('Text extracted, length:', extractedText.length);
-
-    // Extract contract data using Lovable AI Gemini
-    const contractData = await extractContractDataWithLovableAI(extractedText);
+    // Extract contract data using Lovable AI Gemini with PDF vision
+    console.log('Processing PDF with Lovable AI Gemini...');
+    const contractData = await extractContractDataWithLovableAI(fileContent);
 
     // If extractOnly is true, just return the data without saving
     if (extractOnly) {
