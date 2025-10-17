@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -55,19 +56,14 @@ interface ContractData {
 }
 
 function convertPDFToBase64(fileContent: Uint8Array): string {
-  console.log('[PDF CONVERSION] Converting PDF to base64...');
+  console.log('[PDF CONVERSION] Converting PDF to base64 using Deno standard library...');
   console.log('[PDF CONVERSION] PDF size:', fileContent.length, 'bytes');
   
-  // Convert Uint8Array to base64
-  let binary = '';
-  const len = fileContent.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(fileContent[i]);
-  }
-  const base64 = btoa(binary);
+  // Use Deno's standard library base64 encoding
+  const base64 = base64Encode(fileContent);
   
-  console.log('[PDF CONVERSION] Base64 length:', base64.length);
-  return `data:application/pdf;base64,${base64}`;
+  console.log('[PDF CONVERSION] Base64 conversion complete, length:', base64.length);
+  return base64;
 }
 
 async function extractContractDataWithLovableAI(pdfBase64: string): Promise<ContractData> {
@@ -121,6 +117,7 @@ Extract and return ONLY a JSON object with these fields:
   "ai_confidence": number (0-100)
 }`;
 
+  // Use Gemini's native PDF support with inline_data format
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -144,7 +141,7 @@ Extract and return ONLY a JSON object with these fields:
             {
               type: 'image_url',
               image_url: {
-                url: pdfBase64
+                url: `data:application/pdf;base64,${pdfBase64}`
               }
             }
           ]
