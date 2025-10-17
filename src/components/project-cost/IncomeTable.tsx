@@ -22,7 +22,8 @@ interface Invoice {
   status: string;
   total: number;
   paid_to_date: number;
-  payment_method?: string;
+  contract_id?: string;
+  contract_name?: string;
   milestone_stage?: string;
   notes?: string;
   created_at: string;
@@ -101,7 +102,26 @@ export const IncomeTable = ({
         return;
       }
 
-      setInvoices(data || []);
+      // Fetch contract names for invoices that have contract_id
+      const invoicesWithContracts = await Promise.all(
+        (data || []).map(async (invoice) => {
+          if (invoice.contract_id) {
+            const { data: contract } = await supabase
+              .from('project_contracts')
+              .select('name')
+              .eq('id', invoice.contract_id)
+              .maybeSingle();
+            
+            return {
+              ...invoice,
+              contract_name: contract?.name || 'Unknown Contract'
+            };
+          }
+          return invoice;
+        })
+      );
+
+      setInvoices(invoicesWithContracts);
     } catch (error) {
       console.error('Error loading invoices:', error);
     } finally {
@@ -248,7 +268,7 @@ export const IncomeTable = ({
               <TableHead className="text-foreground font-medium text-right">Amount Billed</TableHead>
               <TableHead className="text-foreground font-medium text-right">Amount Paid</TableHead>
               <TableHead className="text-foreground font-medium">Status</TableHead>
-              <TableHead className="text-foreground font-medium">Payment Method</TableHead>
+              <TableHead className="text-foreground font-medium">Contract</TableHead>
               <TableHead className="text-foreground font-medium">Milestone/Stage</TableHead>
               <TableHead className="text-foreground font-medium">Notes</TableHead>
               <TableHead className="text-foreground font-medium text-center">Actions</TableHead>
@@ -290,7 +310,7 @@ export const IncomeTable = ({
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {invoice.payment_method || '-'}
+                  {invoice.contract_name || '-'}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {invoice.milestone_stage || '-'}
