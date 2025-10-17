@@ -28,6 +28,46 @@ const parseContractAmount = (contractValue: string | undefined): number => {
   return isNaN(parsed) ? 0 : parsed;
 };
 
+// Helper function to convert date strings to YYYY-MM-DD format
+const parseDate = (dateStr: string | null | undefined): string => {
+  if (!dateStr) return '';
+  
+  try {
+    // Try to parse various date formats
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+    
+    // Format as YYYY-MM-DD
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  } catch {
+    return '';
+  }
+};
+
+// Transform AI contract data to match form field structure
+const transformContractData = (contractData: any) => {
+  // Find the client party from the parties array
+  const clientParty = contractData.parties?.find((p: any) => 
+    p.role?.toLowerCase().includes('client')
+  );
+  
+  return {
+    ...contractData,
+    // Map client information
+    customer_name: clientParty?.name || '',
+    customer_email: clientParty?.email || '',
+    customer_phone: clientParty?.phone || clientParty?.mobile || '',
+    customer_address: clientParty?.address || '',
+    // Convert dates to YYYY-MM-DD format
+    contract_date: parseDate(contractData.contract_date || contractData.execution_date),
+    start_date: parseDate(contractData.start_date || contractData.commencement_date),
+    end_date: parseDate(contractData.end_date || contractData.completion_date),
+  };
+};
+
 interface ContractUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -149,9 +189,12 @@ export const ContractUploadDialog = ({ open, onOpenChange, project, onUploadComp
         throw new Error('Processing failed: Invalid response from server');
       }
 
+      // Transform AI data structure to match form fields
+      const transformedData = transformContractData(data.contractData);
+      
       // Store extracted data and show preview
       setExtractedData({
-        ...data.contractData,
+        ...transformedData,
         fileUrl: publicUrl,
         fileName: formData.file.name,
         filePath
