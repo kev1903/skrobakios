@@ -133,8 +133,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
           status: 'draft',
           total: amount,
           paid_to_date: 0,
-          notes: `Milestone: ${payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`}\nGenerated from contract: ${contract.name}${payment.description ? `\n${payment.description}` : ''}${payment.trigger ? `\nTrigger: ${payment.trigger}` : ''}`,
-          payment_method: null
+          notes: `Milestone: ${payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`}\nGenerated from contract: ${contract.name}${payment.description ? `\n${payment.description}` : ''}${payment.trigger ? `\nTrigger: ${payment.trigger}` : ''}`
         })
         .select()
         .single();
