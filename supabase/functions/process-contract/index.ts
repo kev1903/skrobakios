@@ -117,7 +117,7 @@ Extract and return ONLY a JSON object with these fields:
   "ai_confidence": number (0-100)
 }`;
 
-  // Use Gemini's native PDF support with inline_data format
+  // Use Gemini's PDF document support with correct file format
   const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -139,9 +139,10 @@ Extract and return ONLY a JSON object with these fields:
               text: userPrompt
             },
             {
-              type: 'image_url',
-              image_url: {
-                url: `data:application/pdf;base64,${pdfBase64}`
+              type: 'file',
+              file: {
+                filename: 'contract.pdf',
+                file_data: `data:application/pdf;base64,${pdfBase64}`
               }
             }
           ]
