@@ -141,10 +141,10 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     console.log('Cleared previous extraction data');
     
     if (!isPDF && !isImage) {
-      setError('Please upload a PDF or JPG/PNG file');
+      setError('Please upload a PDF or image file (JPG, JPEG, PNG)');
       toast({
         title: "Invalid File",
-        description: "Please upload a PDF or JPG/PNG file",
+        description: "Please upload a PDF or image file (JPG, JPEG, PNG)",
         variant: "destructive",
       });
       return;
@@ -472,7 +472,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
         <DialogHeader>
           <DialogTitle>Upload Bill (Expense)</DialogTitle>
           <DialogDescription>
-            Upload a PDF or image bill and our AI will extract the data automatically
+            Upload a PDF or image bill (JPG, JPEG, PNG) and our AI will extract the data automatically
           </DialogDescription>
         </DialogHeader>
 
@@ -493,7 +493,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
             >
               <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <p className="text-lg font-medium mb-2">Drop your file here or click to browse</p>
-              <p className="text-sm text-muted-foreground">PDF, JPG, or PNG • Maximum file size: 10MB</p>
+              <p className="text-sm text-muted-foreground">PDF, JPG, JPEG, or PNG • Maximum file size: 10MB</p>
               <input
                 ref={fileInputRef}
                 type="file"
