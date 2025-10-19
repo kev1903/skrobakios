@@ -49,7 +49,7 @@ export const AIPromptSettings = ({ isOpen, onClose }: AIPromptSettingsProps) => 
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               AI Invoice Extraction Settings
-              <Badge variant="secondary">GPT-4o-mini</Badge>
+              <Badge variant="secondary">Gemini 2.5 Flash</Badge>
             </div>
             <Button 
               onClick={handleSave}
@@ -99,15 +99,15 @@ export const AIPromptSettings = ({ isOpen, onClose }: AIPromptSettingsProps) => 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <div className="text-sm font-medium text-muted-foreground mb-1">Model</div>
-                  <div className="text-sm">gpt-4o-mini</div>
+                  <div className="text-sm">google/gemini-2.5-flash</div>
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-muted-foreground mb-1">Temperature</div>
-                  <div className="text-sm">0.1</div>
+                  <div className="text-sm font-medium text-muted-foreground mb-1">Provider</div>
+                  <div className="text-sm">Lovable AI</div>
                 </div>
                 <div>
                   <div className="text-sm font-medium text-muted-foreground mb-1">Response Format</div>
-                  <div className="text-sm">JSON Schema (Structured Output)</div>
+                  <div className="text-sm">JSON</div>
                 </div>
                 <div>
                   <div className="text-sm font-medium text-muted-foreground mb-1">Purpose</div>

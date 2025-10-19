@@ -1,8 +1,8 @@
-// Deno Edge Function – parses PDFs via OpenAI Files + Responses (input_file)
+// Deno Edge Function – parses PDFs via Lovable AI (Gemini)
 // Request body: { signed_url?: string, file_url?: string, project_invoice_id?: string }
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
-const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY")!;
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -53,105 +53,94 @@ async function downloadBytes(url: string) {
   return { bytes: new Uint8Array(arr), contentType: ct };
 }
 
-async function uploadToOpenAI(fileBytes: Uint8Array, filename: string, contentType: string) {
-  // For now, we'll use assistants purpose which supports more file types
-  const file = new File([new Uint8Array(fileBytes)], filename || "invoice.pdf", { type: "application/pdf" });
-
-  const fd = new FormData();
-  fd.append("file", file);
-  
-  // Try assistants purpose which supports PDFs
-  fd.append("purpose", "assistants");
-
-  const res = await fetch("https://api.openai.com/v1/files", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${OPENAI_API_KEY}` },
-    body: fd
-  });
-  if (!res.ok) throw new Error(`files.create failed ${res.status}: ${await res.text()}`);
-  return await res.json(); // { id, ... }
+function bytesToBase64(bytes: Uint8Array): string {
+  const binString = Array.from(bytes, (byte) =>
+    String.fromCodePoint(byte),
+  ).join("");
+  return btoa(binString);
 }
 
-async function extractWithOpenAI(fileId: string) {
-  console.log("Starting extractWithOpenAI with fileId:", fileId);
+async function extractWithLovableAI(pdfBase64: string) {
+  console.log("Starting extractWithLovableAI");
   
-  // Let's try the standard Chat Completions API with structured outputs instead of Responses API
   const body = {
-    model: "gpt-4o-mini",
+    model: "google/gemini-2.5-flash",
     messages: [
       { 
         role: "system", 
-        content: "You are an expert at extracting invoice data from PDFs. Extract ALL line items from the invoice - do not miss any products, materials, or services listed. Payment terms like 'deposit due' or 'balance due' are NOT line items. Focus on extracting the actual goods/services being invoiced. Return valid JSON only." 
+        content: "You are an expert at extracting invoice data from PDFs. Extract ALL line items from the invoice - do not miss any products, materials, or services listed. Payment terms like 'deposit due' or 'balance due' are NOT line items. Focus on extracting the actual goods/services being invoiced." 
       },
       {
         role: "user",
-        content: [
-          { type: "text", text: "Extract ALL line items from this invoice PDF. Include every single product, material, or service listed with their descriptions, quantities, rates, and amounts. Do not extract payment terms as line items. Also extract supplier, invoice_number, dates, subtotal, tax, and total." },
-          { type: "file", file: { file_id: fileId } }
-        ]
+        content: `Extract ALL line items from this invoice PDF. Include every single product, material, or service listed with their descriptions, quantities, rates, and amounts. Do not extract payment terms as line items. Also extract supplier, invoice_number, dates, subtotal, tax, and total.
+
+Return the data as a JSON object with this structure:
+{
+  "supplier": "company name",
+  "invoice_number": "invoice number",
+  "invoice_date": "date string",
+  "due_date": "date string",
+  "subtotal": "amount string",
+  "tax": "amount string",
+  "total": "amount string",
+  "line_items": [
+    {
+      "description": "item description",
+      "qty": "quantity",
+      "rate": "rate per unit",
+      "amount": "total amount",
+      "tax_code": "tax code if any"
+    }
+  ],
+  "ai_summary": "brief summary of the invoice",
+  "ai_confidence": 0.95
+}
+
+Here's the PDF (base64): ${pdfBase64}`
       }
-    ],
-    response_format: {
-      type: "json_schema",
-      json_schema: {
-        name: "InvoiceExtraction",
-        schema: {
-          type: "object",
-          required: ["supplier", "invoice_number", "ai_summary", "ai_confidence"],
-          additionalProperties: false,
-          properties: {
-            supplier: { type: "string" },
-            invoice_number: { type: "string" },
-            invoice_date: { type: "string" },
-            due_date: { type: "string" },
-            subtotal: { type: "string" },
-            tax: { type: "string" },
-            total: { type: "string" },
-            line_items: {
-              type: "array",
-              items: {
-                type: "object",
-                required: ["description"],
-                additionalProperties: true,
-                properties: {
-                  description: { type: "string" },
-                  qty: { type: "string" },
-                  rate: { type: "string" },
-                  amount: { type: "string" },
-                  tax_code: { type: "string" }
-                }
-              }
-            },
-            ai_summary: { type: "string" },
-            ai_confidence: { type: "number" }
-          }
-        },
-        strict: false
-      }
-    },
-    temperature: 0.1
+    ]
   };
 
-  console.log("Request body:", JSON.stringify(body, null, 2));
+  console.log("Calling Lovable AI Gateway");
 
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
-    headers: { Authorization: `Bearer ${OPENAI_API_KEY}`, "Content-Type": "application/json" },
+    headers: { 
+      Authorization: `Bearer ${LOVABLE_API_KEY}`, 
+      "Content-Type": "application/json" 
+    },
     body: JSON.stringify(body)
   });
   
   console.log("Response status:", res.status);
   const responseText = await res.text();
-  console.log("Response body:", responseText);
+  console.log("Response body:", responseText.substring(0, 500));
   
-  if (!res.ok) throw new Error(`chat/completions failed ${res.status}: ${responseText}`);
+  if (!res.ok) {
+    if (res.status === 429) {
+      throw new Error("Rate limit exceeded. Please try again later.");
+    }
+    if (res.status === 402) {
+      throw new Error("Payment required. Please add credits to your Lovable AI workspace.");
+    }
+    throw new Error(`Lovable AI failed ${res.status}: ${responseText}`);
+  }
 
   const data = JSON.parse(responseText);
   const text = data?.choices?.[0]?.message?.content;
   if (!text) throw new Error(`no content in response: ${JSON.stringify(data).slice(0, 500)}`);
   
   console.log("Extracted text:", text);
-  return JSON.parse(text);
+  
+  // Try to parse the JSON from the response
+  try {
+    // Remove markdown code blocks if present
+    const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    return JSON.parse(cleanedText);
+  } catch (parseError) {
+    console.error("Failed to parse JSON:", parseError);
+    throw new Error(`Failed to parse AI response as JSON: ${text.substring(0, 200)}`);
+  }
 }
 
 async function patchInvoiceRow(id: string, extraction: any) {
@@ -190,16 +179,25 @@ Deno.serve(async (req) => {
     const src = signed_url || file_url;
     if (!src) return new Response(JSON.stringify({ error: "Provide signed_url or file_url" }), { status: 400, headers: { "Content-Type": "application/json", ...cors } });
 
-    const { bytes, contentType } = await downloadBytes(src);
-    const uploaded = await uploadToOpenAI(bytes, "invoice.pdf", contentType);
-    const extraction = await extractWithOpenAI(uploaded.id);
+    console.log("Downloading PDF from:", src.substring(0, 100));
+    const { bytes } = await downloadBytes(src);
+    
+    console.log("Converting PDF to base64");
+    const pdfBase64 = bytesToBase64(bytes);
+    
+    console.log("Extracting invoice data with Lovable AI");
+    const extraction = await extractWithLovableAI(pdfBase64);
 
-    if (project_invoice_id) await patchInvoiceRow(project_invoice_id, extraction);
+    if (project_invoice_id) {
+      console.log("Updating invoice in database");
+      await patchInvoiceRow(project_invoice_id, extraction);
+    }
 
     return new Response(JSON.stringify({ ok: true, data: extraction }), {
       headers: { "Content-Type": "application/json", ...cors }
     });
   } catch (e) {
+    console.error("Error processing invoice:", e);
     return new Response(JSON.stringify({ error: String(e) }), {
       status: 500,
       headers: { "Content-Type": "application/json", ...cors }
