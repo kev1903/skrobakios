@@ -603,11 +603,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                                           <div className="flex items-center gap-3">
                                             <div className="text-right flex-shrink-0">
                                               <div className="text-lg font-bold text-green-600">
-                                                {(() => {
-                                                  const amountStr = payment.amount?.toString().replace(/[$,]/g, '') || '0';
-                                                  const amount = parseFloat(amountStr);
-                                                  return formatCurrency(amount, contract.contract_data);
-                                                })()}
+                                                {formatCurrency(parseFloat(payment.amount?.toString().replace(/[$,]/g, '') || '0'), contract.contract_data)}
                                               </div>
                                               {payment.percentage && (
                                                 <div className="text-xs font-medium text-muted-foreground mt-1">
