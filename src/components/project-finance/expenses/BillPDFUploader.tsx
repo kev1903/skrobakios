@@ -65,6 +65,15 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     }
   }, [isOpen]);
 
+  // Cleanup preview URL on unmount
+  useEffect(() => {
+    return () => {
+      if (filePreviewUrl) {
+        URL.revokeObjectURL(filePreviewUrl);
+      }
+    };
+  }, [filePreviewUrl]);
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -113,6 +122,8 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     const isPDF = file.type.includes('pdf');
     const isImage = file.type.includes('image');
     
+    console.log('File selected:', file.name, 'Type:', file.type, 'Size:', file.size);
+    
     if (!isPDF && !isImage) {
       setError('Please upload a PDF or JPG/PNG file');
       toast({
@@ -139,6 +150,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     
     // Create preview URL for the file
     const previewUrl = URL.createObjectURL(file);
+    console.log('Preview URL created:', previewUrl);
     setFilePreviewUrl(previewUrl);
     
     await uploadAndExtract(file);
@@ -600,14 +612,23 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
           <div className="hidden lg:block border-l pl-6 overflow-hidden">
             <div className="h-full flex flex-col">
               <h3 className="text-sm font-semibold mb-3">Document Preview</h3>
-              <div className="flex-1 border rounded-lg overflow-hidden bg-muted/30">
+              <div className="flex-1 border rounded-lg overflow-hidden bg-muted/30 relative">
                 {filePreviewUrl && uploadedFile ? (
                   uploadedFile.type.includes('pdf') ? (
-                    <iframe
-                      src={filePreviewUrl}
+                    <object
+                      data={filePreviewUrl}
+                      type="application/pdf"
                       className="w-full h-full"
-                      title="PDF Preview"
-                    />
+                      aria-label="PDF Preview"
+                    >
+                      <div className="w-full h-full flex items-center justify-center p-4">
+                        <div className="text-center">
+                          <FileText className="h-12 w-12 mx-auto mb-2 text-blue-600" />
+                          <p className="text-sm font-medium mb-1">PDF Preview</p>
+                          <p className="text-xs text-muted-foreground">{uploadedFile.name}</p>
+                        </div>
+                      </div>
+                    </object>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center p-4 overflow-auto">
                       <img
