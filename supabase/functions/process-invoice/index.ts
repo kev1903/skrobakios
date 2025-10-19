@@ -1,5 +1,5 @@
 // Deno Edge Function – parses PDFs via Lovable AI (Gemini)
-// Request body: { signed_url?: string, file_url?: string, project_invoice_id?: string }
+// Request body: { signed_url?: string, file_url?: string, fileData?: string (base64), project_invoice_id?: string }
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
@@ -236,23 +236,47 @@ Deno.serve(async (req) => {
       });
     }
     
-    const { signed_url, file_url, project_invoice_id } = body;
-    console.log("Parsed request:", { has_signed_url: !!signed_url, has_file_url: !!file_url, project_invoice_id });
+    const { signed_url, file_url, project_invoice_id, fileData } = body;
+    console.log("Parsed request:", { 
+      has_signed_url: !!signed_url, 
+      has_file_url: !!file_url, 
+      has_fileData: !!fileData,
+      project_invoice_id 
+    });
     
-    const src = signed_url || file_url;
-    if (!src) {
-      console.error("No URL provided in request");
-      return new Response(JSON.stringify({ error: "Provide signed_url or file_url" }), { 
-        status: 400, 
-        headers: { "Content-Type": "application/json", ...cors } 
-      });
-    }
+    let pdfBase64: string;
+    
+    // Handle base64 data directly (from drag-and-drop)
+    if (fileData) {
+      console.log("Processing base64 fileData");
+      // Remove data URL prefix if present (e.g., "data:application/pdf;base64,")
+      if (fileData.startsWith('data:')) {
+        const base64Data = fileData.split(',')[1];
+        pdfBase64 = base64Data;
+      } else {
+        pdfBase64 = fileData;
+      }
+      console.log("Base64 data extracted, length:", pdfBase64.length);
+    } 
+    // Handle URL-based files
+    else {
+      const src = signed_url || file_url;
+      if (!src) {
+        console.error("No URL or fileData provided in request");
+        return new Response(JSON.stringify({ 
+          error: "Provide signed_url, file_url, or fileData" 
+        }), { 
+          status: 400, 
+          headers: { "Content-Type": "application/json", ...cors } 
+        });
+      }
 
-    console.log("Downloading PDF from:", src.substring(0, 100));
-    const { bytes } = await downloadBytes(src);
-    
-    console.log("Converting PDF to base64");
-    const pdfBase64 = bytesToBase64(bytes);
+      console.log("Downloading PDF from:", src.substring(0, 100));
+      const { bytes } = await downloadBytes(src);
+      
+      console.log("Converting PDF to base64");
+      pdfBase64 = bytesToBase64(bytes);
+    }
     
     console.log("Extracting invoice data with Lovable AI");
     const extraction = await extractWithLovableAI(pdfBase64);

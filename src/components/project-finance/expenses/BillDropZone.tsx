@@ -73,11 +73,25 @@ export const BillDropZone: React.FC<BillDropZoneProps> = ({ projectId, onBillSav
 
       if (error) throw error;
 
-      if (data && data.extracted) {
-        setExtractedData(data.extracted);
+      if (data && data.ok && data.data) {
+        // Map the response to our ExtractedData format
+        const extracted = data.data;
+        setExtractedData({
+          supplierName: extracted.supplier || 'Unknown',
+          supplierEmail: extracted.supplier_email || undefined,
+          billNumber: extracted.invoice_number || 'N/A',
+          referenceNumber: extracted.reference_number || undefined,
+          billDate: extracted.invoice_date || new Date().toISOString().split('T')[0],
+          dueDate: extracted.due_date || undefined,
+          subtotal: parseFloat(extracted.subtotal || '0'),
+          tax: parseFloat(extracted.tax || '0'),
+          total: parseFloat(extracted.total || '0'),
+          notes: extracted.ai_summary || undefined,
+          confidence: Math.round((extracted.ai_confidence || 0.95) * 100),
+        });
         toast({
           title: "Bill Processed Successfully",
-          description: `Extracted data with ${data.extracted.confidence || 95}% confidence`,
+          description: `Extracted data with ${Math.round((extracted.ai_confidence || 0.95) * 100)}% confidence`,
         });
       } else {
         throw new Error('No data extracted');
