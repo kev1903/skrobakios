@@ -443,7 +443,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                 <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Date ↓</th>
                 <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Due date</th>
                 <th className="text-left p-2 font-medium w-24 text-foreground text-xs">Amount</th>
-                <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Actions</th>
+                <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Status</th>
                 <th className="text-left p-2 font-medium w-12 text-xs"></th>
               </tr>
             </thead>
