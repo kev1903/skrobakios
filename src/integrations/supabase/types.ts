@@ -2270,6 +2270,8 @@ export type Database = {
           due_date: string
           id: string
           issue_date: string
+          milestone_sequence: number | null
+          milestone_stage: string | null
           notes: string | null
           number: string
           paid_to_date: number
@@ -2290,6 +2292,8 @@ export type Database = {
           due_date: string
           id?: string
           issue_date?: string
+          milestone_sequence?: number | null
+          milestone_stage?: string | null
           notes?: string | null
           number: string
           paid_to_date?: number
@@ -2310,6 +2314,8 @@ export type Database = {
           due_date?: string
           id?: string
           issue_date?: string
+          milestone_sequence?: number | null
+          milestone_stage?: string | null
           notes?: string | null
           number?: string
           paid_to_date?: number

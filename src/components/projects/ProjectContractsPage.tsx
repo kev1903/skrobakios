@@ -147,6 +147,9 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         .from('invoices')
         .insert({
           project_id: project.id,
+          contract_id: contract.id,
+          milestone_sequence: payment.sequence,
+          milestone_stage: payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`,
           number: invoiceNumber,
           client_name: project.name,
           issue_date: issueDate,
@@ -249,6 +252,74 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     setEditMilestoneOpen(true);
   };
 
+  const updateRelatedInvoices = async (
+    contractId: string, 
+    milestoneSequence: number, 
+    newAmount: number,
+    oldAmount: number
+  ) => {
+    try {
+      // Find all invoices linked to this milestone
+      const { data: invoices, error: fetchError } = await supabase
+        .from('invoices')
+        .select('*')
+        .eq('contract_id', contractId)
+        .eq('milestone_sequence', milestoneSequence);
+
+      if (fetchError) {
+        console.error('Error fetching related invoices:', fetchError);
+        return;
+      }
+
+      if (!invoices || invoices.length === 0) {
+        return; // No related invoices to update
+      }
+
+      // Update each invoice
+      const updatePromises = invoices.map(async (invoice) => {
+        // Update invoice total
+        const { error: invoiceError } = await supabase
+          .from('invoices')
+          .update({
+            total: newAmount,
+            notes: `${invoice.notes}\n[Auto-updated on ${new Date().toLocaleDateString()}: Amount changed from ${formatCurrency(oldAmount, 'AUD')} to ${formatCurrency(newAmount, 'AUD')} due to milestone edit]`
+          })
+          .eq('id', invoice.id);
+
+        if (invoiceError) {
+          console.error('Error updating invoice:', invoiceError);
+          return;
+        }
+
+        // Update related invoice items
+        const { error: itemError } = await supabase
+          .from('invoice_items')
+          .update({
+            rate: newAmount,
+            amount: newAmount
+          })
+          .eq('invoice_id', invoice.id);
+
+        if (itemError) {
+          console.error('Error updating invoice items:', itemError);
+        }
+      });
+
+      await Promise.all(updatePromises);
+
+      toast.success(
+        `Milestone updated. ${invoices.length} related invoice${invoices.length > 1 ? 's' : ''} automatically updated.`,
+        { duration: 4000 }
+      );
+      
+      // Trigger refresh of income data
+      window.dispatchEvent(new CustomEvent('invoice-created'));
+    } catch (error) {
+      console.error('Error updating related invoices:', error);
+      toast.error('Failed to update related invoices. Please check them manually.');
+    }
+  };
+
   const handleSaveMilestone = async () => {
     if (!selectedContract || !selectedMilestone || milestoneIndex === -1) return;
 
@@ -256,6 +327,11 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       // Get the current contract data
       const contractData = selectedContract.contract_data || {};
       const paymentSchedule = contractData.payment_schedule || [];
+      
+      // Store old amount for comparison
+      const oldAmount = parseFloat(paymentSchedule[milestoneIndex]?.amount?.toString().replace(/[$,]/g, '') || '0');
+      const newAmountStr = selectedMilestone.amount?.toString().replace(/[$,]/g, '') || '0';
+      const newAmount = parseFloat(newAmountStr);
       
       // Update the milestone at the specific index
       paymentSchedule[milestoneIndex] = selectedMilestone;
@@ -282,6 +358,16 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         console.error('Error updating milestone:', error);
         toast.error("Failed to update milestone. Please try again.");
         return;
+      }
+
+      // Update related invoices if amount changed
+      if (oldAmount !== newAmount) {
+        await updateRelatedInvoices(
+          selectedContract.id, 
+          selectedMilestone.sequence, 
+          newAmount,
+          oldAmount
+        );
       }
 
       toast.success("Milestone updated successfully. Contract amount recalculated.");
