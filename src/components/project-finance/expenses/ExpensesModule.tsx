@@ -11,6 +11,7 @@ import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, D
 import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 import { BillEditDialog } from './BillEditDialog';
+import { BillDetailsDialog } from './BillDetailsDialog';
 
 interface Bill {
   id: string;
@@ -49,6 +50,8 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [previewFile, setPreviewFile] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+  const [isBillDetailsOpen, setIsBillDetailsOpen] = useState(false);
   const { toast } = useToast();
 
   const loadBills = async () => {
@@ -326,7 +329,15 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                   <td className="p-2 text-foreground font-medium text-xs">{bill.supplier_name}</td>
                   <td className="p-2 text-foreground">
                     <div>
-                      <div className="font-medium text-xs">{bill.reference_number || bill.bill_no}</div>
+                      <button
+                        onClick={() => {
+                          setSelectedBill(bill);
+                          setIsBillDetailsOpen(true);
+                        }}
+                        className="font-medium text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer text-left"
+                      >
+                        {bill.reference_number || bill.bill_no}
+                      </button>
                       {bill.forwarded_bill && <div className="text-xs text-blue-600 italic">Forwarded Bill</div>}
                     </div>
                   </td>
@@ -384,6 +395,18 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         onClose={() => setIsEditDialogOpen(false)}
         bill={editBill}
         onSaved={handleEditSaved}
+      />
+
+      {/* Bill Details Dialog */}
+      <BillDetailsDialog
+        isOpen={isBillDetailsOpen}
+        onClose={() => {
+          setIsBillDetailsOpen(false);
+          setSelectedBill(null);
+        }}
+        bill={selectedBill}
+        formatCurrency={formatCurrency}
+        formatDate={formatDate}
       />
 
       {/* PDF Preview Dialog */}
