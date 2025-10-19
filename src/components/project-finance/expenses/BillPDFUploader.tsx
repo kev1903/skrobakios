@@ -420,6 +420,17 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
           {/* Extracted Data Preview & Edit Form */}
           {editableData && !error && (
             <div className="space-y-4">
+              {/* Show uploaded filename */}
+              {uploadedFile && (
+                <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <FileText className="h-4 w-4 text-blue-600" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-900">Extracted from file:</p>
+                    <p className="text-sm text-blue-700">{uploadedFile.name}</p>
+                  </div>
+                </div>
+              )}
+              
               <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
                 <div className="flex items-center gap-3">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
@@ -544,14 +555,25 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
                 </div>
               )}
 
-              <div className="flex justify-end gap-3 pt-4">
-                <Button variant="outline" onClick={() => { onClose(); resetState(); }}>
-                  Cancel
+              <div className="flex justify-between items-center pt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    resetState();
+                  }}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Different File
                 </Button>
-                <Button onClick={handleSave} disabled={saving}>
-                  {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  Save Bill
-                </Button>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => { onClose(); resetState(); }}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSave} disabled={saving}>
+                    {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    Save Bill
+                  </Button>
+                </div>
               </div>
             </div>
           )}
