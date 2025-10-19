@@ -44,106 +44,66 @@ const InvoiceSchema = {
   }
 };
 
-// Enhanced PDF text extraction using npm:pdf-parse for Deno
+// Enhanced PDF text extraction using pdfjs-dist via esm.sh
 async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
   try {
-    console.log('Starting PDF text extraction...');
+    console.log('Starting PDF text extraction with pdfjs-dist...');
     
-    // Try using pdf-parse package (works better in Deno)
-    try {
-      const pdfParse = (await import("npm:pdf-parse@1.1.1")).default;
-      const buffer = new Uint8Array(pdfBytes);
-      const data = await pdfParse(buffer);
+    // Use esm.sh for proper Deno compatibility
+    const pdfjsLib = await import("https://esm.sh/pdfjs-dist@4.0.379/legacy/build/pdf.mjs");
+    
+    // Load the PDF document
+    const loadingTask = pdfjsLib.getDocument({
+      data: new Uint8Array(pdfBytes),
+      useSystemFonts: false,
+      standardFontDataUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/standard_fonts/",
+    });
+    
+    const pdf = await loadingTask.promise;
+    console.log(`PDF loaded successfully, ${pdf.numPages} pages`);
+    
+    let fullText = '';
+    
+    // Extract text from all pages
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const textContent = await page.getTextContent();
       
-      if (data.text && data.text.length > 50) {
-        console.log(`✓ Successfully extracted ${data.text.length} characters using pdf-parse`);
-        console.log('Sample text:', data.text.substring(0, 500));
-        return cleanAndStructureText(data.text);
-      }
-    } catch (pdfParseError) {
-      console.warn("pdf-parse failed, trying fallback:", pdfParseError.message);
-    }
-
-    // Fallback: Enhanced manual extraction
-    console.log("Using enhanced manual extraction");
-    const decoder = new TextDecoder('utf-8', { fatal: false });
-    let rawText = decoder.decode(pdfBytes);
-    
-    // Extract text between common PDF text markers
-    const textPatterns = [
-      // Match text in parentheses (common PDF text encoding)
-      /\(([^)]+)\)/g,
-      // Match text in angle brackets (hex encoding)
-      /<([0-9A-Fa-f\s]+)>/g,
-      // Match BT...ET blocks (text blocks)
-      /BT\s+([\s\S]*?)\s+ET/g,
-      // Match Tj and TJ operators (text showing)
-      /\[(.*?)\]\s*TJ/g,
-      /\((.*?)\)\s*Tj/g,
-    ];
-    
-    let extractedParts: string[] = [];
-    
-    for (const pattern of textPatterns) {
-      const matches = rawText.matchAll(pattern);
-      for (const match of matches) {
-        let text = match[1];
-        
-        // Handle hex-encoded text
-        if (pattern.source.includes('0-9A-Fa-f')) {
-          try {
-            text = text.replace(/\s/g, '');
-            const bytes = text.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16)) || [];
-            text = String.fromCharCode(...bytes);
-          } catch (e) {
-            continue;
+      // Combine text items with proper spacing
+      const pageText = textContent.items
+        .map((item: any) => {
+          if (item.str) {
+            return item.str;
           }
-        }
-        
-        // Clean and add text
-        text = text
-          .replace(/\\n/g, '\n')
-          .replace(/\\r/g, '\r')
-          .replace(/\\t/g, '\t')
-          .replace(/\\(.)/g, '$1')
-          .trim();
-        
-        if (text.length > 2) {
-          extractedParts.push(text);
-        }
-      }
+          return '';
+        })
+        .filter((text: string) => text.trim().length > 0)
+        .join(' ');
+      
+      fullText += `\n=== Page ${pageNum} ===\n${pageText}\n`;
+      console.log(`Page ${pageNum} extracted: ${pageText.length} characters`);
     }
     
-    const finalText = extractedParts.join(' ').trim();
-    console.log(`Manual extraction produced ${finalText.length} characters`);
-    console.log('Sample:', finalText.substring(0, 300));
-    
-    if (finalText.length < 50) {
-      throw new Error('Insufficient text extracted from PDF');
+    if (fullText.trim().length < 50) {
+      throw new Error('Extracted text too short');
     }
     
-    return cleanAndStructureText(finalText);
+    console.log(`✓ Total extracted text: ${fullText.length} characters`);
+    console.log('Sample:', fullText.substring(0, 500));
+    
+    return cleanText(fullText);
     
   } catch (error) {
-    console.error("All PDF extraction methods failed:", error);
-    throw new Error('Failed to extract text from PDF. The document may be image-based or corrupted.');
+    console.error('PDF extraction failed:', error);
+    throw new Error(`Failed to extract text from PDF: ${error.message}`);
   }
 }
 
-// Clean and structure extracted text for better AI processing
-function cleanAndStructureText(text: string): string {
+// Clean extracted text
+function cleanText(text: string): string {
   return text
-    // Normalize whitespace
     .replace(/\s+/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
-    // Remove common PDF artifacts
-    .replace(/[^\x20-\x7E\n\r\t]/g, '')
-    // Remove excessive punctuation
-    .replace(/\.{4,}/g, '...')
-    .replace(/-{4,}/g, '---')
-    // Remove page markers
-    .replace(/Page \d+ of \d+/gi, '')
-    .replace(/\f/g, '\n')
     .trim();
 }
 
@@ -172,7 +132,6 @@ serve(async (req) => {
     console.log('=== Processing invoice ===');
     console.log('Filename:', filename);
     console.log('Filesize:', filesize);
-    console.log('Storage path:', storage_path);
 
     if (!signed_url) {
       return new Response(
@@ -181,10 +140,10 @@ serve(async (req) => {
       );
     }
 
-    // Step 1: Download PDF from signed URL
-    console.log('Downloading file from storage...');
+    // Step 1: Download PDF
+    console.log('Downloading PDF from storage...');
     const bytes = await fetchAsArrayBuffer(signed_url);
-    console.log('Downloaded file, size:', bytes.byteLength);
+    console.log(`Downloaded ${bytes.byteLength} bytes`);
 
     // Check file size (max 5MB)
     const maxSize = 5 * 1024 * 1024;
@@ -193,7 +152,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           ok: false, 
-          error: `File too large (${sizeMB}MB). Maximum is 5MB. Please compress at https://www.ilovepdf.com/compress_pdf` 
+          error: `File too large (${sizeMB}MB). Maximum is 5MB.` 
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -202,7 +161,7 @@ serve(async (req) => {
     // Step 2: Extract text from PDF
     console.log('Extracting text from PDF...');
     const extractedText = await extractTextFromPDF(bytes);
-    console.log('Extracted text length:', extractedText.length);
+    console.log(`Extracted ${extractedText.length} characters`);
 
     if (extractedText.length < 20) {
       return new Response(
@@ -211,8 +170,8 @@ serve(async (req) => {
       );
     }
 
-    // Step 3: Send extracted TEXT to Lovable AI
-    console.log('Calling Lovable AI for invoice extraction...');
+    // Step 3: Send to Lovable AI for structured extraction
+    console.log('Sending to Lovable AI for structured extraction...');
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -224,35 +183,38 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an expert at extracting invoice/bill data from text. Extract ONLY the visible invoice information accurately.
+            content: `You are an expert at extracting invoice data from text. Extract all information accurately.
 
-CRITICAL EXTRACTION RULES:
-1. SUPPLIER: The company ISSUING the invoice (with company name like "Pty Ltd", "LLC", "Inc")
-2. INVOICE NUMBER: The short reference code (e.g., "TUL3801", "INV-001") - NOT long hashes
-3. AMOUNTS: Extract EXACT numeric values for TOTAL, SUBTOTAL, and TAX from the invoice
-4. DATES: Convert to YYYY-MM-DD format (e.g., "10 Oct 2025" → "2025-10-10")
-5. LINE ITEMS: Each item with description and amount
+EXTRACTION RULES:
+1. SUPPLIER: The company issuing the invoice (look for "Pty Ltd", "LLC", "Inc", full company name with ABN)
+2. INVOICE NUMBER: The reference code (e.g., "TUL3801", "INV-001") - NOT system IDs or hashes
+3. DATES: Convert to YYYY-MM-DD format (e.g., "10 Oct 2025" → "2025-10-10")
+4. AMOUNTS: Extract exact numeric values for Total, Subtotal, and Tax/GST
+5. LINE ITEMS: Each item with description, quantity (if shown), rate (if shown), and amount
 
-Set confidence to 0.9+ if the invoice is clearly readable with all key fields present.
-Set confidence to 0.7-0.8 if some fields are unclear.
-Set confidence below 0.5 only if the document is severely corrupted.
+CONFIDENCE SCORING:
+- 0.95+: All fields clearly visible and extracted
+- 0.85-0.94: Most fields clear, some minor ambiguity
+- 0.70-0.84: Some fields unclear or missing
+- Below 0.70: Significant data missing or unclear
 
-Return only valid JSON matching the schema.`
+Return structured JSON matching the schema.`
           },
           {
             role: 'user',
-            content: `Extract structured invoice data from this text:
+            content: `Extract all invoice data from this text:
 
 ${extractedText}
 
-IMPORTANT:
-- Extract the ACTUAL company name issuing the invoice (look for "Pty Ltd", "LLC", "Inc" in company details)
-- Extract the SHORT invoice number (e.g., "TUL3801"), not internal system IDs
-- Extract EXACT amounts as shown (Total, Subtotal, Tax/GST)
-- Include ALL line items with descriptions and amounts
-- Convert dates to YYYY-MM-DD format
+Extract:
+- Full company name as supplier (e.g., "The Urban Leaf Pty Ltd")
+- Invoice number (e.g., "TUL3801")
+- Invoice date and due date in YYYY-MM-DD format
+- All amounts (Subtotal, Tax/GST, Total)
+- All line items with descriptions and amounts
+- Reference numbers if present
 
-Provide high confidence (0.9+) if all fields are clearly visible.`
+Be precise with numbers and dates. Set high confidence (0.9+) if data is clearly readable.`
           }
         ],
         tools: [{
@@ -276,7 +238,7 @@ Provide high confidence (0.9+) if all fields are clearly visible.`
       
       if (aiResponse.status === 402) {
         return new Response(
-          JSON.stringify({ ok: false, error: 'AI credits required. Please contact support.' }),
+          JSON.stringify({ ok: false, error: 'AI credits required. Please add credits to your workspace.' }),
           { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -285,7 +247,7 @@ Provide high confidence (0.9+) if all fields are clearly visible.`
     }
 
     const aiData = await aiResponse.json();
-    console.log('AI response received');
+    console.log('AI extraction complete');
 
     // Extract structured data from tool call
     const toolCall = aiData.choices?.[0]?.message?.tool_calls?.[0];
@@ -294,12 +256,12 @@ Provide high confidence (0.9+) if all fields are clearly visible.`
     }
 
     const extractedData = JSON.parse(toolCall.function.arguments);
+    
     console.log('=== EXTRACTED INVOICE DATA ===');
     console.log('Supplier:', extractedData.supplier);
     console.log('Invoice #:', extractedData.invoice_number);
     console.log('Total:', extractedData.total);
-    console.log('Confidence:', extractedData.ai_confidence);
-    console.log('Full data:', JSON.stringify(extractedData, null, 2));
+    console.log('Confidence:', (extractedData.ai_confidence * 100).toFixed(0) + '%');
 
     return new Response(
       JSON.stringify({
