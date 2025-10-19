@@ -229,97 +229,45 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
-    console.log("Request received, parsing body...");
-    const contentType = req.headers.get("content-type");
-    console.log("Content-Type:", contentType);
+    const body = await req.json();
+    console.log("✅ Body parsed successfully");
+    console.log("📦 Body keys:", Object.keys(body));
     
-    let body;
-    try {
-      const text = await req.text();
-      console.log("Raw body length:", text.length);
-      body = JSON.parse(text);
-    } catch (parseError) {
-      console.error("JSON parse error:", parseError);
+    const pdf_base64 = body.pdf_base64;
+    const filename = body.filename;
+    const filesize = body.filesize;
+    const project_invoice_id = body.project_invoice_id;
+    
+    console.log("📄 pdf_base64 exists:", !!pdf_base64);
+    console.log("📄 pdf_base64 length:", pdf_base64 ? pdf_base64.length : 0);
+    console.log("📄 filename:", filename);
+    console.log("📄 filesize:", filesize);
+    
+    // Verify we have pdf_base64
+    if (!pdf_base64 || typeof pdf_base64 !== 'string' || pdf_base64.length === 0) {
+      console.error("❌ No pdf_base64 in request");
       return new Response(JSON.stringify({ 
-        error: "Invalid JSON in request body",
-        details: String(parseError)
+        error: "Missing pdf_base64 in request body",
+        received_keys: Object.keys(body)
       }), { 
         status: 400, 
         headers: { "Content-Type": "application/json", ...cors } 
       });
     }
     
-    const { signed_url, file_url, file_path, pdf_base64, filename, filesize, content_type, project_invoice_id } = body;
-    console.log("=== PARSED REQUEST DETAILS ===");
-    console.log("has_signed_url:", !!signed_url);
-    console.log("has_file_url:", !!file_url);
-    console.log("has_file_path:", !!file_path);
-    console.log("has_pdf_base64:", !!pdf_base64);
-    console.log("pdf_base64 type:", typeof pdf_base64);
-    console.log("pdf_base64 length:", pdf_base64 ? pdf_base64.length : 0);
-    console.log("filename:", filename);
-    console.log("filesize:", filesize);
-    console.log("project_invoice_id:", project_invoice_id);
+    console.log("✅ Using pdf_base64 from request");
+    console.log("📄 First 50 chars:", pdf_base64.substring(0, 50));
     
-    let pdfBase64: string;
-    
-    // PREFERRED METHOD: Direct base64 from client (no storage/caching issues)
-    if (pdf_base64 && typeof pdf_base64 === 'string' && pdf_base64.length > 0) {
-      console.log("✅ Using direct base64 data from client");
-      console.log("Processing file:", filename, "Size:", filesize, "bytes");
-      console.log("Base64 first 50 chars:", pdf_base64.substring(0, 50));
-      pdfBase64 = pdf_base64;
-      // Verify base64 is valid PDF
-      if (!pdfBase64.startsWith('JVBER')) { // PDF magic number in base64
-        console.warn("⚠️ Base64 doesn't start with PDF magic number (JVBER)");
-        console.warn("First 20 chars:", pdfBase64.substring(0, 20));
-      } else {
-        console.log("✅ PDF magic number verified");
-      }
+    // Verify PDF magic number
+    if (!pdf_base64.startsWith('JVBER')) {
+      console.warn("⚠️ Base64 doesn't start with PDF magic number (JVBER)");
+      console.warn("First 20 chars:", pdf_base64.substring(0, 20));
     } else {
-      console.log("❌ No pdf_base64 provided, falling back to URL/storage download");
-      // Fallback: Download from storage/URL
-      let bytes, fileSize;
-      
-      if (file_path) {
-        console.log("Downloading from storage:", file_path);
-        const storageUrl = `${SUPABASE_URL}/storage/v1/object/documents/${file_path}`;
-        
-        const storageResponse = await fetch(storageUrl, {
-          headers: {
-            'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-            'apikey': SUPABASE_SERVICE_ROLE_KEY
-          }
-        });
-        
-        if (!storageResponse.ok) {
-          throw new Error(`Storage download failed: ${storageResponse.status}`);
-        }
-        
-        const arr = await storageResponse.arrayBuffer();
-        bytes = new Uint8Array(arr);
-        fileSize = bytes.byteLength;
-      } else {
-        const src = file_url || signed_url;
-        if (!src) {
-          return new Response(JSON.stringify({ error: "Provide pdf_base64, file_path, signed_url, or file_url" }), { 
-            status: 400, 
-            headers: { "Content-Type": "application/json", ...cors } 
-          });
-        }
-        
-        console.log("Downloading via URL");
-        const result = await downloadBytes(src);
-        bytes = result.bytes;
-        fileSize = result.fileSize;
-      }
-      
-      console.log("Converting downloaded file to base64");
-      pdfBase64 = bytesToBase64(bytes);
+      console.log("✅ PDF magic number verified");
     }
     
-    console.log("Extracting invoice data with Lovable AI");
-    const extraction = await extractWithLovableAI(pdfBase64);
+    console.log("🤖 Extracting invoice data with Lovable AI");
+    const extraction = await extractWithLovableAI(pdf_base64);
 
     if (project_invoice_id) {
       console.log("Updating invoice in database");
@@ -330,8 +278,15 @@ Deno.serve(async (req) => {
       headers: { "Content-Type": "application/json", ...cors }
     });
   } catch (e) {
-    console.error("Error processing invoice:", e);
-    return new Response(JSON.stringify({ error: String(e) }), {
+    console.error("❌ Error processing invoice:", e);
+    console.error("❌ Error details:", {
+      message: e instanceof Error ? e.message : String(e),
+      stack: e instanceof Error ? e.stack : undefined
+    });
+    return new Response(JSON.stringify({ 
+      error: e instanceof Error ? e.message : String(e),
+      details: e instanceof Error ? e.stack : undefined
+    }), {
       status: 500,
       headers: { "Content-Type": "application/json", ...cors }
     });
