@@ -206,8 +206,12 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
         content_type: file.type
       };
       
-      console.log('Calling edge function with direct base64 data');
-      console.log('Expected extraction from:', file.name, file.size, 'bytes');
+      console.log('=== CALLING EDGE FUNCTION ===');
+      console.log('Request body keys:', Object.keys(requestBody));
+      console.log('Filename:', requestBody.filename);
+      console.log('Filesize:', requestBody.filesize);
+      console.log('Base64 length:', requestBody.pdf_base64.length);
+      console.log('Base64 preview (first 100 chars):', requestBody.pdf_base64.substring(0, 100));
       
       const { data: processingData, error: processingError } = await supabase.functions.invoke('process-invoice', {
         body: requestBody
@@ -215,11 +219,22 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
 
       if (processingError) {
         console.error('Edge function invocation error:', processingError);
-        throw processingError;
+        // Show the actual error message from the edge function
+        const errorMessage = processingError.message || 'Unknown error from edge function';
+        setError(errorMessage);
+        throw new Error(errorMessage);
       }
 
       console.log('=== EDGE FUNCTION RESPONSE ===');
       console.log('Full response:', JSON.stringify(processingData, null, 2));
+      
+      // Check if the response indicates an error
+      if (!processingData?.ok) {
+        const errorMsg = processingData?.error || 'Edge function returned an error';
+        console.error('Edge function error:', errorMsg);
+        setError(errorMsg);
+        throw new Error(errorMsg);
+      }
       
       setUploadProgress(100);
       
@@ -278,14 +293,25 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
       }
 
     } catch (error) {
-      console.error('Upload/processing error:', error);
+      console.error('=== EXTRACTION ERROR ===');
+      console.error('Full error:', error);
+      
       let errorMessage = 'Failed to process bill';
       
       if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        
         if (error.message.includes('too large') || error.message.includes('5MB') || error.message.includes('10MB')) {
           errorMessage = error.message;
+        } else if (error.message.includes('Rate limit')) {
+          errorMessage = 'AI rate limit exceeded. Please wait a moment and try again.';
+        } else if (error.message.includes('Payment required') || error.message.includes('402')) {
+          errorMessage = 'AI service requires additional credits. Please contact support.';
         } else if (error.message.includes('token') || error.message.includes('INVALID_ARGUMENT')) {
           errorMessage = 'PDF is too complex or large to process. Please compress it to under 5MB at https://www.ilovepdf.com/compress_pdf and try again.';
+        } else if (error.message.includes('non-2xx') || error.message.includes('Edge Function')) {
+          errorMessage = 'Server error processing invoice. Please check logs or try again.';
         } else {
           errorMessage = error.message;
         }
@@ -293,7 +319,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
       
       setError(errorMessage);
       toast({
-        title: "Error",
+        title: "Extraction Failed",
         description: errorMessage,
         variant: "destructive",
       });

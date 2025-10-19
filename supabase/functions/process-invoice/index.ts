@@ -250,30 +250,34 @@ Deno.serve(async (req) => {
     }
     
     const { signed_url, file_url, file_path, pdf_base64, filename, filesize, content_type, project_invoice_id } = body;
-    console.log("Parsed request:", { 
-      has_signed_url: !!signed_url, 
-      has_file_url: !!file_url,
-      has_file_path: !!file_path,
-      has_pdf_base64: !!pdf_base64,
-      filename,
-      filesize,
-      project_invoice_id
-    });
+    console.log("=== PARSED REQUEST DETAILS ===");
+    console.log("has_signed_url:", !!signed_url);
+    console.log("has_file_url:", !!file_url);
+    console.log("has_file_path:", !!file_path);
+    console.log("has_pdf_base64:", !!pdf_base64);
+    console.log("pdf_base64 type:", typeof pdf_base64);
+    console.log("pdf_base64 length:", pdf_base64 ? pdf_base64.length : 0);
+    console.log("filename:", filename);
+    console.log("filesize:", filesize);
+    console.log("project_invoice_id:", project_invoice_id);
     
     let pdfBase64: string;
     
     // PREFERRED METHOD: Direct base64 from client (no storage/caching issues)
-    if (pdf_base64) {
+    if (pdf_base64 && typeof pdf_base64 === 'string' && pdf_base64.length > 0) {
       console.log("✅ Using direct base64 data from client");
       console.log("Processing file:", filename, "Size:", filesize, "bytes");
-      console.log("Base64 length:", pdf_base64.length);
+      console.log("Base64 first 50 chars:", pdf_base64.substring(0, 50));
       pdfBase64 = pdf_base64;
-      
       // Verify base64 is valid PDF
-      if (!pdf_base64.startsWith('JVBER')) { // PDF magic number in base64
-        console.warn("Base64 doesn't start with PDF magic number, but continuing...");
+      if (!pdfBase64.startsWith('JVBER')) { // PDF magic number in base64
+        console.warn("⚠️ Base64 doesn't start with PDF magic number (JVBER)");
+        console.warn("First 20 chars:", pdfBase64.substring(0, 20));
+      } else {
+        console.log("✅ PDF magic number verified");
       }
     } else {
+      console.log("❌ No pdf_base64 provided, falling back to URL/storage download");
       // Fallback: Download from storage/URL
       let bytes, fileSize;
       
