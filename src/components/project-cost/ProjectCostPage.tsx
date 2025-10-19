@@ -402,31 +402,34 @@ export const ProjectCostPage = ({
                           <DropdownMenuTrigger asChild>
                             <Button 
                               variant="outline" 
-                              className="flex items-center gap-2 bg-background hover:bg-accent"
+                              className="flex items-center gap-2 bg-background hover:bg-accent border-border"
                             >
                               <Filter className="h-4 w-4" />
-                              {getFilterLabel()}
+                              <span className="text-sm">{getFilterLabel()}</span>
                               <ChevronDown className="h-4 w-4 opacity-50" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-56 bg-background z-50" align="start">
-                            <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                          <DropdownMenuContent className="w-56 bg-popover border-border shadow-lg z-50" align="start">
+                            <DropdownMenuLabel className="text-sm font-semibold">Filter by Status</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuCheckboxItem
                               checked={expenseStatusFilters.includes('inbox')}
                               onCheckedChange={() => toggleExpenseFilter('inbox')}
+                              className="text-sm"
                             >
                               For Approval
                             </DropdownMenuCheckboxItem>
                             <DropdownMenuCheckboxItem
                               checked={expenseStatusFilters.includes('scheduled')}
                               onCheckedChange={() => toggleExpenseFilter('scheduled')}
+                              className="text-sm"
                             >
                               Awaiting Payments
                             </DropdownMenuCheckboxItem>
                             <DropdownMenuCheckboxItem
                               checked={expenseStatusFilters.includes('paid')}
                               onCheckedChange={() => toggleExpenseFilter('paid')}
+                              className="text-sm"
                             >
                               Paid
                             </DropdownMenuCheckboxItem>
