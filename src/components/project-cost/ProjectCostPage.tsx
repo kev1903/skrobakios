@@ -354,17 +354,6 @@ export const ProjectCostPage = ({
                         );
                       })}
                     </TabsList>
-
-                    {/* Contract Amount Header */}
-                    <div className="flex items-center gap-3">
-                      <DollarSign className="h-5 w-5 text-primary" />
-                      <div>
-                        <span className="text-sm text-muted-foreground">Contract Amount:</span>
-                        <span className="ml-2 text-lg font-semibold text-foreground">
-                          {project.contract_price ? formatCurrency(parseFloat(project.contract_price.replace(/[$,]/g, '') || '0')) : 'Not set'}
-                        </span>
-                      </div>
-                    </div>
                   </div>
 
                   {/* Right side - Status filter and buttons */}
