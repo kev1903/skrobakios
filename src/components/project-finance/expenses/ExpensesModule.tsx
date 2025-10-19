@@ -553,12 +553,6 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                             Paid
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => handleReimbursement(bill.id)}
-                          >
-                            <Receipt className="h-4 w-4 mr-2 text-blue-600" />
-                            To be Reimbursed
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
                             onClick={() => handleRequestChange(bill.id)}
                           >
                             <FileEdit className="h-4 w-4 mr-2 text-orange-600" />
