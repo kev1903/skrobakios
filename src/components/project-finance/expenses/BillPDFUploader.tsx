@@ -13,7 +13,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Upload, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, Upload, FileText, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
+
+// Set up PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 interface BillPDFUploaderProps {
   isOpen: boolean;
@@ -54,6 +60,8 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
   const [saving, setSaving] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [pageNumber, setPageNumber] = useState(1);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -289,10 +297,17 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     setSaving(false);
     setDragActive(false);
     setFilePreviewUrl(null);
+    setNumPages(null);
+    setPageNumber(1);
     
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
+    setNumPages(numPages);
+    setPageNumber(1);
   };
 
   const handleSave = async () => {
@@ -624,14 +639,59 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
                   </Button>
                 )}
               </div>
-              <div className="flex-1 border rounded-lg overflow-hidden bg-white relative">
+              <div className="flex-1 border rounded-lg overflow-hidden bg-white relative flex flex-col">
                 {filePreviewUrl && uploadedFile ? (
                   uploadedFile.type.includes('pdf') ? (
-                    <embed
-                      src={`${filePreviewUrl}#toolbar=1&navpanes=0&scrollbar=1`}
-                      type="application/pdf"
-                      className="w-full h-full"
-                    />
+                    <>
+                      <div className="flex-1 overflow-auto flex items-center justify-center p-4">
+                        <Document
+                          file={filePreviewUrl}
+                          onLoadSuccess={onDocumentLoadSuccess}
+                          loading={
+                            <div className="flex items-center justify-center p-8">
+                              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            </div>
+                          }
+                          error={
+                            <div className="text-center p-8">
+                              <AlertCircle className="h-12 w-12 mx-auto mb-2 text-destructive" />
+                              <p className="text-sm text-destructive">Failed to load PDF</p>
+                              <p className="text-xs text-muted-foreground mt-1">{uploadedFile.name}</p>
+                            </div>
+                          }
+                        >
+                          <Page
+                            pageNumber={pageNumber}
+                            width={500}
+                            renderTextLayer={true}
+                            renderAnnotationLayer={true}
+                          />
+                        </Document>
+                      </div>
+                      {numPages && numPages > 1 && (
+                        <div className="border-t bg-muted/30 p-2 flex items-center justify-between">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
+                            disabled={pageNumber <= 1}
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <span className="text-sm text-muted-foreground">
+                            Page {pageNumber} of {numPages}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setPageNumber(Math.min(numPages, pageNumber + 1))}
+                            disabled={pageNumber >= numPages}
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center p-4 overflow-auto">
                       <img
