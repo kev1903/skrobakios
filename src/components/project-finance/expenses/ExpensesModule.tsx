@@ -117,6 +117,25 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     }
   };
 
+  const getActionLabel = (status: Bill['status']) => {
+    switch (status) {
+      case 'paid':
+        return 'Paid';
+      case 'cancelled':
+        return 'Voided';
+      case 'approved':
+        return 'Approved';
+      case 'scheduled':
+        return 'Scheduled';
+      case 'submitted':
+        return 'Pending';
+      case 'draft':
+        return 'Draft';
+      default:
+        return 'Actions';
+    }
+  };
+
   const handleApproveBill = async (billId: string) => {
     try {
       const { error } = await supabase
@@ -422,7 +441,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="outline" size="sm" className="h-7 text-xs px-2 flex items-center gap-1">
-                            Actions
+                            {getActionLabel(bill.status)}
                             <ChevronDown className="h-3 w-3" />
                           </Button>
                         </DropdownMenuTrigger>
