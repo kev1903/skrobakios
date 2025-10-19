@@ -8,6 +8,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight, FileCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { Project } from "@/hooks/useProjects";
@@ -67,6 +78,10 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [editingContract, setEditingContract] = useState<Contract | null>(null);
   const [expandedContracts, setExpandedContracts] = useState<Set<string>>(new Set());
+  const [editMilestoneOpen, setEditMilestoneOpen] = useState(false);
+  const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
+  const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
+  const [milestoneIndex, setMilestoneIndex] = useState<number>(-1);
   const { spacingClasses } = useMenuBarSpacing();
 
   const toggleContractExpansion = (contractId: string) => {
@@ -224,6 +239,50 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     } catch (error) {
       console.error('Error deleting contract:', error);
       toast.error("Failed to delete contract. Please try again.");
+    }
+  };
+
+  const handleEditMilestone = (contract: Contract, milestone: any, index: number) => {
+    setSelectedContract(contract);
+    setSelectedMilestone({ ...milestone });
+    setMilestoneIndex(index);
+    setEditMilestoneOpen(true);
+  };
+
+  const handleSaveMilestone = async () => {
+    if (!selectedContract || !selectedMilestone || milestoneIndex === -1) return;
+
+    try {
+      // Get the current contract data
+      const contractData = selectedContract.contract_data || {};
+      const paymentSchedule = contractData.payment_schedule || [];
+      
+      // Update the milestone at the specific index
+      paymentSchedule[milestoneIndex] = selectedMilestone;
+      
+      // Update the contract in the database
+      const { error } = await supabase
+        .from('project_contracts')
+        .update({
+          contract_data: {
+            ...contractData,
+            payment_schedule: paymentSchedule
+          }
+        })
+        .eq('id', selectedContract.id);
+
+      if (error) {
+        console.error('Error updating milestone:', error);
+        toast.error("Failed to update milestone. Please try again.");
+        return;
+      }
+
+      toast.success("Milestone updated successfully.");
+      setEditMilestoneOpen(false);
+      loadContracts();
+    } catch (error) {
+      console.error('Error updating milestone:', error);
+      toast.error("Failed to update milestone. Please try again.");
     }
   };
 
@@ -453,10 +512,11 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                                   </div>
                                   
                                   <div className="grid grid-cols-1 gap-3">
-                                    {paymentSchedule.map((payment: any, idx: number) => (
+                                     {paymentSchedule.map((payment: any, idx: number) => (
                                       <div 
                                         key={idx} 
-                                        className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                                        className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                                        onClick={() => handleEditMilestone(contract, payment, idx)}
                                       >
                                         <div className="flex items-start justify-between gap-4">
                                           <div className="flex items-start gap-3 flex-1">
@@ -501,7 +561,10 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                                               size="sm"
                                               variant="default"
                                               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white h-8"
-                                              onClick={() => handleGenerateInvoice(contract, payment)}
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleGenerateInvoice(contract, payment);
+                                              }}
                                             >
                                               <FileCheck className="h-3.5 w-3.5" />
                                               <span className="text-xs font-medium">Generate Invoice</span>
@@ -543,6 +606,112 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         editMode={true}
         existingContract={editingContract}
       />
+
+      {/* Edit Milestone Dialog */}
+      <Dialog open={editMilestoneOpen} onOpenChange={setEditMilestoneOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Milestone</DialogTitle>
+            <DialogDescription>
+              Update the milestone details and click save to apply changes.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedMilestone && (
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="sequence">Sequence #</Label>
+                <Input
+                  id="sequence"
+                  type="number"
+                  value={selectedMilestone.sequence || ''}
+                  onChange={(e) => setSelectedMilestone({ ...selectedMilestone, sequence: parseInt(e.target.value) })}
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="stage_name">Stage Name</Label>
+                <Input
+                  id="stage_name"
+                  value={selectedMilestone.stage_name || selectedMilestone.milestone || ''}
+                  onChange={(e) => setSelectedMilestone({ ...selectedMilestone, stage_name: e.target.value, milestone: e.target.value })}
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={selectedMilestone.description || ''}
+                  onChange={(e) => setSelectedMilestone({ ...selectedMilestone, description: e.target.value })}
+                  rows={3}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="amount">Amount</Label>
+                  <Input
+                    id="amount"
+                    value={selectedMilestone.amount || ''}
+                    onChange={(e) => setSelectedMilestone({ ...selectedMilestone, amount: e.target.value })}
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="percentage">Percentage</Label>
+                  <Input
+                    id="percentage"
+                    type="number"
+                    value={selectedMilestone.percentage || ''}
+                    onChange={(e) => setSelectedMilestone({ ...selectedMilestone, percentage: parseFloat(e.target.value) })}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="trigger">Trigger</Label>
+                <Input
+                  id="trigger"
+                  value={selectedMilestone.trigger || ''}
+                  onChange={(e) => setSelectedMilestone({ ...selectedMilestone, trigger: e.target.value })}
+                />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="due_date">Due Date</Label>
+                  <Input
+                    id="due_date"
+                    type="date"
+                    value={selectedMilestone.due_date || ''}
+                    onChange={(e) => setSelectedMilestone({ ...selectedMilestone, due_date: e.target.value })}
+                  />
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="due_days">Due Days</Label>
+                  <Input
+                    id="due_days"
+                    type="number"
+                    value={selectedMilestone.due_days || ''}
+                    onChange={(e) => setSelectedMilestone({ ...selectedMilestone, due_days: parseInt(e.target.value) })}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditMilestoneOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveMilestone}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
