@@ -260,10 +260,17 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       // Update the milestone at the specific index
       paymentSchedule[milestoneIndex] = selectedMilestone;
       
+      // Calculate the new contract amount as sum of all milestones
+      const newContractAmount = paymentSchedule.reduce((sum: number, payment: any) => {
+        const amountStr = payment.amount?.toString().replace(/[$,]/g, '') || '0';
+        return sum + parseFloat(amountStr);
+      }, 0);
+      
       // Update the contract in the database
       const { error } = await supabase
         .from('project_contracts')
         .update({
+          contract_amount: newContractAmount,
           contract_data: {
             ...contractData,
             payment_schedule: paymentSchedule
@@ -277,7 +284,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         return;
       }
 
-      toast.success("Milestone updated successfully.");
+      toast.success("Milestone updated successfully. Contract amount recalculated.");
       setEditMilestoneOpen(false);
       loadContracts();
     } catch (error) {
@@ -596,7 +603,11 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                                           <div className="flex items-center gap-3">
                                             <div className="text-right flex-shrink-0">
                                               <div className="text-lg font-bold text-green-600">
-                                                {payment.amount}
+                                                {(() => {
+                                                  const amountStr = payment.amount?.toString().replace(/[$,]/g, '') || '0';
+                                                  const amount = parseFloat(amountStr);
+                                                  return formatCurrency(amount, contract.contract_data);
+                                                })()}
                                               </div>
                                               {payment.percentage && (
                                                 <div className="text-xs font-medium text-muted-foreground mt-1">
