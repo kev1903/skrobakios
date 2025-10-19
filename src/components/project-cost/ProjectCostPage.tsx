@@ -73,7 +73,7 @@ export const ProjectCostPage = ({
 
   const getFilterLabel = () => {
     if (expenseStatusFilters.length === 0) return 'Select Filters';
-    if (expenseStatusFilters.length === 3) return 'All Filters';
+    if (expenseStatusFilters.length === 4) return 'All Filters';
     return `${expenseStatusFilters.length} Selected`;
   };
 
@@ -433,6 +433,13 @@ export const ProjectCostPage = ({
                             >
                               Paid
                             </DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem
+                              checked={expenseStatusFilters.includes('reimbursement')}
+                              onCheckedChange={() => toggleExpenseFilter('reimbursement')}
+                              className="text-sm"
+                            >
+                              Reimbursement
+                            </DropdownMenuCheckboxItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                         <div className="flex items-center gap-2">
@@ -540,6 +547,20 @@ export const ProjectCostPage = ({
                             </div>
                             <p className="text-foreground">No paid invoices.</p>
                             <p className="text-sm mt-2 text-muted-foreground">Completed payments will appear here.</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {expenseStatusFilters.includes('reimbursement') && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">Reimbursement</h3>
+                        <div className="space-y-4">
+                          <div className="text-center py-8 text-foreground">
+                            <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
+                              <DollarSign className="h-8 w-8" />
+                            </div>
+                            <p className="text-foreground">No reimbursement items.</p>
+                            <p className="text-sm mt-2 text-muted-foreground">Expenses to be invoiced to the client will appear here.</p>
                           </div>
                         </div>
                       </div>
