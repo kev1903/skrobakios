@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -62,6 +62,13 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Reset state when dialog opens to prevent showing old data
+  useEffect(() => {
+    if (isOpen) {
+      resetState();
+    }
+  }, [isOpen]);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -282,6 +289,11 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
     setEditableData(null);
     setSaving(false);
     setDragActive(false);
+    
+    // Clear file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSave = async () => {
