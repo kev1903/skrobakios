@@ -272,6 +272,35 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     }
   };
 
+  const handleMarkAsDraft = async (billId: string) => {
+    try {
+      const { error } = await supabase
+        .from('bills')
+        .update({ 
+          status: 'draft',
+          reimbursement_requested: false,
+          change_requested: false
+        })
+        .eq('id', billId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Bill marked as draft"
+      });
+      
+      loadBills();
+    } catch (error) {
+      console.error('Error marking bill as draft:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark bill as draft",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleRequestChange = async (billId: string) => {
     try {
       const { error } = await supabase
@@ -511,6 +540,12 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50 w-48">
+                          <DropdownMenuItem 
+                            onClick={() => handleMarkAsDraft(bill.id)}
+                          >
+                            <FileEdit className="h-4 w-4 mr-2 text-gray-600" />
+                            Draft
+                          </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => handleMarkAsPaid(bill.id)}
                           >
