@@ -52,6 +52,13 @@ async function downloadBytes(url: string) {
   if (!r.ok) throw new Error(`download failed ${r.status}: ${await r.text()}`);
   const ct = r.headers.get("content-type") || "application/pdf";
   const arr = await r.arrayBuffer();
+  
+  // Check file size (max 10MB to prevent token overflow)
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  if (arr.byteLength > maxSize) {
+    throw new Error(`PDF file is too large (${(arr.byteLength / 1024 / 1024).toFixed(2)}MB). Maximum size is 10MB. Please try a smaller file or compress the PDF.`);
+  }
+  
   return { bytes: new Uint8Array(arr), contentType: ct };
 }
 

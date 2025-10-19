@@ -136,6 +136,19 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
       return;
     }
 
+    // Check file size (10MB limit)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+      setError(`PDF file is too large (${sizeMB}MB). Maximum size is 10MB. Please compress your PDF first.`);
+      toast({
+        title: "File Too Large",
+        description: `Your PDF is ${sizeMB}MB. Please compress it to under 10MB before uploading.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploadedFile(file);
     setError(null);
     setUploading(true);
@@ -204,7 +217,24 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
 
     } catch (error) {
       console.error('Upload/processing error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to process invoice');
+      let errorMessage = 'Failed to process invoice';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('too large') || error.message.includes('10MB')) {
+          errorMessage = 'PDF file is too large (max 10MB). Please compress the PDF or use a smaller file.';
+        } else if (error.message.includes('token') || error.message.includes('2017325')) {
+          errorMessage = 'PDF is too complex to process. Please try a simpler invoice or reduce the file size.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      setError(errorMessage);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setUploading(false);
       setExtracting(false);
