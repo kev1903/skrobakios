@@ -489,28 +489,34 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50 w-48">
-                          <DropdownMenuItem onClick={() => handleMarkAsPaid(bill.id)} disabled={bill.status === 'paid'}>
+                          <DropdownMenuItem 
+                            onClick={() => handleMarkAsPaid(bill.id)} 
+                            disabled={bill.status === 'paid'}
+                          >
                             <Check className="h-4 w-4 mr-2 text-green-600" />
                             Paid
                           </DropdownMenuItem>
-                          {bill.status !== 'cancelled' && (
-                            <DropdownMenuItem onClick={() => handleVoidBill(bill.id)}>
-                              <Ban className="h-4 w-4 mr-2 text-red-600" />
-                              Voided
-                            </DropdownMenuItem>
-                          )}
-                          {!bill.reimbursement_requested && (
-                            <DropdownMenuItem onClick={() => handleReimbursement(bill.id)}>
-                              <Receipt className="h-4 w-4 mr-2 text-blue-600" />
-                              To be Reimbursed
-                            </DropdownMenuItem>
-                          )}
-                          {!bill.change_requested && (
-                            <DropdownMenuItem onClick={() => handleRequestChange(bill.id)}>
-                              <FileEdit className="h-4 w-4 mr-2 text-orange-600" />
-                              Request Change
-                            </DropdownMenuItem>
-                          )}
+                          <DropdownMenuItem 
+                            onClick={() => handleReimbursement(bill.id)}
+                            disabled={bill.reimbursement_requested}
+                          >
+                            <Receipt className="h-4 w-4 mr-2 text-blue-600" />
+                            To be Reimbursed
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleRequestChange(bill.id)}
+                            disabled={bill.change_requested}
+                          >
+                            <FileEdit className="h-4 w-4 mr-2 text-orange-600" />
+                            Request Change
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleVoidBill(bill.id)}
+                            disabled={bill.status === 'cancelled'}
+                          >
+                            <Ban className="h-4 w-4 mr-2 text-red-600" />
+                            Voided
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>
