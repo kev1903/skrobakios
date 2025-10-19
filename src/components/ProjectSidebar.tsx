@@ -1,4 +1,3 @@
-
 import { ArrowLeft, BarChart3, Calendar, CheckSquare, Settings, Eye, HelpCircle, Boxes, FileText, DollarSign, Users, FileSignature, ClipboardCheck, ShoppingCart, LayoutDashboard, Square, CalendarRange, User, File, ShoppingBag, CreditCard, Shield, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +6,7 @@ import { useCompany } from "@/contexts/CompanyContext";
 import { useSubscription } from '@/hooks/useSubscription';
 import { useScreenSize } from "@/hooks/use-mobile";
 import { useEffect } from "react";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 interface ProjectSidebarProps {
   project: Project;
@@ -14,6 +14,8 @@ interface ProjectSidebarProps {
   getStatusColor: (status: string) => string;
   getStatusText: (status: string) => string;
   activeSection?: string;
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
 // Define project navigation sections and modules
@@ -89,11 +91,14 @@ export const ProjectSidebar = ({
   onNavigate,
   getStatusColor,
   getStatusText,
-  activeSection = "insights"
+  activeSection = "insights",
+  isOpen = false,
+  onToggle
 }: ProjectSidebarProps) => {
   const { currentCompany } = useCompany();
   const { hasFeature } = useSubscription();
   const screenSize = useScreenSize();
+  const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
   
   const handleNavigate = (page: string) => {
     console.log(`🧭 ProjectSidebar: Navigating to ${page} with project ${project.id}`);
@@ -108,31 +113,30 @@ export const ProjectSidebar = ({
     }
   };
 
+  const handleItemClick = (page: string) => {
+    handleNavigate(page);
+    // Close mobile sidebar after navigation
+    if (isMobile && onToggle) {
+      onToggle();
+    }
+  };
+
   // Filter project navigation items based on subscription features
   const hasProjectManagement = hasFeature('projects');
   const enabledProjectNavItems = hasProjectManagement ? ALL_PROJECT_NAV_ITEMS : [];
 
-  // Responsive classes based on screen size - Exact match to Project Tasks page
-  const sidebarClasses = {
-    mobile: "w-full h-screen bg-white border-r border-gray-200",
-    tablet: "w-full h-screen bg-white border-r border-gray-200", 
-    desktop: "fixed left-0 top-0 w-40 h-screen bg-white border-r border-gray-200 z-50" // Reduced from w-48 to w-40
-  };
-
-  const contentClasses = {
-    mobile: "flex flex-col h-screen px-0 py-0 pt-12",
-    tablet: "flex flex-col h-screen px-0 py-0 pt-12",
-    desktop: "flex flex-col h-screen px-0 py-0 pt-12"
-  };
-  return (
-    <div className={`${sidebarClasses[screenSize]} transition-all duration-300`}>
-      <div className={contentClasses[screenSize]}>
+  const sidebarContent = (
+    <div className="flex flex-col h-full bg-white">
+      <div className="flex flex-col h-full px-0 py-0 pt-12">
         {/* Back Button */}
         <div className="flex-shrink-0 px-4 h-[72px] flex items-center border-b border-gray-200 pt-2">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onNavigate('projects')}
+            onClick={() => {
+              onNavigate('projects');
+              if (isMobile && onToggle) onToggle();
+            }}
             className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-slate-600 hover:bg-gray-50 transition-colors text-left justify-start text-xs"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -161,7 +165,7 @@ export const ProjectSidebar = ({
                     {PROJECT_CONTROL.map(item => (
                       <button 
                         key={item.id} 
-                        onClick={() => handleNavigate(item.page)} 
+                        onClick={() => handleItemClick(item.page)} 
                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-xs ${
                           activeSection === item.id 
                             ? 'bg-blue-50 text-blue-700 font-medium' 
@@ -184,7 +188,7 @@ export const ProjectSidebar = ({
                     {CORE_MODULES.map(item => (
                       <button 
                         key={item.id} 
-                        onClick={() => handleNavigate(item.page)} 
+                        onClick={() => handleItemClick(item.page)} 
                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-xs ${
                           activeSection === item.id 
                             ? 'bg-blue-50 text-blue-700 font-medium' 
@@ -207,7 +211,7 @@ export const ProjectSidebar = ({
                     {DELIVERY_SUPPORT.map(item => (
                       <button 
                         key={item.id} 
-                        onClick={() => handleNavigate(item.page)} 
+                        onClick={() => handleItemClick(item.page)} 
                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-xs ${
                           activeSection === item.id 
                             ? 'bg-blue-50 text-blue-700 font-medium' 
@@ -230,7 +234,7 @@ export const ProjectSidebar = ({
                     {ADVANCED.map(item => (
                       <button 
                         key={item.id} 
-                        onClick={() => handleNavigate(item.page)} 
+                        onClick={() => handleItemClick(item.page)} 
                         className={`w-full flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-left text-xs ${
                           activeSection === item.id 
                             ? 'bg-blue-50 text-blue-700 font-medium' 
@@ -255,14 +259,14 @@ export const ProjectSidebar = ({
           </div>
           <div className="space-y-0.5">
             <button 
-              onClick={() => handleNavigate('project-settings')} 
+              onClick={() => handleItemClick('project-settings')} 
               className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-600 hover:bg-gray-50 hover:text-slate-700 transition-colors text-left text-xs"
             >
               <Settings className="w-4 h-4" />
               <span>Settings</span>
             </button>
             <button 
-              onClick={() => handleNavigate('support')} 
+              onClick={() => handleItemClick('support')} 
               className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-slate-600 hover:bg-gray-50 hover:text-slate-700 transition-colors text-left text-xs"
             >
               <HelpCircle className="w-4 h-4" />
@@ -271,6 +275,24 @@ export const ProjectSidebar = ({
           </div>
         </div>
       </div>
+    </div>
+  );
+
+  // On mobile, wrap in Sheet for collapsible behavior
+  if (isMobile) {
+    return (
+      <Sheet open={isOpen} onOpenChange={onToggle}>
+        <SheetContent side="left" className="w-64 p-0">
+          {sidebarContent}
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // On desktop, render fixed sidebar
+  return (
+    <div className="fixed left-0 top-0 w-40 h-screen bg-white border-r border-gray-200 z-50 transition-all duration-300">
+      {sidebarContent}
     </div>
   );
 };

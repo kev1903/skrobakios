@@ -7,9 +7,10 @@ import { ProjectProgress } from "./ProjectProgress";
 import { ProjectMetrics } from "./ProjectMetrics";
 import { LatestUpdates } from "./LatestUpdates";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Menu } from "lucide-react";
 import { safeJsonParse } from "@/utils/secureJson";
 import { useCompany } from "@/contexts/CompanyContext";
+import { useScreenSize } from "@/hooks/use-mobile";
 interface ProjectDetailProps {
   projectId: string | null;
   onNavigate: (page: string) => void;
@@ -20,10 +21,13 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   const [project, setProject] = useState<Project | null>(null);
   const [bannerImage, setBannerImage] = useState<string>("");
   const [bannerPosition, setBannerPosition] = useState({ x: 0, y: 0, scale: 1 });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   // Removed local loading state; using global 'loading' from useProjects
   const { getProject, loading } = useProjects();
   const { currentCompany } = useCompany();
   const lastFetchedIdRef = useRef<string | null>(null);
+  const screenSize = useScreenSize();
+  const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
   // Reset banner state immediately on project change and clear any stale cache
   useEffect(() => {
     console.log(`🔄 Project ID changed to: ${projectId}`);
@@ -244,11 +248,30 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
         getStatusColor={getStatusColor}
         getStatusText={getStatusText}
         activeSection="insights"
+        isOpen={isSidebarOpen}
+        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
       />
 
       {/* Main Content */}
-      <div className="flex-1 ml-40 bg-white/80 backdrop-blur-sm border-l border-gray-200/30">
-        <div className="p-8">
+      <div className={`flex-1 ${isMobile ? 'ml-0' : 'ml-40'} bg-white/80 backdrop-blur-sm border-l border-gray-200/30`}>
+        {/* Mobile Menu Button */}
+        {isMobile && (
+          <div className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSidebarOpen(true)}
+              className="h-9 w-9"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <h1 className="text-lg font-semibold text-foreground truncate">
+              {project.name}
+            </h1>
+          </div>
+        )}
+        
+        <div className={isMobile ? "p-4" : "p-8"}>
           <ProjectHeader
             project={project}
             bannerImage={bannerImage}
