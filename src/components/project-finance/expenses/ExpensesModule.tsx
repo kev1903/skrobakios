@@ -497,7 +497,15 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                    <td className="p-2">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="h-7 text-xs px-2 flex items-center gap-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className={`h-7 text-xs px-2 flex items-center gap-1 ${
+                              bill.status === 'paid' 
+                                ? 'bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200' 
+                                : ''
+                            }`}
+                          >
                             {getActionLabel(bill)}
                             <ChevronDown className="h-3 w-3" />
                           </Button>
