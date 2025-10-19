@@ -32,6 +32,8 @@ interface Bill {
   storage_path?: string;
   ai_confidence?: number;
   ai_summary?: string;
+  reimbursement_requested?: boolean;
+  change_requested?: boolean;
 }
 
 interface ExpensesModuleProps {
@@ -117,8 +119,13 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     }
   };
 
-  const getActionLabel = (status: Bill['status']) => {
-    switch (status) {
+  const getActionLabel = (bill: Bill) => {
+    // Check for special flags first
+    if (bill.reimbursement_requested) return 'To be Reimbursed';
+    if (bill.change_requested) return 'Change Requested';
+    
+    // Then check status
+    switch (bill.status) {
       case 'paid':
         return 'Paid';
       case 'cancelled':
@@ -231,17 +238,53 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
   };
 
   const handleReimbursement = async (billId: string) => {
-    toast({
-      title: "Reimbursement",
-      description: "Bill marked for reimbursement - this feature will be fully implemented soon"
-    });
+    try {
+      const { error } = await supabase
+        .from('bills')
+        .update({ reimbursement_requested: true })
+        .eq('id', billId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Bill marked for reimbursement"
+      });
+      
+      loadBills();
+    } catch (error) {
+      console.error('Error marking bill for reimbursement:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark bill for reimbursement",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleRequestChange = async (billId: string) => {
-    toast({
-      title: "Request Change",
-      description: "Change request functionality will be implemented soon"
-    });
+    try {
+      const { error } = await supabase
+        .from('bills')
+        .update({ change_requested: true })
+        .eq('id', billId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Change request submitted"
+      });
+      
+      loadBills();
+    } catch (error) {
+      console.error('Error requesting change:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit change request",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleRerunExtraction = async (bill: Bill) => {
@@ -441,7 +484,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="outline" size="sm" className="h-7 text-xs px-2 flex items-center gap-1">
-                            {getActionLabel(bill.status)}
+                            {getActionLabel(bill)}
                             <ChevronDown className="h-3 w-3" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -458,14 +501,18 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                               Voided
                             </DropdownMenuItem>
                           )}
-                          <DropdownMenuItem onClick={() => handleReimbursement(bill.id)}>
-                            <Receipt className="h-4 w-4 mr-2 text-blue-600" />
-                            To be Reimbursed
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleRequestChange(bill.id)}>
-                            <FileEdit className="h-4 w-4 mr-2 text-orange-600" />
-                            Request Change
-                          </DropdownMenuItem>
+                          {!bill.reimbursement_requested && (
+                            <DropdownMenuItem onClick={() => handleReimbursement(bill.id)}>
+                              <Receipt className="h-4 w-4 mr-2 text-blue-600" />
+                              To be Reimbursed
+                            </DropdownMenuItem>
+                          )}
+                          {!bill.change_requested && (
+                            <DropdownMenuItem onClick={() => handleRequestChange(bill.id)}>
+                              <FileEdit className="h-4 w-4 mr-2 text-orange-600" />
+                              Request Change
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>

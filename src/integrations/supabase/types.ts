@@ -460,6 +460,7 @@ export type Database = {
           ai_summary: string | null
           bill_date: string
           bill_no: string
+          change_requested: boolean | null
           company_id: string
           created_at: string | null
           created_by: string | null
@@ -473,6 +474,7 @@ export type Database = {
           payment_status: string | null
           project_id: string | null
           reference_number: string | null
+          reimbursement_requested: boolean | null
           status: string | null
           storage_path: string | null
           subtotal: number | null
@@ -487,6 +489,7 @@ export type Database = {
           ai_summary?: string | null
           bill_date: string
           bill_no: string
+          change_requested?: boolean | null
           company_id: string
           created_at?: string | null
           created_by?: string | null
@@ -500,6 +503,7 @@ export type Database = {
           payment_status?: string | null
           project_id?: string | null
           reference_number?: string | null
+          reimbursement_requested?: boolean | null
           status?: string | null
           storage_path?: string | null
           subtotal?: number | null
@@ -514,6 +518,7 @@ export type Database = {
           ai_summary?: string | null
           bill_date?: string
           bill_no?: string
+          change_requested?: boolean | null
           company_id?: string
           created_at?: string | null
           created_by?: string | null
@@ -527,6 +532,7 @@ export type Database = {
           payment_status?: string | null
           project_id?: string | null
           reference_number?: string | null
+          reimbursement_requested?: boolean | null
           status?: string | null
           storage_path?: string | null
           subtotal?: number | null
