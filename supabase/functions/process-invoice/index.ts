@@ -172,7 +172,9 @@ serve(async (req) => {
 
     // Detect file type
     const fileType = getFileType(filename);
+    console.log('=== FILE TYPE DETECTION ===');
     console.log('File type detected:', fileType);
+    console.log('Filename extension:', filename.toLowerCase().split('.').pop());
 
     if (fileType === 'unknown') {
       return new Response(
@@ -182,6 +184,7 @@ serve(async (req) => {
     }
 
     // Step 1: Download file
+    console.log('=== DOWNLOADING FILE ===');
     console.log('Downloading file from storage...');
     const bytes = await fetchAsArrayBuffer(signed_url);
     console.log(`Downloaded ${bytes.byteLength} bytes`);
@@ -203,6 +206,7 @@ serve(async (req) => {
 
     if (fileType === 'pdf') {
       // Step 2a: Extract text from PDF
+      console.log('=== PDF PROCESSING PATH ===');
       console.log('Extracting text from PDF...');
       const extractedText = await extractTextFromPDF(bytes);
       console.log(`Extracted ${extractedText.length} characters`);
@@ -253,9 +257,13 @@ Be precise with numbers and dates. Set high confidence (0.9+) if data is clearly
       ];
     } else {
       // Step 2b: Process image directly with vision model
+      console.log('=== IMAGE PROCESSING PATH ===');
       console.log('Processing image with vision AI...');
+      console.log('Converting image to base64...');
       const base64Image = arrayBufferToBase64(bytes);
       const mimeType = getMimeType(filename);
+      console.log('MIME type:', mimeType);
+      console.log('Base64 length:', base64Image.length);
 
       aiMessages = [
         {
