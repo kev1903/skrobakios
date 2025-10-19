@@ -20,13 +20,17 @@ interface Bill {
   reference_number: string | null;
   bill_date: string;
   due_date: string;
-  status: 'draft' | 'submitted' | 'approved' | 'scheduled' | 'paid' | 'void';
+  status: 'pending' | 'approved' | 'paid' | 'cancelled';
+  payment_status?: string;
   subtotal: number;
   tax: number;
   total: number;
   paid_to_date: number;
   file_attachments: any;
   forwarded_bill: boolean;
+  storage_path?: string;
+  ai_confidence?: number;
+  ai_summary?: string;
 }
 
 interface ExpensesModuleProps {

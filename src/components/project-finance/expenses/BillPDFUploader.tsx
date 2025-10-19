@@ -381,62 +381,68 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
 
     setSaving(true);
     try {
-      const billDate = editableData.bill_date || new Date().toISOString().split('T')[0];
-      const dueDate = editableData.due_date || new Date().toISOString().split('T')[0];
+      // Get company_id from project
+      const { data: projectData } = await supabase
+        .from('projects')
+        .select('company_id')
+        .eq('id', projectId)
+        .single();
 
-      const billNumber = editableData.bill_no && editableData.bill_no.trim().length > 0
-        ? editableData.bill_no.trim()
-        : `BILL-${Date.now()}`;
+      if (!projectData?.company_id) {
+        throw new Error('Could not find company for this project');
+      }
+
+      // Get storage path from extractedData if available
+      const storagePath = extractedData?.storage_path || null;
 
       // Create bill record
       const { data: created, error: createErr } = await supabase
         .from('bills')
         .insert({
           project_id: projectId,
+          company_id: projectData.company_id,
           supplier_name: editableData.supplier_name || 'Unknown Supplier',
           supplier_email: editableData.supplier_email || null,
-          bill_no: billNumber,
-          bill_date: billDate,
-          due_date: dueDate,
+          bill_no: editableData.bill_no || `BILL-${Date.now()}`,
+          bill_date: editableData.bill_date,
+          due_date: editableData.due_date,
           reference_number: editableData.reference_number || null,
           subtotal: editableData.subtotal || 0,
           tax: editableData.tax || 0,
           total: editableData.total || 0,
           paid_to_date: 0,
-          status: 'submitted',
+          status: 'pending',
+          payment_status: 'unpaid',
           notes: editableData.notes || null,
-          forwarded_bill: false,
-          file_attachments: [{
-            name: uploadedFile.name,
-            url: `https://xtawnkhvxgxylhxwqnmm.supabase.co/storage/v1/object/public/documents/bill_${Date.now()}_${uploadedFile.name}`,
-            size: uploadedFile.size,
-            type: uploadedFile.type
-          }]
+          storage_path: storagePath,
+          ai_confidence: extractedData?.ai_confidence || null,
+          ai_summary: extractedData?.ai_summary || null
         })
         .select('id')
         .single();
 
       if (createErr) throw createErr;
-      const billId = created.id as string;
 
       // Insert bill line items
       const items = editableData.line_items || [];
-      const itemsPayload = items
-        .filter((it) => (it.description || '').trim() !== '')
-        .map((it) => ({
-          bill_id: billId,
-          description: it.description,
-          quantity: it.qty,
-          unit_price: it.rate,
-          amount: it.amount,
-          tax_code: it.tax_code || null
-        }));
+      if (items.length > 0) {
+        const itemsPayload = items
+          .filter((it) => (it.description || '').trim() !== '')
+          .map((it) => ({
+            bill_id: created.id,
+            description: it.description,
+            qty: it.qty,
+            rate: it.rate,
+            amount: it.amount,
+            tax_code: it.tax_code || null
+          }));
 
-      if (itemsPayload.length > 0) {
-        const { error: itemsErr } = await supabase
-          .from('bill_items')
-          .insert(itemsPayload);
-        if (itemsErr) console.error('Error inserting bill items:', itemsErr);
+        if (itemsPayload.length > 0) {
+          const { error: itemsErr } = await supabase
+            .from('bill_line_items')
+            .insert(itemsPayload);
+          if (itemsErr) throw itemsErr;
+        }
       }
 
       toast({

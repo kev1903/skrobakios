@@ -290,15 +290,7 @@ export type Database = {
           decision?: Database["public"]["Enums"]["approval_decision"]
           id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "bill_approvals_bill_id_fkey"
-            columns: ["bill_id"]
-            isOneToOne: false
-            referencedRelation: "bills"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       bill_items: {
         Row: {
@@ -331,9 +323,42 @@ export type Database = {
           rate?: number
           wbs_code?: string | null
         }
+        Relationships: []
+      }
+      bill_line_items: {
+        Row: {
+          amount: number
+          bill_id: string
+          created_at: string | null
+          description: string
+          id: string
+          qty: number | null
+          rate: number | null
+          tax_code: string | null
+        }
+        Insert: {
+          amount: number
+          bill_id: string
+          created_at?: string | null
+          description: string
+          id?: string
+          qty?: number | null
+          rate?: number | null
+          tax_code?: string | null
+        }
+        Update: {
+          amount?: number
+          bill_id?: string
+          created_at?: string | null
+          description?: string
+          id?: string
+          qty?: number | null
+          rate?: number | null
+          tax_code?: string | null
+        }
         Relationships: [
           {
-            foreignKeyName: "bill_items_bill_id_fkey"
+            foreignKeyName: "bill_line_items_bill_id_fkey"
             columns: ["bill_id"]
             isOneToOne: false
             referencedRelation: "bills"
@@ -376,13 +401,6 @@ export type Database = {
           receipt_file_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "bill_payments_bill_id_fkey"
-            columns: ["bill_id"]
-            isOneToOne: false
-            referencedRelation: "bills"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "bill_payments_receipt_file_id_fkey"
             columns: ["receipt_file_id"]
@@ -438,67 +456,85 @@ export type Database = {
       }
       bills: {
         Row: {
+          ai_confidence: number | null
+          ai_summary: string | null
           bill_date: string
           bill_no: string
-          created_at: string
+          company_id: string
+          created_at: string | null
           created_by: string | null
           due_date: string
-          file_attachments: Json | null
+          file_attachments: string[] | null
+          file_url: string | null
           forwarded_bill: boolean | null
           id: string
-          paid_to_date: number
-          project_id: string
+          notes: string | null
+          paid_to_date: number | null
+          payment_status: string | null
+          project_id: string | null
           reference_number: string | null
-          source_system: string | null
-          status: Database["public"]["Enums"]["bill_status"]
-          subtotal: number
+          status: string | null
+          storage_path: string | null
+          subtotal: number | null
           supplier_email: string | null
           supplier_name: string
-          tax: number
+          tax: number | null
           total: number
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
+          ai_confidence?: number | null
+          ai_summary?: string | null
           bill_date: string
           bill_no: string
-          created_at?: string
+          company_id: string
+          created_at?: string | null
           created_by?: string | null
           due_date: string
-          file_attachments?: Json | null
+          file_attachments?: string[] | null
+          file_url?: string | null
           forwarded_bill?: boolean | null
           id?: string
-          paid_to_date?: number
-          project_id: string
+          notes?: string | null
+          paid_to_date?: number | null
+          payment_status?: string | null
+          project_id?: string | null
           reference_number?: string | null
-          source_system?: string | null
-          status?: Database["public"]["Enums"]["bill_status"]
-          subtotal?: number
+          status?: string | null
+          storage_path?: string | null
+          subtotal?: number | null
           supplier_email?: string | null
           supplier_name: string
-          tax?: number
-          total?: number
-          updated_at?: string
+          tax?: number | null
+          total: number
+          updated_at?: string | null
         }
         Update: {
+          ai_confidence?: number | null
+          ai_summary?: string | null
           bill_date?: string
           bill_no?: string
-          created_at?: string
+          company_id?: string
+          created_at?: string | null
           created_by?: string | null
           due_date?: string
-          file_attachments?: Json | null
+          file_attachments?: string[] | null
+          file_url?: string | null
           forwarded_bill?: boolean | null
           id?: string
-          paid_to_date?: number
-          project_id?: string
+          notes?: string | null
+          paid_to_date?: number | null
+          payment_status?: string | null
+          project_id?: string | null
           reference_number?: string | null
-          source_system?: string | null
-          status?: Database["public"]["Enums"]["bill_status"]
-          subtotal?: number
+          status?: string | null
+          storage_path?: string | null
+          subtotal?: number | null
           supplier_email?: string | null
           supplier_name?: string
-          tax?: number
+          tax?: number | null
           total?: number
-          updated_at?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -2969,13 +3005,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "processed_invoices_bill_id_fkey"
-            columns: ["bill_id"]
-            isOneToOne: false
-            referencedRelation: "bills"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "processed_invoices_project_id_fkey"
             columns: ["project_id"]
