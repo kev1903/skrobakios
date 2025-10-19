@@ -1,4 +1,5 @@
 // Deno Edge Function – parses PDFs via Lovable AI (Gemini)
+// Supports: URL (signed_url/file_url) or direct base64 (fileData)
 // Request body: { signed_url?: string, file_url?: string, fileData?: string (base64), project_invoice_id?: string }
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 

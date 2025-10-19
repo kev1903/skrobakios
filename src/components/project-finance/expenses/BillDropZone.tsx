@@ -64,6 +64,7 @@ export const BillDropZone: React.FC<BillDropZoneProps> = ({ projectId, onBillSav
       const base64Data = reader.result as string;
 
       // Call the process-invoice edge function
+      console.log('Invoking process-invoice with fileData length:', base64Data.length);
       const { data, error } = await supabase.functions.invoke('process-invoice', {
         body: { 
           fileData: base64Data,
@@ -71,11 +72,23 @@ export const BillDropZone: React.FC<BillDropZoneProps> = ({ projectId, onBillSav
         }
       });
 
-      if (error) throw error;
+      console.log('Function response:', { data, error });
+
+      if (error) {
+        console.error('Function error:', error);
+        throw new Error(error.message || 'Failed to process bill');
+      }
+
+      // Check if the response indicates an error
+      if (data?.error) {
+        console.error('Function returned error:', data.error);
+        throw new Error(data.error);
+      }
 
       if (data && data.ok && data.data) {
         // Map the response to our ExtractedData format
         const extracted = data.data;
+        console.log('Extracted data:', extracted);
         setExtractedData({
           supplierName: extracted.supplier || 'Unknown',
           supplierEmail: extracted.supplier_email || undefined,
@@ -94,13 +107,15 @@ export const BillDropZone: React.FC<BillDropZoneProps> = ({ projectId, onBillSav
           description: `Extracted data with ${Math.round((extracted.ai_confidence || 0.95) * 100)}% confidence`,
         });
       } else {
-        throw new Error('No data extracted');
+        console.error('Unexpected response format:', data);
+        throw new Error('No data extracted from bill');
       }
     } catch (error) {
       console.error('Error processing bill:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to extract data from the bill. Please try again.';
       toast({
         title: "Processing Failed",
-        description: "Failed to extract data from the bill. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
