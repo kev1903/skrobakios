@@ -266,32 +266,27 @@ Deno.serve(async (req) => {
       console.log("Downloading directly from storage bucket: documents/" + file_path);
       console.log("Expected file:", _metadata?.filename, "Expected size:", _metadata?.filesize, "bytes");
       
-      const { data: fileData, error: downloadError } = await fetch(
-        `${SUPABASE_URL}/storage/v1/object/documents/${file_path}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-            'apikey': SUPABASE_SERVICE_ROLE_KEY,
-            'Cache-Control': 'no-cache, no-store, must-revalidate'
-          }
+      const storageUrl = `${SUPABASE_URL}/storage/v1/object/documents/${file_path}`;
+      console.log("Storage URL:", storageUrl);
+      
+      const storageResponse = await fetch(storageUrl, {
+        headers: {
+          'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          'apikey': SUPABASE_SERVICE_ROLE_KEY,
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
         }
-      ).then(async (r) => {
-        if (!r.ok) {
-          const errText = await r.text();
-          console.error("Storage download failed:", r.status, errText);
-          return { data: null, error: new Error(`Storage download failed: ${r.status} ${errText}`) };
-        }
-        const arr = await r.arrayBuffer();
-        return { data: new Uint8Array(arr), error: null };
       });
       
-      if (downloadError || !fileData) {
-        throw downloadError || new Error("Failed to download file from storage");
+      if (!storageResponse.ok) {
+        const errText = await storageResponse.text();
+        console.error("Storage download failed:", storageResponse.status, errText);
+        throw new Error(`Storage download failed: ${storageResponse.status} ${errText}`);
       }
       
-      bytes = fileData;
+      const arr = await storageResponse.arrayBuffer();
+      bytes = new Uint8Array(arr);
       fileSize = bytes.byteLength;
-      console.log("Downloaded from storage:", fileSize, "bytes");
+      console.log("✅ Downloaded from storage:", fileSize, "bytes");
     } else {
       // Fallback: use URL-based download
       const src = file_url || signed_url;
