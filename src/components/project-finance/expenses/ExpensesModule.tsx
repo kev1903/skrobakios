@@ -489,12 +489,10 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50 w-48">
-                          {bill.status !== 'paid' && (
-                            <DropdownMenuItem onClick={() => handleMarkAsPaid(bill.id)}>
-                              <Check className="h-4 w-4 mr-2 text-green-600" />
-                              Mark as Paid
-                            </DropdownMenuItem>
-                          )}
+                          <DropdownMenuItem onClick={() => handleMarkAsPaid(bill.id)} disabled={bill.status === 'paid'}>
+                            <Check className="h-4 w-4 mr-2 text-green-600" />
+                            Paid
+                          </DropdownMenuItem>
                           {bill.status !== 'cancelled' && (
                             <DropdownMenuItem onClick={() => handleVoidBill(bill.id)}>
                               <Ban className="h-4 w-4 mr-2 text-red-600" />
