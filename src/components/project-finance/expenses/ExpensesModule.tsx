@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download, MoreVertical, RefreshCw, Edit, Trash2, Check } from 'lucide-react';
+import { Upload, Eye, CheckCircle, Clock, DollarSign, X, CreditCard, FileText, Download, MoreVertical, RefreshCw, Edit, Trash2, Check, Ban, Receipt, FileEdit } from 'lucide-react';
 import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 import { BillEditDialog } from './BillEditDialog';
@@ -151,10 +151,77 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     }
   };
 
-  const handleRecordPayment = async (billId: string) => {
+  const handleMarkAsPaid = async (billId: string) => {
+    try {
+      const bill = bills.find(b => b.id === billId);
+      if (!bill) return;
+
+      const { error } = await supabase
+        .from('bills')
+        .update({ 
+          status: 'paid',
+          paid_to_date: bill.total
+        })
+        .eq('id', billId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Bill marked as paid"
+      });
+      
+      loadBills();
+    } catch (error) {
+      console.error('Error marking bill as paid:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark bill as paid",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleVoidBill = async (billId: string) => {
+    const confirmed = window.confirm("Are you sure you want to void this bill? This action cannot be undone.");
+    
+    if (!confirmed) return;
+
+    try {
+      const { error } = await supabase
+        .from('bills')
+        .update({ status: 'cancelled' })
+        .eq('id', billId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Bill has been voided"
+      });
+      
+      loadBills();
+    } catch (error) {
+      console.error('Error voiding bill:', error);
+      toast({
+        title: "Error",
+        description: "Failed to void bill",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleReimbursement = async (billId: string) => {
     toast({
-      title: "Coming Soon",
-      description: "Payment recording will be implemented soon"
+      title: "Reimbursement",
+      description: "Bill marked for reimbursement - this feature will be fully implemented soon"
+    });
+  };
+
+  const handleRequestChange = async (billId: string) => {
+    toast({
+      title: "Request Change",
+      description: "Change request functionality will be implemented soon"
     });
   };
 
@@ -314,6 +381,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                 <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Date ↓</th>
                 <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Due date</th>
                 <th className="text-left p-2 font-medium w-24 text-foreground text-xs">Amount</th>
+                <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Actions</th>
                 <th className="text-left p-2 font-medium w-12 text-xs"></th>
               </tr>
             </thead>
@@ -351,37 +419,68 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                    </td>
                    <td className="p-2 text-foreground font-medium text-xs">{formatCurrency ? formatCurrency(bill.total) : defaultFormatCurrency(bill.total)}</td>
                    <td className="p-2">
-                     <DropdownMenu>
-                       <DropdownMenuTrigger asChild>
-                         <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6">
-                           <MoreVertical className="h-3 w-3" />
-                         </Button>
-                       </DropdownMenuTrigger>
-                       <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
-                         {bill.status === 'submitted' && (
-                           <DropdownMenuItem onClick={() => handleApproveBill(bill.id)}>
-                             <Check className="h-4 w-4 mr-2 text-green-600" />
-                             Approve
-                           </DropdownMenuItem>
-                         )}
-                         <DropdownMenuItem onClick={() => handleRerunExtraction(bill)}>
-                           <RefreshCw className="h-4 w-4 mr-2" />
-                           Re-run Extraction
-                         </DropdownMenuItem>
-                         <DropdownMenuItem onClick={() => handleEditBill(bill.id)}>
-                           <Edit className="h-4 w-4 mr-2" />
-                           Edit Invoice
-                         </DropdownMenuItem>
-                         <DropdownMenuItem 
-                           onClick={() => handleDeleteBill(bill.id)}
-                           className="text-red-600 focus:text-red-600"
-                         >
-                           <Trash2 className="h-4 w-4 mr-2" />
-                           Delete Invoice
-                         </DropdownMenuItem>
-                       </DropdownMenuContent>
-                     </DropdownMenu>
-                   </td>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="h-7 text-xs px-2">
+                            Actions
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50 w-48">
+                          {bill.status !== 'paid' && (
+                            <DropdownMenuItem onClick={() => handleMarkAsPaid(bill.id)}>
+                              <Check className="h-4 w-4 mr-2 text-green-600" />
+                              Mark as Paid
+                            </DropdownMenuItem>
+                          )}
+                          {bill.status !== 'cancelled' && (
+                            <DropdownMenuItem onClick={() => handleVoidBill(bill.id)}>
+                              <Ban className="h-4 w-4 mr-2 text-red-600" />
+                              Voided
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onClick={() => handleReimbursement(bill.id)}>
+                            <Receipt className="h-4 w-4 mr-2 text-blue-600" />
+                            To be Reimbursed
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleRequestChange(bill.id)}>
+                            <FileEdit className="h-4 w-4 mr-2 text-orange-600" />
+                            Request Change
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                   <td className="p-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 p-1 h-6 w-6">
+                            <MoreVertical className="h-3 w-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50">
+                          {bill.status === 'submitted' && (
+                            <DropdownMenuItem onClick={() => handleApproveBill(bill.id)}>
+                              <Check className="h-4 w-4 mr-2 text-green-600" />
+                              Approve
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onClick={() => handleRerunExtraction(bill)}>
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Re-run Extraction
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditBill(bill.id)}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Invoice
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteBill(bill.id)}
+                            className="text-red-600 focus:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Invoice
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
                 </tr>
               ))}
             </tbody>
