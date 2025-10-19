@@ -53,10 +53,11 @@ async function downloadBytes(url: string) {
   const ct = r.headers.get("content-type") || "application/pdf";
   const arr = await r.arrayBuffer();
   
-  // Check file size (max 10MB to prevent token overflow)
-  const maxSize = 10 * 1024 * 1024; // 10MB
+  // Check file size (max 5MB for better AI processing)
+  const maxSize = 5 * 1024 * 1024; // 5MB
   if (arr.byteLength > maxSize) {
-    throw new Error(`PDF file is too large (${(arr.byteLength / 1024 / 1024).toFixed(2)}MB). Maximum size is 10MB. Please try a smaller file or compress the PDF.`);
+    const sizeMB = (arr.byteLength / 1024 / 1024).toFixed(2);
+    throw new Error(`PDF file is too large (${sizeMB}MB). Maximum size is 5MB. Please compress the PDF using tools like https://www.ilovepdf.com/compress_pdf before uploading.`);
   }
   
   return { bytes: new Uint8Array(arr), contentType: ct };
@@ -186,9 +187,38 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
   try {
-    const { signed_url, file_url, project_invoice_id } = await req.json();
+    console.log("Request received, parsing body...");
+    const contentType = req.headers.get("content-type");
+    console.log("Content-Type:", contentType);
+    
+    let body;
+    try {
+      const text = await req.text();
+      console.log("Raw body length:", text.length);
+      console.log("Raw body preview:", text.substring(0, 200));
+      body = JSON.parse(text);
+    } catch (parseError) {
+      console.error("JSON parse error:", parseError);
+      return new Response(JSON.stringify({ 
+        error: "Invalid JSON in request body",
+        details: String(parseError)
+      }), { 
+        status: 400, 
+        headers: { "Content-Type": "application/json", ...cors } 
+      });
+    }
+    
+    const { signed_url, file_url, project_invoice_id } = body;
+    console.log("Parsed request:", { has_signed_url: !!signed_url, has_file_url: !!file_url, project_invoice_id });
+    
     const src = signed_url || file_url;
-    if (!src) return new Response(JSON.stringify({ error: "Provide signed_url or file_url" }), { status: 400, headers: { "Content-Type": "application/json", ...cors } });
+    if (!src) {
+      console.error("No URL provided in request");
+      return new Response(JSON.stringify({ error: "Provide signed_url or file_url" }), { 
+        status: 400, 
+        headers: { "Content-Type": "application/json", ...cors } 
+      });
+    }
 
     console.log("Downloading PDF from:", src.substring(0, 100));
     const { bytes } = await downloadBytes(src);

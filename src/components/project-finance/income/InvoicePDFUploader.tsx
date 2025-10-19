@@ -136,14 +136,15 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
       return;
     }
 
-    // Check file size (10MB limit)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Check file size (5MB limit for better AI processing)
+    const maxSize = 5 * 1024 * 1024; // 5MB
     if (file.size > maxSize) {
       const sizeMB = (file.size / 1024 / 1024).toFixed(2);
-      setError(`PDF file is too large (${sizeMB}MB). Maximum size is 10MB. Please compress your PDF first.`);
+      const errorMsg = `PDF file is too large (${sizeMB}MB). Maximum size is 5MB. Please compress your PDF at https://www.ilovepdf.com/compress_pdf first.`;
+      setError(errorMsg);
       toast({
         title: "File Too Large",
-        description: `Your PDF is ${sizeMB}MB. Please compress it to under 10MB before uploading.`,
+        description: errorMsg,
         variant: "destructive",
       });
       return;
@@ -220,10 +221,12 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
       let errorMessage = 'Failed to process invoice';
       
       if (error instanceof Error) {
-        if (error.message.includes('too large') || error.message.includes('10MB')) {
-          errorMessage = 'PDF file is too large (max 10MB). Please compress the PDF or use a smaller file.';
-        } else if (error.message.includes('token') || error.message.includes('2017325')) {
-          errorMessage = 'PDF is too complex to process. Please try a simpler invoice or reduce the file size.';
+        if (error.message.includes('too large') || error.message.includes('5MB') || error.message.includes('10MB')) {
+          errorMessage = error.message;
+        } else if (error.message.includes('token') || error.message.includes('2017325') || error.message.includes('INVALID_ARGUMENT')) {
+          errorMessage = 'PDF is too complex or large to process. Please compress it to under 5MB at https://www.ilovepdf.com/compress_pdf and try again.';
+        } else if (error.message.includes('JSON') || error.message.includes('parse')) {
+          errorMessage = 'Failed to process invoice. Please try uploading again or use a different PDF.';
         } else {
           errorMessage = error.message;
         }
