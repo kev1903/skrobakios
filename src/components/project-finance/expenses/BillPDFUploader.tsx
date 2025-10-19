@@ -211,12 +211,18 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
         throw new Error('Failed to generate signed URL');
       }
 
-      console.log('Signed URL generated');
+      // Construct full signed URL (Supabase returns relative path)
+      const SUPABASE_URL = 'https://xtawnkhvxgxylhxwqnmm.supabase.co';
+      const fullSignedUrl = signedData.signedUrl.startsWith('http') 
+        ? signedData.signedUrl 
+        : `${SUPABASE_URL}/storage/v1${signedData.signedUrl}`;
+
+      console.log('Signed URL generated:', fullSignedUrl);
       setUploadProgress(40);
 
       // Step 3: Call edge function with signed URL
       const requestBody = {
-        signed_url: signedData.signedUrl,
+        signed_url: fullSignedUrl,
         filename: file.name,
         filesize: file.size,
         storage_path: uploadData.path
