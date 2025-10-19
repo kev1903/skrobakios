@@ -19,7 +19,9 @@ const InvoiceSchema = {
     required: ["supplier", "invoice_number", "ai_summary", "ai_confidence"],
     properties: {
       supplier: { type: "string" },
+      supplier_email: { type: "string" },
       invoice_number: { type: "string" },
+      reference_number: { type: "string" },
       invoice_date: { type: "string" },
       due_date: { type: "string" },
       subtotal: { type: "string" }, // keep as text; normalise client-side if needed
@@ -68,16 +70,18 @@ async function extractWithLovableAI(pdfBase64: string) {
     messages: [
       { 
         role: "system", 
-        content: "You are an expert at extracting invoice data from PDFs. Extract ALL line items from the invoice - do not miss any products, materials, or services listed. Payment terms like 'deposit due' or 'balance due' are NOT line items. Focus on extracting the actual goods/services being invoiced." 
+        content: "You are an expert at extracting invoice data from PDFs. Extract ALL line items from the invoice - do not miss any products, materials, or services listed. Payment terms like 'deposit due' or 'balance due' are NOT line items. Focus on extracting the actual goods/services being invoiced. Extract the COMPLETE invoice number (e.g., 'INV-2025-0010' not just 'Invoice')." 
       },
       {
         role: "user",
-        content: `Extract ALL line items from this invoice PDF. Include every single product, material, or service listed with their descriptions, quantities, rates, and amounts. Do not extract payment terms as line items. Also extract supplier, invoice_number, dates, subtotal, tax, and total.
+        content: `Extract ALL line items from this invoice PDF. Include every single product, material, or service listed with their descriptions, quantities, rates, and amounts. Do not extract payment terms as line items. Also extract supplier name, supplier email (if present), COMPLETE invoice number (e.g., INV-2025-0010), reference/PO number (if present), dates, subtotal, tax, and total.
 
 Return the data as a JSON object with this structure:
 {
   "supplier": "company name",
-  "invoice_number": "invoice number",
+  "supplier_email": "email if present, empty string otherwise",
+  "invoice_number": "COMPLETE invoice number (e.g., INV-2025-0010)",
+  "reference_number": "PO or reference number if present, empty string otherwise",
   "invoice_date": "date string",
   "due_date": "date string",
   "subtotal": "amount string",

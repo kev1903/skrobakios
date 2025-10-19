@@ -172,7 +172,7 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
           bill_no: extraction.invoice_number || '',
           due_date: parseExtractedDate(extraction.due_date),
           bill_date: parseExtractedDate(extraction.invoice_date),
-          reference_number: '',
+          reference_number: extraction.reference_number || '',
           notes: extraction.ai_summary || '',
           subtotal: parseFloat((extraction.subtotal || '0').replace(/,/g, '')),
           tax: parseFloat((extraction.tax || '0').replace(/,/g, '')), 
