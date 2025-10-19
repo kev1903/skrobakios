@@ -19,7 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight, FileCheck } from 'lucide-react';
+import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight, FileCheck, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "../ProjectSidebar";
@@ -510,6 +510,53 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                                       {paymentSchedule.length} {paymentSchedule.length === 1 ? 'Milestone' : 'Milestones'}
                                     </Badge>
                                   </div>
+                                  
+                                  {/* SkAi Amount Validation */}
+                                  {(() => {
+                                    const contractAmount = contract.contract_amount || 0;
+                                    const milestonesTotal = paymentSchedule.reduce((sum: number, payment: any) => {
+                                      const amountStr = payment.amount?.toString().replace(/[$,]/g, '') || '0';
+                                      return sum + parseFloat(amountStr);
+                                    }, 0);
+                                    const discrepancy = Math.abs(contractAmount - milestonesTotal);
+                                    const hasDiscrepancy = discrepancy > 0.01; // Allow for minor rounding differences
+                                    
+                                    return hasDiscrepancy && (
+                                      <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                                        <div className="flex items-start gap-3">
+                                          <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                                          <div className="flex-1">
+                                            <h5 className="font-semibold text-red-800 mb-1">
+                                              ⚠️ SkAi Alert: Amount Discrepancy Detected
+                                            </h5>
+                                            <p className="text-sm text-red-700 mb-2">
+                                              The sum of milestone amounts does not match the contract total.
+                                            </p>
+                                            <div className="grid grid-cols-3 gap-4 text-sm">
+                                              <div>
+                                                <span className="text-red-600 font-medium">Contract Amount:</span>
+                                                <div className="text-red-800 font-semibold">
+                                                  {formatCurrency(contractAmount, contract.contract_data)}
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <span className="text-red-600 font-medium">Milestones Total:</span>
+                                                <div className="text-red-800 font-semibold">
+                                                  {formatCurrency(milestonesTotal, contract.contract_data)}
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <span className="text-red-600 font-medium">Difference:</span>
+                                                <div className="text-red-800 font-semibold">
+                                                  {formatCurrency(discrepancy, contract.contract_data)}
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    );
+                                  })()}
                                   
                                   <div className="grid grid-cols-1 gap-3">
                                      {paymentSchedule.map((payment: any, idx: number) => (
