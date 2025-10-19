@@ -71,7 +71,7 @@ function bytesToBase64(bytes: Uint8Array): string {
 }
 
 async function extractWithLovableAI(pdfBase64: string) {
-  console.log("Starting extractWithLovableAI");
+  console.log("Starting extractWithLovableAI with structured output");
   
   const body = {
     model: "google/gemini-2.5-pro",
@@ -82,35 +82,51 @@ async function extractWithLovableAI(pdfBase64: string) {
       },
       {
         role: "user",
-        content: `Extract ALL line items from this invoice PDF. Include every single product, material, or service listed with their descriptions, quantities, rates, and amounts. Do not extract payment terms as line items. Also extract supplier name, supplier email (if present), COMPLETE invoice number (e.g., INV-2025-0010), reference/PO number (if present), dates, subtotal, tax, and total.
-
-Return the data as a JSON object with this structure:
-{
-  "supplier": "company name",
-  "supplier_email": "email if present, empty string otherwise",
-  "invoice_number": "COMPLETE invoice number (e.g., INV-2025-0010)",
-  "reference_number": "PO or reference number if present, empty string otherwise",
-  "invoice_date": "date string",
-  "due_date": "date string",
-  "subtotal": "amount string",
-  "tax": "amount string",
-  "total": "amount string",
-  "line_items": [
-    {
-      "description": "item description",
-      "qty": "quantity",
-      "rate": "rate per unit",
-      "amount": "total amount",
-      "tax_code": "tax code if any"
-    }
-  ],
-  "ai_summary": "brief summary of the invoice",
-  "ai_confidence": 0.95
-}
-
-Here's the PDF (base64): ${pdfBase64}`
+        content: `Extract ALL line items from this invoice PDF. Include every single product, material, or service listed with their descriptions, quantities, rates, and amounts. Do not extract payment terms as line items. Also extract supplier name, supplier email (if present), COMPLETE invoice number (e.g., INV-2025-0010), reference/PO number (if present), dates, subtotal, tax, and total. Here's the PDF (base64): ${pdfBase64}`
       }
-    ]
+    ],
+    tools: [
+      {
+        type: "function",
+        function: {
+          name: "extract_invoice_data",
+          description: "Extract structured data from an invoice PDF",
+          parameters: {
+            type: "object",
+            properties: {
+              supplier: { type: "string", description: "Supplier/vendor company name" },
+              supplier_email: { type: "string", description: "Supplier email if present, empty string otherwise" },
+              invoice_number: { type: "string", description: "COMPLETE invoice number (e.g., INV-2025-0010)" },
+              reference_number: { type: "string", description: "PO or reference number if present, empty string otherwise" },
+              invoice_date: { type: "string", description: "Invoice date as string" },
+              due_date: { type: "string", description: "Due date as string" },
+              subtotal: { type: "string", description: "Subtotal amount as string" },
+              tax: { type: "string", description: "Tax amount as string" },
+              total: { type: "string", description: "Total amount as string" },
+              line_items: {
+                type: "array",
+                description: "All line items from the invoice",
+                items: {
+                  type: "object",
+                  properties: {
+                    description: { type: "string" },
+                    qty: { type: "string" },
+                    rate: { type: "string" },
+                    amount: { type: "string" },
+                    tax_code: { type: "string" }
+                  },
+                  required: ["description", "qty", "rate", "amount"]
+                }
+              },
+              ai_summary: { type: "string", description: "Brief summary of the invoice" },
+              ai_confidence: { type: "number", description: "Confidence score 0-1" }
+            },
+            required: ["supplier", "invoice_number", "ai_summary", "ai_confidence"]
+          }
+        }
+      }
+    ],
+    tool_choice: { type: "function", function: { name: "extract_invoice_data" } }
   };
 
   console.log("Calling Lovable AI Gateway");
@@ -125,10 +141,10 @@ Here's the PDF (base64): ${pdfBase64}`
   });
   
   console.log("Response status:", res.status);
-  const responseText = await res.text();
-  console.log("Response body:", responseText.substring(0, 500));
   
   if (!res.ok) {
+    const responseText = await res.text();
+    console.log("Error response body:", responseText.substring(0, 500));
     if (res.status === 429) {
       throw new Error("Rate limit exceeded. Please try again later.");
     }
@@ -138,21 +154,33 @@ Here's the PDF (base64): ${pdfBase64}`
     throw new Error(`Lovable AI failed ${res.status}: ${responseText}`);
   }
 
-  const data = JSON.parse(responseText);
-  const text = data?.choices?.[0]?.message?.content;
-  if (!text) throw new Error(`no content in response: ${JSON.stringify(data).slice(0, 500)}`);
+  const data = await res.json();
+  console.log("Parsed response data");
   
-  console.log("Extracted text:", text);
-  
-  // Try to parse the JSON from the response
-  try {
-    // Remove markdown code blocks if present
-    const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    return JSON.parse(cleanedText);
-  } catch (parseError) {
-    console.error("Failed to parse JSON:", parseError);
-    throw new Error(`Failed to parse AI response as JSON: ${text.substring(0, 200)}`);
+  // Extract from tool call
+  const toolCalls = data?.choices?.[0]?.message?.tool_calls;
+  if (toolCalls && toolCalls.length > 0) {
+    const functionCall = toolCalls[0];
+    if (functionCall.function?.name === "extract_invoice_data") {
+      console.log("Extracted from tool call:", functionCall.function.arguments);
+      const extractedData = JSON.parse(functionCall.function.arguments);
+      return extractedData;
+    }
   }
+  
+  // Fallback: try to parse from content
+  const text = data?.choices?.[0]?.message?.content;
+  if (text) {
+    console.log("Attempting to parse from content:", text.substring(0, 200));
+    try {
+      const cleanedText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      return JSON.parse(cleanedText);
+    } catch (parseError) {
+      console.error("Failed to parse JSON from content:", parseError);
+    }
+  }
+  
+  throw new Error(`No valid data in response: ${JSON.stringify(data).slice(0, 500)}`);
 }
 
 async function patchInvoiceRow(id: string, extraction: any) {
