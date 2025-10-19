@@ -172,7 +172,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
   };
 
   const uploadAndExtract = async (file: File) => {
-    console.log('=== STARTING DIRECT EXTRACTION FOR:', file.name, '===');
+    console.log('=== STARTING STORAGE UPLOAD FOR:', file.name, '===');
     console.log('File size:', file.size, 'bytes');
     setUploading(true);
     setExtracting(true);
@@ -180,38 +180,50 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     setError(null);
 
     try {
-      // Convert file directly to base64 and send to edge function
-      // This bypasses Supabase Storage completely to avoid any caching issues
-      console.log('Converting file to base64...');
-      const fileBase64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          const result = reader.result as string;
-          // Remove the data:...;base64, prefix
-          const base64 = result.split(',')[1];
-          resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
+      // Step 1: Upload file to Supabase Storage
+      console.log('Uploading to storage...');
+      const timestamp = Date.now();
+      const uniqueFileName = `${timestamp}_${file.name}`;
+      const filePath = `bills/${uniqueFileName}`;
       
-      console.log('Base64 conversion complete, length:', fileBase64.length);
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('bill-documents')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw new Error(`Upload failed: ${uploadError.message}`);
+      }
+
+      console.log('File uploaded to storage:', uploadData.path);
       setUploadProgress(30);
 
-      // Call edge function directly with base64 data
+      // Step 2: Generate signed URL (60 second expiry)
+      const { data: signedData, error: signedError } = await supabase.storage
+        .from('bill-documents')
+        .createSignedUrl(uploadData.path, 60);
+
+      if (signedError || !signedData) {
+        console.error('Signed URL error:', signedError);
+        throw new Error('Failed to generate signed URL');
+      }
+
+      console.log('Signed URL generated');
+      setUploadProgress(40);
+
+      // Step 3: Call edge function with signed URL
       const requestBody = {
-        pdf_base64: fileBase64,
+        signed_url: signedData.signedUrl,
         filename: file.name,
         filesize: file.size,
-        content_type: file.type
+        storage_path: uploadData.path
       };
       
       console.log('=== CALLING EDGE FUNCTION ===');
-      console.log('Request body keys:', Object.keys(requestBody));
-      console.log('Filename:', requestBody.filename);
-      console.log('Filesize:', requestBody.filesize);
-      console.log('Base64 length:', requestBody.pdf_base64.length);
-      console.log('Base64 preview (first 100 chars):', requestBody.pdf_base64.substring(0, 100));
+      console.log('Signed URL ready, invoking process-invoice...');
       
       const { data: processingData, error: processingError } = await supabase.functions.invoke('process-invoice', {
         body: requestBody
@@ -219,7 +231,6 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
 
       if (processingError) {
         console.error('Edge function invocation error:', processingError);
-        // Show the actual error message from the edge function
         const errorMessage = processingError.message || 'Unknown error from edge function';
         setError(errorMessage);
         throw new Error(errorMessage);
@@ -228,7 +239,6 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
       console.log('=== EDGE FUNCTION RESPONSE ===');
       console.log('Full response:', JSON.stringify(processingData, null, 2));
       
-      // Check if the response indicates an error
       if (!processingData?.ok) {
         const errorMsg = processingData?.error || 'Edge function returned an error';
         console.error('Edge function error:', errorMsg);
