@@ -328,13 +328,13 @@ export const IncomeTable = ({
                       <Eye className="h-4 w-4 text-muted-foreground" />
                     </Button>
                     <Button
-                      variant="outline"
+                      variant={invoice.status === 'paid' ? 'default' : 'outline'}
                       size="sm"
                       className="h-8 px-3 text-xs whitespace-nowrap"
                       onClick={() => handleMarkAsPaid(invoice.id, invoice.total)}
                       disabled={invoice.status === 'paid'}
                     >
-                      Mark as Paid
+                      {invoice.status === 'paid' ? 'Paid' : 'Mark as Paid'}
                     </Button>
                     <Button
                       variant="ghost"
