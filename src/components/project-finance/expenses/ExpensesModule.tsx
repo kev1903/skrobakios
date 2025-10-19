@@ -20,7 +20,7 @@ interface Bill {
   reference_number: string | null;
   bill_date: string;
   due_date: string;
-  status: 'pending' | 'approved' | 'paid' | 'cancelled';
+  status: 'draft' | 'submitted' | 'scheduled' | 'approved' | 'paid' | 'cancelled';
   payment_status?: string;
   subtotal: number;
   tax: number;
@@ -61,7 +61,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setBills(data || []);
+      setBills((data || []) as Bill[]);
       
       // Call onDataUpdate with the summary data
       if (onDataUpdate && data) {
