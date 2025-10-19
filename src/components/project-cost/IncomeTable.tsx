@@ -129,21 +129,25 @@ export const IncomeTable = ({
     }
   };
 
-  const handleMarkAsPaid = async (invoiceId: string, total: number) => {
+  const handleMarkAsPaid = async (invoiceId: string, total: number, currentStatus: string) => {
     try {
+      // Toggle between paid and draft status
+      const newStatus = currentStatus === 'paid' ? 'draft' : 'paid';
+      const newPaidAmount = newStatus === 'paid' ? total : 0;
+      
       const { error } = await supabase
         .from('invoices')
         .update({ 
-          status: 'paid', 
-          paid_to_date: total 
+          status: newStatus, 
+          paid_to_date: newPaidAmount 
         })
         .eq('id', invoiceId);
 
       if (error) {
-        console.error('Error marking invoice as paid:', error);
+        console.error('Error updating invoice status:', error);
         toast({
           title: "Error",
-          description: "Failed to mark invoice as paid. Please try again.",
+          description: "Failed to update invoice status. Please try again.",
           variant: "destructive",
         });
         return;
@@ -151,15 +155,17 @@ export const IncomeTable = ({
 
       toast({
         title: "Success",
-        description: "Invoice marked as paid successfully.",
+        description: newStatus === 'paid' 
+          ? "Invoice marked as paid successfully." 
+          : "Invoice status updated to unpaid.",
       });
       
       loadInvoices();
     } catch (error) {
-      console.error('Error marking invoice as paid:', error);
+      console.error('Error updating invoice status:', error);
       toast({
         title: "Error",
-        description: "Failed to mark invoice as paid. Please try again.",
+        description: "Failed to update invoice status. Please try again.",
         variant: "destructive",
       });
     }
@@ -331,8 +337,7 @@ export const IncomeTable = ({
                       variant={invoice.status === 'paid' ? 'default' : 'outline'}
                       size="sm"
                       className="h-8 px-3 text-xs whitespace-nowrap"
-                      onClick={() => handleMarkAsPaid(invoice.id, invoice.total)}
-                      disabled={invoice.status === 'paid'}
+                      onClick={() => handleMarkAsPaid(invoice.id, invoice.total, invoice.status)}
                     >
                       {invoice.status === 'paid' ? 'Paid' : 'Mark as Paid'}
                     </Button>
