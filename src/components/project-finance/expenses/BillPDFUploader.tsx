@@ -178,6 +178,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
       
       if (processingData?.ok && processingData?.data) {
         const extraction = processingData.data;
+        console.log('Received extraction from edge function:', extraction);
         setExtractedData(extraction);
         setConfidence((extraction.ai_confidence || 0) * 100);
         
@@ -212,6 +213,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
           }))
         };
         
+        console.log('Mapped data for form:', mappedData);
         setEditableData(mappedData);
         
         toast({
