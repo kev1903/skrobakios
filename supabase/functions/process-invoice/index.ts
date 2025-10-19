@@ -66,7 +66,7 @@ async function extractWithLovableAI(pdfBase64: string) {
   console.log("Starting extractWithLovableAI");
   
   const body = {
-    model: "google/gemini-2.5-flash",
+    model: "google/gemini-2.5-pro",
     messages: [
       { 
         role: "system", 
