@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle, Settings, Upload, Plus } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, BarChart3, PieChart, AlertTriangle, Settings, Upload, Plus, Filter, ChevronDown } from 'lucide-react';
 import { useCentralTasks } from '@/hooks/useCentralTasks';
 import { useProjectSettings } from '@/hooks/useProjectSettings';
 import { Project } from '@/hooks/useProjects';
@@ -19,6 +19,14 @@ import { TaskCostTable } from './TaskCostTable';
 import { CostAnalytics } from './CostAnalytics';
 import { StageManagement } from './StageManagement';
 import { useWBS } from '@/hooks/useWBS';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
 import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
@@ -46,7 +54,7 @@ export const ProjectCostPage = ({
   const tabFromUrl = urlParams.get('tab');
   const [activeTab, setActiveTab] = useState(tabFromUrl || 'income');
   const [incomeStatusFilter, setIncomeStatusFilter] = useState('all');
-  const [expenseStatusFilter, setExpenseStatusFilter] = useState('inbox');
+  const [expenseStatusFilters, setExpenseStatusFilters] = useState<string[]>(['inbox']);
   const [incomeData, setIncomeData] = useState({ contractAmount: 0, totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });
   const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0, totalItems: 0 });
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
@@ -54,6 +62,20 @@ export const ProjectCostPage = ({
   const [isInvoicePDFUploaderOpen, setIsInvoicePDFUploaderOpen] = useState(false);
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const toggleExpenseFilter = (filter: string) => {
+    setExpenseStatusFilters(prev => 
+      prev.includes(filter) 
+        ? prev.filter(f => f !== filter)
+        : [...prev, filter]
+    );
+  };
+
+  const getFilterLabel = () => {
+    if (expenseStatusFilters.length === 0) return 'Select Filters';
+    if (expenseStatusFilters.length === 3) return 'All Filters';
+    return `${expenseStatusFilters.length} Selected`;
+  };
 
   // Tab options configuration
   const tabOptions = [
@@ -376,34 +398,40 @@ export const ProjectCostPage = ({
                     )}
                     {activeTab === 'expense' && (
                       <>
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant={expenseStatusFilter === 'inbox' ? 'default' : 'outline'}
-                              size="sm"
-                              onClick={() => setExpenseStatusFilter('inbox')}
-                              className="text-sm"
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              className="flex items-center gap-2 bg-background hover:bg-accent"
+                            >
+                              <Filter className="h-4 w-4" />
+                              {getFilterLabel()}
+                              <ChevronDown className="h-4 w-4 opacity-50" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-56 bg-background z-50" align="start">
+                            <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuCheckboxItem
+                              checked={expenseStatusFilters.includes('inbox')}
+                              onCheckedChange={() => toggleExpenseFilter('inbox')}
                             >
                               For Approval
-                            </Button>
-                            <Button
-                              variant={expenseStatusFilter === 'scheduled' ? 'default' : 'outline'}
-                              size="sm"
-                              onClick={() => setExpenseStatusFilter('scheduled')}
-                              className="text-sm"
+                            </DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem
+                              checked={expenseStatusFilters.includes('scheduled')}
+                              onCheckedChange={() => toggleExpenseFilter('scheduled')}
                             >
                               Awaiting Payments
-                            </Button>
-                            <Button
-                              variant={expenseStatusFilter === 'paid' ? 'default' : 'outline'}
-                              size="sm"
-                              onClick={() => setExpenseStatusFilter('paid')}
-                              className="text-sm"
+                            </DropdownMenuCheckboxItem>
+                            <DropdownMenuCheckboxItem
+                              checked={expenseStatusFilters.includes('paid')}
+                              onCheckedChange={() => toggleExpenseFilter('paid')}
                             >
                               Paid
-                            </Button>
-                          </div>
-                        </div>
+                            </DropdownMenuCheckboxItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <div className="flex items-center gap-2">
                           <Button 
                             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
@@ -475,42 +503,54 @@ export const ProjectCostPage = ({
                 </TabsContent>
 
                 <TabsContent value="expense" className="mt-0 h-full overflow-y-auto p-6">
-                  {expenseStatusFilter === 'inbox' ? (
-                    <ExpensesModule 
-                      projectId={project.id}
-                      statusFilter={expenseStatusFilter}
-                      formatCurrency={formatCurrency}
-                      formatDate={formatDate}
-                      onDataUpdate={setExpenseData}
-                      refreshTrigger={refreshTrigger}
-                    />
-                  ) : expenseStatusFilter === 'scheduled' ? (
-                    <AwaitingPaymentsTable 
-                      projectId={project.id}
-                      formatCurrency={formatCurrency}
-                      formatDate={formatDate}
-                    />
-                  ) : expenseStatusFilter === 'paid' ? (
-                    // Paid Table
-                    <div className="space-y-4">
-                      <div className="text-center py-8 text-foreground">
-                        <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
-                          <DollarSign className="h-8 w-8" />
-                        </div>
-                        <p className="text-foreground">No paid invoices.</p>
-                        <p className="text-sm mt-2 text-muted-foreground">Completed payments will appear here.</p>
+                  <div className="space-y-6">
+                    {expenseStatusFilters.includes('inbox') && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">For Approval</h3>
+                        <ExpensesModule 
+                          projectId={project.id}
+                          statusFilter="inbox"
+                          formatCurrency={formatCurrency}
+                          formatDate={formatDate}
+                          onDataUpdate={setExpenseData}
+                          refreshTrigger={refreshTrigger}
+                        />
                       </div>
-                    </div>
-                  ) : (
-                    <ExpensesModule 
-                      projectId={project.id}
-                      statusFilter={expenseStatusFilter}
-                      formatCurrency={formatCurrency}
-                      formatDate={formatDate}
-                      onDataUpdate={setExpenseData}
-                      refreshTrigger={refreshTrigger}
-                    />
-                  )}
+                    )}
+                    {expenseStatusFilters.includes('scheduled') && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">Awaiting Payments</h3>
+                        <AwaitingPaymentsTable 
+                          projectId={project.id}
+                          formatCurrency={formatCurrency}
+                          formatDate={formatDate}
+                        />
+                      </div>
+                    )}
+                    {expenseStatusFilters.includes('paid') && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">Paid</h3>
+                        <div className="space-y-4">
+                          <div className="text-center py-8 text-foreground">
+                            <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
+                              <DollarSign className="h-8 w-8" />
+                            </div>
+                            <p className="text-foreground">No paid invoices.</p>
+                            <p className="text-sm mt-2 text-muted-foreground">Completed payments will appear here.</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {expenseStatusFilters.length === 0 && (
+                      <div className="text-center py-12 text-foreground">
+                        <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
+                          <Filter className="h-8 w-8" />
+                        </div>
+                        <p className="text-foreground">No filters selected</p>
+                        <p className="text-sm mt-2 text-muted-foreground">Select at least one filter to view expense data.</p>
+                      </div>
+                    )}
+                  </div>
                 </TabsContent>
                 
                 <TabsContent value="analytics" className="mt-0 h-full overflow-y-auto p-6">
