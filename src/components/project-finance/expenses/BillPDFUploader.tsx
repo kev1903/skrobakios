@@ -53,6 +53,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
   const [editableData, setEditableData] = useState<ExtractedBillData | null>(null);
   const [saving, setSaving] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -109,11 +110,14 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
   };
 
   const handleFileSelect = async (file: File) => {
-    if (!file.type.includes('pdf')) {
-      setError('Please upload a PDF file');
+    const isPDF = file.type.includes('pdf');
+    const isImage = file.type.includes('image');
+    
+    if (!isPDF && !isImage) {
+      setError('Please upload a PDF or JPG/PNG file');
       toast({
         title: "Invalid File",
-        description: "Please upload a PDF file",
+        description: "Please upload a PDF or JPG/PNG file",
         variant: "destructive",
       });
       return;
@@ -132,6 +136,11 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
 
     setUploadedFile(file);
     setError(null);
+    
+    // Create preview URL for the file
+    const previewUrl = URL.createObjectURL(file);
+    setFilePreviewUrl(previewUrl);
+    
     await uploadAndExtract(file);
   };
 
@@ -252,6 +261,11 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
   };
 
   const resetState = () => {
+    // Cleanup preview URL
+    if (filePreviewUrl) {
+      URL.revokeObjectURL(filePreviewUrl);
+    }
+    
     setUploadedFile(null);
     setUploading(false);
     setExtracting(false);
@@ -262,6 +276,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     setEditableData(null);
     setSaving(false);
     setDragActive(false);
+    setFilePreviewUrl(null);
     
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -354,15 +369,17 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto z-[100]">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-hidden z-[100]">
         <DialogHeader>
           <DialogTitle>Upload Bill (Expense)</DialogTitle>
           <DialogDescription>
-            Upload a PDF bill and our AI will extract the data automatically
+            Upload a PDF or image bill and our AI will extract the data automatically
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(90vh-8rem)] overflow-hidden">
+          {/* Left Column - Form */}
+          <div className="space-y-6 overflow-y-auto pr-2">
           {/* File Upload Area */}
           {!uploadedFile && (
             <div
@@ -376,12 +393,12 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
               onClick={() => fileInputRef.current?.click()}
             >
               <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-lg font-medium mb-2">Drop your PDF here or click to browse</p>
-              <p className="text-sm text-muted-foreground">Maximum file size: 10MB</p>
+              <p className="text-lg font-medium mb-2">Drop your file here or click to browse</p>
+              <p className="text-sm text-muted-foreground">PDF, JPG, or PNG • Maximum file size: 10MB</p>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf"
+                accept=".pdf,.jpg,.jpeg,.png"
                 className="hidden"
                 onChange={handleFileInputChange}
               />
@@ -577,6 +594,40 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
               </div>
             </div>
           )}
+          </div>
+
+          {/* Right Column - Preview */}
+          <div className="hidden lg:block border-l pl-6 overflow-hidden">
+            <div className="h-full flex flex-col">
+              <h3 className="text-sm font-semibold mb-3">Document Preview</h3>
+              <div className="flex-1 border rounded-lg overflow-hidden bg-muted/30">
+                {filePreviewUrl && uploadedFile ? (
+                  uploadedFile.type.includes('pdf') ? (
+                    <iframe
+                      src={filePreviewUrl}
+                      className="w-full h-full"
+                      title="PDF Preview"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center p-4 overflow-auto">
+                      <img
+                        src={filePreviewUrl}
+                        alt="Bill Preview"
+                        className="max-w-full max-h-full object-contain"
+                      />
+                    </div>
+                  )
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">Upload a file to preview</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
