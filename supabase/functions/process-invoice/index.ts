@@ -218,6 +218,7 @@ serve(async (req) => {
     console.log('Extracting text from PDF...');
     const extractedText = await extractTextFromPDF(bytes);
     console.log('Extracted text length:', extractedText.length);
+    console.log('First 1000 chars of extracted text:', extractedText.substring(0, 1000));
 
     if (extractedText.length < 20) {
       return new Response(
@@ -239,32 +240,49 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an expert at extracting invoice/bill data from text. Extract all relevant information accurately.
+            content: `You are an expert at extracting invoice/bill data from text. Extract ONLY the visible invoice information, ignoring any system metadata, IDs, or software watermarks.
 
-EXTRACTION RULES:
-- Extract exactly as shown in the document
-- For dates: use YYYY-MM-DD format
-- For amounts: extract numeric values (remove currency symbols)
-- For line items: capture description, quantity, rate, and amount for each
-- Set confidence based on text clarity (0.9+ for clear, 0.7-0.8 for moderate, <0.7 for poor)
-- Provide a brief summary of what was invoiced
+CRITICAL EXTRACTION RULES:
+1. SUPPLIER IDENTIFICATION:
+   - Look for company names with "Pty Ltd", "LLC", "Inc", etc.
+   - The supplier is typically at the top of the invoice with their ABN/ACN
+   - IGNORE software names like "Xero", "QuickBooks", "FreshBooks" - these are NOT the supplier
+   - Look for phrases like "Invoice from:", "Billed by:", or the company details section
+
+2. INVOICE NUMBER:
+   - Look for fields labeled "Invoice Number:", "Invoice #:", "Bill #:"
+   - Usually a short alphanumeric code (e.g., "TUL3801", "INV-001")
+   - IGNORE long random hashes or UUIDs - these are system IDs, not invoice numbers
+
+3. AMOUNTS:
+   - Extract TOTAL, SUBTOTAL, and TAX/GST amounts from the invoice
+   - Look for clearly labeled amount fields
+   - If subtotal not shown, calculate it as: Total - Tax
+
+4. DATES:
+   - Extract invoice date and due date
+   - Convert to YYYY-MM-DD format (e.g., "17 Oct 2025" → "2025-10-17")
+
+5. LINE ITEMS:
+   - Extract each line with description, quantity, rate, and amount
+   - Look for item descriptions and their corresponding prices
 
 Return only valid JSON matching the schema.`
           },
           {
             role: 'user',
-            content: `Extract structured invoice data from this text:
+            content: `Extract structured invoice data from this text. Focus on the DISPLAYED invoice content, not metadata:
 
 ${extractedText}
 
-Focus on:
-- Supplier name and contact info
-- Invoice number and dates
-- Line items with quantities and prices
-- Subtotal, tax, and total amounts
-- Any reference or PO numbers
+IMPORTANT:
+- The SUPPLIER is the company ISSUING the invoice (with ABN/company details at top)
+- The INVOICE NUMBER is the short reference code (like "TUL3801", not a long hash)
+- Extract ACTUAL amounts shown in the invoice (Total, Subtotal, Tax/GST)
+- Include all line items with their descriptions, quantities, and prices
+- Ignore any software watermarks (Xero, QuickBooks, etc.)
 
-Set confidence based on how clear the extracted information is.`
+Set confidence based on how clearly you can read these fields (0.9+ if very clear).`
           }
         ],
         tools: [{
