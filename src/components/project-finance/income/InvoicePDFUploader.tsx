@@ -188,23 +188,46 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
 
       if (processingData.ok) {
         const extraction = processingData.data;
+        console.log('Extracted data:', extraction);
+        
         setExtractedData(extraction);
         setConfidence((extraction.ai_confidence || 0) * 100); // Convert to percentage
-        setEditableData({
-          supplier_name: extraction.client || extraction.supplier || '',
-          supplier_email: extraction.client_email || extraction.supplier_email || '',
+        
+        // Helper function to safely parse numeric strings
+        const parseNumeric = (val: any): number => {
+          if (typeof val === 'number') return val;
+          if (typeof val === 'string') {
+            const cleaned = val.replace(/[^0-9.-]/g, '');
+            const parsed = parseFloat(cleaned);
+            return isNaN(parsed) ? 0 : parsed;
+          }
+          return 0;
+        };
+        
+        const mappedData = {
+          supplier_name: extraction.supplier || extraction.client || '',
+          supplier_email: extraction.supplier_email || extraction.client_email || '',
           bill_no: extraction.invoice_number || '',
           due_date: parseExtractedDate(extraction.due_date),
           bill_date: parseExtractedDate(extraction.invoice_date),
           reference_number: extraction.reference_number || '',
           notes: extraction.ai_summary || '',
-          subtotal: parseFloat((extraction.subtotal || '0').replace(/,/g, '')),
-          tax: parseFloat((extraction.tax || '0').replace(/,/g, '')), 
-          total: parseFloat((extraction.total || '0').replace(/,/g, '')),
-          description: `Invoice to ${extraction.client || extraction.supplier || 'Unknown Client'}`,
+          subtotal: parseNumeric(extraction.subtotal),
+          tax: parseNumeric(extraction.tax), 
+          total: parseNumeric(extraction.total),
+          description: `Invoice from ${extraction.supplier || extraction.client || 'Unknown'}`,
           wbs_code: '',
-          line_items: extraction.line_items || []
-        });
+          line_items: (extraction.line_items || []).map((item: any) => ({
+            description: item.description || '',
+            qty: parseNumeric(item.qty),
+            rate: parseNumeric(item.rate),
+            amount: parseNumeric(item.amount),
+            tax_code: item.tax_code || ''
+          }))
+        };
+        
+        console.log('Mapped editable data:', mappedData);
+        setEditableData(mappedData);
         
         toast({
           title: "Success",
@@ -562,7 +585,7 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                     <Input
                       type="number"
                       step="0.01"
-                      value={editableData.subtotal.toFixed(2)}
+                      value={typeof editableData.subtotal === 'number' ? editableData.subtotal.toFixed(2) : '0.00'}
                       onChange={(e) => setEditableData({...editableData, subtotal: parseFloat(e.target.value) || 0})}
                     />
                   </div>
@@ -571,7 +594,7 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                     <Input
                       type="number"
                       step="0.01"
-                      value={editableData.tax.toFixed(2)}
+                      value={typeof editableData.tax === 'number' ? editableData.tax.toFixed(2) : '0.00'}
                       onChange={(e) => setEditableData({...editableData, tax: parseFloat(e.target.value) || 0})}
                     />
                   </div>
@@ -580,7 +603,7 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
                     <Input
                       type="number"
                       step="0.01"
-                      value={editableData.total.toFixed(2)}
+                      value={typeof editableData.total === 'number' ? editableData.total.toFixed(2) : '0.00'}
                       onChange={(e) => setEditableData({...editableData, total: parseFloat(e.target.value) || 0})}
                     />
                   </div>
