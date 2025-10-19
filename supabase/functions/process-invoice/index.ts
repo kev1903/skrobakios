@@ -14,15 +14,15 @@ const InvoiceSchema = {
   parameters: {
     type: "object",
     properties: {
-      supplier: { type: "string", description: "Supplier/vendor company name" },
+      supplier: { type: "string", description: "Supplier/vendor company name (e.g., 'The Urban Leaf Pty Ltd')" },
       supplier_email: { type: "string", description: "Supplier email address" },
-      invoice_number: { type: "string", description: "Invoice or bill number" },
+      invoice_number: { type: "string", description: "Invoice or bill number (e.g., 'TUL3801')" },
       reference_number: { type: "string", description: "Purchase order or reference number" },
       invoice_date: { type: "string", description: "Invoice date in YYYY-MM-DD format" },
       due_date: { type: "string", description: "Payment due date in YYYY-MM-DD format" },
-      subtotal: { type: "string", description: "Subtotal amount before tax" },
-      tax: { type: "string", description: "Tax/GST amount" },
-      total: { type: "string", description: "Total amount including tax" },
+      subtotal: { type: "string", description: "Subtotal amount before tax (numeric value)" },
+      tax: { type: "string", description: "Tax/GST amount (numeric value)" },
+      total: { type: "string", description: "Total amount including tax (numeric value)" },
       line_items: {
         type: "array",
         description: "Individual line items from the invoice",
@@ -34,138 +34,116 @@ const InvoiceSchema = {
             rate: { type: "string" },
             amount: { type: "string" }
           },
-          required: ["description", "qty", "rate", "amount"]
+          required: ["description", "amount"]
         }
       },
       ai_summary: { type: "string", description: "Brief 2-3 sentence summary of the invoice" },
-      ai_confidence: { type: "number", description: "Confidence score from 0 to 1", minimum: 0, maximum: 1 }
+      ai_confidence: { type: "number", description: "Confidence score from 0 to 1 (0.9+ for clear invoices)", minimum: 0, maximum: 1 }
     },
     required: ["supplier", "invoice_number", "total", "ai_summary", "ai_confidence"]
   }
 };
 
-// Smart text preprocessing to reduce token count
-function preprocessText(text: string, maxTokens: number = 100000): string {
-  let processed = text
-    .replace(/\s{3,}/g, ' ')
-    .replace(/\n{3,}/g, '\n\n')
-    .replace(/^(.*?)\n\1+$/gm, '$1')
-    .replace(/Page \d+ of \d+/gi, '')
-    .replace(/\f/g, ' ')
-    .replace(/\.{3,}/g, '...')
-    .replace(/-{3,}/g, '---')
-    .trim();
-
-  if (processed.length > maxTokens * 4) {
-    const sections = processed.split(/\n\s*\n/);
-    const importantSections = sections.filter(section => {
-      const keywords = [
-        'invoice', 'bill', 'total', 'subtotal', 'tax', 'gst', 'amount',
-        'date', 'due', 'payment', 'supplier', 'vendor', 'customer', 'qty', 'quantity'
-      ];
-      return keywords.some(keyword => 
-        section.toLowerCase().includes(keyword.toLowerCase())
-      );
-    });
-    
-    const selectedSections = [
-      ...importantSections.slice(0, 10),
-      ...sections.slice(0, 5)
-    ];
-    
-    processed = [...new Set(selectedSections)].join('\n\n');
-  }
-
-  return processed;
-}
-
-// Enhanced PDF text extraction using canvas-based approach
+// Enhanced PDF text extraction using npm:pdf-parse for Deno
 async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
   try {
-    // Try PDF.js extraction with proper initialization
+    console.log('Starting PDF text extraction...');
+    
+    // Try using pdf-parse package (works better in Deno)
     try {
-      const pdfjsLib = await import("https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm");
+      const pdfParse = (await import("npm:pdf-parse@1.1.1")).default;
+      const buffer = new Uint8Array(pdfBytes);
+      const data = await pdfParse(buffer);
       
-      // Set worker source - use jsdelivr CDN for consistency
-      if (pdfjsLib.GlobalWorkerOptions) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 
-          "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+      if (data.text && data.text.length > 50) {
+        console.log(`✓ Successfully extracted ${data.text.length} characters using pdf-parse`);
+        console.log('Sample text:', data.text.substring(0, 500));
+        return cleanAndStructureText(data.text);
       }
-      
-      const loadingTask = pdfjsLib.getDocument({
-        data: new Uint8Array(pdfBytes),
-        useSystemFonts: true,
-      });
-      const pdf = await loadingTask.promise;
-      
-      let fullText = '';
-      const totalPages = pdf.numPages;
-      
-      // Extract all pages for invoices (usually short documents)
-      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          .filter((item: any) => item.str && item.str.trim())
-          .map((item: any) => item.str)
-          .join(' ');
-        fullText += `\n--- Page ${pageNum} ---\n${pageText}\n`;
-      }
-      
-      if (fullText.trim()) {
-        console.log("PDF.js extraction successful, pages:", totalPages);
-        return preprocessText(cleanExtractedText(fullText));
-      }
-    } catch (pdfJsError) {
-      console.warn("PDF.js extraction failed:", pdfJsError);
+    } catch (pdfParseError) {
+      console.warn("pdf-parse failed, trying fallback:", pdfParseError.message);
     }
-    
-    // Fallback to manual extraction
-    console.log("Using fallback text extraction");
+
+    // Fallback: Enhanced manual extraction
+    console.log("Using enhanced manual extraction");
     const decoder = new TextDecoder('utf-8', { fatal: false });
-    const text = decoder.decode(pdfBytes);
+    let rawText = decoder.decode(pdfBytes);
     
-    const patterns = [
-      /BT\s+(.*?)\s+ET/gs,
-      /stream\s+(.*?)\s+endstream/gs,
-      /\((.*?)\)/g,
-      /<([0-9A-Fa-f\s]+)>/g
+    // Extract text between common PDF text markers
+    const textPatterns = [
+      // Match text in parentheses (common PDF text encoding)
+      /\(([^)]+)\)/g,
+      // Match text in angle brackets (hex encoding)
+      /<([0-9A-Fa-f\s]+)>/g,
+      // Match BT...ET blocks (text blocks)
+      /BT\s+([\s\S]*?)\s+ET/g,
+      // Match Tj and TJ operators (text showing)
+      /\[(.*?)\]\s*TJ/g,
+      /\((.*?)\)\s*Tj/g,
     ];
     
-    let extractedText = '';
+    let extractedParts: string[] = [];
     
-    for (const pattern of patterns) {
-      const matches = text.match(pattern);
-      if (matches) {
-        for (const match of matches) {
-          let cleanMatch = match
-            .replace(/BT\s+|ET|stream|endstream/g, '')
-            .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-          
-          if (cleanMatch.length > 10) {
-            extractedText += cleanMatch + ' ';
+    for (const pattern of textPatterns) {
+      const matches = rawText.matchAll(pattern);
+      for (const match of matches) {
+        let text = match[1];
+        
+        // Handle hex-encoded text
+        if (pattern.source.includes('0-9A-Fa-f')) {
+          try {
+            text = text.replace(/\s/g, '');
+            const bytes = text.match(/.{1,2}/g)?.map(byte => parseInt(byte, 16)) || [];
+            text = String.fromCharCode(...bytes);
+          } catch (e) {
+            continue;
           }
+        }
+        
+        // Clean and add text
+        text = text
+          .replace(/\\n/g, '\n')
+          .replace(/\\r/g, '\r')
+          .replace(/\\t/g, '\t')
+          .replace(/\\(.)/g, '$1')
+          .trim();
+        
+        if (text.length > 2) {
+          extractedParts.push(text);
         }
       }
     }
     
-    const finalText = extractedText.trim() || "Unable to extract readable text from PDF";
-    return preprocessText(finalText);
+    const finalText = extractedParts.join(' ').trim();
+    console.log(`Manual extraction produced ${finalText.length} characters`);
+    console.log('Sample:', finalText.substring(0, 300));
+    
+    if (finalText.length < 50) {
+      throw new Error('Insufficient text extracted from PDF');
+    }
+    
+    return cleanAndStructureText(finalText);
     
   } catch (error) {
-    console.error("PDF text extraction failed:", error);
-    return "PDF text extraction failed - document may be image-based";
+    console.error("All PDF extraction methods failed:", error);
+    throw new Error('Failed to extract text from PDF. The document may be image-based or corrupted.');
   }
 }
 
-function cleanExtractedText(text: string): string {
+// Clean and structure extracted text for better AI processing
+function cleanAndStructureText(text: string): string {
   return text
+    // Normalize whitespace
     .replace(/\s+/g, ' ')
-    .replace(/[^\x20-\x7E\n\r\t]/g, ' ')
-    .replace(/[ \t]+/g, ' ')
-    .replace(/\n+/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    // Remove common PDF artifacts
+    .replace(/[^\x20-\x7E\n\r\t]/g, '')
+    // Remove excessive punctuation
+    .replace(/\.{4,}/g, '...')
+    .replace(/-{4,}/g, '---')
+    // Remove page markers
+    .replace(/Page \d+ of \d+/gi, '')
+    .replace(/\f/g, '\n')
     .trim();
 }
 
@@ -225,7 +203,6 @@ serve(async (req) => {
     console.log('Extracting text from PDF...');
     const extractedText = await extractTextFromPDF(bytes);
     console.log('Extracted text length:', extractedText.length);
-    console.log('First 1000 chars of extracted text:', extractedText.substring(0, 1000));
 
     if (extractedText.length < 20) {
       return new Response(
@@ -247,49 +224,35 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `You are an expert at extracting invoice/bill data from text. Extract ONLY the visible invoice information, ignoring any system metadata, IDs, or software watermarks.
+            content: `You are an expert at extracting invoice/bill data from text. Extract ONLY the visible invoice information accurately.
 
 CRITICAL EXTRACTION RULES:
-1. SUPPLIER IDENTIFICATION:
-   - Look for company names with "Pty Ltd", "LLC", "Inc", etc.
-   - The supplier is typically at the top of the invoice with their ABN/ACN
-   - IGNORE software names like "Xero", "QuickBooks", "FreshBooks" - these are NOT the supplier
-   - Look for phrases like "Invoice from:", "Billed by:", or the company details section
+1. SUPPLIER: The company ISSUING the invoice (with company name like "Pty Ltd", "LLC", "Inc")
+2. INVOICE NUMBER: The short reference code (e.g., "TUL3801", "INV-001") - NOT long hashes
+3. AMOUNTS: Extract EXACT numeric values for TOTAL, SUBTOTAL, and TAX from the invoice
+4. DATES: Convert to YYYY-MM-DD format (e.g., "10 Oct 2025" → "2025-10-10")
+5. LINE ITEMS: Each item with description and amount
 
-2. INVOICE NUMBER:
-   - Look for fields labeled "Invoice Number:", "Invoice #:", "Bill #:"
-   - Usually a short alphanumeric code (e.g., "TUL3801", "INV-001")
-   - IGNORE long random hashes or UUIDs - these are system IDs, not invoice numbers
-
-3. AMOUNTS:
-   - Extract TOTAL, SUBTOTAL, and TAX/GST amounts from the invoice
-   - Look for clearly labeled amount fields
-   - If subtotal not shown, calculate it as: Total - Tax
-
-4. DATES:
-   - Extract invoice date and due date
-   - Convert to YYYY-MM-DD format (e.g., "17 Oct 2025" → "2025-10-17")
-
-5. LINE ITEMS:
-   - Extract each line with description, quantity, rate, and amount
-   - Look for item descriptions and their corresponding prices
+Set confidence to 0.9+ if the invoice is clearly readable with all key fields present.
+Set confidence to 0.7-0.8 if some fields are unclear.
+Set confidence below 0.5 only if the document is severely corrupted.
 
 Return only valid JSON matching the schema.`
           },
           {
             role: 'user',
-            content: `Extract structured invoice data from this text. Focus on the DISPLAYED invoice content, not metadata:
+            content: `Extract structured invoice data from this text:
 
 ${extractedText}
 
 IMPORTANT:
-- The SUPPLIER is the company ISSUING the invoice (with ABN/company details at top)
-- The INVOICE NUMBER is the short reference code (like "TUL3801", not a long hash)
-- Extract ACTUAL amounts shown in the invoice (Total, Subtotal, Tax/GST)
-- Include all line items with their descriptions, quantities, and prices
-- Ignore any software watermarks (Xero, QuickBooks, etc.)
+- Extract the ACTUAL company name issuing the invoice (look for "Pty Ltd", "LLC", "Inc" in company details)
+- Extract the SHORT invoice number (e.g., "TUL3801"), not internal system IDs
+- Extract EXACT amounts as shown (Total, Subtotal, Tax/GST)
+- Include ALL line items with descriptions and amounts
+- Convert dates to YYYY-MM-DD format
 
-Set confidence based on how clearly you can read these fields (0.9+ if very clear).`
+Provide high confidence (0.9+) if all fields are clearly visible.`
           }
         ],
         tools: [{
@@ -331,7 +294,12 @@ Set confidence based on how clearly you can read these fields (0.9+ if very clea
     }
 
     const extractedData = JSON.parse(toolCall.function.arguments);
-    console.log('Extracted invoice data:', JSON.stringify(extractedData, null, 2));
+    console.log('=== EXTRACTED INVOICE DATA ===');
+    console.log('Supplier:', extractedData.supplier);
+    console.log('Invoice #:', extractedData.invoice_number);
+    console.log('Total:', extractedData.total);
+    console.log('Confidence:', extractedData.ai_confidence);
+    console.log('Full data:', JSON.stringify(extractedData, null, 2));
 
     return new Response(
       JSON.stringify({
