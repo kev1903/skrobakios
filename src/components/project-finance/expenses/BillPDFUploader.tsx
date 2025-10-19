@@ -130,7 +130,15 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     const isPDF = file.type.includes('pdf');
     const isImage = file.type.includes('image');
     
+    console.log('=== NEW FILE SELECTED ===');
     console.log('File selected:', file.name, 'Type:', file.type, 'Size:', file.size);
+    
+    // CRITICAL: Clear all previous extraction data before processing new file
+    setExtractedData(null);
+    setEditableData(null);
+    setConfidence(0);
+    setError(null);
+    console.log('Cleared previous extraction data');
     
     if (!isPDF && !isImage) {
       setError('Please upload a PDF or JPG/PNG file');
@@ -154,17 +162,17 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     }
 
     setUploadedFile(file);
-    setError(null);
     
     // Create preview URL for the file
     const previewUrl = URL.createObjectURL(file);
-    console.log('Preview URL created:', previewUrl);
+    console.log('Preview URL created for:', file.name);
     setFilePreviewUrl(previewUrl);
     
     await uploadAndExtract(file);
   };
 
   const uploadAndExtract = async (file: File) => {
+    console.log('=== STARTING UPLOAD AND EXTRACT FOR:', file.name, '===');
     setUploading(true);
     setExtracting(false);
     setUploadProgress(0);
@@ -173,15 +181,21 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     try {
       // Upload to Supabase Storage with progress
       const fileName = `bill_${Date.now()}_${file.name}`;
+      console.log('Uploading to storage as:', fileName);
+      
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
         .upload(fileName, file, {
-          cacheControl: '3600',
+          cacheControl: 'no-cache',
           upsert: false
         });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
       
+      console.log('Upload successful:', uploadData);
       setUploadProgress(50);
       setUploading(false);
       setExtracting(true);
@@ -191,23 +205,50 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
         .from('documents')
         .createSignedUrl(fileName, 3600);
 
-      if (signedUrlError) throw signedUrlError;
+      if (signedUrlError) {
+        console.error('Signed URL error:', signedUrlError);
+        throw signedUrlError;
+      }
+      
+      console.log('Signed URL created, calling edge function for file:', file.name);
+      console.log('Signed URL (first 100 chars):', signedUrlData.signedUrl.substring(0, 100));
 
-      // Call edge function to extract data
-      const { data: processingData, error: processingError } = await supabase.functions.invoke('process-invoice', {
-        body: {
-          signed_url: signedUrlData.signedUrl,
-          project_invoice_id: null
+      // Call edge function to extract data with explicit file tracking
+      const requestBody = {
+        signed_url: signedUrlData.signedUrl,
+        project_invoice_id: null,
+        _metadata: {
+          filename: file.name,
+          filesize: file.size,
+          timestamp: Date.now()
         }
+      };
+      
+      console.log('Edge function request:', requestBody);
+      
+      const { data: processingData, error: processingError } = await supabase.functions.invoke('process-invoice', {
+        body: requestBody
       });
 
-      if (processingError) throw processingError;
+      if (processingError) {
+        console.error('Edge function invocation error:', processingError);
+        throw processingError;
+      }
 
+      console.log('=== EDGE FUNCTION RESPONSE FOR:', file.name, '===');
+      console.log('Full response:', JSON.stringify(processingData, null, 2));
+      
       setUploadProgress(100);
       
       if (processingData?.ok && processingData?.data) {
         const extraction = processingData.data;
-        console.log('Received extraction from edge function:', extraction);
+        console.log('=== EXTRACTED DATA VERIFICATION ===');
+        console.log('File uploaded:', file.name);
+        console.log('Extracted Supplier:', extraction.supplier);
+        console.log('Extracted Invoice #:', extraction.invoice_number);
+        console.log('Extracted Total:', extraction.total);
+        console.log('Extracted Confidence:', extraction.ai_confidence);
+        
         setExtractedData(extraction);
         setConfidence((extraction.ai_confidence || 0) * 100);
         
