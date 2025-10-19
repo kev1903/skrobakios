@@ -32,7 +32,6 @@ import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
 import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
 import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
 import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader';
-import { BillPDFUploader } from '../project-finance/expenses/BillPDFUploader';
 import { AIPromptSettings } from './AIPromptSettings';
 import { AwaitingPaymentsTable } from '../project-finance/awaiting-payments/AwaitingPaymentsTable';
 import { IncomeTable } from './IncomeTable';
@@ -59,7 +58,6 @@ export const ProjectCostPage = ({
   const [incomeData, setIncomeData] = useState({ contractAmount: 0, totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });
   const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0, totalItems: 0 });
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
-  const [isPDFUploaderOpen, setIsPDFUploaderOpen] = useState(false);
   const [isInvoicePDFUploaderOpen, setIsInvoicePDFUploaderOpen] = useState(false);
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -443,23 +441,14 @@ export const ProjectCostPage = ({
                             </DropdownMenuCheckboxItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
-                        <div className="flex items-center gap-2">
-                          <Button 
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                            onClick={() => setIsPDFUploaderOpen(true)}
-                          >
-                            <DollarSign className="h-4 w-4" />
-                            UPLOAD BILLS
-                          </Button>
-                          <Button 
-                            variant="outline"
-                            size="icon"
-                            className="h-10 w-10"
-                            onClick={() => setIsAISettingsOpen(true)}
-                          >
-                            <Settings className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <Button 
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-10"
+                          onClick={() => setIsAISettingsOpen(true)}
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
                       </>
                     )}
                     {activeTab === 'cost-control' && (
@@ -594,14 +583,6 @@ export const ProjectCostPage = ({
           </div>
         </div>
       </div>
-
-      {/* Bill PDF Uploader (for Expense tab) */}
-      <BillPDFUploader
-        isOpen={isPDFUploaderOpen}
-        onClose={() => setIsPDFUploaderOpen(false)}
-        projectId={project.id}
-        onSaved={refreshData}
-      />
 
       {/* Invoice PDF Uploader */}
       <InvoicePDFUploader
