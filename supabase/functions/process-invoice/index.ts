@@ -237,7 +237,6 @@ Deno.serve(async (req) => {
     try {
       const text = await req.text();
       console.log("Raw body length:", text.length);
-      console.log("Raw body preview:", text.substring(0, 200));
       body = JSON.parse(text);
     } catch (parseError) {
       console.error("JSON parse error:", parseError);
@@ -250,72 +249,70 @@ Deno.serve(async (req) => {
       });
     }
     
-    const { signed_url, file_url, file_path, project_invoice_id, _metadata } = body;
+    const { signed_url, file_url, file_path, pdf_base64, filename, filesize, content_type, project_invoice_id } = body;
     console.log("Parsed request:", { 
       has_signed_url: !!signed_url, 
       has_file_url: !!file_url,
       has_file_path: !!file_path,
-      project_invoice_id,
-      metadata: _metadata 
+      has_pdf_base64: !!pdf_base64,
+      filename,
+      filesize,
+      project_invoice_id
     });
     
-    let bytes, fileSize;
+    let pdfBase64: string;
     
-    // PREFERRED: Download directly from storage using file path to bypass CDN caching
-    if (file_path) {
-      console.log("Downloading directly from storage bucket: documents/" + file_path);
-      console.log("Expected file:", _metadata?.filename, "Expected size:", _metadata?.filesize, "bytes");
+    // PREFERRED METHOD: Direct base64 from client (no storage/caching issues)
+    if (pdf_base64) {
+      console.log("✅ Using direct base64 data from client");
+      console.log("Processing file:", filename, "Size:", filesize, "bytes");
+      console.log("Base64 length:", pdf_base64.length);
+      pdfBase64 = pdf_base64;
       
-      const storageUrl = `${SUPABASE_URL}/storage/v1/object/documents/${file_path}`;
-      console.log("Storage URL:", storageUrl);
-      
-      const storageResponse = await fetch(storageUrl, {
-        headers: {
-          'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-          'apikey': SUPABASE_SERVICE_ROLE_KEY,
-          'Cache-Control': 'no-cache, no-store, must-revalidate'
-        }
-      });
-      
-      if (!storageResponse.ok) {
-        const errText = await storageResponse.text();
-        console.error("Storage download failed:", storageResponse.status, errText);
-        throw new Error(`Storage download failed: ${storageResponse.status} ${errText}`);
+      // Verify base64 is valid PDF
+      if (!pdf_base64.startsWith('JVBER')) { // PDF magic number in base64
+        console.warn("Base64 doesn't start with PDF magic number, but continuing...");
       }
-      
-      const arr = await storageResponse.arrayBuffer();
-      bytes = new Uint8Array(arr);
-      fileSize = bytes.byteLength;
-      console.log("✅ Downloaded from storage:", fileSize, "bytes");
     } else {
-      // Fallback: use URL-based download
-      const src = file_url || signed_url;
-      if (!src) {
-        console.error("No URL or file path provided");
-        return new Response(JSON.stringify({ error: "Provide file_path, signed_url, or file_url" }), { 
-          status: 400, 
-          headers: { "Content-Type": "application/json", ...cors } 
+      // Fallback: Download from storage/URL
+      let bytes, fileSize;
+      
+      if (file_path) {
+        console.log("Downloading from storage:", file_path);
+        const storageUrl = `${SUPABASE_URL}/storage/v1/object/documents/${file_path}`;
+        
+        const storageResponse = await fetch(storageUrl, {
+          headers: {
+            'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+            'apikey': SUPABASE_SERVICE_ROLE_KEY
+          }
         });
+        
+        if (!storageResponse.ok) {
+          throw new Error(`Storage download failed: ${storageResponse.status}`);
+        }
+        
+        const arr = await storageResponse.arrayBuffer();
+        bytes = new Uint8Array(arr);
+        fileSize = bytes.byteLength;
+      } else {
+        const src = file_url || signed_url;
+        if (!src) {
+          return new Response(JSON.stringify({ error: "Provide pdf_base64, file_path, signed_url, or file_url" }), { 
+            status: 400, 
+            headers: { "Content-Type": "application/json", ...cors } 
+          });
+        }
+        
+        console.log("Downloading via URL");
+        const result = await downloadBytes(src);
+        bytes = result.bytes;
+        fileSize = result.fileSize;
       }
       
-      console.log("Downloading via URL:", src);
-      const result = await downloadBytes(src);
-      bytes = result.bytes;
-      fileSize = result.fileSize;
+      console.log("Converting downloaded file to base64");
+      pdfBase64 = bytesToBase64(bytes);
     }
-    
-    // Verify file size matches what was uploaded
-    if (_metadata?.filesize && Math.abs(fileSize - _metadata.filesize) > 100) {
-      console.error("❌ FILE SIZE MISMATCH!");
-      console.error("Expected:", _metadata.filesize, "bytes");
-      console.error("Downloaded:", fileSize, "bytes");
-      console.error("Difference:", Math.abs(fileSize - _metadata.filesize), "bytes");
-      throw new Error(`FILE SIZE MISMATCH! Expected ${_metadata.filesize} bytes but got ${fileSize} bytes. This indicates CDN caching or wrong file. Please try uploading again.`);
-    }
-    console.log("✅ File size verified:", fileSize, "bytes");
-    
-    console.log("Converting PDF to base64 (",fileSize,"bytes)");
-    const pdfBase64 = bytesToBase64(bytes);
     
     console.log("Extracting invoice data with Lovable AI");
     const extraction = await extractWithLovableAI(pdfBase64);

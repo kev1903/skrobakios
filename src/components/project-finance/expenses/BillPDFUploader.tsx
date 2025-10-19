@@ -172,55 +172,42 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
   };
 
   const uploadAndExtract = async (file: File) => {
-    console.log('=== STARTING UPLOAD AND EXTRACT FOR:', file.name, '===');
-    console.log('File size being uploaded:', file.size, 'bytes');
+    console.log('=== STARTING DIRECT EXTRACTION FOR:', file.name, '===');
+    console.log('File size:', file.size, 'bytes');
     setUploading(true);
-    setExtracting(false);
+    setExtracting(true);
     setUploadProgress(0);
     setError(null);
 
     try {
-      // Generate unique filename with timestamp and random string to avoid any caching
-      const uniqueId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      const fileName = `bill_${uniqueId}_${file.name}`;
-      console.log('Uploading to storage as:', fileName);
+      // Convert file directly to base64 and send to edge function
+      // This bypasses Supabase Storage completely to avoid any caching issues
+      console.log('Converting file to base64...');
+      const fileBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          // Remove the data:...;base64, prefix
+          const base64 = result.split(',')[1];
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
       
-      // Upload with no-cache to prevent CDN caching issues
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('documents')
-        .upload(fileName, file, {
-          cacheControl: 'no-cache, no-store, must-revalidate',
-          upsert: false
-        });
+      console.log('Base64 conversion complete, length:', fileBase64.length);
+      setUploadProgress(30);
 
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw uploadError;
-      }
-      
-      console.log('Upload successful. Path:', uploadData.path);
-      
-      // CRITICAL: Wait for storage consistency (Supabase CDN propagation)
-      console.log('Waiting 2 seconds for storage consistency...');
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setUploadProgress(50);
-      setUploading(false);
-      setExtracting(true);
-
-      // Use file path for edge function to download directly from storage
-      // This bypasses CDN caching completely
+      // Call edge function directly with base64 data
       const requestBody = {
-        file_path: fileName,  // Send path instead of URL
-        project_invoice_id: null,
-        _metadata: {
-          filename: file.name,
-          filesize: file.size,
-          timestamp: Date.now(),
-          unique_id: uniqueId
-        }
+        pdf_base64: fileBase64,
+        filename: file.name,
+        filesize: file.size,
+        content_type: file.type
       };
       
-      console.log('Edge function request with file path:', requestBody);
+      console.log('Calling edge function with direct base64 data');
+      console.log('Expected extraction from:', file.name, file.size, 'bytes');
       
       const { data: processingData, error: processingError } = await supabase.functions.invoke('process-invoice', {
         body: requestBody
@@ -231,7 +218,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
         throw processingError;
       }
 
-      console.log('=== EDGE FUNCTION RESPONSE FOR:', file.name, '===');
+      console.log('=== EDGE FUNCTION RESPONSE ===');
       console.log('Full response:', JSON.stringify(processingData, null, 2));
       
       setUploadProgress(100);
