@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Upload, FileText, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, Upload, FileText, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight, Clipboard } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
@@ -105,6 +105,47 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       handleFileSelect(e.target.files[0]);
+    }
+  };
+
+  const handlePaste = async () => {
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      
+      for (const clipboardItem of clipboardItems) {
+        // Look for image types
+        const imageTypes = clipboardItem.types.filter(type => type.startsWith('image/'));
+        
+        if (imageTypes.length > 0) {
+          const imageType = imageTypes[0];
+          const blob = await clipboardItem.getType(imageType);
+          
+          // Convert blob to file
+          const fileName = `pasted-image-${Date.now()}.${imageType.split('/')[1]}`;
+          const file = new File([blob], fileName, { type: imageType });
+          
+          handleFileSelect(file);
+          toast({
+            title: "Image Pasted",
+            description: "Processing pasted image...",
+          });
+          return;
+        }
+      }
+      
+      // No image found in clipboard
+      toast({
+        title: "No Image Found",
+        description: "Please copy an image to your clipboard first",
+        variant: "destructive",
+      });
+    } catch (error) {
+      console.error('Paste error:', error);
+      toast({
+        title: "Paste Failed",
+        description: "Unable to access clipboard. Please use the file upload instead.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -481,26 +522,44 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
           <div className="space-y-6 overflow-y-auto pr-2">
           {/* File Upload Area */}
           {!uploadedFile && (
-            <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
-                dragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-lg font-medium mb-2">Drop your file here or click to browse</p>
-              <p className="text-sm text-muted-foreground">PDF, JPG, JPEG, or PNG • Maximum file size: 10MB</p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
-                className="hidden"
-                onChange={handleFileInputChange}
-              />
+            <div className="space-y-4">
+              <div
+                className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+                  dragActive ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+                }`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-lg font-medium mb-2">Drop your file here or click to browse</p>
+                <p className="text-sm text-muted-foreground">PDF, JPG, JPEG, or PNG • Maximum file size: 10MB</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="hidden"
+                  onChange={handleFileInputChange}
+                />
+              </div>
+              
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-px bg-border"></div>
+                <span className="text-sm text-muted-foreground">OR</span>
+                <div className="flex-1 h-px bg-border"></div>
+              </div>
+              
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handlePaste}
+              >
+                <Clipboard className="h-4 w-4 mr-2" />
+                Paste from Clipboard
+              </Button>
             </div>
           )}
 
