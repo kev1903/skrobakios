@@ -115,6 +115,36 @@ async function fetchAsArrayBuffer(url: string): Promise<ArrayBuffer> {
   return response.arrayBuffer();
 }
 
+// Convert ArrayBuffer to base64
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+// Detect file type from filename
+function getFileType(filename: string): 'pdf' | 'image' | 'unknown' {
+  const ext = filename.toLowerCase().split('.').pop() || '';
+  if (ext === 'pdf') return 'pdf';
+  if (['jpg', 'jpeg', 'png'].includes(ext)) return 'image';
+  return 'unknown';
+}
+
+// Get MIME type from filename
+function getMimeType(filename: string): string {
+  const ext = filename.toLowerCase().split('.').pop() || '';
+  const mimeTypes: Record<string, string> = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'pdf': 'application/pdf'
+  };
+  return mimeTypes[ext] || 'application/octet-stream';
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -140,8 +170,19 @@ serve(async (req) => {
       );
     }
 
-    // Step 1: Download PDF
-    console.log('Downloading PDF from storage...');
+    // Detect file type
+    const fileType = getFileType(filename);
+    console.log('File type detected:', fileType);
+
+    if (fileType === 'unknown') {
+      return new Response(
+        JSON.stringify({ ok: false, error: 'Unsupported file type. Please upload PDF, JPG, JPEG, or PNG files.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Step 1: Download file
+    console.log('Downloading file from storage...');
     const bytes = await fetchAsArrayBuffer(signed_url);
     console.log(`Downloaded ${bytes.byteLength} bytes`);
 
@@ -158,32 +199,25 @@ serve(async (req) => {
       );
     }
 
-    // Step 2: Extract text from PDF
-    console.log('Extracting text from PDF...');
-    const extractedText = await extractTextFromPDF(bytes);
-    console.log(`Extracted ${extractedText.length} characters`);
+    let aiMessages;
 
-    if (extractedText.length < 20) {
-      return new Response(
-        JSON.stringify({ ok: false, error: 'Failed to extract meaningful text from PDF' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    if (fileType === 'pdf') {
+      // Step 2a: Extract text from PDF
+      console.log('Extracting text from PDF...');
+      const extractedText = await extractTextFromPDF(bytes);
+      console.log(`Extracted ${extractedText.length} characters`);
 
-    // Step 3: Send to Lovable AI for structured extraction
-    console.log('Sending to Lovable AI for structured extraction...');
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `You are an expert at extracting invoice data from text. Extract all information accurately.
+      if (extractedText.length < 20) {
+        return new Response(
+          JSON.stringify({ ok: false, error: 'Failed to extract meaningful text from PDF' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      aiMessages = [
+        {
+          role: 'system',
+          content: `You are an expert at extracting invoice data from text. Extract all information accurately.
 
 EXTRACTION RULES:
 1. SUPPLIER: The company issuing the invoice (look for "Pty Ltd", "LLC", "Inc", full company name with ABN)
@@ -199,10 +233,10 @@ CONFIDENCE SCORING:
 - Below 0.70: Significant data missing or unclear
 
 Return structured JSON matching the schema.`
-          },
-          {
-            role: 'user',
-            content: `Extract all invoice data from this text:
+        },
+        {
+          role: 'user',
+          content: `Extract all invoice data from this text:
 
 ${extractedText}
 
@@ -215,8 +249,74 @@ Extract:
 - Reference numbers if present
 
 Be precise with numbers and dates. Set high confidence (0.9+) if data is clearly readable.`
-          }
-        ],
+        }
+      ];
+    } else {
+      // Step 2b: Process image directly with vision model
+      console.log('Processing image with vision AI...');
+      const base64Image = arrayBufferToBase64(bytes);
+      const mimeType = getMimeType(filename);
+
+      aiMessages = [
+        {
+          role: 'system',
+          content: `You are an expert at extracting invoice/receipt/bill data from images. Analyze the image carefully and extract all visible information accurately.
+
+EXTRACTION RULES:
+1. SUPPLIER: The company issuing the invoice (look for "Pty Ltd", "LLC", "Inc", full company name)
+2. INVOICE NUMBER: The reference code visible on the document
+3. DATES: Convert all dates to YYYY-MM-DD format (e.g., "10 Oct 2025" → "2025-10-10")
+4. AMOUNTS: Extract exact numeric values for Total, Subtotal, and Tax/GST from the image
+5. LINE ITEMS: Each item with description, quantity (if shown), rate (if shown), and amount
+
+CONFIDENCE SCORING:
+- 0.95+: All fields clearly visible in the image and extracted
+- 0.85-0.94: Most fields clear, some minor ambiguity
+- 0.70-0.84: Some fields unclear or partially visible
+- Below 0.70: Significant data missing or unclear
+
+Look carefully at ALL text in the image. Don't miss any numbers or amounts. Return structured JSON matching the schema.`
+        },
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: `Analyze this invoice/receipt/bill image and extract ALL data:
+
+Extract:
+- Full company name as supplier
+- Invoice/receipt number
+- Invoice date and due date in YYYY-MM-DD format
+- ALL amounts visible (Task cost, Total, Connection fee, GST, Total inc. GST, etc.)
+- ALL line items with descriptions and amounts
+- Reference numbers if present
+
+IMPORTANT: Look at EVERY number in the image. Don't assume amounts are zero - read them directly from the image.
+Be precise with ALL numbers and dates. Set high confidence (0.9+) if the image is clear and readable.`
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:${mimeType};base64,${base64Image}`
+              }
+            }
+          ]
+        }
+      ];
+    }
+
+    // Step 3: Send to Lovable AI for structured extraction
+    console.log('Sending to Lovable AI for structured extraction...');
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: aiMessages,
         tools: [{
           type: 'function',
           function: InvoiceSchema
