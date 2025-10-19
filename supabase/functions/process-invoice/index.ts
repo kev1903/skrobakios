@@ -48,19 +48,33 @@ const InvoiceSchema = {
 } as const;
 
 async function downloadBytes(url: string) {
-  const r = await fetch(url);
+  console.log("Fetching PDF from URL...");
+  const r = await fetch(url, {
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    }
+  });
   if (!r.ok) throw new Error(`download failed ${r.status}: ${await r.text()}`);
   const ct = r.headers.get("content-type") || "application/pdf";
   const arr = await r.arrayBuffer();
   
+  const fileSize = arr.byteLength;
+  console.log("Downloaded file size:", fileSize, "bytes");
+  
+  // Log first 50 bytes as hex to verify file identity
+  const first50 = new Uint8Array(arr.slice(0, 50));
+  const hexPreview = Array.from(first50).map(b => b.toString(16).padStart(2, '0')).join(' ');
+  console.log("File header (first 50 bytes):", hexPreview);
+  
   // Check file size (max 5MB for better AI processing)
   const maxSize = 5 * 1024 * 1024; // 5MB
-  if (arr.byteLength > maxSize) {
-    const sizeMB = (arr.byteLength / 1024 / 1024).toFixed(2);
+  if (fileSize > maxSize) {
+    const sizeMB = (fileSize / 1024 / 1024).toFixed(2);
     throw new Error(`PDF file is too large (${sizeMB}MB). Maximum size is 5MB. Please compress the PDF using tools like https://www.ilovepdf.com/compress_pdf before uploading.`);
   }
   
-  return { bytes: new Uint8Array(arr), contentType: ct };
+  return { bytes: new Uint8Array(arr), contentType: ct, fileSize };
 }
 
 function bytesToBase64(bytes: Uint8Array): string {
@@ -236,8 +250,13 @@ Deno.serve(async (req) => {
       });
     }
     
-    const { signed_url, file_url, project_invoice_id } = body;
-    console.log("Parsed request:", { has_signed_url: !!signed_url, has_file_url: !!file_url, project_invoice_id });
+    const { signed_url, file_url, project_invoice_id, _metadata } = body;
+    console.log("Parsed request:", { 
+      has_signed_url: !!signed_url, 
+      has_file_url: !!file_url, 
+      project_invoice_id,
+      metadata: _metadata 
+    });
     
     const src = signed_url || file_url;
     if (!src) {
@@ -249,7 +268,15 @@ Deno.serve(async (req) => {
     }
 
     console.log("Downloading PDF from:", src.substring(0, 100));
-    const { bytes } = await downloadBytes(src);
+    console.log("Expected file:", _metadata?.filename, "Size:", _metadata?.filesize);
+    const { bytes, fileSize } = await downloadBytes(src);
+    
+    // Verify file size matches what was uploaded
+    if (_metadata?.filesize && Math.abs(fileSize - _metadata.filesize) > 100) {
+      console.error("FILE SIZE MISMATCH! Expected:", _metadata.filesize, "Got:", fileSize);
+      throw new Error(`File size mismatch - expected ${_metadata.filesize} bytes but got ${fileSize} bytes. This indicates the wrong file was downloaded.`);
+    }
+    console.log("File size verified:", fileSize, "bytes");
     
     console.log("Converting PDF to base64");
     const pdfBase64 = bytesToBase64(bytes);

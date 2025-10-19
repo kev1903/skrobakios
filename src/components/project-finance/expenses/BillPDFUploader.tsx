@@ -177,8 +177,19 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     setExtracting(false);
     setUploadProgress(0);
     setError(null);
-    
+
     try {
+      // First, delete any existing files with similar names to prevent confusion
+      const { data: existingFiles } = await supabase.storage
+        .from('documents')
+        .list('', { search: file.name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 20) });
+      
+      if (existingFiles && existingFiles.length > 0) {
+        console.log('Deleting', existingFiles.length, 'old files before upload');
+        const filesToDelete = existingFiles.map(f => f.name);
+        await supabase.storage.from('documents').remove(filesToDelete);
+      }
+
       // Upload to Supabase Storage with progress
       const fileName = `bill_${Date.now()}_${file.name}`;
       console.log('Uploading to storage as:', fileName);
