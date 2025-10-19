@@ -551,6 +551,67 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
                 </div>
               </div>
 
+              {/* Extracted Data Summary */}
+              {extractedData && (
+                <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
+                  <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Extracted Data Summary
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <span className="font-medium text-blue-800">Supplier:</span>
+                        <p className="text-blue-700">{extractedData.supplier || 'Not extracted'}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-blue-800">Invoice #:</span>
+                        <p className="text-blue-700">{extractedData.invoice_number || 'Not extracted'}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-blue-800">Invoice Date:</span>
+                        <p className="text-blue-700">{extractedData.invoice_date || 'Not extracted'}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-blue-800">Due Date:</span>
+                        <p className="text-blue-700">{extractedData.due_date || 'Not extracted'}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-blue-800">Subtotal:</span>
+                        <p className="text-blue-700">${extractedData.subtotal || '0.00'}</p>
+                      </div>
+                      <div>
+                        <span className="font-medium text-blue-800">Tax:</span>
+                        <p className="text-blue-700">${extractedData.tax || '0.00'}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="font-medium text-blue-800">Total:</span>
+                        <p className="text-blue-700 text-lg font-semibold">${extractedData.total || '0.00'}</p>
+                      </div>
+                    </div>
+                    {extractedData.line_items && extractedData.line_items.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-blue-300">
+                        <span className="font-medium text-blue-800">Line Items ({extractedData.line_items.length}):</span>
+                        <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
+                          {extractedData.line_items.map((item: any, idx: number) => (
+                            <div key={idx} className="text-xs text-blue-600 flex justify-between">
+                              <span>{item.description}</span>
+                              <span className="font-medium">${item.amount}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {extractedData.ai_summary && (
+                      <div className="mt-3 pt-3 border-t border-blue-300">
+                        <span className="font-medium text-blue-800">AI Summary:</span>
+                        <p className="text-blue-600 text-xs mt-1 italic">{extractedData.ai_summary}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Supplier Name *</Label>

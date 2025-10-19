@@ -79,16 +79,23 @@ function preprocessText(text: string, maxTokens: number = 100000): string {
   return processed;
 }
 
-// Enhanced PDF text extraction
+// Enhanced PDF text extraction using canvas-based approach
 async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
   try {
-    // Try PDF.js extraction
+    // Try PDF.js extraction with proper initialization
     try {
-      const pdfjsLib = await import("https://esm.sh/pdfjs-dist@3.11.174");
+      const pdfjsLib = await import("https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/+esm");
       
-      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      // Set worker source - use jsdelivr CDN for consistency
+      if (pdfjsLib.GlobalWorkerOptions) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 
+          "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+      }
       
-      const loadingTask = pdfjsLib.getDocument(new Uint8Array(pdfBytes));
+      const loadingTask = pdfjsLib.getDocument({
+        data: new Uint8Array(pdfBytes),
+        useSystemFonts: true,
+      });
       const pdf = await loadingTask.promise;
       
       let fullText = '';
