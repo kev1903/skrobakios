@@ -611,24 +611,27 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
           {/* Right Column - Preview */}
           <div className="hidden lg:block border-l pl-6 overflow-hidden">
             <div className="h-full flex flex-col">
-              <h3 className="text-sm font-semibold mb-3">Document Preview</h3>
-              <div className="flex-1 border rounded-lg overflow-hidden bg-muted/30 relative">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-semibold">Document Preview</h3>
+                {filePreviewUrl && uploadedFile && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open(filePreviewUrl, '_blank')}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Open in New Tab
+                  </Button>
+                )}
+              </div>
+              <div className="flex-1 border rounded-lg overflow-hidden bg-white relative">
                 {filePreviewUrl && uploadedFile ? (
                   uploadedFile.type.includes('pdf') ? (
-                    <object
-                      data={filePreviewUrl}
+                    <embed
+                      src={`${filePreviewUrl}#toolbar=1&navpanes=0&scrollbar=1`}
                       type="application/pdf"
                       className="w-full h-full"
-                      aria-label="PDF Preview"
-                    >
-                      <div className="w-full h-full flex items-center justify-center p-4">
-                        <div className="text-center">
-                          <FileText className="h-12 w-12 mx-auto mb-2 text-blue-600" />
-                          <p className="text-sm font-medium mb-1">PDF Preview</p>
-                          <p className="text-xs text-muted-foreground">{uploadedFile.name}</p>
-                        </div>
-                      </div>
-                    </object>
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center p-4 overflow-auto">
                       <img
