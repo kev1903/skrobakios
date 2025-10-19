@@ -47,7 +47,7 @@ export const ProjectCostPage = ({
   const [activeTab, setActiveTab] = useState(tabFromUrl || 'income');
   const [incomeStatusFilter, setIncomeStatusFilter] = useState('all');
   const [expenseStatusFilter, setExpenseStatusFilter] = useState('inbox');
-  const [incomeData, setIncomeData] = useState({ totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });
+  const [incomeData, setIncomeData] = useState({ contractAmount: 0, totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });
   const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0, totalItems: 0 });
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
   const [isPDFUploaderOpen, setIsPDFUploaderOpen] = useState(false);
@@ -92,10 +92,19 @@ export const ProjectCostPage = ({
   // Load income data
   const loadIncomeData = async () => {
     try {
+      // Load invoices
       const { data: invoices } = await supabase
         .from('invoices')
         .select('*')
         .eq('project_id', project.id);
+      
+      // Load contract amount
+      const { data: contracts } = await supabase
+        .from('project_contracts')
+        .select('contract_amount')
+        .eq('project_id', project.id);
+      
+      const contractAmount = contracts?.reduce((sum, contract) => sum + (contract.contract_amount || 0), 0) || 0;
       
       if (invoices) {
         const totalBilled = invoices.reduce((sum, inv) => sum + inv.total, 0);
@@ -103,7 +112,9 @@ export const ProjectCostPage = ({
         const outstanding = invoices.reduce((sum, inv) => sum + (inv.total - inv.paid_to_date), 0);
         const overdue = invoices.filter(inv => inv.status === 'overdue').reduce((sum, inv) => sum + (inv.total - inv.paid_to_date), 0);
         
-        setIncomeData({ totalBilled, totalPaid, outstanding, overdue });
+        setIncomeData({ contractAmount, totalBilled, totalPaid, outstanding, overdue });
+      } else {
+        setIncomeData({ contractAmount, totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });
       }
     } catch (error) {
       console.error('Error loading income data:', error);
@@ -211,11 +222,15 @@ export const ProjectCostPage = ({
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Summary Cards - Dynamic based on active tab */}
           <div className="m-6 mb-3 bg-card border rounded-lg p-2">
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               {activeTab === 'income' && (
                 <>
                   <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Billed</div>
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Contract Amount</div>
+                    <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.contractAmount)}</div>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg border p-2">
+                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Invoiced</div>
                     <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.totalBilled)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
