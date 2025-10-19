@@ -173,31 +173,23 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
 
   const uploadAndExtract = async (file: File) => {
     console.log('=== STARTING UPLOAD AND EXTRACT FOR:', file.name, '===');
+    console.log('File size being uploaded:', file.size, 'bytes');
     setUploading(true);
     setExtracting(false);
     setUploadProgress(0);
     setError(null);
 
     try {
-      // First, delete any existing files with similar names to prevent confusion
-      const { data: existingFiles } = await supabase.storage
-        .from('documents')
-        .list('', { search: file.name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 20) });
-      
-      if (existingFiles && existingFiles.length > 0) {
-        console.log('Deleting', existingFiles.length, 'old files before upload');
-        const filesToDelete = existingFiles.map(f => f.name);
-        await supabase.storage.from('documents').remove(filesToDelete);
-      }
-
-      // Upload to Supabase Storage with progress
-      const fileName = `bill_${Date.now()}_${file.name}`;
+      // Generate unique filename with timestamp and random string to avoid any caching
+      const uniqueId = `${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      const fileName = `bill_${uniqueId}_${file.name}`;
       console.log('Uploading to storage as:', fileName);
       
+      // Upload with no-cache to prevent CDN caching issues
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
         .upload(fileName, file, {
-          cacheControl: 'no-cache',
+          cacheControl: 'no-cache, no-store, must-revalidate',
           upsert: false
         });
 
@@ -206,36 +198,29 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
         throw uploadError;
       }
       
-      console.log('Upload successful:', uploadData);
+      console.log('Upload successful. Path:', uploadData.path);
+      
+      // CRITICAL: Wait for storage consistency (Supabase CDN propagation)
+      console.log('Waiting 2 seconds for storage consistency...');
+      await new Promise(resolve => setTimeout(resolve, 2000));
       setUploadProgress(50);
       setUploading(false);
       setExtracting(true);
 
-      // Get signed URL for the edge function
-      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
-        .from('documents')
-        .createSignedUrl(fileName, 3600);
-
-      if (signedUrlError) {
-        console.error('Signed URL error:', signedUrlError);
-        throw signedUrlError;
-      }
-      
-      console.log('Signed URL created, calling edge function for file:', file.name);
-      console.log('Signed URL (first 100 chars):', signedUrlData.signedUrl.substring(0, 100));
-
-      // Call edge function to extract data with explicit file tracking
+      // Use file path for edge function to download directly from storage
+      // This bypasses CDN caching completely
       const requestBody = {
-        signed_url: signedUrlData.signedUrl,
+        file_path: fileName,  // Send path instead of URL
         project_invoice_id: null,
         _metadata: {
           filename: file.name,
           filesize: file.size,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          unique_id: uniqueId
         }
       };
       
-      console.log('Edge function request:', requestBody);
+      console.log('Edge function request with file path:', requestBody);
       
       const { data: processingData, error: processingError } = await supabase.functions.invoke('process-invoice', {
         body: requestBody

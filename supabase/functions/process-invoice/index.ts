@@ -250,35 +250,76 @@ Deno.serve(async (req) => {
       });
     }
     
-    const { signed_url, file_url, project_invoice_id, _metadata } = body;
+    const { signed_url, file_url, file_path, project_invoice_id, _metadata } = body;
     console.log("Parsed request:", { 
       has_signed_url: !!signed_url, 
-      has_file_url: !!file_url, 
+      has_file_url: !!file_url,
+      has_file_path: !!file_path,
       project_invoice_id,
       metadata: _metadata 
     });
     
-    const src = signed_url || file_url;
-    if (!src) {
-      console.error("No URL provided in request");
-      return new Response(JSON.stringify({ error: "Provide signed_url or file_url" }), { 
-        status: 400, 
-        headers: { "Content-Type": "application/json", ...cors } 
+    let bytes, fileSize;
+    
+    // PREFERRED: Download directly from storage using file path to bypass CDN caching
+    if (file_path) {
+      console.log("Downloading directly from storage bucket: documents/" + file_path);
+      console.log("Expected file:", _metadata?.filename, "Expected size:", _metadata?.filesize, "bytes");
+      
+      const { data: fileData, error: downloadError } = await fetch(
+        `${SUPABASE_URL}/storage/v1/object/documents/${file_path}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+            'apikey': SUPABASE_SERVICE_ROLE_KEY,
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
+          }
+        }
+      ).then(async (r) => {
+        if (!r.ok) {
+          const errText = await r.text();
+          console.error("Storage download failed:", r.status, errText);
+          return { data: null, error: new Error(`Storage download failed: ${r.status} ${errText}`) };
+        }
+        const arr = await r.arrayBuffer();
+        return { data: new Uint8Array(arr), error: null };
       });
+      
+      if (downloadError || !fileData) {
+        throw downloadError || new Error("Failed to download file from storage");
+      }
+      
+      bytes = fileData;
+      fileSize = bytes.byteLength;
+      console.log("Downloaded from storage:", fileSize, "bytes");
+    } else {
+      // Fallback: use URL-based download
+      const src = file_url || signed_url;
+      if (!src) {
+        console.error("No URL or file path provided");
+        return new Response(JSON.stringify({ error: "Provide file_path, signed_url, or file_url" }), { 
+          status: 400, 
+          headers: { "Content-Type": "application/json", ...cors } 
+        });
+      }
+      
+      console.log("Downloading via URL:", src);
+      const result = await downloadBytes(src);
+      bytes = result.bytes;
+      fileSize = result.fileSize;
     }
-
-    console.log("Downloading PDF from:", src.substring(0, 100));
-    console.log("Expected file:", _metadata?.filename, "Size:", _metadata?.filesize);
-    const { bytes, fileSize } = await downloadBytes(src);
     
     // Verify file size matches what was uploaded
     if (_metadata?.filesize && Math.abs(fileSize - _metadata.filesize) > 100) {
-      console.error("FILE SIZE MISMATCH! Expected:", _metadata.filesize, "Got:", fileSize);
-      throw new Error(`File size mismatch - expected ${_metadata.filesize} bytes but got ${fileSize} bytes. This indicates the wrong file was downloaded.`);
+      console.error("❌ FILE SIZE MISMATCH!");
+      console.error("Expected:", _metadata.filesize, "bytes");
+      console.error("Downloaded:", fileSize, "bytes");
+      console.error("Difference:", Math.abs(fileSize - _metadata.filesize), "bytes");
+      throw new Error(`FILE SIZE MISMATCH! Expected ${_metadata.filesize} bytes but got ${fileSize} bytes. This indicates CDN caching or wrong file. Please try uploading again.`);
     }
-    console.log("File size verified:", fileSize, "bytes");
+    console.log("✅ File size verified:", fileSize, "bytes");
     
-    console.log("Converting PDF to base64");
+    console.log("Converting PDF to base64 (",fileSize,"bytes)");
     const pdfBase64 = bytesToBase64(bytes);
     
     console.log("Extracting invoice data with Lovable AI");
