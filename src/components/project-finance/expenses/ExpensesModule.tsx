@@ -186,7 +186,9 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
         .from('bills')
         .update({ 
           status: 'paid',
-          paid_to_date: bill.total
+          paid_to_date: bill.total,
+          reimbursement_requested: false,
+          change_requested: false
         })
         .eq('id', billId);
 
@@ -216,7 +218,11 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     try {
       const { error } = await supabase
         .from('bills')
-        .update({ status: 'cancelled' })
+        .update({ 
+          status: 'cancelled',
+          reimbursement_requested: false,
+          change_requested: false
+        })
         .eq('id', billId);
 
       if (error) throw error;
@@ -241,7 +247,11 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     try {
       const { error } = await supabase
         .from('bills')
-        .update({ reimbursement_requested: true })
+        .update({ 
+          reimbursement_requested: true,
+          change_requested: false,
+          status: 'approved'
+        })
         .eq('id', billId);
 
       if (error) throw error;
@@ -266,7 +276,11 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     try {
       const { error } = await supabase
         .from('bills')
-        .update({ change_requested: true })
+        .update({ 
+          change_requested: true,
+          reimbursement_requested: false,
+          status: 'draft'
+        })
         .eq('id', billId);
 
       if (error) throw error;
@@ -490,29 +504,25 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-background border shadow-lg z-50 w-48">
                           <DropdownMenuItem 
-                            onClick={() => handleMarkAsPaid(bill.id)} 
-                            disabled={bill.status === 'paid'}
+                            onClick={() => handleMarkAsPaid(bill.id)}
                           >
                             <Check className="h-4 w-4 mr-2 text-green-600" />
                             Paid
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => handleReimbursement(bill.id)}
-                            disabled={bill.reimbursement_requested}
                           >
                             <Receipt className="h-4 w-4 mr-2 text-blue-600" />
                             To be Reimbursed
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => handleRequestChange(bill.id)}
-                            disabled={bill.change_requested}
                           >
                             <FileEdit className="h-4 w-4 mr-2 text-orange-600" />
                             Request Change
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => handleVoidBill(bill.id)}
-                            disabled={bill.status === 'cancelled'}
                           >
                             <Ban className="h-4 w-4 mr-2 text-red-600" />
                             Voided
