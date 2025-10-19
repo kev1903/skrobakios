@@ -33,6 +33,7 @@ import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
 import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
 import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader';
 import { AIPromptSettings } from './AIPromptSettings';
+import { BillDropZone } from '../project-finance/expenses/BillDropZone';
 import { AwaitingPaymentsTable } from '../project-finance/awaiting-payments/AwaitingPaymentsTable';
 import { IncomeTable } from './IncomeTable';
 import { ContractsTable } from './ContractsTable';
@@ -503,68 +504,70 @@ export const ProjectCostPage = ({
                 </TabsContent>
 
                 <TabsContent value="expense" className="mt-0 h-full overflow-y-auto p-6">
-                  <div className="space-y-6">
-                    {expenseStatusFilters.includes('inbox') && (
-                      <div>
-                        <h3 className="text-lg font-semibold mb-4">For Approval</h3>
-                        <ExpensesModule 
-                          projectId={project.id}
-                          statusFilter="inbox"
-                          formatCurrency={formatCurrency}
-                          formatDate={formatDate}
-                          onDataUpdate={setExpenseData}
-                          refreshTrigger={refreshTrigger}
-                        />
-                      </div>
-                    )}
-                    {expenseStatusFilters.includes('scheduled') && (
-                      <div>
-                        <h3 className="text-lg font-semibold mb-4">Awaiting Payments</h3>
-                        <AwaitingPaymentsTable 
-                          projectId={project.id}
-                          formatCurrency={formatCurrency}
-                          formatDate={formatDate}
-                        />
-                      </div>
-                    )}
-                    {expenseStatusFilters.includes('paid') && (
-                      <div>
-                        <h3 className="text-lg font-semibold mb-4">Paid</h3>
-                        <div className="space-y-4">
-                          <div className="text-center py-8 text-foreground">
-                            <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
-                              <DollarSign className="h-8 w-8" />
+                  <BillDropZone projectId={project.id} onBillSaved={refreshData}>
+                    <div className="space-y-6">
+                      {expenseStatusFilters.includes('inbox') && (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">For Approval</h3>
+                          <ExpensesModule 
+                            projectId={project.id}
+                            statusFilter="inbox"
+                            formatCurrency={formatCurrency}
+                            formatDate={formatDate}
+                            onDataUpdate={setExpenseData}
+                            refreshTrigger={refreshTrigger}
+                          />
+                        </div>
+                      )}
+                      {expenseStatusFilters.includes('scheduled') && (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">Awaiting Payments</h3>
+                          <AwaitingPaymentsTable 
+                            projectId={project.id}
+                            formatCurrency={formatCurrency}
+                            formatDate={formatDate}
+                          />
+                        </div>
+                      )}
+                      {expenseStatusFilters.includes('paid') && (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">Paid</h3>
+                          <div className="space-y-4">
+                            <div className="text-center py-8 text-foreground">
+                              <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
+                                <DollarSign className="h-8 w-8" />
+                              </div>
+                              <p className="text-foreground">No paid invoices.</p>
+                              <p className="text-sm mt-2 text-muted-foreground">Completed payments will appear here.</p>
                             </div>
-                            <p className="text-foreground">No paid invoices.</p>
-                            <p className="text-sm mt-2 text-muted-foreground">Completed payments will appear here.</p>
                           </div>
                         </div>
-                      </div>
-                    )}
-                    {expenseStatusFilters.includes('reimbursement') && (
-                      <div>
-                        <h3 className="text-lg font-semibold mb-4">Reimbursement</h3>
-                        <div className="space-y-4">
-                          <div className="text-center py-8 text-foreground">
-                            <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
-                              <DollarSign className="h-8 w-8" />
+                      )}
+                      {expenseStatusFilters.includes('reimbursement') && (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-4">Reimbursement</h3>
+                          <div className="space-y-4">
+                            <div className="text-center py-8 text-foreground">
+                              <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
+                                <DollarSign className="h-8 w-8" />
+                              </div>
+                              <p className="text-foreground">No reimbursement items.</p>
+                              <p className="text-sm mt-2 text-muted-foreground">Expenses to be invoiced to the client will appear here.</p>
                             </div>
-                            <p className="text-foreground">No reimbursement items.</p>
-                            <p className="text-sm mt-2 text-muted-foreground">Expenses to be invoiced to the client will appear here.</p>
                           </div>
                         </div>
-                      </div>
-                    )}
-                    {expenseStatusFilters.length === 0 && (
-                      <div className="text-center py-12 text-foreground">
-                        <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
-                          <Filter className="h-8 w-8" />
+                      )}
+                      {expenseStatusFilters.length === 0 && (
+                        <div className="text-center py-12 text-foreground">
+                          <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
+                            <Filter className="h-8 w-8" />
+                          </div>
+                          <p className="text-foreground">No filters selected</p>
+                          <p className="text-sm mt-2 text-muted-foreground">Select at least one filter to view expense data.</p>
                         </div>
-                        <p className="text-foreground">No filters selected</p>
-                        <p className="text-sm mt-2 text-muted-foreground">Select at least one filter to view expense data.</p>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  </BillDropZone>
                 </TabsContent>
                 
                 <TabsContent value="analytics" className="mt-0 h-full overflow-y-auto p-6">
