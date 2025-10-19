@@ -96,7 +96,6 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
     if (!dateStr) return new Date().toISOString().split('T')[0];
     
     try {
-      // Handle common AI date formats like "31 Jul 2025", "2025-07-31", "31/07/2025"
       const cleanDate = dateStr.trim();
       
       // If already in ISO format (YYYY-MM-DD), return as is
@@ -104,7 +103,18 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
         return cleanDate;
       }
       
-      // Parse various date formats
+      // Handle DD/MM/YYYY format (common in UK/EU invoices)
+      const ddmmyyyyMatch = cleanDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (ddmmyyyyMatch) {
+        const [, day, month, year] = ddmmyyyyMatch;
+        const isoDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        const testDate = new Date(isoDate);
+        if (!isNaN(testDate.getTime())) {
+          return isoDate;
+        }
+      }
+      
+      // Handle various text formats like "31 Jul 2025", "July 31, 2025"
       const parsedDate = new Date(cleanDate);
       
       // Check if date is valid
