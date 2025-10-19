@@ -32,8 +32,8 @@ import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
 import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
 import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
 import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader';
+import { BillPDFUploader } from '../project-finance/expenses/BillPDFUploader';
 import { AIPromptSettings } from './AIPromptSettings';
-import { BillDropZone } from '../project-finance/expenses/BillDropZone';
 import { AwaitingPaymentsTable } from '../project-finance/awaiting-payments/AwaitingPaymentsTable';
 import { IncomeTable } from './IncomeTable';
 import { ContractsTable } from './ContractsTable';
@@ -59,6 +59,7 @@ export const ProjectCostPage = ({
   const [incomeData, setIncomeData] = useState({ contractAmount: 0, totalBilled: 0, totalPaid: 0, outstanding: 0, overdue: 0 });
   const [expenseData, setExpenseData] = useState({ totalBills: 0, totalPaid: 0, outstanding: 0, pending: 0, totalItems: 0 });
   const [isInvoiceDrawerOpen, setIsInvoiceDrawerOpen] = useState(false);
+  const [isPDFUploaderOpen, setIsPDFUploaderOpen] = useState(false);
   const [isInvoicePDFUploaderOpen, setIsInvoicePDFUploaderOpen] = useState(false);
   const [isAISettingsOpen, setIsAISettingsOpen] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -442,14 +443,23 @@ export const ProjectCostPage = ({
                             </DropdownMenuCheckboxItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
-                        <Button 
-                          variant="outline"
-                          size="icon"
-                          className="h-10 w-10"
-                          onClick={() => setIsAISettingsOpen(true)}
-                        >
-                          <Settings className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                            onClick={() => setIsPDFUploaderOpen(true)}
+                          >
+                            <DollarSign className="h-4 w-4" />
+                            UPLOAD BILLS
+                          </Button>
+                          <Button 
+                            variant="outline"
+                            size="icon"
+                            className="h-10 w-10"
+                            onClick={() => setIsAISettingsOpen(true)}
+                          >
+                            <Settings className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </>
                     )}
                     {activeTab === 'cost-control' && (
@@ -504,70 +514,68 @@ export const ProjectCostPage = ({
                 </TabsContent>
 
                 <TabsContent value="expense" className="mt-0 h-full overflow-y-auto p-6">
-                  <BillDropZone projectId={project.id} onBillSaved={refreshData}>
-                    <div className="space-y-6">
-                      {expenseStatusFilters.includes('inbox') && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4">For Approval</h3>
-                          <ExpensesModule 
-                            projectId={project.id}
-                            statusFilter="inbox"
-                            formatCurrency={formatCurrency}
-                            formatDate={formatDate}
-                            onDataUpdate={setExpenseData}
-                            refreshTrigger={refreshTrigger}
-                          />
-                        </div>
-                      )}
-                      {expenseStatusFilters.includes('scheduled') && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4">Awaiting Payments</h3>
-                          <AwaitingPaymentsTable 
-                            projectId={project.id}
-                            formatCurrency={formatCurrency}
-                            formatDate={formatDate}
-                          />
-                        </div>
-                      )}
-                      {expenseStatusFilters.includes('paid') && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4">Paid</h3>
-                          <div className="space-y-4">
-                            <div className="text-center py-8 text-foreground">
-                              <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
-                                <DollarSign className="h-8 w-8" />
-                              </div>
-                              <p className="text-foreground">No paid invoices.</p>
-                              <p className="text-sm mt-2 text-muted-foreground">Completed payments will appear here.</p>
+                  <div className="space-y-6">
+                    {expenseStatusFilters.includes('inbox') && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">For Approval</h3>
+                        <ExpensesModule 
+                          projectId={project.id}
+                          statusFilter="inbox"
+                          formatCurrency={formatCurrency}
+                          formatDate={formatDate}
+                          onDataUpdate={setExpenseData}
+                          refreshTrigger={refreshTrigger}
+                        />
+                      </div>
+                    )}
+                    {expenseStatusFilters.includes('scheduled') && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">Awaiting Payments</h3>
+                        <AwaitingPaymentsTable 
+                          projectId={project.id}
+                          formatCurrency={formatCurrency}
+                          formatDate={formatDate}
+                        />
+                      </div>
+                    )}
+                    {expenseStatusFilters.includes('paid') && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">Paid</h3>
+                        <div className="space-y-4">
+                          <div className="text-center py-8 text-foreground">
+                            <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
+                              <DollarSign className="h-8 w-8" />
                             </div>
+                            <p className="text-foreground">No paid invoices.</p>
+                            <p className="text-sm mt-2 text-muted-foreground">Completed payments will appear here.</p>
                           </div>
                         </div>
-                      )}
-                      {expenseStatusFilters.includes('reimbursement') && (
-                        <div>
-                          <h3 className="text-lg font-semibold mb-4">Reimbursement</h3>
-                          <div className="space-y-4">
-                            <div className="text-center py-8 text-foreground">
-                              <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
-                                <DollarSign className="h-8 w-8" />
-                              </div>
-                              <p className="text-foreground">No reimbursement items.</p>
-                              <p className="text-sm mt-2 text-muted-foreground">Expenses to be invoiced to the client will appear here.</p>
+                      </div>
+                    )}
+                    {expenseStatusFilters.includes('reimbursement') && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-4">Reimbursement</h3>
+                        <div className="space-y-4">
+                          <div className="text-center py-8 text-foreground">
+                            <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
+                              <DollarSign className="h-8 w-8" />
                             </div>
+                            <p className="text-foreground">No reimbursement items.</p>
+                            <p className="text-sm mt-2 text-muted-foreground">Expenses to be invoiced to the client will appear here.</p>
                           </div>
                         </div>
-                      )}
-                      {expenseStatusFilters.length === 0 && (
-                        <div className="text-center py-12 text-foreground">
-                          <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
-                            <Filter className="h-8 w-8" />
-                          </div>
-                          <p className="text-foreground">No filters selected</p>
-                          <p className="text-sm mt-2 text-muted-foreground">Select at least one filter to view expense data.</p>
+                      </div>
+                    )}
+                    {expenseStatusFilters.length === 0 && (
+                      <div className="text-center py-12 text-foreground">
+                        <div className="h-12 w-12 mx-auto mb-4 text-muted-foreground flex items-center justify-center">
+                          <Filter className="h-8 w-8" />
                         </div>
-                      )}
-                    </div>
-                  </BillDropZone>
+                        <p className="text-foreground">No filters selected</p>
+                        <p className="text-sm mt-2 text-muted-foreground">Select at least one filter to view expense data.</p>
+                      </div>
+                    )}
+                  </div>
                 </TabsContent>
                 
                 <TabsContent value="analytics" className="mt-0 h-full overflow-y-auto p-6">
@@ -586,6 +594,14 @@ export const ProjectCostPage = ({
           </div>
         </div>
       </div>
+
+      {/* Bill PDF Uploader (for Expense tab) */}
+      <BillPDFUploader
+        isOpen={isPDFUploaderOpen}
+        onClose={() => setIsPDFUploaderOpen(false)}
+        projectId={project.id}
+        onSaved={refreshData}
+      />
 
       {/* Invoice PDF Uploader */}
       <InvoicePDFUploader
