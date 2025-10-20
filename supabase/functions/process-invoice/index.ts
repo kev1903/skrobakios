@@ -52,6 +52,9 @@ async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
     // Use esm.sh for proper Deno compatibility
     const pdfjsLib = await import("https://esm.sh/pdfjs-dist@4.0.379/legacy/build/pdf.mjs");
     
+    // Configure worker source - REQUIRED for pdfjs-dist to work
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/legacy/build/pdf.worker.mjs";
+    
     // Load the PDF document
     const loadingTask = pdfjsLib.getDocument({
       data: new Uint8Array(pdfBytes),
