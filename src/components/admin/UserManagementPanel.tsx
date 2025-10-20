@@ -250,16 +250,38 @@ export const UserManagementPanel: React.FC = () => {
     try {
       if (!selectedUser?.id) throw new Error('No user selected');
 
-      const { error } = await supabase
+      // Validate input
+      const trimmedFirstName = firstName.trim();
+      const trimmedLastName = lastName.trim();
+      const trimmedCompany = company.trim();
+
+      if (!trimmedFirstName || !trimmedLastName) {
+        throw new Error('First name and last name are required');
+      }
+
+      if (trimmedFirstName.length > 100) {
+        throw new Error('First name must be less than 100 characters');
+      }
+
+      if (trimmedLastName.length > 100) {
+        throw new Error('Last name must be less than 100 characters');
+      }
+
+      if (trimmedCompany && trimmedCompany.length > 200) {
+        throw new Error('Company name must be less than 200 characters');
+      }
+
+      // Update profile data
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
-          first_name: firstName,
-          last_name: lastName,
-          company: company,
+          first_name: trimmedFirstName,
+          last_name: trimmedLastName,
+          company: trimmedCompany,
         })
         .eq('user_id', selectedUser.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
 
       // Update password if provided
       if (password.trim()) {
