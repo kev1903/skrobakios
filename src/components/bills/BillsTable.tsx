@@ -21,6 +21,7 @@ const billData = [
     hasWarning: true,
     includedInCashFlow: true,
     linkedCashInAccount: "",
+    toPay: "",
   },
   {
     id: "2",
@@ -33,6 +34,7 @@ const billData = [
     hasWarning: false,
     includedInCashFlow: true,
     linkedCashInAccount: "construction-revenue",
+    toPay: "",
   },
   {
     id: "3",
@@ -45,6 +47,7 @@ const billData = [
     hasWarning: false,
     includedInCashFlow: true,
     linkedCashInAccount: "",
+    toPay: "",
   },
   {
     id: "4",
@@ -57,6 +60,7 @@ const billData = [
     hasWarning: false,
     includedInCashFlow: true,
     linkedCashInAccount: "consulting-revenue",
+    toPay: "",
   },
 ];
 
@@ -92,6 +96,17 @@ export const BillsTable = () => {
     console.log(`Bill ${billId} linked to account: ${accountId}`);
   };
 
+  const handleToPayChange = (billId: string, toPay: string) => {
+    setBills(prevBills =>
+      prevBills.map(bill =>
+        bill.id === billId
+          ? { ...bill, toPay }
+          : bill
+      )
+    );
+    console.log(`Bill ${billId} to pay assigned to: ${toPay}`);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm border">
       <BillsTableControls 
@@ -113,6 +128,7 @@ export const BillsTable = () => {
               isSelected={selectedBills.includes(bill.id)}
               onSelect={handleSelectBill}
               onAccountLinkChange={handleAccountLinkChange}
+              onToPayChange={handleToPayChange}
             />
           ))}
         </TableBody>

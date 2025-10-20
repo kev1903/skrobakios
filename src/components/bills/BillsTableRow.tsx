@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AlertTriangle, MoreHorizontal } from "lucide-react";
+import { UserEmailCombobox } from "./UserEmailCombobox";
 
 interface Bill {
   id: string;
@@ -22,6 +23,7 @@ interface Bill {
   hasWarning: boolean;
   includedInCashFlow: boolean;
   linkedCashInAccount: string;
+  toPay?: string;
 }
 
 interface BillsTableRowProps {
@@ -29,6 +31,7 @@ interface BillsTableRowProps {
   isSelected: boolean;
   onSelect: (billId: string, checked: boolean) => void;
   onAccountLinkChange: (billId: string, accountId: string) => void;
+  onToPayChange: (billId: string, toPay: string) => void;
 }
 
 const cashInAccounts = [
@@ -38,7 +41,7 @@ const cashInAccounts = [
   { id: "returns-revenue", name: "Returns & Revenue" },
 ];
 
-export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange }: BillsTableRowProps) => {
+export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange, onToPayChange }: BillsTableRowProps) => {
   return (
     <TableRow key={bill.id}>
       <TableCell>
@@ -83,6 +86,12 @@ export const BillsTableRow = ({ bill, isSelected, onSelect, onAccountLinkChange 
             ))}
           </SelectContent>
         </Select>
+      </TableCell>
+      <TableCell className="min-w-[200px]">
+        <UserEmailCombobox
+          value={bill.toPay || ""}
+          onValueChange={(value) => onToPayChange(bill.id, value)}
+        />
       </TableCell>
       <TableCell>
         <Button variant="ghost" size="sm">
