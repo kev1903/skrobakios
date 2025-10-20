@@ -12,6 +12,7 @@ import { formatCurrency as defaultFormatCurrency } from '@/lib/utils';
 import { format } from 'date-fns';
 import { BillEditDialog } from './BillEditDialog';
 import { BillDetailsDialog } from './BillDetailsDialog';
+import { UserEmailCombobox } from '@/components/bills/UserEmailCombobox';
 
 interface Bill {
   id: string;
@@ -34,6 +35,7 @@ interface Bill {
   ai_summary?: string;
   reimbursement_requested?: boolean;
   change_requested?: boolean;
+  to_pay?: string | null;
 }
 
 interface ExpensesModuleProps {
@@ -421,6 +423,31 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
     }
   };
 
+  const handleToPayChange = async (billId: string, toPay: string) => {
+    try {
+      const { error } = await supabase
+        .from('bills')
+        .update({ to_pay: toPay || null })
+        .eq('id', billId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Payment responsibility updated"
+      });
+      
+      loadBills();
+    } catch (error) {
+      console.error('Error updating to_pay:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update payment responsibility",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleViewFile = (bill: Bill) => {
     const fileAttachments = Array.isArray(bill.file_attachments) ? bill.file_attachments : [];
     if (fileAttachments.length > 0) {
@@ -487,6 +514,7 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                 <th className="text-left p-2 font-medium w-28 text-foreground text-xs">Due date</th>
                 <th className="text-left p-2 font-medium w-24 text-foreground text-xs">Amount</th>
                 <th className="text-left p-2 font-medium w-32 text-foreground text-xs">Status</th>
+                <th className="text-left p-2 font-medium w-48 text-foreground text-xs">To Pay</th>
                 <th className="text-left p-2 font-medium w-12 text-xs"></th>
               </tr>
             </thead>
@@ -566,6 +594,14 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+                    </td>
+                    <td className="p-2">
+                      <div className="w-48">
+                        <UserEmailCombobox
+                          value={bill.to_pay || ""}
+                          onValueChange={(value) => handleToPayChange(bill.id, value)}
+                        />
+                      </div>
                     </td>
                    <td className="p-2">
                       <DropdownMenu>

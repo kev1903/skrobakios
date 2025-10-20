@@ -481,6 +481,7 @@ export type Database = {
           supplier_email: string | null
           supplier_name: string
           tax: number | null
+          to_pay: string | null
           total: number
           updated_at: string | null
         }
@@ -510,6 +511,7 @@ export type Database = {
           supplier_email?: string | null
           supplier_name: string
           tax?: number | null
+          to_pay?: string | null
           total: number
           updated_at?: string | null
         }
@@ -539,6 +541,7 @@ export type Database = {
           supplier_email?: string | null
           supplier_name?: string
           tax?: number | null
+          to_pay?: string | null
           total?: number
           updated_at?: string | null
         }
