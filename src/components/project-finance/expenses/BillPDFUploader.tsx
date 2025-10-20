@@ -276,9 +276,24 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
         body: requestBody
       });
 
+      console.log('Raw edge function response:', { data: processingData, error: processingError });
+
       if (processingError) {
         console.error('Edge function invocation error:', processingError);
-        const errorMessage = processingError.message || 'Unknown error from edge function';
+        
+        // Try to extract actual error message from the response
+        let errorMessage = 'Server error processing invoice. Please check logs or try again.';
+        
+        // Check if there's an error message in the data
+        if (processingData && typeof processingData === 'object') {
+          if (processingData.error) {
+            errorMessage = processingData.error;
+          } else if (processingData.message) {
+            errorMessage = processingData.message;
+          }
+        }
+        
+        console.error('Extracted error message:', errorMessage);
         setError(errorMessage);
         throw new Error(errorMessage);
       }

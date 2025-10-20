@@ -45,6 +45,7 @@ const InvoiceSchema = {
 };
 
 // Enhanced PDF text extraction using pdfjs-dist via esm.sh
+// Fixed: Configure worker source before using getDocument
 async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
   try {
     console.log('Starting PDF text extraction with pdfjs-dist...');
