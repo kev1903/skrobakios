@@ -74,6 +74,7 @@ export const UserManagementPanel: React.FC = () => {
         role: u.app_role || 'user',
       }));
 
+      console.log('Fetched users after format:', formattedUsers);
       setUsers(formattedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -271,15 +272,26 @@ export const UserManagementPanel: React.FC = () => {
         throw new Error('Company name must be less than 200 characters');
       }
 
+      // Log what we're updating
+      console.log('Updating user profile:', {
+        userId: selectedUser.id,
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
+        company: trimmedCompany
+      });
+
       // Update profile data
-      const { error: profileError } = await supabase
+      const { data: updateData, error: profileError } = await supabase
         .from('profiles')
         .update({
           first_name: trimmedFirstName,
           last_name: trimmedLastName,
           company: trimmedCompany,
         })
-        .eq('user_id', selectedUser.id);
+        .eq('user_id', selectedUser.id)
+        .select();
+
+      console.log('Update result:', { data: updateData, error: profileError });
 
       if (profileError) throw profileError;
 
@@ -306,7 +318,11 @@ export const UserManagementPanel: React.FC = () => {
 
       setIsEditUserOpen(false);
       resetForm();
-      fetchUsers();
+      
+      // Add a small delay to ensure database changes are committed
+      setTimeout(() => {
+        fetchUsers();
+      }, 500);
     } catch (error: any) {
       console.error('Error updating user profile:', error);
       toast({
