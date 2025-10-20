@@ -53,6 +53,7 @@ export const useCompanyMembers = (companyId: string) => {
         return [];
       }
 
+      // Fetch profiles
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("user_id, email, first_name, last_name, avatar_url, professional_title, phone, skills")
@@ -60,24 +61,38 @@ export const useCompanyMembers = (companyId: string) => {
 
       if (profilesError) {
         console.error("Error fetching profiles:", profilesError);
-        return [];
       }
 
-      // Map profiles by user_id for easier lookup
+      // Fetch emails from auth.users as fallback using RPC
+      const { data: authEmails, error: authError } = await supabase
+        .rpc("get_company_member_emails", { user_ids: userIds });
+
+      if (authError) {
+        console.error("Error fetching auth emails:", authError);
+      }
+
+      // Map profiles and auth emails by user_id for easier lookup
       const profileMap = new Map();
       (profiles || []).forEach(profile => {
         profileMap.set(profile.user_id, profile);
       });
 
+      const emailMap = new Map();
+      (authEmails || []).forEach(item => {
+        emailMap.set(item.user_id, item.email);
+      });
+
       // Transform company members
       const members = companyMembers.map(member => {
         const profile = profileMap.get(member.user_id);
+        const authEmail = emailMap.get(member.user_id);
+        
         return {
           id: member.id,
           user_id: member.user_id,
           role: member.role,
           status: member.status,
-          email: profile?.email,
+          email: profile?.email || authEmail || 'No email',
           profile: profile ? {
             first_name: profile.first_name,
             last_name: profile.last_name,

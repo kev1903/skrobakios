@@ -7292,6 +7292,13 @@ export type Database = {
           token_expires_at: string
         }[]
       }
+      get_company_member_emails: {
+        Args: { user_ids: string[] }
+        Returns: {
+          email: string
+          user_id: string
+        }[]
+      }
       get_current_business_context: {
         Args: Record<PropertyKey, never>
         Returns: string
