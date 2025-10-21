@@ -128,7 +128,16 @@ CURRENT PROJECT CONTEXT:
 - User Companies: ${userCompanies.join(', ')}
 
 EXISTING WBS ITEMS IN THIS PROJECT ONLY:
-${wbsContext.map(item => `- ID: ${item.id}, WBS: ${item.wbs_id}, Title: "${item.title}", Category: ${item.category || 'N/A'}, Level: ${item.level}, Parent: ${item.parent_id || 'None'}`).join('\n')}
+${wbsContext.length > 0 
+  ? wbsContext.map(item => `- ID: ${item.id}, WBS: ${item.wbs_id}, Title: "${item.title}", Category: ${item.category || 'N/A'}, Level: ${item.level}, Parent: ${item.parent_id || 'None'}`).join('\n')
+  : 'NO EXISTING WBS ITEMS - Start with top-level items (parent_id = null)'}
+
+CRITICAL PARENT_ID RULES:
+- You can ONLY use parent_id values that exist in the list above
+- If the parent you want doesn't exist yet, you MUST create it first as a separate operation
+- If there are no existing WBS items, ALWAYS use parent_id = null for the first items you create
+- NEVER use parent_id values that are not in the existing WBS items list above
+- NEVER generate or guess parent_id values
 
 CRITICAL: You MUST respond with ONLY valid JSON. No explanations, no markdown, no code blocks, no extra text.
 
@@ -158,9 +167,11 @@ CRITICAL WBS CATEGORY RULES:
 - "Element" = Specific work items (e.g., Foundation, Walls, HVAC)
 
 RULES FOR PARENT_ID:
+- CRITICAL: Only use parent_id values from the EXISTING WBS ITEMS list above
 - If adding to "Demolition", find the demolition WBS item ID from the list above
-- Use the actual UUID, never use SELECT statements
-- If no parent exists, use null for top-level items
+- Use the actual UUID from existing items, never use SELECT statements
+- If the desired parent doesn't exist yet, use null and create it first
+- If NO existing items exist, ALWAYS use parent_id = null for new items
 
 RULES FOR WBS_ID:
 - Generate next sequential number (e.g., if 1.2.1 exists, use 1.2.2)
