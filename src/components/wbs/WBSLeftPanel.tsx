@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, ChevronDown, GripVertical, Plus, PlusCircle, PlusSquare, CheckSquare } from 'lucide-react';
+import { GripVertical, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { createPortal } from 'react-dom';
@@ -72,40 +72,8 @@ export const WBSLeftPanel = ({
     return items.some(item => item.parent_id === itemId);
   };
   
-  // Helper function to determine if an item should be visible (not hidden by collapsed parent)
-  const isItemVisible = (item: WBSItem) => {
-    if (item.level === 0) {
-      console.log(`✅ Level 0 item always visible: ${item.name}`);
-      return true; // Top level items are always visible
-    }
-    
-    // Find the parent item
-    const parent = items.find(i => i.id === item.parent_id);
-    if (!parent) {
-      console.log(`⚠️ No parent found for: ${item.name} (parent_id: ${item.parent_id}) - showing by default`);
-      return true;
-    }
-    
-    // Check parent expansion state - use both isExpanded (UI) and any inherited state
-    const parentExpanded = parent.isExpanded !== false;
-    console.log(`🔍 Checking visibility: ${item.name} (level ${item.level}) - Parent: ${parent.name} (expanded: ${parentExpanded}, parent.isExpanded: ${parent.isExpanded})`);
-    
-    // If parent is collapsed, this item should be hidden
-    if (!parentExpanded) {
-      console.log(`❌ Item hidden because parent collapsed: ${item.name}`);
-      return false;
-    }
-    
-    // Recursively check if all ancestors are expanded
-    const ancestorVisible = isItemVisible(parent);
-    if (!ancestorVisible) {
-      console.log(`❌ Item hidden because ancestor collapsed: ${item.name}`);
-    }
-    return ancestorVisible;
-  };
-  
-  // Filter items to only show visible ones
-  const visibleItems = items.filter(isItemVisible);
+  // All items are always visible - no expand/collapse
+  const visibleItems = items;
   
   const content = (
     <DragDropContext onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
@@ -116,7 +84,6 @@ export const WBSLeftPanel = ({
               const itemHasChildren = hasChildren(item.id);
               const indentLevel = Math.min(item.level || 0, 4); // Clamp to max level 4
               const indentWidth = indentLevel * 16; // 16px per level, supporting up to 5 levels (0-4)
-              const isExpanded = item.isExpanded !== false; // Default to true if not specified
               
               // Calculate sequential WBS number based on display order (all items in the full list)
               const sequentialWBSNumber = items.findIndex(i => i.id === item.id) + 1;
@@ -161,9 +128,8 @@ export const WBSLeftPanel = ({
                             onMouseLeave={() => onRowHover?.(null)}
                             onClick={(e) => {
                               const target = e.target as HTMLElement;
-                              // Ignore clicks on chevron or editable areas
+                              // Ignore clicks on editable areas
                               if (target.closest('[data-field="name"]')) return;
-                              if (target.closest('[title*="children"]')) return;
                               onRowClick?.(item.id, e.ctrlKey || e.metaKey);
                             }}
                           >
@@ -185,31 +151,8 @@ export const WBSLeftPanel = ({
                           className="px-3 flex items-center h-full font-medium text-foreground text-xs" 
                           style={{ paddingLeft: `${12 + indentWidth}px` }}
                         >
-                          {/* Always show chevron for items with children, regardless of expand/collapse state */}
-                          {itemHasChildren ? (
-                            <div
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                onToggleExpanded(item.id);
-                              }}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                              }}
-                              style={{ pointerEvents: 'auto' }}
-                              className="mr-2 p-1 rounded hover:bg-accent/20 transition-colors flex-shrink-0 cursor-pointer z-50 relative"
-                              title={isExpanded ? "Collapse children" : "Expand children"}
-                            >
-                              {isExpanded ? (
-                                <ChevronDown className="w-3 h-3 text-muted-foreground pointer-events-none" />
-                              ) : (
-                                <ChevronRight className="w-3 h-3 text-muted-foreground pointer-events-none" />
-                              )}
-                            </div>
-                          ) : (
-                            <div className="w-4 mr-2 flex-shrink-0" />
-                          )}
+                          {/* No expand/collapse - all rows remain expanded */}
+                          <div className="w-4 mr-2 flex-shrink-0" />
                           
                           <EditableCell
                             id={item.id}
