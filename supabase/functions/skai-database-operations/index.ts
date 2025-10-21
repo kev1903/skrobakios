@@ -2,7 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.2';
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
@@ -46,7 +46,7 @@ serve(async (req) => {
   }
 
   try {
-    if (!openAIApiKey || !supabaseUrl || !supabaseServiceKey) {
+    if (!lovableApiKey || !supabaseUrl || !supabaseServiceKey) {
       throw new Error('Required environment variables not configured');
     }
 
@@ -170,30 +170,37 @@ Current context: ${JSON.stringify(context)}
 
 REMEMBER: You are ONLY working with project "${projectData.name}" - never reference any other project or location.`;
 
-    // Call OpenAI to interpret the database operation request
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Call Lovable AI (Gemini) to interpret the database operation request
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `${prompt}
 
 RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
         ],
-        max_tokens: 500,
-        temperature: 0.0, // Zero temperature for consistent JSON responses
+        max_completion_tokens: 500,
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.text();
-      console.error('OpenAI API error:', response.status, errorData);
-      throw new Error(`OpenAI API error: ${response.status} ${response.statusText}`);
+      console.error('Lovable AI API error:', response.status, errorData);
+      
+      if (response.status === 429) {
+        throw new Error('Rate limit exceeded. Please try again in a moment.');
+      }
+      if (response.status === 402) {
+        throw new Error('AI credits required. Please add credits to your Lovable workspace.');
+      }
+      
+      throw new Error(`Lovable AI API error: ${response.status} ${response.statusText}`);
     }
 
     const aiResponse = await response.json();
