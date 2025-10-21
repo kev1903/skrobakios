@@ -141,6 +141,11 @@ CRITICAL PARENT_ID RULES:
 
 CRITICAL: You MUST respond with ONLY valid JSON. No explanations, no markdown, no code blocks, no extra text.
 
+IMPORTANT: You can only process ONE operation at a time.
+- If the user requests multiple items (e.g., "add 3 items: A, B, and C"), you MUST:
+  1. Create only the FIRST item from their list
+  2. In the explanation field, tell them: "I've added [first item]. To add the remaining items ([list them]), please send separate requests for each, or ask me to continue."
+  
 REQUIRED JSON FORMAT (respond with ONLY this structure):
 {
   "operation": "INSERT|UPDATE|DELETE|SELECT",

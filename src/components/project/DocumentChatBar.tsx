@@ -187,13 +187,12 @@ export const DocumentChatBar = ({
     setIsLoading(true);
 
     try {
-      // Check if this is a scope modification request (add, create, update, delete, remove)
-      const isScopeModification = /\b(add|create|insert|update|modify|edit|delete|remove|change)\b/i.test(userInput);
-      
-      if (isScopeModification && currentTab === 'Scope' && projectId) {
-        console.log('Detected scope modification request, routing to skai-database-operations');
+      // For Scope tab, always use database operations function
+      // It can handle both questions and modifications
+      if (currentTab === 'Scope' && projectId) {
+        console.log('Routing Scope request to skai-database-operations');
         
-        // Use database operations for scope changes
+        // Use database operations for all scope-related requests
         const result = await executeOperation(userInput, {
           projectId,
           projectName,
