@@ -137,9 +137,10 @@ export const DocumentChatBar = ({
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
+    const userInput = input.trim();
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: input.trim(),
+      content: userInput,
       role: 'user',
       timestamp: new Date()
     };
@@ -149,68 +150,109 @@ export const DocumentChatBar = ({
     setIsLoading(true);
 
     try {
-      const conversation = messages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
+      // Check if this is a scope modification request (add, create, update, delete, remove)
+      const isScopeModification = /\b(add|create|insert|update|modify|edit|delete|remove|change)\b/i.test(userInput);
+      
+      if (isScopeModification && currentTab === 'Scope' && projectId) {
+        console.log('Detected scope modification request, routing to skai-database-operations');
+        
+        // Use database operations for scope changes
+        const result = await executeOperation(userInput, {
+          projectId,
+          projectName,
+          currentPage: 'Project Control'
+        });
 
-      // Build context string based on available information
-      let contextParts: string[] = [];
-      
-      if (projectName) {
-        contextParts.push(`Project: "${projectName}"`);
-      }
-      
-      if (currentPage) {
-        contextParts.push(`Current Page: ${currentPage}`);
-      }
-      
-      if (currentTab) {
-        contextParts.push(`Current Tab: ${currentTab}`);
-      }
-      
-      if (selectedCategory) {
-        contextParts.push(`Selected Category: ${selectedCategory}`);
-      }
-      
-      if (documentId && documentName) {
-        contextParts.push(`Viewing Document: "${documentName}" (ID: ${documentId})`);
-      }
-      
-      if (documentContent) {
-        contextParts.push(`Document Content Summary: ${documentContent.substring(0, 2000)}`);
-      }
-
-      const contextString = contextParts.length > 0 
-        ? `Context:\n${contextParts.join('\n')}\n\nUser question: ${userMessage.content}`
-        : userMessage.content;
-
-      const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: {
-          message: contextString,
-          conversation: conversation,
-          context: {
-            projectId,
-            projectName,
-            currentPage,
-            currentTab,
-            selectedCategory,
-            documentId,
-            documentName
+        let messageContent: string;
+        if (result.success) {
+          messageContent = `✅ ${result.explanation || 'Operation completed successfully'}\n\nAffected ${result.recordsAffected || 0} record(s) in ${result.table}.`;
+          
+          // Trigger page refresh on success
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('skai-task-created', {
+              detail: { projectId }
+            }));
+          }, 500);
+        } else {
+          messageContent = `❌ ${result.error || 'Operation failed'}`;
+          if (result.details) {
+            messageContent += `\n\n${result.details}`;
           }
         }
-      });
 
-      if (error) throw error;
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: messageContent,
+          role: 'assistant',
+          timestamp: new Date()
+        };
 
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: data.response,
-        role: 'assistant',
-        timestamp: new Date()
-      };
+        setMessages(prev => [...prev, aiMessage]);
+      } else {
+        // Use conversational AI for general questions
+        const conversation = messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
 
-      setMessages(prev => [...prev, aiMessage]);
+        // Build context string based on available information
+        let contextParts: string[] = [];
+        
+        if (projectName) {
+          contextParts.push(`Project: "${projectName}"`);
+        }
+        
+        if (currentPage) {
+          contextParts.push(`Current Page: ${currentPage}`);
+        }
+        
+        if (currentTab) {
+          contextParts.push(`Current Tab: ${currentTab}`);
+        }
+        
+        if (selectedCategory) {
+          contextParts.push(`Selected Category: ${selectedCategory}`);
+        }
+        
+        if (documentId && documentName) {
+          contextParts.push(`Viewing Document: "${documentName}" (ID: ${documentId})`);
+        }
+        
+        if (documentContent) {
+          contextParts.push(`Document Content Summary: ${documentContent.substring(0, 2000)}`);
+        }
+
+        const contextString = contextParts.length > 0 
+          ? `Context:\n${contextParts.join('\n')}\n\nUser question: ${userMessage.content}`
+          : userMessage.content;
+
+        const { data, error } = await supabase.functions.invoke('ai-chat', {
+          body: {
+            message: contextString,
+            conversation: conversation,
+            context: {
+              projectId,
+              projectName,
+              currentPage,
+              currentTab,
+              selectedCategory,
+              documentId,
+              documentName
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: data.response,
+          role: 'assistant',
+          timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, aiMessage]);
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
