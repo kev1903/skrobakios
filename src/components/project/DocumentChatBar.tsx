@@ -47,9 +47,46 @@ export const DocumentChatBar = ({
   const { toast } = useToast();
   const { executeOperation, isExecuting } = useSkaiDatabaseOperations();
 
+  // Generate unique conversation key based on module and project
+  const conversationKey = `skai-conversation-${currentTab?.toLowerCase() || 'general'}-${projectId || 'global'}`;
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  // Load conversation from localStorage on mount or when key changes
+  useEffect(() => {
+    try {
+      const savedConversation = localStorage.getItem(conversationKey);
+      if (savedConversation) {
+        const parsed = JSON.parse(savedConversation);
+        // Convert timestamp strings back to Date objects
+        const messagesWithDates = parsed.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+        setMessages(messagesWithDates);
+        console.log(`Loaded ${messagesWithDates.length} messages for ${conversationKey}`);
+      } else {
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+      setMessages([]);
+    }
+  }, [conversationKey]);
+
+  // Save conversation to localStorage when messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        localStorage.setItem(conversationKey, JSON.stringify(messages));
+        console.log(`Saved ${messages.length} messages to ${conversationKey}`);
+      } catch (error) {
+        console.error('Error saving conversation:', error);
+      }
+    }
+  }, [messages, conversationKey]);
 
   useEffect(() => {
     scrollToBottom();
@@ -288,8 +325,29 @@ export const DocumentChatBar = ({
           <span className="text-sm font-semibold">
             {documentName ? `Chat about ${documentName}` : currentTab ? `SkAi - ${currentTab}` : 'SkAi Chat'}
           </span>
+          {messages.length > 0 && (
+            <span className="text-xs text-muted-foreground">({messages.length})</span>
+          )}
         </div>
         <div className="flex items-center space-x-1">
+          {messages.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setMessages([]);
+                localStorage.removeItem(conversationKey);
+                toast({
+                  title: "Conversation cleared",
+                  description: "Chat history has been reset for this module."
+                });
+              }}
+              className="w-8 h-8 p-0 hover:bg-destructive/20 text-muted-foreground hover:text-destructive"
+              title="Clear conversation"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
