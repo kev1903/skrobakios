@@ -151,20 +151,15 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
     return [parent];
   };
 
-  // Ensure deterministic order
-  const sortByWbs = (a: WBSItem, b: WBSItem) => {
-    const pa = a.wbs_id.split('.').map(n => parseInt(n, 10));
-    const pb = b.wbs_id.split('.').map(n => parseInt(n, 10));
-    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-      const da = pa[i] ?? 0;
-      const db = pb[i] ?? 0;
-      if (da !== db) return da - db;
-    }
-    return 0;
+  // Ensure deterministic order - sort by created_at (for drag and drop order)
+  const sortByCreatedAt = (a: WBSItem, b: WBSItem) => {
+    const dateA = new Date(a.created_at || 0).getTime();
+    const dateB = new Date(b.created_at || 0).getTime();
+    return dateA - dateB;
   };
 
   // Prepare all items
-  const all = Array.from(byWbsId.values()).sort(sortByWbs);
+  const all = Array.from(byWbsId.values()).sort(sortByCreatedAt);
   const byId = new Map<string, WBSItem>(all.map(i => [i.id!, i]));
 
   // Link children with robust parent fallback
@@ -202,9 +197,9 @@ export const buildHierarchy = (flatData: any[]): WBSItem[] => {
     }
   }
 
-  // Sort children at every level
+  // Sort children at every level by created_at (for drag and drop order)
   const sortTree = (nodes: WBSItem[]) => {
-    nodes.sort(sortByWbs);
+    nodes.sort(sortByCreatedAt);
     nodes.forEach(n => n.children && sortTree(n.children));
   };
   sortTree(roots);
