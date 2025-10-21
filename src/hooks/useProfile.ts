@@ -1,8 +1,8 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
+import { AuthContext, type AuthContextType } from '@/contexts/AuthContext';
 
 interface ProfileData {
   first_name: string;
@@ -26,7 +26,11 @@ export const useProfile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth();
+  
+  // Safely access auth context - will be null/undefined if not yet mounted
+  const authContext = useContext<AuthContextType | undefined>(AuthContext);
+  const user = authContext?.user ?? null;
+  const authLoading = authContext?.loading ?? true;
 
   const fetchProfile = async () => {
     try {
