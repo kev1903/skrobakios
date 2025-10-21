@@ -218,6 +218,7 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
       const jsonMatch = cleanResponse.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/);
       if (jsonMatch) {
         cleanResponse = jsonMatch[1];
+        console.log('Extracted JSON from code block');
       }
       
       // Find JSON object if it's embedded in other text
@@ -226,7 +227,9 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
         cleanResponse = jsonObjectMatch[0];
       }
       
+      console.log('Cleaned response for parsing:', cleanResponse.substring(0, 200));
       operationPlan = JSON.parse(cleanResponse);
+      console.log('Successfully parsed operation plan:', operationPlan.operation, 'on', operationPlan.table);
     } catch (parseError) {
       console.error('Failed to parse AI response as JSON:', parseError);
       console.error('Raw AI response:', aiContent);
@@ -242,11 +245,15 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
     }
 
     // Validate the operation plan
+    console.log('Validating operation:', operationPlan.operation, 'on table:', operationPlan.table);
     if (!validateOperation(operationPlan.operation, operationPlan.table)) {
+      console.error('Invalid operation rejected');
       throw new Error(`Invalid operation: ${operationPlan.operation} on table ${operationPlan.table}`);
     }
+    console.log('Operation validated successfully');
 
     // Execute the database operation
+    console.log('Executing database operation...');
     let result;
     const table = operationPlan.table;
     
@@ -290,7 +297,9 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
         if (!operationPlan.data.company_id) {
           operationPlan.data.company_id = projectCompanyId;
         }
+        console.log('Inserting data:', JSON.stringify(operationPlan.data));
         result = await supabase.from(table).insert(operationPlan.data).select();
+        console.log('Insert result:', { error: result.error, count: result.data?.length });
         break;
 
       case 'UPDATE':
@@ -338,8 +347,11 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
 
     if (result.error) {
       console.error('Database operation error:', result.error);
+      console.error('Error details:', JSON.stringify(result.error));
       throw new Error(`Database operation failed: ${result.error.message}`);
     }
+
+    console.log('Database operation successful, records affected:', result.data?.length || 0);
 
     // Log the successful operation with strict project context
     await supabase.from('ai_chat_interactions').insert({
