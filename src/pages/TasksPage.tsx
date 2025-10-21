@@ -11,41 +11,24 @@ import { supabase } from '@/integrations/supabase/client';
 import { taskService } from '@/components/tasks/taskService';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { Task } from '@/components/tasks/types';
-import { DayTimelineView } from '@/components/tasks/DayTimelineView';
-import { WeekTimelineView } from '@/components/tasks/WeekTimelineView';
-import { MonthTimelineView } from '@/components/tasks/MonthTimelineView';
-import { CalendarSettingsPage } from '@/components/tasks/CalendarSettingsPage';
+import { BoardView } from '@/components/tasks/BoardView';
 import { TaskEditSidePanel } from '@/components/tasks/TaskEditSidePanel';
 import { useUser } from '@/contexts/UserContext';
 import { useToast } from "@/hooks/use-toast";
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 
 
-type ViewMode = 'day' | 'week' | 'month';
-
 const TasksPage = () => {
   const { userProfile } = useUser();
   const { toast } = useToast();
   const { spacingClasses, minHeightClasses, fullHeightClasses } = useMenuBarSpacing();
   const [activeTab, setActiveTab] = useState('All');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<ViewMode>('day');
   const [userTasks, setUserTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [showCalendarSettings, setShowCalendarSettings] = useState(false);
   const [selectedTaskForEdit, setSelectedTaskForEdit] = useState<Task | null>(null);
   const [isTaskEditOpen, setIsTaskEditOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Live time updater - optimized to prevent excessive re-renders
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000); // Update every minute instead of every second
-    return () => clearInterval(timer);
-  }, []);
 
   // Load tasks assigned to the current user with real-time sync
   useEffect(() => {
@@ -101,189 +84,6 @@ const TasksPage = () => {
     );
   };
 
-  const getTasksForDate = (date: Date | null) => {
-    if (!date) return [];
-    const dateString = date.toISOString().split('T')[0];
-    const tasksForDate = userTasks.filter(task => {
-      if (!task.dueDate) return false;
-      // Handle both old date format (YYYY-MM-DD) and new datetime format (ISO string)
-      const taskDate = task.dueDate.split('T')[0]; // Extract date part from datetime
-      return taskDate === dateString;
-    });
-    return getFilteredTasks(tasksForDate);
-  };
-
-  const getWeekDays = (date: Date) => {
-    const weekStart = startOfWeek(date);
-    const weekDays = [];
-    for (let i = 0; i < 7; i++) {
-      weekDays.push(addDays(weekStart, i));
-    }
-    return weekDays;
-  };
-
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-    const days = [];
-
-    // Add empty cells for days before the first day of the month
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(null);
-    }
-
-    // Add all days of the month
-    for (let day = 1; day <= daysInMonth; day++) {
-      days.push(new Date(year, month, day));
-    }
-    return days;
-  };
-
-  const formatDate = (date: Date) => {
-    switch (viewMode) {
-      case 'day':
-        return format(date, 'EEEE, d MMMM'); // e.g., "Thursday, 31 July"
-      case 'week':
-        const weekStart = startOfWeek(date);
-        const weekEnd = endOfWeek(date);
-        return `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d')}`;
-      case 'month':
-      default:
-        return format(date, 'MMMM yyyy'); // e.g., "July 2024"
-    }
-  };
-
-  const navigate = (direction: 'prev' | 'next') => {
-    setCurrentDate(prev => {
-      const newDate = new Date(prev);
-      switch (viewMode) {
-        case 'day':
-          newDate.setDate(prev.getDate() + (direction === 'next' ? 1 : -1));
-          break;
-        case 'week':
-          newDate.setDate(prev.getDate() + (direction === 'next' ? 7 : -7));
-          break;
-        case 'month':
-        default:
-          newDate.setMonth(prev.getMonth() + (direction === 'next' ? 1 : -1));
-          break;
-      }
-      return newDate;
-    });
-  };
-
-  // Handle HTML5 drag API for calendar drops
-  const handleCalendarDrop = async (e: React.DragEvent, slotId: string) => {
-    e.preventDefault();
-    const taskId = e.dataTransfer.getData('text/plain');
-    
-    if (!taskId) return;
-    
-    const task = userTasks.find(t => t.id === taskId);
-    if (!task) return;
-
-    try {
-      // Extract date and time from slotId
-      const parts = slotId.replace('calendar-slot-', '').split('-');
-      if (parts.length === 5) {
-        const [year, month, day, hour, minute] = parts.map(p => parseInt(p));
-        const newDate = new Date(year, month - 1, day, hour, minute);
-        
-        await taskService.updateTask(taskId, {
-          dueDate: newDate.toISOString()
-        }, userProfile);
-        
-        const updatedTasks = await taskService.loadTasksAssignedToUser();
-        setUserTasks(updatedTasks);
-        
-        toast({
-          title: "Task scheduled",
-          description: `"${task.taskName}" scheduled for ${format(newDate, 'MMM dd, HH:mm')}`,
-          duration: 3000,
-        });
-      }
-    } catch (error) {
-      console.error('Error moving task:', error);
-      toast({
-        title: "Error",
-        description: "Failed to move task. Please try again.",
-        variant: "destructive",
-        duration: 3000,
-      });
-    }
-  };
-
-  const handleCalendarDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const renderDayView = () => <DayTimelineView 
-    currentDate={currentDate} 
-    tasks={userTasks} 
-    enableDragDrop={true}
-    useOwnDragContext={false}
-    onTaskUpdate={async (taskId, updates) => {
-      try {
-        await taskService.updateTask(taskId, updates, userProfile);
-        const updatedTasks = await taskService.loadTasksAssignedToUser();
-        setUserTasks(updatedTasks);
-      } catch (error) {
-        console.error('Failed to update task:', error);
-      }
-    }}
-    onCalendarDrop={handleCalendarDrop}
-    onCalendarDragOver={handleCalendarDragOver}
-  />;
-
-  const renderWeekView = () => <WeekTimelineView 
-    currentDate={currentDate} 
-    tasks={userTasks} 
-    onTaskUpdate={async (taskId, updates) => {
-      try {
-        await taskService.updateTask(taskId, updates, userProfile);
-        const updatedTasks = await taskService.loadTasksAssignedToUser();
-        setUserTasks(updatedTasks);
-      } catch (error) {
-        console.error('Failed to update task:', error);
-      }
-    }}
-  />;
-
-  const renderMonthView = () => <MonthTimelineView 
-    currentDate={currentDate} 
-    tasks={userTasks}
-    onTaskUpdate={async (taskId, updates) => {
-      try {
-        await taskService.updateTask(taskId, updates, userProfile);
-        // Reload tasks to reflect changes
-        const updatedTasks = await taskService.loadTasksAssignedToUser();
-        setUserTasks(updatedTasks);
-      } catch (error) {
-        console.error('Failed to update task:', error);
-      }
-    }}
-    onDayClick={(day) => {
-      setCurrentDate(day);
-      setViewMode('day');
-    }}
-  />;
-
-  // Calendar view rendering logic
-  const renderCalendarView = () => {
-    switch (viewMode) {
-      case 'day':
-        return renderDayView();
-      case 'week':
-        return renderWeekView();
-      case 'month':
-      default:
-        return renderMonthView();
-    }
-  };
 
 
   return (
@@ -473,11 +273,13 @@ const TasksPage = () => {
             </div>
           </div>
 
-          {/* Main Content - Calendar View */}
+          {/* Main Content - Board View */}
           <div className="flex-1 flex flex-col p-4 ml-80 overflow-hidden">
-            {/* Calendar Navigation */}
-            <div className="mb-2">
+            {/* Header Controls */}
+            <div className="mb-4">
               <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-foreground font-inter">My Tasks Board</h2>
+                
                 <div className="flex items-center gap-3">
                   {/* Dashboard Button */}
                   <Button
@@ -496,7 +298,6 @@ const TasksPage = () => {
                     size="sm" 
                     className="h-9 font-medium font-inter text-sm px-3"
                     onClick={() => {
-                      // Navigate to timesheet page
                       window.location.href = '/timesheet';
                     }}
                   >
@@ -504,60 +305,44 @@ const TasksPage = () => {
                     TimeSheet
                   </Button>
                 </div>
-                
-                <div className="flex items-center space-x-4">
-                  {/* Date and Time - Moved to Right Side */}
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-sm font-medium text-foreground flex items-center gap-3 font-inter">
-                      {formatDate(currentDate)}
-                      <span className="flex items-center gap-1 text-sm text-primary font-inter">
-                        🕒 {format(currentTime, 'HH:mm')}
-                      </span>
-                    </h2>
-                  </div>
-                  
-                  {/* Calendar Settings Button */}
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-9 w-9 rounded-full p-0"
-                    onClick={() => setShowCalendarSettings(true)}
-                  >
-                    <Settings className="w-4 h-4" />
-                  </Button>
-                  
-                  {/* View Mode Toggle */}
-                  <ToggleGroup type="single" value={viewMode} onValueChange={value => value && setViewMode(value as ViewMode)}>
-                    <ToggleGroupItem value="day" size="sm" className="h-9 flex items-center gap-2 font-medium font-inter text-sm px-3">
-                      <CalendarDays className="w-4 h-4" />
-                      Day
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="week" size="sm" className="h-9 flex items-center gap-2 font-medium font-inter text-sm px-3">
-                      <Calendar className="w-4 h-4" />
-                      Week
-                    </ToggleGroupItem>
-                    <ToggleGroupItem value="month" size="sm" className="h-9 flex items-center gap-2 font-medium font-inter text-sm px-3">
-                      <Calendar className="w-4 h-4" />
-                      Month
-                    </ToggleGroupItem>
-                  </ToggleGroup>
-                  
-                  {/* Navigation */}
-                  <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="sm" className="h-9 w-9 rounded-full p-0" onClick={() => navigate('prev')}>
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <Button variant="outline" size="sm" className="h-9 w-9 rounded-full p-0" onClick={() => navigate('next')}>
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
               </div>
             </div>
 
-            {/* Large Calendar Grid - Scrollable */}
-            <div className="bg-card border border-border rounded-lg p-6 flex-1 overflow-y-auto">
-              {renderCalendarView()}
+            {/* Board View Container */}
+            <div className="bg-card border border-border rounded-lg p-6 flex-1 overflow-hidden">
+              {loading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-muted-foreground">Loading tasks...</div>
+                </div>
+              ) : (
+                <BoardView 
+                  tasks={getFilteredTasks(userTasks)}
+                  onTaskUpdate={async (taskId, updates) => {
+                    try {
+                      await taskService.updateTask(taskId, updates, userProfile);
+                      const updatedTasks = await taskService.loadTasksAssignedToUser();
+                      setUserTasks(updatedTasks);
+                      toast({
+                        title: "Task updated",
+                        description: "Task status has been updated successfully.",
+                        duration: 2000,
+                      });
+                    } catch (error) {
+                      console.error('Failed to update task:', error);
+                      toast({
+                        title: "Error",
+                        description: "Failed to update task. Please try again.",
+                        variant: "destructive",
+                        duration: 3000,
+                      });
+                    }
+                  }}
+                  onTaskClick={(task) => {
+                    setSelectedTaskForEdit(task);
+                    setIsTaskEditOpen(true);
+                  }}
+                />
+              )}
             </div>
           </div>
 
