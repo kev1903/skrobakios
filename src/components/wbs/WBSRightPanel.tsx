@@ -70,6 +70,11 @@ export const WBSRightPanel = ({
       // Get all items with linked tasks
       const itemsWithTasks = items.filter(item => item.is_task_enabled && item.linked_task_id);
       
+      console.log('🔵 WBS Items with tasks:', itemsWithTasks.length);
+      itemsWithTasks.forEach(item => {
+        console.log('🔵 Item:', item.name, 'linked_task_id:', item.linked_task_id);
+      });
+      
       if (itemsWithTasks.length === 0) {
         setActiveTaskStatuses(new Map());
         return;
@@ -77,14 +82,17 @@ export const WBSRightPanel = ({
 
       try {
         const taskIds = itemsWithTasks.map(item => item.linked_task_id).filter(Boolean);
+        console.log('🔵 Fetching task IDs:', taskIds);
         
         // Fetch task statuses
         const { data: tasks, error } = await supabase
           .from('tasks')
-          .select('id, status')
+          .select('id, status, task_name')
           .in('id', taskIds);
 
         if (error) throw error;
+        
+        console.log('🔵 Tasks fetched:', tasks);
 
         // Create a map of WBS item ID -> has active task
         const statusMap = new Map<string, boolean>();
@@ -92,12 +100,14 @@ export const WBSRightPanel = ({
           const task = tasks?.find(t => t.id === item.linked_task_id);
           // Task is active if it exists and status is not 'Completed'
           const isActive = task && task.status !== 'Completed';
+          console.log('🔵 Item:', item.name, '- Task:', task?.task_name, '- Status:', task?.status, '- IsActive:', isActive);
           statusMap.set(item.id, !!isActive);
         });
 
+        console.log('🔵 Final status map:', Array.from(statusMap.entries()));
         setActiveTaskStatuses(statusMap);
       } catch (error) {
-        console.error('Error loading task statuses:', error);
+        console.error('❌ Error loading task statuses:', error);
       }
     };
 
@@ -114,6 +124,7 @@ export const WBSRightPanel = ({
           table: 'tasks'
         },
         () => {
+          console.log('🔵 Task changed, reloading statuses...');
           // Reload task statuses when any task changes
           loadTaskStatuses();
         }
