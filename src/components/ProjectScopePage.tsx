@@ -100,6 +100,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('scope');
   const [documentChatOpen, setDocumentChatOpen] = useState(false);
+  const [skaiChatOpen, setSkaiChatOpen] = useState(false);
   const [dragIndicator, setDragIndicator] = useState<{ type: string; droppableId: string; index: number } | null>(null);
   const [editingItem, setEditingItem] = useState<{ id: string; type: 'phase' | 'component' | 'element' | 'task'; field: string } | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -1121,6 +1122,26 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     }
   }, [editingItem]);
 
+  // Listen for SkAi task creation events and reload WBS items
+  useEffect(() => {
+    const handleSkaiTaskCreated = (event: CustomEvent) => {
+      console.log('SkAi task created event received, reloading WBS items...');
+      if (event.detail?.projectId === project.id) {
+        loadWBSItems();
+        toast({
+          title: "Scope Updated",
+          description: "SkAi has updated the project scope.",
+        });
+      }
+    };
+
+    window.addEventListener('skai-task-created', handleSkaiTaskCreated as EventListener);
+    
+    return () => {
+      window.removeEventListener('skai-task-created', handleSkaiTaskCreated as EventListener);
+    };
+  }, [project.id, loadWBSItems]);
+
   // Close on outside click while editing
   useEffect(() => {
     if (!editingItem) return;
@@ -1843,18 +1864,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           </DialogContent>
         </Dialog>
 
-        {/* Floating Chat Icon */}
+        {/* Floating Chat Icon - SkAi */}
         {!documentChatOpen && (
           <button
             onClick={() => setDocumentChatOpen(true)}
             className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group hover:scale-110"
-            aria-label="Open chat"
+            aria-label="Open SkAi"
+            title="SkAi - Scope Assistant"
           >
             <MessageSquare className="w-6 h-6" />
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center text-[10px] font-bold text-primary-foreground shadow-md">
+              AI
+            </span>
           </button>
         )}
 
-        {/* Document Chat Bar */}
+        {/* SkAi Scope Chat Bar */}
         <DocumentChatBar
           isOpen={documentChatOpen}
           onClose={() => setDocumentChatOpen(false)}

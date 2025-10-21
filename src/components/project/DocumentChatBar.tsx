@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Sparkles, X, Minimize2, Plus, Edit, Trash2 } from "lucide-react";
+import { Send, Sparkles, X, Minimize2, Plus, Edit, Trash2, AlertCircle } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import { useSkaiDatabaseOperations } from '@/hooks/useSkaiDatabaseOperations';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Message {
   id: string;
@@ -82,11 +83,20 @@ export const DocumentChatBar = ({
         currentPage: currentTab || 'Scope'
       });
 
+      let messageContent: string;
+      if (result.success) {
+        messageContent = `✅ ${result.explanation || 'Operation completed successfully'}\n\nAffected ${result.recordsAffected || 0} record(s) in ${result.table}.`;
+      } else {
+        // Provide more detailed error information
+        messageContent = `❌ ${result.error || 'Operation failed'}`;
+        if (result.details) {
+          messageContent += `\n\n${result.details}`;
+        }
+      }
+
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: result.success 
-          ? `✅ ${result.explanation || 'Operation completed successfully'}\n\nAffected ${result.recordsAffected || 0} record(s) in ${result.table}.`
-          : `❌ ${result.error || 'Operation failed'}`,
+        content: messageContent,
         role: 'assistant',
         timestamp: new Date()
       };
@@ -95,12 +105,25 @@ export const DocumentChatBar = ({
 
       // Trigger page refresh if operation was successful
       if (result.success) {
-        window.dispatchEvent(new CustomEvent('skai-task-created', {
-          detail: { projectId }
-        }));
+        // Trigger refresh for the entire page
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('skai-task-created', {
+            detail: { projectId }
+          }));
+        }, 500);
       }
     } catch (error) {
       console.error('Error executing database operation:', error);
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `❌ Unexpected error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      
       toast({
         title: "Error",
         description: "Failed to execute operation. Please try again.",
@@ -212,12 +235,15 @@ export const DocumentChatBar = ({
   }
 
   return (
-    <div className="fixed bottom-8 right-8 z-[100] bg-background border-2 border-primary/20 rounded-xl shadow-2xl transition-all duration-300 w-96 h-[520px]">
+    <div className="fixed bottom-8 right-8 z-[100] bg-background border-2 border-primary/20 rounded-xl shadow-2xl transition-all duration-300 w-[420px] h-[600px] flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30 rounded-t-xl">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-gradient-to-r from-primary/10 to-primary/5 rounded-t-xl">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <span className="text-sm font-medium">
+          <div className="relative">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse"></span>
+          </div>
+          <span className="text-sm font-semibold">
             {documentName ? `Chat about ${documentName}` : currentTab ? `SkAi - ${currentTab}` : 'SkAi Chat'}
           </span>
         </div>
@@ -226,8 +252,8 @@ export const DocumentChatBar = ({
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="w-8 h-8 p-0"
-            title="Minimize to chat icon"
+            className="w-8 h-8 p-0 hover:bg-primary/20"
+            title="Minimize"
           >
             <Minimize2 className="w-4 h-4" />
           </Button>
@@ -235,7 +261,7 @@ export const DocumentChatBar = ({
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="w-8 h-8 p-0"
+            className="w-8 h-8 p-0 hover:bg-destructive/20"
             title="Close"
           >
             <X className="w-4 h-4" />
@@ -244,56 +270,60 @@ export const DocumentChatBar = ({
       </div>
 
       {/* Messages */}
-      <ScrollArea className="h-[calc(100%-180px)] p-4">
+      <ScrollArea className="flex-1 p-4">
         <div className="space-y-3">
           {messages.length === 0 && (
             <div className="text-center text-muted-foreground text-sm py-6">
-              <Sparkles className="w-6 h-6 mx-auto mb-2 opacity-50" />
-              <p className="mb-4">
+              <div className="relative inline-block mb-4">
+                <Sparkles className="w-8 h-8 mx-auto text-primary/50" />
+                <span className="absolute -bottom-1 -right-1 text-[10px] font-bold bg-primary text-primary-foreground rounded-full w-4 h-4 flex items-center justify-center">
+                  AI
+                </span>
+              </div>
+              <p className="mb-2 font-medium text-foreground">
                 {documentName 
-                  ? `Ask SkAi anything about ${documentName}` 
+                  ? `Ask SkAi about ${documentName}` 
                   : currentTab 
-                  ? `Ask SkAi to manage your ${currentTab}` 
-                  : 'Ask SkAi anything about this project'}
+                  ? `Ask SkAi to edit your ${currentTab}` 
+                  : 'Ask SkAi anything'}
+              </p>
+              <p className="text-xs mb-4 text-muted-foreground/70">
+                Try: "Add a demolition phase", "Update item status", or "List all scope items"
               </p>
               {currentTab === 'Scope' && projectId && (
                 <div className="flex flex-col gap-2 mt-4 px-4">
-                  <p className="text-xs font-medium mb-1">Quick Actions:</p>
+                  <p className="text-xs font-medium mb-1 text-left">Quick Actions:</p>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleDatabaseOperation("Add a new demolition phase to the scope")}
+                    onClick={() => handleDatabaseOperation("Add a new demolition phase to the scope with status 'Not Started'")}
                     disabled={isLoading || isExecuting}
-                    className="w-full justify-start text-xs"
+                    className="w-full justify-start text-xs hover:bg-primary/10 hover:text-primary hover:border-primary"
                   >
                     <Plus className="w-3 h-3 mr-2" />
-                    Add Scope Item
+                    Add Demolition Phase
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDatabaseOperation("Add a new construction phase to the scope with status 'Not Started'")}
+                    disabled={isLoading || isExecuting}
+                    className="w-full justify-start text-xs hover:bg-primary/10 hover:text-primary hover:border-primary"
+                  >
+                    <Plus className="w-3 h-3 mr-2" />
+                    Add Construction Phase
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      const prompt = window.prompt("Enter the name of the scope item to edit:");
-                      if (prompt) handleDatabaseOperation(`Update the scope item named "${prompt}" to mark it as in progress`);
+                      setInput("List all scope items and their current status");
                     }}
                     disabled={isLoading || isExecuting}
-                    className="w-full justify-start text-xs"
+                    className="w-full justify-start text-xs hover:bg-primary/10 hover:text-primary hover:border-primary"
                   >
                     <Edit className="w-3 h-3 mr-2" />
-                    Edit Scope Item
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      const prompt = window.prompt("Enter the name of the scope item to delete:");
-                      if (prompt) handleDatabaseOperation(`Delete the scope item named "${prompt}"`);
-                    }}
-                    disabled={isLoading || isExecuting}
-                    className="w-full justify-start text-xs"
-                  >
-                    <Trash2 className="w-3 h-3 mr-2" />
-                    Delete Scope Item
+                    View All Scope Items
                   </Button>
                 </div>
               )}
@@ -305,10 +335,12 @@ export const DocumentChatBar = ({
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] p-3 rounded-lg text-sm ${
+                className={`max-w-[85%] p-3 rounded-lg text-sm whitespace-pre-wrap ${
                   message.role === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-background border border-border'
+                    ? 'bg-primary text-primary-foreground shadow-md'
+                    : message.content.startsWith('❌') 
+                    ? 'bg-destructive/10 border border-destructive/20 text-foreground'
+                    : 'bg-muted border border-border text-foreground'
                 }`}
               >
                 {message.content}
@@ -317,11 +349,11 @@ export const DocumentChatBar = ({
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-background border border-border p-3 rounded-lg text-sm">
+              <div className="bg-muted border border-border p-3 rounded-lg text-sm">
                 <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
               </div>
             </div>
@@ -332,14 +364,14 @@ export const DocumentChatBar = ({
 
       {/* Quick Actions for Scope */}
       {currentTab === 'Scope' && projectId && messages.length > 0 && (
-        <div className="px-4 pb-2 border-t border-border bg-muted/20">
-          <div className="flex gap-1 pt-2">
+        <div className="px-4 py-2 border-t border-border bg-muted/20">
+          <div className="flex gap-1">
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => handleDatabaseOperation("Add a new scope item")}
+              onClick={() => setInput("Add a new ")}
               disabled={isLoading || isExecuting}
-              className="flex-1 text-xs h-7"
+              className="flex-1 text-xs h-7 hover:bg-primary/10 hover:text-primary"
             >
               <Plus className="w-3 h-3 mr-1" />
               Add
@@ -347,12 +379,9 @@ export const DocumentChatBar = ({
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => {
-                const prompt = window.prompt("Describe the edit:");
-                if (prompt) handleDatabaseOperation(prompt);
-              }}
+              onClick={() => setInput("Update the ")}
               disabled={isLoading || isExecuting}
-              className="flex-1 text-xs h-7"
+              className="flex-1 text-xs h-7 hover:bg-primary/10 hover:text-primary"
             >
               <Edit className="w-3 h-3 mr-1" />
               Edit
@@ -360,12 +389,9 @@ export const DocumentChatBar = ({
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => {
-                const prompt = window.prompt("Which scope item to delete?");
-                if (prompt) handleDatabaseOperation(`Delete the scope item: ${prompt}`);
-              }}
+              onClick={() => setInput("Delete the ")}
               disabled={isLoading || isExecuting}
-              className="flex-1 text-xs h-7"
+              className="flex-1 text-xs h-7 hover:bg-primary/10 hover:text-primary"
             >
               <Trash2 className="w-3 h-3 mr-1" />
               Delete
@@ -376,6 +402,14 @@ export const DocumentChatBar = ({
 
       {/* Input */}
       <div className="p-4 border-t border-border bg-background">
+        {(isLoading || isExecuting) && (
+          <Alert className="mb-2 py-2 border-primary/30 bg-primary/5">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="text-xs">
+              SkAi is {isExecuting ? 'executing your request' : 'thinking'}...
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="flex space-x-2">
           <Input
             value={input}
@@ -383,13 +417,13 @@ export const DocumentChatBar = ({
             onKeyPress={handleKeyPress}
             placeholder={documentName ? `Ask about ${documentName}...` : currentTab ? `Ask SkAi to manage ${currentTab}...` : "Ask SkAi..."}
             disabled={isLoading || isExecuting}
-            className="flex-1"
+            className="flex-1 focus-visible:ring-primary"
           />
           <Button
             onClick={sendMessage}
             disabled={!input.trim() || isLoading || isExecuting}
             size="sm"
-            className="px-3"
+            className="px-3 bg-primary hover:bg-primary/90"
           >
             <Send className="w-4 h-4" />
           </Button>
