@@ -141,14 +141,17 @@ CRITICAL PARENT_ID RULES:
 
 CRITICAL: You MUST respond with ONLY valid JSON. No explanations, no markdown, no code blocks, no extra text.
 
-IMPORTANT: You can only process ONE operation at a time.
-- If the user requests multiple items (e.g., "add 3 items: A, B, and C"), you MUST:
-  1. Create only the FIRST item from their list
-  2. In the explanation field, tell them: "I've added [first item]. To add the remaining items ([list them]), please send separate requests for each, or ask me to continue."
+BATCH OPERATIONS SUPPORT:
+- You CAN add multiple WBS items in a single operation
+- For multiple items, use an array in the "data" field
+- Make sure to generate sequential wbs_id values for multiple items
+- All items in a batch must be at the same level with the same parent
   
 REQUIRED JSON FORMAT (respond with ONLY this structure):
+
+For SINGLE item:
 {
-  "operation": "INSERT|UPDATE|DELETE|SELECT",
+  "operation": "INSERT",
   "table": "wbs_items",
   "data": {
     "title": "exact title",
@@ -163,6 +166,39 @@ REQUIRED JSON FORMAT (respond with ONLY this structure):
     "parent_id": "use actual UUID from existing WBS items above, or null for top level"
   },
   "explanation": "Brief explanation for project ${projectData.name} only"
+}
+
+For MULTIPLE items (use array):
+{
+  "operation": "INSERT",
+  "table": "wbs_items",
+  "data": [
+    {
+      "title": "first item title",
+      "description": "brief description",
+      "project_id": "${projectId}",
+      "company_id": "${projectCompanyId}",
+      "wbs_id": "1",
+      "category": "Stage",
+      "status": "Not Started",
+      "progress": 0,
+      "level": 1,
+      "parent_id": null
+    },
+    {
+      "title": "second item title",
+      "description": "brief description",
+      "project_id": "${projectId}",
+      "company_id": "${projectCompanyId}",
+      "wbs_id": "2",
+      "category": "Stage",
+      "status": "Not Started",
+      "progress": 0,
+      "level": 1,
+      "parent_id": null
+    }
+  ],
+  "explanation": "Brief explanation mentioning all items added for project ${projectData.name}"
 }
 
 CRITICAL WBS CATEGORY RULES:
@@ -292,29 +328,35 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
         break;
 
       case 'INSERT':
-        // Validate category for wbs_items table
-        if (operationPlan.table === 'wbs_items' && operationPlan.data.category) {
+        // Handle both single objects and arrays for batch inserts
+        const dataToInsert = Array.isArray(operationPlan.data) ? operationPlan.data : [operationPlan.data];
+        
+        // Validate and auto-correct categories for wbs_items table
+        if (operationPlan.table === 'wbs_items') {
           const validCategories = ['Stage', 'Component', 'Element'];
-          if (!validCategories.includes(operationPlan.data.category)) {
-            // Auto-correct invalid categories to appropriate defaults
-            if (operationPlan.data.title?.toLowerCase().includes('phase') || 
-                operationPlan.data.title?.toLowerCase().includes('stage')) {
-              operationPlan.data.category = 'Stage';
-            } else if (operationPlan.data.level === 1) {
-              operationPlan.data.category = 'Component';  // Top-level items are typically components
-            } else {
-              operationPlan.data.category = 'Element';    // Sub-items are typically elements
+          dataToInsert.forEach((item: any) => {
+            if (item.category && !validCategories.includes(item.category)) {
+              // Auto-correct invalid categories to appropriate defaults
+              if (item.title?.toLowerCase().includes('phase') || 
+                  item.title?.toLowerCase().includes('stage')) {
+                item.category = 'Stage';
+              } else if (item.level === 1) {
+                item.category = 'Component';  // Top-level items are typically components
+              } else {
+                item.category = 'Element';    // Sub-items are typically elements
+              }
+              console.log(`Auto-corrected invalid category to: ${item.category} for item: ${item.title}`);
             }
-            console.log(`Auto-corrected invalid category to: ${operationPlan.data.category}`);
-          }
+            
+            // Ensure company_id is set for security using project's company
+            if (!item.company_id) {
+              item.company_id = projectCompanyId;
+            }
+          });
         }
         
-        // Ensure company_id is set for security using project's company
-        if (!operationPlan.data.company_id) {
-          operationPlan.data.company_id = projectCompanyId;
-        }
-        console.log('Inserting data:', JSON.stringify(operationPlan.data));
-        result = await supabase.from(table).insert(operationPlan.data).select();
+        console.log('Inserting data:', JSON.stringify(dataToInsert));
+        result = await supabase.from(table).insert(dataToInsert).select();
         console.log('Insert result:', { error: result.error, count: result.data?.length });
         break;
 
