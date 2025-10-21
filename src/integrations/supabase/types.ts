@@ -2092,6 +2092,39 @@ export type Database = {
           },
         ]
       }
+      impersonation_sessions: {
+        Row: {
+          admin_user_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          last_validated_at: string | null
+          target_user_id: string
+          token: string
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          last_validated_at?: string | null
+          target_user_id: string
+          token: string
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_validated_at?: string | null
+          target_user_id?: string
+          token?: string
+        }
+        Relationships: []
+      }
       income_transactions: {
         Row: {
           account_code: string | null
@@ -7164,6 +7197,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      cleanup_expired_impersonation_sessions: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       cleanup_non_business_accounts: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -7223,6 +7260,10 @@ export type Database = {
       encrypt_sensitive_data: {
         Args: { data: string }
         Returns: string
+      }
+      end_impersonation_session: {
+        Args: { session_id: string }
+        Returns: boolean
       }
       generate_access_token: {
         Args: Record<PropertyKey, never>
@@ -7872,6 +7913,15 @@ export type Database = {
           target_user_id: string
         }
         Returns: boolean
+      }
+      validate_impersonation_session: {
+        Args: { session_token: string }
+        Returns: {
+          admin_user_id: string
+          is_valid: boolean
+          session_id: string
+          target_user_id: string
+        }[]
       }
     }
     Enums: {

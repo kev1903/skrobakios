@@ -1,6 +1,6 @@
-// deno-lint-ignore-file no-explicit-any
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { validateRequest, ProcessInvoiceRequest } from "./schemas.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -160,19 +160,24 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
+    // Step 1: Parse and validate request body
+    console.log('=== Parsing and validating request ===');
     const body = await req.json();
-    const { signed_url, filename, filesize, storage_path } = body;
+    
+    const validation = validateRequest(body);
+    if (!validation.success) {
+      console.error('Validation failed:', validation.error);
+      return new Response(
+        JSON.stringify({ ok: false, error: validation.error }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { signed_url, filename, filesize, storage_path }: ProcessInvoiceRequest = validation.data!;
 
     console.log('=== Processing invoice ===');
     console.log('Filename:', filename);
     console.log('Filesize:', filesize);
-
-    if (!signed_url) {
-      return new Response(
-        JSON.stringify({ ok: false, error: 'Missing signed_url parameter' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     // Detect file type
     const fileType = getFileType(filename);

@@ -147,42 +147,55 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Store the token in the user_access_tokens table
-    console.log('Storing access token...');
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
-    const { error: insertError } = await supabase
-      .from('user_access_tokens')
+    // Step 5: Store the token in impersonation_sessions table for server-side validation
+    console.log('Creating impersonation session...');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    
+    const { data: sessionData, error: insertError } = await supabase
+      .from('impersonation_sessions')
       .insert({
-        user_id: targetUserId,
+        admin_user_id: user.id,
+        target_user_id: targetUserId,
         token: tokenData,
-        token_type: 'impersonation',
         expires_at: expiresAt.toISOString()
-      });
+      })
+      .select('id')
+      .single();
 
-    console.log('Token storage result:', { insertError });
+    console.log('Session creation result:', { sessionData, insertError });
 
-    if (insertError) {
-      console.error('Error storing access token:', insertError);
+    if (insertError || !sessionData) {
+      console.error('Failed to create impersonation session:', insertError);
       return new Response(
-        JSON.stringify({ error: 'Failed to store access token', details: insertError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Failed to create impersonation session' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
       );
     }
 
-    // Create the impersonation URL
-    const origin = req.headers.get('origin');
-    console.log('Request origin:', origin);
-    const baseUrl = origin || 'http://localhost:3000';
-    const impersonationUrl = `${baseUrl}/?token=${tokenData}`;
-    console.log('Generated impersonation URL:', impersonationUrl);
+    // Step 6: Construct the impersonation URL
+    const baseUrl = req.headers.get('origin') || 'https://your-app.com';
+    const impersonationUrl = `${baseUrl}?token=${tokenData}`;
 
-    console.log(`Superadmin ${user.email} is impersonating user ${targetProfile.email}`);
-    console.log('Impersonation URL:', impersonationUrl);
+    console.log('✓ Impersonation session created successfully');
+    console.log('Session ID:', sessionData.id);
+    console.log('Impersonation URL generated (expires in 1 hour)');
 
     return new Response(
       JSON.stringify({
         success: true,
+        impersonation_url: impersonationUrl,
         impersonationUrl,
+        token: tokenData,
+        session_id: sessionData.id,
+        expires_at: expiresAt.toISOString(),
+        target_user: {
+          id: targetUserId,
+          email: targetProfile.email,
+          name: `${targetProfile.first_name || ''} ${targetProfile.last_name || ''}`.trim()
+        },
         targetUser: {
           id: targetProfile.user_id,
           email: targetProfile.email,

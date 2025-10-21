@@ -6,6 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 interface ImpersonationMode {
   isImpersonating: boolean;
   targetUserId?: string;
+  sessionId?: string; // Server-side session ID for validation
+  sessionToken?: string; // Token for re-validation
   targetUserInfo?: {
     email: string;
     name: string;

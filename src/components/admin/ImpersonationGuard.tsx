@@ -26,58 +26,63 @@ export const ImpersonationGuard = ({ children }: ImpersonationGuardProps) => {
     setIsValidating(true);
     
     try {
-      console.log('Validating impersonation token...');
+      console.log('Validating impersonation session...');
       
-      // Call the edge function to validate and use the token
-      const { data, error } = await supabase.functions.invoke('validate-access-token', {
-        body: { token }
-      });
+      // Validate the impersonation session server-side
+      const { data, error } = await supabase
+        .rpc('validate_impersonation_session', { session_token: token });
 
       if (error) {
-        console.error('Error validating token:', error);
-        toast.error('Invalid or expired impersonation token');
+        console.error('Error validating impersonation session:', error);
+        toast.error('Invalid or expired impersonation session');
         navigate('/');
         return;
       }
 
-      if (data.success && data.token_type === 'impersonation') {
-        const targetUserId = data.user_id;
-        
-        // Fetch the target user's profile
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('email, first_name, last_name')
-          .eq('user_id', targetUserId)
-          .single();
-
-        if (profileError) {
-          console.error('Error fetching target user profile:', profileError);
-          toast.error('Error loading user profile');
-          navigate('/');
-          return;
-        }
-
-        // Set impersonation mode
-        setImpersonationMode({
-          isImpersonating: true,
-          targetUserId,
-          targetUserInfo: {
-            email: profile.email,
-            name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
-          }
-        });
-
-        // Remove token from URL and redirect to main page
-        navigate('/', { replace: true });
-        
-        toast.success(`Now viewing as ${profile.email}`);
-      } else {
-        toast.error('Invalid impersonation token');
+      // Check if we got a valid result
+      const validationResult = Array.isArray(data) ? data[0] : data;
+      
+      if (!validationResult || !validationResult.is_valid) {
+        toast.error('Invalid or expired impersonation session');
         navigate('/');
+        return;
       }
+
+      const { target_user_id, session_id } = validationResult;
+      
+      // Fetch the target user's profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('email, first_name, last_name')
+        .eq('user_id', target_user_id)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching target user profile:', profileError);
+        toast.error('Error loading user profile');
+        navigate('/');
+        return;
+      }
+
+      // Set impersonation mode with session ID for server-side validation
+      setImpersonationMode({
+        isImpersonating: true,
+        targetUserId: target_user_id,
+        sessionId: session_id,
+        sessionToken: token,
+        targetUserInfo: {
+          email: profile.email,
+          name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+        }
+      });
+
+      // Remove token from URL and redirect to main page
+      navigate('/', { replace: true });
+      
+      toast.success(`Now viewing as ${profile.email}`);
     } catch (error) {
       console.error('Error during impersonation validation:', error);
-      toast.error('Failed to validate impersonation token');
+      toast.error('Failed to validate impersonation session');
       navigate('/');
     } finally {
       setIsValidating(false);
