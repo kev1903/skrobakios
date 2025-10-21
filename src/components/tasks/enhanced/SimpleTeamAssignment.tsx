@@ -51,7 +51,7 @@ export function SimpleTeamAssignment({
           {currentAssignee?.name || 'Assign to...'}
         </span>
       </SelectTrigger>
-      <SelectContent className="min-w-48 bg-white border shadow-lg z-50 p-1">
+      <SelectContent className="min-w-[280px] bg-background border shadow-lg z-50 p-1">
         <SelectItem value="unassigned" className="text-xs py-2 px-2 cursor-pointer">
           <span className="text-muted-foreground">Unassigned</span>
         </SelectItem>
