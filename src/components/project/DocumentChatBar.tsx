@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Sparkles, X, Minimize2, Plus, Edit, Trash2, AlertCircle } from "lucide-react";
+import { Send, Sparkles, X, Minimize2, Trash2, AlertCircle } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import { useSkaiDatabaseOperations } from '@/hooks/useSkaiDatabaseOperations';
@@ -390,43 +390,6 @@ export const DocumentChatBar = ({
               <p className="text-xs mb-4 text-muted-foreground/70">
                 Try: "Add a demolition phase", "Update item status", or "List all scope items"
               </p>
-              {currentTab === 'Scope' && projectId && (
-                <div className="flex flex-col gap-2 mt-4 px-4">
-                  <p className="text-xs font-medium mb-1 text-left">Quick Actions:</p>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDatabaseOperation("Add a new demolition phase to the scope with status 'Not Started'")}
-                    disabled={isLoading || isExecuting}
-                    className="w-full justify-start text-xs hover:bg-primary/10 hover:text-primary hover:border-primary"
-                  >
-                    <Plus className="w-3 h-3 mr-2" />
-                    Add Demolition Phase
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleDatabaseOperation("Add a new construction phase to the scope with status 'Not Started'")}
-                    disabled={isLoading || isExecuting}
-                    className="w-full justify-start text-xs hover:bg-primary/10 hover:text-primary hover:border-primary"
-                  >
-                    <Plus className="w-3 h-3 mr-2" />
-                    Add Construction Phase
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setInput("List all scope items and their current status");
-                    }}
-                    disabled={isLoading || isExecuting}
-                    className="w-full justify-start text-xs hover:bg-primary/10 hover:text-primary hover:border-primary"
-                  >
-                    <Edit className="w-3 h-3 mr-2" />
-                    View All Scope Items
-                  </Button>
-                </div>
-              )}
             </div>
           )}
           {messages.map((message) => (
@@ -461,44 +424,6 @@ export const DocumentChatBar = ({
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
-
-      {/* Quick Actions for Scope */}
-      {currentTab === 'Scope' && projectId && messages.length > 0 && (
-        <div className="px-4 py-2 border-t border-border bg-muted/20">
-          <div className="flex gap-1">
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setInput("Add a new ")}
-              disabled={isLoading || isExecuting}
-              className="flex-1 text-xs h-7 hover:bg-primary/10 hover:text-primary"
-            >
-              <Plus className="w-3 h-3 mr-1" />
-              Add
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setInput("Update the ")}
-              disabled={isLoading || isExecuting}
-              className="flex-1 text-xs h-7 hover:bg-primary/10 hover:text-primary"
-            >
-              <Edit className="w-3 h-3 mr-1" />
-              Edit
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setInput("Delete the ")}
-              disabled={isLoading || isExecuting}
-              className="flex-1 text-xs h-7 hover:bg-primary/10 hover:text-primary"
-            >
-              <Trash2 className="w-3 h-3 mr-1" />
-              Delete
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Input */}
       <div className="p-4 border-t border-border bg-background">
