@@ -322,11 +322,17 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
-            <ImpersonationGuard>
-              <GlobalSidebarProvider>
-                <AppContent />
-              </GlobalSidebarProvider>
-            </ImpersonationGuard>
+            <UserProvider>
+              <CompanyProvider>
+                <TimeTrackingProvider>
+                  <ImpersonationGuard>
+                    <GlobalSidebarProvider>
+                      <AppContent />
+                    </GlobalSidebarProvider>
+                  </ImpersonationGuard>
+                </TimeTrackingProvider>
+              </CompanyProvider>
+            </UserProvider>
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
@@ -378,16 +384,13 @@ const AppContent = () => {
 
   return (
     <AppContextProvider>
-      <UserProvider>
-        <CompanyProvider>
-          <TimeTrackingProvider>
-            <UserPermissionsProviderWrapper>
-              <>
-            {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
-              <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
-            )}
-            {showMenuBar ? <MenuBar /> : null}
-            <div className="transition-all duration-300">
+      <UserPermissionsProviderWrapper>
+        <>
+          {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
+            <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
+          )}
+          {showMenuBar ? <MenuBar /> : null}
+          <div className="transition-all duration-300">
             <Routes>
         <Route path="/" element={
           <Index />
@@ -471,15 +474,12 @@ const AppContent = () => {
         
         {/* Documentation Pages */}
         <Route path="/docs/pdf-extraction" element={<PDFExtractionDocs />} />
-      </Routes>
-      </div>
-      <GlobalSidebar currentPage={currentPageForSidebar} onNavigate={handleSidebarNavigate} />
-              </>
-            </UserPermissionsProviderWrapper>
-          </TimeTrackingProvider>
-      </CompanyProvider>
-    </UserProvider>
-  </AppContextProvider>
+            </Routes>
+          </div>
+          <GlobalSidebar currentPage={currentPageForSidebar} onNavigate={handleSidebarNavigate} />
+        </>
+      </UserPermissionsProviderWrapper>
+    </AppContextProvider>
   );
 };
 
