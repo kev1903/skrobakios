@@ -1,5 +1,5 @@
 import React from 'react';
-import { GripVertical, Plus } from 'lucide-react';
+import { GripVertical, Plus, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { createPortal } from 'react-dom';
@@ -105,8 +105,8 @@ export const WBSLeftPanel = ({
                             selectedItems.includes(item.id) 
                               ? 'bg-primary/10 border-l-primary' 
                               : hoveredId === item.id 
-                                ? 'bg-gray-50 border-l-transparent' 
-                                : 'bg-white hover:bg-gray-50 border-l-transparent'
+                                ? itemHasChildren ? 'bg-slate-100 border-l-transparent' : 'bg-gray-50 border-l-transparent'
+                                : itemHasChildren ? 'bg-slate-50 border-l-transparent' : 'bg-white hover:bg-gray-50 border-l-transparent'
                           } ${snapshot.isDragging ? 'bg-white shadow-lg border rounded-md' : ''}`}
                           style={{
                             height: '28px',
@@ -155,8 +155,14 @@ export const WBSLeftPanel = ({
                                 className="px-3 flex items-center h-full font-medium text-foreground text-xs flex-1" 
                                 style={{ paddingLeft: `${12 + indentWidth}px` }}
                               >
-                                {/* No expand/collapse - all rows remain expanded */}
-                                <div className="w-4 mr-2 flex-shrink-0" />
+                                {/* Visual indicator: Chevron for parent rows */}
+                                {itemHasChildren ? (
+                                  <div className="mr-2 flex-shrink-0 p-0.5 rounded" title="Parent row">
+                                    <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+                                  </div>
+                                ) : (
+                                  <div className="w-4 mr-2 flex-shrink-0" />
+                                )}
                                 
                                 <EditableCell
                                   id={item.id}
@@ -164,7 +170,9 @@ export const WBSLeftPanel = ({
                                   field="name"
                                   value={item.name || ''}
                                   placeholder="Click to add activity"
-                                  className="font-medium text-xs text-muted-foreground flex-1 cursor-text min-h-[20px] hover:bg-gray-50/50 rounded px-1 py-0.5 transition-colors"
+                                  className={`font-medium text-xs flex-1 cursor-text min-h-[20px] hover:bg-gray-50/50 rounded px-1 py-0.5 transition-colors ${
+                                    itemHasChildren ? 'text-slate-800 font-semibold' : 'text-muted-foreground'
+                                  }`}
                                   data-field="name"
                                   textFormatting={item.text_formatting}
                                 />
