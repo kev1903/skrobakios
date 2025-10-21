@@ -237,7 +237,7 @@ REMEMBER: You are ONLY working with project "${projectData.name}" - never refere
 
 RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
         ],
-        max_completion_tokens: 500,
+        max_completion_tokens: 2000,
       }),
     });
 
