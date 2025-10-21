@@ -742,14 +742,14 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         break;
       case 'indent':
         // Progressive indent: increase level by 1 and find appropriate parent
-        const currentIndex = wbsItems.findIndex(i => i.id === itemId);
-        if (currentIndex >= 0 && item.level < 4) {
+        const currentIndexIndent = flatWBSItems.findIndex(i => i.id === itemId);
+        if (currentIndexIndent >= 0 && item.level < 4) {
           const newLevel = item.level + 1;
           
           // Find the appropriate parent - look backwards for an item at (newLevel - 1)
           let newParentId: string | null = null;
-          for (let i = currentIndex - 1; i >= 0; i--) {
-            const potentialParent = wbsItems[i];
+          for (let i = currentIndexIndent - 1; i >= 0; i--) {
+            const potentialParent = flatWBSItems[i];
             if (potentialParent.level === newLevel - 1) {
               newParentId = potentialParent.id;
               break;
@@ -758,10 +758,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           
           console.log(`🔄 Progressive indent: ${item.title} from level ${item.level} to ${newLevel}, parent: ${newParentId}`);
           
+          // Preserve visual position by keeping the same created_at relative to visible items
+          const newCreatedAt = new Date(Date.now() + currentIndexIndent * 1000).toISOString();
+          
           await updateWBSItem(itemId, {
             parent_id: newParentId,
-            level: newLevel
+            level: newLevel,
+            created_at: newCreatedAt
           });
+          
+          // Reload to reflect changes
+          await loadWBSItems();
           
           // Renumber after hierarchy change
           setTimeout(() => renumberWBSHierarchy(), 100);
@@ -769,11 +776,25 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         break;
       case 'outdent':
         if (item.level > 0) {
-          const currentParent = wbsItems.find(i => i.id === item.parent_id);
+          const currentIndexOutdent = flatWBSItems.findIndex(i => i.id === itemId);
+          const currentParent = flatWBSItems.find(i => i.id === item.parent_id);
+          
+          // Preserve visual position by keeping the same created_at relative to visible items
+          const newCreatedAt = new Date(Date.now() + currentIndexOutdent * 1000).toISOString();
+          
+          console.log(`🔄 Outdenting: ${item.title} from level ${item.level} to ${item.level - 1}, preserving position at index ${currentIndexOutdent}`);
+          
           await updateWBSItem(itemId, {
             parent_id: currentParent?.parent_id || null,
-            level: Math.max(0, item.level - 1)
+            level: Math.max(0, item.level - 1),
+            created_at: newCreatedAt
           });
+          
+          // Reload to reflect changes
+          await loadWBSItems();
+          
+          // Renumber after hierarchy change
+          setTimeout(() => renumberWBSHierarchy(), 100);
         }
         break;
       case 'view-details':
