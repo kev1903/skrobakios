@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Trash2, NotebookPen, ListTodo, Unlink, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -63,6 +63,15 @@ export const WBSRightPanel = ({
 }: WBSRightPanelProps) => {
   const [convertingTaskId, setConvertingTaskId] = useState<string | null>(null);
   const [activeTaskStatuses, setActiveTaskStatuses] = useState<Map<string, boolean>>(new Map());
+
+  // Optimistic update function for immediate button feedback
+  const setTaskActiveOptimistically = useCallback((wbsItemId: string, isActive: boolean) => {
+    setActiveTaskStatuses(prev => {
+      const newMap = new Map(prev);
+      newMap.set(wbsItemId, isActive);
+      return newMap;
+    });
+  }, []);
 
   // Check which WBS items have active (unfinished) linked tasks
   useEffect(() => {
@@ -248,25 +257,27 @@ export const WBSRightPanel = ({
                className={`h-6 w-6 p-0 hover:bg-muted relative ${
                  convertingTaskId === item.id ? 'animate-pulse' : ''
                }`}
-               onClick={(e) => {
-                 e.stopPropagation();
-                 if (item.is_task_enabled) {
-                   onContextMenuAction('view_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
-                 } else {
-                   setConvertingTaskId(item.id);
-                   onContextMenuAction('convert_to_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
-                   setTimeout(() => setConvertingTaskId(null), 1500);
-                 }
-               }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (item.is_task_enabled) {
+                    onContextMenuAction('view_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
+                  } else {
+                    // Optimistically set as active immediately for instant green button
+                    setTaskActiveOptimistically(item.id, true);
+                    setConvertingTaskId(item.id);
+                    onContextMenuAction('convert_to_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
+                    setTimeout(() => setConvertingTaskId(null), 1500);
+                  }
+                }}
                title={item.is_task_enabled && activeTaskStatuses.get(item.id) ? "View Active Task" : item.is_task_enabled ? "View Task (Completed)" : "Convert to Task"}
              >
-               <ListTodo className={`w-4 h-4 transition-all duration-300 ${
-                 item.is_task_enabled && activeTaskStatuses.get(item.id)
-                   ? 'text-green-600 hover:text-green-700' 
-                   : 'text-muted-foreground hover:text-foreground'
-               } ${
-                 convertingTaskId === item.id ? 'scale-110 drop-shadow-[0_0_8px_rgba(22,163,74,0.8)]' : ''
-               }`} />
+                <ListTodo className={`w-4 h-4 transition-all duration-300 ${
+                  item.is_task_enabled && (activeTaskStatuses.get(item.id) ?? true)
+                    ? 'text-green-600 hover:text-green-700' 
+                    : 'text-muted-foreground hover:text-foreground'
+                } ${
+                  convertingTaskId === item.id ? 'scale-110 drop-shadow-[0_0_8px_rgba(22,163,74,0.8)]' : ''
+                }`} />
              </Button>
            </div>
 
