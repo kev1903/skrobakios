@@ -52,7 +52,7 @@ export function SimpleTeamAssignment({
         </span>
       </SelectTrigger>
       <SelectContent className="min-w-[280px] bg-background border shadow-lg z-50 p-1">
-        <SelectItem value="unassigned" className="text-xs py-2 px-2 cursor-pointer">
+        <SelectItem value="unassigned" className="text-xs py-2 pr-2 cursor-pointer">
           <span className="text-muted-foreground">Unassigned</span>
         </SelectItem>
         {teamMembers?.filter(member => {
@@ -62,7 +62,7 @@ export function SimpleTeamAssignment({
           <SelectItem 
             key={member.id} 
             value={member.user_id || member.id} 
-            className="text-xs py-2 px-2 cursor-pointer"
+            className="text-xs py-2 pr-2 cursor-pointer"
           >
             <div className="flex items-center gap-2">
               <span className="font-medium">{formatUserName(member)}</span>
