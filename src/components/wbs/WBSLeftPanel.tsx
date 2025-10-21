@@ -101,7 +101,7 @@ export const WBSLeftPanel = ({
                           ref={dragProvided.innerRef}
                           {...dragProvided.draggableProps}
                           data-row-id={item.id}
-                          className={`grid items-center border-b border-gray-100 border-l-4 cursor-pointer transition-colors duration-150 ${
+                          className={`flex items-center border-b border-gray-100 border-l-4 cursor-pointer transition-colors duration-150 ${
                             selectedItems.includes(item.id) 
                               ? 'bg-primary/10 border-l-primary' 
                               : hoveredId === item.id 
@@ -109,22 +109,15 @@ export const WBSLeftPanel = ({
                                 : 'bg-white hover:bg-gray-50 border-l-transparent'
                           } ${snapshot.isDragging ? 'bg-white shadow-lg border rounded-md' : ''}`}
                           style={{
-                            gridTemplateColumns: '32px 70px 1fr 40px',
                             height: '28px',
                             width: snapshot.isDragging ? '580px' : 'auto',
                             ...dragProvided.draggableProps.style,
                           }}
                           onMouseEnter={() => onRowHover?.(item.id)}
                           onMouseLeave={() => onRowHover?.(null)}
-                          onClick={(e) => {
-                            const target = e.target as HTMLElement;
-                            // Ignore clicks on editable areas
-                            if (target.closest('[data-field="name"]')) return;
-                            onRowClick?.(item.id, e.ctrlKey || e.metaKey);
-                          }}
                         >
-                          {/* Drag Handle - NOT wrapped in context menu */}
-                          <div className="px-2 flex items-center justify-center h-full">
+                          {/* Drag Handle - Separate from context menu */}
+                          <div className="px-2 flex items-center justify-center h-full flex-shrink-0" style={{ width: '32px' }}>
                             <div
                               {...dragProvided.dragHandleProps}
                               className="cursor-grab active:cursor-grabbing p-1 rounded transition-colors duration-200 hover:bg-accent/20"
@@ -134,7 +127,7 @@ export const WBSLeftPanel = ({
                             </div>
                           </div>
 
-                          {/* Rest of row wrapped in context menu */}
+                          {/* Rest of row with context menu */}
                           <WBSRowContextMenu
                             itemId={item.id}
                             itemName={item.name}
@@ -145,13 +138,21 @@ export const WBSLeftPanel = ({
                               onContextMenuAction?.(action, itemId, itemType);
                             }}
                           >
-                            <div className="contents">
-                              <div className="px-3 flex items-center h-full text-xs text-slate-600 font-medium">
+                            <div 
+                              className="flex items-center h-full flex-1"
+                              onClick={(e) => {
+                                const target = e.target as HTMLElement;
+                                // Ignore clicks on editable areas
+                                if (target.closest('[data-field="name"]')) return;
+                                onRowClick?.(item.id, e.ctrlKey || e.metaKey);
+                              }}
+                            >
+                              <div className="px-3 flex items-center h-full text-xs text-slate-600 font-medium flex-shrink-0" style={{ width: '70px' }}>
                                 {sequentialWBSNumber}
                               </div>
                               
                               <div 
-                                className="px-3 flex items-center h-full font-medium text-foreground text-xs" 
+                                className="px-3 flex items-center h-full font-medium text-foreground text-xs flex-1" 
                                 style={{ paddingLeft: `${12 + indentWidth}px` }}
                               >
                                 {/* No expand/collapse - all rows remain expanded */}
@@ -169,7 +170,7 @@ export const WBSLeftPanel = ({
                                 />
                               </div>
                               
-                              <div className="px-2 flex items-center justify-center h-full">
+                              <div className="px-2 flex items-center justify-center h-full flex-shrink-0" style={{ width: '40px' }}>
                                 {itemHasChildren && onAddChild && (
                                   <Button
                                     variant="ghost"
