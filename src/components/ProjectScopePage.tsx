@@ -1364,23 +1364,18 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     
     console.log('🎯 Drag ended:', { from: source.index, to: destination.index });
     
-    // Helper function to determine if an item should be visible (not hidden by collapsed parent)
-    const isItemVisible = (item: any, allItems: any[]): boolean => {
-      if (item.level === 0) return true;
-      const parent = allItems.find(i => i.id === item.parent_id);
-      if (!parent) return true;
-      if (parent.isExpanded === false) return false;
-      return isItemVisible(parent, allItems);
-    };
+    // All items are always visible now (no expand/collapse), use flatWBSItems directly
+    const visibleFlatItems = flatWBSItems;
     
-    // Use flatWBSItems (hierarchically ordered) instead of wbsItems (created_at ordered)
-    // This ensures drag indices match the visual display order
-    const visibleFlatItems = flatWBSItems.filter(item => isItemVisible(item, flatWBSItems));
-    
-    console.log('📋 Visible items before reorder:', visibleFlatItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
+    console.log('📋 Items before reorder:', visibleFlatItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
     
     // Get the item being moved
     const movedItem = visibleFlatItems[source.index];
+    if (!movedItem) {
+      console.error('❌ Could not find moved item at index:', source.index);
+      return;
+    }
+    
     console.log('🔀 Moving item:', movedItem.name || movedItem.title, 'from', source.index, 'to', destination.index);
     
     // Create a new array and reorder
@@ -1388,7 +1383,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     reorderedVisibleItems.splice(source.index, 1);
     reorderedVisibleItems.splice(destination.index, 0, movedItem);
     
-    console.log('📋 Visible items after reorder:', reorderedVisibleItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
+    console.log('📋 Items after reorder:', reorderedVisibleItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
     
     // Persist to database - update order using created_at timestamps
     try {
