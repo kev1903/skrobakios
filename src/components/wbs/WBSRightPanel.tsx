@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Trash2, NotebookPen, ListTodo, Unlink, FileText } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +62,68 @@ export const WBSRightPanel = ({
   projectId
 }: WBSRightPanelProps) => {
   const [convertingTaskId, setConvertingTaskId] = useState<string | null>(null);
+  const [activeTaskStatuses, setActiveTaskStatuses] = useState<Map<string, boolean>>(new Map());
+
+  // Check which WBS items have active (unfinished) linked tasks
+  useEffect(() => {
+    const loadTaskStatuses = async () => {
+      // Get all items with linked tasks
+      const itemsWithTasks = items.filter(item => item.is_task_enabled && item.linked_task_id);
+      
+      if (itemsWithTasks.length === 0) {
+        setActiveTaskStatuses(new Map());
+        return;
+      }
+
+      try {
+        const taskIds = itemsWithTasks.map(item => item.linked_task_id).filter(Boolean);
+        
+        // Fetch task statuses
+        const { data: tasks, error } = await supabase
+          .from('tasks')
+          .select('id, status')
+          .in('id', taskIds);
+
+        if (error) throw error;
+
+        // Create a map of WBS item ID -> has active task
+        const statusMap = new Map<string, boolean>();
+        itemsWithTasks.forEach(item => {
+          const task = tasks?.find(t => t.id === item.linked_task_id);
+          // Task is active if it exists and status is not 'Completed'
+          const isActive = task && task.status !== 'Completed';
+          statusMap.set(item.id, !!isActive);
+        });
+
+        setActiveTaskStatuses(statusMap);
+      } catch (error) {
+        console.error('Error loading task statuses:', error);
+      }
+    };
+
+    loadTaskStatuses();
+
+    // Set up real-time subscription for task changes
+    const channel = supabase
+      .channel('wbs-tasks-status-sync')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tasks'
+        },
+        () => {
+          // Reload task statuses when any task changes
+          loadTaskStatuses();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [items]);
 
   // Log items for debugging
   console.log('🟣 WBSRightPanel rendering with', items.length, 'items');
@@ -195,10 +258,10 @@ export const WBSRightPanel = ({
                    setTimeout(() => setConvertingTaskId(null), 1500);
                  }
                }}
-               title={item.is_task_enabled ? "View Task" : "Convert to Task"}
+               title={item.is_task_enabled && activeTaskStatuses.get(item.id) ? "View Active Task" : item.is_task_enabled ? "View Task (Completed)" : "Convert to Task"}
              >
                <ListTodo className={`w-4 h-4 transition-all duration-300 ${
-                 item.is_task_enabled
+                 item.is_task_enabled && activeTaskStatuses.get(item.id)
                    ? 'text-green-600 hover:text-green-700' 
                    : 'text-muted-foreground hover:text-foreground'
                } ${
