@@ -48,10 +48,17 @@ export const useSkaiDatabaseOperations = () => {
 
       if (error) {
         console.error('Database operation error:', error);
-        toast.error('Failed to execute database operation');
+        
+        // Show more detailed error message
+        const errorMsg = error.message || 'Failed to execute database operation';
+        toast.error(errorMsg, {
+          description: 'Please try again or simplify your request',
+          duration: 5000
+        });
+        
         return {
           success: false,
-          error: error.message,
+          error: errorMsg,
           details: 'Failed to execute database operation'
         };
       }
@@ -71,7 +78,15 @@ export const useSkaiDatabaseOperations = () => {
         
         return data;
       } else {
-        toast.error(data.error || 'Database operation failed');
+        // Show detailed error with suggestion if available
+        const errorMsg = data.error || 'Database operation failed';
+        const suggestion = data.suggestion || data.details;
+        
+        toast.error(errorMsg, {
+          description: suggestion,
+          duration: 6000
+        });
+        
         return data;
       }
     } catch (error) {

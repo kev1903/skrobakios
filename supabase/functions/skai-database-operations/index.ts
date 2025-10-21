@@ -113,11 +113,12 @@ CRITICAL PROJECT ISOLATION RULES:
 - You MUST NEVER reference any other project or location
 - You MUST NEVER use data from other projects
 
-CRITICAL BATCH SIZE LIMIT:
-- You can add a MAXIMUM of 5 WBS items per operation
-- If the user requests more than 5 items, create ONLY the first 5
-- Keep descriptions brief (under 100 characters each)
-- In your explanation, tell the user how many items you added and that they can request more if needed
+CRITICAL BATCH SIZE AND BREVITY RULES:
+- You can add a MAXIMUM of 3 WBS items per operation
+- If the user requests more than 3 items, create ONLY the first 3
+- Keep descriptions VERY brief (under 50 characters each)
+- Keep titles concise (under 50 characters)
+- In your explanation, use ONE SHORT SENTENCE ONLY
 
 CRITICAL INSTRUCTIONS:
 1. You can ONLY perform operations on these tables: ${ALLOWED_TABLES.join(', ')}
@@ -160,28 +161,28 @@ For SINGLE item:
   "operation": "INSERT",
   "table": "wbs_items",
   "data": {
-    "title": "exact title",
-    "description": "brief description (max 100 chars)",
+    "title": "Short title (max 50 chars)",
+    "description": "Brief desc (max 50 chars)",
     "project_id": "${projectId}",
     "company_id": "${projectCompanyId}",
-    "wbs_id": "auto-generate next available like 1.2.X",
+    "wbs_id": "1.2.X",
     "category": "Stage|Component|Element",
     "status": "Not Started",
     "progress": 0,
     "level": 1,
-    "parent_id": "use actual UUID from existing WBS items above, or null for top level"
+    "parent_id": null
   },
-  "explanation": "Brief 1-2 sentence summary for project ${projectData.name}"
+  "explanation": "Added 1 item"
 }
 
-For MULTIPLE items (MAX 5 items per request):
+For MULTIPLE items (MAX 3 items):
 {
   "operation": "INSERT",
   "table": "wbs_items",
   "data": [
     {
-      "title": "first item",
-      "description": "brief (max 100 chars)",
+      "title": "Item 1",
+      "description": "Short desc",
       "project_id": "${projectId}",
       "company_id": "${projectCompanyId}",
       "wbs_id": "1",
@@ -192,8 +193,8 @@ For MULTIPLE items (MAX 5 items per request):
       "parent_id": null
     },
     {
-      "title": "second item",
-      "description": "brief (max 100 chars)",
+      "title": "Item 2",
+      "description": "Short desc",
       "project_id": "${projectId}",
       "company_id": "${projectCompanyId}",
       "wbs_id": "2",
@@ -202,9 +203,21 @@ For MULTIPLE items (MAX 5 items per request):
       "progress": 0,
       "level": 1,
       "parent_id": null
+    },
+    {
+      "title": "Item 3",
+      "description": "Short desc",
+      "project_id": "${projectId}",
+      "company_id": "${projectCompanyId}",
+      "wbs_id": "3",
+      "category": "Stage",
+      "status": "Not Started",
+      "progress": 0,
+      "level": 1,
+      "parent_id": null
     }
   ],
-  "explanation": "Added [X] items for ${projectData.name}. User can request more if needed."
+  "explanation": "Added 3 items"
 }
 
 CRITICAL WBS CATEGORY RULES:
@@ -241,9 +254,10 @@ REMEMBER: You are ONLY working with project "${projectData.name}" - never refere
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `${prompt}
 
-RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
+CRITICAL: Keep ALL text VERY short. Max 50 chars for titles and descriptions.
+RESPOND WITH ONLY JSON. NO OTHER TEXT. BE EXTREMELY BRIEF.` }
         ],
-        max_completion_tokens: 2000,
+        max_completion_tokens: 4000,
       }),
     });
 
@@ -291,11 +305,15 @@ RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
     } catch (parseError) {
       console.error('Failed to parse AI response as JSON:', parseError);
       console.error('Raw AI response:', aiContent);
+      
+      // Return a more detailed error response
       return new Response(JSON.stringify({
         success: false,
-        error: 'AI response was not in expected JSON format',
-        aiResponse: aiContent,
-        parseError: (parseError as Error).message
+        error: 'AI response format error - response may have been truncated',
+        details: 'The AI generated an invalid JSON response. This usually means the response was too long and got cut off.',
+        aiResponsePreview: aiContent.substring(0, 500),
+        parseError: (parseError as Error).message,
+        suggestion: 'Try requesting fewer items or simpler scope items'
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
