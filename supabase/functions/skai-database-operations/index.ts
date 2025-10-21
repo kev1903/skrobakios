@@ -113,6 +113,12 @@ CRITICAL PROJECT ISOLATION RULES:
 - You MUST NEVER reference any other project or location
 - You MUST NEVER use data from other projects
 
+CRITICAL BATCH SIZE LIMIT:
+- You can add a MAXIMUM of 5 WBS items per operation
+- If the user requests more than 5 items, create ONLY the first 5
+- Keep descriptions brief (under 100 characters each)
+- In your explanation, tell the user how many items you added and that they can request more if needed
+
 CRITICAL INSTRUCTIONS:
 1. You can ONLY perform operations on these tables: ${ALLOWED_TABLES.join(', ')}
 2. You can ONLY perform these operations: ${ALLOWED_OPERATIONS.join(', ')}
@@ -155,7 +161,7 @@ For SINGLE item:
   "table": "wbs_items",
   "data": {
     "title": "exact title",
-    "description": "brief description",
+    "description": "brief description (max 100 chars)",
     "project_id": "${projectId}",
     "company_id": "${projectCompanyId}",
     "wbs_id": "auto-generate next available like 1.2.X",
@@ -165,17 +171,17 @@ For SINGLE item:
     "level": 1,
     "parent_id": "use actual UUID from existing WBS items above, or null for top level"
   },
-  "explanation": "Brief explanation for project ${projectData.name} only"
+  "explanation": "Brief 1-2 sentence summary for project ${projectData.name}"
 }
 
-For MULTIPLE items (use array):
+For MULTIPLE items (MAX 5 items per request):
 {
   "operation": "INSERT",
   "table": "wbs_items",
   "data": [
     {
-      "title": "first item title",
-      "description": "brief description",
+      "title": "first item",
+      "description": "brief (max 100 chars)",
       "project_id": "${projectId}",
       "company_id": "${projectCompanyId}",
       "wbs_id": "1",
@@ -186,8 +192,8 @@ For MULTIPLE items (use array):
       "parent_id": null
     },
     {
-      "title": "second item title",
-      "description": "brief description",
+      "title": "second item",
+      "description": "brief (max 100 chars)",
       "project_id": "${projectId}",
       "company_id": "${projectCompanyId}",
       "wbs_id": "2",
@@ -198,7 +204,7 @@ For MULTIPLE items (use array):
       "parent_id": null
     }
   ],
-  "explanation": "Brief explanation mentioning all items added for project ${projectData.name}"
+  "explanation": "Added [X] items for ${projectData.name}. User can request more if needed."
 }
 
 CRITICAL WBS CATEGORY RULES:
