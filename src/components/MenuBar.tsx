@@ -432,8 +432,8 @@ const barRef = useRef<HTMLDivElement>(null);
                 
                 {/* User Profile */}
                 <div className="relative" ref={profileDropdownRef}>
-                  <div className="flex items-center justify-center w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-full border border-border cursor-pointer hover:bg-muted transition-colors duration-200" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>
-                    <Avatar className="w-6 h-6">
+                  <div className="flex items-center justify-center w-10 h-10 bg-muted/50 backdrop-blur-sm rounded-full border border-border cursor-pointer hover:bg-muted transition-colors duration-200" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>
+                    <Avatar className="w-8 h-8">
                       <AvatarImage src={userProfile.avatarUrl || undefined} alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()} onError={e => {
                     e.currentTarget.style.display = 'none';
                   }} />
