@@ -125,15 +125,21 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
             <Badge className={`${getStatusColor(task.status)} font-medium text-xs px-2.5 py-0.5`}>{task.status || 'Not Started'}</Badge>
           </div>
           
+          <div className="h-8 w-px bg-border/50" />
+          
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-xs text-muted-foreground">Priority</span>
             <Badge className={`${getPriorityColor(task.priority)} font-medium text-xs px-2.5 py-0.5`}>{task.priority || 'Medium'}</Badge>
           </div>
           
+          <div className="h-8 w-px bg-border/50" />
+          
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-xs text-muted-foreground">Progress</span>
             <span className="text-sm font-semibold text-foreground">{task.progress || 0}%</span>
           </div>
+          
+          <div className="h-8 w-px bg-border/50" />
           
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-xs text-muted-foreground">Assignee</span>
@@ -149,6 +155,8 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
               </span>
             </div>
           </div>
+          
+          <div className="h-8 w-px bg-border/50" />
           
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-xs text-muted-foreground">Start Date</span>
@@ -177,6 +185,8 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
               </PopoverContent>
             </Popover>
           </div>
+          
+          <div className="h-8 w-px bg-border/50" />
           
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-xs text-muted-foreground">End Date</span>
@@ -207,6 +217,8 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
             </Popover>
           </div>
           
+          <div className="h-8 w-px bg-border/50" />
+          
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-xs text-muted-foreground">Duration</span>
             <div className="flex items-center gap-1">
@@ -219,9 +231,9 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
 
       {/* Scope of Works & Subtasks - Two Column Layout */}
       <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 divide-x divide-border/30">
           {/* Left Column - Scope of Works */}
-          <div>
+          <div className="pr-6">
             <h3 className="text-base font-semibold mb-4 text-foreground">Scope of Works</h3>
             <Textarea
               value={task.description || ''}
@@ -232,7 +244,7 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
           </div>
 
           {/* Right Column - Subtasks */}
-          <div>
+          <div className="lg:pl-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold text-foreground">Subtasks</h3>
               <Button 
