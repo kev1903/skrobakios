@@ -1533,31 +1533,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       <div className={contentClasses[screenSize]}>
         {/* Full Width Content - No Chat Section */}
         <div className="h-full w-full bg-background">
-          {/* Header */}
-          <ProjectPageHeader 
-            projectName={project.name}
-            pageTitle="Project Control"
-            onNavigate={onNavigate}
-            actions={
-              <div className="flex items-center gap-4">
-                <div className="text-right">
-                  <div className="text-xs text-muted-foreground font-inter">{getProgressData().label}</div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full transition-all duration-300 ${getProgressColor(getProgressData().value)}`}
-                        style={{ width: `${getProgressData().value}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-medium text-foreground font-inter">{getProgressData().value}{getProgressData().suffix}</span>
-                  </div>
-                </div>
-              </div>
-            }
-          />
-          
           {/* Tabs Container - Full Width */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-[calc(100%-72px)] w-full flex flex-col">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full w-full flex flex-col">
             <div className="flex-shrink-0 border-b border-border bg-white">
               <div className="flex items-center justify-between px-6 py-4">
                 {/* Tabs in Header */}
