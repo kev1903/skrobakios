@@ -5858,6 +5858,7 @@ export type Database = {
           progress: number | null
           project_id: string
           status: string
+          subtasks: Json | null
           task_name: string
           task_number: string | null
           task_type: string
@@ -5883,6 +5884,7 @@ export type Database = {
           progress?: number | null
           project_id: string
           status?: string
+          subtasks?: Json | null
           task_name: string
           task_number?: string | null
           task_type?: string
@@ -5908,6 +5910,7 @@ export type Database = {
           progress?: number | null
           project_id?: string
           status?: string
+          subtasks?: Json | null
           task_name?: string
           task_number?: string | null
           task_type?: string

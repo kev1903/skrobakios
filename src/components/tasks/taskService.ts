@@ -73,6 +73,7 @@ export const taskService = {
         duration: Number(task.duration) || 0,
         is_milestone: task.is_milestone || false,
         is_critical_path: task.is_critical_path || false,
+        subtasks: Array.isArray(task.subtasks) ? task.subtasks as Array<{ id: string; name: string; completed: boolean }> : [],
         created_at: task.created_at,
         updated_at: task.updated_at
       }));
@@ -142,6 +143,7 @@ export const taskService = {
         duration: Number(task.duration) || 0,
         is_milestone: task.is_milestone,
         is_critical_path: task.is_critical_path,
+        subtasks: Array.isArray(task.subtasks) ? task.subtasks as Array<{ id: string; name: string; completed: boolean }> : [],
         created_at: task.created_at,
         updated_at: task.updated_at
       };
@@ -207,6 +209,15 @@ export const taskService = {
     if (updates.duration !== undefined) dbUpdates.estimated_duration = updates.duration;
     if (updates.is_milestone !== undefined) dbUpdates.is_milestone = updates.is_milestone;
     if (updates.is_critical_path !== undefined) dbUpdates.is_critical_path = updates.is_critical_path;
+    if (updates.subtasks !== undefined) dbUpdates.subtasks = updates.subtasks;
+    if (updates.priority !== undefined) dbUpdates.priority = updates.priority;
+    if (updates.status !== undefined) dbUpdates.status = updates.status;
+    if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
+    if (updates.description !== undefined) dbUpdates.description = updates.description;
+    if (updates.duration !== undefined) dbUpdates.estimated_duration = updates.duration;
+    if (updates.is_milestone !== undefined) dbUpdates.is_milestone = updates.is_milestone;
+    if (updates.is_critical_path !== undefined) dbUpdates.is_critical_path = updates.is_critical_path;
+    if (updates.subtasks !== undefined) dbUpdates.subtasks = updates.subtasks;
 
     const { error } = await supabase
       .from('tasks')
@@ -298,6 +309,7 @@ export const taskService = {
       duration: Number(data.duration) || 0,
       is_milestone: data.is_milestone,
       is_critical_path: data.is_critical_path,
+      subtasks: Array.isArray(data.subtasks) ? data.subtasks as Array<{ id: string; name: string; completed: boolean }> : [],
       created_at: data.created_at,
       updated_at: data.updated_at
     };

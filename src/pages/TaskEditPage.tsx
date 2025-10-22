@@ -82,6 +82,7 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
             duration: data.estimated_hours || 0,
             is_milestone: data.is_milestone || false,
             is_critical_path: data.is_critical_path || false,
+            subtasks: Array.isArray(data.subtasks) ? data.subtasks as Array<{ id: string; name: string; completed: boolean }> : [],
             created_at: data.created_at,
             updated_at: data.updated_at
           };

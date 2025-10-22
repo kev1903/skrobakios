@@ -31,6 +31,7 @@ export interface Task {
   duration?: number; // Duration in days
   is_milestone?: boolean;
   is_critical_path?: boolean;
+  subtasks?: Array<{ id: string; name: string; completed: boolean }>;
   created_at: string;
   updated_at: string;
   attachments?: TaskAttachment[];
