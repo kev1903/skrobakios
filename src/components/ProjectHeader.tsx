@@ -1,51 +1,19 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Project } from "@/hooks/useProjects";
-import { EditProjectForm } from "./EditProjectForm";
 
 interface ProjectHeaderProps {
   project: Project;
   bannerImage?: string;
   bannerPosition?: { x: number; y: number; scale: number };
-  getStatusColor: (status: string) => string;
-  getStatusText: (status: string) => string;
-  onProjectUpdate?: (updatedProject: Project) => void;
 }
 
 export const ProjectHeader = ({ 
   project, 
   bannerImage, 
-  bannerPosition = { x: 0, y: 0, scale: 1 },
-  getStatusColor, 
-  getStatusText, 
-  onProjectUpdate 
+  bannerPosition = { x: 0, y: 0, scale: 1 }
 }: ProjectHeaderProps) => {
-  const [showEditForm, setShowEditForm] = useState(false);
-
-  const handleProjectUpdate = (updatedProject: Project) => {
-    if (onProjectUpdate) {
-      onProjectUpdate(updatedProject);
-    }
-  };
-
   return (
     <>
-      {/* Header with Edit Button */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-1">{project.name}</h1>
-          <p className="text-gray-600">{project.description || 'No description available'}</p>
-        </div>
-        <Button 
-          className="bg-blue-600 hover:bg-blue-700 text-white"
-          onClick={() => setShowEditForm(true)}
-        >
-          Edit
-        </Button>
-      </div>
-
       {/* Project Banner or Default Hero */}
       <div className="mb-8">
         {bannerImage ? (
@@ -71,14 +39,6 @@ export const ProjectHeader = ({
         )}
       </div>
 
-      {/* Edit Form Modal */}
-      {showEditForm && (
-        <EditProjectForm
-          project={project}
-          onClose={() => setShowEditForm(false)}
-          onUpdate={handleProjectUpdate}
-        />
-      )}
     </>
   );
 };

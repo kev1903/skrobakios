@@ -276,9 +276,6 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
             project={project}
             bannerImage={bannerImage}
             bannerPosition={bannerPosition}
-            getStatusColor={getStatusColor}
-            getStatusText={getStatusText}
-            onProjectUpdate={handleProjectUpdate}
           />
 
           <ProjectInfo
