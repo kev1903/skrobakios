@@ -154,21 +154,27 @@ export const ProfilePictureUpload = ({
       // Generate cropped image
       const croppedBlob = await generateCroppedImage();
       
-      // Upload to Supabase storage
-      const fileName = `avatar-${Date.now()}.jpg`;
-      const { data, error } = await supabase.storage
+      // Upload to Supabase storage with user-specific folder structure
+      const fileName = `profile-avatars/avatar-${Date.now()}.jpg`;
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(fileName, croppedBlob, {
           contentType: 'image/jpeg',
-          cacheControl: '3600'
+          cacheControl: '3600',
+          upsert: false
         });
 
-      if (error) throw error;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
+
+      console.log('Profile picture uploaded successfully:', publicUrl);
 
       // Update avatar URL
       onAvatarUpdate(publicUrl);
@@ -180,11 +186,11 @@ export const ProfilePictureUpload = ({
         title: "Success",
         description: "Profile picture updated successfully"
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading avatar:', error);
       toast({
         title: "Upload failed",
-        description: "Failed to upload profile picture. Please try again.",
+        description: error.message || "Failed to upload profile picture. Please try again.",
         variant: "destructive"
       });
     } finally {
