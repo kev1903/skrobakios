@@ -26,6 +26,7 @@ export function SimpleTeamAssignment({
   const [manualName, setManualName] = useState('');
   const [manualEmail, setManualEmail] = useState('');
   const [selectOpen, setSelectOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const getInitials = (name: string) => {
     return name
@@ -45,6 +46,7 @@ export function SimpleTeamAssignment({
     
     if (value === 'unassign') {
       onAssigneeChange(null);
+      setSelectOpen(false);
       return;
     }
     
@@ -55,8 +57,19 @@ export function SimpleTeamAssignment({
         avatar: member.profile?.avatar_url || '',
         userId: member.user_id || member.id
       });
+      setSelectOpen(false);
     }
   };
+
+  const filteredMembers = teamMembers?.filter(member => {
+    const memberId = member.user_id || member.id;
+    if (!memberId || memberId.trim() === '') return false;
+    
+    if (!searchQuery) return true;
+    
+    const memberName = formatUserName(member).toLowerCase();
+    return memberName.includes(searchQuery.toLowerCase());
+  }) || [];
 
   const handleManualSubmit = () => {
     if (manualName.trim() && manualEmail.trim()) {
@@ -116,8 +129,17 @@ export function SimpleTeamAssignment({
         )}
         </SelectTrigger>
         <SelectContent className="min-w-[280px] bg-background border shadow-lg z-50 p-0">
-          <div className="p-1">
-            <SelectItem value="unassigned" className="text-xs py-2 pr-2 cursor-pointer">
+          <div className="p-2 border-b">
+            <Input
+              placeholder="Search team members..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-8 text-xs"
+              autoFocus
+            />
+          </div>
+          <div className="p-1 max-h-[200px] overflow-y-auto">
+            <SelectItem value="unassign" className="text-xs py-2 pr-2 cursor-pointer">
               <div className="flex items-center gap-2">
                 <Avatar className="h-5 w-5">
                   <AvatarFallback className="text-[10px] bg-muted">
@@ -127,10 +149,7 @@ export function SimpleTeamAssignment({
                 <span className="text-muted-foreground">Unassigned</span>
               </div>
             </SelectItem>
-            {teamMembers?.filter(member => {
-              const memberId = member.user_id || member.id;
-              return memberId && memberId.trim() !== '';
-            }).map((member) => {
+            {filteredMembers.map((member) => {
               const memberName = formatUserName(member);
               const avatarUrl = member.profile?.avatar_url;
               
