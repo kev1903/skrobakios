@@ -117,7 +117,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email using Resend
     const emailResponse = await resend.emails.send({
-      from: "SkAi <onboarding@resend.dev>",
+      from: "SkAi <noreply@skrobaki.com>",
       to: [profile.email],
       subject: `New Task Assigned: ${task.task_name}`,
       html: `
