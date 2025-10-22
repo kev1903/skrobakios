@@ -9,7 +9,6 @@ import { EnhancedTaskView } from './tasks/enhanced/EnhancedTaskView';
 import { TaskBoardView } from './tasks/TaskBoardView';
 import { ProjectSidebar } from './ProjectSidebar';
 import { TaskPageHeader } from './tasks/TaskPageHeader';
-import { TaskSearchAndActions } from './tasks/TaskSearchAndActions';
 import { TaskTabNavigation } from './tasks/TaskTabNavigation';
 import { getStatusColor, getStatusText } from './tasks/utils/taskUtils';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,6 +16,10 @@ import { TaskAttachment } from './tasks/types';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useCompanies } from '@/hooks/useCompanies';
 import { Company } from '@/types/company';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Search, Download, Trash2, List, Grid } from 'lucide-react';
 
 interface ProjectTasksPageProps {
   project: Project;
@@ -655,23 +658,82 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
             <div className="px-8 py-5">
               <TaskPageHeader project={project} onNavigate={onNavigate} />
               
-              <div className="mt-4">
-                <TaskSearchAndActions
-                  searchTerm={searchTerm}
-                  onSearchChange={setSearchTerm}
-                  viewMode={viewMode}
-                  onViewModeChange={setViewMode}
-                  selectedTasks={selectedTasks}
-                  onExport={handleExport}
-                  onBulkDelete={handleBulkDelete}
-                />
-              </div>
+              {/* Unified Search, Tabs, and Actions Bar */}
+              <div className="mt-6 flex items-center gap-6">
+                {/* Left: Search Bar */}
+                <div className="relative w-80">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search tasks..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 bg-white/80 border-border/30 text-foreground placeholder:text-muted-foreground"
+                  />
+                </div>
 
-              <div className="mt-4">
-                <TaskTabNavigation
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
-                />
+                {/* Center: Tab Navigation */}
+                <div className="flex-1">
+                  <TaskTabNavigation
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                  />
+                </div>
+
+                {/* Right: Action Buttons */}
+                <div className="flex items-center gap-2">
+                  {/* Selected Tasks Badge */}
+                  {selectedTasks.length > 0 && (
+                    <Badge variant="secondary" className="bg-luxury-gold/20 text-luxury-gold border-luxury-gold/30">
+                      {selectedTasks.length} selected
+                    </Badge>
+                  )}
+
+                  {/* Export Button */}
+                  <Button 
+                    onClick={handleExport}
+                    variant="outline"
+                    size="sm"
+                    className="text-foreground hover:text-foreground hover:bg-luxury-gold/10 border-border/50"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Export
+                  </Button>
+
+                  {/* Bulk Actions */}
+                  {selectedTasks.length > 0 && (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={handleBulkDelete}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </Button>
+                    </>
+                  )}
+
+                  {/* View Mode Toggle */}
+                  <div className="flex border border-border/50 rounded-lg overflow-hidden bg-white/80">
+                    <Button
+                      variant={viewMode === "list" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setViewMode("list")}
+                      className={`px-3 py-1 rounded-none ${viewMode === "list" ? "bg-luxury-gold text-white hover:bg-luxury-gold/90" : "text-muted-foreground hover:text-foreground"}`}
+                    >
+                      <List className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant={viewMode === "grid" ? "default" : "ghost"}
+                      size="sm"
+                      onClick={() => setViewMode("grid")}
+                      className={`px-3 py-1 rounded-none ${viewMode === "grid" ? "bg-luxury-gold text-white hover:bg-luxury-gold/90" : "text-muted-foreground hover:text-foreground"}`}
+                    >
+                      <Grid className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
