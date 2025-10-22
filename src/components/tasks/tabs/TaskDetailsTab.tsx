@@ -130,91 +130,96 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
         </div>
       </div>
 
-      {/* Scope of Works */}
+      {/* Scope of Works & Subtasks - Two Column Layout */}
       <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-        <h3 className="text-base font-semibold mb-4 text-foreground">Scope of Works</h3>
-        <Textarea
-          value={task.description || ''}
-          onChange={(e) => onUpdate({ description: e.target.value })}
-          placeholder="Enter task description..."
-          className="min-h-[100px] resize-none bg-slate-50/50 border-border/30"
-        />
-        
-        {/* Subtasks */}
-        <div className="mt-6 pt-6 border-t border-border/30">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-sm font-semibold text-foreground">Subtasks</h4>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="border-border/50 hover:bg-luxury-gold/10 hover:border-luxury-gold/50"
-              onClick={() => setIsAddingSubtask(true)}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add
-            </Button>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Column - Scope of Works */}
+          <div>
+            <h3 className="text-base font-semibold mb-4 text-foreground">Scope of Works</h3>
+            <Textarea
+              value={task.description || ''}
+              onChange={(e) => onUpdate({ description: e.target.value })}
+              placeholder="Enter task description..."
+              className="min-h-[300px] resize-none bg-slate-50/50 border-border/30"
+            />
           </div>
-          <div className="space-y-2">
-            {isAddingSubtask && (
-              <div className="flex items-center gap-2 p-3 border border-luxury-gold/30 rounded-xl bg-luxury-gold/5">
-                <Input
-                  value={newSubtaskName}
-                  onChange={(e) => setNewSubtaskName(e.target.value)}
-                  placeholder="Enter subtask name..."
-                  className="flex-1 border-border/30 bg-white"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleAddSubtask();
-                    if (e.key === 'Escape') {
+
+          {/* Right Column - Subtasks */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-base font-semibold text-foreground">Subtasks</h3>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-border/50 hover:bg-luxury-gold/10 hover:border-luxury-gold/50"
+                onClick={() => setIsAddingSubtask(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add
+              </Button>
+            </div>
+            <div className="space-y-2">
+              {isAddingSubtask && (
+                <div className="flex items-center gap-2 p-3 border border-luxury-gold/30 rounded-xl bg-luxury-gold/5">
+                  <Input
+                    value={newSubtaskName}
+                    onChange={(e) => setNewSubtaskName(e.target.value)}
+                    placeholder="Enter subtask name..."
+                    className="flex-1 border-border/30 bg-white"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleAddSubtask();
+                      if (e.key === 'Escape') {
+                        setIsAddingSubtask(false);
+                        setNewSubtaskName('');
+                      }
+                    }}
+                  />
+                  <Button 
+                    size="sm" 
+                    onClick={handleAddSubtask}
+                    className="bg-luxury-gold text-white hover:bg-luxury-gold-dark"
+                  >
+                    Save
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    onClick={() => {
                       setIsAddingSubtask(false);
                       setNewSubtaskName('');
-                    }
-                  }}
-                />
-                <Button 
-                  size="sm" 
-                  onClick={handleAddSubtask}
-                  className="bg-luxury-gold text-white hover:bg-luxury-gold-dark"
-                >
-                  Save
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  onClick={() => {
-                    setIsAddingSubtask(false);
-                    setNewSubtaskName('');
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            )}
-            {task.subtasks?.length > 0 ? (
-              task.subtasks.map((subtask: any) => (
-                <div key={subtask.id} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors group">
-                  <input 
-                    type="checkbox" 
-                    checked={subtask.completed || false}
-                    onChange={() => handleToggleSubtask(subtask.id)}
-                    className="rounded" 
-                  />
-                  <span className={`text-sm flex-1 font-medium ${subtask.completed ? 'line-through text-muted-foreground' : ''}`}>
-                    {subtask.name}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteSubtask(subtask.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                    }}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    Cancel
                   </Button>
                 </div>
-              ))
-            ) : (
-              !isAddingSubtask && <p className="text-sm text-muted-foreground text-center py-4">No subtasks</p>
-            )}
+              )}
+              {task.subtasks?.length > 0 ? (
+                task.subtasks.map((subtask: any) => (
+                  <div key={subtask.id} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors group">
+                    <input 
+                      type="checkbox" 
+                      checked={subtask.completed || false}
+                      onChange={() => handleToggleSubtask(subtask.id)}
+                      className="rounded" 
+                    />
+                    <span className={`text-sm flex-1 font-medium ${subtask.completed ? 'line-through text-muted-foreground' : ''}`}>
+                      {subtask.name}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteSubtask(subtask.id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                !isAddingSubtask && <p className="text-sm text-muted-foreground text-center py-4">No subtasks</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
