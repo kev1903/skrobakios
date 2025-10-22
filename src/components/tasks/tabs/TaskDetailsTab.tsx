@@ -118,6 +118,15 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
               </span>
             </div>
           </div>
+          <div className="flex items-center gap-3 ml-auto">
+            <span className="text-sm font-medium text-muted-foreground">Due Date</span>
+            <Input
+              type="date"
+              value={task.endDate || ''}
+              onChange={(e) => onUpdate({ endDate: e.target.value })}
+              className="w-[160px] h-9 bg-slate-50/50 border-border/30"
+            />
+          </div>
         </div>
       </div>
 
@@ -252,20 +261,10 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
         </div>
       </div>
 
-      {/* Due Date / Duration / Tags */}
+      {/* Duration / Tags */}
       <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-        <h3 className="text-base font-semibold mb-5 text-foreground">Schedule & Tags</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div>
-            <Label htmlFor="dueDate" className="text-sm font-medium text-muted-foreground">Due Date</Label>
-            <Input
-              id="dueDate"
-              type="date"
-              value={task.endDate || ''}
-              onChange={(e) => onUpdate({ endDate: e.target.value })}
-              className="mt-2 bg-slate-50/50 border-border/30"
-            />
-          </div>
+        <h3 className="text-base font-semibold mb-5 text-foreground">Duration & Tags</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <Label htmlFor="duration" className="text-sm font-medium text-muted-foreground">Duration</Label>
             <div className="flex gap-2 mt-2">
