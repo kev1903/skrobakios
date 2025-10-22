@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Plus, Search } from "lucide-react";
+import { ArrowLeft, Plus, Search, GripVertical, Clock } from "lucide-react";
 import { useUser } from '@/contexts/UserContext';
 import { Task } from './tasks/types';
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +12,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { BoardView } from './tasks/BoardView';
 import { MyTasksLoadingState } from './my-tasks/MyTasksLoadingState';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
 
 interface MyTasksPageProps {
   onNavigate: (page: string) => void;
@@ -20,9 +23,11 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTaskType, setSelectedTaskType] = useState<string>('all');
+  const [selectedTaskType, setSelectedTaskType] = useState<string>('All');
+  const [isDragOverBacklog, setIsDragOverBacklog] = useState(false);
   const { userProfile } = useUser();
   const { toast } = useToast();
+  const { spacingClasses, fullHeightClasses } = useMenuBarSpacing();
 
   // Function to refresh tasks
   const refreshTasks = async () => {
@@ -116,7 +121,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
     };
   }, [userProfile, toast]);
 
-  // Get backlog tasks (incomplete tasks)
+  // Get backlog tasks (tasks at midnight - unscheduled)
   const getBacklogTasks = () => {
     return tasks.filter(task => {
       // Filter by search term
@@ -125,12 +130,14 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
         task.projectName.toLowerCase().includes(searchTerm.toLowerCase());
       
       // Filter by task type
-      const matchesType = selectedTaskType === 'all' || task.taskType === selectedTaskType;
+      const matchesType = selectedTaskType === 'All' || task.taskType === selectedTaskType;
       
-      // Show incomplete tasks
-      const isIncomplete = task.status !== 'Completed';
+      // Check if task is in backlog (at midnight)
+      if (!task.dueDate) return matchesType && matchesSearch;
+      const taskDateTime = new Date(task.dueDate);
+      const isBacklogTask = taskDateTime.getHours() === 0 && taskDateTime.getMinutes() === 0;
       
-      return matchesSearch && matchesType && isIncomplete;
+      return matchesSearch && matchesType && isBacklogTask;
     });
   };
 
@@ -173,7 +180,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const taskTypes = ['all', 'Task', 'Bug', 'Feature', 'Issue'];
+  const taskTypes = ['All', 'Task', 'Issue', 'Bug', 'Feature'];
 
   if (loading) {
     return <MyTasksLoadingState />;
@@ -182,146 +189,196 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   const backlogTasks = getBacklogTasks();
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-background via-accent/20 to-muted/30"></div>
-      
-      <div className="h-screen flex flex-col">
-        {/* Header */}
-        <div className="flex-shrink-0 pt-6 pb-4 px-6 border-b border-border/50">
-          <div className="flex items-center justify-between mb-4">
-            <Button 
-              variant="ghost" 
-              size="sm"
+    <div>
+      {/* Main Background Container */}
+      <div className="h-screen relative overflow-hidden bg-white">
+        {/* Main Content Container */}
+        <div className={cn("relative z-10 flex h-full font-inter", spacingClasses)}>
+          {/* Left Sidebar - Task Backlog */}
+          <div className={cn(
+            "fixed left-0 w-80 bg-gradient-to-b from-card to-muted/20 border-r border-border p-6 space-y-6 overflow-y-auto transition-all duration-300 shadow-sm",
+            fullHeightClasses, 
+            spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0'
+          )}>
+            {/* Return to Home Button */}
+            <button 
               onClick={() => onNavigate("home")}
-              className="text-muted-foreground hover:text-foreground"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group font-inter"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground font-playfair">
-                My <span className="text-primary">Tasks</span>
-              </h1>
-              <p className="text-muted-foreground mt-1">{tasks.length} tasks assigned to you</p>
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              <span className="font-medium text-sm">Return to Home</span>
+            </button>
+
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Type here to search" 
+                className="pl-10 h-11 text-sm font-inter" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-            <Button onClick={() => onNavigate('task-edit&from=my-tasks')} className="gap-2">
-              <Plus className="w-4 h-4" />
-              New Task
-            </Button>
-          </div>
-        </div>
 
-        {/* Main Content - Split Layout */}
-        <div className="flex-1 overflow-hidden">
-          <div className="h-full flex gap-6 p-6">
-            {/* Left Side - Task Backlog */}
-            <div className="w-80 flex-shrink-0 flex flex-col">
-              <Card className="flex-1 flex flex-col border-border/50 shadow-lg">
-                <CardContent className="p-6 flex flex-col h-full">
-                  <h2 className="text-xl font-bold text-foreground mb-4 font-playfair">Task Backlog</h2>
-                  
-                  <Button 
+            {/* Task Backlog */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-foreground text-base font-inter">Task Backlog</h3>
+                <div className="flex items-center gap-2">
+                  <button 
                     onClick={() => onNavigate('task-edit&from=my-tasks')}
-                    className="w-full mb-4 bg-primary hover:bg-primary/90"
+                    className="text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors font-inter"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add to backlog
-                  </Button>
+                    ADD TASK
+                  </button>
+                </div>
+              </div>
 
-                  {/* Search */}
-                  <div className="relative mb-4">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Type here to search"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-9"
-                    />
-                  </div>
+              {/* Task Type Filter */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {taskTypes.map((type) => (
+                  <button 
+                    key={type}
+                    onClick={() => setSelectedTaskType(type)} 
+                    className={cn(
+                      "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 font-inter hover:scale-105", 
+                      selectedTaskType === type 
+                        ? type === 'All' ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/20'
+                          : type === 'Task' ? 'bg-green-500 text-white shadow-lg ring-2 ring-green-500/20'
+                          : type === 'Issue' ? 'bg-orange-500 text-white shadow-lg ring-2 ring-orange-500/20'
+                          : type === 'Bug' ? 'bg-red-500 text-white shadow-lg ring-2 ring-red-500/20'
+                          : 'bg-purple-500 text-white shadow-lg ring-2 ring-purple-500/20'
+                        : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    )}
+                  >
+                    {type === 'All' ? 'All' : type + 's'}
+                  </button>
+                ))}
+              </div>
 
-                  {/* Task Type Filter */}
-                  <div className="mb-4">
-                    <h3 className="text-sm font-semibold text-foreground mb-3">Task Type</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {taskTypes.map((type) => (
-                        <Button
-                          key={type}
-                          variant={selectedTaskType === type ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setSelectedTaskType(type)}
-                          className={cn(
-                            "text-xs",
-                            selectedTaskType === type && "bg-primary text-primary-foreground"
-                          )}
-                        >
-                          {type === 'all' ? 'All Types' : type}
-                        </Button>
-                      ))}
+              <div 
+                className={cn(
+                  "space-y-2 min-h-[100px] p-3 rounded-lg border-2 border-dashed transition-all duration-200 relative",
+                  isDragOverBacklog 
+                    ? "bg-primary/10 border-primary shadow-inner" 
+                    : "bg-transparent border-transparent"
+                )}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                  setIsDragOverBacklog(true);
+                }}
+                onDragLeave={() => {
+                  setIsDragOverBacklog(false);
+                }}
+                onDrop={async (e) => {
+                  e.preventDefault();
+                  setIsDragOverBacklog(false);
+                  
+                  const taskId = e.dataTransfer.getData('text/plain');
+                  const task = tasks.find(t => t.id === taskId);
+                  
+                  if (!task) return;
+                  
+                  try {
+                    // Set to midnight to mark as backlog task
+                    const backlogDate = task.dueDate ? new Date(task.dueDate) : new Date();
+                    backlogDate.setHours(0, 0, 0, 0);
+                    
+                    await handleTaskUpdate(taskId, {
+                      status: 'Not Started',
+                      dueDate: backlogDate.toISOString()
+                    });
+                    
+                    toast({
+                      title: "Task moved to backlog",
+                      description: "Task status set to 'Not Started'.",
+                      duration: 2000,
+                    });
+                  } catch (error) {
+                    console.error('Failed to move task to backlog:', error);
+                  }
+                }}
+              >
+                {/* Drop Zone Indicator */}
+                {isDragOverBacklog && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 bg-primary/5 rounded-lg">
+                    <div className="bg-background/95 border-2 border-primary border-dashed rounded-lg px-6 py-4 shadow-lg">
+                      <div className="flex items-center gap-2 text-primary font-semibold">
+                        <Plus className="w-5 h-5" />
+                        <span>Drop here to move to Backlog (Not Started)</span>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Backlog Rules Info */}
-                  <div className="mb-4 p-3 bg-muted/30 rounded-lg border border-border/30">
-                    <h3 className="text-sm font-semibold text-foreground mb-1">Backlog Rules</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Shows all incomplete tasks (any status except "Completed")
-                    </p>
+                )}
+                
+                {loading ? (
+                  <div className="text-center py-4">
+                    <div className="text-sm text-muted-foreground font-inter">Loading tasks...</div>
                   </div>
-
-                  {/* Task List */}
-                  <div className="flex-1 overflow-y-auto space-y-2 pr-2">
-                    {backlogTasks.length === 0 ? (
-                      <div className="text-center py-8 text-sm text-muted-foreground">
-                        No tasks in backlog
-                      </div>
-                    ) : (
-                      backlogTasks.map((task) => (
-                        <div
-                          key={task.id}
-                          draggable
-                          onDragStart={(e) => handleDragStartBacklog(e, task)}
-                          onClick={() => handleTaskClick(task)}
-                          className="bg-background border border-border rounded-lg p-3 cursor-move hover:shadow-md hover:border-primary/50 transition-all group"
-                        >
-                          <h4 className="font-semibold text-sm text-foreground mb-2 line-clamp-2">
+                ) : backlogTasks.length === 0 ? (
+                  <div className="text-center py-4">
+                    <div className="text-sm text-muted-foreground font-inter">No tasks in backlog</div>
+                  </div>
+                ) : (
+                  backlogTasks.map((task) => (
+                    <div 
+                      key={task.id}
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('text/plain', task.id);
+                        e.currentTarget.classList.add('opacity-50');
+                      }}
+                      onDragEnd={(e) => {
+                        e.currentTarget.classList.remove('opacity-50');
+                      }}
+                      className="draggable-task-element px-3 py-3 rounded-lg cursor-move transition-all duration-200 group border bg-card border-border hover:bg-accent hover:shadow-md hover:border-primary/50 hover:-translate-y-0.5"
+                      onClick={() => handleTaskClick(task)}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                          <GripVertical className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-semibold text-foreground truncate mb-2 cursor-move group-hover:text-primary transition-colors font-inter">
                             {task.taskName}
                           </h4>
-                          <div className="flex flex-wrap gap-1.5 mb-2">
-                            <Badge variant="outline" className="text-xs">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-xs text-muted-foreground font-medium truncate font-inter">
+                              📁 {task.projectName || 'No Project'}
+                            </p>
+                            <span className={cn(
+                              "px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 font-inter", 
+                              task.taskType === 'Task' ? 'bg-green-100 text-green-700 border border-green-200' 
+                              : task.taskType === 'Bug' ? 'bg-red-100 text-red-700 border border-red-200' 
+                              : task.taskType === 'Feature' ? 'bg-purple-100 text-purple-700 border border-purple-200' 
+                              : task.taskType === 'Issue' ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                              : 'bg-muted text-muted-foreground border border-border'
+                            )}>
                               {task.taskType}
-                            </Badge>
-                            <Badge 
-                              variant={task.priority === 'High' ? 'destructive' : 'secondary'}
-                              className="text-xs"
-                            >
-                              {task.priority}
-                            </Badge>
+                            </span>
+                            <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-blue-100 text-blue-700 border border-blue-200 font-inter flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {task.dueDate ? format(new Date(task.dueDate), 'MMM d') : 'No date'}
+                            </span>
                           </div>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {task.projectName}
-                          </p>
                         </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
+          </div>
 
-            {/* Right Side - Kanban Board */}
-            <div className="flex-1 overflow-hidden">
-              <Card className="h-full border-border/50 shadow-lg">
-                <CardContent className="p-6 h-full">
-                  <BoardView 
-                    tasks={tasks}
-                    onTaskUpdate={handleTaskUpdate}
-                    onTaskClick={handleTaskClick}
-                  />
-                </CardContent>
-              </Card>
+          {/* Main Content - Board View */}
+          <div className="flex-1 flex flex-col p-6 ml-80 overflow-hidden">
+            <div className="flex-1 bg-card rounded-lg border border-border shadow-sm p-6 overflow-hidden">
+              <BoardView 
+                tasks={tasks}
+                onTaskUpdate={handleTaskUpdate}
+                onTaskClick={handleTaskClick}
+              />
             </div>
           </div>
         </div>
