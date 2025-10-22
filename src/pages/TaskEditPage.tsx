@@ -286,12 +286,12 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
         />
       )}
 
-      {/* Main Content - Fixed positioning to match Project Tasks */}
-      <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
+      {/* Main Content - Fixed positioning with better top spacing */}
+      <div className="fixed left-40 right-0 top-20 bottom-0 overflow-hidden">
         <div className="h-full w-full flex flex-col bg-[hsl(var(--background))]">
           {/* Luxury Header Bar with Glass Effect */}
           <div className="sticky top-0 z-30 border-b border-border/50 bg-gradient-to-b from-white to-accent/20 backdrop-blur-sm">
-            <div className="px-8 py-5">
+            <div className="px-8 py-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <Button 
