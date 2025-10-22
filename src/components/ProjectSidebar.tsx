@@ -127,9 +127,9 @@ export const ProjectSidebar = ({
 
   const sidebarContent = (
     <div className="flex flex-col h-full bg-white">
-      <div className="flex flex-col h-full px-0 py-0 pt-12">
+      <div className="flex flex-col h-full px-0 py-0 pt-[var(--header-height)]">
         {/* Back Button */}
-        <div className="flex-shrink-0 px-4 h-[72px] flex items-center border-b border-gray-200 pt-2">
+        <div className="flex-shrink-0 px-3 py-3 border-b border-gray-200">
           <Button
             variant="ghost"
             size="sm"
@@ -137,10 +137,10 @@ export const ProjectSidebar = ({
               onNavigate('projects');
               if (isMobile && onToggle) onToggle();
             }}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-slate-600 hover:bg-gray-50 transition-colors text-left justify-start text-xs"
+            className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-slate-600 hover:bg-gray-50 transition-colors text-left justify-start text-xs"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Projects</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span className="text-xs">Back to Projects</span>
           </Button>
         </div>
 
