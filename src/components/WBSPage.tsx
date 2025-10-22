@@ -11,6 +11,7 @@ import { Project } from '@/hooks/useProjects';
 
 import { useWBS, WBSItem } from '@/hooks/useWBS';
 import { ProjectSidebar } from './ProjectSidebar';
+import { WBSRowContextMenu } from './wbs/WBSRowContextMenu';
 
 interface WBSPageProps {
   project: Project;
@@ -181,12 +182,92 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
     });
   };
 
+  const insertRowBelow = async (itemId: string) => {
+    const currentItem = findWBSItem(itemId);
+    if (!currentItem) return;
+
+    // Generate WBS ID for the new sibling
+    const newWBSId = generateWBSId(currentItem.parent_id);
+    
+    // Use the same category and level as the current item
+    const newItem = {
+      company_id: project.company_id,
+      project_id: project.id,
+      parent_id: currentItem.parent_id,
+      wbs_id: newWBSId,
+      title: `New ${currentItem.category}`,
+      description: '',
+      assigned_to: '',
+      start_date: '',
+      end_date: '',
+      duration: 0,
+      budgeted_cost: 0,
+      actual_cost: 0,
+      progress: 0,
+      level: currentItem.level,
+      category: currentItem.category,
+      status: 'Not Started' as const,
+      is_expanded: false,
+      linked_tasks: [],
+    };
+
+    const createdItem = await createWBSItem(newItem);
+    if (createdItem) {
+      setEditingId(createdItem.id);
+      toast({
+        title: "Row Inserted",
+        description: `New ${currentItem.category.toLowerCase()} has been added below.`,
+      });
+    }
+  };
+
+  const handleContextMenuAction = (action: string, itemId: string) => {
+    switch (action) {
+      case 'insert-below':
+        insertRowBelow(itemId);
+        break;
+      case 'delete':
+        handleDeleteItem(itemId);
+        break;
+      case 'cut':
+        // TODO: Implement cut
+        toast({
+          title: "Cut",
+          description: "Cut functionality coming soon.",
+        });
+        break;
+      case 'copy':
+        // TODO: Implement copy
+        toast({
+          title: "Copy",
+          description: "Copy functionality coming soon.",
+        });
+        break;
+      case 'paste':
+        // TODO: Implement paste
+        toast({
+          title: "Paste",
+          description: "Paste functionality coming soon.",
+        });
+        break;
+      default:
+        console.log('Unhandled action:', action);
+    }
+  };
+
   const renderWBSItem = (item: WBSItem, index: number) => {
     const isEditing = editingId === item.id;
     const hasChildren = item.children.length > 0;
 
     return (
-      <div key={item.id}>
+      <WBSRowContextMenu
+        key={item.id}
+        itemId={item.id}
+        itemName={item.title}
+        hasChildren={hasChildren}
+        level={item.level}
+        onAction={handleContextMenuAction}
+      >
         <div 
           className={`grid grid-cols-12 gap-2 p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
             item.level > 0 ? 'bg-gray-25' : ''
@@ -401,7 +482,7 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
         {item.is_expanded && item.children.map((child, childIndex) => 
           renderWBSItem(child, childIndex)
         )}
-      </div>
+      </WBSRowContextMenu>
     );
   };
 
