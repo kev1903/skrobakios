@@ -248,34 +248,35 @@ export const WBSRightPanel = ({
            </div>
 
            <div className="px-1 flex items-center justify-center h-full">
-             <Button
-               variant="ghost"
-               size="sm"
-               className={`h-6 w-6 p-0 hover:bg-muted relative ${
-                 convertingTaskId === item.id ? 'animate-pulse' : ''
-               }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (item.is_task_enabled) {
-                    onContextMenuAction('view_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
-                  } else {
-                    // Optimistically set as active immediately for instant green button
-                    setTaskActiveOptimistically(item.id, true);
-                    setConvertingTaskId(item.id);
-                    onContextMenuAction('convert_to_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
-                    setTimeout(() => setConvertingTaskId(null), 1500);
-                  }
-                }}
-               title={item.is_task_enabled && activeTaskStatuses.get(item.id) ? "View Active Task" : item.is_task_enabled ? "View Task (Completed)" : "Convert to Task"}
-             >
-                <ListTodo className={`w-4 h-4 transition-all duration-300 ${
-                  item.is_task_enabled && (activeTaskStatuses.get(item.id) ?? true)
-                    ? 'text-green-600 hover:text-green-700' 
-                    : 'text-muted-foreground hover:text-foreground'
-                } ${
-                  convertingTaskId === item.id ? 'scale-110 drop-shadow-[0_0_8px_rgba(22,163,74,0.8)]' : ''
-                }`} />
-             </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-6 w-6 p-0 hover:bg-muted relative ${
+                  convertingTaskId === item.id ? 'animate-pulse' : ''
+                }`}
+                 onClick={(e) => {
+                   e.stopPropagation();
+                   if (item.is_task_enabled) {
+                     // Task already exists - do nothing
+                     return;
+                   } else {
+                     // Optimistically set as active immediately for instant green button
+                     setTaskActiveOptimistically(item.id, true);
+                     setConvertingTaskId(item.id);
+                     onContextMenuAction('convert_to_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
+                     setTimeout(() => setConvertingTaskId(null), 1500);
+                   }
+                 }}
+                title={item.is_task_enabled && activeTaskStatuses.get(item.id) ? "Task Created (Active)" : item.is_task_enabled ? "Task Created (Completed)" : "Convert to Task"}
+              >
+                 <ListTodo className={`w-4 h-4 transition-all duration-300 ${
+                   item.is_task_enabled && (activeTaskStatuses.get(item.id) ?? true)
+                     ? 'text-green-600 hover:text-green-700' 
+                     : 'text-muted-foreground hover:text-foreground'
+                 } ${
+                   convertingTaskId === item.id ? 'scale-110 drop-shadow-[0_0_8px_rgba(22,163,74,0.8)]' : ''
+                 }`} />
+              </Button>
            </div>
 
            <div className="px-2 flex items-center justify-center h-full">
