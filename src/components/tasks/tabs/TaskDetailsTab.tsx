@@ -78,9 +78,9 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
         </div>
       </div>
 
-      {/* Description of Works */}
+      {/* Scope of Works */}
       <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-        <h3 className="text-base font-semibold mb-4 text-foreground">Description of Works</h3>
+        <h3 className="text-base font-semibold mb-4 text-foreground">Scope of Works</h3>
         <Textarea
           value={task.description || ''}
           onChange={(e) => onUpdate({ description: e.target.value })}
