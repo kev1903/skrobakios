@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut, MessageCircle, Mic, Search } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut, MessageCircle, Mic, Search, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -28,6 +28,7 @@ import { useSkaiVoiceChat } from '@/hooks/useSkaiVoiceChat';
 import { useIsMobile } from '@/hooks/use-mobile';
 export const MenuBar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     toast
   } = useToast();
@@ -108,6 +109,7 @@ const barRef = useRef<HTMLDivElement>(null);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResults>({ projects: [], tasks: [] });
   const [isSearching, setIsSearching] = useState(false);
+  const [currentProject, setCurrentProject] = useState<{ id: string; name: string; project_id: string } | null>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
@@ -126,6 +128,36 @@ const barRef = useRef<HTMLDivElement>(null);
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Fetch current project from URL
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const projectId = searchParams.get('projectId');
+    
+    if (projectId) {
+      const fetchProject = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('projects')
+            .select('id, name, project_id')
+            .eq('id', projectId)
+            .single();
+          
+          if (!error && data) {
+            setCurrentProject(data);
+          } else {
+            setCurrentProject(null);
+          }
+        } catch (err) {
+          console.error('Error fetching project:', err);
+          setCurrentProject(null);
+        }
+      };
+      fetchProject();
+    } else {
+      setCurrentProject(null);
+    }
+  }, [location.search]);
 
   // Debounced search function
   useEffect(() => {
@@ -588,6 +620,19 @@ const barRef = useRef<HTMLDivElement>(null);
                 </div>
               )}
             </div>
+
+            {/* Current Project Badge - Next to Search Bar */}
+            {currentProject && (
+              <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-primary/5 border border-primary/20 rounded-lg ml-3">
+                <FolderOpen className="w-4 h-4 text-primary" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Project</span>
+                  <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                    {currentProject.project_id} - {currentProject.name}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Center - Timer info or Voice Button */}
