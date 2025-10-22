@@ -257,7 +257,7 @@ export const ProfilePictureUpload = ({
             <div className="flex-1">
               <div className="relative w-full max-w-md mx-auto">
                 <div 
-                  className="relative w-80 h-80 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 select-none"
+                  className="relative w-80 h-80 border-4 border-white rounded-full overflow-hidden bg-gray-50 select-none shadow-lg"
                   style={{
                     backgroundImage: `url(${selectedImage})`,
                     backgroundSize: `${100 * cropData.scale}%`,
@@ -270,11 +270,7 @@ export const ProfilePictureUpload = ({
                   onMouseMove={handleMouseMove}
                   onMouseUp={handleMouseUp}
                   onMouseLeave={handleMouseUp}
-                >
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-60 h-60 border-4 border-white rounded-full shadow-lg bg-white/10 backdrop-blur-sm" />
-                  </div>
-                </div>
+                />
                 <p className="text-xs text-center text-muted-foreground mt-2">
                   Drag to reposition • Use sliders for precise control
                 </p>
