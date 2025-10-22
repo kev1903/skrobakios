@@ -19,6 +19,7 @@ import { RFIDetailPage } from "./pages/qaqc/RFIDetailPage";
 import { IssueEditPage } from "./pages/qaqc/IssueEditPage";
 import TasksPage from "./pages/TasksPage";
 import TimeSheetPage from "./pages/TimeSheetPage";
+import { MyTasksPageWrapper } from "./pages/MyTasksPageWrapper";
 import DashboardPage from "./pages/DashboardPage";
 import NewTaskPage from "./pages/NewTaskPage";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
@@ -448,7 +449,7 @@ const AppContent = () => {
         <Route path="/subscription" element={<SubscriptionPageWrapper />} />
         
         {/* Tasks Management */}
-        <Route path="/tasks" element={<TasksPage />} />
+        <Route path="/tasks" element={<MyTasksPageWrapper />} />
         <Route path="/timesheet" element={<TimeSheetPage />} />
         <Route path="/tasks/new" element={<NewTaskPage />} />
         
