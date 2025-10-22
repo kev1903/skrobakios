@@ -235,7 +235,7 @@ export const ProjectProcurementPage = () => {
       />
 
       {/* Main Content - Fixed positioning to match Project Control */}
-      <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
+      <div className="fixed left-40 right-0 top-[var(--header-height)] bottom-0 overflow-hidden">
         <div className="h-full w-full bg-white">
           {/* Header */}
           <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">

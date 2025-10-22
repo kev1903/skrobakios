@@ -206,7 +206,7 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
       )}
 
       {/* Main Content - Fixed positioning to match Project Tasks */}
-      <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
+      <div className="fixed left-40 right-0 top-[var(--header-height)] bottom-0 overflow-hidden">
         <TaskEditContent 
           task={editedTask}
           hasUnsavedChanges={hasUnsavedChanges}
