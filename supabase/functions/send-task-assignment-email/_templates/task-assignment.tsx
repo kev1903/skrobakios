@@ -157,6 +157,30 @@ export const TaskAssignmentEmail = ({
             </Section>
           </Section>
 
+          {/* Email Signature */}
+          <Section style={signatureSection}>
+            <Text style={signatureClosing}>Warm regards,</Text>
+            <Text style={signatureName}>SkAi</Text>
+            <Text style={signatureTitle}>Automated Project Assistant</Text>
+            
+            <Section style={signatureLogoSection}>
+              <Text style={signatureLogo}>SKROBAKI</Text>
+            </Section>
+            
+            <Section style={signatureContactSection}>
+              <Text style={signatureContact}>
+                <span style={contactLabel}>Phone</span>{' '}
+                <Link href="tel:0423117480" style={contactLink}>0423 117 480</Link>
+                {' | '}
+                <span style={contactLabel}>Office</span>{' '}
+                <Link href="tel:0385213310" style={contactLink}>(03) 8521 3310</Link>
+                {' | '}
+                <span style={contactLabel}>Website</span>{' '}
+                <Link href="https://www.skrobaki.com" style={contactLink}>www.skrobaki.com</Link>
+              </Text>
+            </Section>
+          </Section>
+
           {/* Footer */}
           <Hr style={divider} />
           <Section style={footer}>
@@ -361,4 +385,67 @@ const footerLinkSeparator = {
   color: '#D1D5DB',
   margin: '0 4px',
   fontSize: '12px',
+};
+
+// Signature styles
+const signatureSection = {
+  padding: '32px 24px 24px 24px',
+  borderTop: '1px solid #E5E7EB',
+  marginTop: '24px',
+};
+
+const signatureClosing = {
+  fontSize: '14px',
+  color: '#6B7280',
+  margin: '0 0 12px 0',
+};
+
+const signatureName = {
+  fontSize: '18px',
+  fontWeight: '700',
+  color: '#0A1F44',
+  margin: '0 0 4px 0',
+  fontFamily: "'Playfair Display', Georgia, serif",
+};
+
+const signatureTitle = {
+  fontSize: '13px',
+  color: '#6B7280',
+  margin: '0 0 20px 0',
+  fontWeight: '500',
+};
+
+const signatureLogoSection = {
+  margin: '20px 0',
+};
+
+const signatureLogo = {
+  fontSize: '20px',
+  fontWeight: '700',
+  color: '#0A1F44',
+  margin: '0',
+  fontFamily: "'Playfair Display', Georgia, serif",
+  letterSpacing: '2px',
+};
+
+const signatureContactSection = {
+  margin: '16px 0 0 0',
+};
+
+const signatureContact = {
+  fontSize: '12px',
+  color: '#6B7280',
+  margin: '0',
+  lineHeight: '1.8',
+};
+
+const contactLabel = {
+  fontWeight: '600',
+  color: '#0A1F44',
+};
+
+const contactLink = {
+  color: '#C8A45D',
+  textDecoration: 'none',
+  fontWeight: '500',
 };
