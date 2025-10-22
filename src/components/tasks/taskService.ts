@@ -66,6 +66,8 @@ export const taskService = {
           avatar: profile.avatar_url || task.assigned_to_avatar || '',
           userId: profile.user_id
         },
+        startDate: task.start_date || undefined,
+        endDate: task.end_date || undefined,
         dueDate: task.due_date || '', // Now contains full datetime
         status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
         progress: task.progress || 0,
@@ -136,6 +138,8 @@ export const taskService = {
           avatar: assignedUserProfile?.avatar_url || task.assigned_to_avatar || '',
           userId: task.assigned_to_user_id || assignedUserProfile?.user_id || undefined
         },
+        startDate: task.start_date || undefined,
+        endDate: task.end_date || undefined,
         dueDate: task.due_date || '', // Now contains full datetime
         status: task.status as 'Completed' | 'In Progress' | 'Pending' | 'Not Started',
         progress: task.progress,
@@ -201,20 +205,17 @@ export const taskService = {
         dbUpdates.assigned_to_user_id = null;
       }
     }
+    if (updates.startDate !== undefined) dbUpdates.start_date = updates.startDate;
+    if (updates.endDate !== undefined) dbUpdates.end_date = updates.endDate;
     if (updates.dueDate !== undefined) dbUpdates.due_date = updates.dueDate;
     if (updates.priority !== undefined) dbUpdates.priority = updates.priority;
     if (updates.status !== undefined) dbUpdates.status = updates.status;
     if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
     if (updates.description !== undefined) dbUpdates.description = updates.description;
-    if (updates.duration !== undefined) dbUpdates.estimated_duration = updates.duration;
-    if (updates.is_milestone !== undefined) dbUpdates.is_milestone = updates.is_milestone;
-    if (updates.is_critical_path !== undefined) dbUpdates.is_critical_path = updates.is_critical_path;
-    if (updates.subtasks !== undefined) dbUpdates.subtasks = updates.subtasks;
-    if (updates.priority !== undefined) dbUpdates.priority = updates.priority;
-    if (updates.status !== undefined) dbUpdates.status = updates.status;
-    if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
-    if (updates.description !== undefined) dbUpdates.description = updates.description;
-    if (updates.duration !== undefined) dbUpdates.estimated_duration = updates.duration;
+    if (updates.duration !== undefined) {
+      dbUpdates.duration = updates.duration;
+      dbUpdates.estimated_duration = updates.duration;
+    }
     if (updates.is_milestone !== undefined) dbUpdates.is_milestone = updates.is_milestone;
     if (updates.is_critical_path !== undefined) dbUpdates.is_critical_path = updates.is_critical_path;
     if (updates.subtasks !== undefined) dbUpdates.subtasks = updates.subtasks;
@@ -411,6 +412,39 @@ export const taskService = {
           user_avatar: userAvatar,
           action_type: 'task_updated',
           action_description: 'updated due date'
+        })
+      );
+    }
+    if (updates.startDate !== undefined) {
+      activityPromises.push(
+        supabase.from('task_activity_log').insert({
+          task_id: taskId,
+          user_name: userName,
+          user_avatar: userAvatar,
+          action_type: 'task_updated',
+          action_description: 'updated start date'
+        })
+      );
+    }
+    if (updates.endDate !== undefined) {
+      activityPromises.push(
+        supabase.from('task_activity_log').insert({
+          task_id: taskId,
+          user_name: userName,
+          user_avatar: userAvatar,
+          action_type: 'task_updated',
+          action_description: 'updated end date'
+        })
+      );
+    }
+    if (updates.duration !== undefined) {
+      activityPromises.push(
+        supabase.from('task_activity_log').insert({
+          task_id: taskId,
+          user_name: userName,
+          user_avatar: userAvatar,
+          action_type: 'task_updated',
+          action_description: 'updated duration'
         })
       );
     }

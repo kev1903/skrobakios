@@ -161,10 +161,11 @@ export const TaskEditContent = ({
         <div className="flex-1 overflow-y-auto">
           <div className="p-6">
             <TabsContent value="details" className="mt-0">
-              <TaskDetailsTab 
-                task={task} 
-                onUpdate={onTaskUpdate}
-              />
+        <TaskDetailsTab 
+          task={task} 
+          onUpdate={onTaskUpdate}
+          projectId={task.project_id}
+        />
             </TabsContent>
 
             <TabsContent value="submittals" className="mt-0">

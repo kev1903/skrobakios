@@ -5849,6 +5849,7 @@ export type Database = {
           description: string | null
           due_date: string | null
           duration: number | null
+          end_date: string | null
           estimated_duration: unknown
           estimated_hours: number | null
           id: string
@@ -5857,6 +5858,7 @@ export type Database = {
           priority: string
           progress: number | null
           project_id: string
+          start_date: string | null
           status: string
           subtasks: Json | null
           task_name: string
@@ -5875,6 +5877,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           duration?: number | null
+          end_date?: string | null
           estimated_duration?: unknown
           estimated_hours?: number | null
           id?: string
@@ -5883,6 +5886,7 @@ export type Database = {
           priority?: string
           progress?: number | null
           project_id: string
+          start_date?: string | null
           status?: string
           subtasks?: Json | null
           task_name: string
@@ -5901,6 +5905,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           duration?: number | null
+          end_date?: string | null
           estimated_duration?: unknown
           estimated_hours?: number | null
           id?: string
@@ -5909,6 +5914,7 @@ export type Database = {
           priority?: string
           progress?: number | null
           project_id?: string
+          start_date?: string | null
           status?: string
           subtasks?: Json | null
           task_name?: string

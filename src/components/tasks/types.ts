@@ -109,8 +109,8 @@ export const convertToStandardized = {
     assignedTo: task.assignedTo.name,
     status: task.status,
     percentComplete: task.progress,
-    startDate: task.dueDate, // Using dueDate as a temporary mapping
-    endDate: task.dueDate,
+    startDate: task.startDate || task.dueDate,
+    endDate: task.endDate || task.dueDate,
     duration: task.duration,
     health: 'Unknown', // Default values for new fields
     progress: 'On Track',
