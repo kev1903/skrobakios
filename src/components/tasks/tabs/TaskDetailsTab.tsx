@@ -84,8 +84,8 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
       completed: false
     };
     
-    // Add new subtask at the beginning of the array
-    onUpdate({ subtasks: [newSubtask, ...currentSubtasks] });
+    // Add new subtask at the end of the array
+    onUpdate({ subtasks: [...currentSubtasks, newSubtask] });
     setNewSubtaskName('');
     setIsAddingSubtask(false);
   };
