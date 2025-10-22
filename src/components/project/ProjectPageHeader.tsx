@@ -18,7 +18,7 @@ export const ProjectPageHeader = ({ projectName, pageTitle, onNavigate, actions 
           variant="ghost"
           size="sm"
           onClick={() => onNavigate('projects')}
-          className="text-muted-foreground hover:text-foreground mb-3 -ml-2"
+          className="text-muted-foreground hover:text-foreground -ml-2"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Projects
