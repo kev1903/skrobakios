@@ -222,16 +222,81 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
       <div className="h-screen relative overflow-hidden bg-white">
         {/* Main Content Container */}
         <div className={cn("relative z-10 flex h-full font-inter", spacingClasses)}>
-          {/* Left Sidebar - Task Backlog */}
-          <div className={cn(
-            "fixed left-0 w-80 bg-gradient-to-b from-card to-muted/20 border-r border-border p-6 space-y-6 overflow-y-auto transition-all duration-300 shadow-sm",
-            fullHeightClasses, 
-            spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0'
-          )}>
+          {/* Left Sidebar - Task Backlog (Entire column is a dropzone) */}
+          <div 
+            className={cn(
+              "fixed left-0 w-80 bg-gradient-to-b from-card to-muted/20 border-r transition-all duration-300 shadow-sm p-6 space-y-6 overflow-y-auto",
+              fullHeightClasses, 
+              spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0',
+              isDragOverBacklog 
+                ? "border-primary border-4 bg-primary/5" 
+                : "border-border"
+            )}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'move';
+              setIsDragOverBacklog(true);
+            }}
+            onDragLeave={(e) => {
+              // Only clear if leaving the sidebar completely
+              const rect = e.currentTarget.getBoundingClientRect();
+              const x = e.clientX;
+              const y = e.clientY;
+              
+              if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
+                setIsDragOverBacklog(false);
+              }
+            }}
+            onDrop={async (e) => {
+              e.preventDefault();
+              setIsDragOverBacklog(false);
+              
+              const taskId = e.dataTransfer.getData('text/plain');
+              const task = tasks.find(t => t.id === taskId);
+              
+              if (!task) return;
+              
+              try {
+                // Set to midnight to mark as backlog task
+                const backlogDate = task.dueDate ? new Date(task.dueDate) : new Date();
+                backlogDate.setHours(0, 0, 0, 0);
+                
+                await handleTaskUpdate(taskId, {
+                  status: 'Not Started',
+                  dueDate: backlogDate.toISOString()
+                });
+                
+                toast({
+                  title: "Task moved to backlog",
+                  description: `"${task.taskName}" moved to backlog with status 'Not Started'.`,
+                  duration: 2000,
+                });
+              } catch (error) {
+                console.error('Failed to move task to backlog:', error);
+                toast({
+                  title: "Error",
+                  description: "Failed to move task. Please try again.",
+                  variant: "destructive",
+                });
+              }
+            }}
+          >
+            {/* Backlog Drop Indicator - Shows when dragging */}
+            {isDragOverBacklog && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50 bg-primary/10 rounded-lg">
+                <div className="bg-background/95 border-2 border-primary border-dashed rounded-lg px-6 py-4 shadow-lg">
+                  <div className="flex items-center gap-2 text-primary font-semibold">
+                    <Plus className="w-5 h-5" />
+                    <span>Drop here to move to Backlog (Not Started)</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Return to Home Button */}
             <button 
               onClick={() => onNavigate("home")}
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group font-inter"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group font-inter relative z-10"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               <span className="font-medium text-sm">Return to Home</span>
@@ -284,62 +349,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
                 ))}
               </div>
 
-              <div 
-                className={cn(
-                  "space-y-2 min-h-[100px] p-3 rounded-lg border-2 border-dashed transition-all duration-200 relative",
-                  isDragOverBacklog 
-                    ? "bg-primary/10 border-primary shadow-inner" 
-                    : "bg-transparent border-transparent"
-                )}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.dataTransfer.dropEffect = 'move';
-                  setIsDragOverBacklog(true);
-                }}
-                onDragLeave={() => {
-                  setIsDragOverBacklog(false);
-                }}
-                onDrop={async (e) => {
-                  e.preventDefault();
-                  setIsDragOverBacklog(false);
-                  
-                  const taskId = e.dataTransfer.getData('text/plain');
-                  const task = tasks.find(t => t.id === taskId);
-                  
-                  if (!task) return;
-                  
-                  try {
-                    // Set to midnight to mark as backlog task
-                    const backlogDate = task.dueDate ? new Date(task.dueDate) : new Date();
-                    backlogDate.setHours(0, 0, 0, 0);
-                    
-                    await handleTaskUpdate(taskId, {
-                      status: 'Not Started',
-                      dueDate: backlogDate.toISOString()
-                    });
-                    
-                    toast({
-                      title: "Task moved to backlog",
-                      description: "Task status set to 'Not Started'.",
-                      duration: 2000,
-                    });
-                  } catch (error) {
-                    console.error('Failed to move task to backlog:', error);
-                  }
-                }}
-              >
-                {/* Drop Zone Indicator */}
-                {isDragOverBacklog && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 bg-primary/5 rounded-lg">
-                    <div className="bg-background/95 border-2 border-primary border-dashed rounded-lg px-6 py-4 shadow-lg">
-                      <div className="flex items-center gap-2 text-primary font-semibold">
-                        <Plus className="w-5 h-5" />
-                        <span>Drop here to move to Backlog (Not Started)</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
+              <div className="space-y-2 min-h-[100px] relative z-10">
                 {loading ? (
                   <div className="text-center py-4">
                     <div className="text-sm text-muted-foreground font-inter">Loading tasks...</div>
