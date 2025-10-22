@@ -91,11 +91,17 @@ export const ProfilePictureUpload = ({
         canvas.width = size;
         canvas.height = size;
 
-        // Clear canvas
+        // Clear canvas with transparent background
         ctx.clearRect(0, 0, size, size);
 
         // Save context state
         ctx.save();
+
+        // Create circular clipping path BEFORE any transformations
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
 
         // Translate to center
         ctx.translate(size / 2, size / 2);
@@ -131,14 +137,14 @@ export const ProfilePictureUpload = ({
         // Restore context state
         ctx.restore();
 
-        // Convert to blob
+        // Convert to blob with PNG format to preserve transparency
         canvas.toBlob((blob) => {
           if (blob) {
             resolve(blob);
           } else {
             reject(new Error('Failed to create blob'));
           }
-        }, 'image/jpeg', 0.8);
+        }, 'image/png', 1.0);
       };
 
       img.onerror = () => reject(new Error('Failed to load image'));
@@ -155,11 +161,11 @@ export const ProfilePictureUpload = ({
       const croppedBlob = await generateCroppedImage();
       
       // Upload to Supabase storage with user-specific folder structure
-      const fileName = `profile-avatars/avatar-${Date.now()}.jpg`;
+      const fileName = `profile-avatars/avatar-${Date.now()}.png`;
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(fileName, croppedBlob, {
-          contentType: 'image/jpeg',
+          contentType: 'image/png',
           cacheControl: '3600',
           upsert: false
         });
