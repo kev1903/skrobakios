@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ArrowLeft, Plus, Search, GripVertical, Clock } from "lucide-react";
 import { useUser } from '@/contexts/UserContext';
 import { Task } from './tasks/types';
@@ -11,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { BoardView } from './tasks/BoardView';
 import { MyTasksLoadingState } from './my-tasks/MyTasksLoadingState';
+import { TaskDetailsTab } from './tasks/tabs/TaskDetailsTab';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
@@ -25,6 +27,8 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTaskType, setSelectedTaskType] = useState<string>('All');
   const [isDragOverBacklog, setIsDragOverBacklog] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { userProfile } = useUser();
   const { toast } = useToast();
   const { spacingClasses, fullHeightClasses } = useMenuBarSpacing();
@@ -170,7 +174,8 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   };
 
   const handleTaskClick = (task: Task) => {
-    onNavigate(`task-edit&taskId=${task.id}&from=my-tasks`);
+    setSelectedTask(task);
+    setIsDialogOpen(true);
   };
 
   const handleTaskUpdate = async (taskId: string, updates: Partial<Task>) => {
@@ -218,6 +223,24 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
 
   return (
     <div>
+      {/* Task Detail Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedTask?.taskName}</DialogTitle>
+          </DialogHeader>
+          {selectedTask && (
+            <TaskDetailsTab 
+              task={selectedTask} 
+              onUpdate={async (updates) => {
+                await handleTaskUpdate(selectedTask.id, updates);
+                setSelectedTask({ ...selectedTask, ...updates });
+              }} 
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Main Background Container */}
       <div className="h-screen relative overflow-hidden bg-white">
         {/* Main Content Container */}
