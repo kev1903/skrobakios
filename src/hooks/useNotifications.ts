@@ -11,6 +11,12 @@ interface Notification {
   is_read: boolean;
   created_at: string;
   updated_at: string;
+  metadata?: {
+    project_name?: string;
+    task_name?: string;
+    priority?: 'low' | 'medium' | 'high';
+    [key: string]: any;
+  };
 }
 
 export const useNotifications = () => {

@@ -150,21 +150,58 @@ export const NotificationDropdown = ({ children }: NotificationDropdownProps) =>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1">
-                                <h4 className={`font-medium text-sm ${
-                                  !notification.is_read ? 'text-foreground' : 'text-muted-foreground'
-                                }`}>
-                                  {notification.title}
-                                </h4>
-                                {notification.message && (
-                                  <p className={`text-xs mt-1 line-clamp-2 ${
-                                    !notification.is_read ? 'text-foreground/90' : 'text-muted-foreground/80'
-                                  }`}>
-                                    {notification.message}
-                                  </p>
+                                {/* Task notifications: Show project name, task name, and priority */}
+                                {(notification.type === 'task_assignment' || 
+                                  notification.type === 'task_completed' || 
+                                  notification.type === 'task_updated') && notification.metadata ? (
+                                  <>
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <p className={`text-xs font-medium ${
+                                        !notification.is_read ? 'text-muted-foreground' : 'text-muted-foreground/70'
+                                      }`}>
+                                        {notification.metadata.project_name || 'Project'}
+                                      </p>
+                                      {notification.metadata.priority && (
+                                        <span className={`text-xs px-1.5 py-0.5 rounded ${
+                                          notification.metadata.priority === 'high' 
+                                            ? 'bg-red-500/20 text-red-600 dark:text-red-400'
+                                            : notification.metadata.priority === 'medium'
+                                            ? 'bg-orange-500/20 text-orange-600 dark:text-orange-400'
+                                            : 'bg-blue-500/20 text-blue-600 dark:text-blue-400'
+                                        }`}>
+                                          {notification.metadata.priority}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <h4 className={`font-medium text-sm ${
+                                      !notification.is_read ? 'text-foreground' : 'text-muted-foreground'
+                                    }`}>
+                                      {notification.metadata.task_name || notification.title}
+                                    </h4>
+                                    <p className="text-xs text-muted-foreground/70 mt-1">
+                                      {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                                    </p>
+                                  </>
+                                ) : (
+                                  /* Regular notifications: Show title and message */
+                                  <>
+                                    <h4 className={`font-medium text-sm ${
+                                      !notification.is_read ? 'text-foreground' : 'text-muted-foreground'
+                                    }`}>
+                                      {notification.title}
+                                    </h4>
+                                    {notification.message && (
+                                      <p className={`text-xs mt-1 line-clamp-2 ${
+                                        !notification.is_read ? 'text-foreground/90' : 'text-muted-foreground/80'
+                                      }`}>
+                                        {notification.message}
+                                      </p>
+                                    )}
+                                    <p className="text-xs text-muted-foreground/70 mt-1">
+                                      {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                                    </p>
+                                  </>
                                 )}
-                                <p className="text-xs text-muted-foreground/70 mt-1">
-                                  {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-                                </p>
                               </div>
                               {!notification.is_read && (
                                 <Button
