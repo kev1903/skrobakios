@@ -153,11 +153,11 @@ div[data-rbd-drag-handle-draggable-id] {
     /* Header height used for fixed menu spacing */
     --header-height: 73px;
 
-    /* SkrobakiOS Luxury Gold Accent */
-    --luxury-gold: 45 90% 55%;
-    --luxury-gold-light: 45 85% 68%;
-    --luxury-gold-dark: 45 85% 42%;
-    --luxury-champagne: 40 45% 85%;
+    /* SkrobakiOS Luxury Blue Accent */
+    --luxury-gold: 217 91% 60%;
+    --luxury-gold-light: 217 91% 75%;
+    --luxury-gold-dark: 217 91% 45%;
+    --luxury-champagne: 217 70% 90%;
     
     /* Glass Morphism */
     --glass-bg: 0 0% 100% / 0.7;
