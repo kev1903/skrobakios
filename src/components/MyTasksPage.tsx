@@ -32,15 +32,20 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   // Function to refresh tasks
   const refreshTasks = async () => {
     if (!userProfile.firstName && !userProfile.lastName) {
+      console.log('⚠️ MyTasks: No user profile available');
       return;
     }
 
     try {
       // Get current user's ID
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        console.log('⚠️ MyTasks: No authenticated user');
+        return;
+      }
 
       const fullName = `${userProfile.firstName} ${userProfile.lastName}`.trim();
+      console.log('📋 MyTasks: Fetching tasks for user:', fullName, 'ID:', user.id);
       
       // Query tasks assigned by user_id OR by name (for backwards compatibility)
       const { data: allTasks, error } = await supabase
@@ -58,13 +63,15 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
 
       if (error) throw error;
 
+      console.log('✅ MyTasks: Fetched', allTasks?.length || 0, 'tasks');
+
       const mappedTasks: Task[] = (allTasks || []).map(task => ({
         id: task.id,
         project_id: task.project_id,
         projectName: task.projects?.name || 'Unknown Project',
         taskName: task.task_name,
         task_number: task.task_number || '',
-        taskType: (task.task_type as 'Task' | 'Bug' | 'Feature') || 'Task',
+        taskType: (task.task_type as 'Task' | 'Bug' | 'Feature' | 'Issue') || 'Task',
         category: task.category || 'General',
         priority: task.priority as 'High' | 'Medium' | 'Low',
         assignedTo: {
@@ -83,8 +90,14 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
       }));
 
       setTasks(mappedTasks);
+      console.log('📊 MyTasks: Mapped tasks:', mappedTasks.map(t => ({ name: t.taskName, dueDate: t.dueDate, type: t.taskType })));
     } catch (error) {
-      console.error('Error refreshing tasks:', error);
+      console.error('❌ MyTasks: Error refreshing tasks:', error);
+      toast({
+        title: "Error loading tasks",
+        description: "Failed to fetch your tasks. Please refresh the page.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -121,7 +134,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
     };
   }, [userProfile, toast]);
 
-  // Get backlog tasks (tasks at midnight - unscheduled)
+  // Get backlog tasks (tasks without scheduled time - at midnight or no due date)
   const getBacklogTasks = () => {
     return tasks.filter(task => {
       // Filter by search term
@@ -132,12 +145,27 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
       // Filter by task type
       const matchesType = selectedTaskType === 'All' || task.taskType === selectedTaskType;
       
-      // Check if task is in backlog (at midnight)
-      if (!task.dueDate) return matchesType && matchesSearch;
-      const taskDateTime = new Date(task.dueDate);
-      const isBacklogTask = taskDateTime.getHours() === 0 && taskDateTime.getMinutes() === 0;
+      // Tasks without due_date always show in backlog
+      if (!task.dueDate) {
+        console.log(`Task "${task.taskName}" in backlog (no due date)`);
+        return matchesType && matchesSearch;
+      }
       
-      return matchesSearch && matchesType && isBacklogTask;
+      // Tasks with due_date at midnight (00:00) are considered backlog/unscheduled
+      try {
+        const taskDateTime = new Date(task.dueDate);
+        const isBacklogTask = taskDateTime.getHours() === 0 && taskDateTime.getMinutes() === 0;
+        
+        if (isBacklogTask) {
+          console.log(`Task "${task.taskName}" in backlog (midnight due date: ${task.dueDate})`);
+        }
+        
+        return matchesSearch && matchesType && isBacklogTask;
+      } catch (error) {
+        console.error('Error parsing due date for task:', task.taskName, error);
+        // If date parsing fails, show in backlog
+        return matchesType && matchesSearch;
+      }
     });
   };
 
