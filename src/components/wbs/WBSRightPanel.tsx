@@ -81,16 +81,44 @@ export const WBSRightPanel = ({
     // If this WBS item has a linked task and an assignee with userId, update the task and send email
     if (item.linked_task_id && assignee?.userId) {
       try {
-        // Update the task in the database
+        // First, verify the linked task exists
+        const { data: existingTask, error: fetchError } = await supabase
+          .from('tasks')
+          .select('id, task_name')
+          .eq('id', item.linked_task_id)
+          .maybeSingle();
+
+        if (fetchError) {
+          console.error('Error fetching task:', fetchError);
+          return;
+        }
+
+        if (!existingTask) {
+          console.warn('⚠️ Linked task does not exist. Task may have been deleted.');
+          // Clear the broken linkage
+          onItemUpdate(itemId, { 
+            is_task_enabled: false, 
+            linked_task_id: null 
+          });
+          return;
+        }
+
+        // Update the task assignment
         const { error: updateError } = await supabase
           .from('tasks')
-          .update({ assigned_to_user_id: assignee.userId })
+          .update({ 
+            assigned_to_user_id: assignee.userId,
+            assigned_to_name: assignee.name,
+            assigned_to_avatar: assignee.avatar
+          })
           .eq('id', item.linked_task_id);
 
         if (updateError) {
           console.error('Error updating task assignment:', updateError);
           return;
         }
+
+        console.log('✅ Task assignment updated successfully');
 
         // Send email notification
         await sendTaskAssignmentEmail(item.linked_task_id);
