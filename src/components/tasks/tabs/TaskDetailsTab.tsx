@@ -97,20 +97,28 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
             <Label className="mb-3 text-sm font-medium text-muted-foreground block">Assignee</Label>
             <div className="flex items-center gap-3 p-3 border border-border/30 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition-colors">
               <Avatar className="h-9 w-9">
-                <AvatarImage src="" />
-                <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">{task.assignee?.[0] || 'U'}</AvatarFallback>
+                <AvatarImage src={task.assignedTo?.avatar || ''} />
+                <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">
+                  {task.assignedTo?.name?.[0]?.toUpperCase() || 'U'}
+                </AvatarFallback>
               </Avatar>
-              <span className="text-sm font-medium truncate">{task.assignee || 'Unassigned'}</span>
+              <span className="text-sm font-medium truncate">
+                {task.assignedTo?.name || 'Unassigned'}
+              </span>
             </div>
           </div>
           <div>
             <Label className="mb-3 text-sm font-medium text-muted-foreground block">Reviewer</Label>
             <div className="flex items-center gap-3 p-3 border border-border/30 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition-colors">
               <Avatar className="h-9 w-9">
-                <AvatarImage src="" />
-                <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">{task.reviewer?.[0] || 'R'}</AvatarFallback>
+                <AvatarImage src={task.reviewer?.avatar || ''} />
+                <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">
+                  {task.reviewer?.name?.[0]?.toUpperCase() || 'R'}
+                </AvatarFallback>
               </Avatar>
-              <span className="text-sm font-medium truncate">{task.reviewer || 'Unassigned'}</span>
+              <span className="text-sm font-medium truncate">
+                {task.reviewer?.name || 'Unassigned'}
+              </span>
             </div>
           </div>
           <div>
