@@ -7,6 +7,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface SimpleTeamAssignmentProps {
   projectId: string;
@@ -27,6 +30,9 @@ export function SimpleTeamAssignment({
   const [manualEmail, setManualEmail] = useState('');
   const [selectOpen, setSelectOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const getInitials = (name: string) => {
     return name
@@ -71,17 +77,104 @@ export function SimpleTeamAssignment({
     return memberName.includes(searchQuery.toLowerCase());
   }) || [];
 
-  const handleManualSubmit = () => {
-    if (manualName.trim() && manualEmail.trim()) {
-      const tempUserId = `manual_${manualEmail.toLowerCase()}`;
+  const handleManualSubmit = async () => {
+    if (!manualName.trim() || !manualEmail.trim()) return;
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(manualEmail.trim())) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Split name into first and last name
+      const nameParts = manualName.trim().split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Check if user already exists in project
+      const existingMember = teamMembers?.find(m => 
+        m.email?.toLowerCase() === manualEmail.trim().toLowerCase()
+      );
+
+      if (existingMember) {
+        toast({
+          title: "User Already Exists",
+          description: "This user is already a member of the project",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create user via edge function
+      const { data, error } = await supabase.functions.invoke('create-user-manually', {
+        body: {
+          firstName,
+          lastName,
+          email: manualEmail.trim(),
+          password: Math.random().toString(36).slice(-12) + 'A1!' // Generate random password
+        },
+      });
+
+      if (error) throw error;
+
+      const createdUserId = data.user?.id;
+
+      // Add user to project_members
+      const { error: memberError } = await supabase
+        .from('project_members')
+        .insert({
+          project_id: projectId,
+          user_id: createdUserId,
+          email: manualEmail.trim(),
+          role: 'member',
+          status: 'active',
+          joined_at: new Date().toISOString()
+        });
+
+      if (memberError) throw memberError;
+
+      // Refresh the project users list
+      await queryClient.invalidateQueries({ queryKey: ['project-users', projectId] });
+
+      toast({
+        title: "Team Member Added",
+        description: `${manualName.trim()} has been added to the project`,
+      });
+
+      // Assign the new user
       onAssigneeChange({
         name: manualName.trim(),
         avatar: '',
-        userId: tempUserId
+        userId: createdUserId
       });
+
       setDialogOpen(false);
       setManualName('');
       setManualEmail('');
+    } catch (error: any) {
+      console.error('Error adding team member:', error);
+      
+      let errorMessage = "Failed to add team member. Please try again.";
+      if (error.message?.includes('already exists') || error.message?.includes('already been registered')) {
+        errorMessage = "This email address is already registered.";
+      }
+      
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -225,9 +318,9 @@ export function SimpleTeamAssignment({
             </Button>
             <Button 
               onClick={handleManualSubmit}
-              disabled={!manualName.trim() || !manualEmail.trim()}
+              disabled={!manualName.trim() || !manualEmail.trim() || isSubmitting}
             >
-              OK
+              {isSubmitting ? 'Adding...' : 'OK'}
             </Button>
           </DialogFooter>
         </DialogContent>
