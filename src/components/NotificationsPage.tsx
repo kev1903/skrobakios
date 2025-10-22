@@ -23,12 +23,22 @@ export const NotificationsPage = ({ onNavigate }: NotificationsPageProps) => {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
+      case 'task_assignment':
+        return '📋';
+      case 'task_completed':
+        return '✅';
+      case 'task_updated':
+        return '📝';
       case 'success':
         return '✅';
       case 'warning':
         return '⚠️';
       case 'error':
         return '❌';
+      case 'mention':
+        return '💬';
+      case 'deadline':
+        return '⏰';
       case 'info':
       default:
         return '📢';
