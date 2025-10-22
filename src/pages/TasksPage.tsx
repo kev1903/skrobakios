@@ -94,9 +94,9 @@ const TasksPage = () => {
           
           {/* Main Content Container */}
           <div className={cn("relative z-10 flex h-full font-inter", spacingClasses)}>
-            {/* Left Sidebar - Light Theme */}
+            {/* Left Sidebar - Enhanced Design */}
             <div className={cn(
-              "fixed left-0 w-80 bg-card border-r border-border p-6 space-y-6 overflow-y-auto transition-all duration-300",
+              "fixed left-0 w-80 bg-gradient-to-b from-card to-muted/20 border-r border-border p-6 space-y-6 overflow-y-auto transition-all duration-300 shadow-sm",
               fullHeightClasses, 
               spacingClasses.includes('pt-') ? 'top-[73px]' : 'top-0'
             )}>
@@ -120,7 +120,7 @@ const TasksPage = () => {
             {/* Task Backlog */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-foreground text-sm font-inter">Task Backlog</h3>
+                <h3 className="font-bold text-foreground text-base font-inter">Task Backlog</h3>
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={async () => {
@@ -189,19 +189,19 @@ const TasksPage = () => {
 
               {/* Task Type Filter */}
               <div className="flex flex-wrap gap-2 mb-4">
-                <button onClick={() => setActiveTab('All')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all font-inter", activeTab === 'All' ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground')}>
+                <button onClick={() => setActiveTab('All')} className={cn("px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 font-inter hover:scale-105", activeTab === 'All' ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/20' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground')}>
                   All
                 </button>
-                <button onClick={() => setActiveTab('Task')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all font-inter", activeTab === 'Task' ? 'bg-green-500 text-white shadow-lg' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground')}>
+                <button onClick={() => setActiveTab('Task')} className={cn("px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 font-inter hover:scale-105", activeTab === 'Task' ? 'bg-green-500 text-white shadow-lg ring-2 ring-green-500/20' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground')}>
                   Tasks
                 </button>
-                <button onClick={() => setActiveTab('Issue')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all font-inter", activeTab === 'Issue' ? 'bg-orange-500 text-white shadow-lg' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground')}>
+                <button onClick={() => setActiveTab('Issue')} className={cn("px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 font-inter hover:scale-105", activeTab === 'Issue' ? 'bg-orange-500 text-white shadow-lg ring-2 ring-orange-500/20' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground')}>
                   Issues
                 </button>
-                <button onClick={() => setActiveTab('Bug')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all font-inter", activeTab === 'Bug' ? 'bg-red-500 text-white shadow-lg' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground')}>
+                <button onClick={() => setActiveTab('Bug')} className={cn("px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 font-inter hover:scale-105", activeTab === 'Bug' ? 'bg-red-500 text-white shadow-lg ring-2 ring-red-500/20' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground')}>
                   Bugs
                 </button>
-                <button onClick={() => setActiveTab('Feature')} className={cn("px-3 py-1.5 rounded-lg text-xs font-medium transition-all font-inter", activeTab === 'Feature' ? 'bg-purple-500 text-white shadow-lg' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground')}>
+                <button onClick={() => setActiveTab('Feature')} className={cn("px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 font-inter hover:scale-105", activeTab === 'Feature' ? 'bg-purple-500 text-white shadow-lg ring-2 ring-purple-500/20' : 'bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground')}>
                   Features
                 </button>
               </div>
@@ -236,32 +236,37 @@ const TasksPage = () => {
                       draggable
                       onDragStart={(e) => {
                         e.dataTransfer.setData('text/plain', task.id);
+                        e.currentTarget.classList.add('opacity-50');
                       }}
-                      className="draggable-task-element px-3 py-2 rounded-lg cursor-pointer transition-all group border bg-card border-border hover:bg-accent"
+                      onDragEnd={(e) => {
+                        e.currentTarget.classList.remove('opacity-50');
+                      }}
+                      className="draggable-task-element px-3 py-3 rounded-lg cursor-move transition-all duration-200 group border bg-card border-border hover:bg-accent hover:shadow-md hover:border-primary/50 hover:-translate-y-0.5"
                       onClick={() => {
                         setSelectedTaskForEdit(task);
                         setIsTaskEditOpen(true);
                       }}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="flex-shrink-0 pt-1">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
                           <GripVertical className="w-4 h-4 text-muted-foreground" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 
-                            className="text-sm font-semibold text-foreground truncate mb-1 cursor-pointer hover:text-primary transition-colors font-inter"
+                            className="text-sm font-semibold text-foreground truncate mb-2 cursor-move group-hover:text-primary transition-colors font-inter"
                           >
                             {task.taskName}
                           </h4>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <p className="text-xs text-muted-foreground font-medium truncate font-inter">
-                              {task.projectName || 'No Project'}
+                              📁 {task.projectName || 'No Project'}
                             </p>
                             <span className={cn("px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 font-inter", task.taskType === 'Task' ? 'bg-green-100 text-green-700 border border-green-200' : task.taskType === 'Bug' ? 'bg-red-100 text-red-700 border border-red-200' : task.taskType === 'Feature' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-muted text-muted-foreground border border-border')}>
                               {task.taskType}
                             </span>
-                            <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-blue-100 text-blue-700 border border-blue-200 font-inter">
-                              {task.dueDate ? format(new Date(task.dueDate), 'MMM d, yyyy') : 'No due date'}
+                            <span className="px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 bg-blue-100 text-blue-700 border border-blue-200 font-inter flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {task.dueDate ? format(new Date(task.dueDate), 'MMM d') : 'No date'}
                             </span>
                           </div>
                         </div>
@@ -274,11 +279,11 @@ const TasksPage = () => {
           </div>
 
           {/* Main Content - Board View */}
-          <div className="flex-1 flex flex-col p-4 ml-80 overflow-hidden">
+          <div className="flex-1 flex flex-col p-6 ml-80 overflow-hidden">
             {/* Header Controls */}
-            <div className="mb-4">
+            <div className="mb-6">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-foreground font-inter">My Tasks Board</h2>
+                <h2 className="text-2xl font-bold text-foreground font-inter">My Tasks Board</h2>
                 
                 <div className="flex items-center gap-3">
                   {/* Dashboard Button */}
@@ -309,10 +314,13 @@ const TasksPage = () => {
             </div>
 
             {/* Board View Container */}
-            <div className="bg-card border border-border rounded-lg p-6 flex-1 overflow-hidden">
+            <div className="bg-gradient-to-br from-card to-muted/10 border border-border rounded-xl shadow-lg p-6 flex-1 overflow-hidden">
               {loading ? (
                 <div className="flex items-center justify-center h-full">
-                  <div className="text-muted-foreground">Loading tasks...</div>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <div className="text-muted-foreground font-medium">Loading tasks...</div>
+                  </div>
                 </div>
               ) : (
                 <BoardView 

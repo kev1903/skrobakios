@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Task } from './types';
-import { GripVertical, Circle, Clock, AlertCircle } from 'lucide-react';
+import { GripVertical, Circle, Clock, AlertCircle, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface BoardViewProps {
@@ -14,6 +14,7 @@ type StatusColumn = 'To Do' | 'In Progress' | 'Done';
 
 export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) {
   const [draggedTask, setDraggedTask] = useState<Task | null>(null);
+  const [dragOverColumn, setDragOverColumn] = useState<StatusColumn | null>(null);
 
   const columns: StatusColumn[] = ['To Do', 'In Progress', 'Done'];
 
@@ -38,9 +39,14 @@ export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) 
     e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: React.DragEvent, column: StatusColumn) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    setDragOverColumn(column);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverColumn(null);
   };
 
   const handleDrop = async (e: React.DragEvent, targetStatus: StatusColumn) => {
@@ -68,6 +74,7 @@ export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) 
     await onTaskUpdate(task.id, updates);
     
     setDraggedTask(null);
+    setDragOverColumn(null);
   };
 
   const getPriorityColor = (priority: string) => {
@@ -102,29 +109,58 @@ export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) 
     <div className="h-full flex gap-4 overflow-x-auto pb-4">
       {columns.map((status) => {
         const columnTasks = getTasksByStatus(status);
+        const isDropTarget = dragOverColumn === status;
         
         return (
           <div
             key={status}
             className="flex-1 min-w-[320px] flex flex-col"
-            onDragOver={handleDragOver}
+            onDragOver={(e) => handleDragOver(e, status)}
+            onDragLeave={handleDragLeave}
             onDrop={(e) => handleDrop(e, status)}
           >
             {/* Column Header */}
-            <div className="bg-muted/50 rounded-t-lg p-4 border border-border">
+            <div className={cn(
+              "rounded-t-lg p-4 border transition-all duration-200",
+              isDropTarget 
+                ? "bg-primary/10 border-primary border-2 shadow-lg" 
+                : "bg-muted/50 border-border"
+            )}>
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-foreground font-inter">
                   {status}
                 </h3>
-                <span className="px-2 py-1 rounded-md text-xs font-medium bg-background text-muted-foreground border border-border">
+                <span className={cn(
+                  "px-2 py-1 rounded-md text-xs font-medium border transition-all duration-200",
+                  isDropTarget 
+                    ? "bg-primary text-primary-foreground border-primary" 
+                    : "bg-background text-muted-foreground border-border"
+                )}>
                   {columnTasks.length}
                 </span>
               </div>
             </div>
 
             {/* Column Content */}
-            <div className="flex-1 bg-card border-x border-b border-border rounded-b-lg p-3 space-y-3 overflow-y-auto">
-              {columnTasks.length === 0 ? (
+            <div className={cn(
+              "flex-1 border-x border-b rounded-b-lg p-3 space-y-3 overflow-y-auto transition-all duration-200 relative",
+              isDropTarget 
+                ? "bg-primary/5 border-primary border-2 shadow-inner" 
+                : "bg-card border-border"
+            )}>
+              {/* Drop Zone Indicator */}
+              {isDropTarget && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 bg-primary/5 rounded-b-lg">
+                  <div className="bg-background/95 border-2 border-primary border-dashed rounded-lg px-6 py-4 shadow-lg">
+                    <div className="flex items-center gap-2 text-primary font-semibold">
+                      <Plus className="w-5 h-5" />
+                      <span>Drop here to move to {status}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {columnTasks.length === 0 && !isDropTarget ? (
                 <div className="text-center py-8 text-sm text-muted-foreground">
                   No tasks
                 </div>
@@ -136,13 +172,19 @@ export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) 
                     onDragStart={(e) => handleDragStart(e, task)}
                     onClick={() => onTaskClick(task)}
                     className={cn(
-                      "bg-background border border-border rounded-lg p-4 cursor-pointer transition-all hover:shadow-md hover:border-primary/50 group",
-                      draggedTask?.id === task.id && "opacity-50"
+                      "bg-background border rounded-lg p-4 cursor-move transition-all group relative",
+                      draggedTask?.id === task.id 
+                        ? "opacity-30 scale-95" 
+                        : "hover:shadow-lg hover:border-primary/50 hover:-translate-y-0.5 border-border"
                     )}
                   >
+                    {/* Drag Handle */}
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <GripVertical className="w-4 h-4 text-muted-foreground" />
+                    </div>
+
                     {/* Task Header */}
                     <div className="flex items-start gap-2 mb-3">
-                      <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-sm text-foreground mb-1 line-clamp-2 group-hover:text-primary transition-colors">
                           {task.taskName}
