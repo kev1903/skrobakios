@@ -180,9 +180,15 @@ export const WBSRightPanel = ({
                 className="h-6 w-6 p-0 hover:bg-muted"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onItemUpdate(item.id, { is_task_enabled: !item.is_task_enabled });
+                  if (!item.is_task_enabled) {
+                    // Create task in database
+                    onContextMenuAction('convert_to_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
+                  } else {
+                    // Unlink/remove task
+                    onContextMenuAction('unlink_task', item.id, item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task');
+                  }
                 }}
-                title={item.is_task_enabled ? "Task Enabled" : "Task Disabled"}
+                title={item.is_task_enabled ? "Remove Task" : "Create Task"}
               >
                 <ListTodo className={`w-4 h-4 transition-colors ${
                   item.is_task_enabled
