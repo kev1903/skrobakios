@@ -87,6 +87,29 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
           placeholder="Enter task description..."
           className="min-h-[100px] resize-none bg-slate-50/50 border-border/30"
         />
+        
+        {/* Subtasks */}
+        <div className="mt-6 pt-6 border-t border-border/30">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-sm font-semibold text-foreground">Subtasks</h4>
+            <Button variant="outline" size="sm" className="border-border/50 hover:bg-luxury-gold/10 hover:border-luxury-gold/50">
+              <Plus className="h-4 w-4 mr-2" />
+              Add
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {task.subtasks?.length > 0 ? (
+              task.subtasks.map((subtask: any, idx: number) => (
+                <div key={idx} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors">
+                  <input type="checkbox" className="rounded" />
+                  <span className="text-sm flex-1 font-medium">{subtask.name}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">No subtasks</p>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Assignee / Reviewer / Observers */}
@@ -176,50 +199,26 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
         </div>
       </div>
 
-      {/* General Attachments & Subtasks */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="text-base font-semibold text-foreground">Attachments</h3>
-            <Button variant="outline" size="sm" className="border-border/50 hover:bg-luxury-gold/10 hover:border-luxury-gold/50">
-              <Paperclip className="h-4 w-4 mr-2" />
-              Add
-            </Button>
-          </div>
-          <div className="space-y-2">
-            {task.attachments?.length > 0 ? (
-              task.attachments.map((file: any, idx: number) => (
-                <div key={idx} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors">
-                  <Paperclip className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <span className="text-sm flex-1 truncate font-medium">{file.name}</span>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">No attachments</p>
-            )}
-          </div>
+      {/* Attachments */}
+      <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-base font-semibold text-foreground">Attachments</h3>
+          <Button variant="outline" size="sm" className="border-border/50 hover:bg-luxury-gold/10 hover:border-luxury-gold/50">
+            <Paperclip className="h-4 w-4 mr-2" />
+            Add
+          </Button>
         </div>
-
-        <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="text-base font-semibold text-foreground">Subtasks</h3>
-            <Button variant="outline" size="sm" className="border-border/50 hover:bg-luxury-gold/10 hover:border-luxury-gold/50">
-              <Plus className="h-4 w-4 mr-2" />
-              Add
-            </Button>
-          </div>
-          <div className="space-y-2">
-            {task.subtasks?.length > 0 ? (
-              task.subtasks.map((subtask: any, idx: number) => (
-                <div key={idx} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors">
-                  <input type="checkbox" className="rounded" />
-                  <span className="text-sm flex-1 font-medium">{subtask.name}</span>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-8">No subtasks</p>
-            )}
-          </div>
+        <div className="space-y-2">
+          {task.attachments?.length > 0 ? (
+            task.attachments.map((file: any, idx: number) => (
+              <div key={idx} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors">
+                <Paperclip className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-sm flex-1 truncate font-medium">{file.name}</span>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-8">No attachments</p>
+          )}
         </div>
       </div>
 
