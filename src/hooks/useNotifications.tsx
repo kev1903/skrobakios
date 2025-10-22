@@ -128,13 +128,6 @@ export const useNotifications = () => {
             
             setNotifications(prev => [newNotification, ...prev]);
             setUnreadCount(prev => prev + 1);
-
-            // Show toast notification
-            toast({
-              title: newNotification.title,
-              description: newNotification.message || undefined,
-              duration: 5000,
-            });
           }
         )
         .on(
