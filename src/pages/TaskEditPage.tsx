@@ -351,52 +351,50 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
           <div className="flex-1 overflow-y-auto bg-[hsl(var(--background))]">
             <div className="max-w-7xl mx-auto w-full px-8 py-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="w-full bg-white/80 border border-border/30 rounded-xl h-auto p-1 mb-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-                  <div className="flex items-center gap-1 w-full">
-                    <TabsTrigger 
-                      value="details" 
-                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
-                    >
-                      <FileText className="w-4 h-4" />
-                      <span className="text-sm font-medium">Details</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="submittals" 
-                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
-                    >
-                      <Upload className="w-4 h-4" />
-                      <span className="text-sm font-medium">Submittals</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="reviews" 
-                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
-                      disabled={!canViewSubModule('tasks', 'reviews')}
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                      <span className="text-sm font-medium">Reviews</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="qa" 
-                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
-                    >
-                      <CheckSquare className="w-4 h-4" />
-                      <span className="text-sm font-medium">Q&A</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="costs" 
-                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
-                    >
-                      <DollarSign className="w-4 h-4" />
-                      <span className="text-sm font-medium">Costs</span>
-                    </TabsTrigger>
-                    <TabsTrigger 
-                      value="summary" 
-                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
-                    >
-                      <Sparkles className="w-4 h-4" />
-                      <span className="text-sm font-medium">AI Summary</span>
-                    </TabsTrigger>
-                  </div>
+                <TabsList className="w-full bg-white/80 border border-border/30 rounded-xl h-auto p-1 mb-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] inline-flex justify-start">
+                  <TabsTrigger 
+                    value="details" 
+                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>Details</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="submittals" 
+                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Submittals</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="reviews" 
+                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
+                    disabled={!canViewSubModule('tasks', 'reviews')}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    <span>Reviews</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="qa" 
+                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
+                  >
+                    <CheckSquare className="w-4 h-4" />
+                    <span>Q&A</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="costs" 
+                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
+                  >
+                    <DollarSign className="w-4 h-4" />
+                    <span>Costs</span>
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="summary" 
+                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span>AI Summary</span>
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="details" className="mt-0">
