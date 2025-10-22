@@ -485,7 +485,7 @@ const barRef = useRef<HTMLDivElement>(null);
             </div>
 
             {/* Search Bar */}
-            <div className="relative hidden md:block" ref={searchRef}>
+            <div className="relative hidden md:block w-full max-w-md lg:max-w-lg" ref={searchRef}>
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
               <Input
                 type="text"
@@ -493,12 +493,12 @@ const barRef = useRef<HTMLDivElement>(null);
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => searchQuery.trim().length >= 2 && setShowSearchResults(true)}
-                className="pl-9 pr-4 h-8 w-64 bg-muted/50 backdrop-blur-sm border-border text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 transition-all"
+                className="pl-9 pr-4 h-8 w-full bg-muted/50 backdrop-blur-sm border-border text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 transition-all"
               />
               
               {/* Search Results Dropdown */}
               {showSearchResults && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-[12000]">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-[12000]">
                   {isSearching ? (
                     <div className="p-4 text-center text-sm text-muted-foreground">
                       Searching...
@@ -512,7 +512,7 @@ const barRef = useRef<HTMLDivElement>(null);
                       {/* Projects Section */}
                       {searchResults.projects.length > 0 && (
                         <div className="mb-2">
-                          <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                          <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                             Projects
                           </div>
                           {searchResults.projects.map((project) => (
@@ -523,16 +523,19 @@ const barRef = useRef<HTMLDivElement>(null);
                                 setSearchQuery('');
                                 setShowSearchResults(false);
                               }}
-                              className="w-full px-3 py-2 text-left hover:bg-muted/50 transition-colors flex items-center gap-2 group"
+                              className="w-full px-4 py-3 text-left hover:bg-accent/50 transition-colors flex items-center gap-3 group"
                             >
-                              <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                <span className="text-xs font-semibold text-primary">{project.project_id || 'PR'}</span>
+                              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <span className="text-sm font-semibold text-primary">{project.project_id || 'PR'}</span>
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                                <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                                  {project.project_id}
+                                </div>
+                                <div className="text-sm text-foreground/80 line-clamp-1 mt-0.5">
                                   {project.name}
                                 </div>
-                                <div className="text-xs text-muted-foreground">Project</div>
+                                <div className="text-xs text-muted-foreground mt-1">Project</div>
                               </div>
                             </button>
                           ))}
@@ -542,7 +545,7 @@ const barRef = useRef<HTMLDivElement>(null);
                       {/* Tasks Section */}
                       {searchResults.tasks.length > 0 && (
                         <div>
-                          <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide border-t border-border">
+                          <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide border-t border-border">
                             Tasks
                           </div>
                           {searchResults.tasks.map((task) => (
@@ -553,16 +556,16 @@ const barRef = useRef<HTMLDivElement>(null);
                                 setSearchQuery('');
                                 setShowSearchResults(false);
                               }}
-                              className="w-full px-3 py-2 text-left hover:bg-muted/50 transition-colors flex items-center gap-2 group"
+                              className="w-full px-4 py-3 text-left hover:bg-accent/50 transition-colors flex items-center gap-3 group"
                             >
-                              <div className="w-8 h-8 rounded-md bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                              <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
                                 <ClipboardList className="w-4 h-4 text-green-600" />
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                                <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
                                   {task.task_name}
                                 </div>
-                                <div className="text-xs text-muted-foreground truncate">
+                                <div className="text-sm text-muted-foreground line-clamp-1 mt-0.5">
                                   {task.project_name || 'No Project'}
                                 </div>
                               </div>
