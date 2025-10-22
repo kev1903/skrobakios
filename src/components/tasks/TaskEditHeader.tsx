@@ -172,7 +172,7 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
               Delete Task
             </AlertDialogAction>
           </AlertDialogFooter>

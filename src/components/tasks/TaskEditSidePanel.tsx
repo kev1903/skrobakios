@@ -120,9 +120,28 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId, updateTask
   };
 
   const handleDelete = async () => {
-    if (editedTask) {
-      await deleteTask(editedTask.id);
-      onClose();
+    if (editedTask && deleteTask) {
+      try {
+        await deleteTask(editedTask.id);
+        toast({
+          title: "Task Deleted",
+          description: `"${editedTask.taskName}" has been deleted successfully.`,
+        });
+        onClose();
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        toast({
+          title: "Delete Failed",
+          description: "There was an error deleting the task. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } else if (!deleteTask) {
+      toast({
+        title: "Delete Not Available",
+        description: "Delete functionality is not available for this task.",
+        variant: "destructive",
+      });
     }
   };
 
