@@ -23,19 +23,20 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
 
   const getPriorityColor = (priority: string) => {
     switch (priority?.toLowerCase()) {
-      case 'high': return 'destructive';
-      case 'medium': return 'default';
-      case 'low': return 'secondary';
-      default: return 'outline';
+      case 'high': return 'bg-rose-50/80 text-rose-700 border border-rose-200/50 backdrop-blur-sm';
+      case 'medium': return 'bg-amber-50/80 text-amber-700 border border-amber-200/50 backdrop-blur-sm';
+      case 'low': return 'bg-emerald-50/80 text-emerald-700 border border-emerald-200/50 backdrop-blur-sm';
+      default: return 'bg-slate-50/80 text-slate-700 border border-slate-200/50 backdrop-blur-sm';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status?.toLowerCase()) {
-      case 'completed': return 'default';
-      case 'in progress': return 'secondary';
-      case 'pending': return 'outline';
-      default: return 'outline';
+      case 'completed': return 'bg-emerald-50/80 text-emerald-700 border border-emerald-200/50 backdrop-blur-sm';
+      case 'in progress': return 'bg-blue-50/80 text-blue-700 border border-blue-200/50 backdrop-blur-sm';
+      case 'pending': return 'bg-amber-50/80 text-amber-700 border border-amber-200/50 backdrop-blur-sm';
+      case 'not started': return 'bg-slate-50/80 text-slate-700 border border-slate-200/50 backdrop-blur-sm';
+      default: return 'bg-slate-50/80 text-slate-700 border border-slate-200/50 backdrop-blur-sm';
     }
   };
 
@@ -55,72 +56,66 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
   };
 
   return (
-    <div className="space-y-5">
-      {/* Header Summary - More Compact */}
-      <div className="bg-background rounded-lg border border-border p-4">
-        <div className="flex items-center gap-6 flex-wrap">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Status:</span>
-            <Badge variant={getStatusColor(task.status)} className="font-normal">{task.status || 'Not Started'}</Badge>
+    <div className="space-y-6">
+      {/* Header Summary - Luxury Compact Card */}
+      <div className="bg-white rounded-2xl border border-border/30 p-5 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <div className="flex items-center gap-8 flex-wrap">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-muted-foreground">Status</span>
+            <Badge className={`${getStatusColor(task.status)} font-medium text-xs px-3 py-1`}>{task.status || 'Not Started'}</Badge>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Priority:</span>
-            <Badge variant={getPriorityColor(task.priority)} className="font-normal">{task.priority || 'Medium'}</Badge>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-muted-foreground">Priority</span>
+            <Badge className={`${getPriorityColor(task.priority)} font-medium text-xs px-3 py-1`}>{task.priority || 'Medium'}</Badge>
           </div>
-          <div className="flex-1 min-w-[250px]">
+          <div className="flex-1 min-w-[280px]">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-muted-foreground">Progress:</span>
-              <span className="text-sm font-medium">{task.progress || 0}%</span>
+              <span className="text-sm font-medium text-muted-foreground">Progress</span>
+              <span className="text-sm font-semibold text-foreground">{task.progress || 0}%</span>
             </div>
-            <Progress value={task.progress || 0} className="h-2" />
+            <Progress value={task.progress || 0} className="h-2.5 bg-slate-100" />
           </div>
         </div>
       </div>
 
       {/* Description of Works */}
-      <div className="bg-background rounded-lg border border-border p-5">
-        <h3 className="text-base font-semibold mb-3 text-foreground">Description of Works</h3>
+      <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <h3 className="text-base font-semibold mb-4 text-foreground">Description of Works</h3>
         <Textarea
           value={task.description || ''}
           onChange={(e) => onUpdate({ description: e.target.value })}
           placeholder="Enter task description..."
-          className="min-h-[100px] resize-none"
+          className="min-h-[100px] resize-none bg-slate-50/50 border-border/30"
         />
       </div>
 
       {/* Assignee / Reviewer / Observers */}
-      <div className="bg-background rounded-lg border border-border p-5">
-        <h3 className="text-base font-semibold mb-4 text-foreground">Team Assignments</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <h3 className="text-base font-semibold mb-5 text-foreground">Team Assignments</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div>
-            <Label className="mb-2 text-sm font-medium text-muted-foreground">Assignee</Label>
-            <div className="flex items-center gap-3 p-3 border rounded-md bg-muted/30">
+            <Label className="mb-3 text-sm font-medium text-muted-foreground block">Assignee</Label>
+            <div className="flex items-center gap-3 p-3 border border-border/30 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition-colors">
               <Avatar className="h-9 w-9">
                 <AvatarImage src="" />
-                <AvatarFallback className="text-sm">{task.assignee?.[0] || 'U'}</AvatarFallback>
+                <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">{task.assignee?.[0] || 'U'}</AvatarFallback>
               </Avatar>
-              <div className="flex-1">
-                <p className="text-sm font-medium">{task.assignee || 'Unassigned'}</p>
-                <p className="text-xs text-muted-foreground">Primary</p>
-              </div>
+              <span className="text-sm font-medium truncate">{task.assignee || 'Unassigned'}</span>
             </div>
           </div>
           <div>
-            <Label className="mb-2 text-sm font-medium text-muted-foreground">Reviewer</Label>
-            <div className="flex items-center gap-3 p-3 border rounded-md bg-muted/30">
+            <Label className="mb-3 text-sm font-medium text-muted-foreground block">Reviewer</Label>
+            <div className="flex items-center gap-3 p-3 border border-border/30 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition-colors">
               <Avatar className="h-9 w-9">
                 <AvatarImage src="" />
-                <AvatarFallback className="text-sm">{task.reviewer?.[0] || 'U'}</AvatarFallback>
+                <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">{task.reviewer?.[0] || 'R'}</AvatarFallback>
               </Avatar>
-              <div className="flex-1">
-                <p className="text-sm font-medium">{task.reviewer || 'Unassigned'}</p>
-                <p className="text-xs text-muted-foreground">Reviewer</p>
-              </div>
+              <span className="text-sm font-medium truncate">{task.reviewer || 'Unassigned'}</span>
             </div>
           </div>
           <div>
-            <Label className="mb-2 text-sm font-medium text-muted-foreground">Observers</Label>
-            <Button variant="outline" className="w-full h-[54px] bg-muted/30">
+            <Label className="mb-3 text-sm font-medium text-muted-foreground block">Observers</Label>
+            <Button variant="outline" className="w-full h-[54px] bg-slate-50/50 border-border/30 hover:bg-luxury-gold/10 hover:border-luxury-gold/50">
               <Plus className="h-4 w-4 mr-2" />
               Add Observer
             </Button>
@@ -129,9 +124,9 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
       </div>
 
       {/* Due Date / Duration / Tags */}
-      <div className="bg-background rounded-lg border border-border p-5">
-        <h3 className="text-base font-semibold mb-4 text-foreground">Schedule & Tags</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <h3 className="text-base font-semibold mb-5 text-foreground">Schedule & Tags</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div>
             <Label htmlFor="dueDate" className="text-sm font-medium text-muted-foreground">Due Date</Label>
             <Input
@@ -139,7 +134,7 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
               type="date"
               value={task.endDate || ''}
               onChange={(e) => onUpdate({ endDate: e.target.value })}
-              className="mt-2"
+              className="mt-2 bg-slate-50/50 border-border/30"
             />
           </div>
           <div>
@@ -151,7 +146,7 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
                 value={task.duration || ''}
                 onChange={(e) => onUpdate({ duration: e.target.value })}
                 placeholder="0"
-                className="flex-1"
+                className="flex-1 bg-slate-50/50 border-border/30"
               />
               <Input
                 value="days"
@@ -167,18 +162,18 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
               value={task.tags?.join(', ') || ''}
               onChange={(e) => onUpdate({ tags: e.target.value.split(',').map(t => t.trim()) })}
               placeholder="Add tags..."
-              className="mt-2"
+              className="mt-2 bg-slate-50/50 border-border/30"
             />
           </div>
         </div>
       </div>
 
       {/* General Attachments & Subtasks */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div className="bg-background rounded-lg border border-border p-5">
-          <div className="flex items-center justify-between mb-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center justify-between mb-5">
             <h3 className="text-base font-semibold text-foreground">Attachments</h3>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="border-border/50 hover:bg-luxury-gold/10 hover:border-luxury-gold/50">
               <Paperclip className="h-4 w-4 mr-2" />
               Add
             </Button>
@@ -186,21 +181,21 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
           <div className="space-y-2">
             {task.attachments?.length > 0 ? (
               task.attachments.map((file: any, idx: number) => (
-                <div key={idx} className="flex items-center gap-2 p-2 border rounded-md hover:bg-muted/50 transition-colors">
-                  <Paperclip className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm flex-1 truncate">{file.name}</span>
+                <div key={idx} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors">
+                  <Paperclip className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-sm flex-1 truncate font-medium">{file.name}</span>
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-6">No attachments</p>
+              <p className="text-sm text-muted-foreground text-center py-8">No attachments</p>
             )}
           </div>
         </div>
 
-        <div className="bg-background rounded-lg border border-border p-5">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+          <div className="flex items-center justify-between mb-5">
             <h3 className="text-base font-semibold text-foreground">Subtasks</h3>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="border-border/50 hover:bg-luxury-gold/10 hover:border-luxury-gold/50">
               <Plus className="h-4 w-4 mr-2" />
               Add
             </Button>
@@ -208,33 +203,33 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
           <div className="space-y-2">
             {task.subtasks?.length > 0 ? (
               task.subtasks.map((subtask: any, idx: number) => (
-                <div key={idx} className="flex items-center gap-2 p-2 border rounded-md hover:bg-muted/50 transition-colors">
+                <div key={idx} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors">
                   <input type="checkbox" className="rounded" />
-                  <span className="text-sm flex-1">{subtask.name}</span>
+                  <span className="text-sm flex-1 font-medium">{subtask.name}</span>
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-6">No subtasks</p>
+              <p className="text-sm text-muted-foreground text-center py-8">No subtasks</p>
             )}
           </div>
         </div>
       </div>
 
       {/* Activity Feed + Comments */}
-      <div className="bg-background rounded-lg border border-border p-5">
-        <h3 className="text-base font-semibold mb-4 text-foreground">Activity Feed & Comments</h3>
+      <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <h3 className="text-base font-semibold mb-5 text-foreground">Activity Feed & Comments</h3>
         
         {/* Activity List */}
-        <div className="space-y-3 mb-6">
+        <div className="space-y-4 mb-6">
           {activities.map((activity) => (
-            <div key={activity.id} className="flex gap-3 pb-3 border-b last:border-0">
-              <Avatar className="h-8 w-8 flex-shrink-0">
+            <div key={activity.id} className="flex gap-3 pb-4 border-b last:border-0">
+              <Avatar className="h-9 w-9 flex-shrink-0">
                 <AvatarImage src={activity.user_avatar} />
-                <AvatarFallback className="text-xs">{activity.user_name[0]}</AvatarFallback>
+                <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">{activity.user_name[0]}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="text-sm font-medium">{activity.user_name}</span>
+                  <span className="text-sm font-semibold">{activity.user_name}</span>
                   <span className="text-xs text-muted-foreground">{activity.action_type}</span>
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -248,37 +243,40 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
         </div>
 
         {/* Comments */}
-        <div className="space-y-3 mb-4">
-          <h4 className="text-sm font-medium flex items-center gap-2 text-foreground">
+        <div className="space-y-4 mb-5">
+          <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground">
             <MessageSquare className="h-4 w-4" />
             Comments ({comments.length})
           </h4>
           {comments.map((comment) => (
-            <div key={comment.id} className="flex gap-3 p-3 bg-muted/50 rounded-md">
-              <Avatar className="h-8 w-8 flex-shrink-0">
+            <div key={comment.id} className="flex gap-3 p-4 bg-slate-50/50 rounded-xl border border-border/20">
+              <Avatar className="h-9 w-9 flex-shrink-0">
                 <AvatarImage src={comment.user_avatar} />
-                <AvatarFallback className="text-xs">{comment.user_name[0]}</AvatarFallback>
+                <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">{comment.user_name[0]}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium">{comment.user_name}</span>
+                  <span className="text-sm font-semibold">{comment.user_name}</span>
                   <span className="text-xs text-muted-foreground">{formatDate(comment.created_at)}</span>
                 </div>
-                <p className="text-sm">{comment.comment}</p>
+                <p className="text-sm text-foreground">{comment.comment}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Add Comment */}
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Add a comment..."
-            className="min-h-[70px] resize-none"
+            className="min-h-[80px] resize-none bg-slate-50/50 border-border/30"
           />
-          <Button onClick={handleAddComment} className="self-end">
+          <Button 
+            onClick={handleAddComment} 
+            className="self-end bg-luxury-gold text-white hover:bg-luxury-gold-dark"
+          >
             Post
           </Button>
         </div>

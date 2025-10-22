@@ -288,99 +288,113 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
       {/* Main Content - Fixed positioning to match Project Tasks */}
       <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
-        <div className="h-full w-full flex flex-col bg-muted/30">
-          {/* Single Header Bar with Breadcrumb */}
-          <div className="sticky top-0 z-30 bg-background border-b border-border">
-            <div className="px-6 h-16 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground hover:text-foreground">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Back to Tasks
-                </Button>
-                <span className="text-muted-foreground">/</span>
-                <h2 className="text-lg font-semibold text-foreground">
-                  {editedTask.taskName}
-                </h2>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button 
-                  onClick={handleMarkComplete}
-                  variant={editedTask.status === 'Completed' ? 'default' : 'outline'}
-                  size="sm"
-                  disabled={editedTask.status === 'Completed'}
-                >
-                  <Check className="w-4 h-4 mr-2" />
-                  Mark Complete
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleDelete} 
-                  className="text-muted-foreground hover:text-destructive"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  onClick={handleSave}
-                  disabled={!hasUnsavedChanges}
-                >
-                  <Save className="w-4 h-4 mr-2" />
-                  Save
-                </Button>
+        <div className="h-full w-full flex flex-col bg-[hsl(var(--background))]">
+          {/* Luxury Header Bar with Glass Effect */}
+          <div className="sticky top-0 z-30 border-b border-border/50 bg-gradient-to-b from-white to-accent/20 backdrop-blur-sm">
+            <div className="px-8 py-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleBack} 
+                    className="text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Tasks
+                  </Button>
+                  <div className="h-4 w-px bg-border/50" />
+                  <h2 className="text-lg font-semibold text-foreground">
+                    {editedTask.taskName}
+                  </h2>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button 
+                    onClick={handleMarkComplete}
+                    variant={editedTask.status === 'Completed' ? 'default' : 'outline'}
+                    size="sm"
+                    disabled={editedTask.status === 'Completed'}
+                    className={editedTask.status === 'Completed' 
+                      ? 'bg-luxury-gold text-white hover:bg-luxury-gold/90' 
+                      : 'border-border/50 hover:bg-luxury-gold/10 hover:border-luxury-gold/50'}
+                  >
+                    <Check className="w-4 h-4 mr-2" />
+                    {editedTask.status === 'Completed' ? 'Completed' : 'Mark Complete'}
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={handleDelete} 
+                    className="text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                  {hasUnsavedChanges && (
+                    <div className="h-4 w-px bg-border/50" />
+                  )}
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    onClick={handleSave}
+                    disabled={!hasUnsavedChanges}
+                    className="bg-luxury-gold text-white hover:bg-luxury-gold-dark shadow-[0_2px_8px_rgba(0,0,0,0.1)] disabled:opacity-50"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Changes
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Scrollable Content with Tabs */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="max-w-7xl mx-auto w-full px-6 py-6">
+          <div className="flex-1 overflow-y-auto bg-[hsl(var(--background))]">
+            <div className="max-w-7xl mx-auto w-full px-8 py-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="w-full bg-background border-b border-border rounded-none h-auto p-0 mb-6">
-                  <div className="flex items-center gap-0 w-full">
+                <TabsList className="w-full bg-white/80 border border-border/30 rounded-xl h-auto p-1 mb-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+                  <div className="flex items-center gap-1 w-full">
                     <TabsTrigger 
                       value="details" 
-                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
                     >
                       <FileText className="w-4 h-4" />
-                      <span className="text-sm">1. Details</span>
+                      <span className="text-sm font-medium">Details</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="submittals" 
-                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
                     >
                       <Upload className="w-4 h-4" />
-                      <span className="text-sm">2. Submittals</span>
+                      <span className="text-sm font-medium">Submittals</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="reviews" 
-                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
                       disabled={!canViewSubModule('tasks', 'reviews')}
                     >
                       <MessageSquare className="w-4 h-4" />
-                      <span className="text-sm">3. Reviews</span>
+                      <span className="text-sm font-medium">Reviews</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="qa" 
-                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
                     >
                       <CheckSquare className="w-4 h-4" />
-                      <span className="text-sm">4. Q&A</span>
+                      <span className="text-sm font-medium">Q&A</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="costs" 
-                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
                     >
                       <DollarSign className="w-4 h-4" />
-                      <span className="text-sm">5. Costs</span>
+                      <span className="text-sm font-medium">Costs</span>
                     </TabsTrigger>
                     <TabsTrigger 
                       value="summary" 
-                      className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-3"
+                      className="flex items-center gap-2 rounded-lg border-0 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] px-4 py-2.5 text-muted-foreground data-[state=active]:font-medium transition-all duration-200"
                     >
                       <Sparkles className="w-4 h-4" />
-                      <span className="text-sm">6. AI Summary</span>
+                      <span className="text-sm font-medium">AI Summary</span>
                     </TabsTrigger>
                   </div>
                 </TabsList>
