@@ -15,13 +15,15 @@ import { formatDate } from '@/utils/dateFormat';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { TeamTaskAssignment } from '@/components/tasks/enhanced/TeamTaskAssignment';
 
 interface TaskDetailsTabProps {
   task: any;
   onUpdate: (updates: any) => void;
+  projectId?: string;
 }
 
-export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
+export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProps) => {
   const [newComment, setNewComment] = useState('');
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
   const [newSubtaskName, setNewSubtaskName] = useState('');
@@ -155,17 +157,12 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
           
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-xs text-muted-foreground">Assignee</span>
-            <div className="flex items-center gap-1.5">
-              <Avatar className="h-6 w-6">
-                <AvatarImage src={task.assignedTo?.avatar || ''} />
-                <AvatarFallback className="text-xs bg-luxury-gold/20 text-luxury-gold-dark">
-                  {task.assignedTo?.name?.[0]?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm font-medium">
-                {task.assignedTo?.name || 'Unassigned'}
-              </span>
-            </div>
+            <TeamTaskAssignment
+              projectId={projectId || task.project_id}
+              currentAssignee={task.assignedTo}
+              onAssigneeChange={(assignee) => onUpdate({ assignedTo: assignee })}
+              className="h-8"
+            />
           </div>
           
           <div className="h-8 w-px bg-border/50" />
