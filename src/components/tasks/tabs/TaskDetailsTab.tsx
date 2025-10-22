@@ -97,12 +97,26 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
             <span className="text-sm font-medium text-muted-foreground">Priority</span>
             <Badge className={`${getPriorityColor(task.priority)} font-medium text-xs px-3 py-1`}>{task.priority || 'Medium'}</Badge>
           </div>
-          <div className="flex-1 min-w-[280px]">
+          <div className="min-w-[200px] max-w-[280px]">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-muted-foreground">Progress</span>
               <span className="text-sm font-semibold text-foreground">{task.progress || 0}%</span>
             </div>
             <Progress value={task.progress || 0} className="h-2.5 bg-slate-100" />
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-muted-foreground">Assignee</span>
+            <div className="flex items-center gap-2">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={task.assignedTo?.avatar || ''} />
+                <AvatarFallback className="text-xs bg-luxury-gold/20 text-luxury-gold-dark">
+                  {task.assignedTo?.name?.[0]?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium">
+                {task.assignedTo?.name || 'Unassigned'}
+              </span>
+            </div>
           </div>
         </div>
       </div>
