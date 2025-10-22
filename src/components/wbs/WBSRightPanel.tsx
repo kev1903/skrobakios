@@ -8,6 +8,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SimpleTeamAssignment } from '@/components/tasks/enhanced/SimpleTeamAssignment';
+import { useTaskAssignmentEmail } from '@/hooks/useTaskAssignmentEmail';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WBSItem {
   id: string;
@@ -60,6 +62,8 @@ export const WBSRightPanel = ({
   onRowClick,
   projectId
 }: WBSRightPanelProps) => {
+  const { sendTaskAssignmentEmail } = useTaskAssignmentEmail();
+
   // Log items for debugging
   console.log('🟣 WBSRightPanel rendering with', items.length, 'items');
   console.log('🟣 Items by level:', items.reduce((acc: any, item: any) => {
@@ -69,6 +73,32 @@ export const WBSRightPanel = ({
   
   // Determine if we're in unified scroll mode
   const useUnifiedScroll = !scrollRef || !onScroll;
+
+  const handleAssigneeChange = async (itemId: string, assignee: { name: string; avatar: string; userId?: string } | undefined, item: WBSItem) => {
+    // Update the WBS item
+    onItemUpdate(itemId, { assigned_to: assignee?.name || null });
+
+    // If this WBS item has a linked task and an assignee with userId, update the task and send email
+    if (item.linked_task_id && assignee?.userId) {
+      try {
+        // Update the task in the database
+        const { error: updateError } = await supabase
+          .from('tasks')
+          .update({ assigned_to_user_id: assignee.userId })
+          .eq('id', item.linked_task_id);
+
+        if (updateError) {
+          console.error('Error updating task assignment:', updateError);
+          return;
+        }
+
+        // Send email notification
+        await sendTaskAssignmentEmail(item.linked_task_id);
+      } catch (error) {
+        console.error('Error in assignment flow:', error);
+      }
+    }
+  };
 
   const content = (
     <>
@@ -122,7 +152,7 @@ export const WBSRightPanel = ({
                   <SimpleTeamAssignment
                     projectId={projectId}
                     currentAssignee={item.assignedTo ? { name: item.assignedTo, avatar: '', userId: undefined } : undefined}
-                    onAssigneeChange={(assignee) => onItemUpdate(item.id, { assigned_to: assignee?.name || null })}
+                    onAssigneeChange={(assignee) => handleAssigneeChange(item.id, assignee, item)}
                     className="flex-1"
                   />
                 ) : (
