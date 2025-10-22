@@ -635,10 +635,7 @@ export const ProjectDocsPage = ({
 
       {/* Main Content */}
       <div className="flex-1 ml-40 bg-background">
-        {/* Header Section */}
-        <ProjectPageHeader projectName={project.name} pageTitle="Project Documents & Links" onNavigate={onNavigate} />
-        
-        <div className="p-6 h-[calc(100vh-180px)]">
+        <div className="p-6 h-[calc(100vh-var(--header-height))]">
           <Tabs defaultValue="docs" value={activeTab} onValueChange={setActiveTab} className="w-full h-full flex flex-col">
             <TabsList className="mb-6">
               <TabsTrigger value="docs" className="flex items-center gap-2">

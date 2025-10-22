@@ -472,25 +472,20 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       {/* Main Content - Fixed positioning to match Project Control */}
       <div className="fixed left-40 right-0 top-[var(--header-height)] bottom-0 overflow-hidden">
         <div className="h-full w-full bg-white">
-          {/* Header */}
-          <ProjectPageHeader 
-            projectName={project.name}
-            pageTitle="Contracts"
-            onNavigate={onNavigate}
-            actions={
-              <Button 
-                className="flex items-center gap-2"
-                onClick={() => setShowUploadDialog(true)}
-              >
-                <Upload className="h-4 w-4" />
-                Upload Contract
-              </Button>
-            }
-          />
-
           {/* Content Area */}
-          <div className="h-[calc(100%-100px)] overflow-y-auto">
+          <div className="h-full overflow-y-auto">
             <div className="p-6">
+              {/* Upload Contract Button - Top Right */}
+              <div className="flex justify-end mb-4">
+                <Button 
+                  className="flex items-center gap-2"
+                  onClick={() => setShowUploadDialog(true)}
+                >
+                  <Upload className="h-4 w-4" />
+                  Upload Contract
+                </Button>
+              </div>
+
               {contracts.length === 0 ? (
                 <div className="text-center py-12">
                   <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />

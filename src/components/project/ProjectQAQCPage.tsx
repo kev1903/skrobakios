@@ -160,13 +160,6 @@ export const ProjectQAQCPage = ({ onNavigate }: ProjectQAQCPageProps) => {
         "flex-1 h-screen overflow-y-auto bg-background",
         !isMobile && "ml-48"
       )}>
-        {/* Header Section */}
-        <ProjectPageHeader 
-          projectName={project.name}
-          pageTitle="QA/QC"
-          onNavigate={onNavigate}
-        />
-        
         <div className={cn(
           "min-h-full",
           isMobile ? "p-3 pb-20" : "p-6"

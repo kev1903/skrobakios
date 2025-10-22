@@ -237,16 +237,10 @@ export const ProjectProcurementPage = () => {
       {/* Main Content - Fixed positioning to match Project Control */}
       <div className="fixed left-40 right-0 top-[var(--header-height)] bottom-0 overflow-hidden">
         <div className="h-full w-full bg-white">
-          {/* Header */}
           <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
             <div className="px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-2xl font-bold text-foreground">Procurement</h1>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    {project.name} ({project.project_id})
-                  </p>
-                </div>
+              <div className="flex items-center justify-between mb-4">
+                <h1 className="text-2xl font-bold text-foreground">Procurement</h1>
                 <div className="flex gap-2">
                   <Button 
                     onClick={() => setShowVendorForm(true)}

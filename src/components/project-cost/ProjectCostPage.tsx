@@ -219,29 +219,6 @@ export const ProjectCostPage = ({
 
       {/* Main Content */}
       <div className="flex-1 ml-48 h-screen overflow-hidden bg-background flex flex-col">
-        {/* Header Section */}
-        <ProjectPageHeader 
-          projectName={project.name}
-          pageTitle="Project Cost"
-          onNavigate={onNavigate}
-          actions={
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="text-xs text-muted-foreground font-inter">Budget Status</div>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="outline" className={`text-xs px-2 py-1 ${varianceStatus.color}`}>
-                    <VarianceIcon className="w-3 h-3 mr-1" />
-                    {varianceStatus.text}
-                  </Badge>
-                  <span className="text-sm font-semibold text-foreground">
-                    {formatCurrency(Math.abs(costSummary.variance))}
-                  </span>
-                </div>
-              </div>
-            </div>
-          }
-        />
-        
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Summary Cards - Dynamic based on active tab */}
           <div className="m-6 mb-3 bg-card border rounded-lg p-2">
