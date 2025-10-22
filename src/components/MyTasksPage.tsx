@@ -225,7 +225,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
     <div>
       {/* Task Detail Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-[95vw] w-full max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[95vw] w-full h-[calc(100vh-80px)] top-[80px] left-[50%] translate-x-[-50%] translate-y-0 overflow-y-auto rounded-lg">
           <DialogHeader>
             <DialogTitle>{selectedTask?.taskName}</DialogTitle>
           </DialogHeader>
