@@ -7,8 +7,6 @@ import { toast } from 'sonner';
 export const createTaskConversionHandlers = (
   project: any,
   findWBSItem: (id: string) => any,
-  setSelectedTask: (task: any) => void,
-  setIsTaskDetailOpen: (open: boolean) => void,
   loadWBSItems: () => Promise<void>,
   updateWBSItem: (itemId: string, updates: any) => Promise<void>,
   onNavigate: (page: string) => void
@@ -56,15 +54,13 @@ export const createTaskConversionHandlers = (
         const newTask = await handleConvertToTask(itemId, true);
         
         if (newTask) {
-          setSelectedTask(newTask);
-          setIsTaskDetailOpen(true);
           toast.success('Task created successfully');
         }
         return;
       }
 
-      setSelectedTask(task);
-      setIsTaskDetailOpen(true);
+      // Task exists - could navigate to it or show in a different way
+      toast.success('Task already exists');
       
     } catch (error) {
       console.error('Error fetching linked task:', error);
