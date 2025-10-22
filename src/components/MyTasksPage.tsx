@@ -234,10 +234,18 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
             )}
             onDragOver={(e) => {
               e.preventDefault();
+              e.stopPropagation();
               e.dataTransfer.dropEffect = 'move';
               setIsDragOverBacklog(true);
             }}
+            onDragEnter={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDragOverBacklog(true);
+            }}
             onDragLeave={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               // Only clear if leaving the sidebar completely
               const rect = e.currentTarget.getBoundingClientRect();
               const x = e.clientX;
@@ -249,30 +257,46 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
             }}
             onDrop={async (e) => {
               e.preventDefault();
+              e.stopPropagation();
+              console.log('📥 Backlog: Drop event triggered');
               setIsDragOverBacklog(false);
               
               const taskId = e.dataTransfer.getData('text/plain');
+              console.log('🔍 Backlog: Task ID from drag:', taskId);
+              
               const task = tasks.find(t => t.id === taskId);
               
-              if (!task) return;
+              if (!task) {
+                console.warn('⚠️ Backlog: No task found with ID:', taskId);
+                toast({
+                  title: "Error",
+                  description: "Could not find the task. Please try again.",
+                  variant: "destructive",
+                });
+                return;
+              }
+              
+              console.log('✅ Backlog: Task found:', task.taskName);
               
               try {
                 // Set to midnight to mark as backlog task
                 const backlogDate = task.dueDate ? new Date(task.dueDate) : new Date();
                 backlogDate.setHours(0, 0, 0, 0);
                 
+                console.log('📝 Backlog: Updating task to backlog status');
                 await handleTaskUpdate(taskId, {
                   status: 'Not Started',
                   dueDate: backlogDate.toISOString()
                 });
                 
+                console.log('🎉 Backlog: Task successfully moved to backlog');
                 toast({
                   title: "Task moved to backlog",
                   description: `"${task.taskName}" moved to backlog with status 'Not Started'.`,
                   duration: 2000,
                 });
               } catch (error) {
-                console.error('Failed to move task to backlog:', error);
+                console.error('❌ Backlog: Failed to move task:', error);
                 toast({
                   title: "Error",
                   description: "Failed to move task. Please try again.",

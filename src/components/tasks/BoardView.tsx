@@ -35,8 +35,11 @@ export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) 
   };
 
   const handleDragStart = (e: React.DragEvent, task: Task) => {
+    console.log('🎯 BoardView: Drag started for task:', task.taskName, task.id);
     setDraggedTask(task);
     e.dataTransfer.effectAllowed = 'move';
+    // CRITICAL: Set the task ID in dataTransfer so other drop zones can access it
+    e.dataTransfer.setData('text/plain', task.id);
   };
 
   const handleDragOver = (e: React.DragEvent, column: StatusColumn) => {
@@ -51,12 +54,18 @@ export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) 
 
   const handleDrop = async (e: React.DragEvent, targetStatus: StatusColumn) => {
     e.preventDefault();
+    console.log('📥 BoardView: Drop on column:', targetStatus);
     
     // Get the task ID from the drag data (for tasks dragged from backlog)
     const taskId = e.dataTransfer.getData('text/plain');
     const task = draggedTask || tasks.find(t => t.id === taskId);
     
-    if (!task) return;
+    console.log('🔍 BoardView: Task ID from drag:', taskId, 'Task found:', task?.taskName);
+    
+    if (!task) {
+      console.warn('⚠️ BoardView: No task found for drop');
+      return;
+    }
 
     const newStatus = targetStatus === 'To Do' ? 'Not Started' : 
                      targetStatus === 'In Progress' ? 'In Progress' : 'Completed';
@@ -71,6 +80,7 @@ export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) 
       dueDate: scheduledDate.toISOString()
     };
 
+    console.log('✅ BoardView: Updating task with:', updates);
     await onTaskUpdate(task.id, updates);
     
     setDraggedTask(null);
@@ -170,6 +180,11 @@ export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) 
                     key={task.id}
                     draggable
                     onDragStart={(e) => handleDragStart(e, task)}
+                    onDragEnd={(e) => {
+                      console.log('🏁 BoardView: Drag ended for task:', task.taskName);
+                      setDraggedTask(null);
+                      setDragOverColumn(null);
+                    }}
                     onClick={() => onTaskClick(task)}
                     className={cn(
                       "bg-background border rounded-lg p-4 cursor-move transition-all group relative",
