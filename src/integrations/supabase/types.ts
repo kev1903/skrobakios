@@ -22,7 +22,7 @@ export type Database = {
           created_at: string
           dependencies: string[] | null
           description: string | null
-          duration: unknown | null
+          duration: unknown
           end_date: string | null
           id: string
           is_expanded: boolean | null
@@ -43,7 +43,7 @@ export type Database = {
           created_at?: string
           dependencies?: string[] | null
           description?: string | null
-          duration?: unknown | null
+          duration?: unknown
           end_date?: string | null
           id?: string
           is_expanded?: boolean | null
@@ -64,7 +64,7 @@ export type Database = {
           created_at?: string
           dependencies?: string[] | null
           description?: string | null
-          duration?: unknown | null
+          duration?: unknown
           end_date?: string | null
           id?: string
           is_expanded?: boolean | null
@@ -2751,7 +2751,7 @@ export type Database = {
       }
       model_3d: {
         Row: {
-          coordinates: unknown | null
+          coordinates: unknown
           created_at: string
           description: string | null
           elevation: number | null
@@ -2768,7 +2768,7 @@ export type Database = {
           uploaded_by: string | null
         }
         Insert: {
-          coordinates?: unknown | null
+          coordinates?: unknown
           created_at?: string
           description?: string | null
           elevation?: number | null
@@ -2785,7 +2785,7 @@ export type Database = {
           uploaded_by?: string | null
         }
         Update: {
-          coordinates?: unknown | null
+          coordinates?: unknown
           created_at?: string
           description?: string | null
           elevation?: number | null
@@ -2850,7 +2850,7 @@ export type Database = {
           action_type: string
           created_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           resource_id: string | null
           resource_type: string
           session_id: string | null
@@ -2863,7 +2863,7 @@ export type Database = {
           action_type: string
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type: string
           session_id?: string | null
@@ -2876,7 +2876,7 @@ export type Database = {
           action_type?: string
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type?: string
           session_id?: string | null
@@ -3117,7 +3117,7 @@ export type Database = {
           accessor_id: string | null
           created_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           user_agent: string | null
         }
         Insert: {
@@ -3126,7 +3126,7 @@ export type Database = {
           accessor_id?: string | null
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
         }
         Update: {
@@ -3135,7 +3135,7 @@ export type Database = {
           accessor_id?: string | null
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
         }
         Relationships: []
@@ -4600,7 +4600,7 @@ export type Database = {
           created_at: string
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           metadata: Json | null
           severity: string | null
           user_agent: string | null
@@ -4610,7 +4610,7 @@ export type Database = {
           created_at?: string
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           severity?: string | null
           user_agent?: string | null
@@ -4620,7 +4620,7 @@ export type Database = {
           created_at?: string
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           metadata?: Json | null
           severity?: string | null
           user_agent?: string | null
@@ -5849,7 +5849,7 @@ export type Database = {
           description: string | null
           due_date: string | null
           duration: number | null
-          estimated_duration: unknown | null
+          estimated_duration: unknown
           estimated_hours: number | null
           id: string
           is_critical_path: boolean | null
@@ -5874,7 +5874,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           duration?: number | null
-          estimated_duration?: unknown | null
+          estimated_duration?: unknown
           estimated_hours?: number | null
           id?: string
           is_critical_path?: boolean | null
@@ -5899,7 +5899,7 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           duration?: number | null
-          estimated_duration?: unknown | null
+          estimated_duration?: unknown
           estimated_hours?: number | null
           id?: string
           is_critical_path?: boolean | null
@@ -6182,7 +6182,7 @@ export type Database = {
           created_at: string
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           target_user_id: string | null
           user_agent: string | null
           user_id: string | null
@@ -6192,7 +6192,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_user_id?: string | null
           user_agent?: string | null
           user_id?: string | null
@@ -6202,7 +6202,7 @@ export type Database = {
           created_at?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_user_id?: string | null
           user_agent?: string | null
           user_id?: string | null
@@ -7158,10 +7158,7 @@ export type Database = {
         Args: { target_stakeholder_id: string }
         Returns: boolean
       }
-      can_manage_user: {
-        Args: { target_user_id: string }
-        Returns: boolean
-      }
+      can_manage_user: { Args: { target_user_id: string }; Returns: boolean }
       can_view_company_projects: {
         Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
@@ -7174,10 +7171,7 @@ export type Database = {
         Args: { operation_type?: string }
         Returns: boolean
       }
-      check_profile_access_rate_limit: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      check_profile_access_rate_limit: { Args: never; Returns: boolean }
       check_rate_limit: {
         Args: {
           action_type_param: string
@@ -7197,30 +7191,21 @@ export type Database = {
         }
         Returns: boolean
       }
-      cleanup_expired_impersonation_sessions: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      cleanup_expired_impersonation_sessions: { Args: never; Returns: number }
       cleanup_non_business_accounts: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           company_name: string
           deleted_company_id: string
           deletion_result: Json
         }[]
       }
-      cleanup_old_suggestions: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_old_suggestions: { Args: never; Returns: undefined }
       copy_monday_blocks_to_weekdays: {
         Args: { target_user_id: string }
         Returns: undefined
       }
-      copy_my_monday_blocks: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      copy_my_monday_blocks: { Args: never; Returns: undefined }
       create_invoice: {
         Args: {
           p_client_email?: string
@@ -7257,38 +7242,20 @@ export type Database = {
         Args: { item_id: string }
         Returns: undefined
       }
-      encrypt_sensitive_data: {
-        Args: { data: string }
-        Returns: string
-      }
+      encrypt_sensitive_data: { Args: { data: string }; Returns: string }
       end_impersonation_session: {
         Args: { session_id: string }
         Returns: boolean
       }
-      generate_access_token: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_commitment_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_contract_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_access_token: { Args: never; Returns: string }
+      generate_commitment_number: { Args: never; Returns: string }
+      generate_contract_number: { Args: never; Returns: string }
       generate_defect_number: {
         Args: { project_id_param: string }
         Returns: string
       }
-      generate_invitation_token: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_invoice_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_invitation_token: { Args: never; Returns: string }
+      generate_invoice_number: { Args: never; Returns: string }
       generate_issue_number: {
         Args: { project_id_param: string }
         Returns: string
@@ -7297,20 +7264,14 @@ export type Database = {
         Args: { project_id_param: string }
         Returns: string
       }
-      generate_rfq_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_slug: {
-        Args: { input_text: string }
-        Returns: string
-      }
+      generate_rfq_number: { Args: never; Returns: string }
+      generate_slug: { Args: { input_text: string }; Returns: string }
       generate_task_number: {
         Args: { project_id_param: string }
         Returns: string
       }
       get_all_users_for_admin: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           avatar_url: string
           company: string
@@ -7340,42 +7301,70 @@ export type Database = {
           user_id: string
         }[]
       }
-      get_current_business_context: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_business_context: { Args: never; Returns: string }
       get_current_context: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           context_id: string
           context_name: string
           context_type: string
         }[]
       }
-      get_leads_with_masked_contact: {
-        Args: Record<PropertyKey, never> | { requesting_user_id?: string }
-        Returns: {
-          avatar_url: string
-          company: string
-          company_id: string
-          contact_email: string
-          contact_name: string
-          contact_phone: string
-          created_at: string
-          description: string
-          id: string
-          last_activity: string
-          location: string
-          notes: string
-          priority: string
-          project_address: string
-          source: string
-          stage: string
-          updated_at: string
-          value: number
-          website: string
-        }[]
-      }
+      get_leads_with_masked_contact:
+        | {
+            Args: { requesting_user_id?: string }
+            Returns: {
+              avatar_url: string
+              company: string
+              company_id: string
+              contact_email: string
+              contact_name: string
+              contact_phone: string
+              created_at: string
+              description: string
+              id: string
+              last_activity: string
+              location: string
+              notes: string
+              priority: string
+              project_address: string
+              source: string
+              stage: string
+              updated_at: string
+              value: number
+              website: string
+            }[]
+          }
+        | {
+            Args: never
+            Returns: {
+              avatar_url: string | null
+              company: string
+              company_id: string
+              contact_email: string | null
+              contact_name: string
+              contact_phone: string | null
+              created_at: string
+              description: string | null
+              id: string
+              last_activity: string | null
+              location: string | null
+              notes: string | null
+              priority: string
+              project_address: string | null
+              source: string
+              stage: string
+              updated_at: string
+              value: number
+              website: string | null
+            }[]
+            SetofOptions: {
+              from: "*"
+              to: "leads"
+              isOneToOne: false
+              isSetofReturn: true
+            }
+          }
       get_manageable_users_for_user: {
         Args: { requesting_user_id: string }
         Returns: {
@@ -7608,16 +7597,10 @@ export type Database = {
           type: string
         }[]
       }
-      get_security_config: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      get_security_metrics: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      get_security_config: { Args: never; Returns: Json }
+      get_security_metrics: { Args: never; Returns: Json }
       get_security_overview: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           current_value: number
           risk_level: string
@@ -7665,14 +7648,8 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: string[]
       }
-      get_user_count: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      get_user_current_company_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_user_count: { Args: never; Returns: number }
+      get_user_current_company_id: { Args: never; Returns: string }
       get_user_highest_role_level: {
         Args: { target_user_id: string }
         Returns: number
@@ -7706,24 +7683,43 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: Database["public"]["Enums"]["app_role"][]
       }
-      get_user_subscription: {
-        Args: Record<PropertyKey, never> | { target_user_id?: string }
-        Returns: {
-          billing_cycle: string
-          current_period_end: string
-          features: string[]
-          max_projects: number
-          max_storage_gb: number
-          max_team_members: number
-          plan_description: string
-          plan_name: string
-          price_monthly: number
-          price_yearly: number
-          status: string
-          subscription_id: string
-          trial_ends_at: string
-        }[]
-      }
+      get_user_subscription:
+        | {
+            Args: never
+            Returns: {
+              billing_cycle: string
+              current_period_end: string
+              features: string[]
+              max_projects: number
+              max_storage_gb: number
+              max_team_members: number
+              plan_description: string
+              plan_name: string
+              price_monthly: number
+              price_yearly: number
+              status: string
+              subscription_id: string
+              trial_ends_at: string
+            }[]
+          }
+        | {
+            Args: { target_user_id?: string }
+            Returns: {
+              billing_cycle: string
+              current_period_end: string
+              features: string[]
+              max_projects: number
+              max_storage_gb: number
+              max_team_members: number
+              plan_description: string
+              plan_name: string
+              price_monthly: number
+              price_yearly: number
+              status: string
+              subscription_id: string
+              trial_ends_at: string
+            }[]
+          }
       handle_user_permission_upsert: {
         Args: {
           p_access_level: string
@@ -7734,12 +7730,15 @@ export type Database = {
         }
         Returns: undefined
       }
-      has_role: {
-        Args:
-          | { _role: Database["public"]["Enums"]["app_role"]; _user_id: string }
-          | { _role: string; _user_id: string }
-        Returns: boolean
-      }
+      has_role:
+        | { Args: { _role: string; _user_id: string }; Returns: boolean }
+        | {
+            Args: {
+              _role: Database["public"]["Enums"]["app_role"]
+              _user_id: string
+            }
+            Returns: boolean
+          }
       has_role_secure: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -7771,10 +7770,7 @@ export type Database = {
         Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
       }
-      is_platform_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      is_platform_admin: { Args: never; Returns: boolean }
       is_project_accessible: {
         Args: { target_project_id: string; target_user_id: string }
         Returns: boolean
@@ -7791,10 +7787,7 @@ export type Database = {
         Args: { target_project_id: string; target_user_id: string }
         Returns: boolean
       }
-      is_superadmin: {
-        Args: { target_user_id?: string }
-        Returns: boolean
-      }
+      is_superadmin: { Args: { target_user_id?: string }; Returns: boolean }
       is_user_company_admin: {
         Args: { target_company_id: string; target_user_id: string }
         Returns: boolean
@@ -7829,10 +7822,7 @@ export type Database = {
         }
         Returns: Json
       }
-      mask_contact_info: {
-        Args: { input_text: string }
-        Returns: string
-      }
+      mask_contact_info: { Args: { input_text: string }; Returns: string }
       mask_invitation_email: {
         Args: { invitation_email: string; requesting_user_id: string }
         Returns: string
@@ -7845,14 +7835,8 @@ export type Database = {
         }
         Returns: string
       }
-      migrate_linked_tasks_to_predecessors: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      sanitize_user_input: {
-        Args: { input_text: string }
-        Returns: string
-      }
+      migrate_linked_tasks_to_predecessors: { Args: never; Returns: undefined }
+      sanitize_user_input: { Args: { input_text: string }; Returns: string }
       set_active_context: {
         Args: { p_context_id?: string; p_context_type: string }
         Returns: boolean
