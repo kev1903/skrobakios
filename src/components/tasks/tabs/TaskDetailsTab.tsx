@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Paperclip, Plus, MessageSquare, Clock, Trash2 } from 'lucide-react';
+import { Plus, MessageSquare, Clock, Trash2 } from 'lucide-react';
 import { useTaskComments } from '@/hooks/useTaskComments';
 import { useTaskActivity } from '@/hooks/useTaskActivity';
 import { formatDate } from '@/utils/dateFormat';
@@ -294,29 +294,6 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
               className="mt-2 bg-slate-50/50 border-border/30"
             />
           </div>
-        </div>
-      </div>
-
-      {/* Attachments */}
-      <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-base font-semibold text-foreground">Attachments</h3>
-          <Button variant="outline" size="sm" className="border-border/50 hover:bg-luxury-gold/10 hover:border-luxury-gold/50">
-            <Paperclip className="h-4 w-4 mr-2" />
-            Add
-          </Button>
-        </div>
-        <div className="space-y-2">
-          {task.attachments?.length > 0 ? (
-            task.attachments.map((file: any, idx: number) => (
-              <div key={idx} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors">
-                <Paperclip className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="text-sm flex-1 truncate font-medium">{file.name}</span>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-8">No attachments</p>
-          )}
         </div>
       </div>
 
