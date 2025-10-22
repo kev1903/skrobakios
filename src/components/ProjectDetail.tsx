@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useProjects, Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "./ProjectSidebar";
+import { ProjectHeader } from "./ProjectHeader";
 import { ProjectInfo } from "./ProjectInfo";
 import { ProjectProgress } from "./ProjectProgress";
 import { ProjectMetrics } from "./ProjectMetrics";
@@ -18,6 +19,8 @@ interface ProjectDetailProps {
 export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => {
 
   const [project, setProject] = useState<Project | null>(null);
+  const [bannerImage, setBannerImage] = useState<string>("");
+  const [bannerPosition, setBannerPosition] = useState({ x: 0, y: 0, scale: 1 });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   // Removed local loading state; using global 'loading' from useProjects
   const { getProject, loading } = useProjects();
@@ -25,10 +28,25 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
   const lastFetchedIdRef = useRef<string | null>(null);
   const screenSize = useScreenSize();
   const isMobile = screenSize === 'mobile' || screenSize === 'mobile-small';
-  // Reset state on project change
+  // Reset banner state immediately on project change and clear any stale cache
   useEffect(() => {
     console.log(`🔄 Project ID changed to: ${projectId}`);
+    setBannerImage("");
+    setBannerPosition({ x: 0, y: 0, scale: 1 });
+    
+    // Clear lastFetchedIdRef to force fresh fetch
     lastFetchedIdRef.current = null;
+    
+    // Clear any stale localStorage entries from previous projects to prevent cross-contamination
+    if (projectId) {
+      // Only clear if we have a new project ID
+      const keys = Object.keys(localStorage);
+      const bannerKeys = keys.filter(key => key.startsWith('project_banner_') && !key.includes(projectId));
+      bannerKeys.forEach(key => {
+        console.log(`🗑️ Clearing stale localStorage key: ${key}`);
+        localStorage.removeItem(key);
+      });
+    }
   }, [projectId]);
 
   // Always call useMemo hooks before any conditional logic
@@ -79,13 +97,44 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
           if (currentCompany?.id && foundProject.company_id !== currentCompany.id) {
             console.warn(`Project ${foundProject.id} does not belong to current company ${currentCompany.id}. Clearing state.`);
             setProject(null);
+            setBannerImage("");
+            setBannerPosition({ x: 0, y: 0, scale: 1 });
             return;
           }
 
           setProject(foundProject);
+          
+          // Clear any previous project's banner data first to avoid cross-contamination
+          setBannerImage("");
+          setBannerPosition({ x: 0, y: 0, scale: 1 });
+          
+          // Load banner from database if available
+          if (foundProject.banner_image) {
+            console.log(`✅ Loading banner from database for project ${foundProject.id}`);
+            setBannerImage(foundProject.banner_image);
+            
+            if (foundProject.banner_position) {
+              setBannerPosition(foundProject.banner_position);
+            }
+          } else {
+            console.log(`ℹ️ No banner in database for project ${foundProject.id}`);
+            // Clear any stale localStorage data for this project to prevent cross-contamination
+            const localStorageKey = `project_banner_${foundProject.id}`;
+            const positionKey = `project_banner_position_${foundProject.id}`;
+            
+            // Remove any existing localStorage entries to ensure clean state
+            localStorage.removeItem(localStorageKey);
+            localStorage.removeItem(positionKey);
+            
+            // Explicitly set empty banner
+            setBannerImage("");
+            setBannerPosition({ x: 0, y: 0, scale: 1 });
+          }
         } else {
           // Project not found, clear state
           setProject(null);
+          setBannerImage("");
+          setBannerPosition({ x: 0, y: 0, scale: 1 });
         }
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -102,7 +151,11 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
     return () => {
       isActive = false;
     };
-  }, [projectId, getProject, currentCompany?.id]);
+  }, [projectId, getProject, currentCompany?.id]); // Removed 'project' to prevent infinite loops
+
+  const handleProjectUpdate = (updatedProject: Project) => {
+    setProject(updatedProject);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -219,6 +272,15 @@ export const ProjectDetail = ({ projectId, onNavigate }: ProjectDetailProps) => 
         )}
         
         <div className={isMobile ? "p-4" : "p-8"}>
+          <ProjectHeader
+            project={project}
+            bannerImage={bannerImage}
+            bannerPosition={bannerPosition}
+            getStatusColor={getStatusColor}
+            getStatusText={getStatusText}
+            onProjectUpdate={handleProjectUpdate}
+          />
+
           <ProjectInfo
             project={project}
             getStatusText={getStatusText}
