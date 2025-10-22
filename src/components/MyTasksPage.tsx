@@ -39,7 +39,13 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
     }
 
     try {
+      // Get current user's ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const fullName = `${userProfile.firstName} ${userProfile.lastName}`.trim();
+      
+      // Query tasks assigned by user_id OR by name (for backwards compatibility)
       const { data: allTasks, error } = await supabase
         .from('tasks')
         .select(`
@@ -50,7 +56,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
             project_id
           )
         `)
-        .or(`assigned_to_name.ilike.%${fullName}%,assigned_to_name.ilike.%${userProfile.firstName}%,assigned_to_name.ilike.%${userProfile.lastName}%`)
+        .or(`assigned_to_user_id.eq.${user.id},assigned_to_name.ilike.%${fullName}%,assigned_to_name.ilike.%${userProfile.firstName}%,assigned_to_name.ilike.%${userProfile.lastName}%`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
