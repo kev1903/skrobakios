@@ -69,141 +69,83 @@ export const TaskAssignmentEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>SkAi has created a new task for you to action</Preview>
+      <Preview>New Task Assignment: {taskName}</Preview>
       <Body style={main}>
         <Container style={container}>
-          {/* Header */}
+          {/* Modern Header */}
           <Section style={header}>
-            <Heading style={logoText}>SkAi | SKROBAKI</Heading>
-            <Text style={tagline}>
-              Automated by SkAi – Your Intelligent Project Assistant
-            </Text>
+            <Text style={logoText}>SkAi | SKROBAKI</Text>
+            <Text style={tagline}>Your Intelligent Project Assistant</Text>
           </Section>
 
           {/* Main Content Card */}
           <Section style={card}>
+            {/* Greeting */}
             <Text style={greeting}>Hi {assigneeName},</Text>
             <Text style={bodyText}>
-              SkAi has created a new task for you to action. Please review and
-              update its status as you make progress.
+              A new task has been assigned to you. Please review the details below and update the status as you make progress.
             </Text>
 
-            {/* Task Title */}
-            <Heading style={taskTitle}>{taskName}</Heading>
+            {/* Task Title Section */}
+            <Section style={taskTitleSection}>
+              <Heading style={taskTitle}>{taskName}</Heading>
+              {description && <Text style={descriptionText}>{description}</Text>}
+            </Section>
 
-            {/* Description */}
-            {description && <Text style={descriptionText}>{description}</Text>}
+            {/* Task Details Grid */}
+            <Section style={detailsGrid}>
+              <Section style={detailCard}>
+                <Text style={detailCardLabel}>Project</Text>
+                <Text style={detailCardValue}>
+                  {projectCode ? `${projectCode} - ` : ''}
+                  {projectName}
+                </Text>
+              </Section>
 
-            {/* Task Details Table */}
-            <Section style={detailsTable}>
-              <Row style={detailRow}>
-                <Column style={detailLabel}>
-                  <Text style={labelText}>Project:</Text>
-                </Column>
-                <Column style={detailValue}>
-                  <Text style={valueText}>
-                    {projectCode ? `${projectCode} - ` : ''}
-                    {projectName}
-                  </Text>
-                </Column>
-              </Row>
+              <Section style={detailCard}>
+                <Text style={detailCardLabel}>Due Date</Text>
+                <Text style={detailCardValue}>{dueDate}</Text>
+              </Section>
 
-              <Row style={detailRow}>
-                <Column style={detailLabel}>
-                  <Text style={labelText}>Due Date:</Text>
-                </Column>
-                <Column style={detailValue}>
-                  <Text style={valueText}>{dueDate}</Text>
-                </Column>
-              </Row>
+              <Section style={detailCard}>
+                <Text style={detailCardLabel}>Priority</Text>
+                <span style={getPriorityBadgeStyle(priority)}>
+                  {priority}
+                </span>
+              </Section>
 
-              <Row style={detailRow}>
-                <Column style={detailLabel}>
-                  <Text style={labelText}>Priority:</Text>
-                </Column>
-                <Column style={detailValue}>
-                  <span style={getPriorityBadgeStyle(priority)}>
-                    {priority}
-                  </span>
-                </Column>
-              </Row>
-
-              <Row style={detailRow}>
-                <Column style={detailLabel}>
-                  <Text style={labelText}>Status:</Text>
-                </Column>
-                <Column style={detailValue}>
-                  <Text style={valueText}>{status}</Text>
-                </Column>
-              </Row>
+              <Section style={detailCard}>
+                <Text style={detailCardLabel}>Status</Text>
+                <Text style={detailCardValue}>{status}</Text>
+              </Section>
 
               {estimatedHours && (
-                <Row style={detailRow}>
-                  <Column style={detailLabel}>
-                    <Text style={labelText}>Estimated Time:</Text>
-                  </Column>
-                  <Column style={detailValue}>
-                    <Text style={valueText}>{estimatedHours}h</Text>
-                  </Column>
-                </Row>
+                <Section style={detailCard}>
+                  <Text style={detailCardLabel}>Estimated Time</Text>
+                  <Text style={detailCardValue}>{estimatedHours}h</Text>
+                </Section>
               )}
             </Section>
 
             {/* CTA Button */}
             <Section style={buttonContainer}>
               <Link href={taskLink} style={button}>
-                View Task in SkrobakiOS
+                View Task Details
               </Link>
             </Section>
           </Section>
 
-          {/* Email Signature */}
-          <Section style={signatureSection}>
-            <Text style={signatureClosing}>Warm regards,</Text>
-            <Text style={signatureName}>SkAi</Text>
-            <Text style={signatureTitle}>Automated Project Assistant</Text>
-            
-            <Section style={signatureLogoSection}>
-              <Text style={signatureLogo}>SKROBAKI</Text>
-            </Section>
-            
-            <Section style={signatureContactSection}>
-              <Text style={signatureContact}>
-                <span style={contactLabel}>Phone</span>{' '}
-                <Link href="tel:0423117480" style={contactLink}>0423 117 480</Link>
-                {' | '}
-                <span style={contactLabel}>Office</span>{' '}
-                <Link href="tel:0385213310" style={contactLink}>(03) 8521 3310</Link>
-                {' | '}
-                <span style={contactLabel}>Website</span>{' '}
-                <Link href="https://www.skrobaki.com" style={contactLink}>www.skrobaki.com</Link>
-              </Text>
-            </Section>
-          </Section>
-
-          {/* Footer */}
-          <Hr style={divider} />
+          {/* Minimalist Footer */}
           <Section style={footer}>
-            <Text style={footerText}>
-              Automated by SkAi | SkrobakiOS Project System
+            <Text style={footerBrand}>SkAi by SKROBAKI</Text>
+            <Text style={footerContact}>
+              <Link href="tel:0423117480" style={footerLink}>0423 117 480</Link>
+              {' · '}
+              <Link href="https://www.skrobaki.com" style={footerLink}>skrobaki.com</Link>
             </Text>
             <Text style={footerSmall}>
-              You're receiving this email because you're assigned to a project
-              task. Manage your notifications in SkrobakiOS.
+              Automated notification · You're receiving this because you're assigned to a project task
             </Text>
-            <Section style={footerLinks}>
-              <Link href="https://skrobaki.com/help" style={footerLink}>
-                💬 Help Center
-              </Link>
-              <Text style={footerLinkSeparator}>•</Text>
-              <Link href="https://skrobaki.com/support" style={footerLink}>
-                📞 Support
-              </Link>
-              <Text style={footerLinkSeparator}>•</Text>
-              <Link href="https://skrobaki.com" style={footerLink}>
-                🌐 skrobaki.com
-              </Link>
-            </Section>
           </Section>
         </Container>
       </Body>
@@ -213,239 +155,171 @@ export const TaskAssignmentEmail = ({
 
 export default TaskAssignmentEmail;
 
-// Styles
+// Modern Apple-like Styles
 const main = {
-  backgroundColor: '#F8F9FB',
+  backgroundColor: '#FAFAFA',
   fontFamily:
-    "'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif",
+    "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif",
+  padding: '20px',
 };
 
 const container = {
   margin: '0 auto',
-  padding: '40px 20px',
-  maxWidth: '600px',
+  padding: '0',
+  maxWidth: '640px',
 };
 
 const header = {
-  backgroundColor: '#0A1F44',
-  borderRadius: '12px 12px 0 0',
-  padding: '32px 24px',
+  background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 100%)',
+  borderRadius: '16px 16px 0 0',
+  padding: '40px 32px',
   textAlign: 'center' as const,
+  borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
 };
 
 const logoText = {
-  color: '#FFFFFF',
-  fontSize: '28px',
-  fontWeight: '700',
+  color: '#1A1A1A',
+  fontSize: '24px',
+  fontWeight: '600',
   margin: '0 0 8px 0',
-  fontFamily: "'Playfair Display', Georgia, serif",
-  letterSpacing: '0.5px',
+  letterSpacing: '-0.5px',
 };
 
 const tagline = {
   color: '#C8A45D',
-  fontSize: '14px',
+  fontSize: '13px',
   margin: '0',
   fontWeight: '500',
+  letterSpacing: '0.3px',
 };
 
 const card = {
   backgroundColor: '#FFFFFF',
-  borderRadius: '0 0 12px 12px',
-  padding: '32px 24px',
-  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.07)',
+  borderRadius: '0 0 16px 16px',
+  padding: '40px 32px',
+  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)',
 };
 
 const greeting = {
-  fontSize: '16px',
-  color: '#0A1F44',
-  margin: '0 0 16px 0',
-  fontWeight: '500',
+  fontSize: '18px',
+  color: '#1A1A1A',
+  margin: '0 0 12px 0',
+  fontWeight: '600',
 };
 
 const bodyText = {
   fontSize: '15px',
-  color: '#4B5563',
+  color: '#6B7280',
   lineHeight: '1.6',
-  margin: '0 0 24px 0',
+  margin: '0 0 32px 0',
+};
+
+const taskTitleSection = {
+  padding: '24px',
+  backgroundColor: '#FAFAFA',
+  borderRadius: '12px',
+  border: '1px solid rgba(0, 0, 0, 0.06)',
+  marginBottom: '24px',
 };
 
 const taskTitle = {
-  fontSize: '22px',
-  fontWeight: '700',
-  color: '#0A1F44',
-  margin: '0 0 16px 0',
-  fontFamily: "'Playfair Display', Georgia, serif",
-  lineHeight: '1.3',
+  fontSize: '20px',
+  fontWeight: '600',
+  color: '#1A1A1A',
+  margin: '0 0 8px 0',
+  lineHeight: '1.4',
+  letterSpacing: '-0.3px',
 };
 
 const descriptionText = {
   fontSize: '14px',
   color: '#6B7280',
   lineHeight: '1.6',
-  margin: '0 0 24px 0',
-  padding: '16px',
-  backgroundColor: '#F8F9FB',
-  borderRadius: '8px',
-  borderLeft: '3px solid #C8A45D',
+  margin: '12px 0 0 0',
 };
 
-const detailsTable = {
-  margin: '24px 0',
-  padding: '20px',
-  backgroundColor: '#F8F9FB',
+const detailsGrid = {
+  margin: '0 0 32px 0',
+  display: 'grid' as const,
+  gridTemplateColumns: 'repeat(2, 1fr)',
+  gap: '12px',
+};
+
+const detailCard = {
+  padding: '16px 20px',
+  backgroundColor: '#FAFAFA',
   borderRadius: '10px',
-};
-
-const detailRow = {
+  border: '1px solid rgba(0, 0, 0, 0.04)',
+  display: 'block',
   marginBottom: '12px',
 };
 
-const detailLabel = {
-  width: '35%',
-  verticalAlign: 'top',
+const detailCardLabel = {
+  fontSize: '12px',
+  color: '#9CA3AF',
+  fontWeight: '500',
+  margin: '0 0 8px 0',
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.5px',
 };
 
-const detailValue = {
-  width: '65%',
-  verticalAlign: 'top',
-};
-
-const labelText = {
-  fontSize: '14px',
-  color: '#6B7280',
+const detailCardValue = {
+  fontSize: '15px',
+  color: '#1A1A1A',
   fontWeight: '600',
   margin: '0',
-};
-
-const valueText = {
-  fontSize: '14px',
-  color: '#0A1F44',
-  fontWeight: '500',
-  margin: '0',
+  lineHeight: '1.4',
 };
 
 const buttonContainer = {
   textAlign: 'center' as const,
-  margin: '32px 0 16px 0',
+  margin: '32px 0 0 0',
 };
 
 const button = {
-  backgroundColor: '#0A1F44',
+  background: 'linear-gradient(135deg, #C8A45D 0%, #B8944D 100%)',
   color: '#FFFFFF',
   fontSize: '15px',
   fontWeight: '600',
   textDecoration: 'none',
   padding: '14px 32px',
-  borderRadius: '8px',
+  borderRadius: '10px',
   display: 'inline-block',
-  transition: 'all 0.2s ease',
-  border: '2px solid #0A1F44',
-};
-
-const divider = {
-  borderColor: '#E5E7EB',
-  margin: '32px 0 24px 0',
+  boxShadow: '0 2px 8px rgba(200, 164, 93, 0.25)',
+  letterSpacing: '0.2px',
 };
 
 const footer = {
   textAlign: 'center' as const,
-  padding: '0 24px 24px 24px',
+  padding: '32px 32px',
+  borderTop: '1px solid rgba(0, 0, 0, 0.06)',
+  marginTop: '0',
 };
 
-const footerText = {
+const footerBrand = {
+  fontSize: '14px',
+  color: '#1A1A1A',
+  margin: '0 0 12px 0',
+  fontWeight: '600',
+  letterSpacing: '0.3px',
+};
+
+const footerContact = {
   fontSize: '13px',
   color: '#6B7280',
-  margin: '0 0 8px 0',
+  margin: '0 0 16px 0',
+  lineHeight: '1.6',
+};
+
+const footerLink = {
+  color: '#C8A45D',
+  textDecoration: 'none',
   fontWeight: '500',
 };
 
 const footerSmall = {
   fontSize: '12px',
   color: '#9CA3AF',
-  margin: '0 0 16px 0',
+  margin: '0',
   lineHeight: '1.5',
-};
-
-const footerLinks = {
-  textAlign: 'center' as const,
-  margin: '16px 0 0 0',
-};
-
-const footerLink = {
-  fontSize: '12px',
-  color: '#C8A45D',
-  textDecoration: 'none',
-  margin: '0 8px',
-  fontWeight: '500',
-};
-
-const footerLinkSeparator = {
-  display: 'inline',
-  color: '#D1D5DB',
-  margin: '0 4px',
-  fontSize: '12px',
-};
-
-// Signature styles
-const signatureSection = {
-  padding: '32px 24px 24px 24px',
-  borderTop: '1px solid #E5E7EB',
-  marginTop: '24px',
-};
-
-const signatureClosing = {
-  fontSize: '14px',
-  color: '#6B7280',
-  margin: '0 0 12px 0',
-};
-
-const signatureName = {
-  fontSize: '18px',
-  fontWeight: '700',
-  color: '#0A1F44',
-  margin: '0 0 4px 0',
-  fontFamily: "'Playfair Display', Georgia, serif",
-};
-
-const signatureTitle = {
-  fontSize: '13px',
-  color: '#6B7280',
-  margin: '0 0 20px 0',
-  fontWeight: '500',
-};
-
-const signatureLogoSection = {
-  margin: '20px 0',
-};
-
-const signatureLogo = {
-  fontSize: '20px',
-  fontWeight: '700',
-  color: '#0A1F44',
-  margin: '0',
-  fontFamily: "'Playfair Display', Georgia, serif",
-  letterSpacing: '2px',
-};
-
-const signatureContactSection = {
-  margin: '16px 0 0 0',
-};
-
-const signatureContact = {
-  fontSize: '12px',
-  color: '#6B7280',
-  margin: '0',
-  lineHeight: '1.8',
-};
-
-const contactLabel = {
-  fontWeight: '600',
-  color: '#0A1F44',
-};
-
-const contactLink = {
-  color: '#C8A45D',
-  textDecoration: 'none',
-  fontWeight: '500',
 };
