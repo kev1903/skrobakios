@@ -1,6 +1,9 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { Resend } from "npm:resend@2.0.0";
+import React from 'npm:react@18.3.1';
+import { renderAsync } from 'npm:@react-email/components@0.0.22';
+import { TaskAssignmentEmail } from './_templates/task-assignment.tsx';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -114,149 +117,33 @@ const handler = async (req: Request): Promise<Response> => {
     
     const priority = task.priority || "Normal";
     const status = task.status || "Not Started";
+    
+    // Generate task link
+    const frontendUrl = Deno.env.get("FRONTEND_URL") || "https://app.skrobaki.com";
+    const taskLink = `${frontendUrl}/?page=task-edit&taskId=${taskId}`;
+
+    // Render the React Email template
+    const emailHtml = await renderAsync(
+      React.createElement(TaskAssignmentEmail, {
+        assigneeName,
+        taskName: task.task_name,
+        projectName,
+        projectCode: projectId,
+        dueDate,
+        priority,
+        status,
+        taskLink,
+        description: task.description || undefined,
+        estimatedHours: task.estimated_hours || undefined,
+      })
+    );
 
     // Send email using Resend
     const emailResponse = await resend.emails.send({
-      from: "Skai | SKROBAKI <skai@skrobaki.com>",
+      from: "SkAi | SKROBAKI <skai@skrobaki.com>",
       to: [profile.email],
       subject: `New Task Assigned: ${task.task_name}`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <style>
-              body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-                line-height: 1.6;
-                color: #333;
-                max-width: 600px;
-                margin: 0 auto;
-                padding: 20px;
-              }
-              .header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 30px;
-                border-radius: 8px 8px 0 0;
-                text-align: center;
-              }
-              .content {
-                background: #ffffff;
-                border: 1px solid #e5e7eb;
-                border-top: none;
-                padding: 30px;
-                border-radius: 0 0 8px 8px;
-              }
-              .task-details {
-                background: #f9fafb;
-                border-left: 4px solid #667eea;
-                padding: 20px;
-                margin: 20px 0;
-                border-radius: 4px;
-              }
-              .detail-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 8px 0;
-                border-bottom: 1px solid #e5e7eb;
-              }
-              .detail-row:last-child {
-                border-bottom: none;
-              }
-              .detail-label {
-                font-weight: 600;
-                color: #6b7280;
-              }
-              .detail-value {
-                color: #111827;
-              }
-              .priority-high {
-                color: #dc2626;
-                font-weight: 600;
-              }
-              .priority-normal {
-                color: #f59e0b;
-                font-weight: 600;
-              }
-              .priority-low {
-                color: #10b981;
-                font-weight: 600;
-              }
-              .button {
-                display: inline-block;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 12px 30px;
-                text-decoration: none;
-                border-radius: 6px;
-                margin: 20px 0;
-                font-weight: 600;
-              }
-              .footer {
-                text-align: center;
-                margin-top: 30px;
-                padding-top: 20px;
-                border-top: 1px solid #e5e7eb;
-                color: #6b7280;
-                font-size: 14px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1 style="margin: 0; font-size: 24px;">🎯 New Task Assigned</h1>
-            </div>
-            <div class="content">
-              <p>Hi ${assigneeName},</p>
-              <p>You have been assigned a new task by SkAi:</p>
-              
-              <div class="task-details">
-                <h2 style="margin-top: 0; color: #111827; font-size: 20px;">${task.task_name}</h2>
-                
-                ${task.description ? `<p style="color: #6b7280; margin: 10px 0;">${task.description}</p>` : ''}
-                
-                <div class="detail-row">
-                  <span class="detail-label">Project:</span>
-                  <span class="detail-value">${projectId ? `${projectId} - ` : ''}${projectName}</span>
-                </div>
-                
-                <div class="detail-row">
-                  <span class="detail-label">Due Date:</span>
-                  <span class="detail-value">${dueDate}</span>
-                </div>
-                
-                <div class="detail-row">
-                  <span class="detail-label">Priority:</span>
-                  <span class="detail-value priority-${priority.toLowerCase()}">${priority}</span>
-                </div>
-                
-                <div class="detail-row">
-                  <span class="detail-label">Status:</span>
-                  <span class="detail-value">${status}</span>
-                </div>
-                
-                ${task.estimated_hours ? `
-                <div class="detail-row">
-                  <span class="detail-label">Estimated Hours:</span>
-                  <span class="detail-value">${task.estimated_hours}h</span>
-                </div>
-                ` : ''}
-              </div>
-              
-              <p style="margin-top: 20px;">
-                Please review this task and update its status as you make progress.
-              </p>
-              
-              <div class="footer">
-                <p>This is an automated message from SkAi Task Management System</p>
-                <p style="font-size: 12px; color: #9ca3af;">
-                  If you believe this task was assigned to you in error, please contact your project manager.
-                </p>
-              </div>
-            </div>
-          </body>
-        </html>
-      `,
+      html: emailHtml,
     });
 
     console.log("Email sent successfully:", emailResponse);
