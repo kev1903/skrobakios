@@ -450,16 +450,16 @@ const barRef = useRef<HTMLDivElement>(null);
         <div className="flex items-center justify-between px-6 py-3">
           {/* Left side - Menu and Company Logo */}
           <div className="flex items-center gap-3">
-            {/* Redesigned Hamburger Menu Button */}
+            {/* Redesigned Circular Hamburger Menu Button */}
             <button 
               onClick={toggleSidebar} 
-              className="group relative w-10 h-10 rounded-xl border border-border/30 bg-white hover:bg-slate-50 transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow-md hover:border-primary/20" 
+              className="group relative w-11 h-11 rounded-full border border-border/30 bg-white hover:bg-primary/5 transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-lg hover:border-primary/40 hover:scale-105" 
               aria-label="Toggle main navigation sidebar"
             >
-              <div className="flex flex-col gap-1 w-4">
-                <span className="block h-0.5 w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary"></span>
-                <span className="block h-0.5 w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary"></span>
-                <span className="block h-0.5 w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary"></span>
+              <div className="flex flex-col gap-[3px] w-5">
+                <span className="block h-[2px] w-full bg-foreground rounded-full transition-all duration-300 group-hover:bg-primary group-hover:w-4"></span>
+                <span className="block h-[2px] w-full bg-foreground rounded-full transition-all duration-300 group-hover:bg-primary"></span>
+                <span className="block h-[2px] w-4 bg-foreground rounded-full transition-all duration-300 group-hover:bg-primary group-hover:w-full"></span>
               </div>
             </button>
             
