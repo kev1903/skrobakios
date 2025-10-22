@@ -449,37 +449,47 @@ const barRef = useRef<HTMLDivElement>(null);
       <div ref={barRef} className="fixed top-0 left-0 right-0 z-[11000] backdrop-blur-xl bg-background/80 border-b border-border shadow-lg">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Left side - Menu and Company Logo */}
-          <div className="flex items-center space-x-4">
-            {/* Hamburger Menu Icon */}
-            <button onClick={toggleSidebar} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" aria-label="Toggle main navigation sidebar">
-              <Menu className="w-4 h-4" />
+          <div className="flex items-center gap-3">
+            {/* Redesigned Hamburger Menu Button */}
+            <button 
+              onClick={toggleSidebar} 
+              className="group relative w-10 h-10 rounded-xl border border-border/30 bg-white hover:bg-slate-50 transition-all duration-200 flex items-center justify-center shadow-sm hover:shadow-md hover:border-primary/20" 
+              aria-label="Toggle main navigation sidebar"
+            >
+              <div className="flex flex-col gap-1 w-4">
+                <span className="block h-0.5 w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary"></span>
+                <span className="block h-0.5 w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary"></span>
+                <span className="block h-0.5 w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary"></span>
+              </div>
             </button>
             
-            {/* Company Logo */}
-            <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity duration-200" onClick={() => {
-              if (activeContext === 'company') {
-                // Navigate to business homepage with map
-                navigate('/?page=home');
-              } else {
-                // Navigate to personal profile with map
-                navigate('/?page=profile');
-              }
-            }}>
-                <span className="text-primary-foreground font-bold text-xs">
+            {/* Company Logo & Name - Always Visible */}
+            <div className="flex items-center gap-2.5 pl-2 border-l border-border/30">
+              <div 
+                className="w-8 h-8 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-lg flex items-center justify-center cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 shadow-sm" 
+                onClick={() => {
+                  if (activeContext === 'company') {
+                    navigate('/?page=home');
+                  } else {
+                    navigate('/?page=profile');
+                  }
+                }}
+              >
+                <span className="text-primary-foreground font-bold text-sm">
                   {getCompanyDisplayText().charAt(0).toUpperCase()}
                 </span>
               </div>
-              <h1 className="text-sm font-bold text-foreground hidden sm:block cursor-pointer hover:text-primary transition-colors" onClick={e => {
-              e.stopPropagation(); // Prevent event bubbling
-              if (activeContext === 'company') {
-                // Navigate to business homepage with map
-                navigate('/?page=home');
-              } else {
-                // Navigate to personal profile with map
-                navigate('/?page=profile');
-              }
-            }}>
+              <h1 
+                className="text-base font-bold text-foreground cursor-pointer hover:text-primary transition-colors whitespace-nowrap" 
+                onClick={e => {
+                  e.stopPropagation();
+                  if (activeContext === 'company') {
+                    navigate('/?page=home');
+                  } else {
+                    navigate('/?page=profile');
+                  }
+                }}
+              >
                 {getCompanyDisplayText()}
               </h1>
             </div>
