@@ -68,6 +68,11 @@ export const MenuBar = () => {
 const barRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 
+  // Define search result types
+  type ProjectResult = { id: string; name: string; project_id: string };
+  type TaskResult = { id: string; task_name: string; project_name?: string };
+  type SearchResults = { projects: ProjectResult[]; tasks: TaskResult[] };
+
   // Initialize voice chat functionality - stub implementation
   const voiceState = { 
     isConnected: false,
@@ -100,7 +105,11 @@ const barRef = useRef<HTMLDivElement>(null);
   const [showVoiceInterface, setShowVoiceInterface] = useState(false);
   const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [searchResults, setSearchResults] = useState<SearchResults>({ projects: [], tasks: [] });
+  const [isSearching, setIsSearching] = useState(false);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   // Handle clicking outside the dropdown to close it
   useEffect(() => {
@@ -108,12 +117,99 @@ const barRef = useRef<HTMLDivElement>(null);
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
         setShowProfileDropdown(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSearchResults(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Debounced search function
+  useEffect(() => {
+    const searchBusinessData = async () => {
+      if (searchQuery.trim().length < 2) {
+        setSearchResults({ projects: [], tasks: [] });
+        setShowSearchResults(false);
+        return;
+      }
+
+      setIsSearching(true);
+      setShowSearchResults(true);
+
+      try {
+        const searchTerm = searchQuery.toLowerCase();
+
+        // Helper to safely query and cast
+        const queryProjects = async (): Promise<ProjectResult[]> => {
+          // @ts-ignore - Avoiding deep type instantiation
+          const result = await supabase
+            .from('projects')
+            .select('id, name, project_id')
+            .eq('company_id', currentCompany?.id || '')
+            .ilike('name', `%${searchTerm}%`)
+            .limit(5);
+          return (result.data || []) as ProjectResult[];
+        };
+
+        const queryTasks = async (): Promise<any[]> => {
+          // @ts-ignore - Avoiding deep type instantiation
+          const result = await supabase
+            .from('tasks')
+            .select('id, task_name, project_id')
+            .eq('company_id', currentCompany?.id || '')
+            .ilike('task_name', `%${searchTerm}%`)
+            .limit(5);
+          return (result.data || []) as any[];
+        };
+
+        const [projectsData, tasksRaw] = await Promise.all([
+          queryProjects(),
+          queryTasks()
+        ]);
+
+        // Get project names for tasks
+        const tasksData: TaskResult[] = [];
+        if (tasksRaw.length > 0) {
+          const projectIds = tasksRaw.map((t: any) => t.project_id).filter(Boolean);
+          let projectMap: Record<string, string> = {};
+          
+          if (projectIds.length > 0) {
+            // @ts-ignore - Avoiding deep type instantiation
+            const result = await supabase
+              .from('projects')
+              .select('id, name')
+              .in('id', projectIds);
+            
+            const projectNames = (result.data || []) as any[];
+            projectMap = Object.fromEntries(projectNames.map((p: any) => [p.id, p.name]));
+          }
+
+          tasksRaw.forEach((task: any) => {
+            tasksData.push({
+              id: task.id,
+              task_name: task.task_name,
+              project_name: task.project_id ? projectMap[task.project_id] : undefined
+            });
+          });
+        }
+
+        setSearchResults({
+          projects: projectsData,
+          tasks: tasksData
+        });
+      } catch (error) {
+        console.error('Search error:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(searchBusinessData, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery, currentCompany?.id]);
 
   // Listen for open-ai-chat event from other components
   useEffect(() => {
@@ -389,15 +485,95 @@ const barRef = useRef<HTMLDivElement>(null);
             </div>
 
             {/* Search Bar */}
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <div className="relative hidden md:block" ref={searchRef}>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
               <Input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search projects, tasks..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery.trim().length >= 2 && setShowSearchResults(true)}
                 className="pl-9 pr-4 h-8 w-64 bg-muted/50 backdrop-blur-sm border-border text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 transition-all"
               />
+              
+              {/* Search Results Dropdown */}
+              {showSearchResults && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg max-h-96 overflow-y-auto z-[12000]">
+                  {isSearching ? (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      Searching...
+                    </div>
+                  ) : searchResults.projects.length === 0 && searchResults.tasks.length === 0 ? (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      No results found
+                    </div>
+                  ) : (
+                    <div className="py-2">
+                      {/* Projects Section */}
+                      {searchResults.projects.length > 0 && (
+                        <div className="mb-2">
+                          <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                            Projects
+                          </div>
+                          {searchResults.projects.map((project) => (
+                            <button
+                              key={project.id}
+                              onClick={() => {
+                                navigate(`/?page=project-specification&projectId=${project.id}`);
+                                setSearchQuery('');
+                                setShowSearchResults(false);
+                              }}
+                              className="w-full px-3 py-2 text-left hover:bg-muted/50 transition-colors flex items-center gap-2 group"
+                            >
+                              <div className="w-8 h-8 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <span className="text-xs font-semibold text-primary">{project.project_id || 'PR'}</span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                                  {project.name}
+                                </div>
+                                <div className="text-xs text-muted-foreground">Project</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Tasks Section */}
+                      {searchResults.tasks.length > 0 && (
+                        <div>
+                          <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide border-t border-border">
+                            Tasks
+                          </div>
+                          {searchResults.tasks.map((task) => (
+                            <button
+                              key={task.id}
+                              onClick={() => {
+                                navigate(`/tasks/edit/${task.id}`);
+                                setSearchQuery('');
+                                setShowSearchResults(false);
+                              }}
+                              className="w-full px-3 py-2 text-left hover:bg-muted/50 transition-colors flex items-center gap-2 group"
+                            >
+                              <div className="w-8 h-8 rounded-md bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                                <ClipboardList className="w-4 h-4 text-green-600" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                                  {task.task_name}
+                                </div>
+                                <div className="text-xs text-muted-foreground truncate">
+                                  {task.project_name || 'No Project'}
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
