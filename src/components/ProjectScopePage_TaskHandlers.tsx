@@ -14,7 +14,7 @@ export const createTaskConversionHandlers = (
   onNavigate: (page: string) => void
 ) => {
   
-  const handleConvertToTask = async (itemId: string) => {
+  const handleConvertToTask = async (itemId: string, forceCreate: boolean = false) => {
     try {
       const wbsItem = findWBSItem(itemId);
       if (!wbsItem) {
@@ -22,7 +22,7 @@ export const createTaskConversionHandlers = (
         return;
       }
 
-      if (wbsItem.is_task_enabled) {
+      if (wbsItem.is_task_enabled && !forceCreate) {
         toast.error('This WBS item is already linked to a task');
         return;
       }
@@ -36,8 +36,11 @@ export const createTaskConversionHandlers = (
         task_conversion_date: new Date().toISOString()
       });
       
-      toast.success(`Successfully converted "${wbsItem.title}" to a detailed task`);
+      if (!forceCreate) {
+        toast.success(`Successfully converted "${wbsItem.title}" to a detailed task`);
+      }
       
+      return task;
     } catch (error) {
       console.error('Error converting WBS to task:', error);
       toast.error('Failed to convert WBS item to task');
@@ -48,7 +51,15 @@ export const createTaskConversionHandlers = (
     try {
       const task = await WBSTaskConversionService.getLinkedTask(itemId);
       if (!task) {
-        toast.error('No linked task found');
+        // No task found - create one automatically
+        toast.info('Creating task...');
+        const newTask = await handleConvertToTask(itemId, true);
+        
+        if (newTask) {
+          setSelectedTask(newTask);
+          setIsTaskDetailOpen(true);
+          toast.success('Task created successfully');
+        }
         return;
       }
 
