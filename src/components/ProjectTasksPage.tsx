@@ -4,6 +4,7 @@ import { Project } from '@/hooks/useProjects';
 import { TaskProvider } from './tasks/TaskContext';
 import { useTaskContext } from './tasks/useTaskContext';
 import { TaskListView } from './tasks/TaskListView';
+import { TaskInsightsSummary } from './tasks/TaskInsightsSummary';
 import { EnhancedTaskView } from './tasks/enhanced/EnhancedTaskView';
 import { TaskBoardView } from './tasks/TaskBoardView';
 import { ProjectSidebar } from './ProjectSidebar';
@@ -603,14 +604,19 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   const renderActiveView = () => {
     switch (activeTab) {
       case "list":
-        return <EnhancedTaskView 
-          projectId={project.id} 
-          viewMode={viewMode}
-          selectedTaskIds={selectedTaskIds}
-          onTaskSelectionChange={setSelectedTaskIds}
-          isAddTaskDialogOpen={isAddTaskDialogOpen}
-          onCloseAddTaskDialog={() => setIsAddTaskDialogOpen(false)}
-        />;
+        return (
+          <>
+            <TaskInsightsSummary tasks={tasks.filter(t => t.project_id === project.id)} />
+            <EnhancedTaskView 
+              projectId={project.id} 
+              viewMode={viewMode}
+              selectedTaskIds={selectedTaskIds}
+              onTaskSelectionChange={setSelectedTaskIds}
+              isAddTaskDialogOpen={isAddTaskDialogOpen}
+              onCloseAddTaskDialog={() => setIsAddTaskDialogOpen(false)}
+            />
+          </>
+        );
       case "board":
         return <TaskBoardView projectId={project.id} />;
       case "timeline":
@@ -672,8 +678,8 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
       <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
         <div className="h-full w-full bg-white">
           {/* Header */}
-          <div className="flex-shrink-0 border-b border-border bg-white backdrop-blur-sm">
-            <div className="px-6 py-4">
+          <div className="flex-shrink-0 border-b border-border/50 bg-gradient-to-b from-white to-accent/20 backdrop-blur-sm">
+            <div className="px-8 py-5">
               <TaskPageHeader project={project} onNavigate={onNavigate} />
               
               <div className="mt-4">
@@ -698,8 +704,8 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
           </div>
 
           {/* Content Area */}
-          <div className="h-[calc(100%-200px)] overflow-y-auto">
-            <div className="p-6">
+          <div className="h-[calc(100%-200px)] overflow-y-auto bg-[hsl(var(--background))]">
+            <div className="p-8">
               {renderActiveView()}
             </div>
           </div>

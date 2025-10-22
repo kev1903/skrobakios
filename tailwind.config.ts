@@ -94,7 +94,14 @@ export default {
 					border: 'hsl(var(--glass-border) / 0.1)', 
 					shadow: 'hsl(var(--glass-shadow) / 0.05)'
 				},
-				// Soulay Brand Colors - Luxury Neutral Palette
+				// SkrobakiOS Luxury Gold Accent
+				'luxury-gold': {
+					DEFAULT: 'hsl(var(--luxury-gold))',
+					light: 'hsl(var(--luxury-gold-light))',
+					dark: 'hsl(var(--luxury-gold-dark))',
+				},
+				'luxury-champagne': 'hsl(var(--luxury-champagne))',
+				// Brand Colors
 				'brand-black': 'hsl(var(--brand-black))',
 				'brand-charcoal': 'hsl(var(--brand-charcoal))',
 				'brand-gray': 'hsl(var(--brand-gray))',
