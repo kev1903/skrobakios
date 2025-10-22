@@ -1,7 +1,70 @@
 import { useTheme } from "next-themes"
-import { Toaster as Sonner, toast } from "sonner"
+import { Toaster as Sonner, toast as originalToast } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
+
+// List of deprecated error messages to filter
+const DEPRECATED_TOAST_PATTERNS = [
+  'failed to load digital objects',
+  'failed to load digital',
+  'digital objects',
+  'digitalobjects',
+  'digital_objects',
+  'digital object'
+];
+
+const shouldFilterToastMessage = (message: any): boolean => {
+  const stringMessage = String(message || '').toLowerCase();
+  return DEPRECATED_TOAST_PATTERNS.some(pattern => 
+    stringMessage.includes(pattern.toLowerCase())
+  );
+};
+
+// Wrap the original toast to filter deprecated messages
+const toast = {
+  ...originalToast,
+  error: (...args: any[]) => {
+    const [message, data] = args;
+    if (shouldFilterToastMessage(message) || 
+        (data?.description && shouldFilterToastMessage(data.description))) {
+      console.warn('🚫 Filtered deprecated digital objects error toast');
+      return;
+    }
+    return originalToast.error(message, data);
+  },
+  success: (...args: any[]) => {
+    const [message, data] = args;
+    if (shouldFilterToastMessage(message)) {
+      console.warn('🚫 Filtered deprecated digital objects success toast');
+      return;
+    }
+    return originalToast.success(message, data);
+  },
+  warning: (...args: any[]) => {
+    const [message, data] = args;
+    if (shouldFilterToastMessage(message)) {
+      console.warn('🚫 Filtered deprecated digital objects warning toast');
+      return;
+    }
+    return originalToast.warning(message, data);
+  },
+  info: (...args: any[]) => {
+    const [message, data] = args;
+    if (shouldFilterToastMessage(message)) {
+      console.warn('🚫 Filtered deprecated digital objects info toast');
+      return;
+    }
+    return originalToast.info(message, data);
+  },
+  message: (...args: any[]) => {
+    const [message, data] = args;
+    if (shouldFilterToastMessage(message)) {
+      console.warn('🚫 Filtered deprecated digital objects message toast');
+      return;
+    }
+    return originalToast.message(message, data);
+  },
+};
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
