@@ -683,7 +683,6 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
                   viewMode={viewMode}
                   onViewModeChange={setViewMode}
                   selectedTasks={selectedTasks}
-                  onAddTask={handleAddTask}
                   onExport={handleExport}
                   onBulkDelete={handleBulkDelete}
                 />

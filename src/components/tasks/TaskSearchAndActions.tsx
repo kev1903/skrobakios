@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Grid, List, Trash2, Archive, Plus, Download } from 'lucide-react';
+import { Search, Grid, List, Trash2, Archive, Download } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +21,6 @@ interface TaskSearchAndActionsProps {
   viewMode: "grid" | "list";
   onViewModeChange: (mode: "grid" | "list") => void;
   selectedTasks: any[];
-  onAddTask?: () => void;
   onExport?: () => void;
   onBulkDelete?: () => void;
   onBulkArchive?: () => void;
@@ -33,7 +32,6 @@ export const TaskSearchAndActions = ({
   viewMode,
   onViewModeChange,
   selectedTasks,
-  onAddTask,
   onExport,
   onBulkDelete,
   onBulkArchive
@@ -76,19 +74,6 @@ export const TaskSearchAndActions = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Add Task Button */}
-          {onAddTask && (
-            <Button 
-              onClick={onAddTask}
-              variant="default"
-              size="sm"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Task
-            </Button>
-          )}
-
           {/* Export Button */}
           {onExport && (
             <Button 
