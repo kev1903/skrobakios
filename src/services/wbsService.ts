@@ -12,6 +12,7 @@ export class WBSService {
       .from('wbs_items')
       .select('*')
       .eq('project_id', projectId)
+      .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
 
     if (error) throw error;
@@ -66,7 +67,7 @@ export class WBSService {
   }
 
   // Create a new WBS item
-  static async createWBSItem(itemData: WBSItemInput): Promise<any> {
+  static async createWBSItem(itemData: WBSItemInput & { sort_order?: number }): Promise<any> {
     const insertData = {
       company_id: itemData.company_id,
       project_id: itemData.project_id,
@@ -90,7 +91,8 @@ export class WBSService {
       priority: itemData.priority,
       is_expanded: itemData.is_expanded !== undefined ? Boolean(itemData.is_expanded) : true,
       predecessors: (itemData.predecessors || []) as any,
-      linked_tasks: itemData.linked_tasks
+      linked_tasks: itemData.linked_tasks,
+      sort_order: itemData.sort_order
     };
 
     const { data, error } = await supabase

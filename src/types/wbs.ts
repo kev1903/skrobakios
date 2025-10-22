@@ -59,6 +59,9 @@ export interface WBSItem {
     underline?: boolean;
     fontSize?: string;
   } | null;
+  
+  // Explicit ordering control
+  sort_order?: number | null;
 }
 
 export type WBSItemInput = Omit<WBSItem, 'id' | 'children' | 'created_at' | 'updated_at'>;

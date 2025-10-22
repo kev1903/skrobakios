@@ -186,6 +186,34 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
     const currentItem = findWBSItem(itemId);
     if (!currentItem) return;
 
+    // Flatten all items to find sort orders
+    const flattenItems = (items: WBSItem[]): WBSItem[] => {
+      return items.reduce((acc, item) => {
+        acc.push(item);
+        if (item.children && item.children.length > 0) {
+          acc.push(...flattenItems(item.children));
+        }
+        return acc;
+      }, [] as WBSItem[]);
+    };
+
+    const allItems = flattenItems(wbsItems);
+    
+    // Find the current item's sort_order
+    const currentSortOrder = currentItem.sort_order || 0;
+    
+    // Find all items that need to be shifted (those with sort_order > current)
+    const itemsToShift = allItems.filter(item => 
+      (item.sort_order || 0) > currentSortOrder
+    );
+
+    // Shift all subsequent items by incrementing their sort_order
+    for (const item of itemsToShift) {
+      await updateWBSItem(item.id, { 
+        sort_order: (item.sort_order || 0) + 1 
+      });
+    }
+
     // Generate WBS ID for the new sibling
     const newWBSId = generateWBSId(currentItem.parent_id);
     
@@ -209,7 +237,8 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
       status: 'Not Started' as const,
       is_expanded: false,
       linked_tasks: [],
-    };
+      sort_order: currentSortOrder + 1, // Insert right after current item
+    } as any;
 
     const createdItem = await createWBSItem(newItem);
     if (createdItem) {
@@ -218,6 +247,11 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
         title: "Row Inserted",
         description: `New ${currentItem.category.toLowerCase()} has been added below.`,
       });
+      
+      // Reload to show items in correct order
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     }
   };
 

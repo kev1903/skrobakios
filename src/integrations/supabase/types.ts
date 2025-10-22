@@ -6586,6 +6586,7 @@ export type Database = {
           revised_budget: number | null
           rfq_required: boolean | null
           scope_link: string | null
+          sort_order: number | null
           start_date: string | null
           status: string | null
           task_conversion_date: string | null
@@ -6627,6 +6628,7 @@ export type Database = {
           revised_budget?: number | null
           rfq_required?: boolean | null
           scope_link?: string | null
+          sort_order?: number | null
           start_date?: string | null
           status?: string | null
           task_conversion_date?: string | null
@@ -6668,6 +6670,7 @@ export type Database = {
           revised_budget?: number | null
           rfq_required?: boolean | null
           scope_link?: string | null
+          sort_order?: number | null
           start_date?: string | null
           status?: string | null
           task_conversion_date?: string | null
