@@ -1,76 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Task } from '@/components/tasks/TaskContext';
 import { useTaskContext } from '@/components/tasks/useTaskContext';
-import { ArrowLeft, Trash2, Save, FileText, Upload, MessageSquare, CheckSquare, DollarSign, Sparkles, Edit2, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { ProjectSidebar } from '@/components/ProjectSidebar';
 import { Project } from '@/hooks/useProjects';
 import { getStatusColor, getStatusText } from '@/components/tasks/utils/taskUtils';
-import { TaskDetailsTab } from '@/components/tasks/tabs/TaskDetailsTab';
-import { TaskSubmittalsTab } from '@/components/tasks/tabs/TaskSubmittalsTab';
-import { TaskReviewsTab } from '@/components/tasks/tabs/TaskReviewsTab';
-import { TaskQATab } from '@/components/tasks/tabs/TaskQATab';
-import { TaskCostsTab } from '@/components/tasks/tabs/TaskCostsTab';
-import { TaskAISummaryTab } from '@/components/tasks/tabs/TaskAISummaryTab';
-import { UserPermissionsContext } from '@/contexts/UserPermissionsContext';
-
-// Editable Task Title Component
-const EditableTaskTitle = ({ taskName, onTaskNameChange }: { taskName: string; onTaskNameChange?: (name: string) => void }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(taskName);
-
-  useEffect(() => {
-    setEditValue(taskName);
-  }, [taskName]);
-
-  const handleSave = () => {
-    if (editValue.trim() && onTaskNameChange) {
-      onTaskNameChange(editValue.trim());
-    }
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    setEditValue(taskName);
-    setIsEditing(false);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSave();
-    } else if (e.key === 'Escape') {
-      handleCancel();
-    }
-  };
-
-  if (isEditing) {
-    return (
-      <Input
-        value={editValue}
-        onChange={(e) => setEditValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        onBlur={handleSave}
-        className="text-2xl font-bold border-0 focus-visible:ring-0 px-0 h-auto bg-transparent"
-        autoFocus
-      />
-    );
-  }
-
-  return (
-    <div 
-      className="flex items-center gap-2 cursor-pointer hover:bg-accent/30 p-2 -ml-2 rounded-md transition-colors group"
-      onClick={() => setIsEditing(true)}
-    >
-      <h1 className="text-2xl font-bold text-foreground">{taskName}</h1>
-      <Edit2 className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-    </div>
-  );
-};
+import { TaskEditContent } from '@/components/tasks/TaskEditContent';
 
 interface TaskEditPageProps {
   onNavigate: (page: string) => void;
@@ -84,12 +21,7 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
   const [project, setProject] = useState<Project | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('details');
   const { toast } = useToast();
-  
-  // Optional permissions context - may not be available if no company is selected
-  const permissionsContext = React.useContext(UserPermissionsContext);
-  const canViewSubModule = permissionsContext?.canViewSubModule ?? (() => true);
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -231,19 +163,6 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
     }
   };
 
-  const handleTaskNameChange = (newName: string) => {
-    if (editedTask) {
-      setEditedTask({
-        ...editedTask,
-        taskName: newName
-      });
-      setHasUnsavedChanges(true);
-    }
-  };
-
-  const handleCancel = () => {
-    handleBack();
-  };
 
   const handleMarkComplete = async () => {
     if (editedTask) {
@@ -288,145 +207,15 @@ export const TaskEditPage = ({ onNavigate }: TaskEditPageProps) => {
 
       {/* Main Content - Fixed positioning to match Project Tasks */}
       <div className="fixed left-40 right-0 top-12 bottom-0 overflow-hidden">
-        <div className="h-full w-full flex flex-col bg-[hsl(var(--background))]">
-          {/* Luxury Header Bar with Glass Effect */}
-          <div className="sticky top-0 z-30 border-b border-border/50 bg-gradient-to-b from-white to-accent/20 backdrop-blur-sm">
-            <div className="px-8 py-6 mt-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={handleBack} 
-                    className="text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Tasks
-                  </Button>
-                  <div className="h-4 w-px bg-border/50" />
-                  <h2 className="text-lg font-semibold text-foreground">
-                    {editedTask.taskName}
-                  </h2>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button 
-                    onClick={handleMarkComplete}
-                    variant={editedTask.status === 'Completed' ? 'default' : 'outline'}
-                    size="sm"
-                    disabled={editedTask.status === 'Completed'}
-                    className={editedTask.status === 'Completed' 
-                      ? 'bg-luxury-gold text-white hover:bg-luxury-gold/90' 
-                      : 'border-border/50 hover:bg-luxury-gold/10 hover:border-luxury-gold/50'}
-                  >
-                    <Check className="w-4 h-4 mr-2" />
-                    {editedTask.status === 'Completed' ? 'Completed' : 'Mark Complete'}
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={handleDelete} 
-                    className="text-muted-foreground hover:text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                  {hasUnsavedChanges && (
-                    <div className="h-4 w-px bg-border/50" />
-                  )}
-                  <Button 
-                    variant="default" 
-                    size="sm" 
-                    onClick={handleSave}
-                    disabled={!hasUnsavedChanges}
-                    className="bg-luxury-gold text-white hover:bg-luxury-gold-dark shadow-[0_2px_8px_rgba(0,0,0,0.1)] disabled:opacity-50"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Scrollable Content with Tabs */}
-          <div className="flex-1 overflow-y-auto bg-[hsl(var(--background))]">
-            <div className="max-w-7xl mx-auto w-full px-8 py-6">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="w-full bg-white/80 border border-border/30 rounded-xl h-auto p-1 mb-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)] inline-flex justify-start">
-                  <TabsTrigger 
-                    value="details" 
-                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
-                  >
-                    <FileText className="w-4 h-4" />
-                    <span>Details</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="submittals" 
-                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Submittals</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="reviews" 
-                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
-                    disabled={!canViewSubModule('tasks', 'reviews')}
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    <span>Reviews</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="qa" 
-                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
-                  >
-                    <CheckSquare className="w-4 h-4" />
-                    <span>Q&A</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="costs" 
-                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
-                  >
-                    <DollarSign className="w-4 h-4" />
-                    <span>Costs</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="summary" 
-                    className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-luxury-gold data-[state=active]:text-white data-[state=active]:shadow-[0_2px_8px_rgba(0,0,0,0.1)] data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    <span>AI Summary</span>
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="details" className="mt-0">
-                  <TaskDetailsTab 
-                    task={editedTask} 
-                    onUpdate={handleTaskUpdate}
-                  />
-                </TabsContent>
-
-                <TabsContent value="submittals" className="mt-0">
-                  <TaskSubmittalsTab taskId={editedTask.id} />
-                </TabsContent>
-
-                <TabsContent value="reviews" className="mt-0">
-                  <TaskReviewsTab taskId={editedTask.id} />
-                </TabsContent>
-
-                <TabsContent value="qa" className="mt-0">
-                  <TaskQATab taskId={editedTask.id} />
-                </TabsContent>
-
-                <TabsContent value="costs" className="mt-0">
-                  <TaskCostsTab taskId={editedTask.id} />
-                </TabsContent>
-
-                <TabsContent value="summary" className="mt-0">
-                  <TaskAISummaryTab taskId={editedTask.id} />
-                </TabsContent>
-              </Tabs>
-            </div>
-          </div>
-        </div>
+        <TaskEditContent 
+          task={editedTask}
+          hasUnsavedChanges={hasUnsavedChanges}
+          onBack={handleBack}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          onMarkComplete={handleMarkComplete}
+          onTaskUpdate={handleTaskUpdate}
+        />
       </div>
     </div>
   );

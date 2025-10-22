@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ArrowLeft, Plus, Search, GripVertical, Clock } from "lucide-react";
 import { useUser } from '@/contexts/UserContext';
 import { Task } from './tasks/types';
@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
 import { BoardView } from './tasks/BoardView';
 import { MyTasksLoadingState } from './my-tasks/MyTasksLoadingState';
-import { TaskDetailsTab } from './tasks/tabs/TaskDetailsTab';
+import { TaskEditContent } from './tasks/TaskEditContent';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
@@ -29,6 +29,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   const [isDragOverBacklog, setIsDragOverBacklog] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { userProfile } = useUser();
   const { toast } = useToast();
   const { spacingClasses, fullHeightClasses } = useMenuBarSpacing();
@@ -175,6 +176,7 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
+    setHasUnsavedChanges(false);
     setIsDialogOpen(true);
   };
 
@@ -208,6 +210,68 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
     }
   };
 
+  const handleDialogTaskUpdate = (updates: Partial<Task>) => {
+    if (selectedTask) {
+      setSelectedTask({ ...selectedTask, ...updates });
+      setHasUnsavedChanges(true);
+    }
+  };
+
+  const handleSaveDialog = async () => {
+    if (selectedTask && hasUnsavedChanges) {
+      await handleTaskUpdate(selectedTask.id, selectedTask);
+      setHasUnsavedChanges(false);
+    }
+  };
+
+  const handleMarkComplete = async () => {
+    if (selectedTask) {
+      const updates = { status: 'Completed' as const, progress: 100 };
+      setSelectedTask({ ...selectedTask, ...updates });
+      await handleTaskUpdate(selectedTask.id, updates);
+      toast({
+        title: "Task completed",
+        description: "The task has been marked as complete.",
+      });
+    }
+  };
+
+  const handleDeleteDialog = async () => {
+    if (selectedTask && window.confirm('Are you sure you want to delete this task?')) {
+      try {
+        const { error } = await supabase
+          .from('tasks')
+          .delete()
+          .eq('id', selectedTask.id);
+
+        if (error) throw error;
+
+        await refreshTasks();
+        setIsDialogOpen(false);
+        toast({
+          title: "Task deleted",
+          description: "The task has been deleted successfully.",
+        });
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete task",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleCloseDialog = () => {
+    if (hasUnsavedChanges) {
+      const confirmed = window.confirm('You have unsaved changes. Are you sure you want to close?');
+      if (!confirmed) return;
+    }
+    setIsDialogOpen(false);
+    setHasUnsavedChanges(false);
+  };
+
   const handleDragStartBacklog = (e: React.DragEvent, task: Task) => {
     e.dataTransfer.setData('text/plain', task.id);
     e.dataTransfer.effectAllowed = 'move';
@@ -224,18 +288,19 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
   return (
     <div>
       {/* Task Detail Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-[95vw] w-full h-[calc(100vh-80px)] top-[80px] left-[50%] translate-x-[-50%] translate-y-0 overflow-y-auto rounded-lg">
-          <DialogHeader>
-            <DialogTitle>{selectedTask?.taskName}</DialogTitle>
-          </DialogHeader>
+      <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
+        <DialogContent className="max-w-[95vw] w-full h-[calc(100vh-80px)] top-[80px] left-[50%] translate-x-[-50%] translate-y-0 overflow-hidden rounded-lg p-0">
           {selectedTask && (
-            <TaskDetailsTab 
-              task={selectedTask} 
-              onUpdate={async (updates) => {
-                await handleTaskUpdate(selectedTask.id, updates);
-                setSelectedTask({ ...selectedTask, ...updates });
-              }} 
+            <TaskEditContent 
+              task={selectedTask}
+              hasUnsavedChanges={hasUnsavedChanges}
+              onBack={handleCloseDialog}
+              onSave={handleSaveDialog}
+              onDelete={handleDeleteDialog}
+              onMarkComplete={handleMarkComplete}
+              onTaskUpdate={handleDialogTaskUpdate}
+              isDialog={true}
+              onClose={handleCloseDialog}
             />
           )}
         </DialogContent>
