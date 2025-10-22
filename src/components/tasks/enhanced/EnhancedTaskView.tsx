@@ -13,6 +13,7 @@ interface EnhancedTaskViewProps {
   onTaskSelectionChange?: (selectedIds: string[]) => void;
   isAddTaskDialogOpen?: boolean;
   onCloseAddTaskDialog?: () => void;
+  taskTypeFilter?: 'All' | 'Task' | 'Bug' | 'Feature';
 }
 
 export function EnhancedTaskView({ 
@@ -21,7 +22,8 @@ export function EnhancedTaskView({
   selectedTaskIds = [], 
   onTaskSelectionChange,
   isAddTaskDialogOpen = false,
-  onCloseAddTaskDialog
+  onCloseAddTaskDialog,
+  taskTypeFilter = 'All'
 }: EnhancedTaskViewProps) {
   const [activeTab, setActiveTab] = useState('tasks');
   const { tasks } = useTaskContext();
@@ -40,6 +42,7 @@ export function EnhancedTaskView({
             onTaskSelectionChange={onTaskSelectionChange}
             isAddTaskDialogOpen={isAddTaskDialogOpen}
             onCloseAddTaskDialog={onCloseAddTaskDialog}
+            taskTypeFilter={taskTypeFilter}
           />
         </TabsContent>
 

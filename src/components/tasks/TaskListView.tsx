@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Edit, MoreHorizontal, Trash2, Filter, Clock, User } from 'lucide-react';
+import { Edit, MoreHorizontal, Trash2, Clock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -33,6 +33,7 @@ interface TaskListViewProps {
   onTaskSelectionChange?: (selectedIds: string[]) => void;
   isAddTaskDialogOpen?: boolean;
   onCloseAddTaskDialog?: () => void;
+  taskTypeFilter?: 'All' | 'Task' | 'Bug' | 'Feature';
 }
 
 export const TaskListView = ({ 
@@ -41,11 +42,11 @@ export const TaskListView = ({
   selectedTaskIds = [],
   onTaskSelectionChange,
   isAddTaskDialogOpen = false,
-  onCloseAddTaskDialog
+  onCloseAddTaskDialog,
+  taskTypeFilter = 'All'
 }: TaskListViewProps) => {
   const { tasks, deleteTask } = useTaskContext();
   const [localAddTaskDialogOpen, setLocalAddTaskDialogOpen] = useState(false);
-  const [taskTypeFilter, setTaskTypeFilter] = useState<'All' | 'Task' | 'Bug' | 'Feature'>('All');
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -491,51 +492,6 @@ export const TaskListView = ({
 
   return (
     <div className="space-y-5">
-      {/* Task Type Filter - Luxury Design */}
-      <div className="flex items-center gap-3 bg-white rounded-2xl px-5 py-3 shadow-[0_2px_16px_rgba(0,0,0,0.04)] border border-[hsl(var(--border))]">
-        <Filter className="w-4 h-4 text-luxury-gold" />
-        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Filter by Type</span>
-        <div className="flex gap-2 ml-auto">
-          {(['All', 'Task', 'Bug', 'Feature'] as const).map((type) => (
-            <Button
-              key={type}
-              variant={taskTypeFilter === type ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setTaskTypeFilter(type)}
-              className={`h-8 px-4 text-xs font-medium transition-all duration-200 rounded-xl ${
-                taskTypeFilter === type 
-                  ? 'bg-luxury-gold text-white hover:bg-luxury-gold-dark shadow-[0_2px_8px_rgba(0,0,0,0.1)]' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
-              }`}
-            >
-              {type}
-              {type !== 'All' && (
-                <Badge 
-                  variant="secondary" 
-                  className={`ml-2 h-4 text-[10px] px-1.5 ${
-                    taskTypeFilter === type 
-                      ? 'bg-white/20 text-white border-white/30' 
-                      : 'bg-accent text-muted-foreground'
-                  }`}
-                >
-                  {type === 'Task' 
-                    ? tasks.filter(t => (!projectId || t.project_id === projectId) && t.taskType === 'Task').length
-                    : type === 'Bug'
-                    ? tasks.filter(t => (!projectId || t.project_id === projectId) && t.taskType === 'Bug').length
-                    : tasks.filter(t => (!projectId || t.project_id === projectId) && t.taskType === 'Feature').length
-                  }
-                </Badge>
-              )}
-            </Button>
-          ))}
-        </div>
-        {taskTypeFilter !== 'All' && (
-          <span className="text-xs text-muted-foreground">
-            Showing {filteredTasks.length} {taskTypeFilter.toLowerCase()}{filteredTasks.length !== 1 ? 's' : ''}
-          </span>
-        )}
-      </div>
-
       {viewMode === "grid" ? renderGridView() : renderListView()}
 
       <AddTaskDialog

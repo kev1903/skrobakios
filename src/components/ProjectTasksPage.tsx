@@ -19,7 +19,7 @@ import { Company } from '@/types/company';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, Download, Trash2, List, Grid } from 'lucide-react';
+import { Search, Download, Trash2, List, Grid, Filter } from 'lucide-react';
 
 interface ProjectTasksPageProps {
   project: Project;
@@ -33,6 +33,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const [fullCompanyData, setFullCompanyData] = useState<Company | null>(null);
+  const [taskTypeFilter, setTaskTypeFilter] = useState<'All' | 'Task' | 'Bug' | 'Feature'>('All');
   const { loadTasksForProject, tasks, deleteTask } = useTaskContext();
   const { currentCompany } = useCompany();
   const { getCompany } = useCompanies();
@@ -617,6 +618,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
               onTaskSelectionChange={setSelectedTaskIds}
               isAddTaskDialogOpen={isAddTaskDialogOpen}
               onCloseAddTaskDialog={() => setIsAddTaskDialogOpen(false)}
+              taskTypeFilter={taskTypeFilter}
             />
           </>
         );
@@ -633,6 +635,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
               onTaskSelectionChange={setSelectedTaskIds}
               isAddTaskDialogOpen={isAddTaskDialogOpen}
               onCloseAddTaskDialog={() => setIsAddTaskDialogOpen(false)}
+              taskTypeFilter={taskTypeFilter}
             />
           </>
         );
@@ -658,81 +661,129 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
             <div className="px-8 py-5">
               <TaskPageHeader project={project} onNavigate={onNavigate} />
               
-              {/* Unified Search, Tabs, and Actions Bar */}
-              <div className="mt-6 flex items-center gap-6">
-                {/* Left: Search Bar */}
-                <div className="relative w-80">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search tasks..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-white/80 border-border/30 text-foreground placeholder:text-muted-foreground"
-                  />
-                </div>
-
-                {/* Center: Tab Navigation */}
-                <div className="flex-1">
-                  <TaskTabNavigation
-                    activeTab={activeTab}
-                    onTabChange={setActiveTab}
-                  />
-                </div>
-
-                {/* Right: Action Buttons */}
-                <div className="flex items-center gap-2">
-                  {/* Selected Tasks Badge */}
-                  {selectedTasks.length > 0 && (
-                    <Badge variant="secondary" className="bg-luxury-gold/20 text-luxury-gold border-luxury-gold/30">
-                      {selectedTasks.length} selected
-                    </Badge>
-                  )}
-
-                  {/* Export Button */}
-                  <Button 
-                    onClick={handleExport}
-                    variant="outline"
-                    size="sm"
-                    className="text-foreground hover:text-foreground hover:bg-luxury-gold/10 border-border/50"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Export
-                  </Button>
-
-                  {/* Bulk Actions */}
-                  {selectedTasks.length > 0 && (
-                    <>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        onClick={handleBulkDelete}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
-                      </Button>
-                    </>
-                  )}
-
-                  {/* View Mode Toggle */}
-                  <div className="flex border border-border/50 rounded-lg overflow-hidden bg-white/80">
-                    <Button
-                      variant={viewMode === "list" ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => setViewMode("list")}
-                      className={`px-3 py-1 rounded-none ${viewMode === "list" ? "bg-luxury-gold text-white hover:bg-luxury-gold/90" : "text-muted-foreground hover:text-foreground"}`}
-                    >
-                      <List className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant={viewMode === "grid" ? "default" : "ghost"}
-                      size="sm"
-                      onClick={() => setViewMode("grid")}
-                      className={`px-3 py-1 rounded-none ${viewMode === "grid" ? "bg-luxury-gold text-white hover:bg-luxury-gold/90" : "text-muted-foreground hover:text-foreground"}`}
-                    >
-                      <Grid className="w-4 h-4" />
-                    </Button>
+              {/* Unified Search, Tabs, Filters, and Actions Bar */}
+              <div className="mt-6 space-y-4">
+                {/* First Row: Search and Tabs */}
+                <div className="flex items-center gap-6">
+                  {/* Left: Search Bar */}
+                  <div className="relative w-80">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search tasks..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10 bg-white/80 border-border/30 text-foreground placeholder:text-muted-foreground"
+                    />
                   </div>
+
+                  {/* Center: Tab Navigation */}
+                  <div className="flex-1">
+                    <TaskTabNavigation
+                      activeTab={activeTab}
+                      onTabChange={setActiveTab}
+                    />
+                  </div>
+
+                  {/* Right: Action Buttons */}
+                  <div className="flex items-center gap-2">
+                    {/* Selected Tasks Badge */}
+                    {selectedTasks.length > 0 && (
+                      <Badge variant="secondary" className="bg-luxury-gold/20 text-luxury-gold border-luxury-gold/30">
+                        {selectedTasks.length} selected
+                      </Badge>
+                    )}
+
+                    {/* Export Button */}
+                    <Button 
+                      onClick={handleExport}
+                      variant="outline"
+                      size="sm"
+                      className="text-foreground hover:text-foreground hover:bg-luxury-gold/10 border-border/50"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Export
+                    </Button>
+
+                    {/* Bulk Actions */}
+                    {selectedTasks.length > 0 && (
+                      <>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={handleBulkDelete}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </Button>
+                      </>
+                    )}
+
+                    {/* View Mode Toggle */}
+                    <div className="flex border border-border/50 rounded-lg overflow-hidden bg-white/80">
+                      <Button
+                        variant={viewMode === "list" ? "default" : "ghost"}
+                        size="sm"
+                        onClick={() => setViewMode("list")}
+                        className={`px-3 py-1 rounded-none ${viewMode === "list" ? "bg-luxury-gold text-white hover:bg-luxury-gold/90" : "text-muted-foreground hover:text-foreground"}`}
+                      >
+                        <List className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant={viewMode === "grid" ? "default" : "ghost"}
+                        size="sm"
+                        onClick={() => setViewMode("grid")}
+                        className={`px-3 py-1 rounded-none ${viewMode === "grid" ? "bg-luxury-gold text-white hover:bg-luxury-gold/90" : "text-muted-foreground hover:text-foreground"}`}
+                      >
+                        <Grid className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Second Row: Filter by Type */}
+                <div className="flex items-center gap-3 px-2">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Filter by Type</span>
+                  <div className="flex gap-2">
+                    {(['All', 'Task', 'Bug', 'Feature'] as const).map((type) => {
+                      const taskCount = type === 'All' 
+                        ? tasks.filter(t => t.project_id === project.id).length
+                        : tasks.filter(t => t.project_id === project.id && t.taskType === type).length;
+                      
+                      return (
+                        <Button
+                          key={type}
+                          variant={taskTypeFilter === type ? "default" : "ghost"}
+                          size="sm"
+                          onClick={() => setTaskTypeFilter(type)}
+                          className={`h-8 px-4 text-xs font-medium transition-all duration-200 rounded-xl ${
+                            taskTypeFilter === type 
+                              ? 'bg-luxury-gold text-white hover:bg-luxury-gold-dark shadow-[0_2px_8px_rgba(0,0,0,0.1)]' 
+                              : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                          }`}
+                        >
+                          {type}
+                          {type !== 'All' && (
+                            <Badge 
+                              variant="secondary" 
+                              className={`ml-2 h-4 text-[10px] px-1.5 ${
+                                taskTypeFilter === type 
+                                  ? 'bg-white/20 text-white border-white/30' 
+                                  : 'bg-accent text-muted-foreground'
+                              }`}
+                            >
+                              {taskCount}
+                            </Badge>
+                          )}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                  {taskTypeFilter !== 'All' && (
+                    <span className="text-xs text-muted-foreground ml-auto">
+                      Showing {tasks.filter(t => t.project_id === project.id && t.taskType === taskTypeFilter).length} {taskTypeFilter.toLowerCase()}{tasks.filter(t => t.project_id === project.id && t.taskType === taskTypeFilter).length !== 1 ? 's' : ''}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
