@@ -192,9 +192,6 @@ export const WBSRightPanel = ({
 
             <div className="px-2 flex items-center justify-start h-full text-muted-foreground text-xs">
               <div className="flex items-center gap-1 w-full">
-                {item.is_task_enabled && (
-                  <ListTodo className="w-3 h-3 text-green-600 flex-shrink-0" />
-                )}
                 {projectId ? (
                   <SimpleTeamAssignment
                     projectId={projectId}
