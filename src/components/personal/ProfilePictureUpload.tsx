@@ -27,6 +27,8 @@ export const ProfilePictureUpload = ({
     rotation: 0
   });
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -196,6 +198,29 @@ export const ProfilePictureUpload = ({
     setCropData({ x: 0, y: 0, scale: 1, rotation: 0 });
   };
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+
+    const deltaX = (e.clientX - dragStart.x) * 0.2; // Scale down sensitivity
+    const deltaY = (e.clientY - dragStart.y) * 0.2;
+
+    handleCropChange({
+      x: Math.max(-50, Math.min(50, cropData.x + deltaX)),
+      y: Math.max(-50, Math.min(50, cropData.y + deltaY))
+    });
+
+    setDragStart({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -220,19 +245,27 @@ export const ProfilePictureUpload = ({
             <div className="flex-1">
               <div className="relative w-full max-w-md mx-auto">
                 <div 
-                  className="relative w-80 h-80 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50"
+                  className="relative w-80 h-80 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 select-none"
                   style={{
                     backgroundImage: `url(${selectedImage})`,
                     backgroundSize: `${100 * cropData.scale}%`,
                     backgroundPosition: `${50 + cropData.x}% ${50 + cropData.y}%`,
                     backgroundRepeat: 'no-repeat',
-                    transform: `rotate(${cropData.rotation}deg)`
+                    transform: `rotate(${cropData.rotation}deg)`,
+                    cursor: isDragging ? 'grabbing' : 'grab'
                   }}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
                 >
-                  <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <div className="w-60 h-60 border-4 border-white rounded-full shadow-lg bg-white/10 backdrop-blur-sm" />
                   </div>
                 </div>
+                <p className="text-xs text-center text-muted-foreground mt-2">
+                  Drag to reposition • Use sliders for precise control
+                </p>
               </div>
               
               {/* Hidden canvas for processing */}
