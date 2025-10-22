@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Paperclip, Plus, MessageSquare, Clock } from 'lucide-react';
+import { Paperclip, Plus, MessageSquare, Clock, Trash2 } from 'lucide-react';
 import { useTaskComments } from '@/hooks/useTaskComments';
 import { useTaskActivity } from '@/hooks/useTaskActivity';
 import { formatDate } from '@/utils/dateFormat';
@@ -61,6 +61,11 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
     const updatedSubtasks = task.subtasks.map((st: any) =>
       st.id === subtaskId ? { ...st, completed: !st.completed } : st
     );
+    onUpdate({ subtasks: updatedSubtasks });
+  };
+
+  const handleDeleteSubtask = (subtaskId: string) => {
+    const updatedSubtasks = task.subtasks.filter((st: any) => st.id !== subtaskId);
     onUpdate({ subtasks: updatedSubtasks });
   };
 
@@ -164,7 +169,7 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
             )}
             {task.subtasks?.length > 0 ? (
               task.subtasks.map((subtask: any) => (
-                <div key={subtask.id} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors">
+                <div key={subtask.id} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors group">
                   <input 
                     type="checkbox" 
                     checked={subtask.completed || false}
@@ -174,6 +179,14 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
                   <span className={`text-sm flex-1 font-medium ${subtask.completed ? 'line-through text-muted-foreground' : ''}`}>
                     {subtask.name}
                   </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteSubtask(subtask.id)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               ))
             ) : (
