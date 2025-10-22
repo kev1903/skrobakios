@@ -117,28 +117,28 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Header Summary - Luxury Compact Card */}
+      {/* Header Summary - Minimalist Single Row */}
       <div className="bg-white rounded-2xl border border-border/30 p-5 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-        <div className="flex items-center gap-8 flex-wrap">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-muted-foreground">Status</span>
-            <Badge className={`${getStatusColor(task.status)} font-medium text-xs px-3 py-1`}>{task.status || 'Not Started'}</Badge>
+        <div className="flex items-center gap-6 flex-nowrap overflow-x-auto">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs text-muted-foreground">Status</span>
+            <Badge className={`${getStatusColor(task.status)} font-medium text-xs px-2.5 py-0.5`}>{task.status || 'Not Started'}</Badge>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-muted-foreground">Priority</span>
-            <Badge className={`${getPriorityColor(task.priority)} font-medium text-xs px-3 py-1`}>{task.priority || 'Medium'}</Badge>
+          
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs text-muted-foreground">Priority</span>
+            <Badge className={`${getPriorityColor(task.priority)} font-medium text-xs px-2.5 py-0.5`}>{task.priority || 'Medium'}</Badge>
           </div>
-          <div className="min-w-[200px] max-w-[280px]">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-muted-foreground">Progress</span>
-              <span className="text-sm font-semibold text-foreground">{task.progress || 0}%</span>
-            </div>
-            <Progress value={task.progress || 0} className="h-2.5 bg-slate-100" />
+          
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs text-muted-foreground">Progress</span>
+            <span className="text-sm font-semibold text-foreground">{task.progress || 0}%</span>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-muted-foreground">Assignee</span>
-            <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8">
+          
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs text-muted-foreground">Assignee</span>
+            <div className="flex items-center gap-1.5">
+              <Avatar className="h-6 w-6">
                 <AvatarImage src={task.assignedTo?.avatar || ''} />
                 <AvatarFallback className="text-xs bg-luxury-gold/20 text-luxury-gold-dark">
                   {task.assignedTo?.name?.[0]?.toUpperCase() || 'U'}
@@ -149,19 +149,21 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-muted-foreground">Start Date</span>
+          
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs text-muted-foreground">Start Date</span>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
+                  size="sm"
                   className={cn(
-                    "w-[160px] justify-start text-left font-normal h-9 bg-slate-50/50 border-border/30",
+                    "h-8 px-2 justify-start text-left font-normal border-border/30",
                     !startDate && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {startDate ? format(startDate, "MMM d, yyyy") : <span>Pick date</span>}
+                  <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
+                  <span className="text-xs">{startDate ? format(startDate, "MMM d") : "Pick date"}</span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -175,19 +177,21 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-muted-foreground">End Date</span>
+          
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs text-muted-foreground">End Date</span>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
+                  size="sm"
                   className={cn(
-                    "w-[160px] justify-start text-left font-normal h-9 bg-slate-50/50 border-border/30",
+                    "h-8 px-2 justify-start text-left font-normal border-border/30",
                     !endDate && "text-muted-foreground"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {endDate ? format(endDate, "MMM d, yyyy") : <span>Pick date</span>}
+                  <CalendarIcon className="mr-1.5 h-3.5 w-3.5" />
+                  <span className="text-xs">{endDate ? format(endDate, "MMM d") : "Pick date"}</span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -202,12 +206,11 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
               </PopoverContent>
             </Popover>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-muted-foreground">Duration</span>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50/50 border border-border/30 rounded-md">
-              <span className="text-sm font-semibold text-foreground">
-                {task.duration || 0}
-              </span>
+          
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs text-muted-foreground">Duration</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-semibold text-foreground">{task.duration || 0}</span>
               <span className="text-xs text-muted-foreground">days</span>
             </div>
           </div>
