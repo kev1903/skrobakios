@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Edit, MoreHorizontal, Trash2, Filter } from 'lucide-react';
+import { Edit, MoreHorizontal, Trash2, Filter, Clock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -100,28 +100,41 @@ export const TaskListView = ({
   const getPriorityColor = (priority: string) => {
     switch (priority.toLowerCase()) {
       case "high":
-        return "bg-red-100 text-red-800 border-red-300 font-medium";
+        return "bg-red-50 text-red-700 border-red-200";
       case "medium":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300 font-medium";
+        return "bg-amber-50 text-amber-700 border-amber-200";
       case "low":
-        return "bg-green-100 text-green-800 border-green-300 font-medium";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-300 font-medium";
+        return "bg-slate-50 text-slate-700 border-slate-200";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "completed":
-        return "bg-green-100 text-green-800 border-green-300 font-medium";
+        return "bg-emerald-50 text-emerald-700 border-emerald-200";
       case "in progress":
-        return "bg-blue-100 text-blue-800 border-blue-300 font-medium";
+        return "bg-blue-50 text-blue-700 border-blue-200";
       case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300 font-medium";
+        return "bg-amber-50 text-amber-700 border-amber-200";
       case "not started":
-        return "bg-gray-100 text-gray-800 border-gray-300 font-medium";
+        return "bg-slate-50 text-slate-700 border-slate-200";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-300 font-medium";
+        return "bg-slate-50 text-slate-700 border-slate-200";
+    }
+  };
+
+  const getTaskTypeColor = (type: string) => {
+    switch (type.toLowerCase()) {
+      case "bug":
+        return "bg-rose-50 text-rose-700 border-rose-200";
+      case "feature":
+        return "bg-violet-50 text-violet-700 border-violet-200";
+      case "task":
+        return "bg-sky-50 text-sky-700 border-sky-200";
+      default:
+        return "bg-slate-50 text-slate-700 border-slate-200";
     }
   };
 
@@ -201,185 +214,206 @@ export const TaskListView = ({
   );
 
   const renderListView = () => (
-    <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl overflow-hidden">
+    <div className="backdrop-blur-xl bg-white/80 border border-white/40 rounded-lg overflow-hidden shadow-sm">
       {isMobile ? (
-        // Mobile Card View
-        <div className="space-y-3 p-4">
-          
-          {filteredTasks.map((task, index) => (
-            <div key={index} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-lg p-4 cursor-pointer hover:bg-white/15 transition-all duration-200" onClick={() => handleTaskClick(task)}>
-              <div className="flex items-start justify-between mb-2">
+        // Mobile Card View - More Compact
+        <div className="divide-y divide-border/50">
+          {filteredTasks.map((task) => (
+            <div 
+              key={task.id} 
+              className="p-3 hover:bg-accent/50 transition-colors cursor-pointer active:bg-accent"
+              onClick={() => handleTaskClick(task)}
+            >
+              <div className="flex items-start justify-between gap-2 mb-2">
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs font-mono text-slate-500 mb-1">{task.task_number || 'N/A'}</div>
-                  <h3 className="font-medium text-foreground truncate">{task.taskName}</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-mono text-muted-foreground">{task.task_number || 'N/A'}</span>
+                    <Badge variant="outline" className={`${getTaskTypeColor(task.taskType)} text-[10px] h-4 px-1.5`}>
+                      {task.taskType}
+                    </Badge>
+                  </div>
+                  <h3 className="font-medium text-sm text-foreground line-clamp-1">{task.taskName}</h3>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); handleTaskClick(task); }} className="text-muted-foreground hover:text-foreground hover:bg-muted/50">
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()} className="text-muted-foreground hover:text-foreground hover:bg-muted/50">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="backdrop-blur-xl bg-white/90 border border-white/20 shadow-xl">
-                      <DropdownMenuItem 
-                        className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                        onClick={() => handleDeleteTask(task.id)}
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete Task
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                      <MoreHorizontal className="w-3.5 h-3.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-32">
+                    <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleTaskClick(task); }}>
+                      <Edit className="w-3.5 h-3.5 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-destructive focus:text-destructive"
+                      onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id); }}
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               
-              <div className="flex items-center space-x-2 mb-2">
-                <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-300 font-medium">
-                  {task.taskType}
-                </Badge>
-                <Badge variant="outline" className={getPriorityColor(task.priority)}>
+              <div className="flex items-center gap-1.5 mb-2">
+                <Badge variant="outline" className={`${getPriorityColor(task.priority)} text-[10px] h-4 px-1.5`}>
                   {task.priority}
                 </Badge>
-                <Badge variant="outline" className={getStatusColor(task.status)}>
+                <Badge variant="outline" className={`${getStatusColor(task.status)} text-[10px] h-4 px-1.5`}>
                   {task.status}
                 </Badge>
               </div>
               
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Avatar className="w-6 h-6">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5">
+                  <Avatar className="w-5 h-5">
                     <AvatarImage src={task.assignedTo.avatar} />
-                    <AvatarFallback className="bg-muted text-foreground text-xs">
+                    <AvatarFallback className="text-[10px]">
                       {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="text-sm text-muted-foreground">{task.assignedTo.name}</span>
+                  <span className="text-muted-foreground truncate max-w-[100px]">{task.assignedTo.name}</span>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs text-muted-foreground">{task.dueDate}</p>
-                  <p className="text-xs text-foreground">{task.progress}%</p>
+                <div className="flex items-center gap-3">
+                  <span className="text-muted-foreground">{task.dueDate}</span>
+                  <span className="text-foreground font-medium">{task.progress}%</span>
                 </div>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        // Desktop Table View
+        // Desktop Table View - More Compact & Modern
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="backdrop-blur-xl bg-white/10 border-b border-white/20 hover:bg-white/15">
-                <TableHead className="w-12 text-foreground p-2">
+              <TableRow className="border-b border-border/50 bg-muted/30 hover:bg-muted/30">
+                <TableHead className="w-8 h-9 p-2">
                   <Checkbox 
-                    className="border-slate-400 data-[state=checked]:bg-slate-700 data-[state=checked]:border-slate-700" 
-                     checked={selectedTaskIds.length === filteredTasks.length && filteredTasks.length > 0}
-                     onCheckedChange={handleSelectAll}
-                   />
+                    className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary" 
+                    checked={selectedTaskIds.length === filteredTasks.length && filteredTasks.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
                 </TableHead>
-                <TableHead className="text-foreground p-2">Task #</TableHead>
-                <TableHead className="text-foreground p-2">Task Name</TableHead>
-                <TableHead className="text-foreground p-2">Type</TableHead>
-                <TableHead className="text-foreground p-2">Priority</TableHead>
-                <TableHead className="text-foreground p-2">Assigned To</TableHead>
-                <TableHead className="text-foreground p-2">Due Date</TableHead>
-                <TableHead className="text-foreground p-2">Status</TableHead>
-                <TableHead className="text-foreground p-2">Progress</TableHead>
-                <TableHead className="text-foreground p-2">Action</TableHead>
+                <TableHead className="h-9 px-2 text-xs font-semibold text-muted-foreground">ID</TableHead>
+                <TableHead className="h-9 px-2 text-xs font-semibold text-muted-foreground">Task</TableHead>
+                <TableHead className="h-9 px-2 text-xs font-semibold text-muted-foreground">Type</TableHead>
+                <TableHead className="h-9 px-2 text-xs font-semibold text-muted-foreground">Priority</TableHead>
+                <TableHead className="h-9 px-2 text-xs font-semibold text-muted-foreground">Assignee</TableHead>
+                <TableHead className="h-9 px-2 text-xs font-semibold text-muted-foreground">Due</TableHead>
+                <TableHead className="h-9 px-2 text-xs font-semibold text-muted-foreground">Status</TableHead>
+                <TableHead className="h-9 px-2 text-xs font-semibold text-muted-foreground text-right">Progress</TableHead>
+                <TableHead className="h-9 px-2 w-16"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              
-              {filteredTasks.map((task, index) => (
-                <TableRow key={index} className="hover:bg-white/10 border-b border-white/10 h-12">
-                  <TableCell className="p-2 w-12">
+              {filteredTasks.map((task) => (
+                <TableRow 
+                  key={task.id} 
+                  className="border-b border-border/30 hover:bg-accent/50 transition-colors group h-10"
+                >
+                  <TableCell className="p-2">
                     <Checkbox 
-                      className="border-slate-400 data-[state=checked]:bg-slate-700 data-[state=checked]:border-slate-700" 
+                      className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary" 
                       checked={selectedTaskIds.includes(task.id)}
                       onCheckedChange={(checked) => handleTaskSelection(task.id, checked === true)}
                     />
                   </TableCell>
-                  <TableCell className="p-2 text-xs font-mono text-slate-600">
-                    {task.task_number || 'N/A'}
+                  <TableCell className="px-2 py-1.5">
+                    <span className="text-[11px] font-mono text-muted-foreground">
+                      {task.task_number || 'N/A'}
+                    </span>
                   </TableCell>
                   <TableCell 
-                    className="font-medium cursor-pointer hover:text-foreground text-foreground p-2"
+                    className="px-2 py-1.5 font-medium cursor-pointer hover:text-primary transition-colors max-w-[300px]"
                     onClick={() => handleTaskClick(task)}
                   >
-                    {task.taskName}
+                    <div className="truncate text-sm">{task.taskName}</div>
                   </TableCell>
-                  <TableCell className="p-2">
+                  <TableCell className="px-2 py-1.5">
                     <Badge 
                       variant="outline" 
-                      className="bg-purple-100 text-purple-800 border-purple-300 font-medium"
+                      className={`${getTaskTypeColor(task.taskType)} text-[10px] h-5 px-2 font-medium`}
                     >
                       {task.taskType}
                     </Badge>
                   </TableCell>
-                  <TableCell className="p-2">
+                  <TableCell className="px-2 py-1.5">
                     <Badge 
                       variant="outline" 
-                      className={getPriorityColor(task.priority)}
+                      className={`${getPriorityColor(task.priority)} text-[10px] h-5 px-2 font-medium`}
                     >
                       {task.priority}
                     </Badge>
                   </TableCell>
-                  <TableCell className="p-2">
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="w-6 h-6">
+                  <TableCell className="px-2 py-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <Avatar className="w-5 h-5">
                         <AvatarImage src={task.assignedTo.avatar} />
-                        <AvatarFallback className="bg-muted text-foreground text-xs">
+                        <AvatarFallback className="text-[10px]">
                           {task.assignedTo.name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-sm text-muted-foreground">{task.assignedTo.name}</span>
+                      <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+                        {task.assignedTo.name}
+                      </span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground p-2">{task.dueDate}</TableCell>
-                  <TableCell className="p-2">
+                  <TableCell className="px-2 py-1.5">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="w-3 h-3" />
+                      {task.dueDate}
+                    </div>
+                  </TableCell>
+                  <TableCell className="px-2 py-1.5">
                     <Badge 
                       variant="outline" 
-                      className={getStatusColor(task.status)}
+                      className={`${getStatusColor(task.status)} text-[10px] h-5 px-2 font-medium`}
                     >
                       {task.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="p-2">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-12 bg-white/20 rounded-full h-1.5">
+                  <TableCell className="px-2 py-1.5">
+                    <div className="flex items-center justify-end gap-2">
+                      <div className="w-16 bg-muted/50 rounded-full h-1.5 overflow-hidden">
                         <div 
-                          className="bg-white/60 h-1.5 rounded-full transition-all duration-300" 
+                          className="bg-primary h-full rounded-full transition-all duration-300" 
                           style={{ width: `${task.progress}%` }}
-                        ></div>
+                        />
                       </div>
-                      <span className="text-xs text-muted-foreground">{task.progress}%</span>
+                      <span className="text-[11px] font-medium text-foreground w-8 text-right">
+                        {task.progress}%
+                      </span>
                     </div>
                   </TableCell>
-                  <TableCell className="p-2">
-                    <div className="flex items-center space-x-1">
+                  <TableCell className="px-2 py-1.5">
+                    <div className="flex items-center justify-end gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => handleTaskClick(task)}
-                        className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-7 w-7 p-0"
+                        className="h-6 w-6 p-0 hover:bg-accent"
                       >
                         <Edit className="w-3 h-3" />
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground hover:bg-muted/50 h-7 w-7 p-0">
+                          <Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-accent">
                             <MoreHorizontal className="w-3 h-3" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="backdrop-blur-xl bg-white/90 border border-white/20 shadow-xl">
+                        <DropdownMenuContent align="end" className="w-32">
+                          <DropdownMenuItem onClick={() => handleTaskClick(task)}>
+                            <Edit className="w-3.5 h-3.5 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
                           <DropdownMenuItem 
-                            className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                            className="text-destructive focus:text-destructive"
                             onClick={() => handleDeleteTask(task.id)}
                           >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Delete Task
+                            <Trash2 className="w-3.5 h-3.5 mr-2" />
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -395,29 +429,29 @@ export const TaskListView = ({
   );
 
   return (
-    <div className="space-y-6">
-      {/* Task Type Filter */}
-      <div className="flex items-center gap-2 backdrop-blur-xl bg-white/10 border border-white/20 rounded-xl p-4">
-        <Filter className="w-4 h-4 text-muted-foreground" />
-        <span className="text-sm font-medium text-foreground">Filter by Type:</span>
+    <div className="space-y-4">
+      {/* Task Type Filter - More Compact */}
+      <div className="flex items-center gap-2 backdrop-blur-xl bg-white/80 border border-white/40 rounded-lg p-3 shadow-sm">
+        <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-xs font-semibold text-muted-foreground">Filter:</span>
         <div className="flex gap-1">
           {(['All', 'Task', 'Bug', 'Feature'] as const).map((type) => (
             <Button
               key={type}
-              variant={taskTypeFilter === type ? "default" : "outline"}
+              variant={taskTypeFilter === type ? "default" : "ghost"}
               size="sm"
               onClick={() => setTaskTypeFilter(type)}
-              className={`transition-all duration-200 ${
+              className={`h-7 text-xs transition-all ${
                 taskTypeFilter === type 
-                  ? 'bg-white/20 text-white border-white/30 hover:bg-white/25' 
-                  : 'backdrop-blur-xl bg-white/5 border-white/20 text-muted-foreground hover:bg-white/10 hover:text-foreground'
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
               }`}
             >
               {type}
               {type !== 'All' && (
                 <Badge 
                   variant="secondary" 
-                  className="ml-2 bg-white/20 text-white/80 border-white/20"
+                  className="ml-1.5 h-4 text-[10px] px-1.5 bg-muted"
                 >
                   {type === 'Task' 
                     ? tasks.filter(t => (!projectId || t.project_id === projectId) && t.taskType === 'Task').length
