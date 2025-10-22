@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Check, Timer, Paperclip, MessageSquare, Link, Maximize2, Trash2, Save, Edit2 } from 'lucide-react';
+import { Check, Timer, Paperclip, MessageSquare, Link, Maximize2, Trash2, Save, Edit2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -24,6 +24,7 @@ interface TaskEditHeaderProps {
   onDelete: () => void;
   onTaskNameChange?: (newName: string) => void;
   onSave?: () => void;
+  onClose?: () => void;
 }
 
 interface EditableTaskNameProps {
@@ -81,7 +82,7 @@ const EditableTaskName = ({ taskName, onTaskNameChange }: EditableTaskNameProps)
   );
 };
 
-export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChange, onSave }: TaskEditHeaderProps) => {
+export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChange, onSave, onClose }: TaskEditHeaderProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
 
@@ -151,6 +152,16 @@ export const TaskEditHeader = ({ task, onMarkComplete, onDelete, onTaskNameChang
               <Save className="w-4 h-4 mr-1" />
               Save
             </Button>
+            {onClose && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={onClose}
+                className="ml-1 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            )}
           </div>
         </div>
 

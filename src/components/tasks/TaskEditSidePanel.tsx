@@ -188,6 +188,7 @@ export const TaskEditSidePanel = ({ task, isOpen, onClose, projectId, updateTask
             onDelete={handleDelete}
             onTaskNameChange={(newName) => handleFieldChange('taskName', newName)}
             onSave={handleSave}
+            onClose={handleClose}
           />
           
           {/* Task Status Bar */}
