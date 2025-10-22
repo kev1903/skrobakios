@@ -149,6 +149,24 @@ export const taskService = {
   },
 
   async updateTask(taskId: string, updates: Partial<Task>, userProfile: any): Promise<void> {
+    // Check if assignment is being changed to detect new assignments
+    let shouldSendEmail = false;
+    let previousAssignedToUserId: string | null = null;
+    
+    if (updates.assignedTo !== undefined && updates.assignedTo.userId) {
+      // Fetch current task to check if assignment changed
+      const { data: currentTask } = await supabase
+        .from('tasks')
+        .select('assigned_to_user_id')
+        .eq('id', taskId)
+        .single();
+      
+      previousAssignedToUserId = currentTask?.assigned_to_user_id;
+      
+      // Send email if this is a new assignment or assignment changed
+      shouldSendEmail = (!previousAssignedToUserId || previousAssignedToUserId !== updates.assignedTo.userId);
+    }
+    
     // Map component fields to database fields
     const dbUpdates: any = {};
     if (updates.taskName !== undefined) dbUpdates.task_name = updates.taskName;
@@ -197,6 +215,22 @@ export const taskService = {
 
     if (error) throw error;
 
+    // Send email notification if assignment changed
+    if (shouldSendEmail) {
+      // Fire and forget email notification - don't block the UI
+      supabase.functions.invoke('send-task-assignment-email', {
+        body: { taskId }
+      }).then((result) => {
+        if (result.error) {
+          console.error('Failed to send task assignment email:', result.error);
+        } else {
+          console.log('Task assignment email sent successfully');
+        }
+      }).catch((err) => {
+        console.error('Exception sending task assignment email:', err);
+      });
+    }
+
     // Log activity for significant changes
     await this.logTaskActivity(taskId, updates, userProfile);
   },
@@ -227,6 +261,22 @@ export const taskService = {
       .single();
 
     if (error) throw error;
+
+    // Send email notification if task is assigned to a user
+    if (data.assigned_to_user_id) {
+      // Fire and forget email notification - don't block the UI
+      supabase.functions.invoke('send-task-assignment-email', {
+        body: { taskId: data.id }
+      }).then((result) => {
+        if (result.error) {
+          console.error('Failed to send task assignment email:', result.error);
+        } else {
+          console.log('Task assignment email sent successfully');
+        }
+      }).catch((err) => {
+        console.error('Exception sending task assignment email:', err);
+      });
+    }
 
     // Map response back to component interface
     return {

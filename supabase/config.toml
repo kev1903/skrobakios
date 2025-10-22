@@ -1,5 +1,8 @@
 project_id = "xtawnkhvxgxylhxwqnmm"
 
+[functions.send-task-assignment-email]
+verify_jwt = true
+
 [functions.create-user]
 verify_jwt = true
 
