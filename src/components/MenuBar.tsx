@@ -478,27 +478,27 @@ const barRef = useRef<HTMLDivElement>(null);
 
   // Always render the top bar, but show different content based on timer state
   return <>
-      <div ref={barRef} className="fixed top-0 left-0 right-0 z-[11000] backdrop-blur-xl bg-background/80 border-b border-border shadow-lg">
-        <div className="flex items-center justify-between px-6 py-3">
+      <div ref={barRef} className="fixed top-0 left-0 right-0 z-[11000] bg-white border-b border-border/20 shadow-sm">
+        <div className="flex items-center justify-between px-6 py-2.5">
           {/* Left side - Menu and Company Logo */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {/* Redesigned Circular Hamburger Menu Button */}
             <button 
               onClick={toggleSidebar} 
-              className="group relative w-11 h-11 rounded-full border border-border/30 bg-white hover:bg-primary/5 transition-all duration-300 flex items-center justify-center shadow-sm hover:shadow-lg hover:border-primary/40 hover:scale-105" 
+              className="group relative w-10 h-10 rounded-full bg-slate-50 hover:bg-slate-100 transition-all duration-200 flex items-center justify-center" 
               aria-label="Toggle main navigation sidebar"
             >
               <div className="flex flex-col gap-[3px] w-5">
-                <span className="block h-[2px] w-full bg-foreground rounded-full transition-all duration-300 group-hover:bg-primary group-hover:w-4"></span>
-                <span className="block h-[2px] w-full bg-foreground rounded-full transition-all duration-300 group-hover:bg-primary"></span>
-                <span className="block h-[2px] w-4 bg-foreground rounded-full transition-all duration-300 group-hover:bg-primary group-hover:w-full"></span>
+                <span className="block h-[2px] w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary group-hover:w-4"></span>
+                <span className="block h-[2px] w-full bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary"></span>
+                <span className="block h-[2px] w-4 bg-foreground rounded-full transition-all duration-200 group-hover:bg-primary group-hover:w-full"></span>
               </div>
             </button>
             
-            {/* Company Logo & Name - Always Visible */}
-            <div className="flex items-center gap-2.5 pl-2 border-l border-border/30">
+            {/* Company Logo & Name */}
+            <div className="flex items-center gap-2">
               <div 
-                className="w-8 h-8 bg-gradient-to-br from-primary via-primary/90 to-primary/80 rounded-lg flex items-center justify-center cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200 shadow-sm" 
+                className="w-9 h-9 bg-foreground rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity duration-200" 
                 onClick={() => {
                   if (activeContext === 'company') {
                     navigate('/?page=home');
@@ -507,12 +507,12 @@ const barRef = useRef<HTMLDivElement>(null);
                   }
                 }}
               >
-                <span className="text-primary-foreground font-bold text-sm">
+                <span className="text-background font-bold text-sm">
                   {getCompanyDisplayText().charAt(0).toUpperCase()}
                 </span>
               </div>
               <h1 
-                className="text-base font-bold text-foreground cursor-pointer hover:text-primary transition-colors whitespace-nowrap" 
+                className="text-base font-semibold text-foreground cursor-pointer hover:text-primary transition-colors whitespace-nowrap" 
                 onClick={e => {
                   e.stopPropagation();
                   if (activeContext === 'company') {
@@ -526,12 +526,11 @@ const barRef = useRef<HTMLDivElement>(null);
               </h1>
             </div>
 
-            {/* Current Project Badge */}
+            {/* Current Project Badge - Modern Style */}
             {currentProject && (
-              <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-primary/5 border border-primary/20 rounded-lg ml-3">
-                <FolderOpen className="w-4 h-4 text-primary" />
+              <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-border/30 rounded-lg ml-2">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Project</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">Project</span>
                   <span className="text-sm font-semibold text-foreground whitespace-nowrap">
                     {currentProject.project_id} - {currentProject.name}
                   </span>
@@ -540,16 +539,13 @@ const barRef = useRef<HTMLDivElement>(null);
             )}
           </div>
 
-          {/* Center - Timer info or Voice Button */}
-          
-
           {/* Right side - Navigation icons and actions */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-2">
             {/* Navigation Icons */}
             {isAuthenticated ? <>
-                {/* Tasks Icon - hidden on mobile */}
+                {/* Tasks Icon */}
                 {!isMobile && (
-                  <Link to="/tasks" className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground">
+                  <Link to="/tasks" className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors duration-200 text-foreground">
                     <ClipboardList className="w-4 h-4" />
                   </Link>
                 )}
@@ -557,56 +553,56 @@ const barRef = useRef<HTMLDivElement>(null);
                 {/* Notifications */}
                 <NotificationDropdown>
                   <NotificationBadge count={unreadCount}>
-                    <button className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground">
+                    <button className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors duration-200 text-foreground">
                       <Bell className="w-4 h-4" />
                     </button>
                   </NotificationBadge>
                 </NotificationDropdown>
                 
-                {/* Inbox Icon - hidden on mobile */}
+                {/* Inbox Icon */}
                 {!isMobile && (
-                  <button onClick={() => navigate('/?page=inbox')} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground">
+                  <button onClick={() => navigate('/?page=inbox')} className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors duration-200 text-foreground">
                     <Inbox className="w-4 h-4" />
                   </button>
                 )}
                 
-                {/* AI Chat Icon - hidden on mobile */}
+                {/* AI Chat Icon */}
                 {!isMobile && (
-                  <button onClick={() => setShowAiChat(true)} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" title="Open AI Assistant">
+                  <button onClick={() => setShowAiChat(true)} className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors duration-200 text-foreground" title="Open AI Assistant">
                     <MessageCircle className="w-4 h-4" />
                   </button>
                 )}
                 
-                {/* Voice Debug Icon */}
-                <button onClick={() => setShowVoiceInterface(true)} className="w-8 h-8 bg-muted/50 backdrop-blur-sm rounded-md border border-border flex items-center justify-center hover:bg-muted transition-colors duration-200 text-foreground" title="Debug SkAi Voice">
+                {/* Voice Icon */}
+                <button onClick={() => setShowVoiceInterface(true)} className="w-9 h-9 bg-slate-50 rounded-lg flex items-center justify-center hover:bg-slate-100 transition-colors duration-200 text-foreground" title="Voice Assistant">
                   <Mic className="w-4 h-4" />
                 </button>
                 
                 {/* User Profile */}
                 <div className="relative" ref={profileDropdownRef}>
-                  <div className="flex items-center justify-center w-10 h-10 bg-muted/50 backdrop-blur-sm rounded-full border border-border cursor-pointer hover:bg-muted transition-colors duration-200" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>
+                  <div className="flex items-center justify-center w-9 h-9 bg-slate-50 rounded-full cursor-pointer hover:bg-slate-100 transition-colors duration-200" onClick={() => setShowProfileDropdown(!showProfileDropdown)}>
                     <Avatar className="w-8 h-8">
                       <AvatarImage src={userProfile.avatarUrl || undefined} alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()} onError={e => {
                     e.currentTarget.style.display = 'none';
                   }} />
-                      <AvatarFallback className="bg-muted text-foreground text-xs">
+                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                         {userProfile?.firstName && userProfile?.lastName ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase() : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
                   </div>
                   
                   {/* Profile Dropdown */}
-                  {showProfileDropdown && <div className="absolute right-0 top-full mt-2 w-48 bg-card/95 backdrop-blur-sm rounded-lg border border-border shadow-lg z-40">
-                      <div className="p-3 border-b border-border">
+                  {showProfileDropdown && <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl border border-border/30 shadow-lg z-40">
+                      <div className="p-4 border-b border-border/20">
                         <div className="flex items-center gap-3">
-                          <Avatar className="w-8 h-8">
+                          <Avatar className="w-10 h-10">
                             <AvatarImage src={userProfile.avatarUrl || undefined} alt={`${userProfile?.firstName || 'User'} ${userProfile?.lastName || ''}`.trim()} />
-                            <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                            <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
                               {userProfile?.firstName && userProfile?.lastName ? `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase() : userProfile?.firstName?.charAt(0)?.toUpperCase() || userProfile?.email?.charAt(0)?.toUpperCase() || 'U'}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">
+                            <p className="text-sm font-semibold text-foreground truncate">
                               {userProfile?.firstName && userProfile?.lastName ? `${userProfile.firstName} ${userProfile.lastName}` : userProfile?.email || 'User'}
                             </p>
                             <p className="text-xs text-muted-foreground truncate">
@@ -616,35 +612,29 @@ const barRef = useRef<HTMLDivElement>(null);
                         </div>
                       </div>
                       
-                      <div className="py-2">
-                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2 text-left text-sm text-foreground hover:bg-background/20 transition-colors duration-200">
+                      <div className="py-1">
+                        <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-sm text-foreground hover:bg-slate-50 transition-colors duration-200">
                           <LogOut className="w-4 h-4" />
                           <span>Log out</span>
                         </button>
                       </div>
                     </div>}
                 </div>
-              </> : (/* Sign In Button for unauthenticated users */
-          <button onClick={() => window.location.href = '/?page=auth'} className="flex items-center gap-2 px-4 py-2 bg-primary/20 backdrop-blur-sm rounded-lg border border-primary/30 text-primary hover:bg-primary/30 transition-colors duration-200">
+
+                {/* Play Dropdown - Minimal */}
+                <button 
+                  onClick={() => setIsFormExpanded(!isFormExpanded)} 
+                  className="ml-2 pl-2 border-l border-border/30 flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  <Play className="w-3.5 h-3.5 text-foreground" />
+                  <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", isFormExpanded && "rotate-180")} />
+                </button>
+              </> : (
+          <button onClick={() => window.location.href = '/?page=auth'} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors duration-200">
                 <LogIn className="w-4 h-4" />
                 <span className="text-sm font-medium">Sign In</span>
-              </button>)}
-
-            {/* Timer Control Buttons */}
-            {activeTimer ? <div className="flex items-center space-x-2 pl-2 border-l border-border">
-                <Button variant="ghost" size="sm" onClick={handlePauseResume} className="h-8 w-8 p-0">
-                  {isPaused ? <Play className="w-4 h-4" /> : <ArrowLeftRight className="w-4 h-4" />}
-                </Button>
-                
-                <Button variant="ghost" size="sm" onClick={handleStopTimer} className="h-8 w-8 p-0 text-destructive hover:text-destructive">
-                  <Square className="w-4 h-4" />
-                </Button>
-              </div> : <div className="flex items-center space-x-2 pl-2 border-l border-border">
-                <Button variant="outline" size="sm" onClick={() => setIsFormExpanded(!isFormExpanded)} className="gap-2">
-                  <Play className="w-4 h-4" />
-                  <ChevronDown className={cn("w-4 h-4 transition-transform", isFormExpanded && "rotate-180")} />
-                </Button>
-              </div>}
+              </button>
+            )}
           </div>
         </div>
 
