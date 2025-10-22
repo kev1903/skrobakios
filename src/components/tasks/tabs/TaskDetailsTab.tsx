@@ -8,12 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, MessageSquare, Clock, Trash2, CalendarIcon } from 'lucide-react';
+import { Plus, MessageSquare, Clock, Trash2, CalendarIcon, GripVertical } from 'lucide-react';
 import { useTaskComments } from '@/hooks/useTaskComments';
 import { useTaskActivity } from '@/hooks/useTaskActivity';
 import { formatDate } from '@/utils/dateFormat';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 interface TaskDetailsTabProps {
   task: any;
@@ -83,7 +84,8 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
       completed: false
     };
     
-    onUpdate({ subtasks: [...currentSubtasks, newSubtask] });
+    // Add new subtask at the beginning of the array
+    onUpdate({ subtasks: [newSubtask, ...currentSubtasks] });
     setNewSubtaskName('');
     setIsAddingSubtask(false);
   };
@@ -98,6 +100,16 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
   const handleDeleteSubtask = (subtaskId: string) => {
     const updatedSubtasks = task.subtasks.filter((st: any) => st.id !== subtaskId);
     onUpdate({ subtasks: updatedSubtasks });
+  };
+
+  const handleSubtaskDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    
+    const items = Array.from(task.subtasks || []);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    
+    onUpdate({ subtasks: items });
   };
 
   const handleAddComment = async () => {
@@ -257,68 +269,97 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
                 Add
               </Button>
             </div>
-            <div className="space-y-2">
-              {isAddingSubtask && (
-                <div className="flex items-center gap-2 p-3 border border-luxury-gold/30 rounded-xl bg-luxury-gold/5">
-                  <Input
-                    value={newSubtaskName}
-                    onChange={(e) => setNewSubtaskName(e.target.value)}
-                    placeholder="Enter subtask name..."
-                    className="flex-1 border-border/30 bg-white"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleAddSubtask();
-                      if (e.key === 'Escape') {
+            <DragDropContext onDragEnd={handleSubtaskDragEnd}>
+              <div className="space-y-2">
+                {isAddingSubtask && (
+                  <div className="flex items-center gap-2 p-3 border border-luxury-gold/30 rounded-xl bg-luxury-gold/5">
+                    <Input
+                      value={newSubtaskName}
+                      onChange={(e) => setNewSubtaskName(e.target.value)}
+                      placeholder="Enter subtask name..."
+                      className="flex-1 border-border/30 bg-white"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleAddSubtask();
+                        if (e.key === 'Escape') {
+                          setIsAddingSubtask(false);
+                          setNewSubtaskName('');
+                        }
+                      }}
+                    />
+                    <Button 
+                      size="sm" 
+                      onClick={handleAddSubtask}
+                      className="bg-luxury-gold text-white hover:bg-luxury-gold-dark"
+                    >
+                      Save
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => {
                         setIsAddingSubtask(false);
                         setNewSubtaskName('');
-                      }
-                    }}
-                  />
-                  <Button 
-                    size="sm" 
-                    onClick={handleAddSubtask}
-                    className="bg-luxury-gold text-white hover:bg-luxury-gold-dark"
-                  >
-                    Save
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="ghost"
-                    onClick={() => {
-                      setIsAddingSubtask(false);
-                      setNewSubtaskName('');
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              )}
-              {task.subtasks?.length > 0 ? (
-                task.subtasks.map((subtask: any) => (
-                  <div key={subtask.id} className="flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors group">
-                    <input 
-                      type="checkbox" 
-                      checked={subtask.completed || false}
-                      onChange={() => handleToggleSubtask(subtask.id)}
-                      className="rounded" 
-                    />
-                    <span className={`text-sm flex-1 font-medium ${subtask.completed ? 'line-through text-muted-foreground' : ''}`}>
-                      {subtask.name}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteSubtask(subtask.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                      }}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      Cancel
                     </Button>
                   </div>
-                ))
-              ) : (
-                !isAddingSubtask && <p className="text-sm text-muted-foreground text-center py-4">No subtasks</p>
-              )}
-            </div>
+                )}
+                {task.subtasks?.length > 0 ? (
+                  <Droppable droppableId="subtasks">
+                    {(provided) => (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className="space-y-2"
+                      >
+                        {task.subtasks.map((subtask: any, index: number) => (
+                          <Draggable key={subtask.id} draggableId={subtask.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                className={`flex items-center gap-3 p-3 border border-border/30 rounded-xl hover:bg-slate-50 transition-colors group ${
+                                  snapshot.isDragging ? 'shadow-lg bg-white' : ''
+                                }`}
+                              >
+                                <div
+                                  {...provided.dragHandleProps}
+                                  className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+                                >
+                                  <GripVertical className="h-4 w-4" />
+                                </div>
+                                <input 
+                                  type="checkbox" 
+                                  checked={subtask.completed || false}
+                                  onChange={() => handleToggleSubtask(subtask.id)}
+                                  className="rounded" 
+                                />
+                                <span className={`text-sm flex-1 font-medium ${subtask.completed ? 'line-through text-muted-foreground' : ''}`}>
+                                  {subtask.name}
+                                </span>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteSubtask(subtask.id)}
+                                  className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                ) : (
+                  !isAddingSubtask && <p className="text-sm text-muted-foreground text-center py-4">No subtasks</p>
+                )}
+              </div>
+            </DragDropContext>
           </div>
         </div>
       </div>
