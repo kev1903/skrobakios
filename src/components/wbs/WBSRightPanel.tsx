@@ -270,7 +270,7 @@ export const WBSRightPanel = ({
                 title={item.is_task_enabled && activeTaskStatuses.get(item.id) ? "Task Created (Active)" : item.is_task_enabled ? "Task Created (Completed)" : "Convert to Task"}
               >
                  <ListTodo className={`w-4 h-4 transition-all duration-300 ${
-                   item.is_task_enabled && (activeTaskStatuses.get(item.id) ?? true)
+                   item.is_task_enabled && activeTaskStatuses.get(item.id) === true
                      ? 'text-green-600 hover:text-green-700' 
                      : 'text-muted-foreground hover:text-foreground'
                  } ${
