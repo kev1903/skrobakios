@@ -1494,6 +1494,23 @@ const toggleSection = (taskId: string) => {
 
               {/* Task Bars */}
               {visibleTasks.map((task, index) => {
+                // Check if task has valid dates and duration
+                const hasValidDates = task.startDate && task.endDate && 
+                                     task.startDate instanceof Date && 
+                                     task.endDate instanceof Date &&
+                                     !isNaN(task.startDate.getTime()) && 
+                                     !isNaN(task.endDate.getTime());
+                
+                const hasValidDuration = task.duration && 
+                                        task.duration !== '-' && 
+                                        task.duration.trim() !== '' &&
+                                        task.duration !== '0 days';
+                
+                // Only render bar if task has valid data
+                if (!hasValidDates || !hasValidDuration) {
+                  return null;
+                }
+                
                 const position = getTaskPosition(task);
                 // Different colors for different tasks to match reference
                 const getBarColor = (taskIndex: number) => {

@@ -1126,6 +1126,25 @@ export const GanttChart = ({
 
             {/* Timeline for each task */}
             {getVisibleTasks.map((task, index) => {
+              // Check if task has valid dates
+              const hasValidDates = task.startDate && task.endDate && 
+                                   task.startDate instanceof Date && 
+                                   task.endDate instanceof Date &&
+                                   !isNaN(task.startDate.getTime()) && 
+                                   !isNaN(task.endDate.getTime());
+              
+              // Skip rendering if dates are invalid
+              if (!hasValidDates) {
+                const rowHeight = compactMode ? 28 : 36;
+                return (
+                  <div 
+                    key={`timeline-${task.id}`}
+                    className="border-b border-border relative"
+                    style={{ height: rowHeight }}
+                  />
+                );
+              }
+              
               const geometry = getTaskGeometry(task);
               if (!geometry.visible) return null;
               const rowHeight = compactMode ? 28 : 36;
