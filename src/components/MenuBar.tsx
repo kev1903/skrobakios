@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut, MessageCircle, Mic } from 'lucide-react';
+import { Play, ArrowLeftRight, Square, ChevronDown, Check, ChevronsUpDown, X, Menu, ClipboardList, Calendar as CalendarIcon, Inbox, User, Save, Bell, LogIn, LogOut, MessageCircle, Mic, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -99,6 +99,7 @@ const barRef = useRef<HTMLDivElement>(null);
   const [showAiChat, setShowAiChat] = useState(false);
   const [showVoiceInterface, setShowVoiceInterface] = useState(false);
   const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   // Handle clicking outside the dropdown to close it
@@ -385,6 +386,18 @@ const barRef = useRef<HTMLDivElement>(null);
             }}>
                 {getCompanyDisplayText()}
               </h1>
+            </div>
+
+            {/* Search Bar */}
+            <div className="relative hidden md:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <Input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-4 h-8 w-64 bg-muted/50 backdrop-blur-sm border-border text-sm placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 transition-all"
+              />
             </div>
           </div>
 
