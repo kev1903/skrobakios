@@ -13,6 +13,7 @@ import { TaskCard } from '@/components/tasks/TaskCard';
 import { Task } from '@/components/tasks/types';
 import { BoardView } from '@/components/tasks/BoardView';
 import { TaskEditSidePanel } from '@/components/tasks/TaskEditSidePanel';
+import { TaskStatsCards } from '@/components/tasks/TaskStatsCards';
 import { useUser } from '@/contexts/UserContext';
 import { useToast } from "@/hooks/use-toast";
 import { useMenuBarSpacing } from '@/hooks/useMenuBarSpacing';
@@ -312,6 +313,9 @@ const TasksPage = () => {
                 </div>
               </div>
             </div>
+
+            {/* Task Statistics Cards */}
+            <TaskStatsCards tasks={getFilteredTasks(userTasks)} />
 
             {/* Board View Container */}
             <div className="bg-gradient-to-br from-card to-muted/10 border border-border rounded-xl shadow-lg p-6 flex-1 overflow-hidden">
