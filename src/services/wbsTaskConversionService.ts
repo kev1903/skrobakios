@@ -10,10 +10,41 @@ export interface WBSTaskConversion {
 
 export class WBSTaskConversionService {
   /**
+   * Resolve user ID from assigned name by querying profiles table
+   */
+  private static async resolveUserId(assignedToName: string): Promise<string | null> {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .or(`first_name.ilike.%${assignedToName}%,last_name.ilike.%${assignedToName}%,email.ilike.%${assignedToName}%`)
+        .limit(1)
+        .single();
+
+      if (error || !profile) {
+        console.warn('⚠️ Could not resolve user ID for:', assignedToName);
+        return null;
+      }
+
+      console.log('✅ Resolved user ID for', assignedToName, ':', profile.user_id);
+      return profile.user_id;
+    } catch (error) {
+      console.error('Error resolving user ID:', error);
+      return null;
+    }
+  }
+
+  /**
    * Convert a WBS Activity to a detailed Task
    */
   static async convertWBSToTask(wbsItem: WBSItem, projectId: string): Promise<any> {
     console.log('🔄 Converting WBS Activity to Task:', wbsItem.id, wbsItem.title);
+
+    // Resolve user ID if assigned
+    let assignedToUserId = null;
+    if (wbsItem.assigned_to) {
+      assignedToUserId = await this.resolveUserId(wbsItem.assigned_to);
+    }
 
     // Prepare due date - always set to midnight for backlog
     let dueDate = null;
@@ -38,7 +69,7 @@ export class WBSTaskConversionService {
       priority: wbsItem.priority || 'Medium',
       assigned_to_name: wbsItem.assigned_to || null,
       assigned_to_avatar: null,
-      assigned_to_user_id: null,
+      assigned_to_user_id: assignedToUserId,
       due_date: dueDate,
       status: 'Not Started', // Always start as "Not Started" for backlog
       progress: 0, // Always start at 0% for new tasks
@@ -61,6 +92,26 @@ export class WBSTaskConversionService {
     if (taskError) throw taskError;
 
     console.log('✅ Successfully converted WBS to Task:', task.id);
+
+    // Send email notification if task is assigned to a user (fire and forget)
+    if (task.assigned_to_user_id) {
+      console.log('📧 Sending task assignment email for task:', task.id);
+      supabase.functions
+        .invoke('send-task-assignment-email', {
+          body: { taskId: task.id }
+        })
+        .then(({ data, error }) => {
+          if (error) {
+            console.error('Failed to send task assignment email:', error);
+          } else {
+            console.log('Task assignment email sent successfully:', data);
+          }
+        })
+        .catch((err) => {
+          console.error('Exception sending task assignment email:', err);
+        });
+    }
+
     return task;
   }
 
