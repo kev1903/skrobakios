@@ -109,9 +109,9 @@ export function TeamTaskAssignment({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0 bg-background border-border z-50">
-          <Command>
+          <Command className="max-h-[400px]">
             <CommandInput placeholder="Search team members..." className="h-9" />
-            <CommandList>
+            <CommandList className="max-h-[300px] overflow-y-auto">
               <CommandEmpty>No team members found.</CommandEmpty>
               <CommandGroup>
                 {teamMembers?.map((member) => (
@@ -160,17 +160,17 @@ export function TeamTaskAssignment({
                   </CommandItem>
                 ))}
               </CommandGroup>
-              <CommandSeparator />
-              <CommandGroup>
-                <CommandItem
-                  onSelect={handleAddNewClick}
-                  className="flex items-center justify-center p-3 cursor-pointer text-primary hover:text-primary"
-                >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  <span className="font-medium">Add New</span>
-                </CommandItem>
-              </CommandGroup>
             </CommandList>
+            <CommandSeparator className="my-0" />
+            <div className="p-0">
+              <button
+                onClick={handleAddNewClick}
+                className="w-full flex items-center justify-center p-3 hover:bg-accent text-primary font-medium cursor-pointer transition-colors"
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                <span>Add New</span>
+              </button>
+            </div>
           </Command>
         </PopoverContent>
       </Popover>
