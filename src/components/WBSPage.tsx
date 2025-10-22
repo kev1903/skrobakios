@@ -484,30 +484,15 @@ export const WBSPage = ({ project, onNavigate }: WBSPageProps) => {
                 </Button>
               </>
             ) : (
-              <>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setEditingId(item.id)}
-                  className="h-7 px-2"
-                >
-                  <Edit2 className="w-3 h-3" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 px-2"
-                >
-                  <LinkIcon className="w-3 h-3" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 px-2"
-                >
-                  <Eye className="w-3 h-3" />
-                </Button>
-              </>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleDeleteItem(item.id)}
+                className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                title="Delete row"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
             )}
           </div>
         </div>
