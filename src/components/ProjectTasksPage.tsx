@@ -29,7 +29,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const [fullCompanyData, setFullCompanyData] = useState<Company | null>(null);
-  const { loadTasksForProject, tasks } = useTaskContext();
+  const { loadTasksForProject, tasks, deleteTask } = useTaskContext();
   const { currentCompany } = useCompany();
   const { getCompany } = useCompanies();
 
@@ -65,6 +65,17 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
 
   const handleAddTask = () => {
     setIsAddTaskDialogOpen(true);
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      // Delete all selected tasks
+      await Promise.all(selectedTaskIds.map(taskId => deleteTask(taskId)));
+      // Clear selection after deletion
+      setSelectedTaskIds([]);
+    } catch (error) {
+      console.error('Error deleting tasks:', error);
+    }
   };
 
   const handleExport = async () => {
@@ -674,6 +685,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
                   selectedTasks={selectedTasks}
                   onAddTask={handleAddTask}
                   onExport={handleExport}
+                  onBulkDelete={handleBulkDelete}
                 />
               </div>
 

@@ -1,9 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, Grid, List, Trash2, Archive, Plus, Download } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface TaskSearchAndActionsProps {
   searchTerm: string;
@@ -13,6 +23,8 @@ interface TaskSearchAndActionsProps {
   selectedTasks: any[];
   onAddTask?: () => void;
   onExport?: () => void;
+  onBulkDelete?: () => void;
+  onBulkArchive?: () => void;
 }
 
 export const TaskSearchAndActions = ({
@@ -22,9 +34,25 @@ export const TaskSearchAndActions = ({
   onViewModeChange,
   selectedTasks,
   onAddTask,
-  onExport
+  onExport,
+  onBulkDelete,
+  onBulkArchive
 }: TaskSearchAndActionsProps) => {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  const handleDeleteClick = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (onBulkDelete) {
+      onBulkDelete();
+    }
+    setShowDeleteDialog(false);
+  };
+
   return (
+    <>
     <div className="mb-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 flex-1">
@@ -77,11 +105,23 @@ export const TaskSearchAndActions = ({
           {/* Bulk Actions */}
           {selectedTasks.length > 0 && (
             <>
-              <Button variant="outline" size="sm" className="text-slate-700 hover:text-slate-800">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-slate-700 hover:text-slate-800"
+                onClick={onBulkArchive}
+                disabled={!onBulkArchive}
+              >
                 <Archive className="w-4 h-4 mr-2" />
                 Archive
               </Button>
-              <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-red-600 hover:text-red-700"
+                onClick={handleDeleteClick}
+                disabled={!onBulkDelete}
+              >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete
               </Button>
@@ -110,5 +150,28 @@ export const TaskSearchAndActions = ({
         </div>
       </div>
     </div>
+
+    {/* Delete Confirmation Dialog */}
+    <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete {selectedTasks.length} Task{selectedTasks.length > 1 ? 's' : ''}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete {selectedTasks.length} selected task{selectedTasks.length > 1 ? 's' : ''}? 
+            This action cannot be undone and will permanently remove {selectedTasks.length > 1 ? 'these tasks' : 'this task'} from the system.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={handleDeleteConfirm} 
+            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+          >
+            Delete Task{selectedTasks.length > 1 ? 's' : ''}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 };
