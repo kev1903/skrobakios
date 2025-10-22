@@ -15,6 +15,19 @@ export class WBSTaskConversionService {
   static async convertWBSToTask(wbsItem: WBSItem, projectId: string): Promise<any> {
     console.log('🔄 Converting WBS Activity to Task:', wbsItem.id, wbsItem.title);
 
+    // Prepare due date - always set to midnight for backlog
+    let dueDate = null;
+    if (wbsItem.end_date) {
+      const date = new Date(wbsItem.end_date);
+      date.setHours(0, 0, 0, 0); // Set to midnight for backlog
+      dueDate = date.toISOString();
+    } else {
+      // Default to today at midnight if no end date
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      dueDate = today.toISOString();
+    }
+
     // Create the task with WBS data
     const taskData = {
       project_id: projectId,
@@ -26,9 +39,9 @@ export class WBSTaskConversionService {
       assigned_to_name: wbsItem.assigned_to || null,
       assigned_to_avatar: null,
       assigned_to_user_id: null,
-      due_date: wbsItem.end_date || null,
-      status: this.mapWBSStatusToTaskStatus(wbsItem.status),
-      progress: wbsItem.progress || 0,
+      due_date: dueDate,
+      status: 'Not Started', // Always start as "Not Started" for backlog
+      progress: 0, // Always start at 0% for new tasks
       wbs_item_id: wbsItem.id, // Link to WBS item
       duration: wbsItem.duration || 0,
       estimated_hours: wbsItem.estimated_hours || 0,

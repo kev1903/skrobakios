@@ -19,6 +19,13 @@ export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) 
 
   const getTasksByStatus = (status: StatusColumn) => {
     return tasks.filter(task => {
+      // Only show tasks that have been scheduled (not at midnight - backlog tasks)
+      if (!task.dueDate) return false;
+      const taskDateTime = new Date(task.dueDate);
+      const isScheduled = !(taskDateTime.getHours() === 0 && taskDateTime.getMinutes() === 0);
+      if (!isScheduled) return false; // Keep backlog tasks out of status columns
+      
+      // Filter by status
       if (status === 'To Do') return task.status === 'Not Started' || task.status === 'Pending';
       if (status === 'In Progress') return task.status === 'In Progress';
       if (status === 'Done') return task.status === 'Completed';
@@ -39,14 +46,26 @@ export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) 
   const handleDrop = async (e: React.DragEvent, targetStatus: StatusColumn) => {
     e.preventDefault();
     
-    if (!draggedTask) return;
+    // Get the task ID from the drag data (for tasks dragged from backlog)
+    const taskId = e.dataTransfer.getData('text/plain');
+    const task = draggedTask || tasks.find(t => t.id === taskId);
+    
+    if (!task) return;
 
     const newStatus = targetStatus === 'To Do' ? 'Not Started' : 
                      targetStatus === 'In Progress' ? 'In Progress' : 'Completed';
 
-    if (draggedTask.status !== newStatus) {
-      await onTaskUpdate(draggedTask.id, { status: newStatus });
-    }
+    // Set a non-midnight time to move task out of backlog into status column
+    const now = new Date();
+    const scheduledDate = task.dueDate ? new Date(task.dueDate) : new Date();
+    scheduledDate.setHours(now.getHours(), now.getMinutes(), 0, 0);
+
+    const updates: Partial<Task> = {
+      status: newStatus,
+      dueDate: scheduledDate.toISOString()
+    };
+
+    await onTaskUpdate(task.id, updates);
     
     setDraggedTask(null);
   };
