@@ -619,46 +619,19 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
         );
       case "board":
         return <TaskBoardView projectId={project.id} />;
-      case "timeline":
-        return <div className="p-8 text-center text-slate-600">Timeline view has been removed</div>;
-      case "overview":
-        return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="glass-card p-6">
-              <h3 className="text-lg font-semibold mb-4 text-slate-800">Recent Tasks</h3>
-              <TaskListView 
-                projectId={project.id} 
-                viewMode={viewMode}
-                selectedTaskIds={selectedTaskIds}
-                onTaskSelectionChange={setSelectedTaskIds}
-              />
-            </div>
-          </div>
-        );
-      case "team":
-        return (
-          <div className="glass-card p-8">
-            <h3 className="text-lg font-semibold mb-4 text-slate-800">Team Workload</h3>
-            <p className="text-slate-700">Team workload analytics and capacity planning will be displayed here.</p>
-          </div>
-        );
-      case "insights":
-        return (
-          <div className="glass-card p-8">
-            <h3 className="text-lg font-semibold mb-4 text-slate-800">Project Insights</h3>
-            <p className="text-slate-700">Project insights and performance metrics will be displayed here.</p>
-          </div>
-        );
       default:
         return (
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center glass-card p-8">
-              <p className="text-slate-800 text-lg">Coming Soon</p>
-              <p className="text-slate-600 text-sm mt-2">
-                {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} view is under development
-              </p>
-            </div>
-          </div>
+          <>
+            <TaskInsightsSummary tasks={tasks.filter(t => t.project_id === project.id)} />
+            <EnhancedTaskView 
+              projectId={project.id} 
+              viewMode={viewMode}
+              selectedTaskIds={selectedTaskIds}
+              onTaskSelectionChange={setSelectedTaskIds}
+              isAddTaskDialogOpen={isAddTaskDialogOpen}
+              onCloseAddTaskDialog={() => setIsAddTaskDialogOpen(false)}
+            />
+          </>
         );
     }
   };
