@@ -22,11 +22,13 @@ export interface Task {
   taskType: 'Task' | 'Bug' | 'Feature' | 'Issue';
   priority: 'High' | 'Medium' | 'Low';
   assignedTo: { name: string; avatar: string; userId?: string };
-  dueDate: string; // Now stores full datetime with timezone
+  startDate?: string; // Task start date
+  endDate?: string; // Task end date
+  dueDate: string; // Legacy field - kept for backwards compatibility
   status: 'Completed' | 'In Progress' | 'Pending' | 'Not Started';
   progress: number;
   description?: string;
-  duration?: number;
+  duration?: number; // Duration in days
   is_milestone?: boolean;
   is_critical_path?: boolean;
   created_at: string;

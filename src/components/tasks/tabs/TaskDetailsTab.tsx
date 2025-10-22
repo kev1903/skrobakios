@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -6,10 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Plus, MessageSquare, Clock, Trash2 } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Plus, MessageSquare, Clock, Trash2, CalendarIcon } from 'lucide-react';
 import { useTaskComments } from '@/hooks/useTaskComments';
 import { useTaskActivity } from '@/hooks/useTaskActivity';
 import { formatDate } from '@/utils/dateFormat';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface TaskDetailsTabProps {
   task: any;
@@ -20,8 +24,35 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
   const [newComment, setNewComment] = useState('');
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
   const [newSubtaskName, setNewSubtaskName] = useState('');
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    task.startDate ? new Date(task.startDate) : undefined
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    task.endDate ? new Date(task.endDate) : undefined
+  );
   const { comments, addComment } = useTaskComments(task.id);
   const { activities } = useTaskActivity(task.id);
+
+  // Calculate duration when dates change
+  useEffect(() => {
+    if (startDate && endDate) {
+      const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      onUpdate({ 
+        startDate: startDate.toISOString(), 
+        endDate: endDate.toISOString(),
+        duration: diffDays
+      });
+    }
+  }, [startDate, endDate]);
+
+  const handleStartDateChange = (date: Date | undefined) => {
+    setStartDate(date);
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    setEndDate(date);
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority?.toLowerCase()) {
@@ -118,14 +149,67 @@ export const TaskDetailsTab = ({ task, onUpdate }: TaskDetailsTabProps) => {
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-3 ml-auto">
-            <span className="text-sm font-medium text-muted-foreground">Due Date</span>
-            <Input
-              type="date"
-              value={task.endDate || ''}
-              onChange={(e) => onUpdate({ endDate: e.target.value })}
-              className="w-[160px] h-9 bg-slate-50/50 border-border/30"
-            />
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-muted-foreground">Start Date</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[160px] justify-start text-left font-normal h-9 bg-slate-50/50 border-border/30",
+                    !startDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {startDate ? format(startDate, "MMM d, yyyy") : <span>Pick date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  onSelect={handleStartDateChange}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-muted-foreground">End Date</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[160px] justify-start text-left font-normal h-9 bg-slate-50/50 border-border/30",
+                    !endDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {endDate ? format(endDate, "MMM d, yyyy") : <span>Pick date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={endDate}
+                  onSelect={handleEndDateChange}
+                  disabled={(date) => startDate ? date < startDate : false}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-muted-foreground">Duration</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50/50 border border-border/30 rounded-md">
+              <span className="text-sm font-semibold text-foreground">
+                {task.duration || 0}
+              </span>
+              <span className="text-xs text-muted-foreground">days</span>
+            </div>
           </div>
         </div>
       </div>
