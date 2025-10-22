@@ -304,6 +304,25 @@ export const taskService = {
   },
 
   async deleteTask(taskId: string): Promise<void> {
+    // First, find any WBS item linked to this task and clear the linkage
+    const { data: linkedWBSItems } = await supabase
+      .from('wbs_items')
+      .select('id')
+      .eq('linked_task_id', taskId);
+    
+    // Clear the task linkage from WBS items
+    if (linkedWBSItems && linkedWBSItems.length > 0) {
+      await supabase
+        .from('wbs_items')
+        .update({
+          is_task_enabled: false,
+          linked_task_id: null,
+          task_conversion_date: null
+        })
+        .eq('linked_task_id', taskId);
+    }
+    
+    // Now delete the task
     const { error } = await supabase
       .from('tasks')
       .delete()
