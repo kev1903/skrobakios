@@ -1,34 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Plus, Search } from "lucide-react";
 import { useUser } from '@/contexts/UserContext';
-import { taskService } from './tasks/taskService';
 import { Task } from './tasks/types';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from '@/integrations/supabase/client';
-import { format } from 'date-fns';
-import { MyTasksHeader } from './my-tasks/MyTasksHeader';
-import { MyTasksGridView } from './my-tasks/MyTasksGridView';
-import { MyTasksTableView } from './my-tasks/MyTasksTableView';
+import { BoardView } from './tasks/BoardView';
 import { MyTasksLoadingState } from './my-tasks/MyTasksLoadingState';
-import { MyTasksEmptyState } from './my-tasks/MyTasksEmptyState';
-import { MyTasksCalendarView } from './my-tasks/MyTasksCalendarView';
-import { SortField, SortDirection, ViewMode } from './my-tasks/types';
+import { cn } from '@/lib/utils';
 
 interface MyTasksPageProps {
   onNavigate: (page: string) => void;
 }
 
 export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
-  const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [sortField, setSortField] = useState<SortField>('taskName');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedTaskType, setSelectedTaskType] = useState<string>('all');
   const { userProfile } = useUser();
   const { toast } = useToast();
 
@@ -124,265 +116,216 @@ export const MyTasksPage = ({ onNavigate }: MyTasksPageProps) => {
     };
   }, [userProfile, toast]);
 
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
-  const getSortedTasks = () => {
-    return [...tasks].sort((a, b) => {
-      let aValue = a[sortField];
-      let bValue = b[sortField];
-
-      // Handle nested values
-      if (sortField === 'assignedTo') {
-        aValue = a.assignedTo.name;
-        bValue = b.assignedTo.name;
-      }
-
-      // Handle null/undefined values
-      if (!aValue && !bValue) return 0;
-      if (!aValue) return sortDirection === 'asc' ? 1 : -1;
-      if (!bValue) return sortDirection === 'asc' ? -1 : 1;
-
-      // Convert to string for comparison
-      aValue = String(aValue).toLowerCase();
-      bValue = String(bValue).toLowerCase();
-
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
+  // Get backlog tasks (incomplete tasks)
+  const getBacklogTasks = () => {
+    return tasks.filter(task => {
+      // Filter by search term
+      const matchesSearch = !searchTerm || 
+        task.taskName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.projectName.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // Filter by task type
+      const matchesType = selectedTaskType === 'all' || task.taskType === selectedTaskType;
+      
+      // Show incomplete tasks
+      const isIncomplete = task.status !== 'Completed';
+      
+      return matchesSearch && matchesType && isIncomplete;
     });
   };
 
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedTasks(tasks.map(t => t.id));
-    } else {
-      setSelectedTasks([]);
-    }
-  };
-
-  const handleSelectTask = (taskId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedTasks(prev => [...prev, taskId]);
-    } else {
-      setSelectedTasks(prev => prev.filter(id => id !== taskId));
-    }
-  };
-
   const handleTaskClick = (task: Task) => {
-    // Navigate to task edit page with task ID
     onNavigate(`task-edit&taskId=${task.id}&from=my-tasks`);
   };
 
-  const handleDragEnd = async (result: DropResult) => {
-    console.log('🔄 MyTasksPage: Drag ended:', result);
-    
-    const { destination, source, draggableId } = result;
-    
-    // If no destination or dragged to same position, do nothing
-    if (!destination || 
-        (destination.droppableId === source.droppableId && destination.index === source.index)) {
-      return;
-    }
-
-    // Extract task ID from draggableId
-    const taskId = draggableId.replace('calendar-task-', '').replace('task-', '');
-    const task = tasks.find(t => t.id === taskId);
-    
-    if (!task) return;
-
+  const handleTaskUpdate = async (taskId: string, updates: Partial<Task>) => {
     try {
-      // Handle dropping to calendar time slots
-      if (destination.droppableId.startsWith('calendar-slot-')) {
-        // Extract date and time from droppableId
-        // Format: "calendar-slot-YYYY-MM-DD-HH-MM"
-        const parts = destination.droppableId.replace('calendar-slot-', '').split('-');
-        if (parts.length === 5) {
-          const [year, month, day, hour, minute] = parts.map(p => parseInt(p));
-          
-          // Create new date with the target time
-          const newDate = new Date(year, month - 1, day, hour, minute);
-          
-          // Update the task in the database
-          const { error } = await supabase
-            .from('tasks')
-            .update({ due_date: newDate.toISOString() })
-            .eq('id', taskId);
+      const { error } = await supabase
+        .from('tasks')
+        .update({
+          ...(updates.dueDate && { due_date: updates.dueDate }),
+          ...(updates.taskName && { task_name: updates.taskName }),
+          ...(updates.status && { status: updates.status }),
+          ...(updates.priority && { priority: updates.priority }),
+          ...(updates.progress !== undefined && { progress: updates.progress }),
+        })
+        .eq('id', taskId);
 
-          if (error) throw error;
-          
-          // Refresh the tasks
-          await refreshTasks();
-          
-          toast({
-            title: "Task scheduled",
-            description: `"${task.taskName}" scheduled for ${format(newDate, 'MMM dd, HH:mm')}`,
-            duration: 3000,
-          });
-        }
-      }
+      if (error) throw error;
+      await refreshTasks();
+      
+      toast({
+        title: "Task updated",
+        description: "Task status has been updated successfully",
+      });
     } catch (error) {
-      console.error('Error moving task:', error);
+      console.error('Error updating task:', error);
       toast({
         title: "Error",
-        description: "Failed to move task. Please try again.",
+        description: "Failed to update task",
         variant: "destructive",
-        duration: 3000,
       });
     }
   };
+
+  const handleDragStartBacklog = (e: React.DragEvent, task: Task) => {
+    e.dataTransfer.setData('text/plain', task.id);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const taskTypes = ['all', 'Task', 'Bug', 'Feature', 'Issue'];
 
   if (loading) {
     return <MyTasksLoadingState />;
   }
 
+  const backlogTasks = getBacklogTasks();
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Modern Light Background with Subtle Gradient */}
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-background via-accent/20 to-muted/30"></div>
       
-      <div className="max-w-7xl mx-auto relative">
-        <div className="pt-8 pb-6 px-4 sm:px-6 lg:px-8">
-          {/* Back Button */}
-          <div className="mb-6">
+      <div className="h-screen flex flex-col">
+        {/* Header */}
+        <div className="flex-shrink-0 pt-6 pb-4 px-6 border-b border-border/50">
+          <div className="flex items-center justify-between mb-4">
             <Button 
               variant="ghost" 
               size="sm"
               onClick={() => onNavigate("home")}
-              className="text-muted-foreground hover:text-foreground hover:bg-accent/50 flex items-center gap-2 transition-all duration-200"
+              className="text-muted-foreground hover:text-foreground"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to Home</span>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
             </Button>
           </div>
-
-          <MyTasksHeader
-            tasksCount={tasks.length}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            onNavigate={onNavigate}
-          />
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground font-playfair">
+                My <span className="text-primary">Tasks</span>
+              </h1>
+              <p className="text-muted-foreground mt-1">{tasks.length} tasks assigned to you</p>
+            </div>
+            <Button onClick={() => onNavigate('task-edit&from=my-tasks')} className="gap-2">
+              <Plus className="w-4 h-4" />
+              New Task
+            </Button>
+          </div>
         </div>
 
-        {/* Content Layout - Full width for calendar, two-column for others */}
-        <div className="px-4 sm:px-6 lg:px-8 pb-8">
-          {viewMode === 'calendar' ? (
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <div className="min-h-screen">
-                {tasks.length === 0 ? (
-                  <MyTasksEmptyState onNavigate={onNavigate} />
-                ) : (
-                  <MyTasksCalendarView
-                    tasks={getSortedTasks()}
-                    onTaskClick={handleTaskClick}
-                    onTaskUpdate={async (taskId, updates) => {
-                      try {
-                        // Update the task in the database
-                        const { error } = await supabase
-                          .from('tasks')
-                          .update({
-                            ...(updates.dueDate && { due_date: updates.dueDate }),
-                            ...(updates.taskName && { task_name: updates.taskName }),
-                            ...(updates.status && { status: updates.status }),
-                            ...(updates.priority && { priority: updates.priority }),
-                            ...(updates.progress !== undefined && { progress: updates.progress }),
-                          })
-                          .eq('id', taskId);
+        {/* Main Content - Split Layout */}
+        <div className="flex-1 overflow-hidden">
+          <div className="h-full flex gap-6 p-6">
+            {/* Left Side - Task Backlog */}
+            <div className="w-80 flex-shrink-0 flex flex-col">
+              <Card className="flex-1 flex flex-col border-border/50 shadow-lg">
+                <CardContent className="p-6 flex flex-col h-full">
+                  <h2 className="text-xl font-bold text-foreground mb-4 font-playfair">Task Backlog</h2>
+                  
+                  <Button 
+                    onClick={() => onNavigate('task-edit&from=my-tasks')}
+                    className="w-full mb-4 bg-primary hover:bg-primary/90"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add to backlog
+                  </Button>
 
-                        if (error) throw error;
-                        
-                        // Refresh the tasks
-                        await refreshTasks();
-                      } catch (error) {
-                        console.error('Error updating task:', error);
-                        throw error;
-                      }
-                    }}
-                  />
-                )}
-              </div>
-            </DragDropContext>
-          ) : (
-            <div className="grid lg:grid-cols-4 gap-6 lg:gap-8">
-              {/* Left Column - Tasks Content */}
-              <div className="lg:col-span-3">
-                {tasks.length === 0 ? (
-                  <MyTasksEmptyState onNavigate={onNavigate} />
-                ) : viewMode === 'grid' ? (
-                  <MyTasksGridView
-                    tasks={getSortedTasks()}
-                    selectedTasks={selectedTasks}
-                    onSelectTask={handleSelectTask}
-                    onTaskClick={handleTaskClick}
-                  />
-                ) : (
-                  <MyTasksTableView
-                    tasks={getSortedTasks()}
-                    selectedTasks={selectedTasks}
-                    sortField={sortField}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
-                    onSelectAll={handleSelectAll}
-                    onSelectTask={handleSelectTask}
-                    onTaskClick={handleTaskClick}
-                  />
-                )}
-              </div>
+                  {/* Search */}
+                  <div className="relative mb-4">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Type here to search"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
 
-              {/* Right Column - Today's Schedule */}
-              <div className="lg:col-span-1">
-                <Card className="glass-card sticky top-8 border-0 shadow-lg backdrop-blur-sm">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-semibold text-foreground mb-6 font-playfair">Today's Schedule</h3>
-                    <div className="space-y-4">
-                      {tasks.length > 0 ? (
-                        tasks.slice(0, 5).map((task) => (
-                          <div 
-                            key={task.id} 
-                            className="bg-card border border-border/50 rounded-lg p-4 hover:shadow-md transition-all duration-300 cursor-pointer hover:bg-accent/20 interactive-minimal" 
-                            onClick={() => handleTaskClick(task)}
-                          >
-                            <div className="flex items-center gap-3 mb-2">
-                              <div className="bg-primary text-primary-foreground px-3 py-1 rounded-lg text-xs font-medium">
-                                {task.dueDate ? new Date(task.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '12:00'}
-                              </div>
-                              <Badge 
-                                variant={
-                                  task.priority === 'High' ? 'destructive' :
-                                  task.priority === 'Medium' ? 'secondary' :
-                                  'default'
-                                }
-                                className="text-xs"
-                              >
-                                {task.priority}
-                              </Badge>
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-foreground text-sm mb-1">{task.taskName}</h4>
-                              <p className="text-xs text-muted-foreground">{task.projectName}</p>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="bg-muted/30 rounded-lg p-8 text-center border border-border/30">
-                          <p className="text-muted-foreground">No tasks scheduled for today</p>
-                        </div>
-                      )}
+                  {/* Task Type Filter */}
+                  <div className="mb-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-3">Task Type</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {taskTypes.map((type) => (
+                        <Button
+                          key={type}
+                          variant={selectedTaskType === type ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setSelectedTaskType(type)}
+                          className={cn(
+                            "text-xs",
+                            selectedTaskType === type && "bg-primary text-primary-foreground"
+                          )}
+                        >
+                          {type === 'all' ? 'All Types' : type}
+                        </Button>
+                      ))}
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                  </div>
+
+                  {/* Backlog Rules Info */}
+                  <div className="mb-4 p-3 bg-muted/30 rounded-lg border border-border/30">
+                    <h3 className="text-sm font-semibold text-foreground mb-1">Backlog Rules</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Shows all incomplete tasks (any status except "Completed")
+                    </p>
+                  </div>
+
+                  {/* Task List */}
+                  <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+                    {backlogTasks.length === 0 ? (
+                      <div className="text-center py-8 text-sm text-muted-foreground">
+                        No tasks in backlog
+                      </div>
+                    ) : (
+                      backlogTasks.map((task) => (
+                        <div
+                          key={task.id}
+                          draggable
+                          onDragStart={(e) => handleDragStartBacklog(e, task)}
+                          onClick={() => handleTaskClick(task)}
+                          className="bg-background border border-border rounded-lg p-3 cursor-move hover:shadow-md hover:border-primary/50 transition-all group"
+                        >
+                          <h4 className="font-semibold text-sm text-foreground mb-2 line-clamp-2">
+                            {task.taskName}
+                          </h4>
+                          <div className="flex flex-wrap gap-1.5 mb-2">
+                            <Badge variant="outline" className="text-xs">
+                              {task.taskType}
+                            </Badge>
+                            <Badge 
+                              variant={task.priority === 'High' ? 'destructive' : 'secondary'}
+                              className="text-xs"
+                            >
+                              {task.priority}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {task.projectName}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          )}
+
+            {/* Right Side - Kanban Board */}
+            <div className="flex-1 overflow-hidden">
+              <Card className="h-full border-border/50 shadow-lg">
+                <CardContent className="p-6 h-full">
+                  <BoardView 
+                    tasks={tasks}
+                    onTaskUpdate={handleTaskUpdate}
+                    onTaskClick={handleTaskClick}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
-
     </div>
   );
 };
