@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { STRIPE_PRODUCTS, getProductByStripeId } from '@/config/stripe';
 
 export interface SubscriptionPlan {
   id: string;
@@ -38,7 +39,6 @@ export const useSubscription = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch available subscription plans
   const fetchAvailablePlans = async () => {
     try {
       const { data, error } = await supabase
@@ -69,155 +69,128 @@ export const useSubscription = () => {
     }
   };
 
-  // Fetch current user subscription
-  const fetchCurrentSubscription = async () => {
-    if (!user) return;
+  const fetchCurrentSubscription = useCallback(async () => {
+    if (!user) {
+      setCurrentSubscription(null);
+      return;
+    }
 
     try {
-      // Instead of using RPC which relies on auth.uid(), fetch directly with user ID
-      const { data, error } = await supabase
-        .from('user_subscriptions')
-        .select(`
-          id,
-          status,
-          billing_cycle,
-          trial_ends_at,
-          current_period_end,
-          subscription_plans!inner(
-            id,
-            name,
-            description,
-            price_monthly,
-            price_yearly,
-            features,
-            max_projects,
-            max_team_members,
-            max_storage_gb
-          )
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1);
+      const { data, error: functionError } = await supabase.functions.invoke('check-subscription', {
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
+      });
 
-      if (error) throw error;
+      if (functionError) throw functionError;
       
-      if (data && data.length > 0) {
-        const subscriptionRow = data[0];
-        const plan = subscriptionRow.subscription_plans;
+      // Map Stripe subscription to UserSubscription format
+      if (data?.subscribed && data?.product_id) {
+        const product = getProductByStripeId(data.product_id);
         
-        console.log('✅ Subscription loaded:', plan.name, 'Features:', plan.features);
-        
-        setCurrentSubscription({
-          subscription_id: subscriptionRow.id,
-          plan_name: plan.name,
-          plan_description: plan.description || '',
-          status: subscriptionRow.status,
-          billing_cycle: subscriptionRow.billing_cycle,
-          trial_ends_at: subscriptionRow.trial_ends_at,
-          current_period_end: subscriptionRow.current_period_end,
-          price_monthly: plan.price_monthly,
-          price_yearly: plan.price_yearly,
-          features: Array.isArray(plan.features) ? plan.features.filter((f): f is string => typeof f === 'string') : [],
-          max_projects: plan.max_projects,
-          max_team_members: plan.max_team_members,
-          max_storage_gb: plan.max_storage_gb
-        });
+        if (product) {
+          setCurrentSubscription({
+            subscription_id: data.product_id,
+            plan_name: product.name,
+            plan_description: `${product.name} subscription`,
+            status: 'active',
+            billing_cycle: 'monthly',
+            trial_ends_at: null,
+            current_period_end: data.subscription_end,
+            price_monthly: product.price_monthly,
+            price_yearly: product.price_monthly * 12, // Approximate
+            features: [...product.features],
+            max_projects: null,
+            max_team_members: null,
+            max_storage_gb: null,
+          });
+        } else {
+          setCurrentSubscription(null);
+        }
       } else {
-        console.log('🔍 Subscription Debug - No subscription data found');
         setCurrentSubscription(null);
       }
     } catch (err) {
-      console.error('Error fetching user subscription:', err);
-      setError('Failed to load subscription details');
+      console.error('Error fetching subscription:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch subscription');
+    }
+  }, [user]);
+
+  const isOnTrial = (): boolean => {
+    return false; // Stripe manages trials
+  };
+
+  const getTrialDaysRemaining = (): number => {
+    return 0; // Stripe manages trials
+  };
+
+  const trialDaysRemaining = getTrialDaysRemaining();
+
+  const hasFeature = (feature: string) => {
+    return true;
+  };
+
+  const canPerformAction = (action: 'project' | 'team_member', currentCount: number) => {
+    return true;
+  };
+
+  const createCheckout = async (priceId: string) => {
+    if (!user) throw new Error('User must be logged in');
+
+    try {
+      const { data, error: functionError } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId },
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
+      });
+
+      if (functionError) throw functionError;
+      
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+      
+      return { success: true };
+    } catch (err) {
+      console.error('Error creating checkout:', err);
+      return { success: false, error: err instanceof Error ? err.message : 'Failed to create checkout' };
     }
   };
 
-  // Check if user is on trial
-  const isOnTrial = () => {
-    if (!currentSubscription) return false;
-    return currentSubscription.status === 'trial' && 
-           currentSubscription.trial_ends_at && 
-           new Date(currentSubscription.trial_ends_at) > new Date();
+  const upgradeSubscription = async (planId: string, billingCycle: 'monthly' | 'yearly' = 'monthly') => {
+    // Find the Stripe product that matches the plan
+    const stripeProduct = Object.values(STRIPE_PRODUCTS).find(p => 
+      p.name === planId || p.product_id === planId
+    );
+
+    if (!stripeProduct) {
+      return { success: false, error: 'Plan not found' };
+    }
+
+    return createCheckout(stripeProduct.price_id);
   };
 
-  // Get days remaining in trial
-  const getTrialDaysRemaining = () => {
-    if (!currentSubscription?.trial_ends_at) return 0;
-    const trialEnd = new Date(currentSubscription.trial_ends_at);
-    const now = new Date();
-    const diffTime = trialEnd.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays);
-  };
+  const openCustomerPortal = async () => {
+    if (!user) throw new Error('User must be logged in');
 
-  // Check if user has access to a feature
-  const hasFeature = (feature: string) => {
-    // With the new simplified subscription system, everyone has access to all features
-    return true;
-  };
-
-  // Check if user can perform action based on limits
-  const canPerformAction = (action: 'project' | 'team_member', currentCount: number) => {
-    // With the new simplified subscription system, everyone has unlimited access
-    return true;
-  };
-
-  // Upgrade subscription
-  const upgradeSubscription = async (planId: string, billingCycle: 'monthly' | 'yearly') => {
     try {
-      setLoading(true);
+      const { data, error: functionError } = await supabase.functions.invoke('customer-portal', {
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+        }
+      });
+
+      if (functionError) throw functionError;
       
-      if (!user) {
-        throw new Error('User not authenticated');
-      }
-
-      // Check if user already has a subscription
-      const { data: existingSubscription } = await supabase
-        .from('user_subscriptions')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      const trialEndDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-
-      if (existingSubscription) {
-        // Update existing subscription
-        const { error } = await supabase
-          .from('user_subscriptions')
-          .update({
-            plan_id: planId,
-            billing_cycle: billingCycle,
-            status: 'trial',
-            trial_ends_at: trialEndDate,
-            updated_at: new Date().toISOString()
-          })
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-      } else {
-        // Create new subscription
-        const { error } = await supabase
-          .from('user_subscriptions')
-          .insert({
-            user_id: user.id,
-            plan_id: planId,
-            billing_cycle: billingCycle,
-            status: 'trial',
-            trial_ends_at: trialEndDate,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          });
-
-        if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, '_blank');
       }
       
-      await fetchCurrentSubscription();
-      return { success: true };
+      return data;
     } catch (err) {
-      console.error('Error upgrading subscription:', err);
-      return { success: false, error: err instanceof Error ? err.message : 'Failed to upgrade subscription' };
-    } finally {
-      setLoading(false);
+      console.error('Error opening customer portal:', err);
+      throw err;
     }
   };
 
@@ -231,22 +204,39 @@ export const useSubscription = () => {
       setLoading(false);
     };
 
-    loadData();
-  }, [user]);
+    if (user) {
+      loadData();
+      
+      const interval = setInterval(() => {
+        fetchCurrentSubscription();
+      }, 60000);
+      
+      return () => clearInterval(interval);
+    } else {
+      setLoading(false);
+      setCurrentSubscription(null);
+    }
+  }, [user, fetchCurrentSubscription]);
+
+  const getCurrentPlan = () => {
+    if (!currentSubscription) return null;
+    return getProductByStripeId(currentSubscription.subscription_id);
+  };
 
   return {
     currentSubscription,
     availablePlans,
     loading,
     error,
-    isOnTrial: isOnTrial(),
-    trialDaysRemaining: getTrialDaysRemaining(),
+    isOnTrial,
+    getTrialDaysRemaining,
+    trialDaysRemaining,
     hasFeature,
     canPerformAction,
+    createCheckout,
     upgradeSubscription,
-    refetch: () => {
-      fetchCurrentSubscription();
-      fetchAvailablePlans();
-    }
+    openCustomerPortal,
+    refreshSubscription: fetchCurrentSubscription,
+    getCurrentPlan,
   };
 };
