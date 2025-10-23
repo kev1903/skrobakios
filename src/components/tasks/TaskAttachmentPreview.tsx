@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { SimplePDFViewer } from '@/components/sales/components/SimplePDFViewer';
 
 interface TaskAttachment {
   id: string;
@@ -226,11 +227,12 @@ export const TaskAttachmentPreview = ({ taskId }: TaskAttachmentPreviewProps) =>
             </DialogTitle>
           </DialogHeader>
           {selectedPdf && (
-            <iframe
-              src={selectedPdf.url}
-              className="w-full h-[80vh]"
-              title={selectedPdf.name}
-            />
+            <div className="w-full h-[80vh] p-4">
+              <SimplePDFViewer 
+                pdfUrl={selectedPdf.url}
+                className="w-full h-full"
+              />
+            </div>
           )}
         </DialogContent>
       </Dialog>
