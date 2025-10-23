@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { LandingPage } from "@/components/landing/LandingPage";
 import { AuthPage } from "@/components/auth/AuthPage";
 import { ServicesPage } from "@/components/pages/ServicesPage";
 import { ProjectsPage } from "@/components/pages/ProjectsPage";
@@ -23,8 +24,8 @@ const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState(() => {
-    // Initialize based on current route - if we're on root path, show auth page
-    return window.location.pathname === "/" ? "auth" : "auth";
+    // Initialize based on current route - if we're on root path, show landing page
+    return window.location.pathname === "/" ? "landing" : "landing";
   });
   const previousPageRef = useRef<string>("auth");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
@@ -105,7 +106,7 @@ const Index = () => {
   // Redirect authenticated users away from public pages
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      const publicPages = ['auth', 'services', 'about', 'contact', 'signup'];
+      const publicPages = ['landing', 'auth', 'services', 'about', 'contact', 'signup'];
       if (publicPages.includes(currentPage)) {
         console.log(`🔐 Authenticated user on public page ${currentPage}, redirecting to profile`);
         handleNavigate('profile');
@@ -115,6 +116,10 @@ const Index = () => {
 
   const renderPage = () => {
     switch (currentPage) {
+      case 'landing':
+        return <LandingPage onNavigate={handleNavigate} />;
+      case 'auth':
+        return <AuthPage onNavigate={handleNavigate} />;
       case 'services':
         return <ServicesPage onNavigate={handleNavigate} />;
       case 'projects':
@@ -123,14 +128,13 @@ const Index = () => {
         return <AboutPage onNavigate={handleNavigate} />;
       case 'contact':
         return <ContactPage onNavigate={handleNavigate} />;
-      case 'auth':
       default:
-        return <AuthPage onNavigate={handleNavigate} />;
+        return <LandingPage onNavigate={handleNavigate} />;
     }
   };
 
   // Handle public pages vs protected pages
-  if (currentPage === 'auth' || currentPage === 'signup' || 
+  if (currentPage === 'landing' || currentPage === 'auth' || currentPage === 'signup' || 
       currentPage === 'services' || currentPage === 'about' || currentPage === 'contact') {
     return (
       <div className="w-full h-screen">
