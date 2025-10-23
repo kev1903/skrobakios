@@ -27,7 +27,15 @@ const Index = () => {
     // Check URL parameters first
     const params = new URLSearchParams(window.location.search);
     const pageParam = params.get('page');
-    // Default to landing page for root domain visits
+    
+    // If no page parameter, always default to landing page for the root domain
+    if (!pageParam && window.location.pathname === '/') {
+      console.log('🏠 No page parameter detected - defaulting to landing page');
+      return 'landing';
+    }
+    
+    // Otherwise use the page parameter
+    console.log('🏠 Page parameter detected:', pageParam);
     return pageParam || 'landing';
   });
   const previousPageRef = useRef<string>("auth");
@@ -93,8 +101,11 @@ const Index = () => {
     const pageParam = searchParams.get('page');
     const projectIdParam = searchParams.get('projectId');
     
-    // If no page param is specified, ensure we're on the landing page for unauthenticated users
-    if (!pageParam && !isAuthenticated && !loading) {
+    console.log('🔍 URL Check - pageParam:', pageParam, 'authenticated:', isAuthenticated, 'loading:', loading);
+    
+    // If no page param and at root path, ensure we stay on landing for unauthenticated users
+    if (!pageParam && window.location.pathname === '/' && !isAuthenticated && !loading) {
+      console.log('🏠 Root domain accessed - ensuring landing page');
       if (currentPage !== 'landing') {
         setCurrentPage('landing');
       }
