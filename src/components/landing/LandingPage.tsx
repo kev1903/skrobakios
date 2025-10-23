@@ -24,26 +24,26 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-slate-50 overflow-hidden relative">
       {/* Animated gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-200/40 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-200/40 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
       {/* Navigation - Glass morphism */}
-      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-white/5 border-b border-white/10">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-white/80 border-b border-slate-200/50 shadow-sm">
+        <div className="container mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <Building2 className="h-8 w-8 text-blue-400" />
-              <div className="absolute inset-0 blur-xl bg-blue-400/50" />
-            </div>
-            <span className="text-2xl font-bold text-white tracking-tight">BuildNet</span>
+            <img 
+              src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
+              alt="Skrobaki Logo" 
+              className="h-12 object-contain"
+            />
           </div>
           <Button 
             onClick={() => onNavigate('auth')} 
-            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-xl transition-all duration-300 hover:scale-105"
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-105"
             size="lg"
           >
             Sign In
@@ -56,20 +56,20 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       <section className="pt-32 pb-20 px-6 relative">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center space-y-8 mb-20" ref={heroRef}>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-4">
-              <HardHat className="h-4 w-4 text-orange-400" />
-              <span className="text-sm text-gray-300">Built for Construction Professionals</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 backdrop-blur-xl border border-blue-200 mb-4">
+              <HardHat className="h-4 w-4 text-orange-600" />
+              <span className="text-sm text-slate-700 font-medium">Built for Construction Professionals</span>
             </div>
             
-            <h1 className="text-6xl md:text-8xl font-bold text-white leading-tight tracking-tight">
+            <h1 className="text-6xl md:text-8xl font-bold text-slate-900 leading-tight tracking-tight">
               Construction Projects
               <br />
-              <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
                 Done Right
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
               From groundbreaking to handover - manage every phase of your construction projects 
               with precision. No delays. No surprises. Just results.
             </p>
@@ -78,7 +78,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <Button 
                 onClick={() => onNavigate('auth')} 
                 size="lg" 
-                className="text-lg px-10 py-7 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-2xl shadow-blue-500/50 transition-all duration-300 hover:scale-105 hover:shadow-blue-500/70"
+                className="text-lg px-10 py-7 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-2xl shadow-blue-500/30 transition-all duration-300 hover:scale-105 hover:shadow-blue-600/40"
               >
                 Start Free Trial
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -87,7 +87,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                 onClick={() => onNavigate('auth')} 
                 variant="outline" 
                 size="lg"
-                className="text-lg px-10 py-7 bg-white/5 hover:bg-white/10 text-white border border-white/20 backdrop-blur-xl transition-all duration-300 hover:scale-105"
+                className="text-lg px-10 py-7 bg-white hover:bg-slate-50 text-slate-900 border-2 border-slate-300 hover:border-slate-400 transition-all duration-300 hover:scale-105 shadow-lg"
               >
                 Watch Demo
                 <ChevronRight className="ml-2 h-5 w-5" />
@@ -97,9 +97,9 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
           {/* Construction Stats Preview */}
           <div className="relative mt-20 mx-auto max-w-6xl">
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-amber-500/20 blur-3xl" />
-            <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-1 shadow-2xl">
-              <div className="bg-gradient-to-br from-slate-900/50 to-orange-900/30 rounded-2xl p-12">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-200/30 to-orange-200/30 blur-3xl" />
+            <div className="relative bg-white/80 backdrop-blur-2xl border border-slate-200 rounded-3xl p-1 shadow-2xl">
+              <div className="bg-gradient-to-br from-white to-blue-50/50 rounded-2xl p-12">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                   <StatCard number="500+" label="Active Projects" />
                   <StatCard number="98%" label="On-Time Delivery" />
@@ -113,19 +113,19 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </section>
 
       {/* Construction Project Lifecycle */}
-      <section className="py-32 px-6 relative">
+      <section className="py-32 px-6 relative bg-gradient-to-b from-transparent via-blue-50/50 to-transparent">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-6">
-              <Building2 className="h-4 w-4 text-orange-400" />
-              <span className="text-sm text-gray-300">Complete Project Lifecycle</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50 backdrop-blur-xl border border-orange-200 mb-6">
+              <Building2 className="h-4 w-4 text-orange-600" />
+              <span className="text-sm text-slate-700 font-medium">Complete Project Lifecycle</span>
             </div>
-            <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+            <h2 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6">
               Every Phase. Every Detail.
               <br />
-              <span className="text-orange-400">Under Control.</span>
+              <span className="text-orange-600">Under Control.</span>
             </h2>
-            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
               Manage your construction projects from pre-construction planning through closeout 
               with specialized tools for each critical phase
             </p>
@@ -192,14 +192,14 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
 
       {/* Construction Challenges Section */}
       <section className="py-32 px-6 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-950/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-50/30 to-transparent" />
         <div className="container mx-auto max-w-7xl relative">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-6">
-              <AlertTriangle className="h-4 w-4 text-orange-400" />
-              <span className="text-sm text-gray-300">Common Construction Challenges</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 backdrop-blur-xl border border-red-200 mb-6">
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <span className="text-sm text-slate-700 font-medium">Common Construction Challenges</span>
             </div>
-            <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+            <h2 className="text-5xl md:text-6xl font-bold text-slate-900 mb-6">
               Stop Fighting These Problems
             </h2>
           </div>
@@ -230,25 +230,24 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </section>
 
       {/* SkAi Section */}
-      <section className="py-32 px-6 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-950/30 to-transparent" />
+      <section className="py-32 px-6 relative bg-gradient-to-br from-blue-50 via-purple-50/30 to-pink-50/30">
         <div className="container mx-auto max-w-7xl relative">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10">
-                <Brain className="h-4 w-4 text-pink-400" />
-                <span className="text-sm text-gray-300">AI Assistant</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-50 backdrop-blur-xl border border-purple-200">
+                <Brain className="h-4 w-4 text-purple-600" />
+                <span className="text-sm text-slate-700 font-medium">AI Assistant</span>
               </div>
               
-              <h2 className="text-5xl md:text-6xl font-bold text-white leading-tight">
+              <h2 className="text-5xl md:text-6xl font-bold text-slate-900 leading-tight">
                 Meet SkAi
                 <br />
-                <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-orange-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-purple-600 via-blue-600 to-orange-600 bg-clip-text text-transparent">
                   Your AI Construction Assistant
                 </span>
               </h2>
               
-              <p className="text-xl text-gray-400 leading-relaxed">
+              <p className="text-xl text-slate-600 leading-relaxed">
                 SkAi understands construction. Trained on thousands of projects, it predicts delays, 
                 identifies risks, and helps you make better decisions on every job site.
               </p>
@@ -275,7 +274,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <Button 
                 onClick={() => onNavigate('auth')} 
                 size="lg"
-                className="text-lg px-8 py-6 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white border-0 shadow-2xl shadow-pink-500/50 transition-all duration-300 hover:scale-105"
+                className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0 shadow-2xl shadow-purple-500/30 transition-all duration-300 hover:scale-105"
               >
                 Try SkAi Now
                 <Sparkles className="ml-2 h-5 w-5" />
@@ -283,17 +282,17 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
 
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-purple-500/20 blur-3xl" />
-              <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-200/40 to-blue-200/40 blur-3xl" />
+              <div className="relative bg-white/90 backdrop-blur-2xl border border-slate-200 rounded-3xl p-8 shadow-2xl">
                 <div className="space-y-4">
-                  <div className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-2xl p-6 border border-white/10">
-                      <div className="flex items-start gap-4">
-                      <div className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl p-3">
+                  <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 border border-purple-200">
+                    <div className="flex items-start gap-4">
+                      <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl p-3">
                         <Brain className="h-6 w-6 text-white" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm text-gray-400 mb-2">SkAi Construction Analysis</p>
-                        <p className="text-white text-sm">
+                        <p className="text-sm text-slate-500 mb-2 font-medium">SkAi Construction Analysis</p>
+                        <p className="text-slate-800 text-sm">
                           "Downtown Tower Project: Structural steel installation is 3 days behind critical path. 
                           Weather delays and crane availability issues detected. Recommend expediting MEP rough-in crew."
                         </p>
@@ -301,14 +300,14 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-2xl p-6 border border-white/10">
+                  <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-200">
                     <div className="flex items-start gap-4">
-                      <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl p-3">
+                      <div className="bg-gradient-to-br from-orange-600 to-amber-600 rounded-xl p-3">
                         <HardHat className="h-6 w-6 text-white" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm text-gray-400 mb-2">Site Risk Alert</p>
-                        <p className="text-white text-sm">
+                        <p className="text-sm text-slate-500 mb-2 font-medium">Site Risk Alert</p>
+                        <p className="text-slate-800 text-sm">
                           "Riverside Apartments: Foundation concrete pour scheduled for tomorrow. 
                           Severe weather expected. Suggest rescheduling to maintain quality standards."
                         </p>
@@ -325,22 +324,22 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       {/* CTA Section */}
       <section className="py-32 px-6 relative">
         <div className="container mx-auto max-w-4xl text-center relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl" />
-          <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-16">
-            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-200/40 to-orange-200/40 blur-3xl" />
+          <div className="relative bg-white/90 backdrop-blur-2xl border border-slate-200 rounded-3xl p-16 shadow-2xl">
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-slate-900">
               Build Your Next Project
               <br />
-              <span className="text-orange-400">The Right Way</span>
+              <span className="text-orange-600">The Right Way</span>
             </h2>
-            <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
+            <p className="text-xl text-slate-600 mb-12 max-w-2xl mx-auto">
               Join thousands of general contractors, builders, and construction managers 
-              delivering projects on time and under budget with BuildNet.
+              delivering projects on time and under budget with Skrobaki.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 onClick={() => onNavigate('auth')} 
                 size="lg"
-                className="text-lg px-10 py-7 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 shadow-2xl shadow-blue-500/50 transition-all duration-300 hover:scale-105"
+                className="text-lg px-10 py-7 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0 shadow-2xl shadow-blue-500/30 transition-all duration-300 hover:scale-105"
               >
                 Start Free Trial
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -348,7 +347,7 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <Button 
                 onClick={() => onNavigate('auth')} 
                 size="lg"
-                className="text-lg px-10 py-7 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-xl transition-all duration-300 hover:scale-105"
+                className="text-lg px-10 py-7 bg-white hover:bg-slate-50 text-slate-900 border-2 border-slate-300 hover:border-slate-400 transition-all duration-300 hover:scale-105 shadow-lg"
               >
                 Schedule Demo
               </Button>
@@ -358,13 +357,16 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-white/10 backdrop-blur-xl">
+      <footer className="py-12 px-6 border-t border-slate-200 bg-white/50 backdrop-blur-xl">
         <div className="container mx-auto text-center">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <Building2 className="h-6 w-6 text-blue-400" />
-            <span className="text-xl font-bold text-white">BuildNet</span>
+            <img 
+              src="/lovable-uploads/3a1e9978-cc53-4d2e-ae3a-8d5a295a8fdb.png" 
+              alt="Skrobaki Logo" 
+              className="h-10 object-contain"
+            />
           </div>
-          <p className="text-gray-500">&copy; 2024 BuildNet. Empowering construction excellence.</p>
+          <p className="text-slate-500">&copy; 2024 Skrobaki. Empowering construction excellence.</p>
         </div>
       </footer>
     </div>
@@ -383,33 +385,33 @@ const ModuleCard = ({
   gradient: string;
 }) => (
   <div className="group relative">
-    <div className={`absolute inset-0 bg-gradient-to-br ${gradient} blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-    <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 hover:border-white/20 transition-all duration-300 hover:scale-[1.02] h-full">
-      <div className="text-blue-400 mb-6 transform group-hover:scale-110 transition-transform duration-300">
+    <div className={`absolute inset-0 bg-gradient-to-br ${gradient} blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-500`} />
+    <div className="relative bg-white/80 backdrop-blur-2xl border border-slate-200 rounded-2xl p-8 hover:border-blue-300 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] h-full">
+      <div className="text-blue-600 mb-6 transform group-hover:scale-110 transition-transform duration-300">
         {icon}
       </div>
-      <h3 className="text-xl font-semibold mb-3 text-white">{title}</h3>
-      <p className="text-gray-400 leading-relaxed">{description}</p>
+      <h3 className="text-xl font-semibold mb-3 text-slate-900">{title}</h3>
+      <p className="text-slate-600 leading-relaxed">{description}</p>
     </div>
   </div>
 );
 
 const AIFeature = ({ title, description }: { title: string; description: string }) => (
-  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300">
-    <div className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg p-2 mt-1">
+  <div className="flex items-start gap-4 p-4 rounded-xl bg-white/80 backdrop-blur-xl border border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300">
+    <div className="bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg p-2 mt-1">
       <Sparkles className="h-4 w-4 text-white" />
     </div>
     <div>
-      <h4 className="text-white font-semibold mb-1">{title}</h4>
-      <p className="text-sm text-gray-400">{description}</p>
+      <h4 className="text-slate-900 font-semibold mb-1">{title}</h4>
+      <p className="text-sm text-slate-600">{description}</p>
     </div>
   </div>
 );
 
 const StatCard = ({ number, label }: { number: string; label: string }) => (
   <div className="text-center">
-    <div className="text-4xl md:text-5xl font-bold text-white mb-2">{number}</div>
-    <div className="text-sm text-gray-400">{label}</div>
+    <div className="text-4xl md:text-5xl font-bold text-slate-900 mb-2">{number}</div>
+    <div className="text-sm text-slate-600">{label}</div>
   </div>
 );
 
@@ -422,23 +424,23 @@ const ChallengeCard = ({
   problem: string; 
   solution: string;
 }) => (
-  <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 hover:border-orange-500/30 transition-all duration-300">
+  <div className="bg-white/80 backdrop-blur-2xl border border-slate-200 rounded-2xl p-8 hover:border-orange-300 hover:shadow-xl transition-all duration-300">
     <div className="flex items-start gap-4 mb-6">
-      <div className="bg-red-500/20 rounded-xl p-3">
-        <AlertTriangle className="h-6 w-6 text-red-400" />
+      <div className="bg-red-100 rounded-xl p-3">
+        <AlertTriangle className="h-6 w-6 text-red-600" />
       </div>
       <div>
-        <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
-        <p className="text-gray-400">{problem}</p>
+        <h3 className="text-2xl font-bold text-slate-900 mb-2">{title}</h3>
+        <p className="text-slate-600">{problem}</p>
       </div>
     </div>
-    <div className="flex items-start gap-4 pt-6 border-t border-white/10">
-      <div className="bg-green-500/20 rounded-xl p-3">
-        <CheckCircle2 className="h-6 w-6 text-green-400" />
+    <div className="flex items-start gap-4 pt-6 border-t border-slate-200">
+      <div className="bg-green-100 rounded-xl p-3">
+        <CheckCircle2 className="h-6 w-6 text-green-600" />
       </div>
       <div>
-        <h4 className="text-white font-semibold mb-2">BuildNet Solution</h4>
-        <p className="text-gray-400">{solution}</p>
+        <h4 className="text-slate-900 font-semibold mb-2">Skrobaki Solution</h4>
+        <p className="text-slate-600">{solution}</p>
       </div>
     </div>
   </div>
