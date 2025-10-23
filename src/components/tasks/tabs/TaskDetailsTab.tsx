@@ -10,7 +10,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, MessageSquare, Clock, Trash2, CalendarIcon, GripVertical, Activity } from 'lucide-react';
+import { Plus, MessageSquare, Clock, Trash2, CalendarIcon, GripVertical, Activity, Paperclip } from 'lucide-react';
 import { useTaskComments } from '@/hooks/useTaskComments';
 import { useTaskActivity } from '@/hooks/useTaskActivity';
 import { formatDate } from '@/utils/dateFormat';
@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { TeamTaskAssignment } from '@/components/tasks/enhanced/TeamTaskAssignment';
+import { TaskAttachments } from '@/components/tasks/TaskAttachments';
 
 interface TaskDetailsTabProps {
   task: any;
@@ -274,6 +275,10 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
               <span className="text-sm font-semibold text-foreground">{task.duration || 0}</span>
               <span className="text-xs text-muted-foreground">days</span>
             </div>
+          </div>
+
+          <div className="ml-auto flex-shrink-0">
+            <TaskAttachments taskId={task.id} />
           </div>
         </div>
       </div>
