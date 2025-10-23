@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, MessageSquare, Clock, Trash2, CalendarIcon, GripVertical } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, MessageSquare, Clock, Trash2, CalendarIcon, GripVertical, Activity } from 'lucide-react';
 import { useTaskComments } from '@/hooks/useTaskComments';
 import { useTaskActivity } from '@/hooks/useTaskActivity';
 import { formatDate } from '@/utils/dateFormat';
@@ -361,71 +362,90 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
         </div>
       </div>
 
-      {/* Activity Feed + Comments */}
-      <div className="bg-white rounded-2xl border border-border/30 p-6 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-        <h3 className="text-base font-semibold mb-5 text-foreground">Activity Feed & Comments</h3>
-        
-        {/* Activity List */}
-        <div className="space-y-4 mb-6">
-          {activities.map((activity) => (
-            <div key={activity.id} className="flex gap-3 pb-4 border-b last:border-0">
-              <Avatar className="h-9 w-9 flex-shrink-0">
-                <AvatarImage src={activity.user_avatar} />
-                <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">{activity.user_name[0]}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className="text-sm font-semibold">{activity.user_name}</span>
-                  <span className="text-xs text-muted-foreground">{activity.action_type}</span>
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formatDate(activity.created_at)}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground">{activity.action_description}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Activity & Comments Tabs */}
+      <div className="bg-white rounded-2xl border border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+        <Tabs defaultValue="activity" className="w-full">
+          <div className="px-6 pt-6">
+            <TabsList className="inline-flex h-9 items-center justify-start bg-muted/30 p-1 rounded-md">
+              <TabsTrigger value="activity" className="flex items-center gap-2 text-xs">
+                <Activity className="h-3.5 w-3.5" />
+                <span>Activity</span>
+              </TabsTrigger>
+              <TabsTrigger value="comments" className="flex items-center gap-2 text-xs">
+                <MessageSquare className="h-3.5 w-3.5" />
+                <span>Comments ({comments.length})</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-        {/* Comments */}
-        <div className="space-y-4 mb-5">
-          <h4 className="text-sm font-semibold flex items-center gap-2 text-foreground">
-            <MessageSquare className="h-4 w-4" />
-            Comments ({comments.length})
-          </h4>
-          {comments.map((comment) => (
-            <div key={comment.id} className="flex gap-3 p-4 bg-slate-50/50 rounded-xl border border-border/20">
-              <Avatar className="h-9 w-9 flex-shrink-0">
-                <AvatarImage src={comment.user_avatar} />
-                <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">{comment.user_name[0]}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-semibold">{comment.user_name}</span>
-                  <span className="text-xs text-muted-foreground">{formatDate(comment.created_at)}</span>
-                </div>
-                <p className="text-sm text-foreground">{comment.comment}</p>
-              </div>
+          <TabsContent value="activity" className="px-6 pb-6 pt-4 mt-0">
+            <div className="space-y-4">
+              {activities.length > 0 ? (
+                activities.map((activity) => (
+                  <div key={activity.id} className="flex gap-3 pb-4 border-b last:border-0">
+                    <Avatar className="h-9 w-9 flex-shrink-0">
+                      <AvatarImage src={activity.user_avatar} />
+                      <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">{activity.user_name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="text-sm font-semibold">{activity.user_name}</span>
+                        <span className="text-xs text-muted-foreground">{activity.action_type}</span>
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {formatDate(activity.created_at)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{activity.action_description}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">No activity yet</p>
+              )}
             </div>
-          ))}
-        </div>
+          </TabsContent>
 
-        {/* Add Comment */}
-        <div className="flex gap-3">
-          <Textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add a comment..."
-            className="min-h-[80px] resize-none bg-slate-50/50 border-border/30"
-          />
-          <Button 
-            onClick={handleAddComment} 
-            className="self-end bg-luxury-gold text-white hover:bg-luxury-gold-dark"
-          >
-            Post
-          </Button>
-        </div>
+          <TabsContent value="comments" className="px-6 pb-6 pt-4 mt-0">
+            <div className="space-y-4 mb-5">
+              {comments.length > 0 ? (
+                comments.map((comment) => (
+                  <div key={comment.id} className="flex gap-3 p-4 bg-slate-50/50 rounded-xl border border-border/20">
+                    <Avatar className="h-9 w-9 flex-shrink-0">
+                      <AvatarImage src={comment.user_avatar} />
+                      <AvatarFallback className="text-sm bg-luxury-gold/20 text-luxury-gold-dark">{comment.user_name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold">{comment.user_name}</span>
+                        <span className="text-xs text-muted-foreground">{formatDate(comment.created_at)}</span>
+                      </div>
+                      <p className="text-sm text-foreground">{comment.comment}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">No comments yet</p>
+              )}
+            </div>
+
+            {/* Add Comment */}
+            <div className="flex gap-3">
+              <Textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Add a comment..."
+                className="min-h-[80px] resize-none bg-slate-50/50 border-border/30"
+              />
+              <Button 
+                onClick={handleAddComment} 
+                className="self-end bg-luxury-gold text-white hover:bg-luxury-gold-dark"
+              >
+                Post
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
