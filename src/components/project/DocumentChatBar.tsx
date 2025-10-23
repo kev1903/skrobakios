@@ -244,12 +244,25 @@ export const DocumentChatBar = ({
     }
 
     const file = files[0];
-    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'text/csv', 'application/json', 'text/markdown'];
+    const validTypes = [
+      'application/pdf', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+      'text/plain', 
+      'text/csv', 
+      'application/json', 
+      'text/markdown',
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/bmp'
+    ];
     
-    if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|docx|txt|csv|json|md)$/i)) {
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|docx|txt|csv|json|md|jpg|jpeg|png|gif|webp|bmp)$/i)) {
       toast({
         title: "Unsupported file type",
-        description: "Please upload PDF, DOCX, TXT, CSV, JSON, or MD files.",
+        description: "Please upload PDF, DOCX, TXT, CSV, JSON, MD, or image files (JPG, PNG, GIF, WEBP, BMP).",
         variant: "destructive",
       });
       return;
