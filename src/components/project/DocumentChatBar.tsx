@@ -152,23 +152,28 @@ export const DocumentChatBar = ({
           description: "SkAi is analyzing your file. This may take a moment.",
         });
 
-        // For now, convert to base64 for processing
+        // Convert to base64 data URL for processing
         const reader = new FileReader();
-        const base64Promise = new Promise<string>((resolve, reject) => {
+        const dataUrlPromise = new Promise<string>((resolve, reject) => {
           reader.onload = () => {
-            const base64 = (reader.result as string).split(',')[1];
-            resolve(base64);
+            resolve(reader.result as string); // Keep full data URL
           };
           reader.onerror = reject;
         });
         reader.readAsDataURL(file);
         
-        const base64Content = await base64Promise;
+        const dataUrl = await dataUrlPromise;
+        
+        console.log('Sending file to ai-file-analysis:', { 
+          fileName: file.name, 
+          fileType: file.type,
+          dataUrlLength: dataUrl.length 
+        });
         
         // Send to AI for document analysis
         const { data, error } = await supabase.functions.invoke('ai-file-analysis', {
           body: {
-            fileContent: base64Content,
+            fileData: dataUrl, // Send full data URL
             fileName: file.name,
             fileType: file.type,
             context: {
@@ -179,6 +184,8 @@ export const DocumentChatBar = ({
             }
           }
         });
+        
+        console.log('ai-file-analysis response:', { data, error });
 
         if (error) throw error;
         documentContent = data.analysis || 'Document processed but no content extracted.';

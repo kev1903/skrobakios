@@ -17,12 +17,16 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const { fileContent, fileData, fileType, fileName, context } = await req.json();
+    const { fileData, fileType, fileName, context } = await req.json();
     
-    // Use fileContent if provided, fallback to fileData
-    const actualFileData = fileContent || fileData;
+    if (!fileData || !fileName) {
+      throw new Error('Missing required fields: fileData and fileName');
+    }
     
-    console.log(`Processing file: ${fileName} (${fileType})`, context);
+    console.log(`Processing file: ${fileName} (${fileType})`, { 
+      contextProvided: !!context,
+      dataLength: fileData.length 
+    });
 
     // Prepare the message content based on file type
     const messageContent = [];
@@ -54,8 +58,14 @@ serve(async (req) => {
       messageContent.push({
         type: "image_url",
         image_url: {
-          url: actualFileData // base64 data URL
+          url: fileData // Should be full data URL: data:image/...;base64,...
         }
+      });
+    } else {
+      // For non-image files (PDFs, documents), include a note
+      messageContent.push({
+        type: "text",
+        text: `\nNote: Analyzing ${fileType} document structure and any extractable content.`
       });
     }
 
