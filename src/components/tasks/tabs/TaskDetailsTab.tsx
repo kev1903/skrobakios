@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, MessageSquare, Clock, Trash2, CalendarIcon, GripVertical, Activity } from 'lucide-react';
 import { useTaskComments } from '@/hooks/useTaskComments';
 import { useTaskActivity } from '@/hooks/useTaskActivity';
@@ -56,6 +57,10 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
 
   const handleEndDateChange = (date: Date | undefined) => {
     setEndDate(date);
+  };
+
+  const handlePriorityChange = (priority: string) => {
+    onUpdate({ priority });
   };
 
   const getPriorityColor = (priority: string) => {
@@ -152,7 +157,31 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
           
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-xs text-muted-foreground">Priority</span>
-            <Badge className={`${getPriorityColor(task.priority)} font-medium text-xs px-2.5 py-0.5`}>{task.priority || 'Medium'}</Badge>
+            <Select value={task.priority || 'Medium'} onValueChange={handlePriorityChange}>
+              <SelectTrigger className={cn("h-8 w-[110px] text-xs", getPriorityColor(task.priority))}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="High" className="text-xs">
+                  <span className="flex items-center">
+                    <span className="w-2 h-2 rounded-full bg-rose-500 mr-2"></span>
+                    High
+                  </span>
+                </SelectItem>
+                <SelectItem value="Medium" className="text-xs">
+                  <span className="flex items-center">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 mr-2"></span>
+                    Medium
+                  </span>
+                </SelectItem>
+                <SelectItem value="Low" className="text-xs">
+                  <span className="flex items-center">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>
+                    Low
+                  </span>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="h-8 w-px bg-border/50" />
