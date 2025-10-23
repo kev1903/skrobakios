@@ -24,8 +24,11 @@ const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated, loading } = useAuth();
   const [currentPage, setCurrentPage] = useState(() => {
-    // Initialize based on current route - if we're on root path, show landing page
-    return window.location.pathname === "/" ? "landing" : "landing";
+    // Check URL parameters first
+    const params = new URLSearchParams(window.location.search);
+    const pageParam = params.get('page');
+    // Default to landing page for root domain visits
+    return pageParam || 'landing';
   });
   const previousPageRef = useRef<string>("auth");
   const { selectedProject, currentProject, handleSelectProject } = useProjectState();
@@ -90,7 +93,12 @@ const Index = () => {
     const pageParam = searchParams.get('page');
     const projectIdParam = searchParams.get('projectId');
     
-    if (pageParam && pageParam !== currentPage) {
+    // If no page param is specified, ensure we're on the landing page for unauthenticated users
+    if (!pageParam && !isAuthenticated && !loading) {
+      if (currentPage !== 'landing') {
+        setCurrentPage('landing');
+      }
+    } else if (pageParam && pageParam !== currentPage) {
       // Store current page as previous when URL changes
       previousPageRef.current = currentPage;
       setCurrentPage(pageParam);
@@ -100,7 +108,7 @@ const Index = () => {
     if (projectIdParam && projectIdParam !== selectedProject) {
       handleSelectProject(projectIdParam);
     }
-  }, [searchParams, selectedProject, handleSelectProject]);
+  }, [searchParams, selectedProject, handleSelectProject, isAuthenticated, loading, currentPage]);
 
 
   // Redirect authenticated users away from public pages
