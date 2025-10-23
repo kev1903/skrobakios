@@ -17,30 +17,36 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const { fileData, fileType, fileName } = await req.json();
+    const { fileContent, fileData, fileType, fileName, context } = await req.json();
     
-    console.log(`Processing file: ${fileName} (${fileType})`);
+    // Use fileContent if provided, fallback to fileData
+    const actualFileData = fileContent || fileData;
+    
+    console.log(`Processing file: ${fileName} (${fileType})`, context);
 
     // Prepare the message content based on file type
     const messageContent = [];
     
     // Add text prompt
+    const contextInfo = context ? `\nProject Context: ${JSON.stringify(context)}` : '';
     messageContent.push({
       type: "text",
-      text: `You are SkAi, a financial AI assistant. Analyze this ${fileType.startsWith('image/') ? 'image' : 'document'} and provide insights. 
+      text: `You are SkAi, an intelligent construction project assistant. Analyze this ${fileType.startsWith('image/') ? 'image' : 'document'} and provide insights.${contextInfo}
       
-      For financial documents (invoices, receipts, statements):
-      - Extract key financial data (amounts, dates, vendors, categories)
-      - Identify the document type
-      - Provide a summary of important information
-      - Suggest expense categories if applicable
+      For construction documents (plans, specifications, contracts, invoices):
+      - Extract key information (project details, dates, costs, specifications)
+      - Identify the document type and purpose
+      - Highlight important requirements or milestones
+      - Note any safety or compliance items
+      - Suggest how this relates to project scope or tasks
       
-      For other images/documents:
+      For images (site photos, drawings):
       - Describe what you see
-      - Extract any relevant text or data
-      - Provide useful insights
+      - Identify construction elements or issues
+      - Note safety concerns if visible
+      - Extract any visible text or measurements
       
-      Be concise and helpful.`
+      Be concise, clear, and focus on actionable construction project insights.`
     });
 
     // Add image data for image files
@@ -48,7 +54,7 @@ serve(async (req) => {
       messageContent.push({
         type: "image_url",
         image_url: {
-          url: fileData // base64 data URL
+          url: actualFileData // base64 data URL
         }
       });
     }
