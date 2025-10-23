@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Download, Image as ImageIcon, File, X } from 'lucide-react';
+import { FileText, Download, Image as ImageIcon, File, X, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface TaskAttachment {
   id: string;
@@ -25,6 +25,7 @@ export const TaskAttachmentPreview = ({ taskId }: TaskAttachmentPreviewProps) =>
   const [attachments, setAttachments] = useState<TaskAttachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedPdf, setSelectedPdf] = useState<{ url: string; name: string } | null>(null);
 
   useEffect(() => {
     loadAttachments();
@@ -127,11 +128,11 @@ export const TaskAttachmentPreview = ({ taskId }: TaskAttachmentPreviewProps) =>
           Attachments ({attachments.length})
         </h3>
         
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
           {attachments.map((attachment) => (
             <div
               key={attachment.id}
-              className="group relative border border-border/30 rounded-xl overflow-hidden hover:shadow-md transition-all duration-200"
+              className="group relative border border-border/30 rounded-lg overflow-hidden hover:shadow-md transition-all duration-200"
             >
               {/* Preview Area */}
               <div 
@@ -139,6 +140,8 @@ export const TaskAttachmentPreview = ({ taskId }: TaskAttachmentPreviewProps) =>
                 onClick={() => {
                   if (isImageFile(attachment.file_type)) {
                     setSelectedImage(attachment.file_url);
+                  } else if (isPdfFile(attachment.file_type)) {
+                    setSelectedPdf({ url: attachment.file_url, name: attachment.file_name });
                   } else {
                     window.open(attachment.file_url, '_blank');
                   }
@@ -151,48 +154,48 @@ export const TaskAttachmentPreview = ({ taskId }: TaskAttachmentPreviewProps) =>
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="flex flex-col items-center justify-center p-4">
+                  <div className="flex flex-col items-center justify-center p-2">
                     {getFileIcon(attachment.file_type)}
-                    <span className="text-xs text-center text-muted-foreground mt-2 line-clamp-2">
-                      {attachment.file_name}
+                    <span className="text-[10px] text-center text-muted-foreground mt-1 line-clamp-2 px-1">
+                      {attachment.file_name.split('.').slice(0, -1).join('.').substring(0, 15)}
                     </span>
                   </div>
                 )}
               </div>
 
-              {/* File Info Overlay */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                <div className="text-white text-xs truncate font-medium mb-1">
+              {/* File Info Overlay - Only show on hover */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <div className="text-white text-[10px] truncate font-medium">
                   {attachment.file_name}
                 </div>
-                <div className="text-white/80 text-xs">
+                <div className="text-white/80 text-[9px]">
                   {formatFileSize(attachment.file_size)}
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <div className="absolute top-1 right-1 flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <Button
                   size="sm"
                   variant="secondary"
-                  className="h-7 w-7 p-0 bg-white/90 hover:bg-white shadow-sm"
+                  className="h-6 w-6 p-0 bg-white/90 hover:bg-white shadow-sm"
                   onClick={(e) => {
                     e.stopPropagation();
                     window.open(attachment.file_url, '_blank');
                   }}
                 >
-                  <Download className="w-3.5 h-3.5" />
+                  <ExternalLink className="w-3 h-3" />
                 </Button>
                 <Button
                   size="sm"
                   variant="secondary"
-                  className="h-7 w-7 p-0 bg-white/90 hover:bg-white shadow-sm"
+                  className="h-6 w-6 p-0 bg-white/90 hover:bg-white shadow-sm"
                   onClick={(e) => {
                     e.stopPropagation();
                     deleteAttachment(attachment);
                   }}
                 >
-                  <X className="w-3.5 h-3.5 text-red-500" />
+                  <X className="w-3 h-3 text-red-500" />
                 </Button>
               </div>
             </div>
@@ -202,12 +205,31 @@ export const TaskAttachmentPreview = ({ taskId }: TaskAttachmentPreviewProps) =>
 
       {/* Image Preview Dialog */}
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+        <DialogContent className="max-w-5xl max-h-[90vh] p-2">
           {selectedImage && (
             <img
               src={selectedImage}
               alt="Preview"
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain rounded-lg"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* PDF Preview Dialog */}
+      <Dialog open={!!selectedPdf} onOpenChange={() => setSelectedPdf(null)}>
+        <DialogContent className="max-w-6xl max-h-[90vh] p-0">
+          <DialogHeader className="px-6 py-4 border-b">
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-red-500" />
+              {selectedPdf?.name}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedPdf && (
+            <iframe
+              src={selectedPdf.url}
+              className="w-full h-[80vh]"
+              title={selectedPdf.name}
             />
           )}
         </DialogContent>
