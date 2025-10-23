@@ -29,6 +29,7 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
   const [newComment, setNewComment] = useState('');
   const [isAddingSubtask, setIsAddingSubtask] = useState(false);
   const [newSubtaskName, setNewSubtaskName] = useState('');
+  const [newSubtaskAssignee, setNewSubtaskAssignee] = useState<{ name: string; avatar: string; userId: string } | null>(null);
   const [startDate, setStartDate] = useState<Date | undefined>(
     task.startDate ? new Date(task.startDate) : undefined
   );
@@ -90,12 +91,13 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
       id: Date.now().toString(),
       name: newSubtaskName,
       completed: false,
-      assignedTo: null
+      assignedTo: newSubtaskAssignee
     };
     
     // Add new subtask at the end of the array
     onUpdate({ subtasks: [...currentSubtasks, newSubtask] });
     setNewSubtaskName('');
+    setNewSubtaskAssignee(null);
     setIsAddingSubtask(false);
   };
 
@@ -307,38 +309,52 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
             <DragDropContext onDragEnd={handleSubtaskDragEnd}>
               <div className="space-y-2">
                 {isAddingSubtask && (
-                  <div className="flex items-center gap-2 p-3 border border-luxury-gold/30 rounded-xl bg-luxury-gold/5">
-                    <Input
-                      value={newSubtaskName}
-                      onChange={(e) => setNewSubtaskName(e.target.value)}
-                      placeholder="Enter subtask name..."
-                      className="flex-1 border-border/30 bg-white"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleAddSubtask();
-                        if (e.key === 'Escape') {
-                          setIsAddingSubtask(false);
-                          setNewSubtaskName('');
-                        }
-                      }}
-                    />
-                    <Button 
-                      size="sm" 
-                      onClick={handleAddSubtask}
-                      className="bg-luxury-gold text-white hover:bg-luxury-gold-dark"
-                    >
-                      Save
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="ghost"
-                      onClick={() => {
-                        setIsAddingSubtask(false);
-                        setNewSubtaskName('');
-                      }}
-                    >
-                      Cancel
-                    </Button>
+                  <div className="flex flex-col gap-2 p-3 border border-luxury-gold/30 rounded-xl bg-luxury-gold/5">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={newSubtaskName}
+                        onChange={(e) => setNewSubtaskName(e.target.value)}
+                        placeholder="Enter subtask name..."
+                        className="flex-1 border-border/30 bg-white"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleAddSubtask();
+                          if (e.key === 'Escape') {
+                            setIsAddingSubtask(false);
+                            setNewSubtaskName('');
+                            setNewSubtaskAssignee(null);
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <TeamTaskAssignment
+                        projectId={projectId || task.project_id}
+                        currentAssignee={newSubtaskAssignee || undefined}
+                        onAssigneeChange={(assignee) => setNewSubtaskAssignee(assignee)}
+                        className="h-8 flex-1 text-xs"
+                      />
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          onClick={handleAddSubtask}
+                          className="bg-luxury-gold text-white hover:bg-luxury-gold-dark"
+                        >
+                          Save
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="ghost"
+                          onClick={() => {
+                            setIsAddingSubtask(false);
+                            setNewSubtaskName('');
+                            setNewSubtaskAssignee(null);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 )}
                 {task.subtasks?.length > 0 ? (
@@ -378,7 +394,7 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
                                   projectId={projectId || task.project_id}
                                   currentAssignee={subtask.assignedTo}
                                   onAssigneeChange={(assignee) => handleSubtaskAssigneeChange(subtask.id, assignee)}
-                                  className="h-7 w-auto min-w-[140px] text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="h-8 w-auto min-w-[160px] text-xs"
                                 />
                                 <Button
                                   variant="ghost"
