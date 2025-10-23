@@ -113,12 +113,12 @@ CRITICAL PROJECT ISOLATION RULES:
 - You MUST NEVER reference any other project or location
 - You MUST NEVER use data from other projects
 
-CRITICAL BATCH SIZE AND BREVITY RULES:
-- You can add a MAXIMUM of 3 WBS items per operation
-- If the user requests more than 3 items, create ONLY the first 3
-- Keep descriptions VERY brief (under 50 characters each)
-- Keep titles concise (under 50 characters)
-- In your explanation, use ONE SHORT SENTENCE ONLY
+CRITICAL BATCH SIZE AND IMPLEMENTATION RULES:
+- You can implement the ENTIRE WBS breakdown provided by the user
+- When user says "implement" or "add all", create ALL items from the detailed breakdown
+- Keep descriptions concise but informative (under 100 characters each)
+- Keep titles clear and specific (under 80 characters)
+- Process hierarchical structures: create parent items first, then children with proper parent_id references
 
 CRITICAL INSTRUCTIONS:
 1. You can ONLY perform operations on these tables: ${ALLOWED_TABLES.join(', ')}
@@ -175,14 +175,14 @@ For SINGLE item:
   "explanation": "Added 1 item"
 }
 
-For MULTIPLE items (MAX 3 items):
+For MULTIPLE items (can be as many as needed for full WBS breakdown):
 {
   "operation": "INSERT",
   "table": "wbs_items",
   "data": [
     {
-      "title": "Item 1",
-      "description": "Short desc",
+      "title": "Preliminary Works",
+      "description": "Site establishment and preliminary activities",
       "project_id": "${projectId}",
       "company_id": "${projectCompanyId}",
       "wbs_id": "1",
@@ -193,8 +193,8 @@ For MULTIPLE items (MAX 3 items):
       "parent_id": null
     },
     {
-      "title": "Item 2",
-      "description": "Short desc",
+      "title": "Main Structure",
+      "description": "Primary structural work",
       "project_id": "${projectId}",
       "company_id": "${projectCompanyId}",
       "wbs_id": "2",
@@ -203,22 +203,19 @@ For MULTIPLE items (MAX 3 items):
       "progress": 0,
       "level": 1,
       "parent_id": null
-    },
-    {
-      "title": "Item 3",
-      "description": "Short desc",
-      "project_id": "${projectId}",
-      "company_id": "${projectCompanyId}",
-      "wbs_id": "3",
-      "category": "Stage",
-      "status": "Not Started",
-      "progress": 0,
-      "level": 1,
-      "parent_id": null
     }
   ],
-  "explanation": "Added 3 items"
+  "explanation": "Added complete WBS breakdown"
 }
+
+CRITICAL FOR HIERARCHICAL WBS:
+- When implementing a full WBS with parent-child relationships, you MUST create items in order: parents first, then children
+- After creating parent items, you can reference their IDs in subsequent operations
+- For complex hierarchies, you may need to split into multiple INSERT operations:
+  1. First operation: Create all level 1 (top-level) items
+  2. Second operation: Create level 2 items with parent_id from level 1
+  3. Continue for deeper levels
+- IMPORTANT: When user asks to "implement entire WBS", analyze the structure and create ALL items across all levels
 
 CRITICAL WBS CATEGORY RULES:
 - ONLY use these exact category values: "Stage", "Component", "Element"
@@ -254,10 +251,11 @@ REMEMBER: You are ONLY working with project "${projectData.name}" - never refere
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `${prompt}
 
-CRITICAL: Keep ALL text VERY short. Max 50 chars for titles and descriptions.
-RESPOND WITH ONLY JSON. NO OTHER TEXT. BE EXTREMELY BRIEF.` }
+CRITICAL: When implementing WBS, create ALL items from the detailed breakdown provided.
+Keep titles clear and descriptions concise but informative.
+RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
         ],
-        max_completion_tokens: 4000,
+        max_completion_tokens: 8000,
       }),
     });
 
