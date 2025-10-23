@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Sparkles, X, Minimize2, Trash2, AlertCircle } from "lucide-react";
+import { Send, Sparkles, X, Minimize2, Trash2, AlertCircle, Upload, FileText } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import { useSkaiDatabaseOperations } from '@/hooks/useSkaiDatabaseOperations';
@@ -47,6 +47,7 @@ export const DocumentChatBar = ({
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { executeOperation, isExecuting } = useSkaiDatabaseOperations();
@@ -95,6 +96,160 @@ export const DocumentChatBar = ({
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+    if (x <= rect.left || x >= rect.right || y <= rect.top || y >= rect.bottom) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const processDocument = async (file: File) => {
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: `📎 Uploaded: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`,
+      role: 'user',
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+
+    try {
+      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+      const isTextFile = ['txt', 'md', 'csv', 'json', 'xml'].includes(fileExtension || '');
+      
+      let documentContent = '';
+
+      if (isTextFile) {
+        // Read text files directly
+        documentContent = await file.text();
+      } else {
+        // Use document parsing for PDFs, DOCX, etc.
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Create a temporary file path for parsing
+        const tempFilePath = `temp-${Date.now()}-${file.name}`;
+        
+        toast({
+          title: "Processing document...",
+          description: "SkAi is analyzing your file. This may take a moment.",
+        });
+
+        // For now, convert to base64 for processing
+        const reader = new FileReader();
+        const base64Promise = new Promise<string>((resolve, reject) => {
+          reader.onload = () => {
+            const base64 = (reader.result as string).split(',')[1];
+            resolve(base64);
+          };
+          reader.onerror = reject;
+        });
+        reader.readAsDataURL(file);
+        
+        const base64Content = await base64Promise;
+        
+        // Send to AI for document analysis
+        const { data, error } = await supabase.functions.invoke('ai-file-analysis', {
+          body: {
+            fileContent: base64Content,
+            fileName: file.name,
+            fileType: file.type,
+            context: {
+              projectId,
+              projectName,
+              currentTab,
+              analysisType: 'document'
+            }
+          }
+        });
+
+        if (error) throw error;
+        documentContent = data.analysis || 'Document processed but no content extracted.';
+      }
+
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `📄 **Document Analysis: ${file.name}**\n\n${documentContent.substring(0, 2000)}${documentContent.length > 2000 ? '...\n\n*Note: Content truncated for display. Full analysis complete.*' : ''}`,
+        role: 'assistant',
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+      
+      toast({
+        title: "Document analyzed!",
+        description: "SkAi has reviewed your document.",
+      });
+
+    } catch (error) {
+      console.error('Error processing document:', error);
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `❌ Failed to process document: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        role: 'assistant',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      
+      toast({
+        title: "Error",
+        description: "Failed to process the document. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    
+    if (files.length === 0) return;
+
+    if (files.length > 1) {
+      toast({
+        title: "Multiple files detected",
+        description: "Processing only the first file. Please upload one file at a time.",
+      });
+    }
+
+    const file = files[0];
+    const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'text/csv', 'application/json', 'text/markdown'];
+    
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(pdf|docx|txt|csv|json|md)$/i)) {
+      toast({
+        title: "Unsupported file type",
+        description: "Please upload PDF, DOCX, TXT, CSV, JSON, or MD files.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    await processDocument(file);
+  };
 
 
   const handleDatabaseOperation = async (prompt: string) => {
@@ -441,7 +596,22 @@ export const DocumentChatBar = ({
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-4">
+      <ScrollArea 
+        className="flex-1 p-4 relative"
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {isDragging && (
+          <div className="absolute inset-0 bg-primary/10 border-2 border-dashed border-primary rounded-lg z-10 flex items-center justify-center backdrop-blur-sm">
+            <div className="text-center">
+              <Upload className="w-12 h-12 mx-auto mb-2 text-primary animate-bounce" />
+              <p className="text-lg font-semibold text-primary">Drop document here</p>
+              <p className="text-sm text-muted-foreground">PDF, DOCX, TXT, CSV, JSON, or MD</p>
+            </div>
+          </div>
+        )}
         <div className="space-y-3">
           {messages.length === 0 && (
             <div className="text-center text-muted-foreground text-sm py-6">
