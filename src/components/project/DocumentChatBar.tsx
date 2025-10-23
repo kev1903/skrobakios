@@ -13,6 +13,10 @@ interface Message {
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
+  suggestion?: {
+    prompt: string;
+    implemented?: boolean;
+  };
 }
 
 interface DocumentChatBarProps {
@@ -171,6 +175,72 @@ export const DocumentChatBar = ({
     }
   };
 
+  const handleImplementSuggestion = async (messageId: string, prompt: string) => {
+    if (!projectId || !projectName) return;
+
+    // Update message to show as implementing
+    setMessages(prev => prev.map(msg => 
+      msg.id === messageId 
+        ? { ...msg, content: msg.content + '\n\n⏳ Implementing...' }
+        : msg
+    ));
+
+    setIsLoading(true);
+
+    try {
+      const result = await executeOperation(prompt, {
+        projectId,
+        projectName,
+        currentPage: 'Project Control'
+      });
+
+      let resultMessage: string;
+      if (result.success) {
+        resultMessage = `\n\n✅ Implemented successfully!\nAffected ${result.recordsAffected || 0} record(s) in ${result.table}.`;
+        
+        // Mark as implemented
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { 
+                ...msg, 
+                content: msg.content.replace('\n\n⏳ Implementing...', resultMessage),
+                suggestion: { ...msg.suggestion!, implemented: true }
+              }
+            : msg
+        ));
+        
+        // Trigger page refresh on success
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('skai-task-created', {
+            detail: { projectId }
+          }));
+        }, 500);
+      } else {
+        resultMessage = `\n\n❌ Implementation failed: ${result.error || 'Unknown error'}`;
+        if (result.details) {
+          resultMessage += `\n${result.details}`;
+        }
+        
+        setMessages(prev => prev.map(msg => 
+          msg.id === messageId 
+            ? { ...msg, content: msg.content.replace('\n\n⏳ Implementing...', resultMessage) }
+            : msg
+        ));
+      }
+    } catch (error) {
+      console.error('Error implementing suggestion:', error);
+      const errorMsg = `\n\n❌ Failed to implement: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, content: msg.content.replace('\n\n⏳ Implementing...', errorMsg) }
+          : msg
+      ));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -187,40 +257,42 @@ export const DocumentChatBar = ({
     setIsLoading(true);
 
     try {
-      // For Scope tab, always use database operations function
-      // It can handle both questions and modifications
+      // For Scope tab, get AI suggestion first with Implement button
       if (currentTab === 'Scope' && projectId) {
-        console.log('Routing Scope request to skai-database-operations');
+        console.log('Getting SkAi suggestion for Scope');
         
-        // Use database operations for all scope-related requests
-        const result = await executeOperation(userInput, {
-          projectId,
-          projectName,
-          currentPage: 'Project Control'
+        // Call AI to get suggestion
+        const conversation = messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
+
+        const contextString = `Project: "${projectName}"\nCurrent Page: Project Control\nCurrent Tab: Scope\n\nUser request: ${userInput}`;
+
+        const { data, error } = await supabase.functions.invoke('ai-chat', {
+          body: {
+            message: contextString,
+            conversation: conversation,
+            context: {
+              projectId,
+              projectName,
+              currentPage: 'Project Control',
+              currentTab: 'Scope'
+            }
+          }
         });
 
-        let messageContent: string;
-        if (result.success) {
-          messageContent = `✅ ${result.explanation || 'Operation completed successfully'}\n\nAffected ${result.recordsAffected || 0} record(s) in ${result.table}.`;
-          
-          // Trigger page refresh on success
-          setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('skai-task-created', {
-              detail: { projectId }
-            }));
-          }, 500);
-        } else {
-          messageContent = `❌ ${result.error || 'Operation failed'}`;
-          if (result.details) {
-            messageContent += `\n\n${result.details}`;
-          }
-        }
+        if (error) throw error;
 
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: messageContent,
+          content: data.response,
           role: 'assistant',
-          timestamp: new Date()
+          timestamp: new Date(),
+          suggestion: {
+            prompt: userInput,
+            implemented: false
+          }
         };
 
         setMessages(prev => [...prev, aiMessage]);
@@ -394,7 +466,7 @@ export const DocumentChatBar = ({
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex flex-col ${message.role === 'user' ? 'items-end' : 'items-start'}`}
             >
               <div
                 className={`max-w-[85%] p-3 rounded-lg text-sm whitespace-pre-wrap ${
@@ -407,6 +479,17 @@ export const DocumentChatBar = ({
               >
                 {message.content}
               </div>
+              {message.role === 'assistant' && message.suggestion && !message.suggestion.implemented && !message.content.includes('⏳ Implementing') && (
+                <Button
+                  onClick={() => handleImplementSuggestion(message.id, message.suggestion!.prompt)}
+                  disabled={isLoading || isExecuting}
+                  size="sm"
+                  className="mt-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md"
+                >
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  Implement
+                </Button>
+              )}
             </div>
           ))}
           {isLoading && (
