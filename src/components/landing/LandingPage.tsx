@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, Building2, Zap, Brain, ChevronRight, Layers, BarChart3, Calendar, Shield } from 'lucide-react';
+import { ArrowRight, Sparkles, Building2, Zap, Brain, ChevronRight, Layers, BarChart3, Calendar, Shield, HardHat, Truck, Users, FileText, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 interface LandingPageProps {
   onNavigate: (page: string) => void;
@@ -57,21 +57,21 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         <div className="container mx-auto max-w-7xl">
           <div className="text-center space-y-8 mb-20" ref={heroRef}>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-4">
-              <Sparkles className="h-4 w-4 text-blue-400" />
-              <span className="text-sm text-gray-300">Powered by AI</span>
+              <HardHat className="h-4 w-4 text-orange-400" />
+              <span className="text-sm text-gray-300">Built for Construction Professionals</span>
             </div>
             
             <h1 className="text-6xl md:text-8xl font-bold text-white leading-tight tracking-tight">
-              Build Smarter
+              Construction Projects
               <br />
-              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Deliver Faster
+              <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-yellow-400 bg-clip-text text-transparent">
+                Done Right
               </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
-              Enterprise-grade construction management with AI-powered insights. 
-              Transform how you plan, execute, and deliver projects.
+              From groundbreaking to handover - manage every phase of your construction projects 
+              with precision. No delays. No surprises. Just results.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12">
@@ -95,14 +95,16 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
             </div>
           </div>
 
-          {/* Glass Card Preview */}
+          {/* Construction Stats Preview */}
           <div className="relative mt-20 mx-auto max-w-6xl">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-amber-500/20 blur-3xl" />
             <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-1 shadow-2xl">
-              <div className="bg-gradient-to-br from-slate-900/50 to-blue-900/30 rounded-2xl p-8 min-h-[400px] flex items-center justify-center">
-                <div className="text-center space-y-4">
-                  <Layers className="h-20 w-20 text-blue-400 mx-auto opacity-50" />
-                  <p className="text-gray-400">Interactive Dashboard Preview</p>
+              <div className="bg-gradient-to-br from-slate-900/50 to-orange-900/30 rounded-2xl p-12">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                  <StatCard number="500+" label="Active Projects" />
+                  <StatCard number="98%" label="On-Time Delivery" />
+                  <StatCard number="$2.5B+" label="Projects Managed" />
+                  <StatCard number="5,000+" label="Construction Teams" />
                 </div>
               </div>
             </div>
@@ -110,58 +112,118 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
         </div>
       </section>
 
-      {/* Project Modules Section */}
+      {/* Construction Project Lifecycle */}
       <section className="py-32 px-6 relative">
         <div className="container mx-auto max-w-7xl">
           <div className="text-center mb-20">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-6">
-              <Layers className="h-4 w-4 text-purple-400" />
-              <span className="text-sm text-gray-300">Comprehensive Modules</span>
+              <Building2 className="h-4 w-4 text-orange-400" />
+              <span className="text-sm text-gray-300">Complete Project Lifecycle</span>
             </div>
             <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
-              Complete Project Control
+              Every Phase. Every Detail.
+              <br />
+              <span className="text-orange-400">Under Control.</span>
             </h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-              Everything you need to manage construction projects from start to finish
+            <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+              Manage your construction projects from pre-construction planning through closeout 
+              with specialized tools for each critical phase
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             <ModuleCard
-              icon={<Calendar className="h-8 w-8" />}
-              title="Smart Scheduling"
-              description="AI-powered Gantt charts with critical path analysis and resource optimization"
+              icon={<FileText className="h-8 w-8" />}
+              title="Pre-Construction Planning"
+              description="Bid management, estimating, contract administration, and procurement planning for construction projects"
               gradient="from-blue-500/20 to-cyan-500/20"
             />
             <ModuleCard
+              icon={<Calendar className="h-8 w-8" />}
+              title="Construction Scheduling"
+              description="Critical path method (CPM) scheduling, resource leveling, and construction phase coordination"
+              gradient="from-orange-500/20 to-amber-500/20"
+            />
+            <ModuleCard
               icon={<BarChart3 className="h-8 w-8" />}
-              title="Cost Management"
-              description="Real-time budgeting, forecasting, and financial reporting with predictive analytics"
-              gradient="from-purple-500/20 to-pink-500/20"
-            />
-            <ModuleCard
-              icon={<Building2 className="h-8 w-8" />}
-              title="Site Management"
-              description="Multi-site coordination with live updates and progress tracking"
-              gradient="from-orange-500/20 to-red-500/20"
-            />
-            <ModuleCard
-              icon={<Shield className="h-8 w-8" />}
-              title="Safety & QA/QC"
-              description="Comprehensive safety protocols and quality assurance workflows"
+              title="Cost Control & Budgeting"
+              description="Track construction costs, change orders, draw requests, and payment applications in real-time"
               gradient="from-green-500/20 to-emerald-500/20"
             />
             <ModuleCard
-              icon={<Layers className="h-8 w-8" />}
-              title="Document Control"
-              description="Centralized document management with version control and collaboration"
+              icon={<HardHat className="h-8 w-8" />}
+              title="Field & Site Management"
+              description="Daily reports, site inspections, punch lists, and construction progress tracking from the field"
+              gradient="from-purple-500/20 to-pink-500/20"
+            />
+            <ModuleCard
+              icon={<Shield className="h-8 w-8" />}
+              title="Safety & Compliance"
+              description="OSHA compliance, safety inspections, incident reporting, and construction risk management"
+              gradient="from-red-500/20 to-orange-500/20"
+            />
+            <ModuleCard
+              icon={<CheckCircle2 className="h-8 w-8" />}
+              title="Quality Assurance / QC"
+              description="Construction QA/QC checklists, inspections, RFIs, submittals, and material testing coordination"
               gradient="from-indigo-500/20 to-blue-500/20"
             />
             <ModuleCard
-              icon={<Zap className="h-8 w-8" />}
-              title="Workflow Automation"
-              description="Automate repetitive tasks and approvals to boost productivity"
+              icon={<Users className="h-8 w-8" />}
+              title="Subcontractor Management"
+              description="Subcontractor coordination, compliance tracking, performance monitoring, and payment management"
               gradient="from-yellow-500/20 to-orange-500/20"
+            />
+            <ModuleCard
+              icon={<Layers className="h-8 w-8" />}
+              title="Document & Drawing Control"
+              description="Construction drawings, specifications, submittals, RFIs, and as-built documentation management"
+              gradient="from-teal-500/20 to-cyan-500/20"
+            />
+            <ModuleCard
+              icon={<Truck className="h-8 w-8" />}
+              title="Equipment & Materials"
+              description="Track construction equipment, material deliveries, inventory, and logistics coordination"
+              gradient="from-amber-500/20 to-yellow-500/20"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Construction Challenges Section */}
+      <section className="py-32 px-6 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-950/20 to-transparent" />
+        <div className="container mx-auto max-w-7xl relative">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 mb-6">
+              <AlertTriangle className="h-4 w-4 text-orange-400" />
+              <span className="text-sm text-gray-300">Common Construction Challenges</span>
+            </div>
+            <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+              Stop Fighting These Problems
+            </h2>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            <ChallengeCard
+              title="Schedule Delays"
+              problem="Weather delays, permit issues, and subcontractor coordination causing projects to fall behind"
+              solution="Real-time schedule updates, weather integration, and automated alerts keep everyone aligned"
+            />
+            <ChallengeCard
+              title="Budget Overruns"
+              problem="Change orders, material cost fluctuations, and hidden costs eating into profit margins"
+              solution="Live cost tracking, change order management, and predictive budget forecasting"
+            />
+            <ChallengeCard
+              title="Safety Incidents"
+              problem="OSHA violations, on-site accidents, and compliance documentation gaps creating liability"
+              solution="Digital safety checklists, incident tracking, and automated compliance reporting"
+            />
+            <ChallengeCard
+              title="Communication Breakdowns"
+              problem="Lost RFIs, unclear drawings, and miscommunication between GC, subs, and owners"
+              solution="Centralized communication hub, automated RFI workflows, and version-controlled drawings"
             />
           </div>
         </div>
@@ -181,32 +243,32 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <h2 className="text-5xl md:text-6xl font-bold text-white leading-tight">
                 Meet SkAi
                 <br />
-                <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-                  Your AI Project Manager
+                <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-orange-400 bg-clip-text text-transparent">
+                  Your AI Construction Assistant
                 </span>
               </h2>
               
               <p className="text-xl text-gray-400 leading-relaxed">
-                SkAi is your intelligent construction assistant that learns from your projects, 
-                predicts potential issues, and provides actionable insights to keep everything on track.
+                SkAi understands construction. Trained on thousands of projects, it predicts delays, 
+                identifies risks, and helps you make better decisions on every job site.
               </p>
 
               <div className="space-y-4">
                 <AIFeature 
-                  title="Predictive Analytics"
-                  description="Forecast project delays and cost overruns before they happen"
+                  title="Delay Prediction"
+                  description="Identify schedule risks before they impact your critical path and milestone dates"
                 />
                 <AIFeature 
-                  title="Smart Recommendations"
-                  description="Get AI-powered suggestions for resource allocation and scheduling"
+                  title="Cost Intelligence"
+                  description="Track budget burn rate and predict overruns based on historical construction data"
                 />
                 <AIFeature 
-                  title="Natural Language Queries"
-                  description="Ask questions about your projects in plain English"
+                  title="Ask About Your Projects"
+                  description="'Which projects are behind schedule?' 'What's the status of the HVAC rough-in?'"
                 />
                 <AIFeature 
-                  title="Risk Assessment"
-                  description="Automated risk identification and mitigation strategies"
+                  title="Safety Risk Detection"
+                  description="AI-powered analysis of safety reports to identify patterns and prevent incidents"
                 />
               </div>
 
@@ -225,30 +287,30 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
               <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl">
                 <div className="space-y-4">
                   <div className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 rounded-2xl p-6 border border-white/10">
-                    <div className="flex items-start gap-4">
+                      <div className="flex items-start gap-4">
                       <div className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl p-3">
                         <Brain className="h-6 w-6 text-white" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm text-gray-400 mb-2">SkAi Analysis</p>
+                        <p className="text-sm text-gray-400 mb-2">SkAi Construction Analysis</p>
                         <p className="text-white text-sm">
-                          "Project Alpha is 12% ahead of schedule. I recommend reallocating 
-                          resources to Project Beta which shows early signs of delay."
+                          "Downtown Tower Project: Structural steel installation is 3 days behind critical path. 
+                          Weather delays and crane availability issues detected. Recommend expediting MEP rough-in crew."
                         </p>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-2xl p-6 border border-white/10">
+                  <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-2xl p-6 border border-white/10">
                     <div className="flex items-start gap-4">
-                      <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl p-3">
-                        <Zap className="h-6 w-6 text-white" />
+                      <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl p-3">
+                        <HardHat className="h-6 w-6 text-white" />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm text-gray-400 mb-2">Smart Insight</p>
+                        <p className="text-sm text-gray-400 mb-2">Site Risk Alert</p>
                         <p className="text-white text-sm">
-                          "Weather forecast shows rain next week. Consider rescheduling 
-                          outdoor concrete work to avoid delays."
+                          "Riverside Apartments: Foundation concrete pour scheduled for tomorrow. 
+                          Severe weather expected. Suggest rescheduling to maintain quality standards."
                         </p>
                       </div>
                     </div>
@@ -266,13 +328,13 @@ export const LandingPage = ({ onNavigate }: LandingPageProps) => {
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl" />
           <div className="relative bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-16">
             <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white">
-              Ready to Transform
+              Build Your Next Project
               <br />
-              Your Construction Process?
+              <span className="text-orange-400">The Right Way</span>
             </h2>
             <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-              Join leading construction companies using BuildNet to deliver projects 
-              faster, smarter, and more profitably.
+              Join thousands of general contractors, builders, and construction managers 
+              delivering projects on time and under budget with BuildNet.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
@@ -340,6 +402,44 @@ const AIFeature = ({ title, description }: { title: string; description: string 
     <div>
       <h4 className="text-white font-semibold mb-1">{title}</h4>
       <p className="text-sm text-gray-400">{description}</p>
+    </div>
+  </div>
+);
+
+const StatCard = ({ number, label }: { number: string; label: string }) => (
+  <div className="text-center">
+    <div className="text-4xl md:text-5xl font-bold text-white mb-2">{number}</div>
+    <div className="text-sm text-gray-400">{label}</div>
+  </div>
+);
+
+const ChallengeCard = ({ 
+  title, 
+  problem, 
+  solution 
+}: { 
+  title: string; 
+  problem: string; 
+  solution: string;
+}) => (
+  <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 hover:border-orange-500/30 transition-all duration-300">
+    <div className="flex items-start gap-4 mb-6">
+      <div className="bg-red-500/20 rounded-xl p-3">
+        <AlertTriangle className="h-6 w-6 text-red-400" />
+      </div>
+      <div>
+        <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
+        <p className="text-gray-400">{problem}</p>
+      </div>
+    </div>
+    <div className="flex items-start gap-4 pt-6 border-t border-white/10">
+      <div className="bg-green-500/20 rounded-xl p-3">
+        <CheckCircle2 className="h-6 w-6 text-green-400" />
+      </div>
+      <div>
+        <h4 className="text-white font-semibold mb-2">BuildNet Solution</h4>
+        <p className="text-gray-400">{solution}</p>
+      </div>
     </div>
   </div>
 );
