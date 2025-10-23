@@ -353,6 +353,10 @@ export const DocumentChatBar = ({
   const handleImplementSuggestion = async (messageId: string, prompt: string) => {
     if (!projectId || !projectName) return;
 
+    // Find the AI message to get the full detailed scope
+    const aiMessage = messages.find(msg => msg.id === messageId);
+    const detailedScope = aiMessage?.content || '';
+
     // Update message to show as implementing
     setMessages(prev => prev.map(msg => 
       msg.id === messageId 
@@ -363,7 +367,10 @@ export const DocumentChatBar = ({
     setIsLoading(true);
 
     try {
-      const result = await executeOperation(prompt, {
+      // Send the full detailed scope from AI's response, not just the original prompt
+      const implementPrompt = `Implement the following detailed scope of work as WBS items:\n\n${detailedScope}\n\nIMPORTANT: Create ALL items from this detailed breakdown, maintaining the hierarchical structure. Create parent items first, then children with proper parent_id references.`;
+      
+      const result = await executeOperation(implementPrompt, {
         projectId,
         projectName,
         currentPage: 'Project Control'

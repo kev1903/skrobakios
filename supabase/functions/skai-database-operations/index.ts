@@ -114,11 +114,14 @@ CRITICAL PROJECT ISOLATION RULES:
 - You MUST NEVER use data from other projects
 
 CRITICAL BATCH SIZE AND IMPLEMENTATION RULES:
-- You can implement the ENTIRE WBS breakdown provided by the user
-- When user says "implement" or "add all", create ALL items from the detailed breakdown
+- You MUST implement the ENTIRE WBS breakdown provided by the user
+- When user says "implement" or provides a detailed scope, create ALL items from it
+- Analyze the hierarchical structure and create items level by level
+- For complex hierarchies, you can create multiple batches but aim to create as many as possible in each operation
 - Keep descriptions concise but informative (under 100 characters each)
 - Keep titles clear and specific (under 80 characters)
 - Process hierarchical structures: create parent items first, then children with proper parent_id references
+- If the scope has more than 20 items, prioritize the most important parent items and their immediate children
 
 CRITICAL INSTRUCTIONS:
 1. You can ONLY perform operations on these tables: ${ALLOWED_TABLES.join(', ')}
@@ -175,7 +178,7 @@ For SINGLE item:
   "explanation": "Added 1 item"
 }
 
-For MULTIPLE items (can be as many as needed for full WBS breakdown):
+For MULTIPLE items (create as many as needed - no artificial limits):
 {
   "operation": "INSERT",
   "table": "wbs_items",
@@ -203,19 +206,33 @@ For MULTIPLE items (can be as many as needed for full WBS breakdown):
       "progress": 0,
       "level": 1,
       "parent_id": null
+    },
+    {
+      "title": "Finishes & Services",
+      "description": "Final finishes and services installation",
+      "project_id": "${projectId}",
+      "company_id": "${projectCompanyId}",
+      "wbs_id": "3",
+      "category": "Stage",
+      "status": "Not Started",
+      "progress": 0,
+      "level": 1,
+      "parent_id": null
     }
+    // ... add ALL items from the detailed scope, not just a sample
   ],
-  "explanation": "Added complete WBS breakdown"
+  "explanation": "Created complete WBS with all X items"
 }
 
-CRITICAL FOR HIERARCHICAL WBS:
-- When implementing a full WBS with parent-child relationships, you MUST create items in order: parents first, then children
-- After creating parent items, you can reference their IDs in subsequent operations
-- For complex hierarchies, you may need to split into multiple INSERT operations:
-  1. First operation: Create all level 1 (top-level) items
-  2. Second operation: Create level 2 items with parent_id from level 1
-  3. Continue for deeper levels
-- IMPORTANT: When user asks to "implement entire WBS", analyze the structure and create ALL items across all levels
+CRITICAL FOR HIERARCHICAL WBS IMPLEMENTATION:
+- When user provides a detailed scope breakdown, you MUST create ALL items from it, not just a sample
+- Create as many items as needed in a single INSERT operation (you can create 20-30+ items at once)
+- For very large scopes (40+ items), create in logical batches by level
+- Only create top-level items (level=1, parent_id=null) in the first batch
+- Child items must reference existing parent UUIDs, so they need separate operations after parents are created
+- When you see hierarchical markdown (**, *, nested bullets), parse it into proper parent-child WBS structure
+- Example: "**1. Stage**" → level 1, "  * Task" → level 2 with parent_id of stage
+- NEVER truncate the scope - if the user provides 15 items, create all 15 items
 
 CRITICAL WBS CATEGORY RULES:
 - ONLY use these exact category values: "Stage", "Component", "Element"
@@ -246,7 +263,7 @@ REMEMBER: You are ONLY working with project "${projectData.name}" - never refere
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-pro',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `${prompt}
@@ -255,7 +272,7 @@ CRITICAL: When implementing WBS, create ALL items from the detailed breakdown pr
 Keep titles clear and descriptions concise but informative.
 RESPOND WITH ONLY JSON. NO OTHER TEXT.` }
         ],
-        max_completion_tokens: 8000,
+        max_completion_tokens: 16000,
       }),
     });
 
