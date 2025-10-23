@@ -84,13 +84,21 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
     const newSubtask = {
       id: Date.now().toString(),
       name: newSubtaskName,
-      completed: false
+      completed: false,
+      assignedTo: null
     };
     
     // Add new subtask at the end of the array
     onUpdate({ subtasks: [...currentSubtasks, newSubtask] });
     setNewSubtaskName('');
     setIsAddingSubtask(false);
+  };
+
+  const handleSubtaskAssigneeChange = (subtaskId: string, assignee: { name: string; avatar: string; userId: string }) => {
+    const updatedSubtasks = task.subtasks.map((st: any) =>
+      st.id === subtaskId ? { ...st, assignedTo: assignee } : st
+    );
+    onUpdate({ subtasks: updatedSubtasks });
   };
 
   const handleToggleSubtask = (subtaskId: string) => {
@@ -337,6 +345,12 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
                                 <span className={`text-sm flex-1 font-medium ${subtask.completed ? 'line-through text-muted-foreground' : ''}`}>
                                   {subtask.name}
                                 </span>
+                                <TeamTaskAssignment
+                                  projectId={projectId || task.project_id}
+                                  currentAssignee={subtask.assignedTo}
+                                  onAssigneeChange={(assignee) => handleSubtaskAssigneeChange(subtask.id, assignee)}
+                                  className="h-7 w-auto min-w-[140px] text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                />
                                 <Button
                                   variant="ghost"
                                   size="sm"
