@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { TeamTaskAssignment } from '@/components/tasks/enhanced/TeamTaskAssignment';
 import { TaskAttachments } from '@/components/tasks/TaskAttachments';
+import { TaskAttachmentPreview } from '@/components/tasks/TaskAttachmentPreview';
 
 interface TaskDetailsTabProps {
   task: any;
@@ -425,6 +426,9 @@ export const TaskDetailsTab = ({ task, onUpdate, projectId }: TaskDetailsTabProp
           </div>
         </div>
       </div>
+
+      {/* Attachment Preview Section */}
+      <TaskAttachmentPreview taskId={task.id} />
 
       {/* Activity & Comments Tabs */}
       <div className="bg-white rounded-2xl border border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
