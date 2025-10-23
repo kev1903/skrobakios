@@ -178,7 +178,7 @@ export const useSubscription = () => {
         .eq('user_id', user.id)
         .single();
 
-      const trialEndDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString();
+      const trialEndDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
       if (existingSubscription) {
         // Update existing subscription
