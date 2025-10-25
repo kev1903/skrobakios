@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight, FileCheck, AlertTriangle, Trash } from 'lucide-react';
+import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight, FileCheck, AlertTriangle, Trash, UserPlus } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Project } from "@/hooks/useProjects";
@@ -28,6 +29,8 @@ import { ProjectPageHeader } from "../project/ProjectPageHeader";
 import { getStatusColor, getStatusText as utilsGetStatusText } from "./utils";
 import { useMenuBarSpacing } from "@/hooks/useMenuBarSpacing";
 import { ContractUploadDialog } from "./ContractUploadDialog";
+import { OwnersDetailsTab } from "./OwnersDetailsTab";
+import { OwnerDialog } from "./OwnerDialog";
 
 interface ProjectContractsPageProps {
   project: Project;
@@ -45,6 +48,21 @@ interface Contract {
   confidence: number;
   contract_data: any;
   contract_amount: number;
+}
+
+interface Owner {
+  id?: string;
+  name: string;
+  address: string;
+  suburb: string;
+  state: string;
+  postcode: string;
+  abn: string;
+  acn: string;
+  work_phone: string;
+  home_phone: string;
+  mobile: string;
+  email: string;
 }
 
 const getStatusBadgeVariant = (status: string) => {
@@ -84,6 +102,10 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [milestoneIndex, setMilestoneIndex] = useState<number>(-1);
   const [selectedMilestones, setSelectedMilestones] = useState<{[contractId: string]: Set<number>}>({});
+  const [activeTab, setActiveTab] = useState('contracts');
+  const [owners, setOwners] = useState<Owner[]>([]);
+  const [editingOwner, setEditingOwner] = useState<Owner | null>(null);
+  const [showOwnerDialog, setShowOwnerDialog] = useState(false);
   const { spacingClasses } = useMenuBarSpacing();
 
   const toggleContractExpansion = (contractId: string) => {
@@ -589,8 +611,102 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     }).format(displayAmount);
   };
 
+  const loadOwners = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('project_owners')
+        .select('*')
+        .eq('project_id', project.id)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setOwners(data || []);
+    } catch (error) {
+      console.error('Error loading owners:', error);
+      toast.error('Failed to load owners');
+    }
+  };
+
+  const handleSaveOwner = async () => {
+    if (!editingOwner) return;
+
+    try {
+      if (editingOwner.id) {
+        // Update existing owner
+        const { error } = await supabase
+          .from('project_owners')
+          .update({
+            name: editingOwner.name,
+            address: editingOwner.address,
+            suburb: editingOwner.suburb,
+            state: editingOwner.state,
+            postcode: editingOwner.postcode,
+            abn: editingOwner.abn,
+            acn: editingOwner.acn,
+            work_phone: editingOwner.work_phone,
+            home_phone: editingOwner.home_phone,
+            mobile: editingOwner.mobile,
+            email: editingOwner.email,
+          })
+          .eq('id', editingOwner.id);
+
+        if (error) throw error;
+        toast.success('Owner updated successfully');
+      } else {
+        // Create new owner
+        const { error } = await supabase
+          .from('project_owners')
+          .insert({
+            project_id: project.id,
+            company_id: project.company_id,
+            name: editingOwner.name,
+            address: editingOwner.address,
+            suburb: editingOwner.suburb,
+            state: editingOwner.state,
+            postcode: editingOwner.postcode,
+            abn: editingOwner.abn,
+            acn: editingOwner.acn,
+            work_phone: editingOwner.work_phone,
+            home_phone: editingOwner.home_phone,
+            mobile: editingOwner.mobile,
+            email: editingOwner.email,
+          });
+
+        if (error) throw error;
+        toast.success('Owner added successfully');
+      }
+
+      loadOwners();
+      setShowOwnerDialog(false);
+      setEditingOwner(null);
+    } catch (error) {
+      console.error('Error saving owner:', error);
+      toast.error('Failed to save owner');
+    }
+  };
+
+  const handleDeleteOwner = async (ownerId: string) => {
+    if (!confirm('Are you sure you want to delete this owner?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('project_owners')
+        .delete()
+        .eq('id', ownerId);
+
+      if (error) throw error;
+      
+      toast.success('Owner deleted successfully');
+      loadOwners();
+    } catch (error) {
+      console.error('Error deleting owner:', error);
+      toast.error('Failed to delete owner');
+    }
+  };
+
   useEffect(() => {
     loadContracts();
+    loadOwners();
   }, [project.id]);
 
   if (loading) {
@@ -640,16 +756,25 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
           {/* Content Area */}
           <div className="h-full overflow-y-auto">
             <div className="p-6">
-              {/* Upload Contract Button - Top Right */}
-              <div className="flex justify-end mb-4">
-                <Button 
-                  className="flex items-center gap-2"
-                  onClick={() => setShowUploadDialog(true)}
-                >
-                  <Upload className="h-4 w-4" />
-                  Upload Contract
-                </Button>
-              </div>
+              {/* Tabs for Contracts and Owners */}
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="contracts">Contracts</TabsTrigger>
+                  <TabsTrigger value="owners">Owners Details</TabsTrigger>
+                </TabsList>
+
+                {/* Contracts Tab */}
+                <TabsContent value="contracts" className="mt-0">
+                  {/* Upload Contract Button - Top Right */}
+                  <div className="flex justify-end mb-4">
+                    <Button 
+                      className="flex items-center gap-2"
+                      onClick={() => setShowUploadDialog(true)}
+                    >
+                      <Upload className="h-4 w-4" />
+                      Upload Contract
+                    </Button>
+                  </div>
 
               {contracts.length === 0 ? (
                 <div className="text-center py-12">
@@ -911,10 +1036,40 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                   </div>
                 </div>
               )}
+                </TabsContent>
+
+                {/* Owners Tab */}
+                <TabsContent value="owners" className="mt-0">
+                  <OwnersDetailsTab
+                    owners={owners}
+                    onAddOwner={() => {
+                      setEditingOwner({
+                        name: '', address: '', suburb: '', state: 'Victoria',
+                        postcode: '', abn: '', acn: '', work_phone: '',
+                        home_phone: '', mobile: '', email: ''
+                      });
+                      setShowOwnerDialog(true);
+                    }}
+                    onEditOwner={(owner) => {
+                      setEditingOwner(owner);
+                      setShowOwnerDialog(true);
+                    }}
+                    onDeleteOwner={handleDeleteOwner}
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
         </div>
       </div>
+
+      <OwnerDialog
+        open={showOwnerDialog}
+        onOpenChange={setShowOwnerDialog}
+        owner={editingOwner}
+        onOwnerChange={setEditingOwner}
+        onSave={handleSaveOwner}
+      />
 
       <ContractUploadDialog
         open={showUploadDialog}

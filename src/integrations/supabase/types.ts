@@ -3779,6 +3779,78 @@ export type Database = {
           },
         ]
       }
+      project_owners: {
+        Row: {
+          abn: string | null
+          acn: string | null
+          address: string | null
+          company_id: string
+          created_at: string
+          email: string | null
+          home_phone: string | null
+          id: string
+          mobile: string | null
+          name: string
+          postcode: string | null
+          project_id: string
+          state: string | null
+          suburb: string | null
+          updated_at: string
+          work_phone: string | null
+        }
+        Insert: {
+          abn?: string | null
+          acn?: string | null
+          address?: string | null
+          company_id: string
+          created_at?: string
+          email?: string | null
+          home_phone?: string | null
+          id?: string
+          mobile?: string | null
+          name: string
+          postcode?: string | null
+          project_id: string
+          state?: string | null
+          suburb?: string | null
+          updated_at?: string
+          work_phone?: string | null
+        }
+        Update: {
+          abn?: string | null
+          acn?: string | null
+          address?: string | null
+          company_id?: string
+          created_at?: string
+          email?: string | null
+          home_phone?: string | null
+          id?: string
+          mobile?: string | null
+          name?: string
+          postcode?: string | null
+          project_id?: string
+          state?: string | null
+          suburb?: string | null
+          updated_at?: string
+          work_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_owners_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_owners_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_requests: {
         Row: {
           attachments: string[] | null
