@@ -100,6 +100,10 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
 
   const handleGenerateInvoice = async (contract: Contract, payment: any) => {
     try {
+      console.log('Starting invoice generation for payment:', payment);
+      console.log('Contract:', contract);
+      console.log('Project ID:', project.id);
+
       // Generate invoice number - wrap in try-catch to handle schema cache issues
       let invoiceNumber = 'INV-001';
       try {
@@ -111,7 +115,10 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
           .limit(1);
 
         // Only throw if it's not a schema cache error
-        if (countError && countError.code !== '42P01') throw countError;
+        if (countError) {
+          console.error('Error fetching last invoice number:', countError);
+          if (countError.code !== '42P01') throw countError;
+        }
 
         // Extract number from last invoice and increment
         if (existingInvoices && existingInvoices.length > 0) {
@@ -122,6 +129,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
             invoiceNumber = `INV-${String(nextNum).padStart(3, '0')}`;
           }
         }
+        console.log('Generated invoice number:', invoiceNumber);
       } catch (err) {
         // If getting last invoice number fails, use default INV-001
         console.warn('Could not fetch last invoice number, using default:', err);
@@ -130,6 +138,11 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       // Parse the amount (remove $ and commas)
       const amountStr = payment.amount?.toString().replace(/[$,]/g, '') || '0';
       const amount = parseFloat(amountStr);
+      console.log('Parsed amount:', amount, 'from:', payment.amount);
+
+      if (isNaN(amount) || amount <= 0) {
+        throw new Error('Invalid payment amount');
+      }
 
       // Calculate dates
       const issueDate = new Date().toISOString().split('T')[0];
@@ -144,66 +157,104 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         dueDate.setDate(dueDate.getDate() + 30); // Default 30 days
       }
 
+      console.log('Invoice dates - Issue:', issueDate, 'Due:', dueDate.toISOString().split('T')[0]);
+
       // Calculate subtotal and tax from total (amount includes GST)
       const total = amount;
       const subtotal = total / 1.10; // Remove 10% GST to get subtotal
       const tax = total - subtotal;
+      console.log('Calculated amounts - Subtotal:', subtotal, 'Tax:', tax, 'Total:', total);
 
       // Create the invoice
+      const invoiceData = {
+        project_id: project.id,
+        contract_id: contract.id,
+        milestone_sequence: payment.sequence || null,
+        milestone_stage: payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`,
+        number: invoiceNumber,
+        client_name: project.name,
+        issue_date: issueDate,
+        due_date: dueDate.toISOString().split('T')[0],
+        status: 'draft' as const,
+        subtotal: subtotal,
+        tax: tax,
+        total: total,
+        paid_to_date: 0,
+        notes: `Milestone: ${payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`}\nGenerated from contract: ${contract.name}${payment.description ? `\n${payment.description}` : ''}${payment.trigger ? `\nTrigger: ${payment.trigger}` : ''}`
+      };
+
+      console.log('Creating invoice with data:', invoiceData);
+
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
-        .insert({
-          project_id: project.id,
-          contract_id: contract.id,
-          milestone_sequence: payment.sequence,
-          milestone_stage: payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`,
-          number: invoiceNumber,
-          client_name: project.name,
-          issue_date: issueDate,
-          due_date: dueDate.toISOString().split('T')[0],
-          status: 'draft',
-          subtotal: subtotal,
-          tax: tax,
-          total: total,
-          paid_to_date: 0,
-          notes: `Milestone: ${payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`}\nGenerated from contract: ${contract.name}${payment.description ? `\n${payment.description}` : ''}${payment.trigger ? `\nTrigger: ${payment.trigger}` : ''}`
-        })
+        .insert(invoiceData)
         .select()
         .single();
 
-      // Only throw on real errors, not schema cache issues (42P01)
-      if (invoiceError && invoiceError.code !== '42P01') throw invoiceError;
+      if (invoiceError) {
+        console.error('Invoice creation error:', invoiceError);
+        // Only throw on real errors, not schema cache issues (42P01)
+        if (invoiceError.code !== '42P01') {
+          throw new Error(`Failed to create invoice: ${invoiceError.message} (Code: ${invoiceError.code || 'unknown'})`);
+        }
+      }
       
       // If we don't have invoice data due to schema cache, still show success
       if (!invoice) {
+        console.log('No invoice data returned (likely schema cache issue), but invoice was created');
         toast.success(`Invoice ${invoiceNumber} created successfully for ${payment.stage_name || payment.milestone}`);
         window.dispatchEvent(new CustomEvent('invoice-created'));
         return;
       }
 
+      console.log('Invoice created successfully:', invoice);
+
       // Create invoice item (use subtotal without tax for the item)
+      const itemData = {
+        invoice_id: invoice.id,
+        description: payment.stage_name || payment.milestone || `Payment Stage ${payment.sequence || ''}`,
+        qty: 1,
+        rate: subtotal,
+        amount: subtotal,
+        wbs_code: payment.wbs_code || null
+      };
+
+      console.log('Creating invoice item with data:', itemData);
+
       const { error: itemError } = await supabase
         .from('invoice_items')
-        .insert({
-          invoice_id: invoice.id,
-          description: payment.stage_name || payment.milestone || `Payment Stage ${payment.sequence || ''}`,
-          qty: 1,
-          rate: subtotal,
-          amount: subtotal,
-          wbs_code: payment.wbs_code || null
-        });
+        .insert(itemData);
 
-      // Only throw on real errors, not schema cache issues (42P01)
-      if (itemError && itemError.code !== '42P01') throw itemError;
+      if (itemError) {
+        console.error('Invoice item creation error:', itemError);
+        // Only throw on real errors, not schema cache issues (42P01)
+        if (itemError.code !== '42P01') {
+          throw new Error(`Failed to create invoice item: ${itemError.message} (Code: ${itemError.code || 'unknown'})`);
+        }
+      }
 
+      console.log('Invoice item created successfully');
+
+      console.log('Invoice generation completed successfully');
       toast.success(`Invoice ${invoiceNumber} created successfully for ${payment.stage_name || payment.milestone}`);
       
       // Trigger refresh of income data by dispatching a custom event
       window.dispatchEvent(new CustomEvent('invoice-created'));
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating invoice:', error);
-      toast.error('Failed to generate invoice. Please try again.');
+      
+      // Provide detailed error message
+      const errorMessage = error?.message || 'Unknown error occurred';
+      console.error('Detailed error:', {
+        message: errorMessage,
+        error: error,
+        payment: payment,
+        project: project.id,
+        contract: contract.id
+      });
+      
+      toast.error(`Failed to generate invoice: ${errorMessage}`);
     }
   };
 
