@@ -20,6 +20,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Invoice {
   id: string;
@@ -103,6 +109,7 @@ export const IncomeTable = ({
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(new Set());
+  const [viewingInvoice, setViewingInvoice] = useState<Invoice | null>(null);
   const { toast } = useToast();
 
   // Calculate totals
@@ -496,6 +503,7 @@ export const IncomeTable = ({
                                   variant="ghost"
                                   size="sm"
                                   className="h-8 w-8 p-0 hover:bg-blue-50"
+                                  onClick={() => setViewingInvoice(invoice)}
                                 >
                                   <Eye className="h-4 w-4 text-blue-600" />
                                 </Button>
@@ -586,6 +594,138 @@ export const IncomeTable = ({
           </Table>
         </div>
       </div>
+
+      {/* View Invoice Dialog */}
+      <Dialog open={!!viewingInvoice} onOpenChange={(open) => !open && setViewingInvoice(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Invoice Details - {viewingInvoice?.number}</DialogTitle>
+          </DialogHeader>
+          {viewingInvoice && (
+            <div className="space-y-6">
+              {/* Invoice Header Info */}
+              <div className="grid grid-cols-2 gap-6 p-4 bg-muted/30 rounded-lg">
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Invoice Number</div>
+                  <div className="font-semibold text-foreground">{viewingInvoice.number}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Client</div>
+                  <div className="font-semibold text-foreground">{viewingInvoice.client_name}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Issue Date</div>
+                  <div className="font-semibold text-foreground">{formatDate(viewingInvoice.issue_date)}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Due Date</div>
+                  <div className="font-semibold text-foreground">{formatDate(viewingInvoice.due_date)}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Status</div>
+                  <Badge variant={getStatusBadgeVariant(viewingInvoice.status)}>
+                    {getStatusText(viewingInvoice.status)}
+                  </Badge>
+                </div>
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Payment Status</div>
+                  <Badge 
+                    variant={getPaymentStatusBadge(viewingInvoice.paid_to_date, viewingInvoice.total, viewingInvoice.status).variant}
+                    className={getPaymentStatusBadge(viewingInvoice.paid_to_date, viewingInvoice.total, viewingInvoice.status).className}
+                  >
+                    {getPaymentStatusBadge(viewingInvoice.paid_to_date, viewingInvoice.total, viewingInvoice.status).label}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Financial Details */}
+              <div className="border rounded-lg p-4">
+                <h3 className="font-semibold text-foreground mb-4">Financial Summary</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Total Amount Billed</span>
+                    <span className="font-semibold text-lg text-foreground">{formatCurrency(viewingInvoice.total)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Amount Paid</span>
+                    <span className="font-semibold text-lg text-green-600">{formatCurrency(viewingInvoice.paid_to_date)}</span>
+                  </div>
+                  <div className="border-t pt-3 flex justify-between items-center">
+                    <span className="font-semibold text-foreground">Outstanding Balance</span>
+                    <span className="font-bold text-xl text-orange-600">
+                      {formatCurrency(viewingInvoice.total - viewingInvoice.paid_to_date)}
+                    </span>
+                  </div>
+                  <div className="mt-4">
+                    <div className="flex justify-between text-sm text-muted-foreground mb-2">
+                      <span>Payment Progress</span>
+                      <span>{Math.round((viewingInvoice.paid_to_date / viewingInvoice.total) * 100)}%</span>
+                    </div>
+                    <Progress value={(viewingInvoice.paid_to_date / viewingInvoice.total) * 100} className="h-3" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Project Details */}
+              {(viewingInvoice.milestone_stage || viewingInvoice.contract_name) && (
+                <div className="border rounded-lg p-4">
+                  <h3 className="font-semibold text-foreground mb-4">Project Details</h3>
+                  <div className="space-y-3">
+                    {viewingInvoice.milestone_stage && (
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-1">Milestone</div>
+                        <div className="font-medium text-foreground">
+                          {viewingInvoice.milestone_sequence && viewingInvoice.milestone_sequence > 0 
+                            ? `Stage ${viewingInvoice.milestone_sequence} – ` 
+                            : ''}{viewingInvoice.milestone_stage}
+                        </div>
+                      </div>
+                    )}
+                    {viewingInvoice.contract_name && (
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-1">Contract</div>
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-blue-600" />
+                          <span className="font-medium text-foreground">{viewingInvoice.contract_name}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Notes */}
+              {viewingInvoice.notes && (
+                <div className="border rounded-lg p-4">
+                  <h3 className="font-semibold text-foreground mb-2">Notes</h3>
+                  <p className="text-muted-foreground whitespace-pre-wrap">{viewingInvoice.notes}</p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => setViewingInvoice(null)}
+                >
+                  Close
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    navigate(`/invoice/edit/${viewingInvoice.id}`);
+                    setViewingInvoice(null);
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Edit className="h-4 w-4" />
+                  Edit Invoice
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </TooltipProvider>
   );
 };
