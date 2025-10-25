@@ -666,64 +666,77 @@ export const InvoiceFormPage = () => {
           </table>
         </div>
 
-        {/* Totals - Exactly matching reference format */}
+        {/* Totals Section - Professional Format */}
         <div className="flex justify-end mb-8">
-          <div className="w-80 text-sm">
-            <div className="space-y-1">
-              <div className="flex justify-between py-1">
-                <span>Subtotal</span>
-                <span className="text-right">{calculateSubtotal().toFixed(2)}</span>
+          <div className="w-80 border border-gray-200 rounded-md overflow-hidden">
+            <div className="space-y-0">
+              <div className="flex justify-between py-2 px-4 bg-gray-50 border-b border-gray-200">
+                <span className="font-medium text-gray-700">Subtotal</span>
+                <span className="text-right font-semibold text-black">${calculateSubtotal().toFixed(2)}</span>
               </div>
-              <div className="flex justify-between py-1">
-                <span>Total GST 10%</span>
-                <span className="text-right">{calculateTotalGST().toFixed(2)}</span>
+              <div className="flex justify-between py-2 px-4 bg-gray-50 border-b border-gray-200">
+                <span className="font-medium text-gray-700">Total GST 10%</span>
+                <span className="text-right font-semibold text-black">${calculateTotalGST().toFixed(2)}</span>
               </div>
-              <div className="flex justify-between py-1 font-bold border-t border-gray-300 pt-2">
-                <span>Invoice Total AUD</span>
-                <span className="text-right">{calculateTotal().toFixed(2)}</span>
+              <div className="flex justify-between py-3 px-4 bg-gray-100 border-b-2 border-gray-300">
+                <span className="font-bold text-gray-900">Invoice Total AUD</span>
+                <span className="text-right font-bold text-black text-lg">${calculateTotal().toFixed(2)}</span>
               </div>
-              <div className="bg-blue-100 border border-blue-200 p-2 mt-2">
-                <div className="flex justify-between font-bold">
-                  <span>Amount Due AUD</span>
-                  <span className="text-right">{calculateTotal().toFixed(2)}</span>
-                </div>
+              <div className="flex justify-between py-3 px-4 bg-blue-50 border-t border-blue-200">
+                <span className="font-bold text-blue-900">Amount Due AUD</span>
+                <span className="text-right font-bold text-blue-900 text-lg">${calculateTotal().toFixed(2)}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Due Date */}
-        <div className="mb-6">
-          <div className="text-sm">
-            <strong>Due Date: </strong>{new Date(invoiceData.dueDate).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' })}
+        {/* Due Date and Account Details */}
+        <div className="mb-6 grid grid-cols-1 gap-4">
+          {/* Due Date */}
+          <div className="border-l-4 border-blue-600 pl-4">
+            <div className="text-sm">
+              <span className="font-bold text-gray-900">Due Date: </span>
+              <span className="font-semibold text-black">
+                {new Date(invoiceData.dueDate).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' })}
+              </span>
+            </div>
+          </div>
+
+          {/* Account Details */}
+          <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+            <h4 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wide">Bank Details</h4>
+            <div className="text-sm space-y-1.5 text-gray-700">
+              <div><span className="font-semibold">Account Name:</span> Skrobaki Pty Ltd</div>
+              <div><span className="font-semibold">BSB:</span> 063-121</div>
+              <div><span className="font-semibold">Account Number:</span> 1129 4008</div>
+              <div className="pt-2 border-t border-gray-200 mt-2">
+                <span className="font-semibold">Payment Reference:</span> Add invoice number as reference
+              </div>
+              <div>
+                <span className="font-semibold">Remittance:</span> Email to{' '}
+                <a href="mailto:accounts@skrobaki.com" className="text-blue-600 hover:underline">accounts@skrobaki.com</a>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Account Details */}
-        <div className="mb-6">
-          <div className="text-sm space-y-1">
-            <div><strong>Account :</strong> Skrobaki Pty Ltd</div>
-            <div><strong>BSB :</strong> 063-121</div>
-            <div><strong>Account :</strong> 1129 4008</div>
-            <div><strong>Reference:</strong> Add invoice number as reference. Email remittance to <a href="mailto:accounts@skrobaki.com" className="text-primary">accounts@skrobaki.com</a></div>
-          </div>
-        </div>
-
-        {/* Terms */}
+        {/* Terms and Conditions */}
         <div className="mb-8">
-          <h4 className="font-semibold mb-2">Terms</h4>
-          <Textarea
-            value={paymentTerms}
-            onChange={(e) => setPaymentTerms(e.target.value)}
-            className="print:hidden text-sm"
-            rows={3}
-          />
-          <div className="hidden print:block text-sm">{paymentTerms}</div>
+          <h4 className="font-bold text-gray-900 mb-3 text-sm uppercase tracking-wide">Terms & Conditions</h4>
+          <div className="border border-gray-200 rounded-md p-4 bg-gray-50">
+            <Textarea
+              value={paymentTerms}
+              onChange={(e) => setPaymentTerms(e.target.value)}
+              className="print:hidden text-sm bg-white"
+              rows={3}
+            />
+            <div className="hidden print:block text-sm text-gray-700 leading-relaxed">{paymentTerms}</div>
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="text-center text-xs text-muted-foreground border-t pt-4">
-          <div>Unit A11/2A Westall Rd, Clayton VIC 3168 | www.skrobaki.com | 0423 117 480</div>
+        <div className="text-center text-xs text-gray-600 border-t-2 border-gray-300 pt-4 mt-6">
+          <div className="font-medium">Unit A11/2A Westall Rd, Clayton VIC 3168 | www.skrobaki.com | 0423 117 480</div>
         </div>
       </div>
 
