@@ -142,10 +142,10 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         dueDate.setDate(dueDate.getDate() + 30); // Default 30 days
       }
 
-      // Calculate subtotal and tax (10% GST)
-      const subtotal = amount;
-      const tax = subtotal * 0.10;
-      const total = subtotal + tax;
+      // Calculate subtotal and tax from total (amount includes GST)
+      const total = amount;
+      const subtotal = total / 1.10; // Remove 10% GST to get subtotal
+      const tax = total - subtotal;
 
       // Create the invoice
       const { data: invoice, error: invoiceError } = await supabase
