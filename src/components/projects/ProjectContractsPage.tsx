@@ -19,7 +19,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight, FileCheck, AlertTriangle } from 'lucide-react';
+import { FileText, DollarSign, MoreHorizontal, Eye, Trash2, Upload, ChevronDown, ChevronRight, FileCheck, AlertTriangle, Trash } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Project } from "@/hooks/useProjects";
 import { ProjectSidebar } from "../ProjectSidebar";
@@ -82,6 +83,7 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [milestoneIndex, setMilestoneIndex] = useState<number>(-1);
+  const [selectedMilestones, setSelectedMilestones] = useState<{[contractId: string]: Set<number>}>({});
   const { spacingClasses } = useMenuBarSpacing();
 
   const toggleContractExpansion = (contractId: string) => {
@@ -249,6 +251,80 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
     } catch (error) {
       console.error('Error deleting contract:', error);
       toast.error("Failed to delete contract. Please try again.");
+    }
+  };
+
+  const handleToggleMilestoneSelection = (contractId: string, index: number) => {
+    setSelectedMilestones(prev => {
+      const contractSelections = prev[contractId] || new Set();
+      const newSet = new Set(contractSelections);
+      
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      
+      return {
+        ...prev,
+        [contractId]: newSet
+      };
+    });
+  };
+
+  const handleDeleteSelectedMilestones = async (contract: Contract) => {
+    const selections = selectedMilestones[contract.id];
+    if (!selections || selections.size === 0) return;
+
+    const milestoneCount = selections.size;
+    if (!confirm(`Are you sure you want to delete ${milestoneCount} selected milestone${milestoneCount > 1 ? 's' : ''}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const contractData = contract.contract_data || {};
+      const paymentSchedule = contractData.payment_schedule || [];
+      
+      // Filter out selected milestones
+      const updatedSchedule = paymentSchedule.filter((_: any, idx: number) => !selections.has(idx));
+      
+      // Calculate the new contract amount
+      const newContractAmount = updatedSchedule.reduce((sum: number, payment: any) => {
+        const amountStr = payment.amount?.toString().replace(/[$,]/g, '') || '0';
+        return sum + parseFloat(amountStr);
+      }, 0);
+      
+      // Update the contract in the database
+      const { error } = await supabase
+        .from('project_contracts')
+        .update({
+          contract_amount: newContractAmount,
+          contract_data: {
+            ...contractData,
+            payment_schedule: updatedSchedule
+          }
+        })
+        .eq('id', contract.id);
+
+      if (error) {
+        console.error('Error deleting milestones:', error);
+        toast.error("Failed to delete milestones. Please try again.");
+        return;
+      }
+
+      toast.success(`${milestoneCount} milestone${milestoneCount > 1 ? 's' : ''} deleted successfully. Contract amount recalculated.`);
+      
+      // Clear selections for this contract
+      setSelectedMilestones(prev => {
+        const newSelections = { ...prev };
+        delete newSelections[contract.id];
+        return newSelections;
+      });
+      
+      loadContracts();
+    } catch (error) {
+      console.error('Error deleting milestones:', error);
+      toast.error("Failed to delete milestones. Please try again.");
     }
   };
 
@@ -597,14 +673,27 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                           {isExpanded && hasPaymentSchedule && (
                             <tr className="bg-gradient-to-r from-blue-50/50 via-blue-50/30 to-transparent">
                               <td colSpan={8} className="px-4 py-6">
-                                <div className="ml-8 space-y-3">
-                                  <div className="flex items-center gap-2 mb-4">
-                                    <DollarSign className="h-5 w-5 text-primary" />
-                                    <h4 className="font-bold text-base text-foreground">Payment Milestones</h4>
-                                    <Badge variant="outline" className="ml-2">
-                                      {paymentSchedule.length} {paymentSchedule.length === 1 ? 'Milestone' : 'Milestones'}
-                                    </Badge>
-                                  </div>
+                                  <div className="ml-8 space-y-3">
+                                    <div className="flex items-center justify-between mb-4">
+                                      <div className="flex items-center gap-2">
+                                        <DollarSign className="h-5 w-5 text-primary" />
+                                        <h4 className="font-bold text-base text-foreground">Payment Milestones</h4>
+                                        <Badge variant="outline" className="ml-2">
+                                          {paymentSchedule.length} {paymentSchedule.length === 1 ? 'Milestone' : 'Milestones'}
+                                        </Badge>
+                                      </div>
+                                      {selectedMilestones[contract.id]?.size > 0 && (
+                                        <Button
+                                          size="sm"
+                                          variant="destructive"
+                                          className="flex items-center gap-2"
+                                          onClick={() => handleDeleteSelectedMilestones(contract)}
+                                        >
+                                          <Trash className="h-4 w-4" />
+                                          Delete Selected ({selectedMilestones[contract.id].size})
+                                        </Button>
+                                      )}
+                                    </div>
                                   
                                   {/* SkAi Amount Validation */}
                                   {(() => {
@@ -653,18 +742,29 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                                     );
                                   })()}
                                   
-                                  <div className="grid grid-cols-1 gap-3">
-                                     {paymentSchedule.map((payment: any, idx: number) => (
-                                      <div 
-                                        key={idx} 
-                                        className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                                        onClick={() => handleEditMilestone(contract, payment, idx)}
-                                      >
-                                        <div className="flex items-start justify-between gap-4">
-                                          <div className="flex items-start gap-3 flex-1">
-                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex-shrink-0">
-                                              {payment.sequence || idx + 1}
-                                            </div>
+                                   <div className="grid grid-cols-1 gap-3">
+                                     {paymentSchedule.map((payment: any, idx: number) => {
+                                       const isSelected = selectedMilestones[contract.id]?.has(idx) || false;
+                                       
+                                       return (
+                                         <div 
+                                           key={idx} 
+                                           className={`p-4 bg-white border rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer ${
+                                             isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-gray-200'
+                                           }`}
+                                           onClick={() => handleEditMilestone(contract, payment, idx)}
+                                         >
+                                           <div className="flex items-start justify-between gap-4">
+                                             <div className="flex items-start gap-3 flex-1">
+                                               <Checkbox
+                                                 checked={isSelected}
+                                                 onCheckedChange={() => handleToggleMilestoneSelection(contract.id, idx)}
+                                                 onClick={(e) => e.stopPropagation()}
+                                                 className="mt-1"
+                                               />
+                                               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm flex-shrink-0">
+                                                 {payment.sequence || idx + 1}
+                                               </div>
                                             <div className="flex-1 min-w-0">
                                               <div className="font-semibold text-sm text-foreground mb-1">
                                                 {payment.stage_name || payment.milestone || `Stage ${payment.sequence || idx + 1}`}
@@ -713,9 +813,10 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
                                             </Button>
                                           </div>
                                         </div>
-                                      </div>
-                                    ))}
-                                  </div>
+                                         </div>
+                                       );
+                                     })}
+                                   </div>
                                 </div>
                               </td>
                             </tr>
