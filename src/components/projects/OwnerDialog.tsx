@@ -57,7 +57,7 @@ export const OwnerDialog = ({ open, onOpenChange, owner, onOwnerChange, onSave }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto z-[100]">
         <DialogHeader>
           <DialogTitle>{owner.id ? 'Edit Owner' : 'Add New Owner'}</DialogTitle>
           <DialogDescription>
@@ -72,7 +72,7 @@ export const OwnerDialog = ({ open, onOpenChange, owner, onOwnerChange, onSave }
               id="name"
               value={owner.name}
               onChange={(e) => onOwnerChange({...owner, name: e.target.value})}
-              placeholder="Dr. Vishal Bhasin"
+              placeholder="John Smith"
               className="mt-1"
             />
           </div>
@@ -83,7 +83,7 @@ export const OwnerDialog = ({ open, onOpenChange, owner, onOwnerChange, onSave }
               id="address"
               value={owner.address}
               onChange={(e) => onOwnerChange({...owner, address: e.target.value})}
-              placeholder="43 Iris Rd"
+              placeholder="123 Main Street"
               className="mt-1"
             />
           </div>
@@ -94,7 +94,7 @@ export const OwnerDialog = ({ open, onOpenChange, owner, onOwnerChange, onSave }
               id="suburb"
               value={owner.suburb}
               onChange={(e) => onOwnerChange({...owner, suburb: e.target.value})}
-              placeholder="Glen Iris"
+              placeholder="Suburb"
               className="mt-1"
             />
           </div>
@@ -121,7 +121,7 @@ export const OwnerDialog = ({ open, onOpenChange, owner, onOwnerChange, onSave }
               id="postcode"
               value={owner.postcode}
               onChange={(e) => onOwnerChange({...owner, postcode: e.target.value})}
-              placeholder="3146"
+              placeholder="3000"
               className="mt-1"
             />
           </div>
@@ -132,7 +132,7 @@ export const OwnerDialog = ({ open, onOpenChange, owner, onOwnerChange, onSave }
               id="mobile"
               value={owner.mobile}
               onChange={(e) => onOwnerChange({...owner, mobile: e.target.value})}
-              placeholder="0416880980"
+              placeholder="04XX XXX XXX"
               className="mt-1"
             />
           </div>
@@ -144,7 +144,7 @@ export const OwnerDialog = ({ open, onOpenChange, owner, onOwnerChange, onSave }
               type="email"
               value={owner.email}
               onChange={(e) => onOwnerChange({...owner, email: e.target.value})}
-              placeholder="vishalbhasin73@gmail.com"
+              placeholder="owner@example.com"
               className="mt-1"
             />
           </div>
