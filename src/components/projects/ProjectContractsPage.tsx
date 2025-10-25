@@ -104,35 +104,44 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       console.log('Contract:', contract);
       console.log('Project ID:', project.id);
 
-      // Generate invoice number - wrap in try-catch to handle schema cache issues
-      let invoiceNumber = 'INV-001';
+      // Generate unique invoice number with retry logic
+      let invoiceNumber = '';
+      let attempts = 0;
+      const maxAttempts = 50;
+      
       try {
+        // Get all existing invoice numbers for this project to find the highest
         const { data: existingInvoices, error: countError } = await supabase
           .from('invoices')
           .select('number')
           .eq('project_id', project.id)
-          .order('created_at', { ascending: false })
-          .limit(1);
+          .order('number', { ascending: false });
 
-        // Only throw if it's not a schema cache error
-        if (countError) {
-          console.error('Error fetching last invoice number:', countError);
-          if (countError.code !== '42P01') throw countError;
+        if (countError && countError.code !== '42P01') {
+          throw countError;
         }
 
-        // Extract number from last invoice and increment
+        // Find the highest invoice number
+        let highestNum = 0;
         if (existingInvoices && existingInvoices.length > 0) {
-          const lastNumber = existingInvoices[0].number;
-          const numMatch = lastNumber.match(/\d+$/);
-          if (numMatch) {
-            const nextNum = parseInt(numMatch[0]) + 1;
-            invoiceNumber = `INV-${String(nextNum).padStart(3, '0')}`;
-          }
+          existingInvoices.forEach(inv => {
+            const numMatch = inv.number.match(/\d+$/);
+            if (numMatch) {
+              const num = parseInt(numMatch[0]);
+              if (num > highestNum) {
+                highestNum = num;
+              }
+            }
+          });
         }
+        
+        // Start from the next number
+        invoiceNumber = `INV-${String(highestNum + 1).padStart(3, '0')}`;
         console.log('Generated invoice number:', invoiceNumber);
+        
       } catch (err) {
-        // If getting last invoice number fails, use default INV-001
-        console.warn('Could not fetch last invoice number, using default:', err);
+        console.warn('Error generating invoice number, using default:', err);
+        invoiceNumber = 'INV-001';
       }
 
       // Parse the amount (remove $ and commas)
@@ -165,38 +174,60 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
       const tax = total - subtotal;
       console.log('Calculated amounts - Subtotal:', subtotal, 'Tax:', tax, 'Total:', total);
 
-      // Create the invoice
-      const invoiceData = {
-        project_id: project.id,
-        contract_id: contract.id,
-        milestone_sequence: payment.sequence || null,
-        milestone_stage: payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`,
-        number: invoiceNumber,
-        client_name: project.name,
-        issue_date: issueDate,
-        due_date: dueDate.toISOString().split('T')[0],
-        status: 'draft' as const,
-        subtotal: subtotal,
-        tax: tax,
-        total: total,
-        paid_to_date: 0,
-        notes: `Milestone: ${payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`}\nGenerated from contract: ${contract.name}${payment.description ? `\n${payment.description}` : ''}${payment.trigger ? `\nTrigger: ${payment.trigger}` : ''}`
-      };
+      // Create the invoice with retry logic for duplicate invoice numbers
+      let invoice = null;
+      let invoiceError = null;
+      
+      while (attempts < maxAttempts && !invoice) {
+        attempts++;
+        
+        const invoiceData = {
+          project_id: project.id,
+          contract_id: contract.id,
+          milestone_sequence: payment.sequence || null,
+          milestone_stage: payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`,
+          number: invoiceNumber,
+          client_name: project.name,
+          issue_date: issueDate,
+          due_date: dueDate.toISOString().split('T')[0],
+          status: 'draft' as const,
+          subtotal: subtotal,
+          tax: tax,
+          total: total,
+          paid_to_date: 0,
+          notes: `Milestone: ${payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`}\nGenerated from contract: ${contract.name}${payment.description ? `\n${payment.description}` : ''}${payment.trigger ? `\nTrigger: ${payment.trigger}` : ''}`
+        };
 
-      console.log('Creating invoice with data:', invoiceData);
+        console.log(`Attempt ${attempts}: Creating invoice with number ${invoiceNumber}`);
 
-      const { data: invoice, error: invoiceError } = await supabase
-        .from('invoices')
-        .insert(invoiceData)
-        .select()
-        .single();
+        const result = await supabase
+          .from('invoices')
+          .insert(invoiceData)
+          .select()
+          .single();
 
-      if (invoiceError) {
-        console.error('Invoice creation error:', invoiceError);
-        // Only throw on real errors, not schema cache issues (42P01)
-        if (invoiceError.code !== '42P01') {
+        invoice = result.data;
+        invoiceError = result.error;
+
+        // If we get a duplicate key error, increment and retry
+        if (invoiceError?.code === '23505') {
+          console.log('Duplicate invoice number detected, incrementing...');
+          const numMatch = invoiceNumber.match(/\d+$/);
+          if (numMatch) {
+            const nextNum = parseInt(numMatch[0]) + 1;
+            invoiceNumber = `INV-${String(nextNum).padStart(3, '0')}`;
+          }
+        } else if (invoiceError && invoiceError.code !== '42P01') {
+          // Real error that's not a schema cache issue
           throw new Error(`Failed to create invoice: ${invoiceError.message} (Code: ${invoiceError.code || 'unknown'})`);
+        } else {
+          // Success or schema cache issue
+          break;
         }
+      }
+
+      if (attempts >= maxAttempts && !invoice) {
+        throw new Error('Failed to generate unique invoice number after multiple attempts');
       }
       
       // If we don't have invoice data due to schema cache, still show success
