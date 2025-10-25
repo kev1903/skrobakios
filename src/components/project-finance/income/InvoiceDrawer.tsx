@@ -75,18 +75,60 @@ export const InvoiceDrawer = ({ isOpen, onClose, invoice, projectId, onSaved }: 
       // Load invoice items if editing
       loadInvoiceItems(invoice.id);
     } else {
-      // Reset form for new invoice
-      setFormData({
-        client_name: '',
-        client_email: '',
-        issue_date: new Date().toISOString().split('T')[0], // Today's date
-        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
-        notes: '',
-        tax: 10,
-      });
+      // Reset form for new invoice and load owner details
+      loadOwnersDetails();
       setItems([{ description: '', qty: 1, rate: 0, amount: 0, wbs_code: '' }]);
     }
   }, [invoice, isOpen]);
+
+  const loadOwnersDetails = async () => {
+    try {
+      const { data: owners, error } = await supabase
+        .from('project_owners')
+        .select('*')
+        .eq('project_id', projectId);
+
+      if (error) throw error;
+
+      if (owners && owners.length > 0) {
+        // Format owner names (e.g., "Owner 1 & Owner 2" or "Owner 1, Owner 2 & Owner 3")
+        const ownerNames = owners.map(owner => owner.name).join(' & ');
+        
+        // Get first owner's email if available
+        const ownerEmail = owners[0]?.email || '';
+
+        setFormData({
+          client_name: ownerNames,
+          client_email: ownerEmail,
+          issue_date: new Date().toISOString().split('T')[0], // Today's date
+          due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+          notes: '',
+          tax: 10,
+        });
+      } else {
+        // No owners found, use default empty form
+        setFormData({
+          client_name: '',
+          client_email: '',
+          issue_date: new Date().toISOString().split('T')[0], // Today's date
+          due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+          notes: '',
+          tax: 10,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading owner details:', error);
+      // Fallback to empty form on error
+      setFormData({
+        client_name: '',
+        client_email: '',
+        issue_date: new Date().toISOString().split('T')[0],
+        due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        notes: '',
+        tax: 10,
+      });
+    }
+  };
 
   const loadInvoiceItems = async (invoiceId: string) => {
     try {
