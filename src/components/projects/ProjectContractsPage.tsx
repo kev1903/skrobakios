@@ -142,6 +142,11 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         dueDate.setDate(dueDate.getDate() + 30); // Default 30 days
       }
 
+      // Calculate subtotal and tax (10% GST)
+      const subtotal = amount;
+      const tax = subtotal * 0.10;
+      const total = subtotal + tax;
+
       // Create the invoice
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
@@ -155,7 +160,9 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
           issue_date: issueDate,
           due_date: dueDate.toISOString().split('T')[0],
           status: 'draft',
-          total: amount,
+          subtotal: subtotal,
+          tax: tax,
+          total: total,
           paid_to_date: 0,
           notes: `Milestone: ${payment.stage_name || payment.milestone || `Stage ${payment.sequence || ''}`}\nGenerated from contract: ${contract.name}${payment.description ? `\n${payment.description}` : ''}${payment.trigger ? `\nTrigger: ${payment.trigger}` : ''}`
         })
@@ -172,15 +179,15 @@ export const ProjectContractsPage = ({ project, onNavigate }: ProjectContractsPa
         return;
       }
 
-      // Create invoice item
+      // Create invoice item (use subtotal without tax for the item)
       const { error: itemError } = await supabase
         .from('invoice_items')
         .insert({
           invoice_id: invoice.id,
           description: payment.stage_name || payment.milestone || `Payment Stage ${payment.sequence || ''}`,
           qty: 1,
-          rate: amount,
-          amount: amount,
+          rate: subtotal,
+          amount: subtotal,
           wbs_code: payment.wbs_code || null
         });
 
