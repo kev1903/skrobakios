@@ -177,33 +177,17 @@ export const IncomeTable = ({
     }
 
     try {
-      console.log('Attempting to delete invoice:', invoiceId);
-      
-      // Call the database function to delete invoice and its items
-      const { data, error } = await supabase.rpc('delete_invoice_with_items', {
-        invoice_id_param: invoiceId
-      });
-
-      console.log('RPC response:', { data, error });
+      // Delete the invoice - CASCADE will automatically delete invoice items
+      const { error } = await supabase
+        .from('invoices')
+        .delete()
+        .eq('id', invoiceId);
 
       if (error) {
         console.error('Error deleting invoice:', error);
         toast({
           title: "Error",
           description: `Failed to delete invoice: ${error.message}`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Check the response from the function
-      const response = data as { success: boolean; error?: string; message?: string } | null;
-      console.log('Parsed response:', response);
-      
-      if (response && !response.success) {
-        toast({
-          title: "Error",
-          description: response.error || "Failed to delete invoice.",
           variant: "destructive",
         });
         return;
