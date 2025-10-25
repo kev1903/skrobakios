@@ -597,130 +597,172 @@ export const IncomeTable = ({
 
       {/* View Invoice Dialog */}
       <Dialog open={!!viewingInvoice} onOpenChange={(open) => !open && setViewingInvoice(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Invoice Details - {viewingInvoice?.number}</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           {viewingInvoice && (
-            <div className="space-y-6">
-              {/* Invoice Header Info */}
-              <div className="grid grid-cols-2 gap-6 p-4 bg-muted/30 rounded-lg">
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Invoice Number</div>
-                  <div className="font-semibold text-foreground">{viewingInvoice.number}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Client</div>
-                  <div className="font-semibold text-foreground">{viewingInvoice.client_name}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Issue Date</div>
-                  <div className="font-semibold text-foreground">{formatDate(viewingInvoice.issue_date)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Due Date</div>
-                  <div className="font-semibold text-foreground">{formatDate(viewingInvoice.due_date)}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Status</div>
-                  <Badge variant={getStatusBadgeVariant(viewingInvoice.status)}>
-                    {getStatusText(viewingInvoice.status)}
-                  </Badge>
-                </div>
-                <div>
-                  <div className="text-sm text-muted-foreground mb-1">Payment Status</div>
-                  <Badge 
-                    variant={getPaymentStatusBadge(viewingInvoice.paid_to_date, viewingInvoice.total, viewingInvoice.status).variant}
-                    className={getPaymentStatusBadge(viewingInvoice.paid_to_date, viewingInvoice.total, viewingInvoice.status).className}
-                  >
-                    {getPaymentStatusBadge(viewingInvoice.paid_to_date, viewingInvoice.total, viewingInvoice.status).label}
-                  </Badge>
+            <div className="space-y-6 p-6">
+              {/* Professional Invoice Header - TAX INVOICE Format */}
+              <div className="border-b border-gray-200 pb-6">
+                <div className="grid grid-cols-3 gap-8 items-start">
+                  {/* Left Column - TAX INVOICE and Billing To */}
+                  <div className="space-y-4">
+                    <div>
+                      <h1 className="text-3xl font-bold text-black tracking-wide mb-1">TAX INVOICE</h1>
+                      <div className="h-0.5 w-20 bg-blue-600"></div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Bill To</h3>
+                      <div className="text-sm text-black space-y-1">
+                        <div className="font-semibold">{viewingInvoice.client_name || "Client Name"}</div>
+                        <div className="text-gray-700 text-xs leading-relaxed">
+                          {viewingInvoice.notes && viewingInvoice.notes.includes('\n') 
+                            ? viewingInvoice.notes.split('\n')[0] 
+                            : "Client Address"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Middle Column - Company Logo and Details */}
+                  <div className="text-center space-y-3">
+                    <div>
+                      <img 
+                        src="/lovable-uploads/356fa289-0bf1-4952-820e-c823e9acf316.png" 
+                        alt="SKROBAKI" 
+                        className="h-12 mx-auto mb-2"
+                      />
+                      <div className="text-sm text-black">
+                        <div className="font-bold mb-1">SKROBAKI Pty Ltd</div>
+                        <div className="text-xs text-gray-600 leading-tight">
+                          Unit A11/2A Westall Rd<br />
+                          Clayton VIC 3168<br />
+                          Australia
+                        </div>
+                      </div>
+                    </div>
+                     
+                    <div className="text-xs text-gray-600">
+                      <div className="font-semibold">ABN: 49 032 355 809</div>
+                    </div>
+                  </div>
+                  
+                  {/* Right Column - Invoice Details */}
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 p-4 rounded border">
+                      <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Invoice Details</h3>
+                      <div className="space-y-2 text-xs">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-700">Invoice Number:</span>
+                          <span className="font-bold text-black">{viewingInvoice.number}</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-700">Invoice Date:</span>
+                          <span className="font-semibold text-black">{formatDate(viewingInvoice.issue_date)}</span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-700">Due Date:</span>
+                          <span className="font-semibold text-black">{formatDate(viewingInvoice.due_date)}</span>
+                        </div>
+                        
+                        {(viewingInvoice.milestone_stage || viewingInvoice.notes) && (
+                          <div className="pt-2 border-t border-gray-200">
+                            <div className="font-medium text-gray-700 mb-1">Reference:</div>
+                            <div className="text-xs text-gray-600 break-words">
+                              {viewingInvoice.milestone_sequence && viewingInvoice.milestone_sequence > 0 
+                                ? `Stage ${viewingInvoice.milestone_sequence} – ` 
+                                : ''}{viewingInvoice.milestone_stage || viewingInvoice.notes}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="pt-2 border-t border-gray-200 mt-3">
+                          <div className="font-medium text-gray-700 mb-1">Payment Status:</div>
+                          <Badge 
+                            variant={getPaymentStatusBadge(viewingInvoice.paid_to_date, viewingInvoice.total, viewingInvoice.status).variant}
+                            className={`${getPaymentStatusBadge(viewingInvoice.paid_to_date, viewingInvoice.total, viewingInvoice.status).className} text-xs`}
+                          >
+                            {getPaymentStatusBadge(viewingInvoice.paid_to_date, viewingInvoice.total, viewingInvoice.status).label}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Financial Details */}
-              <div className="border rounded-lg p-4">
-                <h3 className="font-semibold text-foreground mb-4">Financial Summary</h3>
+              {/* Financial Summary Section */}
+              <div className="bg-gray-50 rounded-lg border p-6">
+                <h3 className="text-lg font-semibold text-black mb-4">Financial Summary</h3>
                 <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Total Amount Billed</span>
-                    <span className="font-semibold text-lg text-foreground">{formatCurrency(viewingInvoice.total)}</span>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-gray-700 font-medium">Total Amount Billed</span>
+                    <span className="font-bold text-2xl text-black">{formatCurrency(viewingInvoice.total)}</span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Amount Paid</span>
-                    <span className="font-semibold text-lg text-green-600">{formatCurrency(viewingInvoice.paid_to_date)}</span>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-gray-700 font-medium">Amount Paid</span>
+                    <span className="font-bold text-2xl text-green-600">{formatCurrency(viewingInvoice.paid_to_date)}</span>
                   </div>
-                  <div className="border-t pt-3 flex justify-between items-center">
-                    <span className="font-semibold text-foreground">Outstanding Balance</span>
-                    <span className="font-bold text-xl text-orange-600">
+                  <div className="border-t-2 border-gray-300 pt-3 flex justify-between items-center">
+                    <span className="font-bold text-gray-900 text-lg">Outstanding Balance</span>
+                    <span className="font-bold text-3xl text-orange-600">
                       {formatCurrency(viewingInvoice.total - viewingInvoice.paid_to_date)}
                     </span>
                   </div>
-                  <div className="mt-4">
-                    <div className="flex justify-between text-sm text-muted-foreground mb-2">
-                      <span>Payment Progress</span>
-                      <span>{Math.round((viewingInvoice.paid_to_date / viewingInvoice.total) * 100)}%</span>
+                  
+                  {/* Payment Progress Bar */}
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="flex justify-between text-sm text-gray-600 mb-2">
+                      <span className="font-medium">Payment Progress</span>
+                      <span className="font-semibold">{Math.round((viewingInvoice.paid_to_date / viewingInvoice.total) * 100)}% Complete</span>
                     </div>
                     <Progress value={(viewingInvoice.paid_to_date / viewingInvoice.total) * 100} className="h-3" />
                   </div>
                 </div>
               </div>
 
-              {/* Project Details */}
-              {(viewingInvoice.milestone_stage || viewingInvoice.contract_name) && (
+              {/* Contract Details */}
+              {viewingInvoice.contract_name && (
                 <div className="border rounded-lg p-4">
-                  <h3 className="font-semibold text-foreground mb-4">Project Details</h3>
-                  <div className="space-y-3">
-                    {viewingInvoice.milestone_stage && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">Milestone</div>
-                        <div className="font-medium text-foreground">
-                          {viewingInvoice.milestone_sequence && viewingInvoice.milestone_sequence > 0 
-                            ? `Stage ${viewingInvoice.milestone_sequence} – ` 
-                            : ''}{viewingInvoice.milestone_stage}
-                        </div>
-                      </div>
-                    )}
-                    {viewingInvoice.contract_name && (
-                      <div>
-                        <div className="text-sm text-muted-foreground mb-1">Contract</div>
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-blue-600" />
-                          <span className="font-medium text-foreground">{viewingInvoice.contract_name}</span>
-                        </div>
-                      </div>
-                    )}
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Contract Details</h3>
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-blue-600" />
+                    <span className="font-medium text-black">{viewingInvoice.contract_name}</span>
                   </div>
                 </div>
               )}
 
-              {/* Notes */}
-              {viewingInvoice.notes && (
-                <div className="border rounded-lg p-4">
-                  <h3 className="font-semibold text-foreground mb-2">Notes</h3>
-                  <p className="text-muted-foreground whitespace-pre-wrap">{viewingInvoice.notes}</p>
-                </div>
-              )}
-
               {/* Action Buttons */}
-              <div className="flex justify-end gap-3 pt-4 border-t">
+              <div className="flex justify-between items-center pt-4 border-t-2 border-gray-200">
                 <Button
                   variant="outline"
                   onClick={() => setViewingInvoice(null)}
+                  className="px-6"
                 >
                   Close
                 </Button>
-                <Button
-                  variant="default"
-                  onClick={() => {
-                    navigate(`/invoice/edit/${viewingInvoice.id}`);
-                    setViewingInvoice(null);
-                  }}
-                  className="flex items-center gap-2"
-                >
-                  <Edit className="h-4 w-4" />
-                  Edit Invoice
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => window.print()}
+                    className="flex items-center gap-2"
+                  >
+                    <FileText className="h-4 w-4" />
+                    Print Invoice
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={() => {
+                      navigate(`/invoice/edit/${viewingInvoice.id}`);
+                      setViewingInvoice(null);
+                    }}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Edit className="h-4 w-4" />
+                    Edit Invoice
+                  </Button>
+                </div>
               </div>
             </div>
           )}
