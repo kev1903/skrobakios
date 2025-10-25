@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -98,6 +99,7 @@ export const IncomeTable = ({
   formatDate,
   refreshTrigger 
 }: IncomeTableProps) => {
+  const navigate = useNavigate();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(new Set());
@@ -509,6 +511,7 @@ export const IncomeTable = ({
                                   variant="ghost"
                                   size="sm"
                                   className="h-8 w-8 p-0 hover:bg-green-50"
+                                  onClick={() => navigate(`/invoice/edit/${invoice.id}`)}
                                 >
                                   <Edit className="h-4 w-4 text-green-600" />
                                 </Button>
