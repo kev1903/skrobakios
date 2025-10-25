@@ -177,16 +177,20 @@ export const IncomeTable = ({
     }
 
     try {
+      console.log('Attempting to delete invoice:', invoiceId);
+      
       // Call the database function to delete invoice and its items
       const { data, error } = await supabase.rpc('delete_invoice_with_items', {
         invoice_id_param: invoiceId
       });
 
+      console.log('RPC response:', { data, error });
+
       if (error) {
         console.error('Error deleting invoice:', error);
         toast({
           title: "Error",
-          description: "Failed to delete invoice. Please try again.",
+          description: `Failed to delete invoice: ${error.message}`,
           variant: "destructive",
         });
         return;
@@ -194,6 +198,8 @@ export const IncomeTable = ({
 
       // Check the response from the function
       const response = data as { success: boolean; error?: string; message?: string } | null;
+      console.log('Parsed response:', response);
+      
       if (response && !response.success) {
         toast({
           title: "Error",

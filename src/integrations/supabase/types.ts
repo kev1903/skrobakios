@@ -7898,6 +7898,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      user_can_access_invoice: {
+        Args: { invoice_id_param: string }
+        Returns: boolean
+      }
       user_can_access_project_direct: {
         Args: { project_id_param: string; user_id_param: string }
         Returns: boolean
