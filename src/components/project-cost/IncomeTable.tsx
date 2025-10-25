@@ -24,6 +24,7 @@ interface Invoice {
   paid_to_date: number;
   contract_id?: string;
   contract_name?: string;
+  milestone_sequence?: number;
   milestone_stage?: string;
   notes?: string;
   created_at: string;
@@ -314,7 +315,10 @@ export const IncomeTable = ({
                   {invoice.contract_name || '-'}
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {invoice.milestone_stage || '-'}
+                  {invoice.milestone_sequence 
+                    ? `${invoice.milestone_sequence}. ${invoice.milestone_stage || '-'}`
+                    : invoice.milestone_stage || '-'
+                  }
                 </TableCell>
                 <TableCell className="text-muted-foreground max-w-[200px] truncate">
                   {invoice.notes || '-'}
