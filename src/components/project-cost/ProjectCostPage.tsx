@@ -130,10 +130,10 @@ export const ProjectCostPage = ({
       const contractAmount = contracts?.reduce((sum, contract) => sum + (contract.contract_amount || 0), 0) || 0;
       
       if (invoices) {
-        const totalBilled = invoices.reduce((sum, inv) => sum + inv.total, 0);
-        const totalPaid = invoices.reduce((sum, inv) => sum + inv.paid_to_date, 0);
-        const outstanding = invoices.reduce((sum, inv) => sum + (inv.total - inv.paid_to_date), 0);
-        const overdue = invoices.filter(inv => inv.status === 'overdue').reduce((sum, inv) => sum + (inv.total - inv.paid_to_date), 0);
+        const totalBilled = invoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
+        const totalPaid = invoices.reduce((sum, inv) => sum + (inv.paid_to_date || 0), 0);
+        const outstanding = invoices.reduce((sum, inv) => sum + ((inv.total || 0) - (inv.paid_to_date || 0)), 0);
+        const overdue = invoices.filter(inv => inv.status === 'overdue').reduce((sum, inv) => sum + ((inv.total || 0) - (inv.paid_to_date || 0)), 0);
         
         setIncomeData({ contractAmount, totalBilled, totalPaid, outstanding, overdue });
       } else {
