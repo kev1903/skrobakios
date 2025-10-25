@@ -7246,6 +7246,10 @@ export type Database = {
         Args: { target_company_id: string }
         Returns: Json
       }
+      delete_invoice_with_items: {
+        Args: { invoice_id_param: string }
+        Returns: Json
+      }
       delete_user_completely: {
         Args: { target_user_id: string }
         Returns: Json
