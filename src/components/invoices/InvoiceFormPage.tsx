@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,9 +22,11 @@ interface InvoiceItem {
 export const InvoiceFormPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { invoiceId } = useParams<{ invoiceId: string }>();
   const projectId = searchParams.get('projectId');
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
+  const isEditMode = !!invoiceId;
 
   const [invoiceData, setInvoiceData] = useState({
     invoiceNumber: `INV-0300`,
@@ -51,6 +53,70 @@ export const InvoiceFormPage = () => {
   const [paymentTerms, setPaymentTerms] = useState(
     "This is a payment claim under the Building and Construction Industry Security of Payment Act 2002. Delay in payment of this invoice by the due date will incur an interest fee charged at 4.50% per month."
   );
+
+  // Fetch invoice data when in edit mode
+  useEffect(() => {
+    const fetchInvoiceData = async () => {
+      if (!invoiceId) return;
+      
+      try {
+        const { data: invoice, error } = await supabase
+          .from('invoices')
+          .select('*')
+          .eq('id', invoiceId)
+          .single();
+
+        if (error) {
+          console.error('Error fetching invoice:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load invoice data.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (invoice) {
+          setInvoiceData({
+            invoiceNumber: invoice.number || '',
+            invoiceDate: invoice.issue_date || new Date().toISOString().split('T')[0],
+            dueDate: invoice.due_date || '',
+            reference: invoice.notes || '', // Map notes to reference for now
+            clientName: invoice.client_name || '',
+            clientAddress: '', // Add client_address field to invoices table if needed
+            contractId: invoice.contract_id || ''
+          });
+
+          // Load invoice items
+          const { data: items, error: itemsError } = await supabase
+            .from('invoice_items')
+            .select('*')
+            .eq('invoice_id', invoiceId);
+
+          if (itemsError) {
+            console.error('Error fetching invoice items:', itemsError);
+          } else if (items && items.length > 0) {
+            setItems(items.map(item => ({
+              description: item.description || '',
+              quantity: item.qty || 1,
+              unitPrice: item.rate || 0,
+              gst: 10, // Default GST
+              amount: (item.qty || 0) * (item.rate || 0)
+            })));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching invoice:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load invoice data.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchInvoiceData();
+  }, [invoiceId, toast]);
 
   // Fetch contracts for the project
   useEffect(() => {
@@ -224,7 +290,7 @@ export const InvoiceFormPage = () => {
                 </span>
               </Link>
             </Button>
-            <h1 className="text-2xl font-semibold text-gray-900">Create Invoice</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">{isEditMode ? 'Edit Invoice' : 'Create Invoice'}</h1>
           </div>
           <div className="flex items-center gap-2">
             <Button 

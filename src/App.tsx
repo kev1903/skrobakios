@@ -401,6 +401,7 @@ const AppContent = () => {
           <InvoiceDetailsPage />
         } />
         <Route path="/invoice/create" element={<InvoiceFormPage />} />
+        <Route path="/invoice/edit/:invoiceId" element={<InvoiceFormPage />} />
         
 <Route path="/estimates" element={<EstimatesPageWrapper />} />
 <Route path="/estimates/new" element={<EstimateCreationPageWrapper />} />
