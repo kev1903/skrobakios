@@ -451,8 +451,8 @@ export const ProjectCostPage = ({
               </div>
 
               {/* Tab Content */}
-              <div className="flex-1 overflow-hidden">
-                <TabsContent value="income" className="mt-0 h-full overflow-y-auto p-6">
+              <div className="flex-1 overflow-y-auto">
+                <TabsContent value="income" className="mt-0 h-full p-6">
                   <div className="space-y-6">
                      {/* Income Actions */}
                     <div className="flex justify-between items-center">
@@ -490,7 +490,7 @@ export const ProjectCostPage = ({
                   </div>
                 </TabsContent>
 
-                <TabsContent value="expense" className="mt-0 h-full overflow-y-auto p-6">
+                <TabsContent value="expense" className="mt-0 h-full p-6">
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-lg font-semibold mb-4">All Bills</h3>
@@ -506,7 +506,7 @@ export const ProjectCostPage = ({
                   </div>
                 </TabsContent>
                 
-                <TabsContent value="analytics" className="mt-0 h-full overflow-y-auto p-6">
+                <TabsContent value="analytics" className="mt-0 h-full p-6">
                   <AnalyticsModule 
                     projectId={project.id} 
                     formatCurrency={formatCurrency}
@@ -514,7 +514,7 @@ export const ProjectCostPage = ({
                   />
                 </TabsContent>
                 
-                <TabsContent value="cost-control" className="mt-0 h-full overflow-y-auto p-6">
+                <TabsContent value="cost-control" className="mt-0 h-full p-6">
                   <TaskCostTable tasks={tasks} onUpdateTask={updateTask} wbsItems={wbsItems} />
                 </TabsContent>
               </div>
