@@ -23,7 +23,7 @@ export const InvoiceFormPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { invoiceId } = useParams<{ invoiceId: string }>();
-  const projectId = searchParams.get('projectId');
+  const [projectId, setProjectId] = useState<string | null>(searchParams.get('projectId'));
   const { toast } = useToast();
   const printRef = useRef<HTMLDivElement>(null);
   const isEditMode = !!invoiceId;
@@ -77,6 +77,11 @@ export const InvoiceFormPage = () => {
         }
 
         if (invoice) {
+          // Set the project ID from the invoice
+          if (invoice.project_id) {
+            setProjectId(invoice.project_id);
+          }
+          
           setInvoiceData({
             invoiceNumber: invoice.number || '',
             invoiceDate: invoice.issue_date || new Date().toISOString().split('T')[0],
