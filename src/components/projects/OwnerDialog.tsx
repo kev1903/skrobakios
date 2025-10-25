@@ -57,7 +57,7 @@ export const OwnerDialog = ({ open, onOpenChange, owner, onOwnerChange, onSave }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto [&>*]:z-[200]" style={{ zIndex: 200 }}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{owner.id ? 'Edit Owner' : 'Add New Owner'}</DialogTitle>
           <DialogDescription>
