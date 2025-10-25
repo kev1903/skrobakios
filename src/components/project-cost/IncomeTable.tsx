@@ -177,30 +177,14 @@ export const IncomeTable = ({
     }
 
     try {
-      // First delete invoice items
-      const { error: itemsError } = await supabase
-        .from('invoice_items')
-        .delete()
-        .eq('invoice_id', invoiceId);
-
-      if (itemsError) {
-        console.error('Error deleting invoice items:', itemsError);
-        toast({
-          title: "Error",
-          description: "Failed to delete invoice items. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Then delete the invoice
-      const { error: invoiceError } = await supabase
+      // Delete the invoice (CASCADE will automatically delete invoice items)
+      const { error } = await supabase
         .from('invoices')
         .delete()
         .eq('id', invoiceId);
 
-      if (invoiceError) {
-        console.error('Error deleting invoice:', invoiceError);
+      if (error) {
+        console.error('Error deleting invoice:', error);
         toast({
           title: "Error",
           description: "Failed to delete invoice. Please try again.",
