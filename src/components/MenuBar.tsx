@@ -530,7 +530,6 @@ const barRef = useRef<HTMLDivElement>(null);
             {currentProject && (
               <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-border/30 rounded-lg ml-2">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-0.5">Project</span>
                   <span className="text-sm font-semibold text-foreground whitespace-nowrap">
                     {currentProject.project_id} - {currentProject.name}
                   </span>
