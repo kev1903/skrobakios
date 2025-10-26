@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Viewer, WebIFCLoaderPlugin } from "@xeokit/xeokit-sdk";
-import * as WebIFC from "web-ifc";
+import { Viewer, XKTLoaderPlugin } from "@xeokit/xeokit-sdk";
 
 interface ViewerCanvasProps {
-  onViewerReady: (viewer: Viewer, loader: WebIFCLoaderPlugin) => void;
+  onViewerReady: (viewer: Viewer, loader: XKTLoaderPlugin) => void;
 }
 
 export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
@@ -48,33 +47,18 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
           return;
         }
 
-        // Initialize web-ifc API properly
-        console.log("Initializing WebIFC IfcAPI...");
-        const ifcAPI = new WebIFC.IfcAPI();
-        ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
-        await ifcAPI.Init();
-        console.log("IfcAPI initialized successfully");
-
-        if (!mounted) {
-          console.log("Component unmounted, aborting");
-          return;
-        }
-
-        // Create IFC loader with initialized API
-        console.log("Creating WebIFCLoaderPlugin...");
-        const ifcLoader = new WebIFCLoaderPlugin(viewer, {
-          WebIFC: WebIFC,
-          IfcAPI: ifcAPI
-        });
+        // Create XKT loader - more reliable than WebIFC for xeokit
+        console.log("Creating XKTLoaderPlugin...");
+        const xktLoader = new XKTLoaderPlugin(viewer);
         
-        console.log("WebIFCLoaderPlugin created successfully");
+        console.log("XKTLoaderPlugin created successfully");
 
         viewerRef.current = viewer;
         setIsInitializing(false);
         setError(null);
         
         console.log("Calling onViewerReady callback...");
-        onViewerReady(viewer, ifcLoader);
+        onViewerReady(viewer, xktLoader);
         console.log("=== Viewer Initialization Complete ===");
         
       } catch (err) {

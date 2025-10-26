@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Viewer, WebIFCLoaderPlugin, DistanceMeasurementsPlugin } from "@xeokit/xeokit-sdk";
+import { Viewer, XKTLoaderPlugin, DistanceMeasurementsPlugin } from "@xeokit/xeokit-sdk";
 import { ViewerCanvas } from "@/components/Viewer/ViewerCanvas";
 import { ViewerToolbar } from "@/components/Viewer/ViewerToolbar";
 import { ObjectTree } from "@/components/Viewer/ObjectTree";
@@ -15,7 +15,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan">("select");
   const [loadedModel, setLoadedModel] = useState<any>(null);
-  const [ifcLoader, setIfcLoader] = useState<WebIFCLoaderPlugin | null>(null);
+  const [xktLoader, setXktLoader] = useState<XKTLoaderPlugin | null>(null);
   const [measurePlugin, setMeasurePlugin] = useState<DistanceMeasurementsPlugin | null>(null);
   const [selectedObject, setSelectedObject] = useState<any>(null);
   const [nameProperty] = useState<string>("id");
@@ -23,7 +23,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const measurementClickCount = useRef<number>(0);
   const firstPoint = useRef<{ entity: any; worldPos: number[] } | null>(null);
 
-  const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
+  const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: XKTLoaderPlugin) => {
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
       defaultVisible: true,
       defaultOriginVisible: true,
@@ -51,7 +51,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     
     setMeasurePlugin(distanceMeasurements);
     setViewer(viewerInstance);
-    setIfcLoader(loaderInstance);
+    setXktLoader(loaderInstance);
   }, []);
 
   const handleZoomIn = () => {
@@ -113,13 +113,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
     console.log("File selected:", file.name, "Extension:", fileExtension);
     
-    if (fileExtension !== 'ifc') {
-      toast.error("Please upload an IFC file");
+    if (fileExtension !== 'ifc' && fileExtension !== 'xkt') {
+      toast.error("Please upload an IFC or XKT file");
       return;
     }
     
-    if (!viewer || !ifcLoader) {
-      console.error("Viewer or loader not initialized", { viewer: !!viewer, ifcLoader: !!ifcLoader });
+    if (!viewer || !xktLoader) {
+      console.error("Viewer or loader not initialized", { viewer: !!viewer, xktLoader: !!xktLoader });
       toast.error("Viewer not initialized. Please wait and try again.");
       return;
     }
@@ -157,12 +157,10 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         const modelId = `model_${Date.now()}`;
         console.log("Loading model with ID:", modelId);
         
-        const model = ifcLoader.load({
+        const model = xktLoader.load({
           id: modelId,
-          ifc: arrayBuffer,
+          xkt: arrayBuffer,
           edges: true,
-          excludeTypes: ["IfcSpace"],
-          includeTypes: [], // Include all types except excluded ones
         });
 
         console.log("Model load initiated");
