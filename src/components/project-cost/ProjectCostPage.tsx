@@ -467,7 +467,7 @@ export const ProjectCostPage = ({
                           className="flex items-center gap-2"
                         >
                           <Upload className="h-4 w-4" />
-                          Upload Contract
+                          Upload Invoice
                         </Button>
                         <Button 
                           onClick={() => navigate(`/invoice/create?projectId=${project.id}`)}
