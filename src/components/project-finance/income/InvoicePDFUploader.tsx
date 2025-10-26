@@ -163,8 +163,13 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
     setUploadProgress(20);
 
     try {
+      // Sanitize filename - replace spaces and special chars with underscores
+      const sanitizedFileName = file.name
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .replace(/_{2,}/g, '_'); // Replace multiple underscores with single one
+      
       // Upload to Supabase Storage
-      const fileName = `invoice_${Date.now()}_${file.name}`;
+      const fileName = `invoice_${Date.now()}_${sanitizedFileName}`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('documents')
         .upload(fileName, file);
@@ -190,7 +195,7 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
       // Call new AI invoice processing function with all required fields
       const processingData = await invokeEdge('process-invoice', {
         signed_url: urlData.signedUrl,
-        filename: file.name,
+        filename: sanitizedFileName,
         filesize: file.size,
         storage_path: uploadData.path
       });
