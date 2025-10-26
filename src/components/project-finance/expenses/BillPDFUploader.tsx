@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { invokeEdge } from '@/lib/invokeEdge';
 import { Loader2, Upload, FileText, CheckCircle2, AlertCircle, ChevronLeft, ChevronRight, Clipboard } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
@@ -269,7 +270,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
       console.log('Signed URL generated:', fullSignedUrl);
       setUploadProgress(40);
 
-      // Step 3: Call edge function with signed URL and sanitized filename
+      // Step 3: Call edge function using invokeEdge helper (same as InvoicePDFUploader)
       const requestBody = {
         signed_url: fullSignedUrl,
         filename: sanitizedFileName,
@@ -278,37 +279,12 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
       };
       
       console.log('=== CALLING EDGE FUNCTION ===');
-      console.log('Signed URL ready, invoking process-invoice...');
+      console.log('Request body:', requestBody);
       
-      const { data: processingData, error: processingError } = await supabase.functions.invoke('process-invoice', {
-        body: requestBody
-      });
+      const processingData = await invokeEdge('process-invoice', requestBody);
 
-      console.log('Raw edge function response:', { data: processingData, error: processingError });
+      console.log('Raw edge function response:', processingData);
 
-      if (processingError) {
-        console.error('Edge function invocation error:', processingError);
-        
-        // Try to extract actual error message from the response
-        let errorMessage = 'Server error processing invoice. Please check logs or try again.';
-        
-        // Check if there's an error message in the data
-        if (processingData && typeof processingData === 'object') {
-          if (processingData.error) {
-            errorMessage = processingData.error;
-          } else if (processingData.message) {
-            errorMessage = processingData.message;
-          }
-        }
-        
-        console.error('Extracted error message:', errorMessage);
-        setError(errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      console.log('=== EDGE FUNCTION RESPONSE ===');
-      console.log('Full response:', JSON.stringify(processingData, null, 2));
-      
       if (!processingData?.ok) {
         const errorMsg = processingData?.error || 'Edge function returned an error';
         console.error('Edge function error:', errorMsg);
