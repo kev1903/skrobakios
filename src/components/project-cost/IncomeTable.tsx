@@ -110,6 +110,8 @@ export const IncomeTable = ({
   const [loading, setLoading] = useState(true);
   const [expandedMilestones, setExpandedMilestones] = useState<Set<string>>(new Set());
   const [viewingInvoice, setViewingInvoice] = useState<Invoice | null>(null);
+  const [editingMilestone, setEditingMilestone] = useState<string | null>(null);
+  const [editMilestoneValue, setEditMilestoneValue] = useState('');
   const { toast } = useToast();
 
   // Calculate totals
@@ -310,6 +312,61 @@ export const IncomeTable = ({
     }
   };
 
+  const handleEditMilestone = (groupKey: string, currentName: string) => {
+    setEditingMilestone(groupKey);
+    setEditMilestoneValue(currentName);
+  };
+
+  const handleSaveMilestone = async (groupKey: string, invoiceIds: string[]) => {
+    if (!editMilestoneValue.trim()) {
+      toast({
+        title: "Error",
+        description: "Milestone name cannot be empty.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Update all invoices in this milestone group
+      const { error } = await supabase
+        .from('invoices')
+        .update({ milestone_stage: editMilestoneValue.trim() })
+        .in('id', invoiceIds);
+
+      if (error) {
+        console.error('Error updating milestone:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update milestone name.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Milestone name updated successfully.",
+      });
+
+      setEditingMilestone(null);
+      setEditMilestoneValue('');
+      loadInvoices();
+    } catch (error) {
+      console.error('Error updating milestone:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update milestone name.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCancelEditMilestone = () => {
+    setEditingMilestone(null);
+    setEditMilestoneValue('');
+  };
+
   useEffect(() => {
     loadInvoices();
   }, [projectId, statusFilter, refreshTrigger]);
@@ -385,18 +442,45 @@ export const IncomeTable = ({
               {groupedInvoices.map((group) => (
                 <React.Fragment key={group.key}>
                   {/* Milestone Group Header */}
-                  <TableRow className="bg-muted/70 hover:bg-muted/80 cursor-pointer" onClick={() => toggleMilestone(group.key)}>
+                  <TableRow className="bg-muted/70 hover:bg-muted/80 cursor-pointer">
                     <TableCell colSpan={10}>
                       <div className="flex items-center justify-between py-1">
                         <div className="flex items-center gap-3">
-                          {expandedMilestones.has(group.key) ? (
-                            <ChevronDown className="h-5 w-5 text-foreground" />
+                          <div onClick={() => toggleMilestone(group.key)}>
+                            {expandedMilestones.has(group.key) ? (
+                              <ChevronDown className="h-5 w-5 text-foreground" />
+                            ) : (
+                              <ChevronRight className="h-5 w-5 text-foreground" />
+                            )}
+                          </div>
+                          {editingMilestone === group.key ? (
+                            <input
+                              type="text"
+                              value={editMilestoneValue}
+                              onChange={(e) => setEditMilestoneValue(e.target.value)}
+                              onBlur={() => handleSaveMilestone(group.key, group.invoices.map(inv => inv.id))}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleSaveMilestone(group.key, group.invoices.map(inv => inv.id));
+                                } else if (e.key === 'Escape') {
+                                  handleCancelEditMilestone();
+                                }
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              autoFocus
+                              className="font-semibold text-foreground text-base bg-background border border-primary rounded px-2 py-1 min-w-[200px]"
+                            />
                           ) : (
-                            <ChevronRight className="h-5 w-5 text-foreground" />
+                            <span 
+                              className="font-semibold text-foreground text-base hover:text-primary cursor-text"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditMilestone(group.key, group.milestone);
+                              }}
+                            >
+                              {group.sequence > 0 ? `Stage ${group.sequence} – ` : ''}{group.milestone}
+                            </span>
                           )}
-                          <span className="font-semibold text-foreground text-base">
-                            {group.sequence > 0 ? `Stage ${group.sequence} – ` : ''}{group.milestone}
-                          </span>
                           <Badge variant="outline" className="text-xs">
                             {group.invoices.length} invoice{group.invoices.length !== 1 ? 's' : ''}
                           </Badge>
