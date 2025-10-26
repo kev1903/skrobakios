@@ -61,20 +61,20 @@ export const ObjectTree = ({ model, viewer, nameProperty }: ObjectTreeProps) => 
     return (
       <div key={node.id}>
         <div
-          className="flex items-center gap-2 px-3 py-2 hover:bg-accent/30 cursor-pointer transition-colors"
-          style={{ paddingLeft: `${level * 16 + 12}px` }}
+          className="flex items-center gap-2 px-4 py-2.5 hover:bg-accent/30 cursor-pointer transition-all duration-200 group"
+          style={{ paddingLeft: `${level * 16 + 16}px` }}
           onClick={() => hasChildren && toggleNode(node.id)}
         >
           {hasChildren ? (
             isExpanded ? (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-luxury-gold transition-colors" />
             ) : (
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-luxury-gold transition-colors" />
             )
           ) : (
-            <Box className="h-4 w-4 text-muted-foreground" />
+            <Box className="h-3.5 w-3.5 text-muted-foreground/60" />
           )}
-          <span className="text-sm truncate">{node.name}</span>
+          <span className="text-sm truncate group-hover:text-foreground transition-colors">{node.name}</span>
         </div>
         {isExpanded && hasChildren && (
           <div>
@@ -87,8 +87,8 @@ export const ObjectTree = ({ model, viewer, nameProperty }: ObjectTreeProps) => 
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-border/30">
-        <h3 className="text-sm font-semibold text-foreground">Object Tree</h3>
+      <div className="p-6 border-b border-border/30">
+        <h3 className="text-[11px] font-semibold text-foreground uppercase tracking-wider">Object Tree</h3>
       </div>
       <ScrollArea className="flex-1">
         {treeData.length > 0 ? (
@@ -96,8 +96,9 @@ export const ObjectTree = ({ model, viewer, nameProperty }: ObjectTreeProps) => 
             {treeData.map((node) => renderNode(node))}
           </div>
         ) : (
-          <div className="p-4 text-center text-sm text-muted-foreground">
-            No model loaded
+          <div className="p-6 text-center">
+            <p className="text-sm text-muted-foreground">No model loaded</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">Upload an IFC file to view the structure</p>
           </div>
         )}
       </ScrollArea>

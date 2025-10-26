@@ -26,7 +26,13 @@ export const ViewerToolbar = ({
         variant={activeMode === "select" ? "default" : "ghost"}
         size="icon"
         onClick={() => onModeChange("select")}
-        className="transition-all duration-200"
+        className={`
+          h-10 w-10 rounded-full transition-all duration-200
+          ${activeMode === "select" 
+            ? "bg-luxury-gold text-white shadow-md hover:scale-[1.02]" 
+            : "bg-background/60 backdrop-blur-md border border-border/30 hover:bg-accent/50"
+          }
+        `}
       >
         <MousePointer className="h-4 w-4" />
       </Button>
@@ -35,7 +41,13 @@ export const ViewerToolbar = ({
         variant={activeMode === "pan" ? "default" : "ghost"}
         size="icon"
         onClick={() => onModeChange("pan")}
-        className="transition-all duration-200"
+        className={`
+          h-10 w-10 rounded-full transition-all duration-200
+          ${activeMode === "pan" 
+            ? "bg-luxury-gold text-white shadow-md hover:scale-[1.02]" 
+            : "bg-background/60 backdrop-blur-md border border-border/30 hover:bg-accent/50"
+          }
+        `}
       >
         <Hand className="h-4 w-4" />
       </Button>
@@ -44,18 +56,24 @@ export const ViewerToolbar = ({
         variant={activeMode === "measure" ? "default" : "ghost"}
         size="icon"
         onClick={onMeasure}
-        className="transition-all duration-200"
+        className={`
+          h-10 w-10 rounded-full transition-all duration-200
+          ${activeMode === "measure" 
+            ? "bg-luxury-gold text-white shadow-md hover:scale-[1.02]" 
+            : "bg-background/60 backdrop-blur-md border border-border/30 hover:bg-accent/50"
+          }
+        `}
       >
         <Ruler className="h-4 w-4" />
       </Button>
 
-      <div className="h-6 w-px bg-border/30 mx-1" />
+      <div className="h-6 w-px bg-border/30 mx-2" />
 
       <Button
         variant="ghost"
         size="icon"
         onClick={onZoomIn}
-        className="transition-all duration-200"
+        className="h-10 w-10 rounded-full bg-background/60 backdrop-blur-md border border-border/30 hover:bg-accent/50 transition-all duration-200 hover:scale-[1.02]"
       >
         <ZoomIn className="h-4 w-4" />
       </Button>
@@ -64,7 +82,7 @@ export const ViewerToolbar = ({
         variant="ghost"
         size="icon"
         onClick={onZoomOut}
-        className="transition-all duration-200"
+        className="h-10 w-10 rounded-full bg-background/60 backdrop-blur-md border border-border/30 hover:bg-accent/50 transition-all duration-200 hover:scale-[1.02]"
       >
         <ZoomOut className="h-4 w-4" />
       </Button>
@@ -73,18 +91,16 @@ export const ViewerToolbar = ({
         variant="ghost"
         size="icon"
         onClick={onFitView}
-        className="transition-all duration-200"
+        className="h-10 w-10 rounded-full bg-background/60 backdrop-blur-md border border-border/30 hover:bg-accent/50 transition-all duration-200 hover:scale-[1.02]"
       >
         <Maximize2 className="h-4 w-4" />
       </Button>
 
-      <div className="h-6 w-px bg-border/30 mx-1" />
+      <div className="h-6 w-px bg-border/30 mx-2" />
 
       <Button
-        variant="default"
-        size="sm"
         onClick={onUpload}
-        className="gap-2 transition-all duration-200"
+        className="gap-2 bg-luxury-gold text-white shadow-md hover:scale-[1.02] transition-all duration-200 px-5 py-2.5 h-10 rounded-full font-medium"
       >
         <Upload className="h-4 w-4" />
         Upload IFC

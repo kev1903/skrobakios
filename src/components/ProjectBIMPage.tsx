@@ -460,7 +460,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   }, [activeMode]);
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden relative">
+    <div className="h-screen w-screen flex flex-col overflow-hidden relative bg-background">
       <input
         ref={fileInputRef}
         type="file"
@@ -469,33 +469,45 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         className="hidden"
       />
       
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 animate-glow" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.15),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--accent)/0.1),transparent_50%)]" />
+      {/* Background Gradients */}
+      <div className="absolute inset-0 bg-gradient-to-br from-luxury-gold/5 via-background to-accent/5" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--luxury-gold)/0.08),transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--accent)/0.06),transparent_50%)]" />
 
-      <div className="glass-panel m-4 rounded-2xl p-3 z-10 flex-shrink-0">
-        <ViewerToolbar
-          onZoomIn={handleZoomIn}
-          onZoomOut={handleZoomOut}
-          onFitView={handleFitView}
-          onUpload={handleUpload}
-          onMeasure={handleMeasure}
-          activeMode={activeMode}
-          onModeChange={setActiveMode}
-        />
+      {/* Toolbar */}
+      <div className="relative z-10 m-4 mb-2">
+        <div className="bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl p-3 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+          <ViewerToolbar
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            onFitView={handleFitView}
+            onUpload={handleUpload}
+            onMeasure={handleMeasure}
+            activeMode={activeMode}
+            onModeChange={setActiveMode}
+          />
+        </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden relative">
-        <div className="w-80 glass-panel flex-shrink-0 z-10 ml-4 mb-4 mr-2 rounded-2xl overflow-hidden">
-          <ObjectTree model={loadedModel} viewer={viewer} nameProperty={nameProperty} />
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden relative gap-2 px-4 pb-4">
+        {/* Object Tree Sidebar */}
+        <div className="w-80 flex-shrink-0 z-10">
+          <div className="h-full bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
+            <ObjectTree model={loadedModel} viewer={viewer} nameProperty={nameProperty} />
+          </div>
         </div>
 
-        <div className="flex-1 relative">
+        {/* Viewer Canvas */}
+        <div className="flex-1 relative rounded-2xl overflow-hidden border border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
           <ViewerCanvas onViewerReady={handleViewerReady} />
         </div>
 
-        <div className="w-80 glass-panel flex-shrink-0 z-10 ml-2 mb-4 mr-4 rounded-2xl overflow-hidden">
-          <PropertiesPanel selectedObject={selectedObject} />
+        {/* Properties Panel */}
+        <div className="w-80 flex-shrink-0 z-10">
+          <div className="h-full bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
+            <PropertiesPanel selectedObject={selectedObject} />
+          </div>
         </div>
       </div>
     </div>
