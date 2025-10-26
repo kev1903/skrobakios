@@ -222,16 +222,12 @@ export const ProjectCostPage = ({
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Summary Cards - Dynamic based on active tab */}
           <div className="m-6 mb-3 bg-card border rounded-lg p-2">
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {activeTab === 'income' && (
                 <>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Contract Amount</div>
                     <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.contractAmount)}</div>
-                  </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Invoiced</div>
-                    <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.totalBilled)}</div>
                   </div>
                   <div className="bg-muted/30 rounded-lg border p-2">
                     <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Paid</div>
