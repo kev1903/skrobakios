@@ -221,10 +221,18 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
     setError(null);
 
     try {
+      // Sanitize filename - replace spaces and special chars with underscores
+      const sanitizedFileName = file.name
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .replace(/_{2,}/g, '_'); // Replace multiple underscores with single one
+      
+      console.log('Original filename:', file.name);
+      console.log('Sanitized filename:', sanitizedFileName);
+      
       // Step 1: Upload file to Supabase Storage
       console.log('Uploading to storage...');
       const timestamp = Date.now();
-      const uniqueFileName = `${timestamp}_${file.name}`;
+      const uniqueFileName = `${timestamp}_${sanitizedFileName}`;
       const filePath = `bills/${uniqueFileName}`;
       
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -261,10 +269,10 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
       console.log('Signed URL generated:', fullSignedUrl);
       setUploadProgress(40);
 
-      // Step 3: Call edge function with signed URL
+      // Step 3: Call edge function with signed URL and sanitized filename
       const requestBody = {
         signed_url: fullSignedUrl,
-        filename: file.name,
+        filename: sanitizedFileName,
         filesize: file.size,
         storage_path: uploadData.path
       };
