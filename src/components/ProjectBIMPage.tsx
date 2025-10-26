@@ -37,7 +37,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     
     // Initialize IFC Loader
     const loader = new IFCLoader();
-    loader.ifcManager.setWasmPath("/");
+    loader.ifcManager.setWasmPath("/wasm/");
     ifcLoaderRef.current = loader;
   }, []);
 
