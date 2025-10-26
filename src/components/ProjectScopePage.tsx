@@ -259,8 +259,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       return flattenWBSItems(wbsItems);
     }
 
-    // Show only 10 empty rows by default to improve performance - more can be added via "Add Row" button
-    return createEmptyRows(10);
+    // Show 50 empty rows by default when there's no data
+    return createEmptyRows(50);
 
     // Fallback to scope data if no WBS items (for backward compatibility)
     const items: any[] = [];
