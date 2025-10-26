@@ -501,13 +501,19 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     className = "",
     disabled = false
   }: { 
-    value: number; 
+    value: number | null; 
     onChange: (value: number) => void;
     className?: string;
     disabled?: boolean;
   }) => {
+    // Always call hooks at the top - handle null with default value
     const [isEditing, setIsEditing] = useState(false);
-    const [inputValue, setInputValue] = useState(value.toString());
+    const [inputValue, setInputValue] = useState(value?.toString() || '0');
+
+    // Don't render anything for null/undefined values
+    if (value === null || value === undefined) {
+      return <div className={`h-4 ${className}`} />;
+    }
 
     if (disabled) {
       return (
@@ -520,11 +526,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       );
     }
 
-    // Don't render anything for null/undefined values
-    if (value === null || value === undefined) {
-      return <div className={`h-4 ${className}`} />;
-    }
-
     const handleSave = () => {
       const numValue = Math.max(0, Math.min(100, parseInt(inputValue) || 0));
       onChange(numValue);
@@ -535,7 +536,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       if (e.key === 'Enter') {
         handleSave();
       } else if (e.key === 'Escape') {
-        setInputValue(value.toString());
+        setInputValue(value?.toString() || '0');
         setIsEditing(false);
       }
     };
@@ -562,7 +563,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       <span 
         className={`text-xs text-muted-foreground font-medium cursor-pointer hover:bg-accent/20 rounded px-1 ${className}`}
         onClick={() => {
-          setInputValue(value.toString());
+          setInputValue(value?.toString() || '0');
           setIsEditing(true);
         }}
         title="Click to edit progress"
@@ -577,7 +578,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     value, 
     className = "" 
   }: { 
-    value: number; 
+    value: number | null; 
     className?: string;
   }) => {
     // Don't render anything for null/undefined values
