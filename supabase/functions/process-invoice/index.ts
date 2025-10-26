@@ -236,14 +236,13 @@ Return structured JSON with data from THIS specific document only.`
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-pro', // Use pro model for better accuracy
+        model: 'google/gemini-2.5-flash',
         messages: aiMessages,
         tools: [{
           type: 'function',
           function: InvoiceSchema
         }],
-        tool_choice: { type: 'function', function: { name: 'extract_invoice_data' } },
-        temperature: 0 // Use temperature 0 for deterministic, accurate extraction
+        tool_choice: { type: 'function', function: { name: 'extract_invoice_data' } }
       })
     });
 
