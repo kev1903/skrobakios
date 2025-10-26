@@ -24,110 +24,66 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
       console.log("Building tree from IFC model", model);
       
       try {
-        // Log model structure for debugging
-        console.log("Model type:", model.type);
-        console.log("Model children count:", model.children?.length);
-        console.log("Model constructor:", model.constructor.name);
+        // Get model ID
+        const modelID = (model as any).modelID ?? 0;
+        console.log("Model ID:", modelID);
         
-        // Count all objects (not just Mesh type)
+        if (!ifcLoader) {
+          console.warn("IFCLoader not available");
+          setTreeData([]);
+          return;
+        }
+        
+        // Count all objects and get their IFC types
         let totalObjects = 0;
-        const allObjects: THREE.Object3D[] = [];
+        const allObjects: Array<{ object: THREE.Object3D; expressID: number }> = [];
         
         model.traverse((child) => {
-          if (child !== model) {
+          if (child !== model && child.userData?.expressID !== undefined) {
             totalObjects++;
-            console.log(`Child ${totalObjects}: type=${child.type}, name=${child.name}, constructor=${child.constructor.name}`);
-            // Accept any Object3D that's not the root model
-            allObjects.push(child);
+            allObjects.push({
+              object: child,
+              expressID: child.userData.expressID
+            });
           }
         });
         
-        console.log(`Found ${totalObjects} total objects in model`);
+        console.log(`Found ${totalObjects} objects with expressID in model`);
         
         if (totalObjects === 0) {
-          console.warn("No objects found in model - showing model itself");
-          // Show the model itself as a single entry
-          setTreeData([{
-            id: model.uuid,
-            name: model.name || "IFC Model",
-            count: 1,
-            type: "IFCModel",
-            level: 0,
-            children: []
-          }]);
-          setVisibleNodes(new Set([model.uuid]));
+          console.warn("No IFC objects found in model");
+          setTreeData([]);
           return;
         }
         
         // Group elements by IFC type
         const elementsByType = new Map<string, any[]>();
         
-        // Try to get model ID from the model
-        const modelID = (model as any).modelID ?? 0;
-        console.log("Model ID:", modelID);
-        
         for (let i = 0; i < allObjects.length; i++) {
-          const obj = allObjects[i];
-          let ifcType = "IfcBuildingElement";
-          let elementName = `Element ${i + 1}`;
+          const { object: obj, expressID } = allObjects[i];
           
           try {
-            // Check if object has expressID
-            const expressID = obj.userData?.expressID;
+            // Get IFC type from the loader
+            const ifcType = await ifcLoader.ifcManager.getIfcType(modelID, expressID);
+            const props = await ifcLoader.ifcManager.getItemProperties(modelID, expressID);
             
-            if (expressID !== undefined && ifcLoader) {
-              // Try to get IFC properties using the loader
-              try {
-                const props = await ifcLoader.ifcManager.getItemProperties(modelID, expressID);
-                
-                if (props && props.type !== undefined) {
-                  // Get the type name from the type number
-                  const typeName = await ifcLoader.ifcManager.getIfcType(modelID, expressID);
-                  if (typeName) {
-                    ifcType = typeName;
-                  }
-                }
-                
-                // Try to get name property
-                if (props && props.Name) {
-                  elementName = props.Name.value || elementName;
-                }
-              } catch (propError) {
-                console.warn(`Could not get properties for expressID ${expressID}:`, propError);
-              }
+            const elementName = props?.Name?.value || `${ifcType} ${i + 1}`;
+            
+            // Add to grouped elements
+            if (!elementsByType.has(ifcType)) {
+              elementsByType.set(ifcType, []);
             }
             
-            // Fallback: try to extract from object name or type
-            if (ifcType === "IfcBuildingElement") {
-              if (obj.name && obj.name.includes('Ifc')) {
-                const match = obj.name.match(/(Ifc[A-Za-z]+)/);
-                if (match) {
-                  ifcType = match[1];
-                }
-              } else if (obj.type) {
-                // Use the Three.js type as a fallback
-                ifcType = obj.type;
-              }
-            }
+            elementsByType.get(ifcType)!.push({
+              id: obj.uuid,
+              name: elementName,
+              object: obj,
+              expressID: expressID,
+              level: 1
+            });
           } catch (error) {
-            console.warn(`Error processing object ${i}:`, error);
+            console.warn(`Error processing object ${i} (expressID: ${expressID}):`, error);
           }
-          
-          // Add to grouped elements
-          if (!elementsByType.has(ifcType)) {
-            elementsByType.set(ifcType, []);
-          }
-          
-          const typeElements = elementsByType.get(ifcType)!;
-          elementName = obj.name || `${ifcType} ${typeElements.length + 1}`;
-          
-          typeElements.push({
-            id: obj.uuid,
-            name: elementName,
-            object: obj,
-            expressID: obj.userData?.expressID,
-            level: 1
-          });
         }
         
         // Convert to tree structure with parent nodes
