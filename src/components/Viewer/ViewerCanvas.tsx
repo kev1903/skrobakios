@@ -33,7 +33,21 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
       console.log("Canvas element found:", canvasRef.current);
 
       try {
-        // Create viewer first
+        // Initialize web-ifc WASM first
+        console.log("Initializing web-ifc WASM...");
+        const ifcAPI = new WebIFC.IfcAPI();
+        
+        // Set WASM path and initialize
+        ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
+        await ifcAPI.Init();
+        console.log("web-ifc WASM initialized successfully");
+
+        if (!mounted) {
+          console.log("Component unmounted, aborting");
+          return;
+        }
+
+        // Create viewer
         console.log("Creating Viewer instance...");
         const viewer = new Viewer({
           canvasId: "xeokit-canvas",
@@ -48,9 +62,8 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
           return;
         }
 
-        // Create IFC loader with web-ifc library
-        console.log("Creating WebIFCLoaderPlugin with WebIFC...");
-        const ifcAPI = new WebIFC.IfcAPI();
+        // Create IFC loader with initialized web-ifc
+        console.log("Creating WebIFCLoaderPlugin with initialized WebIFC...");
         const ifcLoader = new WebIFCLoaderPlugin(viewer, {
           WebIFC: WebIFC,
           IfcAPI: ifcAPI
