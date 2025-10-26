@@ -270,39 +270,15 @@ const WBSRow = memo(({
       </div>
 
       <div className="px-2 flex items-center justify-center h-full">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-              <MoreHorizontal className="w-3 h-3" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            {!item.is_task_enabled ? (
-              <DropdownMenuItem onClick={() => handleContextAction('convert_to_task')}>
-                <ListTodo className="w-3 h-3 mr-2" />
-                Convert to Task
-              </DropdownMenuItem>
-            ) : (
-              <>
-                <DropdownMenuItem onClick={() => handleContextAction('view_task')}>
-                  <ListTodo className="w-3 h-3 mr-2" />
-                  View Task Details
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleContextAction('unlink_task')}>
-                  <Unlink className="w-3 h-3 mr-2" />
-                  Remove Task Link
-                </DropdownMenuItem>
-              </>
-            )}
-            <DropdownMenuItem 
-              onClick={() => handleContextAction('delete')} 
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="w-3 h-3 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          onClick={() => handleContextAction('delete')}
+          title="Delete"
+        >
+          <Trash2 className="w-3 h-3" />
+        </Button>
       </div>
     </div>
   );
