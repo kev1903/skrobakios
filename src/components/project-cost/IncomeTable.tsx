@@ -147,6 +147,14 @@ export const IncomeTable = ({
     })).sort((a, b) => b.sequence - a.sequence);
   }, [invoices]);
 
+  // Auto-expand all milestone groups when data changes
+  React.useEffect(() => {
+    if (groupedInvoices.length > 0) {
+      const allKeys = new Set(groupedInvoices.map(g => g.key));
+      setExpandedMilestones(allKeys);
+    }
+  }, [groupedInvoices]);
+
   const toggleMilestone = (key: string) => {
     setExpandedMilestones(prev => {
       const newSet = new Set(prev);
