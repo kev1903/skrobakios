@@ -1299,8 +1299,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
         // Map UI field names to database field names
         const dbField = field === 'name' ? 'title' : field;
-        await updateWBSItem(id, { [dbField]: newVal });
-        console.log('✅ Updated', dbField, 'to:', newVal, 'for item:', id);
+        
+        // Handle numeric fields (convert to number)
+        let updateValue: any = newVal;
+        if (field === 'budgeted_cost' || field === 'actual_cost' || field === 'revised_budget' || 
+            field === 'committed_cost' || field === 'paid_cost' || field === 'forecast_cost' || 
+            field === 'variations') {
+          updateValue = parseFloat(newVal) || 0;
+        }
+        
+        await updateWBSItem(id, { [dbField]: updateValue });
+        console.log('✅ Updated', dbField, 'to:', updateValue, 'for item:', id);
       } catch (e) {
         console.error('❌ Failed to update field', field, 'for', id, e);
       }
