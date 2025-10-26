@@ -110,6 +110,9 @@ const barRef = useRef<HTMLDivElement>(null);
   const [searchResults, setSearchResults] = useState<SearchResults>({ projects: [], tasks: [] });
   const [isSearching, setIsSearching] = useState(false);
   const [currentProject, setCurrentProject] = useState<{ id: string; name: string; project_id: string } | null>(null);
+  const [projectSwitcherOpen, setProjectSwitcherOpen] = useState(false);
+  const [projectSearchQuery, setProjectSearchQuery] = useState("");
+  const [availableProjects, setAvailableProjects] = useState<Array<{ id: string; name: string; project_id: string }>>([]);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
@@ -128,6 +131,28 @@ const barRef = useRef<HTMLDivElement>(null);
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  // Load available projects for project switcher
+  useEffect(() => {
+    const loadAvailableProjects = async () => {
+      if (currentCompany) {
+        try {
+          const { data, error } = await supabase
+            .from('projects')
+            .select('id, name, project_id')
+            .eq('company_id', currentCompany.id)
+            .order('name');
+          
+          if (!error && data) {
+            setAvailableProjects(data);
+          }
+        } catch (err) {
+          console.error('Error loading projects:', err);
+        }
+      }
+    };
+    loadAvailableProjects();
+  }, [currentCompany]);
 
   // Fetch current project from URL
   useEffect(() => {
@@ -431,6 +456,23 @@ const barRef = useRef<HTMLDivElement>(null);
     setIsVoiceSpeaking(false);
   };
 
+  // Filter projects based on search query
+  const filteredProjects = availableProjects.filter(project => 
+    project.project_id.toLowerCase().includes(projectSearchQuery.toLowerCase()) ||
+    project.name.toLowerCase().includes(projectSearchQuery.toLowerCase())
+  );
+
+  // Handle project switch
+  const handleProjectSwitch = (project: { id: string; name: string; project_id: string }) => {
+    setProjectSwitcherOpen(false);
+    setProjectSearchQuery("");
+    navigate(`/?page=project-detail&projectId=${project.id}`);
+    toast({
+      title: "Project switched",
+      description: `Switched to ${project.project_id} - ${project.name}`,
+    });
+  };
+
   // Get display text for company logo - using same logic as CenteredCompanyName
   const getCompanyDisplayText = () => {
     if (activeContext === 'personal') {
@@ -528,13 +570,52 @@ const barRef = useRef<HTMLDivElement>(null);
 
             {/* Current Project Badge - Modern Style */}
             {currentProject && (
-              <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-border/30 rounded-lg ml-2">
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-foreground whitespace-nowrap">
-                    {currentProject.project_id} - {currentProject.name}
-                  </span>
-                </div>
-              </div>
+              <Popover open={projectSwitcherOpen} onOpenChange={setProjectSwitcherOpen}>
+                <PopoverTrigger asChild>
+                  <div className="hidden lg:flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-border/30 rounded-lg ml-2 hover:bg-slate-100 hover:shadow-sm cursor-pointer transition-all duration-200">
+                    <div className="flex flex-col flex-1">
+                      <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+                        {currentProject.project_id} - {currentProject.name}
+                      </span>
+                    </div>
+                    <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-[400px] p-0 bg-white/95 backdrop-blur-xl border border-border/30 shadow-[0_4px_24px_rgba(0,0,0,0.08)] rounded-xl" align="start">
+                  <Command>
+                    <CommandInput 
+                      placeholder="Search projects..." 
+                      value={projectSearchQuery}
+                      onValueChange={setProjectSearchQuery}
+                    />
+                    <CommandList>
+                      <CommandEmpty>
+                        {loadingProjects ? "Loading projects..." : "No projects found."}
+                      </CommandEmpty>
+                      <CommandGroup>
+                        {filteredProjects.map((project) => (
+                          <CommandItem
+                            key={project.id}
+                            value={project.id}
+                            onSelect={() => handleProjectSwitch(project)}
+                            className="px-3 py-2 hover:bg-accent/30 rounded-md cursor-pointer"
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4 text-luxury-gold",
+                                currentProject?.id === project.id ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            <span className="text-sm">
+                              {project.project_id} - {project.name}
+                            </span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             )}
           </div>
 
