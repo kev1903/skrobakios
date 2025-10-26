@@ -1353,7 +1353,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       <div 
         ref={wrapperRef}
         className={`w-full h-full flex items-center ${!isEditing ? 'cursor-pointer hover:bg-accent/20 rounded px-1' : ''}`}
-        onClick={() => !isEditing && setIsEditing(true)}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!isEditing) setIsEditing(true);
+        }}
         data-field={field}
       >
         {isEditing ? (
