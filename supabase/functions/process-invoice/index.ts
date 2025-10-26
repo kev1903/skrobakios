@@ -157,7 +157,8 @@ serve(async (req) => {
     console.log('MIME type:', mimeType);
     console.log('Base64 length:', base64Data.length);
 
-    // Use image_url format for both PDFs and images (works reliably with Gemini)
+    // Build content based on file type
+    // PDFs need inline_data format, images can use image_url
     const contentArray: any[] = [
       {
         type: 'text',
@@ -184,15 +185,29 @@ CRITICAL INSTRUCTIONS:
 - If anything is unclear, set confidence lower and note it in ai_summary
 
 This is the actual document to analyze:`
-      },
-      {
+      }
+    ];
+
+    // Add document based on type
+    if (fileType === 'pdf') {
+      // For PDFs, use inline_data with base64
+      contentArray.push({
+        type: 'inline_data',
+        inline_data: {
+          mime_type: mimeType,
+          data: base64Data
+        }
+      });
+    } else {
+      // For images, use image_url
+      contentArray.push({
         type: 'image_url',
         image_url: {
           url: `data:${mimeType};base64,${base64Data}`,
           detail: 'high'
         }
-      }
-    ];
+      });
+    }
 
     const aiMessages = [
       {
