@@ -10,13 +10,14 @@ import {
   Activity,
   Target
 } from "lucide-react";
-import { FinanceAlerts } from "./FinanceAlerts";
-import { CashFlowSection } from "./CashFlowSection";
-import { ProfitabilitySection } from "./ProfitabilitySection";
-import { ReceivablesSection } from "./ReceivablesSection";
-import { ExpensesSection } from "./ExpensesSection";
-import { FinancialRatiosSection } from "./FinancialRatiosSection";
-import { ComplianceSection } from "./ComplianceSection";
+// Temporarily commented out missing components
+// import { FinanceAlerts } from "./FinanceAlerts";
+// import { CashFlowSection } from "./CashFlowSection";
+// import { ProfitabilitySection } from "./ProfitabilitySection";
+// import { ReceivablesSection } from "./ReceivablesSection";
+// import { ExpensesSection } from "./ExpensesSection";
+// import { FinancialRatiosSection } from "./FinancialRatiosSection";
+// import { ComplianceSection } from "./ComplianceSection";
 
 export const FinanceDashboard = () => {
   const overviewCards = [
@@ -114,7 +115,7 @@ export const FinanceDashboard = () => {
         </div>
 
         {/* Alerts */}
-        <FinanceAlerts />
+        {/* <FinanceAlerts /> */}
 
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -148,7 +149,7 @@ export const FinanceDashboard = () => {
         </div>
 
         {/* Cash Flow Section */}
-        <CashFlowSection />
+        {/* <CashFlowSection /> */}
 
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -226,17 +227,17 @@ export const FinanceDashboard = () => {
         </div>
 
         {/* Profitability Section */}
-        <ProfitabilitySection />
+        {/* <ProfitabilitySection /> */}
 
         {/* Three Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <ReceivablesSection />
           <ExpensesSection />
           <FinancialRatiosSection />
-        </div>
+        </div> */}
 
         {/* Compliance Section */}
-        <ComplianceSection />
+        {/* <ComplianceSection /> */}
       </div>
     </div>
   );

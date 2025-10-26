@@ -9,8 +9,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChevronDown, DollarSign, TrendingDown, BarChart3, AlertTriangle } from 'lucide-react';
 
-import { ExpensesModule } from './expenses/ExpensesModule';
-import { AnalyticsModule } from './analytics/AnalyticsModule';
+// Temporarily commented out missing components
+// import { ExpensesModule } from './expenses/ExpensesModule';
+// import { AnalyticsModule } from './analytics/AnalyticsModule';
 import { Project } from '@/hooks/useProjects';
 
 interface ProjectFinancePageProps {
@@ -109,11 +110,17 @@ export const ProjectFinancePage = ({ project, onNavigate }: ProjectFinancePagePr
               </TabsContent>
 
               <TabsContent value="expenses" className="p-0 m-0">
-                <ExpensesModule projectId={project.id} />
+                <div className="p-6 text-center text-muted-foreground">
+                  Expenses module has been removed.
+                </div>
+                {/* <ExpensesModule projectId={project.id} /> */}
               </TabsContent>
 
               <TabsContent value="analytics" className="p-0 m-0">
-                <AnalyticsModule projectId={project.id} />
+                <div className="p-6 text-center text-muted-foreground">
+                  Analytics module has been removed.
+                </div>
+                {/* <AnalyticsModule projectId={project.id} /> */}
               </TabsContent>
 
               <TabsContent value="cost-control" className="p-0 m-0">
