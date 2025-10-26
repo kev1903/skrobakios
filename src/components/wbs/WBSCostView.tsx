@@ -462,15 +462,15 @@ export const WBSCostView = ({
                     minWidth: '820px'
                   }}
                 >
-                  <div className="px-2 font-semibold text-right">BUDGET</div>
-                  <div className="px-2 font-semibold text-right">VARIATIONS</div>
-                  <div className="px-2 font-semibold text-right">NEW BUDGET</div>
-                  <div className="px-2 font-semibold text-right">COMMITTED</div>
-                  <div className="px-2 font-semibold text-right">PAID</div>
-                  <div className="px-2 font-semibold text-right">REMAINING</div>
-                  <div className="px-2 font-semibold text-right">FORECAST FINAL</div>
-                  <div className="px-2 font-semibold text-right">VARIANCE</div>
-                  <div className="px-2 font-semibold">NOTES</div>
+                  <div className="px-2 font-semibold text-center">BUDGET</div>
+                  <div className="px-2 font-semibold text-center">VARIATIONS</div>
+                  <div className="px-2 font-semibold text-center">NEW BUDGET</div>
+                  <div className="px-2 font-semibold text-center">COMMITTED</div>
+                  <div className="px-2 font-semibold text-center">PAID</div>
+                  <div className="px-2 font-semibold text-center">REMAINING</div>
+                  <div className="px-2 font-semibold text-center">FORECAST FINAL</div>
+                  <div className="px-2 font-semibold text-center">VARIANCE</div>
+                  <div className="px-2 font-semibold text-center">NOTES</div>
                 </div>
               </div>
             </div>
