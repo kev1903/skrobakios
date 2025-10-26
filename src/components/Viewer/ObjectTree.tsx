@@ -1,51 +1,73 @@
 import { useState, useEffect } from "react";
+import * as THREE from "three";
+import { IFCLoader } from "web-ifc-three/IFCLoader";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronRight, ChevronDown, Box } from "lucide-react";
 
 interface ObjectTreeProps {
-  model: any;
-  viewer: any;
-  nameProperty: string;
+  model: THREE.Object3D | null;
+  ifcLoader: IFCLoader | null;
 }
 
-export const ObjectTree = ({ model, viewer, nameProperty }: ObjectTreeProps) => {
+export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
   const [treeData, setTreeData] = useState<any[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!model || !viewer) {
+    if (!model || !ifcLoader) {
       setTreeData([]);
       return;
     }
 
-    console.log("Building object tree from model:", model.id);
-
-    // Get all entities from the model
-    const entities = model.entities;
-    if (!entities || Object.keys(entities).length === 0) {
-      console.log("No entities found in model");
-      setTreeData([]);
-      return;
-    }
-
-    console.log("Found entities:", Object.keys(entities).length);
-
-    // Build a simple flat tree of all objects
-    const nodes: any[] = [];
-    Object.values(entities).forEach((entity: any) => {
-      if (entity && entity.id) {
+    const buildTree = async () => {
+      console.log("Building tree from IFC model");
+      const nodes: any[] = [];
+      
+      try {
+        const modelID = (model as any).modelID || 0;
+        
+        // Get all spatial structure elements
+        const spatialStructure = await ifcLoader.ifcManager.getSpatialStructure(modelID);
+        
+        console.log("Spatial structure:", spatialStructure);
+        
+        // Flatten structure for display
+        const flattenNode = (node: any, level: number = 0) => {
+          if (!node) return;
+          
+          nodes.push({
+            id: node.expressID?.toString() || Math.random().toString(),
+            name: node.Name?.value || node.type || `Element ${node.expressID}`,
+            type: node.type || "Unknown",
+            level,
+            children: node.children || []
+          });
+          
+          if (node.children && node.children.length > 0) {
+            node.children.forEach((child: any) => flattenNode(child, level + 1));
+          }
+        };
+        
+        flattenNode(spatialStructure);
+        
+        console.log("Tree nodes created:", nodes.length);
+        setTreeData(nodes);
+      } catch (error) {
+        console.error("Error building IFC tree:", error);
+        // Fallback: show basic model info
         nodes.push({
-          id: entity.id,
-          name: entity.id,
-          type: "Object",
-          children: [],
+          id: "model",
+          name: "IFC Model",
+          type: "Model",
+          level: 0,
+          children: []
         });
+        setTreeData(nodes);
       }
-    });
+    };
 
-    console.log("Built tree with", nodes.length, "nodes");
-    setTreeData(nodes);
-  }, [model, viewer, nameProperty]);
+    buildTree();
+  }, [model, ifcLoader]);
 
   const toggleNode = (nodeId: string) => {
     const newExpanded = new Set(expandedNodes);
@@ -57,31 +79,39 @@ export const ObjectTree = ({ model, viewer, nameProperty }: ObjectTreeProps) => 
     setExpandedNodes(newExpanded);
   };
 
-  const renderNode = (node: any, level: number = 0) => {
-    const isExpanded = expandedNodes.has(node.id);
+  const renderNode = (node: any) => {
     const hasChildren = node.children && node.children.length > 0;
+    const isExpanded = expandedNodes.has(node.id);
+    const level = node.level || 0;
 
     return (
       <div key={node.id}>
         <div
-          className="flex items-center gap-2 px-4 py-2.5 hover:bg-accent/30 cursor-pointer transition-all duration-200 group"
-          style={{ paddingLeft: `${level * 16 + 16}px` }}
+          className="flex items-center gap-2 px-3 py-2 hover:bg-accent/50 cursor-pointer transition-colors"
+          style={{ paddingLeft: `${level * 16 + 12}px` }}
           onClick={() => hasChildren && toggleNode(node.id)}
         >
           {hasChildren ? (
             isExpanded ? (
-              <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-luxury-gold transition-colors" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-luxury-gold transition-colors" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             )
           ) : (
-            <Box className="h-3.5 w-3.5 text-muted-foreground/60" />
+            <Box className="h-4 w-4 text-muted-foreground" />
           )}
-          <span className="text-sm truncate group-hover:text-foreground transition-colors">{node.name}</span>
+          <div className="flex flex-col flex-1 min-w-0">
+            <span className="text-sm font-medium text-foreground truncate">
+              {node.name}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {node.type}
+            </span>
+          </div>
         </div>
-        {isExpanded && hasChildren && (
+        {hasChildren && isExpanded && (
           <div>
-            {node.children.map((child: any) => renderNode(child, level + 1))}
+            {node.children.map((child: any) => renderNode(child))}
           </div>
         )}
       </div>

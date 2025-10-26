@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Viewer, XKTLoaderPlugin, DistanceMeasurementsPlugin } from "@xeokit/xeokit-sdk";
-import { ViewerCanvas } from "@/components/Viewer/ViewerCanvas";
+import * as THREE from "three";
+import { IFCLoader } from "web-ifc-three/IFCLoader";
+import { ThreeIFCViewer } from "@/components/Viewer/ThreeIFCViewer";
 import { ViewerToolbar } from "@/components/Viewer/ViewerToolbar";
 import { ObjectTree } from "@/components/Viewer/ObjectTree";
 import { PropertiesPanel } from "@/components/Viewer/PropertiesPanel";
@@ -12,88 +13,62 @@ interface ProjectBIMPageProps {
 }
 
 export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => {
-  const [viewer, setViewer] = useState<Viewer | null>(null);
+  const [scene, setScene] = useState<THREE.Scene | null>(null);
+  const [camera, setCamera] = useState<THREE.Camera | null>(null);
+  const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
+  const [ifcLoader, setIfcLoader] = useState<IFCLoader | null>(null);
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan">("select");
-  const [loadedModel, setLoadedModel] = useState<any>(null);
-  const [xktLoader, setXktLoader] = useState<XKTLoaderPlugin | null>(null);
-  const [measurePlugin, setMeasurePlugin] = useState<DistanceMeasurementsPlugin | null>(null);
+  const [loadedModel, setLoadedModel] = useState<THREE.Object3D | null>(null);
   const [selectedObject, setSelectedObject] = useState<any>(null);
-  const [nameProperty] = useState<string>("id");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const measurementClickCount = useRef<number>(0);
-  const firstPoint = useRef<{ entity: any; worldPos: number[] } | null>(null);
+  const firstPoint = useRef<THREE.Vector3 | null>(null);
+  const raycaster = useRef<THREE.Raycaster>(new THREE.Raycaster());
+  const mouse = useRef<THREE.Vector2>(new THREE.Vector2());
 
-  const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: XKTLoaderPlugin) => {
-    const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
-      defaultVisible: true,
-      defaultOriginVisible: true,
-      defaultTargetVisible: true,
-      defaultWireVisible: true,
-      defaultAxisVisible: true,
-      defaultColor: "#2D3748",
-      zIndex: 10000,
-      defaultLabelsOnWires: true
-    });
-    
-    const originalUpdate = (distanceMeasurements as any)._onSceneTick;
-    (distanceMeasurements as any)._onSceneTick = function(...args: any[]) {
-      if (originalUpdate) originalUpdate.apply(this, args);
-      
-      Object.values(distanceMeasurements.measurements).forEach((measurement: any) => {
-        if (measurement && measurement.length !== undefined) {
-          const distanceInMM = measurement.length * 1000;
-          if (measurement._label) {
-            measurement._label.text = `${distanceInMM.toFixed(4)} mm`;
-          }
-        }
-      });
-    };
-    
-    setMeasurePlugin(distanceMeasurements);
-    setViewer(viewerInstance);
-    setXktLoader(loaderInstance);
+  const handleViewerReady = useCallback((
+    sceneInstance: THREE.Scene,
+    cameraInstance: THREE.Camera,
+    rendererInstance: THREE.WebGLRenderer,
+    loaderInstance: IFCLoader
+  ) => {
+    setScene(sceneInstance);
+    setCamera(cameraInstance);
+    setRenderer(rendererInstance);
+    setIfcLoader(loaderInstance);
   }, []);
 
   const handleZoomIn = () => {
-    if (viewer) {
-      const camera = viewer.scene.camera;
-      const eye = camera.eye;
-      const look = camera.look;
-      const eyeLookVec = [look[0] - eye[0], look[1] - eye[1], look[2] - eye[2]];
-      const dist = Math.sqrt(eyeLookVec[0] ** 2 + eyeLookVec[1] ** 2 + eyeLookVec[2] ** 2);
-      const newDist = dist * 0.8;
-      const normVec = eyeLookVec.map(v => v / dist);
-      camera.eye = [
-        look[0] - normVec[0] * newDist,
-        look[1] - normVec[1] * newDist,
-        look[2] - normVec[2] * newDist,
-      ];
+    if (camera && camera instanceof THREE.PerspectiveCamera) {
+      const direction = new THREE.Vector3();
+      camera.getWorldDirection(direction);
+      camera.position.add(direction.multiplyScalar(2));
     }
   };
 
   const handleZoomOut = () => {
-    if (viewer) {
-      const camera = viewer.scene.camera;
-      const eye = camera.eye;
-      const look = camera.look;
-      const eyeLookVec = [look[0] - eye[0], look[1] - eye[1], look[2] - eye[2]];
-      const dist = Math.sqrt(eyeLookVec[0] ** 2 + eyeLookVec[1] ** 2 + eyeLookVec[2] ** 2);
-      const newDist = dist * 1.2;
-      const normVec = eyeLookVec.map(v => v / dist);
-      camera.eye = [
-        look[0] - normVec[0] * newDist,
-        look[1] - normVec[1] * newDist,
-        look[2] - normVec[2] * newDist,
-      ];
+    if (camera && camera instanceof THREE.PerspectiveCamera) {
+      const direction = new THREE.Vector3();
+      camera.getWorldDirection(direction);
+      camera.position.add(direction.multiplyScalar(-2));
     }
   };
 
   const handleFitView = () => {
-    if (viewer && viewer.scene && viewer.scene.aabb) {
-      viewer.cameraFlight.flyTo({
-        aabb: viewer.scene.aabb,
-        duration: 0.5,
-      });
+    if (loadedModel && camera && camera instanceof THREE.PerspectiveCamera) {
+      const box = new THREE.Box3().setFromObject(loadedModel);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+      let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+      cameraZ *= 1.5; // Add some padding
+      
+      camera.position.set(center.x + cameraZ, center.y + cameraZ, center.z + cameraZ);
+      camera.lookAt(center);
+      camera.updateProjectionMatrix();
+      
       toast.success("View fitted to model");
     }
   };
@@ -102,7 +77,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     
     if (!file) {
@@ -113,13 +88,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
     console.log("File selected:", file.name, "Extension:", fileExtension);
     
-    if (fileExtension !== 'ifc' && fileExtension !== 'xkt') {
-      toast.error("Please upload an IFC or XKT file");
+    if (fileExtension !== 'ifc') {
+      toast.error("Please upload an IFC file");
       return;
     }
     
-    if (!viewer || !xktLoader) {
-      console.error("Viewer or loader not initialized", { viewer: !!viewer, xktLoader: !!xktLoader });
+    if (!scene || !ifcLoader || !camera) {
+      console.error("Viewer not initialized", { scene: !!scene, ifcLoader: !!ifcLoader, camera: !!camera });
       toast.error("Viewer not initialized. Please wait and try again.");
       return;
     }
@@ -127,134 +102,65 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     // Clear previous model
     if (loadedModel) {
       console.log("Clearing previous model");
-      try {
-        loadedModel.destroy();
-      } catch (e) {
-        console.warn("Error destroying previous model:", e);
-      }
+      scene.remove(loadedModel);
       setLoadedModel(null);
+      setSelectedObject(null);
     }
 
     const loadingToast = toast.loading("Loading IFC model... This may take a moment");
     
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-      console.log("File read complete");
-      const arrayBuffer = e.target?.result as ArrayBuffer;
+    try {
+      console.log("Loading IFC file:", file.name);
       
-      if (!arrayBuffer) {
-        console.error("No array buffer");
-        toast.dismiss(loadingToast);
-        toast.error("Failed to read file");
-        return;
-      }
-
-      console.log("ArrayBuffer size:", arrayBuffer.byteLength, "bytes");
-
-      try {
-        // Use a simple model ID without special characters
-        const modelId = `model_${Date.now()}`;
-        console.log("Loading model with ID:", modelId);
-        
-        const model = xktLoader.load({
-          id: modelId,
-          xkt: arrayBuffer,
-          edges: true,
-        });
-
-        console.log("Model load initiated");
-
-        model.on("loaded", () => {
-          console.log("Model loaded successfully!");
-          console.log("Model details:", {
-            id: model.id,
-            aabb: model.aabb,
-            visible: model.visible
-          });
-          
-          toast.dismiss(loadingToast);
-          toast.success(`Model "${file.name}" loaded successfully`);
-          
-          setLoadedModel(model);
-          
-          // Ensure model is visible
-          model.visible = true;
-          
-          // Log scene info
-          console.log("Scene info:", {
-            numObjects: Object.keys(viewer.scene.objects).length,
-            sceneAABB: viewer.scene.aabb,
-            cameraPosition: viewer.scene.camera.eye,
-            cameraLook: viewer.scene.camera.look
-          });
-          
-          // Fit view after a short delay to ensure model is fully rendered
-          setTimeout(() => {
-            try {
-              const modelAABB = model.aabb;
-              console.log("Fitting camera to model AABB:", modelAABB);
-              
-              if (viewer && modelAABB) {
-                viewer.cameraFlight.flyTo({
-                  aabb: modelAABB,
-                  duration: 0.5,
-                });
-                console.log("Camera fitted to model successfully");
-              } else {
-                console.warn("Cannot fit view - no AABB available");
-                // Set default camera position
-                viewer.scene.camera.eye = [0, 0, 10];
-                viewer.scene.camera.look = [0, 0, 0];
-                viewer.scene.camera.up = [0, 1, 0];
-                console.log("Set default camera position");
-              }
-            } catch (e) {
-              console.error("Error fitting view:", e);
-            }
-          }, 500);
-        });
-
-        model.on("error", (error: any) => {
-          console.error("Model loading error:", error);
-          console.error("Error details:", {
-            message: error?.message,
-            stack: error?.stack,
-            name: error?.name
-          });
-          toast.dismiss(loadingToast);
-          const errorMsg = error?.message || error?.toString() || "Unknown error";
-          
-          // Provide more helpful error message
-          let userMessage = errorMsg;
-          if (errorMsg.includes("type")) {
-            userMessage = "IFC file structure error. The file may be corrupted or use an unsupported IFC schema.";
-          }
-          
-          toast.error("Failed to load model: " + userMessage);
-        });
-      } catch (error) {
-        console.error("Load exception:", error);
-        toast.dismiss(loadingToast);
-        const errorMsg = error instanceof Error ? error.message : String(error);
-        toast.error("Failed to load model: " + errorMsg);
-      }
-    };
-    
-    reader.onerror = (error) => {
-      console.error("File reader error:", error);
+      // Load IFC file using web-ifc-three
+      const url = URL.createObjectURL(file);
+      const loadedIFCModel = await ifcLoader.loadAsync(url) as THREE.Object3D;
+      
+      console.log("IFC model loaded successfully");
+      console.log("Model children count:", loadedIFCModel.children?.length || 0);
+      
+      // Add model to scene
+      scene.add(loadedIFCModel);
+      setLoadedModel(loadedIFCModel);
+      
+      // Fit camera to model
+      const box = new THREE.Box3().setFromObject(loadedIFCModel);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
+      let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
+      cameraZ *= 1.5;
+      
+      (camera as THREE.PerspectiveCamera).position.set(
+        center.x + cameraZ,
+        center.y + cameraZ,
+        center.z + cameraZ
+      );
+      camera.lookAt(center);
+      (camera as THREE.PerspectiveCamera).updateProjectionMatrix();
+      
+      URL.revokeObjectURL(url);
+      
       toast.dismiss(loadingToast);
-      toast.error("Failed to read file");
-    };
-    
-    console.log("Starting to read file as ArrayBuffer");
-    reader.readAsArrayBuffer(file);
+      toast.success(`Model "${file.name}" loaded successfully`);
+      
+      console.log("Model bounding box:", { center, size });
+    } catch (error) {
+      console.error("IFC loading error:", error);
+      toast.dismiss(loadingToast);
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      toast.error("Failed to load IFC model: " + errorMsg);
+    }
   };
 
   const handleMeasure = () => {
     if (activeMode === "measure") {
-      if (measurePlugin) {
-        measurePlugin.clear();
+      // Clear measurements - remove all measurement lines from scene
+      if (scene) {
+        const measurementObjects = scene.children.filter(child => child.name.startsWith('measurement-'));
+        measurementObjects.forEach(obj => scene.remove(obj));
       }
       measurementClickCount.current = 0;
       firstPoint.current = null;
@@ -267,243 +173,125 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   };
 
   useEffect(() => {
-    if (!viewer || !measurePlugin) return;
+    if (!scene || !camera || !renderer || !ifcLoader) return;
 
-    const handleCanvasClick = (event: any) => {
-      const pickResult = viewer.scene.pick({
-        canvasPos: [event.offsetX, event.offsetY],
-        pickSurface: true
-      });
+    const handleCanvasClick = async (event: MouseEvent) => {
+      if (!renderer.domElement) return;
+      
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      
+      raycaster.current.setFromCamera(mouse.current, camera);
+      
+      if (!loadedModel) return;
+      
+      const intersects = raycaster.current.intersectObject(loadedModel, true);
 
-      if (activeMode === "select" && pickResult && pickResult.entity) {
-        let entity = pickResult.entity;
-        let entityId = String(entity.id || "");
+      if (activeMode === "select" && intersects.length > 0) {
+        const intersect = intersects[0];
+        const object = intersect.object;
         
-        const metaModels = (viewer.metaScene as any).metaModels || {};
-        const metaModelIds = Object.keys(metaModels);
-        const metaModel = metaModelIds.length > 0 ? metaModels[metaModelIds[0]] : null;
-        
-        let assemblyEntityIds = [entityId];
-        
-        if (metaModel) {
-          let metaObject = (metaModel as any).metaObjects?.[entityId];
+        try {
+          // Get IFC properties
+          const index = intersect.faceIndex;
+          if (index === undefined) return;
           
-          if (metaObject) {
-            let currentMeta = metaObject;
-            let assemblyMeta = null;
-            let depth = 0;
-            
-            while (currentMeta && depth < 10) {
-              const currentType = currentMeta.type || "";
-              
-              if (currentType === "IfcElementAssembly") {
-                assemblyMeta = currentMeta;
-                break;
-              }
-              
-              const parentRef = currentMeta.parent;
-              if (parentRef) {
-                if (typeof parentRef === 'object' && parentRef.id) {
-                  currentMeta = parentRef;
-                  depth++;
-                } else {
-                  const parentId = typeof parentRef === 'string' ? parentRef : String(parentRef);
-                  const parentMeta = (metaModel as any).metaObjects?.[parentId];
-                  if (parentMeta) {
-                    currentMeta = parentMeta;
-                    depth++;
-                  } else {
-                    break;
-                  }
-                }
-              } else {
-                break;
-              }
-            }
-            
-            if (assemblyMeta) {
-              assemblyEntityIds = [];
-              
-              const collectAllChildren = (parentId: string) => {
-                Object.entries((metaModel as any).metaObjects || {}).forEach(([id, obj]: [string, any]) => {
-                  const objParentId = typeof obj.parent === 'object' && obj.parent?.id 
-                    ? obj.parent.id 
-                    : (typeof obj.parent === 'string' ? obj.parent : String(obj.parent || ''));
-                  
-                  if (objParentId === parentId) {
-                    assemblyEntityIds.push(id);
-                    collectAllChildren(id);
-                  }
-                });
-              };
-              
-              assemblyEntityIds.push(assemblyMeta.id);
-              collectAllChildren(assemblyMeta.id);
-            }
-          }
-        }
-        
-        viewer.scene.setObjectsSelected(viewer.scene.selectedObjectIds, false);
-        viewer.scene.setObjectsSelected(assemblyEntityIds, true);
-        
-        let displayEntityId = entityId;
-        let displayEntity = entity;
-        let displayMetaObject = null;
-        
-        if (metaModel) {
-          const clickedMetaObject = (metaModel as any).metaObjects?.[entityId];
-          if (clickedMetaObject) {
-            let currentMeta = clickedMetaObject;
-            let assemblyMeta = null;
-            let depth = 0;
-            
-            while (currentMeta && depth < 10) {
-              const currentType = currentMeta.type || "";
-              if (currentType === "IfcElementAssembly") {
-                assemblyMeta = currentMeta;
-                break;
-              }
-              
-              const parentRef = currentMeta.parent;
-              if (parentRef) {
-                if (typeof parentRef === 'object' && parentRef.id) {
-                  currentMeta = parentRef;
-                  depth++;
-                } else {
-                  const parentId = typeof parentRef === 'string' ? parentRef : String(parentRef);
-                  const parentMeta = (metaModel as any).metaObjects?.[parentId];
-                  if (parentMeta) {
-                    currentMeta = parentMeta;
-                    depth++;
-                  } else {
-                    break;
-                  }
-                }
-              } else {
-                break;
-              }
-            }
-            
-            if (assemblyMeta) {
-              displayEntityId = assemblyMeta.id;
-              displayEntity = viewer.scene.objects[assemblyMeta.id] || entity;
-              displayMetaObject = assemblyMeta;
-            } else {
-              displayMetaObject = clickedMetaObject;
-            }
-          }
-        }
-        
-        const propertyGroups: any[] = [];
-        let tagValue = "";
-        let nameValue = displayEntityId;
-        let typeValue = (displayEntity as any).type || "IFC Element";
-
-        if (metaModel && displayMetaObject) {
-          if (displayMetaObject.name) nameValue = displayMetaObject.name;
-          if (displayMetaObject.type) typeValue = displayMetaObject.type;
-          
-          if (displayMetaObject.propertySets) {
-            displayMetaObject.propertySets.forEach((propSet: any) => {
-              if (propSet.properties && propSet.properties.length > 0) {
-                propSet.properties.forEach((prop: any) => {
-                  if (prop.name === "Tag" || prop.name === "TAG") {
-                    tagValue = prop.value !== undefined ? String(prop.value) : "";
-                  }
-                });
-              }
-            });
+          const model = loadedModel as any;
+          const meshObject = object as THREE.Mesh;
+          if (!meshObject.geometry) {
+            console.log("No geometry found on object");
+            return;
           }
           
+          const expressID = ifcLoader.ifcManager.getExpressId(meshObject.geometry, index);
+          
+          if (expressID === undefined || expressID === null) {
+            console.log("No express ID found");
+            return;
+          }
+          
+          console.log("Selected IFC element with expressID:", expressID);
+          
+          // Get properties
+          const props = await ifcLoader.ifcManager.getItemProperties(model.modelID || 0, expressID);
+          const type = props.type ? ifcLoader.ifcManager.getIfcType(model.modelID || 0, expressID) : "Unknown";
+          
+          // Get property sets
+          const psets = await ifcLoader.ifcManager.getPropertySets(model.modelID || 0, expressID);
+          
+          const propertyGroups: any[] = [];
+          
+          // Entity information
           const entityProps: any[] = [
-            { name: "GUID", value: displayEntityId }
+            { name: "Express ID", value: expressID.toString() },
+            { name: "Type", value: type },
+            { name: "Global ID", value: props.GlobalId?.value || "N/A" }
           ];
-          if (displayMetaObject.type) {
-            entityProps.push({ name: "IFC Element", value: displayMetaObject.type });
-          }
           propertyGroups.push({
             title: "Entity Information",
             properties: entityProps
           });
-
-          if (displayMetaObject.propertySets) {
-            displayMetaObject.propertySets.forEach((propSet: any) => {
-              if (propSet.properties && propSet.properties.length > 0) {
-                const properties = propSet.properties.map((prop: any) => ({
-                  name: prop.name || "Unknown",
-                  value: prop.value !== undefined ? String(prop.value) : "N/A"
-                }));
-                
-                propertyGroups.push({
-                  title: propSet.name || "Properties",
-                  properties
-                });
+          
+          // Add property sets
+          if (psets && psets.length > 0) {
+            for (const pset of psets) {
+              if (pset.HasProperties && pset.HasProperties.length > 0) {
+                const properties: any[] = [];
+                for (const propRef of pset.HasProperties) {
+                  const prop = await ifcLoader.ifcManager.getItemProperties(model.modelID || 0, propRef.value);
+                  if (prop && prop.Name) {
+                    properties.push({
+                      name: prop.Name.value || "Unknown",
+                      value: prop.NominalValue?.value?.toString() || "N/A"
+                    });
+                  }
+                }
+                if (properties.length > 0) {
+                  propertyGroups.push({
+                    title: pset.Name?.value || "Properties",
+                    properties
+                  });
+                }
               }
-            });
+            }
           }
-        } else {
-          propertyGroups.push({
-            title: "Entity Information",
-            properties: [
-              { name: "GUID", value: displayEntityId },
-              { name: "Visible", value: displayEntity.visible ? "Yes" : "No" }
-            ]
+          
+          setSelectedObject({
+            name: props.Name?.value || `Element ${expressID}`,
+            type: type,
+            tag: props.Tag?.value || "",
+            propertyGroups
           });
+          
+          toast.success(`Selected: ${type} (${expressID})`);
+        } catch (error) {
+          console.error("Error getting IFC properties:", error);
+          toast.error("Failed to get element properties");
         }
-        
-        setSelectedObject({
-          name: nameValue,
-          type: typeValue,
-          tag: tagValue,
-          propertyGroups
-        });
-        
-        toast.success(`Selected: ${entityId}`);
         return;
       }
 
       if (activeMode !== "measure") return;
 
-      if (pickResult && pickResult.worldPos) {
+      if (intersects.length > 0) {
+        const point = intersects[0].point;
         measurementClickCount.current++;
         
         if (measurementClickCount.current === 1) {
-          firstPoint.current = {
-            entity: viewer.scene.objects[pickResult.entity.id],
-            worldPos: [...pickResult.worldPos]
-          };
+          firstPoint.current = point.clone();
           toast.info("Click second point to complete measurement");
         } else if (measurementClickCount.current === 2) {
           if (firstPoint.current) {
-            const dx = pickResult.worldPos[0] - firstPoint.current.worldPos[0];
-            const dy = pickResult.worldPos[1] - firstPoint.current.worldPos[1];
-            const dz = pickResult.worldPos[2] - firstPoint.current.worldPos[2];
-            const distanceInMeters = Math.sqrt(dx * dx + dy * dy + dz * dz);
-            const distanceInMM = distanceInMeters * 1000;
+            const distance = firstPoint.current.distanceTo(point);
+            const distanceInMM = distance * 1000;
             
-            const measurementId = `measurement-${Date.now()}`;
-            const measurement = measurePlugin.createMeasurement({
-              id: measurementId,
-              origin: {
-                entity: firstPoint.current.entity,
-                worldPos: firstPoint.current.worldPos
-              },
-              target: {
-                entity: viewer.scene.objects[pickResult.entity.id],
-                worldPos: pickResult.worldPos
-              },
-              visible: true,
-              originVisible: true,
-              targetVisible: true,
-              wireVisible: true,
-              axisVisible: true,
-              labelsOnWires: true,
-              color: "#2D3748"
-            });
-            
-            if (measurement && (measurement as any).label) {
-              (measurement as any).label.text = `${distanceInMM.toFixed(4)} mm`;
-            }
+            // Create measurement line
+            const geometry = new THREE.BufferGeometry().setFromPoints([firstPoint.current, point]);
+            const material = new THREE.LineBasicMaterial({ color: 0x2D3748 });
+            const line = new THREE.Line(geometry, material);
+            line.name = `measurement-${Date.now()}`;
+            scene.add(line);
             
             toast.success(`Distance: ${distanceInMM.toFixed(4)} mm`);
           }
@@ -515,7 +303,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       }
     };
 
-    const canvas = (viewer.scene as any).canvas?.canvas;
+    const canvas = renderer.domElement;
     if (!canvas) return;
 
     canvas.addEventListener('click', handleCanvasClick);
@@ -523,7 +311,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     return () => {
       canvas.removeEventListener('click', handleCanvasClick);
     };
-  }, [viewer, measurePlugin, activeMode]);
+  }, [scene, camera, renderer, ifcLoader, loadedModel, activeMode]);
 
   useEffect(() => {
     if (activeMode !== "measure") {
@@ -567,13 +355,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         {/* Object Tree Sidebar */}
         <div className="w-80 flex-shrink-0 z-10">
           <div className="h-full bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
-            <ObjectTree model={loadedModel} viewer={viewer} nameProperty={nameProperty} />
+            <ObjectTree model={loadedModel} ifcLoader={ifcLoader} />
           </div>
         </div>
 
         {/* Viewer Canvas */}
         <div className="flex-1 relative rounded-2xl overflow-hidden border border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-          <ViewerCanvas onViewerReady={handleViewerReady} />
+          <ThreeIFCViewer onViewerReady={handleViewerReady} />
         </div>
 
         {/* Properties Panel */}
