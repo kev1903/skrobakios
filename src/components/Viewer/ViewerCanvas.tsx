@@ -11,12 +11,12 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
   const viewerRef = useRef<Viewer | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const initAttempted = useRef(false);
+
+  console.log("ViewerCanvas component rendered");
 
   useEffect(() => {
-    if (initAttempted.current) return;
-    initAttempted.current = true;
-
+    console.log("ViewerCanvas useEffect triggered");
+    
     let mounted = true;
     
     const initViewer = async () => {
@@ -79,11 +79,14 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
     };
 
     // Small delay to ensure DOM is ready
+    console.log("Setting timer for viewer initialization");
     const timer = setTimeout(() => {
+      console.log("Timer fired, calling initViewer");
       initViewer();
     }, 100);
 
     return () => {
+      console.log("ViewerCanvas cleanup");
       mounted = false;
       clearTimeout(timer);
       if (viewerRef.current) {
