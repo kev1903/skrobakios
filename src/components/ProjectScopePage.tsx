@@ -1246,10 +1246,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     const wrapperRef = useRef<HTMLDivElement>(null);
 
     // keep local value in sync if the underlying value changes externally
+    // CRITICAL: Don't include localValue in dependencies - it causes a reset loop
     useEffect(() => {
       console.log('🟣 Value sync effect', { field, id, oldLocal: localValue, newValue: value });
       setLocalValue(value || "");
-    }, [value, id, field, localValue]);
+    }, [value, id, field]);
 
     useEffect(() => {
       if (isEditing && localInputRef.current) {
@@ -1311,17 +1312,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
     const commitEdit = useCallback(async () => {
       console.log('🔵 commitEdit called', { field, localValue, currentValue: value, id });
-      if (localValue !== (value || "")) {
+      // Only save if value actually changed
+      if (localValue.trim() !== (value || "").trim()) {
         console.log('🔵 Saving changes...', { field, from: value, to: localValue });
         await updateScopeField(localValue);
         console.log('🔵 Save completed');
+      } else {
+        console.log('🔵 No changes to save');
       }
       setIsEditing(false);
+      setAllowBlur(false);
     }, [localValue, value, updateScopeField, field, id]);
 
     const cancelLocalEdit = useCallback(() => {
       setLocalValue(value || "");
       setIsEditing(false);
+      setAllowBlur(false);
     }, [value]);
 
     // Close on outside click while editing - must be AFTER commitEdit is defined
