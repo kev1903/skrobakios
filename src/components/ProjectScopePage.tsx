@@ -1256,18 +1256,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       }
     }, [isEditing]);
 
-    // Close on outside click while editing
-    useEffect(() => {
-      if (!isEditing) return;
-      const onMouseDown = (e: MouseEvent) => {
-        if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-          commitEdit();
-        }
-      };
-      document.addEventListener('mousedown', onMouseDown);
-      return () => document.removeEventListener('mousedown', onMouseDown);
-    }, [isEditing, localValue]);
-
     const updateScopeField = async (newVal: string) => {
       try {
         // Check if this is an empty row that needs to be created
@@ -1315,17 +1303,29 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       }
     };
 
-    const commitEdit = async () => {
+    const commitEdit = useCallback(async () => {
       if (localValue !== (value || "")) {
         await updateScopeField(localValue);
       }
       setIsEditing(false);
-    };
+    }, [localValue, value]);
 
-    const cancelLocalEdit = () => {
+    const cancelLocalEdit = useCallback(() => {
       setLocalValue(value || "");
       setIsEditing(false);
-    };
+    }, [value]);
+
+    // Close on outside click while editing - must be AFTER commitEdit is defined
+    useEffect(() => {
+      if (!isEditing) return;
+      const onMouseDown = (e: MouseEvent) => {
+        if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+          commitEdit();
+        }
+      };
+      document.addEventListener('mousedown', onMouseDown);
+      return () => document.removeEventListener('mousedown', onMouseDown);
+    }, [isEditing, commitEdit]);
 
     const onKeyDown = async (e: React.KeyboardEvent) => {
       if (e.key === 'Enter' && e.shiftKey && (type === 'element' || type === 'task')) {
@@ -1371,6 +1371,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               value={localValue}
               onChange={(e) => setLocalValue(e.target.value)}
               onKeyDown={onKeyDown}
+              onBlur={commitEdit}
               onMouseDown={(e) => e.stopPropagation()}
               className={`border-none outline-none focus:outline-none focus:border-none ring-0 focus:ring-0 focus-visible:ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none bg-transparent p-0 m-0 rounded-none h-auto w-full ${className}`}
               placeholder={placeholder}
