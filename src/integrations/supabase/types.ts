@@ -6654,13 +6654,16 @@ export type Database = {
           at_risk: boolean | null
           budgeted_cost: number | null
           category: string | null
+          committed_cost: number | null
           company_id: string
           cost_link: string | null
+          cost_notes: string | null
           created_at: string
           description: string | null
           duration: number | null
           end_date: string | null
           estimated_hours: number | null
+          forecast_cost: number | null
           health: string | null
           id: string
           is_expanded: boolean | null
@@ -6668,6 +6671,7 @@ export type Database = {
           level: number | null
           linked_task_id: string | null
           linked_tasks: Json | null
+          paid_cost: number | null
           parent_id: string | null
           predecessors: Json | null
           priority: string | null
@@ -6696,13 +6700,16 @@ export type Database = {
           at_risk?: boolean | null
           budgeted_cost?: number | null
           category?: string | null
+          committed_cost?: number | null
           company_id: string
           cost_link?: string | null
+          cost_notes?: string | null
           created_at?: string
           description?: string | null
           duration?: number | null
           end_date?: string | null
           estimated_hours?: number | null
+          forecast_cost?: number | null
           health?: string | null
           id?: string
           is_expanded?: boolean | null
@@ -6710,6 +6717,7 @@ export type Database = {
           level?: number | null
           linked_task_id?: string | null
           linked_tasks?: Json | null
+          paid_cost?: number | null
           parent_id?: string | null
           predecessors?: Json | null
           priority?: string | null
@@ -6738,13 +6746,16 @@ export type Database = {
           at_risk?: boolean | null
           budgeted_cost?: number | null
           category?: string | null
+          committed_cost?: number | null
           company_id?: string
           cost_link?: string | null
+          cost_notes?: string | null
           created_at?: string
           description?: string | null
           duration?: number | null
           end_date?: string | null
           estimated_hours?: number | null
+          forecast_cost?: number | null
           health?: string | null
           id?: string
           is_expanded?: boolean | null
@@ -6752,6 +6763,7 @@ export type Database = {
           level?: number | null
           linked_task_id?: string | null
           linked_tasks?: Json | null
+          paid_cost?: number | null
           parent_id?: string | null
           predecessors?: Json | null
           priority?: string | null
