@@ -264,11 +264,161 @@ export const InvoiceFormPage = () => {
   };
 
   // Handler for saving invoice
-  const handleSave = () => {
-    toast({
-      title: "Invoice Saved",
-      description: "Invoice has been saved successfully.",
-    });
+  const handleSave = async () => {
+    try {
+      // Validation
+      if (!projectId) {
+        toast({
+          title: "Error",
+          description: "Project ID is required.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!invoiceData.clientName) {
+        toast({
+          title: "Error",
+          description: "Client name is required.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Calculate totals
+      const subtotal = calculateSubtotal();
+      const totalGST = calculateTotalGST();
+      const total = calculateTotal();
+
+      if (isEditMode && invoiceId) {
+        // Update existing invoice
+        const { error: invoiceError } = await supabase
+          .from('invoices')
+          .update({
+            number: invoiceData.invoiceNumber,
+            issue_date: invoiceData.invoiceDate,
+            due_date: invoiceData.dueDate,
+            client_name: invoiceData.clientName,
+            notes: invoiceData.reference,
+            contract_id: invoiceData.contractId || null,
+            subtotal: subtotal,
+            tax: totalGST,
+            total: total,
+            milestone_stage: invoiceData.reference,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', invoiceId);
+
+        if (invoiceError) {
+          console.error('Error updating invoice:', invoiceError);
+          toast({
+            title: "Error",
+            description: "Failed to update invoice.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Delete existing items
+        await supabase
+          .from('invoice_items')
+          .delete()
+          .eq('invoice_id', invoiceId);
+
+        // Insert new items
+        const itemsToInsert = items.map((item) => ({
+          invoice_id: invoiceId,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unitPrice,
+          tax_rate: item.gst,
+          amount: item.amount,
+        }));
+
+        const { error: itemsError } = await supabase
+          .from('invoice_items')
+          .insert(itemsToInsert);
+
+        if (itemsError) {
+          console.error('Error updating invoice items:', itemsError);
+        }
+
+        toast({
+          title: "Success",
+          description: "Invoice updated successfully.",
+        });
+      } else {
+        // Create new invoice
+        const { data: invoice, error: invoiceError } = await supabase
+          .from('invoices')
+          .insert({
+            project_id: projectId,
+            number: invoiceData.invoiceNumber,
+            issue_date: invoiceData.invoiceDate,
+            due_date: invoiceData.dueDate,
+            status: 'draft',
+            client_name: invoiceData.clientName,
+            notes: invoiceData.reference,
+            contract_id: invoiceData.contractId || null,
+            subtotal: subtotal,
+            tax: totalGST,
+            total: total,
+            paid_to_date: 0,
+            milestone_stage: invoiceData.reference,
+          })
+          .select()
+          .single();
+
+        if (invoiceError || !invoice) {
+          console.error('Error creating invoice:', invoiceError);
+          toast({
+            title: "Error",
+            description: "Failed to create invoice.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Insert invoice items
+        const itemsToInsert = items.map((item) => ({
+          invoice_id: invoice.id,
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unitPrice,
+          tax_rate: item.gst,
+          amount: item.amount,
+        }));
+
+        const { error: itemsError } = await supabase
+          .from('invoice_items')
+          .insert(itemsToInsert);
+
+        if (itemsError) {
+          console.error('Error creating invoice items:', itemsError);
+        }
+
+        toast({
+          title: "Success",
+          description: "Invoice created successfully.",
+        });
+      }
+
+      // Dispatch event to refresh income data
+      window.dispatchEvent(new CustomEvent('invoice-created'));
+
+      // Navigate back to income page
+      setTimeout(() => {
+        navigate(`/?page=project-cost${projectId ? `&projectId=${projectId}` : ''}&tab=income`);
+      }, 500);
+
+    } catch (error) {
+      console.error('Error saving invoice:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save invoice.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleSend = () => {
