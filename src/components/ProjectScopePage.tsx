@@ -236,8 +236,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         id: `empty-${index + 1}`,
         name: '',
         description: '',
-        status: 'Not Started',
-        progress: 0,
+        status: '',
+        progress: null,
         assignedTo: '',
         level: 0,
         wbsNumber: '',
@@ -250,7 +250,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         end_date: null,
         duration: 0,
         linked_tasks: [],
-        predecessors: []
+        predecessors: [],
+        rfq_required: false,
+        is_task_enabled: false
       }));
     };
 
@@ -518,6 +520,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       );
     }
 
+    // Don't render anything for null/undefined values
+    if (value === null || value === undefined) {
+      return <div className={`h-4 ${className}`} />;
+    }
+
     const handleSave = () => {
       const numValue = Math.max(0, Math.min(100, parseInt(inputValue) || 0));
       onChange(numValue);
@@ -573,6 +580,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     value: number; 
     className?: string;
   }) => {
+    // Don't render anything for null/undefined values
+    if (value === null || value === undefined) {
+      return <div className={`h-4 ${className}`} />;
+    }
+
     return (
       <span 
         className={`text-xs text-muted-foreground font-medium ${className}`}
@@ -594,6 +606,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     className?: string;
     disabled?: boolean;
   }) => {
+    // Don't render anything for empty values
+    if (!value || value === '') {
+      return <div className={`h-7 w-16 ${className}`} />;
+    }
+
     const currentStatus = statusOptions.find(s => s.value === value);
     
     
