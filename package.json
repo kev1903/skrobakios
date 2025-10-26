@@ -57,6 +57,7 @@
     "@tanstack/react-query": "^5.56.2",
     "@types/dompurify": "^3.2.0",
     "@types/react-beautiful-dnd": "^13.1.8",
+    "@xeokit/xeokit-sdk": "^2.6.93",
     "@xyflow/react": "^12.8.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -93,7 +94,7 @@
     "three": "^0.179.1",
     "vaul": "^0.9.3",
     "vite-plugin-shim-react-pdf": "^1.0.7",
-    "web-ifc": "^0.0.68",
+    "web-ifc": "^0.0.51",
     "web-ifc-three": "^0.0.126",
     "zod": "^3.23.8"
   },
