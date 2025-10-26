@@ -175,8 +175,28 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   useEffect(() => {
     if (!scene || !camera || !renderer) return;
 
-    const handleCanvasClick = async (event: MouseEvent) => {
-      console.log("Canvas clicked, activeMode:", activeMode);
+    let pointerDownPos = { x: 0, y: 0 };
+    let pointerDownTime = 0;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      pointerDownPos.x = event.clientX;
+      pointerDownPos.y = event.clientY;
+      pointerDownTime = Date.now();
+    };
+
+    const handlePointerUp = async (event: PointerEvent) => {
+      // Check if this was a click (not a drag)
+      const deltaX = Math.abs(event.clientX - pointerDownPos.x);
+      const deltaY = Math.abs(event.clientY - pointerDownPos.y);
+      const deltaTime = Date.now() - pointerDownTime;
+      
+      // If moved more than 5 pixels or took more than 300ms, treat as drag
+      if (deltaX > 5 || deltaY > 5 || deltaTime > 300) {
+        console.log("Drag detected, ignoring");
+        return;
+      }
+
+      console.log("Click detected, activeMode:", activeMode);
       
       if (!renderer.domElement) {
         console.warn("No renderer domElement");
@@ -419,14 +439,21 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     };
 
     const canvas = renderer.domElement;
-    if (!canvas) return;
+    if (!canvas) {
+      console.warn("No canvas element found");
+      return;
+    }
 
-    canvas.addEventListener('click', handleCanvasClick);
+    console.log("Attaching pointer event listeners to canvas");
+    canvas.addEventListener('pointerdown', handlePointerDown);
+    canvas.addEventListener('pointerup', handlePointerUp);
 
     return () => {
-      canvas.removeEventListener('click', handleCanvasClick);
+      console.log("Removing pointer event listeners");
+      canvas.removeEventListener('pointerdown', handlePointerDown);
+      canvas.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [scene, camera, renderer, loadedModel, activeMode, ifcLoaderRef]);
+  }, [scene, camera, renderer, loadedModel, activeMode]);
 
   useEffect(() => {
     if (activeMode !== "measure") {
