@@ -54,13 +54,13 @@ interface IncomeTableProps {
 
 const getPaymentStatusBadge = (paidAmount: number, totalAmount: number, status: string) => {
   if (paidAmount >= totalAmount && status === 'paid') {
-    return { label: '🟢 Paid', variant: 'default' as const, className: 'bg-green-100 text-green-800 border-green-300' };
+    return { label: 'Paid', variant: 'default' as const, className: 'bg-green-500/10 text-green-700 border-green-500/20 font-medium' };
   } else if (paidAmount > 0 && paidAmount < totalAmount) {
-    return { label: '🟡 Pending', variant: 'secondary' as const, className: 'bg-yellow-100 text-yellow-800 border-yellow-300' };
+    return { label: 'Partial', variant: 'secondary' as const, className: 'bg-amber-500/10 text-amber-700 border-amber-500/20 font-medium' };
   } else if (status === 'overdue') {
-    return { label: '🔴 Overdue', variant: 'destructive' as const, className: 'bg-red-100 text-red-800 border-red-300' };
+    return { label: 'Overdue', variant: 'destructive' as const, className: 'bg-red-500/10 text-red-700 border-red-500/20 font-medium' };
   } else {
-    return { label: '⚪ Unpaid', variant: 'outline' as const, className: 'bg-gray-100 text-gray-800 border-gray-300' };
+    return { label: 'Unpaid', variant: 'outline' as const, className: 'bg-slate-500/10 text-slate-700 border-slate-500/20 font-medium' };
   }
 };
 
@@ -413,36 +413,36 @@ export const IncomeTable = ({
 
   return (
     <TooltipProvider>
-      <div className="space-y-3">
-        <div className="border rounded-lg overflow-hidden bg-background shadow-sm">
+      <div className="space-y-0">
+        <div className="border border-border/60 rounded-xl overflow-hidden bg-card/50 backdrop-blur-sm shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/30 border-b hover:bg-muted/30">
-                <TableHead className="w-10 h-10 py-2 px-2"></TableHead>
-                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Invoice #</TableHead>
-                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Issue Date</TableHead>
-                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Due Date</TableHead>
-                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide text-right h-10 py-2 px-3">Amount Billed</TableHead>
-                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide text-right h-10 py-2 px-3">Amount Paid</TableHead>
-                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Status</TableHead>
-                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Progress</TableHead>
-                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Contract</TableHead>
-                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide text-center h-10 py-2 px-3">Actions</TableHead>
+              <TableRow className="bg-muted/40 border-b border-border/60 hover:bg-muted/40">
+                <TableHead className="w-8 h-9 py-2 px-2"></TableHead>
+                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Invoice #</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Issue Date</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Due Date</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider text-right h-9 py-2 px-4">Amount Billed</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider text-right h-9 py-2 px-4">Amount Paid</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Status</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Progress</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider h-9 py-2 px-4">Contract</TableHead>
+                <TableHead className="text-[10px] font-bold uppercase text-muted-foreground/80 tracking-wider text-center h-9 py-2 px-4">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {groupedInvoices.map((group) => (
                 <React.Fragment key={group.key}>
                   {/* Milestone Group Header */}
-                  <TableRow className="bg-muted/50 hover:bg-muted/60 border-y cursor-pointer transition-colors">
-                    <TableCell colSpan={10} className="py-3 px-3">
+                  <TableRow className="bg-gradient-to-r from-muted/60 to-muted/40 hover:from-muted/70 hover:to-muted/50 border-y border-border/50 cursor-pointer transition-all duration-200">
+                    <TableCell colSpan={10} className="py-3.5 px-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div onClick={() => toggleMilestone(group.key)} className="flex items-center">
+                          <div onClick={() => toggleMilestone(group.key)} className="flex items-center hover:bg-muted/50 rounded p-1 transition-colors">
                             {expandedMilestones.has(group.key) ? (
-                              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                              <ChevronDown className="h-4 w-4 text-foreground" />
                             ) : (
-                              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                              <ChevronRight className="h-4 w-4 text-foreground" />
                             )}
                           </div>
                           {editingMilestone === group.key ? (
@@ -460,11 +460,11 @@ export const IncomeTable = ({
                               }}
                               onClick={(e) => e.stopPropagation()}
                               autoFocus
-                              className="font-semibold text-foreground text-sm bg-background border border-primary rounded-md px-2 py-1 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-primary/20"
+                              className="font-semibold text-foreground text-sm bg-background border-2 border-primary rounded-md px-3 py-1.5 min-w-[250px] focus:outline-none focus:ring-2 focus:ring-primary/20"
                             />
                           ) : (
                             <span 
-                              className="font-semibold text-foreground text-sm hover:text-primary cursor-text transition-colors"
+                              className="font-bold text-foreground text-sm hover:text-primary cursor-text transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditMilestone(group.key, group.milestone);
@@ -473,20 +473,20 @@ export const IncomeTable = ({
                               {group.sequence > 0 ? `${group.sequence}` : ''} {group.milestone}
                             </span>
                           )}
-                          <Badge variant="secondary" className="text-xs font-normal bg-muted border-0">
+                          <Badge variant="secondary" className="text-xs font-medium bg-background/80 border border-border/50 text-muted-foreground">
                             {group.invoices.length} invoice{group.invoices.length !== 1 ? 's' : ''}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-6">
-                          <div className="text-xs text-muted-foreground">
-                            Billed: <span className="font-semibold text-foreground ml-1">{formatCurrency(group.total)}</span>
+                          <div className="text-xs text-muted-foreground/80">
+                            Billed: <span className="font-bold text-foreground ml-1.5">{formatCurrency(group.total)}</span>
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            Paid: <span className="font-semibold text-green-600 ml-1">{formatCurrency(group.paid)}</span>
+                          <div className="text-xs text-muted-foreground/80">
+                            Paid: <span className="font-bold text-green-600 ml-1.5">{formatCurrency(group.paid)}</span>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Progress value={(group.paid / group.total) * 100} className="w-24 h-2" />
-                            <span className="text-xs font-semibold text-muted-foreground min-w-[40px]">
+                          <div className="flex items-center gap-2.5">
+                            <Progress value={(group.paid / group.total) * 100} className="w-28 h-2.5" />
+                            <span className="text-xs font-bold text-foreground min-w-[45px]">
                               {Math.round((group.paid / group.total) * 100)}%
                             </span>
                           </div>
@@ -502,77 +502,77 @@ export const IncomeTable = ({
                     const daysOverdue = overdue ? getDaysOverdue(invoice.due_date) : 0;
                     
                     return (
-                      <TableRow key={invoice.id} className="hover:bg-muted/20 transition-colors group border-b border-border/40">
-                        <TableCell className="py-3 px-2"></TableCell>
-                        <TableCell className="font-medium text-sm text-foreground py-3 px-3">
+                      <TableRow key={invoice.id} className="hover:bg-accent/50 transition-all duration-150 group border-b border-border/30 last:border-b-0">
+                        <TableCell className="py-3.5 px-2"></TableCell>
+                        <TableCell className="font-semibold text-sm text-foreground py-3.5 px-4">
                           {invoice.number}
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground py-3 px-3">
+                        <TableCell className="text-sm text-muted-foreground/90 py-3.5 px-4">
                           {formatDate(invoice.issue_date)}
                         </TableCell>
-                        <TableCell className="py-3 px-3">
+                        <TableCell className="py-3.5 px-4">
                           <div className="flex items-center gap-2">
                             {overdue && (
                               <Tooltip>
                                 <TooltipTrigger>
                                   <AlertCircle className="h-3.5 w-3.5 text-red-500" />
                                 </TooltipTrigger>
-                                <TooltipContent>
+                                <TooltipContent className="bg-popover border-border">
                                   <p>{daysOverdue} day{daysOverdue !== 1 ? 's' : ''} overdue</p>
                                 </TooltipContent>
                               </Tooltip>
                             )}
-                            <span className={overdue ? 'text-sm text-red-600 font-medium' : 'text-sm text-muted-foreground'}>
+                            <span className={overdue ? 'text-sm text-red-600 font-semibold' : 'text-sm text-muted-foreground/90'}>
                               {formatDate(invoice.due_date)}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right text-sm font-semibold text-foreground py-3 px-3">
+                        <TableCell className="text-right text-sm font-bold text-foreground py-3.5 px-4">
                           {formatCurrency(invoice.total)}
                         </TableCell>
-                        <TableCell className="text-right text-sm font-semibold py-3 px-3">
-                          <span className={invoice.paid_to_date > 0 ? 'text-green-600' : 'text-muted-foreground'}>
+                        <TableCell className="text-right text-sm font-bold py-3.5 px-4">
+                          <span className={invoice.paid_to_date > 0 ? 'text-green-600' : 'text-muted-foreground/70'}>
                             {formatCurrency(invoice.paid_to_date)}
                           </span>
                         </TableCell>
-                        <TableCell className="py-3 px-3">
+                        <TableCell className="py-3.5 px-4">
                           <Badge 
                             variant={paymentStatus.variant}
-                            className={`text-xs font-medium ${paymentStatus.className} border-0`}
+                            className={`text-[11px] px-2.5 py-0.5 ${paymentStatus.className} border`}
                           >
                             {paymentStatus.label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="py-3 px-3">
-                          <div className="flex items-center gap-2">
+                        <TableCell className="py-3.5 px-4">
+                          <div className="flex items-center gap-2.5">
                             <Progress 
                               value={(invoice.paid_to_date / invoice.total) * 100} 
-                              className="w-20 h-2" 
+                              className="w-24 h-2.5" 
                             />
-                            <span className="text-xs font-medium text-muted-foreground min-w-[35px]">
+                            <span className="text-xs font-bold text-foreground min-w-[38px]">
                               {Math.round((invoice.paid_to_date / invoice.total) * 100)}%
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="py-3 px-3">
+                        <TableCell className="py-3.5 px-4">
                           {invoice.contract_name ? (
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-auto p-1 hover:bg-muted text-xs">
-                                  <FileText className="h-3.5 w-3.5 mr-1 text-blue-600" />
-                                  <span className="text-sm text-foreground truncate max-w-[150px]">{invoice.contract_name}</span>
+                                <Button variant="ghost" size="sm" className="h-7 px-2 hover:bg-blue-500/10 hover:text-blue-600 text-xs rounded-md">
+                                  <FileText className="h-3.5 w-3.5 mr-1.5 text-blue-600" />
+                                  <span className="text-sm text-foreground/90 truncate max-w-[120px] font-medium">{invoice.contract_name}</span>
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>
+                              <TooltipContent className="bg-popover border-border">
                                 <p>Open Contract</p>
                               </TooltipContent>
                             </Tooltip>
                           ) : (
-                            <span className="text-sm text-muted-foreground">-</span>
+                            <span className="text-sm text-muted-foreground/60">-</span>
                           )}
                         </TableCell>
-                        <TableCell className="py-3 px-3">
-                          <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <TableCell className="py-3.5 px-4">
+                          <div className="flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
