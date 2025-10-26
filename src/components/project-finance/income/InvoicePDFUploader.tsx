@@ -187,10 +187,12 @@ export const InvoicePDFUploader = ({ isOpen, onClose, projectId, onSaved }: Invo
       // Connectivity check first
       await invokeEdge("ping", {});
 
-      // Call new AI invoice processing function with OpenAI Files + Responses API
+      // Call new AI invoice processing function with all required fields
       const processingData = await invokeEdge('process-invoice', {
         signed_url: urlData.signedUrl,
-        project_invoice_id: null // We can add DB integration later if needed
+        filename: file.name,
+        filesize: file.size,
+        storage_path: uploadData.path
       });
 
       if (processingData.ok) {
