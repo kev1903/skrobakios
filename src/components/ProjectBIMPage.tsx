@@ -176,31 +176,65 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     if (!scene || !camera || !renderer) return;
 
     const handleCanvasClick = async (event: MouseEvent) => {
-      if (!renderer.domElement) return;
+      console.log("Canvas clicked, activeMode:", activeMode);
+      
+      if (!renderer.domElement) {
+        console.warn("No renderer domElement");
+        return;
+      }
       
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
       
+      console.log("Mouse position:", mouse.current);
+      
       raycaster.current.setFromCamera(mouse.current, camera);
       
-      if (!loadedModel) return;
+      if (!loadedModel) {
+        console.warn("No model loaded");
+        return;
+      }
       
       const intersects = raycaster.current.intersectObject(loadedModel, true);
+      console.log("Intersects found:", intersects.length);
 
       if (activeMode === "select" && intersects.length > 0) {
         const intersect = intersects[0];
         const object = intersect.object;
         
+        console.log("Selected object:", {
+          id: object.id,
+          name: object.name,
+          type: object.type,
+          uuid: object.uuid,
+          userData: object.userData
+        });
+        
         try {
-          console.log("Selected object:", object);
-          
           // Get the model ID
           const modelID = (loadedModel as any).modelID ?? 0;
           const expressID = object.userData?.expressID;
           
-          if (!expressID || !ifcLoaderRef.current) {
+          console.log("ModelID:", modelID, "ExpressID:", expressID);
+          
+          if (expressID === undefined || !ifcLoaderRef.current) {
             console.warn("No expressID found or IFCLoader not available");
+            // Fallback to basic properties
+            setSelectedObject({
+              name: object.name || `Object ${object.id}`,
+              type: object.type || "3D Object",
+              tag: "",
+              propertyGroups: [{
+                title: "Entity Information",
+                properties: [
+                  { name: "Object ID", value: object.id.toString() },
+                  { name: "Type", value: object.type },
+                  { name: "UUID", value: object.uuid }
+                ]
+              }]
+            });
+            toast.success(`Selected: ${object.name || object.type}`);
             return;
           }
           
