@@ -22,12 +22,12 @@ interface WBSItem {
   end_date?: string | Date | null;
   duration?: number;
   predecessors?: string[];
-  budgeted_cost?: string;
-  variations?: string;
-  revised_budget?: string;
-  committed_cost?: string;
-  paid_cost?: string;
-  forecast_cost?: string;
+  budgeted_cost?: number;
+  variations?: number;
+  revised_budget?: number;
+  committed_cost?: number;
+  paid_cost?: number;
+  forecast_cost?: number;
   cost_notes?: string;
 }
 
@@ -86,12 +86,12 @@ export const WBSCostRightPanel = ({
   const content = (
     <div style={{ minWidth: '820px' }}> {/* Reasonable minimum width for cost columns */}
       {items.map((item) => {
-        const budget = parseFloat(item.budgeted_cost || '0') || 0;
-        const variations = parseFloat(item.variations || '0') || 0;
-        const revisedBudget = parseFloat(item.revised_budget || '0') || (budget + variations);
-        const committed = parseFloat(item.committed_cost || '0') || 0;
-        const paid = parseFloat(item.paid_cost || '0') || 0;
-        const forecast = parseFloat(item.forecast_cost || '0') || budget;
+        const budget = parseFloat(item.budgeted_cost?.toString() || '0') || 0;
+        const variations = parseFloat(item.variations?.toString() || '0') || 0;
+        const revisedBudget = parseFloat(item.revised_budget?.toString() || '0') || (budget + variations);
+        const committed = parseFloat(item.committed_cost?.toString() || '0') || 0;
+        const paid = parseFloat(item.paid_cost?.toString() || '0') || 0;
+        const forecast = parseFloat(item.forecast_cost?.toString() || '0') || budget;
         const remaining = calculateRemaining(budget, paid);
         const variance = calculateVariance(budget, forecast);
         
@@ -119,7 +119,7 @@ export const WBSCostRightPanel = ({
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
                 field="budgeted_cost"
-                value={item.budgeted_cost || ''}
+                value={item.budgeted_cost?.toString() || ''}
                 placeholder="0"
                 className="text-xs text-foreground text-right w-full font-medium"
               />
@@ -131,7 +131,7 @@ export const WBSCostRightPanel = ({
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
                 field="variations"
-                value={item.variations || ''}
+                value={item.variations?.toString() || ''}
                 placeholder="0"
                 className="text-xs text-orange-600 text-right w-full font-medium"
               />
@@ -143,7 +143,7 @@ export const WBSCostRightPanel = ({
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
                 field="revised_budget"
-                value={item.revised_budget || ''}
+                value={item.revised_budget?.toString() || ''}
                 placeholder="0"
                 className="text-xs text-indigo-600 text-right w-full font-medium"
               />
@@ -155,7 +155,7 @@ export const WBSCostRightPanel = ({
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
                 field="committed_cost"
-                value={item.committed_cost || ''}
+                value={item.committed_cost?.toString() || ''}
                 placeholder="0"
                 className="text-xs text-amber-600 text-right w-full font-medium"
               />
@@ -167,7 +167,7 @@ export const WBSCostRightPanel = ({
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
                 field="paid_cost"
-                value={item.paid_cost || ''}
+                value={item.paid_cost?.toString() || ''}
                 placeholder="0"
                 className="text-xs text-green-600 text-right w-full font-medium"
               />
@@ -184,7 +184,7 @@ export const WBSCostRightPanel = ({
                 id={item.id}
                 type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
                 field="forecast_cost"
-                value={item.forecast_cost || ''}
+                value={item.forecast_cost?.toString() || ''}
                 placeholder={budget.toString()}
                 className="text-xs text-purple-600 text-right w-full font-medium"
               />

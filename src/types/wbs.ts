@@ -20,6 +20,12 @@ export interface WBSItem {
   duration?: number; // Duration in days
   budgeted_cost?: number;
   actual_cost?: number;
+  variations?: number; // Cost variations/changes
+  revised_budget?: number; // Budget after variations
+  committed_cost?: number; // Committed costs
+  paid_cost?: number; // Paid costs
+  forecast_cost?: number; // Forecast final cost
+  cost_notes?: string; // Notes related to cost
   progress?: number; // Maps to "percentComplete" in standardized view (0-100)
   status?: 'Not Started' | 'In Progress' | 'Completed' | 'On Hold' | 'Delayed'; // Status
   health?: 'Good' | 'At Risk' | 'Critical' | 'Unknown'; // Health status
