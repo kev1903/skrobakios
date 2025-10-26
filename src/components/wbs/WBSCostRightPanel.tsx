@@ -115,62 +115,82 @@ export const WBSCostRightPanel = ({
         >
             {/* Budget */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="budgeted_cost"
-                value={item.budgeted_cost?.toString() || ''}
-                placeholder="0"
-                className="text-xs text-foreground text-right w-full font-medium"
-              />
+              {budget > 0 ? (
+                <span className="text-xs text-foreground text-right w-full font-medium">{formatCurrency(budget)}</span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="budgeted_cost"
+                  value={item.budgeted_cost?.toString() || ''}
+                  placeholder="$0"
+                  className="text-xs text-foreground text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* Variations */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="variations"
-                value={item.variations?.toString() || ''}
-                placeholder="0"
-                className="text-xs text-orange-600 text-right w-full font-medium"
-              />
+              {variations !== 0 ? (
+                <span className="text-xs text-orange-600 text-right w-full font-medium">{formatCurrency(variations)}</span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="variations"
+                  value={item.variations?.toString() || ''}
+                  placeholder="$0"
+                  className="text-xs text-orange-600 text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* New Budget (Revised Budget) - Editable */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="revised_budget"
-                value={item.revised_budget?.toString() || ''}
-                placeholder="0"
-                className="text-xs text-indigo-600 text-right w-full font-medium"
-              />
+              {revisedBudget > 0 ? (
+                <span className="text-xs text-indigo-600 text-right w-full font-medium">{formatCurrency(revisedBudget)}</span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="revised_budget"
+                  value={item.revised_budget?.toString() || ''}
+                  placeholder="$0"
+                  className="text-xs text-indigo-600 text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* Committed */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="committed_cost"
-                value={item.committed_cost?.toString() || ''}
-                placeholder="0"
-                className="text-xs text-amber-600 text-right w-full font-medium"
-              />
+              {committed > 0 ? (
+                <span className="text-xs text-amber-600 text-right w-full font-medium">{formatCurrency(committed)}</span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="committed_cost"
+                  value={item.committed_cost?.toString() || ''}
+                  placeholder="$0"
+                  className="text-xs text-amber-600 text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* Paid */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="paid_cost"
-                value={item.paid_cost?.toString() || ''}
-                placeholder="0"
-                className="text-xs text-green-600 text-right w-full font-medium"
-              />
+              {paid > 0 ? (
+                <span className="text-xs text-green-600 text-right w-full font-medium">{formatCurrency(paid)}</span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="paid_cost"
+                  value={item.paid_cost?.toString() || ''}
+                  placeholder="$0"
+                  className="text-xs text-green-600 text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* Remaining - Calculated */}
@@ -180,14 +200,18 @@ export const WBSCostRightPanel = ({
 
             {/* Forecast Final Cost */}
             <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
-              <EditableCell
-                id={item.id}
-                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
-                field="forecast_cost"
-                value={item.forecast_cost?.toString() || ''}
-                placeholder={budget.toString()}
-                className="text-xs text-purple-600 text-right w-full font-medium"
-              />
+              {forecast > 0 ? (
+                <span className="text-xs text-purple-600 text-right w-full font-medium">{formatCurrency(forecast)}</span>
+              ) : (
+                <EditableCell
+                  id={item.id}
+                  type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                  field="forecast_cost"
+                  value={item.forecast_cost?.toString() || ''}
+                  placeholder="$0"
+                  className="text-xs text-purple-600 text-right w-full font-medium"
+                />
+              )}
             </div>
 
             {/* Variance - Calculated */}
