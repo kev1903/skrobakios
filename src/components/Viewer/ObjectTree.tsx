@@ -21,37 +21,80 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
 
     const buildTree = () => {
       console.log("Building tree from IFC model");
-      const nodes: any[] = [];
       
       try {
-        // Build tree from model hierarchy
-        let index = 0;
+        // Group elements by IFC type
+        const elementsByType = new Map<string, any[]>();
+        
         model.traverse((child) => {
           if (child !== model && child.type === "Mesh") {
-            nodes.push({
+            // Try to extract IFC type from various properties
+            let ifcType = "Unknown";
+            
+            // Check userData for IFC type information
+            if (child.userData?.ifcType) {
+              ifcType = child.userData.ifcType;
+            } else if (child.userData?.type) {
+              ifcType = child.userData.type;
+            } else if (child.name) {
+              // Try to extract IFC type from name (e.g., "IfcBeam:123")
+              const match = child.name.match(/^(Ifc\w+)/i);
+              if (match) {
+                ifcType = match[1];
+              }
+            }
+            
+            // Ensure proper IFC naming convention
+            if (!ifcType.startsWith("Ifc")) {
+              ifcType = "IfcBuildingElement";
+            }
+            
+            // Add to grouped elements
+            if (!elementsByType.has(ifcType)) {
+              elementsByType.set(ifcType, []);
+            }
+            
+            elementsByType.get(ifcType)!.push({
               id: child.uuid,
-              name: child.name || `Element ${index + 1}`,
-              type: child.type,
-              level: 0,
-              children: []
+              name: child.name || `Element ${child.id}`,
+              object: child,
+              level: 1
             });
-            index++;
           }
         });
         
-        console.log("Tree nodes created:", nodes.length);
+        // Convert to tree structure with parent nodes
+        const nodes: any[] = [];
+        
+        for (const [typeName, elements] of elementsByType.entries()) {
+          // Sort elements by name for consistent display
+          elements.sort((a, b) => a.name.localeCompare(b.name));
+          
+          nodes.push({
+            id: typeName,
+            name: `${typeName} (${elements.length})`,
+            type: typeName,
+            level: 0,
+            children: elements
+          });
+        }
+        
+        // Sort parent nodes alphabetically
+        nodes.sort((a, b) => a.type.localeCompare(b.type));
+        
+        console.log("Tree nodes created:", nodes.length, "types");
+        console.log("Element types found:", Array.from(elementsByType.keys()));
         setTreeData(nodes);
       } catch (error) {
         console.error("Error building IFC tree:", error);
         // Fallback: show basic model info
-        nodes.push({
+        setTreeData([{
           id: "model",
-          name: "IFC Model",
+          name: "IFC Model (Error loading structure)",
           type: "Model",
           level: 0,
           children: []
-        });
-        setTreeData(nodes);
+        }]);
       }
     };
 
