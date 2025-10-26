@@ -157,7 +157,7 @@ serve(async (req) => {
     console.log('MIME type:', mimeType);
     console.log('Base64 length:', base64Data.length);
 
-    // Build the content array - PDFs use inline_data, images use image_url
+    // Use image_url format for both PDFs and images (works reliably with Gemini)
     const contentArray: any[] = [
       {
         type: 'text',
@@ -173,27 +173,15 @@ Extract:
 
 IMPORTANT: Look at EVERY number in the document. Don't assume amounts are zero - read them directly from the document.
 Be precise with ALL numbers and dates. Set high confidence (0.9+) if the document is clear and readable.`
-      }
-    ];
-
-    // For PDFs, use inline_data format; for images, use image_url format
-    if (fileType === 'pdf') {
-      contentArray.push({
-        type: 'inline_data',
-        inline_data: {
-          mime_type: mimeType,
-          data: base64Data
-        }
-      });
-    } else {
-      contentArray.push({
+      },
+      {
         type: 'image_url',
         image_url: {
           url: `data:${mimeType};base64,${base64Data}`,
           detail: 'high'
         }
-      });
-    }
+      }
+    ];
 
     const aiMessages = [
       {
