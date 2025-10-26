@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Plus, Trash2, Download, Send, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { formatCurrency } from '@/utils/formatters';
 
 interface InvoiceItem {
   description: string;
@@ -638,7 +639,8 @@ export const InvoiceFormPage = () => {
                       min="0"
                       step="0.01"
                     />
-                    <div className="hidden print:block text-sm">{item.unitPrice.toLocaleString('en-AU', { style: 'currency', currency: 'AUD' }).replace('$', '')}</div>
+                    <div className="hidden print:block text-sm">{formatCurrency(item.unitPrice, 'AUD', false)}</div>
+                    <div className="print:hidden text-sm">{formatCurrency(item.unitPrice)}</div>
                   </td>
                   <td className="p-2 text-center align-top">
                     <Input
@@ -653,7 +655,7 @@ export const InvoiceFormPage = () => {
                     <div className="hidden print:block text-sm">{item.gst}%</div>
                   </td>
                   <td className="p-2 text-right font-medium align-top">
-                    <div className="text-sm">{item.amount.toFixed(2)}</div>
+                    <div className="text-sm">{formatCurrency(item.amount)}</div>
                   </td>
                   <td className="p-2 print:hidden align-top">
                     <Button
@@ -677,19 +679,19 @@ export const InvoiceFormPage = () => {
             <div className="space-y-0">
               <div className="flex justify-between py-2 px-4 bg-gray-50 border-b border-gray-200">
                 <span className="font-medium text-gray-700">Subtotal</span>
-                <span className="text-right font-semibold text-black">${calculateSubtotal().toFixed(2)}</span>
+                <span className="text-right font-semibold text-black">{formatCurrency(calculateSubtotal())}</span>
               </div>
               <div className="flex justify-between py-2 px-4 bg-gray-50 border-b border-gray-200">
                 <span className="font-medium text-gray-700">Total GST 10%</span>
-                <span className="text-right font-semibold text-black">${calculateTotalGST().toFixed(2)}</span>
+                <span className="text-right font-semibold text-black">{formatCurrency(calculateTotalGST())}</span>
               </div>
               <div className="flex justify-between py-3 px-4 bg-gray-100 border-b-2 border-gray-300">
                 <span className="font-bold text-gray-900">Invoice Total AUD</span>
-                <span className="text-right font-bold text-black text-lg">${calculateTotal().toFixed(2)}</span>
+                <span className="text-right font-bold text-black text-lg">{formatCurrency(calculateTotal())}</span>
               </div>
               <div className="flex justify-between py-3 px-4 bg-blue-50 border-t border-blue-200">
                 <span className="font-bold text-blue-900">Amount Due AUD</span>
-                <span className="text-right font-bold text-blue-900 text-lg">${calculateTotal().toFixed(2)}</span>
+                <span className="text-right font-bold text-blue-900 text-lg">{formatCurrency(calculateTotal())}</span>
               </div>
             </div>
           </div>
