@@ -1,138 +1,118 @@
 import { useEffect, useRef, useState } from "react";
-import { Viewer, XKTLoaderPlugin } from "@xeokit/xeokit-sdk";
+import { Viewer, WebIFCLoaderPlugin } from "@xeokit/xeokit-sdk";
+import * as WebIFC from "web-ifc";
+import { toast } from "sonner";
 
 interface ViewerCanvasProps {
-  onViewerReady: (viewer: Viewer, loader: XKTLoaderPlugin) => void;
+  onViewerReady?: (viewer: Viewer, ifcLoader: WebIFCLoaderPlugin) => void;
 }
 
 export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
-  const [isInitializing, setIsInitializing] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  console.log("ViewerCanvas component rendered");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log("ViewerCanvas useEffect triggered");
-    
-    let mounted = true;
-    
-    const initViewer = async () => {
-      console.log("=== Viewer Initialization Started ===");
-      
-      if (!canvasRef.current) {
-        const err = "Canvas element not found";
-        console.error(err);
-        setError(err);
-        setIsInitializing(false);
-        return;
+    console.log("ViewerCanvas useEffect starting...");
+    console.log("Canvas ref exists:", !!canvasRef.current);
+
+    if (!canvasRef.current) {
+      console.log("No canvas ref, returning");
+      return;
+    }
+
+    console.log("Initializing xeokit viewer...");
+
+    // Initialize xeokit viewer with realistic rendering
+    const viewer = new Viewer({
+      canvasId: "xeokit-canvas",
+      transparent: false,
+      antialias: true,
+      saoEnabled: true,
+      pbrEnabled: true,
+      gammaOutput: true,
+      gammaFactor: 2.2,
+      logarithmicDepthBufferEnabled: true,
+    });
+
+    // Configure realistic camera
+    viewer.scene.camera.eye = [-3.933, 2.855, 27.018];
+    viewer.scene.camera.look = [4.400, 3.724, 8.899];
+    viewer.scene.camera.up = [-0.018, 0.999, 0.039];
+    viewer.scene.camera.projection = "perspective";
+
+    // Configure strong ambient occlusion for realistic shadows and depth
+    const sao = viewer.scene.sao;
+    sao.enabled = true;
+    sao.numSamples = 60;            // Maximum samples for smoothest shadows
+    sao.kernelRadius = 250;          // Wider radius for better shadow spread
+    sao.intensity = 0.55;            // Enhanced shadow intensity for depth
+    sao.bias = 0.1;                  // Low bias for tight contact shadows
+    sao.scale = 100.0;               // More pronounced depth effect
+    sao.minResolution = 0.0;
+    sao.blendCutoff = 0.05;          // Lower cutoff for more visible shadows
+    sao.blendFactor = 1.2;           // Higher blend for stronger effect
+    sao.blur = true;                 // Enable blur for smoother shadows
+
+    // Configure crisp edge rendering for better definition
+    const edgeMaterial = viewer.scene.edgeMaterial;
+    edgeMaterial.edges = true;
+    edgeMaterial.edgeAlpha = 0.25;
+    edgeMaterial.edgeColor = [0.0, 0.0, 0.0];
+    edgeMaterial.edgeWidth = 1.5;
+
+    console.log("Viewer created successfully");
+
+    // Initialize web-ifc API
+    console.log("Creating WebIFC API instance...");
+    const ifcAPI = new WebIFC.IfcAPI();
+
+    // Set WASM path and initialize
+    console.log("Setting WASM path...");
+    ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
+
+    console.log("Initializing WebIFC...");
+    ifcAPI.Init().then(() => {
+      console.log("WebIFC initialized successfully!");
+      // Initialize WebIFC loader plugin for loading IFC models directly
+      console.log("Creating WebIFCLoaderPlugin...");
+      const ifcLoader = new WebIFCLoaderPlugin(viewer, {
+        WebIFC,
+        IfcAPI: ifcAPI
+      });
+
+      console.log("WebIFCLoaderPlugin created successfully");
+
+      viewerRef.current = viewer;
+
+      console.log("Calling onViewerReady callback...");
+      if (onViewerReady) {
+        onViewerReady(viewer, ifcLoader);
+        console.log("onViewerReady callback completed");
+      } else {
+        console.log("No onViewerReady callback provided!");
       }
 
-      console.log("Canvas element found:", canvasRef.current);
-
-      try {
-        // Create viewer
-        console.log("Creating Viewer instance...");
-        const viewer = new Viewer({
-          canvasId: "xeokit-canvas",
-          transparent: false,
-          backgroundColor: [0.95, 0.95, 0.98]
-        });
-        
-        console.log("Viewer created successfully:", viewer);
-
-        if (!mounted) {
-          console.log("Component unmounted, aborting");
-          return;
-        }
-
-        // Create XKT loader - more reliable than WebIFC for xeokit
-        console.log("Creating XKTLoaderPlugin...");
-        const xktLoader = new XKTLoaderPlugin(viewer);
-        
-        console.log("XKTLoaderPlugin created successfully");
-
-        viewerRef.current = viewer;
-        setIsInitializing(false);
-        setError(null);
-        
-        console.log("Calling onViewerReady callback...");
-        onViewerReady(viewer, xktLoader);
-        console.log("=== Viewer Initialization Complete ===");
-        
-      } catch (err) {
-        console.error("=== Viewer Initialization Failed ===");
-        console.error("Error type:", err?.constructor?.name);
-        console.error("Error message:", err instanceof Error ? err.message : String(err));
-        console.error("Error stack:", err instanceof Error ? err.stack : "No stack trace");
-        console.error("Full error object:", err);
-        
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        setError(errorMessage);
-        setIsInitializing(false);
-      }
-    };
-
-    // Small delay to ensure DOM is ready
-    console.log("Setting timer for viewer initialization");
-    const timer = setTimeout(() => {
-      console.log("Timer fired, calling initViewer");
-      initViewer();
-    }, 100);
+      setIsLoading(false);
+      toast.success("IFC Viewer Ready - Upload an IFC file to begin");
+      console.log("Viewer initialization complete!");
+    }).catch((error) => {
+      console.error("Failed to initialize WebIFC:", error);
+      console.error("Error details:", error.message, error.stack);
+      toast.error("Failed to initialize IFC loader: " + error.message);
+      setIsLoading(false);
+    });
 
     return () => {
-      console.log("ViewerCanvas cleanup");
-      mounted = false;
-      clearTimeout(timer);
-      if (viewerRef.current) {
-        console.log("Cleaning up viewer...");
-        try {
-          viewerRef.current.destroy();
-        } catch (e) {
-          console.error("Error destroying viewer:", e);
-        }
-      }
+      viewer.destroy();
     };
   }, [onViewerReady]);
 
   return (
-    <div className="relative w-full h-full bg-background">
-      <canvas
-        id="xeokit-canvas"
-        ref={canvasRef}
-        className="w-full h-full"
-      />
-      {isInitializing && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/90 backdrop-blur-sm z-50">
-          <div className="text-center space-y-3 p-6">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-luxury-gold mx-auto" />
-            <div>
-              <p className="text-sm font-medium text-foreground">Initializing BIM Viewer...</p>
-              <p className="text-xs text-muted-foreground mt-1">Please wait</p>
-            </div>
-          </div>
-        </div>
-      )}
-      {error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/90 backdrop-blur-sm z-50">
-          <div className="text-center space-y-3 p-6 max-w-md">
-            <div className="text-destructive text-4xl">⚠️</div>
-            <div>
-              <p className="text-sm font-medium text-destructive mb-2">Failed to initialize viewer</p>
-              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded font-mono text-left overflow-auto max-h-32">
-                {error}
-              </p>
-            </div>
-            <button 
-              onClick={() => window.location.reload()}
-              className="text-xs text-luxury-gold hover:underline"
-            >
-              Reload page to retry
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+    <canvas
+      id="xeokit-canvas"
+      ref={canvasRef}
+      className="w-full h-full bg-[hsl(var(--viewer-bg))]"
+    />
   );
 };
