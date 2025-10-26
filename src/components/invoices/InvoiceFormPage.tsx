@@ -128,47 +128,52 @@ export const InvoiceFormPage = () => {
 
   // Fetch project owner/client details
   useEffect(() => {
-    const fetchProjectOwner = async () => {
+    const fetchProjectOwners = async () => {
       if (!projectId || isEditMode) return; // Only auto-populate for new invoices
       
       try {
-        const { data: owner, error } = await supabase
+        const { data: owners, error } = await supabase
           .from('project_owners')
           .select('*')
           .eq('project_id', projectId)
-          .maybeSingle();
+          .order('created_at', { ascending: true });
 
         if (error) {
-          console.error('Error fetching project owner:', error);
+          console.error('Error fetching project owners:', error);
           return;
         }
 
-        if (owner) {
-          // Format the address
+        if (owners && owners.length > 0) {
+          // Combine owner names as "Owner 1 and Owner 2"
+          const ownerNames = owners.map(owner => owner.name).filter(Boolean);
+          const combinedNames = ownerNames.join(' and ');
+          
+          // Use first owner's details for address and email
+          const firstOwner = owners[0];
           const addressParts = [
-            owner.address,
-            owner.suburb,
-            owner.state,
-            owner.postcode
+            firstOwner.address,
+            firstOwner.suburb,
+            firstOwner.state,
+            firstOwner.postcode
           ].filter(Boolean);
           
           const fullAddress = addressParts.join(', ');
 
           setInvoiceData((prev) => ({
             ...prev,
-            clientName: owner.name || '',
+            clientName: combinedNames || '',
             clientAddress: fullAddress || '',
-            clientEmail: owner.email || ''
+            clientEmail: firstOwner.email || ''
           }));
 
-          console.log('Client details auto-populated:', owner.name);
+          console.log('Client details auto-populated:', combinedNames);
         }
       } catch (error) {
-        console.error('Error fetching project owner:', error);
+        console.error('Error fetching project owners:', error);
       }
     };
 
-    fetchProjectOwner();
+    fetchProjectOwners();
   }, [projectId, isEditMode]);
 
   // Fetch contracts for the project
