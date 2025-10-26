@@ -2,6 +2,9 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { validateRequest, ProcessInvoiceRequest } from "./schemas.ts";
 
+// Import PDF.js for text extraction
+import * as pdfjsLib from "npm:pdfjs-dist@4.0.379/legacy/build/pdf.mjs";
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -46,7 +49,44 @@ const InvoiceSchema = {
   }
 };
 
-// Note: PDF text extraction removed - using vision model for direct PDF processing
+// Extract text from PDF using PDF.js
+async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
+  try {
+    console.log('=== EXTRACTING TEXT FROM PDF ===');
+    
+    // Load PDF document
+    const loadingTask = pdfjsLib.getDocument({
+      data: new Uint8Array(pdfBytes),
+      useSystemFonts: true,
+      standardFontDataUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/standard_fonts/",
+    });
+    
+    const pdfDoc = await loadingTask.promise;
+    console.log(`PDF loaded: ${pdfDoc.numPages} pages`);
+    
+    let fullText = '';
+    
+    // Extract text from all pages
+    for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+      const page = await pdfDoc.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      
+      // Combine text items
+      const pageText = textContent.items
+        .map((item: any) => item.str)
+        .join(' ');
+      
+      fullText += pageText + '\n\n';
+      console.log(`Page ${pageNum} text extracted: ${pageText.length} chars`);
+    }
+    
+    console.log(`Total extracted text: ${fullText.length} characters`);
+    return fullText.trim();
+  } catch (error) {
+    console.error('PDF text extraction error:', error);
+    throw new Error(`Failed to extract text from PDF: ${error.message}`);
+  }
+}
 
 async function fetchAsArrayBuffer(url: string): Promise<ArrayBuffer> {
   const response = await fetch(url);
@@ -148,65 +188,76 @@ serve(async (req) => {
       );
     }
 
-    // Step 2: Process with vision model (works for both PDF and images)
-    console.log('=== VISION MODEL PROCESSING ===');
-    console.log(`Processing ${fileType === 'pdf' ? 'PDF' : 'image'} with vision AI...`);
-    console.log('Converting to base64...');
-    const base64Data = arrayBufferToBase64(bytes);
-    const mimeType = getMimeType(filename);
-    console.log('MIME type:', mimeType);
-    console.log('Base64 length:', base64Data.length);
+    // Step 2: Extract text from PDF or prepare image
+    console.log('=== DOCUMENT PROCESSING ===');
+    let documentContent: string;
+    
+    if (fileType === 'pdf') {
+      // For PDFs: Extract text content
+      console.log('Extracting text from PDF...');
+      documentContent = await extractTextFromPDF(bytes);
+      console.log('Text extraction complete');
+      console.log('Extracted text preview:', documentContent.substring(0, 500));
+    } else {
+      // For images: Convert to base64 for vision processing
+      console.log('Processing image with vision...');
+      const base64Data = arrayBufferToBase64(bytes);
+      const mimeType = getMimeType(filename);
+      documentContent = `IMAGE:${mimeType}:${base64Data}`;
+    }
 
-    // Build content with extreme anti-hallucination measures
-    // Add unique document hash to force model to treat as new
-    const docHash = base64Data.substring(0, 32); // First 32 chars as unique ID
-    const contentArray: any[] = [
-      {
-        type: 'text',
-        text: `CRITICAL: You are analyzing Document ID: ${docHash}
+    // Step 3: Send to AI for structured extraction
+    console.log('=== SENDING TO AI FOR EXTRACTION ===');
+    
+    let aiMessages;
+    
+    if (fileType === 'pdf') {
+      // For PDFs with extracted text
+      aiMessages = [
+        {
+          role: 'system',
+          content: `You are an expert invoice data extraction system. Extract structured data from the invoice text provided.
 
-THIS IS A NEW DOCUMENT YOU HAVE NEVER SEEN BEFORE. Analyze ONLY this specific ${fileType === 'pdf' ? 'PDF' : 'image'}.
+EXTRACTION RULES:
+1. SUPPLIER: Full company name (look for "Pty Ltd", "LLC", "Inc", etc.)
+2. INVOICE NUMBER: The invoice/bill reference number
+3. DATES: Convert to YYYY-MM-DD format (e.g., "16 Sep 2025" → "2025-09-16")
+4. AMOUNTS: Numeric values only for Total, Subtotal, Tax/GST
+5. LINE ITEMS: Each item with description, quantity, rate, amount
 
-VERIFICATION REQUIREMENTS:
-1. Before extracting ANY data, describe what you see in the document (company name visible, invoice number location)
-2. State the EXACT supplier name you see at the top
-3. State the EXACT invoice number printed on the page
-4. State the EXACT total amount at the bottom
-5. Then extract all other fields
-
-If you cannot see these fields clearly in THIS document, return low confidence.
-
-DO NOT use any cached invoice data. DO NOT use data from "The Urban Leaf" or any other prior invoice.
-ONLY extract what is VISIBLE in THIS SPECIFIC DOCUMENT with ID: ${docHash}`
-      }
-    ];
-
-    // Try image_url format for both (more reliable with gateway)
-    contentArray.push({
-      type: 'image_url',
-      image_url: {
-        url: `data:${mimeType};base64,${base64Data}`,
-        detail: 'high'
-      }
-    });
-
-    const aiMessages = [
-      {
-        role: 'system',
-        content: `You are a document OCR system. You MUST read and extract data from the SPECIFIC document provided to you.
-
-CRITICAL RULE: Describe what you SEE before extracting. If you cannot clearly see fields in the provided document, say so.
-
-Never use cached data. Never use data from documents you've seen before. Only extract from THIS document.`
-      },
-      {
-        role: 'user',
-        content: contentArray
-      }
-    ];
-
-    // Step 3: Send to Lovable AI for structured extraction
-    console.log('Sending to Lovable AI for structured extraction...');
+Be precise with data extraction. Set high confidence (0.9+) only if all fields are clearly present.`
+        },
+        {
+          role: 'user',
+          content: `Extract invoice data from this text:\n\n${documentContent}`
+        }
+      ];
+    } else {
+      // For images with vision
+      const [_, mimeType, base64Data] = documentContent.split(':');
+      aiMessages = [
+        {
+          role: 'system',
+          content: 'You are an expert at extracting invoice data from images. Analyze the image and extract all fields accurately.'
+        },
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: 'Extract all invoice data from this image including supplier, invoice number, dates, amounts, and line items.'
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:${mimeType};base64,${base64Data}`,
+                detail: 'high'
+              }
+            }
+          ]
+        }
+      ];
+    }
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
