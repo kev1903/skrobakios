@@ -782,15 +782,22 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           
           // Find the appropriate parent - look backwards for an item at (newLevel - 1)
           let newParentId: string | null = null;
+          let parentItem: WBSItem | null = null;
           for (let i = currentIndexIndent - 1; i >= 0; i--) {
             const potentialParent = flatWBSItems[i];
             if (potentialParent.level === newLevel - 1) {
               newParentId = potentialParent.id;
+              parentItem = potentialParent;
               break;
             }
           }
           
           console.log(`🔄 Progressive indent: ${item.title} from level ${item.level} to ${newLevel}, parent: ${newParentId}`);
+          
+          // If we found a parent, make sure it's expanded so the indented item remains visible
+          if (parentItem && !parentItem.is_expanded) {
+            await updateWBSItem(parentItem.id, { is_expanded: true });
+          }
           
           // Preserve visual position by keeping the same created_at relative to visible items
           const newCreatedAt = new Date(Date.now() + currentIndexIndent * 1000).toISOString();
