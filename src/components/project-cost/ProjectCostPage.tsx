@@ -221,80 +221,80 @@ export const ProjectCostPage = ({
       <div className="flex-1 ml-48 h-screen overflow-hidden bg-background flex flex-col">
         <div className="flex-1 overflow-hidden flex flex-col">
           {/* Summary Cards - Dynamic based on active tab */}
-          <div className="m-6 mb-3 bg-card border rounded-lg p-2">
-            <div className="grid grid-cols-4 gap-2">
+          <div className="m-6 mb-4 bg-card border rounded-lg p-3 shadow-sm">
+            <div className="grid grid-cols-4 gap-3">
               {activeTab === 'income' && (
                 <>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Contract Amount</div>
-                    <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.contractAmount)}</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Contract Amount</div>
+                    <div className="text-xl font-bold text-foreground">{formatCurrency(incomeData.contractAmount)}</div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Paid</div>
-                    <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.totalPaid)}</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Total Paid</div>
+                    <div className="text-xl font-bold text-foreground">{formatCurrency(incomeData.totalPaid)}</div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Outstanding</div>
-                    <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.outstanding)}</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Outstanding</div>
+                    <div className="text-xl font-bold text-foreground">{formatCurrency(incomeData.outstanding)}</div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Overdue</div>
-                    <div className="text-lg font-semibold text-red-600">{formatCurrency(incomeData.overdue)}</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Overdue</div>
+                    <div className="text-xl font-bold text-red-600">{formatCurrency(incomeData.overdue)}</div>
                   </div>
                 </>
               )}
               {activeTab === 'expense' && (
                 <>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Bills</div>
-                    <div className="text-lg font-semibold text-foreground">{formatCurrency(expenseData.totalBills)}</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Total Bills</div>
+                    <div className="text-xl font-bold text-foreground">{formatCurrency(expenseData.totalBills)}</div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Total Paid</div>
-                    <div className="text-lg font-semibold text-foreground">{formatCurrency(expenseData.totalPaid)}</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Total Paid</div>
+                    <div className="text-xl font-bold text-foreground">{formatCurrency(expenseData.totalPaid)}</div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Outstanding</div>
-                    <div className="text-lg font-semibold text-foreground">{formatCurrency(expenseData.outstanding)}</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Outstanding</div>
+                    <div className="text-xl font-bold text-foreground">{formatCurrency(expenseData.outstanding)}</div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Pending Approval</div>
-                    <div className="text-lg font-semibold text-yellow-600">{expenseData.pending}</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Pending Approval</div>
+                    <div className="text-xl font-bold text-yellow-600">{expenseData.pending}</div>
                   </div>
                 </>
               )}
               {activeTab === 'analytics' && (
                 <>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Net Income</div>
-                    <div className="text-lg font-semibold text-foreground">{formatCurrency(incomeData.totalPaid - expenseData.totalPaid)}</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Net Income</div>
+                    <div className="text-xl font-bold text-foreground">{formatCurrency(incomeData.totalPaid - expenseData.totalPaid)}</div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Income vs Budget</div>
-                    <div className="text-lg font-semibold text-foreground">{costSummary.totalBudgeted > 0 ? ((incomeData.totalBilled / costSummary.totalBudgeted) * 100).toFixed(1) : 0}%</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Income vs Budget</div>
+                    <div className="text-xl font-bold text-foreground">{costSummary.totalBudgeted > 0 ? ((incomeData.totalBilled / costSummary.totalBudgeted) * 100).toFixed(1) : 0}%</div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Expense Ratio</div>
-                    <div className="text-lg font-semibold text-foreground">{incomeData.totalBilled > 0 ? ((expenseData.totalBills / incomeData.totalBilled) * 100).toFixed(1) : 0}%</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Expense Ratio</div>
+                    <div className="text-xl font-bold text-foreground">{incomeData.totalBilled > 0 ? ((expenseData.totalBills / incomeData.totalBilled) * 100).toFixed(1) : 0}%</div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Profit Margin</div>
-                    <div className="text-lg font-semibold text-green-600">{incomeData.totalBilled > 0 ? (((incomeData.totalBilled - expenseData.totalBills) / incomeData.totalBilled) * 100).toFixed(1) : 0}%</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Profit Margin</div>
+                    <div className="text-xl font-bold text-green-600">{incomeData.totalBilled > 0 ? (((incomeData.totalBilled - expenseData.totalBills) / incomeData.totalBilled) * 100).toFixed(1) : 0}%</div>
                   </div>
                 </>
               )}
               {activeTab === 'cost-control' && (
                 <>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Project Budget</div>
-                    <div className="text-lg font-semibold text-foreground">{formatCurrency(costSummary.totalBudgeted)}</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Project Budget</div>
+                    <div className="text-xl font-bold text-foreground">{formatCurrency(costSummary.totalBudgeted)}</div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Cost Committed</div>
-                    <div className="text-lg font-semibold text-foreground">{formatCurrency(costSummary.totalActual)}</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Cost Committed</div>
+                    <div className="text-xl font-bold text-foreground">{formatCurrency(costSummary.totalActual)}</div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Contingency</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Contingency</div>
                     <div className="flex items-center">
                       <input 
                         type="number" 
@@ -302,13 +302,13 @@ export const ProjectCostPage = ({
                         max="100" 
                         step="0.1"
                         placeholder="0.0"
-                        className="w-16 text-lg font-semibold bg-transparent border-none outline-none text-foreground focus:ring-1 focus:ring-primary rounded px-1"
+                        className="w-14 text-xl font-bold bg-transparent border-none outline-none text-foreground focus:ring-1 focus:ring-primary rounded px-1"
                       />
-                      <span className="text-lg font-semibold text-foreground ml-1">%</span>
+                      <span className="text-xl font-bold text-foreground ml-1">%</span>
                     </div>
                   </div>
-                  <div className="bg-muted/30 rounded-lg border p-2">
-                    <div className="text-xs text-muted-foreground uppercase tracking-wide font-medium mb-1">Markup</div>
+                  <div className="bg-muted/20 rounded-lg border border-border/50 p-3">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">Markup</div>
                     <div className="flex items-center">
                       <input 
                         type="number" 
@@ -316,9 +316,9 @@ export const ProjectCostPage = ({
                         max="100" 
                         step="0.1"
                         placeholder="0.0"
-                        className="w-16 text-lg font-semibold bg-transparent border-none outline-none text-foreground focus:ring-1 focus:ring-primary rounded px-1"
+                        className="w-14 text-xl font-bold bg-transparent border-none outline-none text-foreground focus:ring-1 focus:ring-primary rounded px-1"
                       />
-                      <span className="text-lg font-semibold text-foreground ml-1">%</span>
+                      <span className="text-xl font-bold text-foreground ml-1">%</span>
                     </div>
                   </div>
                 </>
@@ -449,16 +449,17 @@ export const ProjectCostPage = ({
               {/* Tab Content */}
               <div className="flex-1 overflow-y-auto">
                 <TabsContent value="income" className="mt-0 h-full p-6">
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                      {/* Income Actions */}
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center mb-2">
                       <div>
-                        <h3 className="text-lg font-semibold text-foreground">Project Income</h3>
-                        <p className="text-muted-foreground">Manage invoices and track revenue</p>
+                        <h3 className="text-base font-semibold text-foreground">Project Income</h3>
+                        <p className="text-sm text-muted-foreground">Manage invoices and track revenue</p>
                       </div>
                       <div className="flex gap-2">
                         <Button 
                           variant="outline"
+                          size="sm"
                           onClick={() => setIsInvoicePDFUploaderOpen(true)}
                           className="flex items-center gap-2"
                         >
@@ -466,6 +467,7 @@ export const ProjectCostPage = ({
                           Upload Invoice
                         </Button>
                         <Button 
+                          size="sm"
                           onClick={() => navigate(`/invoice/create?projectId=${project.id}`)}
                           className="flex items-center gap-2"
                         >

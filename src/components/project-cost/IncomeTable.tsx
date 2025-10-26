@@ -381,12 +381,12 @@ export const IncomeTable = ({
 
   if (loading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3 p-4">
         <div className="animate-pulse">
-          <div className="h-4 bg-muted rounded w-1/4 mb-4"></div>
-          <div className="space-y-3">
+          <div className="h-3 bg-muted/50 rounded w-1/4 mb-4"></div>
+          <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-12 bg-muted rounded"></div>
+              <div key={i} className="h-12 bg-muted/50 rounded-lg"></div>
             ))}
           </div>
         </div>
@@ -396,12 +396,12 @@ export const IncomeTable = ({
 
   if (invoices.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-          <Eye className="h-8 w-8 text-muted-foreground" />
+      <div className="text-center py-16 px-4">
+        <div className="h-14 w-14 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+          <Eye className="h-7 w-7 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">No Invoices Found</h3>
-        <p className="text-muted-foreground">
+        <h3 className="text-base font-semibold text-foreground mb-1">No Invoices Found</h3>
+        <p className="text-sm text-muted-foreground">
           {statusFilter === 'all' 
             ? 'No invoices have been created for this project yet.'
             : `No invoices with "${getStatusText(statusFilter)}" status found.`
@@ -413,36 +413,36 @@ export const IncomeTable = ({
 
   return (
     <TooltipProvider>
-      <div className="space-y-4">
-        <div className="border rounded-lg overflow-hidden bg-card">
+      <div className="space-y-3">
+        <div className="border rounded-lg overflow-hidden bg-background shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="w-12 h-8 py-2 px-3"></TableHead>
-                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Invoice #</TableHead>
-                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Issue Date</TableHead>
-                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Due Date</TableHead>
-                <TableHead className="text-foreground font-medium text-right h-8 py-2 px-3">Amount Billed</TableHead>
-                <TableHead className="text-foreground font-medium text-right h-8 py-2 px-3">Amount Paid</TableHead>
-                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Payment Status</TableHead>
-                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Progress</TableHead>
-                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Contract</TableHead>
-                <TableHead className="text-foreground font-medium text-center h-8 py-2 px-3">Actions</TableHead>
+              <TableRow className="bg-muted/30 border-b hover:bg-muted/30">
+                <TableHead className="w-10 h-10 py-2 px-2"></TableHead>
+                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Invoice #</TableHead>
+                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Issue Date</TableHead>
+                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Due Date</TableHead>
+                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide text-right h-10 py-2 px-3">Amount Billed</TableHead>
+                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide text-right h-10 py-2 px-3">Amount Paid</TableHead>
+                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Status</TableHead>
+                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Progress</TableHead>
+                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide h-10 py-2 px-3">Contract</TableHead>
+                <TableHead className="text-xs font-semibold uppercase text-muted-foreground tracking-wide text-center h-10 py-2 px-3">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {groupedInvoices.map((group) => (
                 <React.Fragment key={group.key}>
                   {/* Milestone Group Header */}
-                  <TableRow className="bg-muted/70 hover:bg-muted/80 cursor-pointer">
-                    <TableCell colSpan={10} className="py-2 px-3">
+                  <TableRow className="bg-muted/50 hover:bg-muted/60 border-y cursor-pointer transition-colors">
+                    <TableCell colSpan={10} className="py-3 px-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div onClick={() => toggleMilestone(group.key)}>
+                          <div onClick={() => toggleMilestone(group.key)} className="flex items-center">
                             {expandedMilestones.has(group.key) ? (
-                              <ChevronDown className="h-5 w-5 text-foreground" />
+                              <ChevronDown className="h-4 w-4 text-muted-foreground" />
                             ) : (
-                              <ChevronRight className="h-5 w-5 text-foreground" />
+                              <ChevronRight className="h-4 w-4 text-muted-foreground" />
                             )}
                           </div>
                           {editingMilestone === group.key ? (
@@ -460,33 +460,33 @@ export const IncomeTable = ({
                               }}
                               onClick={(e) => e.stopPropagation()}
                               autoFocus
-                              className="font-semibold text-foreground text-base bg-background border border-primary rounded px-2 py-1 min-w-[200px]"
+                              className="font-semibold text-foreground text-sm bg-background border border-primary rounded-md px-2 py-1 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-primary/20"
                             />
                           ) : (
                             <span 
-                              className="font-semibold text-foreground text-base hover:text-primary cursor-text"
+                              className="font-semibold text-foreground text-sm hover:text-primary cursor-text transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditMilestone(group.key, group.milestone);
                               }}
                             >
-                              {group.sequence > 0 ? `Stage ${group.sequence} – ` : ''}{group.milestone}
+                              {group.sequence > 0 ? `${group.sequence}` : ''} {group.milestone}
                             </span>
                           )}
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="secondary" className="text-xs font-normal bg-muted border-0">
                             {group.invoices.length} invoice{group.invoices.length !== 1 ? 's' : ''}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-sm text-muted-foreground">
-                            Billed: <span className="font-medium text-foreground">{formatCurrency(group.total)}</span>
+                        <div className="flex items-center gap-6">
+                          <div className="text-xs text-muted-foreground">
+                            Billed: <span className="font-semibold text-foreground ml-1">{formatCurrency(group.total)}</span>
                           </div>
-                          <div className="text-sm text-muted-foreground">
-                            Paid: <span className="font-medium text-green-600">{formatCurrency(group.paid)}</span>
+                          <div className="text-xs text-muted-foreground">
+                            Paid: <span className="font-semibold text-green-600 ml-1">{formatCurrency(group.paid)}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Progress value={(group.paid / group.total) * 100} className="w-24 h-2" />
-                            <span className="text-xs font-medium text-muted-foreground min-w-[40px]">
+                            <span className="text-xs font-semibold text-muted-foreground min-w-[40px]">
                               {Math.round((group.paid / group.total) * 100)}%
                             </span>
                           </div>
@@ -496,71 +496,71 @@ export const IncomeTable = ({
                   </TableRow>
 
                   {/* Invoice Rows */}
-                  {expandedMilestones.has(group.key) && group.invoices.map((invoice) => {
+                  {expandedMilestones.has(group.key) && group.invoices.map((invoice, idx) => {
                     const paymentStatus = getPaymentStatusBadge(invoice.paid_to_date, invoice.total, invoice.status);
                     const overdue = isOverdue(invoice.due_date, invoice.status);
                     const daysOverdue = overdue ? getDaysOverdue(invoice.due_date) : 0;
                     
                     return (
-                      <TableRow key={invoice.id} className="hover:bg-muted/30 group">
-                        <TableCell className="py-2 px-3"></TableCell>
-                        <TableCell className="font-medium text-foreground py-2 px-3">
+                      <TableRow key={invoice.id} className="hover:bg-muted/20 transition-colors group border-b border-border/40">
+                        <TableCell className="py-3 px-2"></TableCell>
+                        <TableCell className="font-medium text-sm text-foreground py-3 px-3">
                           {invoice.number}
                         </TableCell>
-                        <TableCell className="text-muted-foreground py-2 px-3">
+                        <TableCell className="text-sm text-muted-foreground py-3 px-3">
                           {formatDate(invoice.issue_date)}
                         </TableCell>
-                        <TableCell className="py-2 px-3">
+                        <TableCell className="py-3 px-3">
                           <div className="flex items-center gap-2">
                             {overdue && (
                               <Tooltip>
                                 <TooltipTrigger>
-                                  <AlertCircle className="h-4 w-4 text-red-500" />
+                                  <AlertCircle className="h-3.5 w-3.5 text-red-500" />
                                 </TooltipTrigger>
                                 <TooltipContent>
                                   <p>{daysOverdue} day{daysOverdue !== 1 ? 's' : ''} overdue</p>
                                 </TooltipContent>
                               </Tooltip>
                             )}
-                            <span className={overdue ? 'text-red-600 font-medium' : 'text-muted-foreground'}>
+                            <span className={overdue ? 'text-sm text-red-600 font-medium' : 'text-sm text-muted-foreground'}>
                               {formatDate(invoice.due_date)}
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right font-medium text-foreground py-2 px-3">
+                        <TableCell className="text-right text-sm font-semibold text-foreground py-3 px-3">
                           {formatCurrency(invoice.total)}
                         </TableCell>
-                        <TableCell className="text-right font-medium py-2 px-3">
+                        <TableCell className="text-right text-sm font-semibold py-3 px-3">
                           <span className={invoice.paid_to_date > 0 ? 'text-green-600' : 'text-muted-foreground'}>
                             {formatCurrency(invoice.paid_to_date)}
                           </span>
                         </TableCell>
-                        <TableCell className="py-2 px-3">
+                        <TableCell className="py-3 px-3">
                           <Badge 
                             variant={paymentStatus.variant}
-                            className={`text-xs font-medium ${paymentStatus.className}`}
+                            className={`text-xs font-medium ${paymentStatus.className} border-0`}
                           >
                             {paymentStatus.label}
                           </Badge>
                         </TableCell>
-                        <TableCell className="py-2 px-3">
+                        <TableCell className="py-3 px-3">
                           <div className="flex items-center gap-2">
                             <Progress 
                               value={(invoice.paid_to_date / invoice.total) * 100} 
-                              className="w-16 h-2" 
+                              className="w-20 h-2" 
                             />
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs font-medium text-muted-foreground min-w-[35px]">
                               {Math.round((invoice.paid_to_date / invoice.total) * 100)}%
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="py-2 px-3">
+                        <TableCell className="py-3 px-3">
                           {invoice.contract_name ? (
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-auto p-1 hover:bg-muted">
-                                  <FileText className="h-4 w-4 mr-1 text-blue-600" />
-                                  <span className="text-sm text-foreground">{invoice.contract_name}</span>
+                                <Button variant="ghost" size="sm" className="h-auto p-1 hover:bg-muted text-xs">
+                                  <FileText className="h-3.5 w-3.5 mr-1 text-blue-600" />
+                                  <span className="text-sm text-foreground truncate max-w-[150px]">{invoice.contract_name}</span>
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -568,20 +568,20 @@ export const IncomeTable = ({
                               </TooltipContent>
                             </Tooltip>
                           ) : (
-                            <span className="text-muted-foreground">-</span>
+                            <span className="text-sm text-muted-foreground">-</span>
                           )}
                         </TableCell>
-                        <TableCell className="py-2 px-3">
+                        <TableCell className="py-3 px-3">
                           <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 w-8 p-0 hover:bg-blue-50"
+                                  className="h-7 w-7 p-0 hover:bg-blue-50 hover:text-blue-600"
                                   onClick={() => setViewingInvoice(invoice)}
                                 >
-                                  <Eye className="h-4 w-4 text-blue-600" />
+                                  <Eye className="h-3.5 w-3.5" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -594,10 +594,10 @@ export const IncomeTable = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 w-8 p-0 hover:bg-green-50"
+                                  className="h-7 w-7 p-0 hover:bg-green-50 hover:text-green-600"
                                   onClick={() => navigate(`/invoice/edit/${invoice.id}`)}
                                 >
-                                  <Edit className="h-4 w-4 text-green-600" />
+                                  <Edit className="h-3.5 w-3.5" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -610,9 +610,9 @@ export const IncomeTable = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 w-8 p-0 hover:bg-purple-50"
+                                  className="h-7 w-7 p-0 hover:bg-purple-50 hover:text-purple-600"
                                 >
-                                  <Send className="h-4 w-4 text-purple-600" />
+                                  <Send className="h-3.5 w-3.5" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -625,9 +625,9 @@ export const IncomeTable = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 w-8 p-0 hover:bg-orange-50"
+                                  className="h-7 w-7 p-0 hover:bg-orange-50 hover:text-orange-600"
                                 >
-                                  <Paperclip className="h-4 w-4 text-orange-600" />
+                                  <Paperclip className="h-3.5 w-3.5" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -638,7 +638,7 @@ export const IncomeTable = ({
                             <Button
                               variant={invoice.status === 'paid' ? 'default' : 'outline'}
                               size="sm"
-                              className="h-8 px-3 text-xs whitespace-nowrap ml-1"
+                              className="h-7 px-2 text-xs whitespace-nowrap ml-1"
                               onClick={() => handleMarkAsPaid(invoice.id, invoice.total, invoice.status)}
                             >
                               {invoice.status === 'paid' ? '✓ Paid' : 'Mark Paid'}
@@ -649,10 +649,10 @@ export const IncomeTable = ({
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-8 w-8 p-0 hover:bg-destructive/10"
+                                  className="h-7 w-7 p-0 hover:bg-red-50 hover:text-red-600"
                                   onClick={() => handleDeleteInvoice(invoice.id)}
                                 >
-                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                  <Trash2 className="h-3.5 w-3.5" />
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent>
