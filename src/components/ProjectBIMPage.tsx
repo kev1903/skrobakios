@@ -162,6 +162,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           ifc: arrayBuffer,
           edges: true,
           excludeTypes: ["IfcSpace"],
+          includeTypes: [], // Include all types except excluded ones
         });
 
         console.log("Model load initiated");
@@ -198,9 +199,21 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
 
         model.on("error", (error: any) => {
           console.error("Model loading error:", error);
+          console.error("Error details:", {
+            message: error?.message,
+            stack: error?.stack,
+            name: error?.name
+          });
           toast.dismiss(loadingToast);
           const errorMsg = error?.message || error?.toString() || "Unknown error";
-          toast.error("Failed to load model: " + errorMsg);
+          
+          // Provide more helpful error message
+          let userMessage = errorMsg;
+          if (errorMsg.includes("type")) {
+            userMessage = "IFC file structure error. The file may be corrupted or use an unsupported IFC schema.";
+          }
+          
+          toast.error("Failed to load model: " + userMessage);
         });
       } catch (error) {
         console.error("Load exception:", error);

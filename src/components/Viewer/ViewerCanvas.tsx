@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Viewer, WebIFCLoaderPlugin } from "@xeokit/xeokit-sdk";
-import { IfcAPI } from "web-ifc";
 
 interface ViewerCanvasProps {
   onViewerReady: (viewer: Viewer, loader: WebIFCLoaderPlugin) => void;
@@ -25,18 +24,6 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
         console.log("Starting viewer initialization...");
         setIsInitializing(true);
 
-        // Initialize web-ifc API
-        console.log("Initializing web-ifc API...");
-        const ifcAPI = new IfcAPI();
-        
-        // Set WASM path to use CDN
-        ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
-        
-        await ifcAPI.Init();
-        console.log("web-ifc API initialized successfully");
-
-        if (!mounted) return;
-
         // Create viewer
         console.log("Creating xeokit viewer...");
         const viewer = new Viewer({
@@ -47,11 +34,10 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
 
         console.log("Viewer created, initializing IFC loader...");
         
-        // Create IFC loader plugin
+        // Create IFC loader plugin with wasmPath
         const ifcLoader = new WebIFCLoaderPlugin(viewer, {
-          WebIFC: { IfcAPI },
-          IfcAPI: ifcAPI as any
-        });
+          wasmPath: "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/"
+        } as any);
 
         console.log("IFC loader initialized successfully");
 
@@ -88,7 +74,7 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
         style={{ position: "absolute", top: 0, left: 0 }}
       />
       {isInitializing && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
           <div className="text-center space-y-2">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-luxury-gold mx-auto" />
             <p className="text-sm text-muted-foreground">Initializing viewer...</p>
@@ -96,7 +82,7 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
         </div>
       )}
       {error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
           <div className="text-center space-y-2 p-6">
             <p className="text-sm text-destructive">Failed to initialize viewer</p>
             <p className="text-xs text-muted-foreground">{error}</p>
