@@ -137,9 +137,16 @@ export const WBSCostRightPanel = ({
               />
             </div>
 
-            {/* New Budget (Revised Budget) - Calculated */}
-            <div className="px-2 flex items-center justify-end h-full text-xs text-indigo-600 font-medium bg-slate-50/50">
-              {formatCurrency(revisedBudget)}
+            {/* New Budget (Revised Budget) - Editable */}
+            <div className="px-2 flex items-center justify-end h-full text-xs bg-white">
+              <EditableCell
+                id={item.id}
+                type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : 'element'}
+                field="revised_budget"
+                value={item.revised_budget || ''}
+                placeholder="0"
+                className="text-xs text-indigo-600 text-right w-full font-medium"
+              />
             </div>
 
             {/* Committed */}
