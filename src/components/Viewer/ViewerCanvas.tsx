@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Viewer, WebIFCLoaderPlugin } from "@xeokit/xeokit-sdk";
+import * as WebIFC from "web-ifc";
 
 interface ViewerCanvasProps {
   onViewerReady: (viewer: Viewer, loader: WebIFCLoaderPlugin) => void;
@@ -47,9 +48,13 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
           return;
         }
 
-        // Create IFC loader - let xeokit handle web-ifc internally
-        console.log("Creating WebIFCLoaderPlugin...");
-        const ifcLoader = new WebIFCLoaderPlugin(viewer);
+        // Create IFC loader with web-ifc library
+        console.log("Creating WebIFCLoaderPlugin with WebIFC...");
+        const ifcAPI = new WebIFC.IfcAPI();
+        const ifcLoader = new WebIFCLoaderPlugin(viewer, {
+          WebIFC: WebIFC,
+          IfcAPI: ifcAPI
+        });
         
         console.log("WebIFCLoaderPlugin created successfully");
 
