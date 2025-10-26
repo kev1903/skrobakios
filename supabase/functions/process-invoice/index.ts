@@ -7,6 +7,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+console.log('process-invoice edge function loaded');
+
 // Invoice extraction schema for structured output
 const InvoiceSchema = {
   name: "extract_invoice_data",
@@ -44,72 +46,7 @@ const InvoiceSchema = {
   }
 };
 
-// Enhanced PDF text extraction using pdfjs-dist via esm.sh
-// Fixed: Configure worker source before using getDocument
-async function extractTextFromPDF(pdfBytes: ArrayBuffer): Promise<string> {
-  try {
-    console.log('Starting PDF text extraction with pdfjs-dist...');
-    
-    // Use esm.sh for proper Deno compatibility
-    const pdfjsLib = await import("https://esm.sh/pdfjs-dist@4.0.379/legacy/build/pdf.mjs");
-    
-    // Configure worker source - REQUIRED for pdfjs-dist to work
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/legacy/build/pdf.worker.mjs";
-    
-    // Load the PDF document
-    const loadingTask = pdfjsLib.getDocument({
-      data: new Uint8Array(pdfBytes),
-      useSystemFonts: false,
-      standardFontDataUrl: "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/standard_fonts/",
-    });
-    
-    const pdf = await loadingTask.promise;
-    console.log(`PDF loaded successfully, ${pdf.numPages} pages`);
-    
-    let fullText = '';
-    
-    // Extract text from all pages
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
-      const textContent = await page.getTextContent();
-      
-      // Combine text items with proper spacing
-      const pageText = textContent.items
-        .map((item: any) => {
-          if (item.str) {
-            return item.str;
-          }
-          return '';
-        })
-        .filter((text: string) => text.trim().length > 0)
-        .join(' ');
-      
-      fullText += `\n=== Page ${pageNum} ===\n${pageText}\n`;
-      console.log(`Page ${pageNum} extracted: ${pageText.length} characters`);
-    }
-    
-    if (fullText.trim().length < 50) {
-      throw new Error('Extracted text too short');
-    }
-    
-    console.log(`✓ Total extracted text: ${fullText.length} characters`);
-    console.log('Sample:', fullText.substring(0, 500));
-    
-    return cleanText(fullText);
-    
-  } catch (error) {
-    console.error('PDF extraction failed:', error);
-    throw new Error(`Failed to extract text from PDF: ${error.message}`);
-  }
-}
-
-// Clean extracted text
-function cleanText(text: string): string {
-  return text
-    .replace(/\s+/g, ' ')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
+// Note: PDF text extraction removed - using vision model for direct PDF processing
 
 async function fetchAsArrayBuffer(url: string): Promise<ArrayBuffer> {
   const response = await fetch(url);
@@ -211,117 +148,66 @@ serve(async (req) => {
       );
     }
 
+    // Step 2: Process with vision model (works for both PDF and images)
+    console.log('=== VISION MODEL PROCESSING ===');
+    console.log(`Processing ${fileType === 'pdf' ? 'PDF' : 'image'} with vision AI...`);
+    console.log('Converting to base64...');
+    const base64Data = arrayBufferToBase64(bytes);
+    const mimeType = getMimeType(filename);
+    console.log('MIME type:', mimeType);
+    console.log('Base64 length:', base64Data.length);
+
+    // Gemini can handle both PDFs and images via base64
     let aiMessages;
 
-    if (fileType === 'pdf') {
-      // Step 2a: Extract text from PDF
-      console.log('=== PDF PROCESSING PATH ===');
-      console.log('Extracting text from PDF...');
-      const extractedText = await extractTextFromPDF(bytes);
-      console.log(`Extracted ${extractedText.length} characters`);
-
-      if (extractedText.length < 20) {
-        return new Response(
-          JSON.stringify({ ok: false, error: 'Failed to extract meaningful text from PDF' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      aiMessages = [
-        {
-          role: 'system',
-          content: `You are an expert at extracting invoice data from text. Extract all information accurately.
+    aiMessages = [
+      {
+        role: 'system',
+        content: `You are an expert at extracting invoice/receipt/bill data from documents. Analyze the document carefully and extract all visible information accurately.
 
 EXTRACTION RULES:
-1. SUPPLIER: The company issuing the invoice (look for "Pty Ltd", "LLC", "Inc", full company name with ABN)
-2. INVOICE NUMBER: The reference code (e.g., "TUL3801", "INV-001") - NOT system IDs or hashes
-3. DATES: Convert to YYYY-MM-DD format (e.g., "10 Oct 2025" → "2025-10-10")
+1. SUPPLIER: The company issuing the invoice (look for "Pty Ltd", "LLC", "Inc", full company name)
+2. INVOICE NUMBER: The reference code visible on the document
+3. DATES: Convert all dates to YYYY-MM-DD format (e.g., "10 Oct 2025" → "2025-10-10")
 4. AMOUNTS: Extract exact numeric values for Total, Subtotal, and Tax/GST
 5. LINE ITEMS: Each item with description, quantity (if shown), rate (if shown), and amount
 
 CONFIDENCE SCORING:
 - 0.95+: All fields clearly visible and extracted
 - 0.85-0.94: Most fields clear, some minor ambiguity
-- 0.70-0.84: Some fields unclear or missing
-- Below 0.70: Significant data missing or unclear
-
-Return structured JSON matching the schema.`
-        },
-        {
-          role: 'user',
-          content: `Extract all invoice data from this text:
-
-${extractedText}
-
-Extract:
-- Full company name as supplier (e.g., "The Urban Leaf Pty Ltd")
-- Invoice number (e.g., "TUL3801")
-- Invoice date and due date in YYYY-MM-DD format
-- All amounts (Subtotal, Tax/GST, Total)
-- All line items with descriptions and amounts
-- Reference numbers if present
-
-Be precise with numbers and dates. Set high confidence (0.9+) if data is clearly readable.`
-        }
-      ];
-    } else {
-      // Step 2b: Process image directly with vision model
-      console.log('=== IMAGE PROCESSING PATH ===');
-      console.log('Processing image with vision AI...');
-      console.log('Converting image to base64...');
-      const base64Image = arrayBufferToBase64(bytes);
-      const mimeType = getMimeType(filename);
-      console.log('MIME type:', mimeType);
-      console.log('Base64 length:', base64Image.length);
-
-      aiMessages = [
-        {
-          role: 'system',
-          content: `You are an expert at extracting invoice/receipt/bill data from images. Analyze the image carefully and extract all visible information accurately.
-
-EXTRACTION RULES:
-1. SUPPLIER: The company issuing the invoice (look for "Pty Ltd", "LLC", "Inc", full company name)
-2. INVOICE NUMBER: The reference code visible on the document
-3. DATES: Convert all dates to YYYY-MM-DD format (e.g., "10 Oct 2025" → "2025-10-10")
-4. AMOUNTS: Extract exact numeric values for Total, Subtotal, and Tax/GST from the image
-5. LINE ITEMS: Each item with description, quantity (if shown), rate (if shown), and amount
-
-CONFIDENCE SCORING:
-- 0.95+: All fields clearly visible in the image and extracted
-- 0.85-0.94: Most fields clear, some minor ambiguity
 - 0.70-0.84: Some fields unclear or partially visible
 - Below 0.70: Significant data missing or unclear
 
-Look carefully at ALL text in the image. Don't miss any numbers or amounts. Return structured JSON matching the schema.`
-        },
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: `Analyze this invoice/receipt/bill image and extract ALL data:
+Look carefully at ALL text in the document. Don't miss any numbers or amounts. Return structured JSON matching the schema.`
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: `Analyze this ${fileType === 'pdf' ? 'PDF invoice/bill' : 'invoice/bill image'} and extract ALL data:
 
 Extract:
 - Full company name as supplier
-- Invoice/receipt number
+- Invoice/bill number
 - Invoice date and due date in YYYY-MM-DD format
-- ALL amounts visible (Task cost, Total, Connection fee, GST, Total inc. GST, etc.)
-- ALL line items with descriptions and amounts
+- ALL amounts visible (Subtotal, Tax/GST, Total, line item amounts, etc.)
+- ALL line items with descriptions, quantities, rates, and amounts
 - Reference numbers if present
 
-IMPORTANT: Look at EVERY number in the image. Don't assume amounts are zero - read them directly from the image.
-Be precise with ALL numbers and dates. Set high confidence (0.9+) if the image is clear and readable.`
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: `data:${mimeType};base64,${base64Image}`
-              }
+IMPORTANT: Look at EVERY number in the document. Don't assume amounts are zero - read them directly from the document.
+Be precise with ALL numbers and dates. Set high confidence (0.9+) if the document is clear and readable.`
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: `data:${mimeType};base64,${base64Data}`,
+              detail: 'high'
             }
-          ]
-        }
-      ];
-    }
+          }
+        ]
+      }
+    ];
 
     // Step 3: Send to Lovable AI for structured extraction
     console.log('Sending to Lovable AI for structured extraction...');
