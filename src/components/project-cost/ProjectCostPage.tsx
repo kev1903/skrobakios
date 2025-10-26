@@ -28,13 +28,12 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
-// Temporarily commented out missing components
-// import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
-// import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
+import { ExpensesModule } from '../project-finance/expenses/ExpensesModule';
+import { AnalyticsModule } from '../project-finance/analytics/AnalyticsModule';
 import { InvoiceDrawer } from '../project-finance/income/InvoiceDrawer';
-// import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader';
-// import { BillPDFUploader } from '../project-finance/expenses/BillPDFUploader';
-// import { AIPromptSettings } from './AIPromptSettings';
+import { InvoicePDFUploader } from '../project-finance/income/InvoicePDFUploader';
+import { BillPDFUploader } from '../project-finance/expenses/BillPDFUploader';
+import { AIPromptSettings } from './AIPromptSettings';
 import { AwaitingPaymentsTable } from '../project-finance/awaiting-payments/AwaitingPaymentsTable';
 import { IncomeTable } from './IncomeTable';
 import { ContractsTable } from './ContractsTable';
@@ -493,30 +492,24 @@ export const ProjectCostPage = ({
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-lg font-semibold mb-4">All Bills</h3>
-                      <div className="p-6 text-center text-muted-foreground">
-                        Expenses module has been removed.
-                      </div>
-                      {/* <ExpensesModule 
+                      <ExpensesModule 
                         projectId={project.id}
                         statusFilter="all"
                         formatCurrency={formatCurrency}
                         formatDate={formatDate}
                         onDataUpdate={setExpenseData}
                         refreshTrigger={refreshTrigger}
-                      /> */}
+                      />
                     </div>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="analytics" className="mt-0 h-full p-6">
-                  <div className="p-6 text-center text-muted-foreground">
-                    Analytics module has been removed.
-                  </div>
-                  {/* <AnalyticsModule 
+                  <AnalyticsModule 
                     projectId={project.id} 
                     formatCurrency={formatCurrency}
                     formatDate={formatDate}
-                  /> */}
+                  />
                 </TabsContent>
                 
                 <TabsContent value="cost-control" className="mt-0 h-full p-6">
@@ -529,20 +522,20 @@ export const ProjectCostPage = ({
       </div>
 
       {/* Bill PDF Uploader (for Expense tab) */}
-      {/* <BillPDFUploader
+      <BillPDFUploader
         isOpen={isPDFUploaderOpen}
         onClose={() => setIsPDFUploaderOpen(false)}
         projectId={project.id}
         onSaved={refreshData}
-      /> */}
+      />
 
       {/* Invoice PDF Uploader */}
-      {/* <InvoicePDFUploader
+      <InvoicePDFUploader
         isOpen={isInvoicePDFUploaderOpen}
         onClose={() => setIsInvoicePDFUploaderOpen(false)}
         projectId={project.id}
         onSaved={refreshData}
-      /> */}
+      />
 
       {/* Invoice Drawer Modal - For editing existing invoices */}
       <InvoiceDrawer
@@ -554,10 +547,10 @@ export const ProjectCostPage = ({
       />
 
       {/* AI Prompt Settings Modal */}
-      {/* <AIPromptSettings
+      <AIPromptSettings
         isOpen={isAISettingsOpen}
         onClose={() => setIsAISettingsOpen(false)}
-      /> */}
+      />
     </div>
   );
 };

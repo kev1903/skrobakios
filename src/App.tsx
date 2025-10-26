@@ -292,7 +292,6 @@ const App = () => {
   // Cleanup old localStorage data on app init to prevent quota issues
   useEffect(() => {
     try {
-      console.log('🧹 Starting localStorage cleanup...');
       // Remove old chat messages that are now stored in database
       localStorage.removeItem('aiChatMessages');
       
@@ -311,13 +310,11 @@ const App = () => {
         sortedCacheKeys.forEach(key => localStorage.removeItem(key));
       }
       
-      console.log('✅ localStorage cleanup completed');
+      console.log('localStorage cleanup completed');
     } catch (e) {
-      console.error('❌ Error during localStorage cleanup:', e);
+      console.error('Error during localStorage cleanup:', e);
     }
   }, []);
-
-  console.log('🎨 App component rendering...');
 
   return (
     <QueryClientProvider client={queryClient}>
