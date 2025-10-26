@@ -484,6 +484,7 @@ export type Database = {
           to_pay: string | null
           total: number
           updated_at: string | null
+          wbs_activity_id: string | null
         }
         Insert: {
           ai_confidence?: number | null
@@ -514,6 +515,7 @@ export type Database = {
           to_pay?: string | null
           total: number
           updated_at?: string | null
+          wbs_activity_id?: string | null
         }
         Update: {
           ai_confidence?: number | null
@@ -544,6 +546,7 @@ export type Database = {
           to_pay?: string | null
           total?: number
           updated_at?: string | null
+          wbs_activity_id?: string | null
         }
         Relationships: [
           {
@@ -551,6 +554,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bills_wbs_activity_id_fkey"
+            columns: ["wbs_activity_id"]
+            isOneToOne: false
+            referencedRelation: "wbs_items"
             referencedColumns: ["id"]
           },
         ]
