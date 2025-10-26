@@ -169,7 +169,7 @@ export const WBSLeftPanel = ({
                                   type="task"
                                   field="name"
                                   value={item.name || ''}
-                                  placeholder=""
+                                  placeholder="Click to add activity"
                                   className={`font-medium text-xs flex-1 cursor-text min-h-[20px] hover:bg-gray-50/50 rounded px-1 py-0.5 transition-colors ${
                                     itemHasChildren ? 'text-slate-800 font-semibold' : 'text-muted-foreground'
                                   }`}

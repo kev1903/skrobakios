@@ -236,8 +236,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         id: `empty-${index + 1}`,
         name: '',
         description: '',
-        status: '',
-        progress: null,
+        status: 'Not Started',
+        progress: 0,
         assignedTo: '',
         level: 0,
         wbsNumber: '',
@@ -250,9 +250,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         end_date: null,
         duration: 0,
         linked_tasks: [],
-        predecessors: [],
-        rfq_required: false,
-        is_task_enabled: false
+        predecessors: []
       }));
     };
 
@@ -261,8 +259,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       return flattenWBSItems(wbsItems);
     }
 
-    // Show 50 empty rows by default when there's no data
-    return createEmptyRows(50);
+    // Show only 10 empty rows by default to improve performance - more can be added via "Add Row" button
+    return createEmptyRows(10);
 
     // Fallback to scope data if no WBS items (for backward compatibility)
     const items: any[] = [];
@@ -501,19 +499,13 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     className = "",
     disabled = false
   }: { 
-    value: number | null; 
+    value: number; 
     onChange: (value: number) => void;
     className?: string;
     disabled?: boolean;
   }) => {
-    // Always call hooks at the top - handle null with default value
     const [isEditing, setIsEditing] = useState(false);
-    const [inputValue, setInputValue] = useState(value?.toString() || '0');
-
-    // Don't render anything for null/undefined values
-    if (value === null || value === undefined) {
-      return <div className={`h-4 ${className}`} />;
-    }
+    const [inputValue, setInputValue] = useState(value.toString());
 
     if (disabled) {
       return (
@@ -536,7 +528,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       if (e.key === 'Enter') {
         handleSave();
       } else if (e.key === 'Escape') {
-        setInputValue(value?.toString() || '0');
+        setInputValue(value.toString());
         setIsEditing(false);
       }
     };
@@ -563,7 +555,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       <span 
         className={`text-xs text-muted-foreground font-medium cursor-pointer hover:bg-accent/20 rounded px-1 ${className}`}
         onClick={() => {
-          setInputValue(value?.toString() || '0');
+          setInputValue(value.toString());
           setIsEditing(true);
         }}
         title="Click to edit progress"
@@ -578,14 +570,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     value, 
     className = "" 
   }: { 
-    value: number | null; 
+    value: number; 
     className?: string;
   }) => {
-    // Don't render anything for null/undefined values
-    if (value === null || value === undefined) {
-      return <div className={`h-4 ${className}`} />;
-    }
-
     return (
       <span 
         className={`text-xs text-muted-foreground font-medium ${className}`}
@@ -607,11 +594,6 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     className?: string;
     disabled?: boolean;
   }) => {
-    // Don't render anything for empty values
-    if (!value || value === '') {
-      return <div className={`h-7 w-16 ${className}`} />;
-    }
-
     const currentStatus = statusOptions.find(s => s.value === value);
     
     
@@ -1356,7 +1338,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               fontSize: textFormatting?.fontSize ? `${textFormatting.fontSize}px` : undefined
             }}
           >
-            {value || ''}
+            {value || 'Click to add Activity'}
           </span>
         )}
       </div>

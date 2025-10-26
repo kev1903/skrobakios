@@ -217,7 +217,7 @@ export function SimpleTeamAssignment({
           </div>
         ) : (
           <span className="text-xs text-muted-foreground truncate">
-            
+            Assign to...
           </span>
         )}
         </SelectTrigger>
