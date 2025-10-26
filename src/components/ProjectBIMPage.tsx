@@ -195,23 +195,75 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         try {
           console.log("Selected object:", object);
           
-          // Get basic object properties
-          const propertyGroups: any[] = [];
+          // Get the model ID
+          const modelID = (loadedModel as any).modelID ?? 0;
+          const expressID = object.userData?.expressID;
           
-          // Entity information
+          if (!expressID || !ifcLoaderRef.current) {
+            console.warn("No expressID found or IFCLoader not available");
+            return;
+          }
+          
+          // Get properties from IFC
+          const props = await ifcLoaderRef.current.ifcManager.getItemProperties(modelID, expressID);
+          const ifcType = await ifcLoaderRef.current.ifcManager.getIfcType(modelID, expressID);
+          
+          console.log("IFC Properties:", props);
+          console.log("IFC Type:", ifcType);
+          
+          // Try to find parent assembly
+          let displayExpressID = expressID;
+          let displayProps = props;
+          let displayType = ifcType;
+          let assemblyEntityIds = [expressID];
+          
+          // Check if this element has a parent that's an IfcElementAssembly
+          if (props.Decomposes && props.Decomposes.length > 0) {
+            for (const decompose of props.Decomposes) {
+              const parentID = decompose.value;
+              try {
+                const parentProps = await ifcLoaderRef.current.ifcManager.getItemProperties(modelID, parentID);
+                const parentType = await ifcLoaderRef.current.ifcManager.getIfcType(modelID, parentID);
+                
+                if (parentType === "IFCELEMENTASSEMBLY") {
+                  displayExpressID = parentID;
+                  displayProps = parentProps;
+                  displayType = parentType;
+                  
+                  // Get all children of the assembly
+                  if (parentProps.IsDecomposedBy) {
+                    for (const decomposedBy of parentProps.IsDecomposedBy) {
+                      const relatedObjects = decomposedBy.RelatedObjects || [];
+                      relatedObjects.forEach((obj: any) => {
+                        if (obj.value) assemblyEntityIds.push(obj.value);
+                      });
+                    }
+                  }
+                  break;
+                }
+              } catch (e) {
+                console.warn("Error getting parent properties:", e);
+              }
+            }
+          }
+          
+          // Highlight all related objects (if we found an assembly)
+          // For now, just highlight the selected object
+          // TODO: Implement multi-object selection highlighting
+          
+          // Extract property groups
+          const propertyGroups: any[] = [];
+          let nameValue = displayProps.Name?.value || `Element ${displayExpressID}`;
+          let tagValue = displayProps.Tag?.value || "";
+          
+          // Entity Information
           const entityProps: any[] = [
-            { name: "Object ID", value: object.id.toString() },
-            { name: "Type", value: object.type },
-            { name: "UUID", value: object.uuid }
+            { name: "GUID", value: displayProps.GlobalId?.value || displayExpressID },
+            { name: "IFC Element", value: displayType }
           ];
           
-          if (object.userData && Object.keys(object.userData).length > 0) {
-            Object.entries(object.userData).forEach(([key, value]) => {
-              entityProps.push({
-                name: key,
-                value: String(value)
-              });
-            });
+          if (displayProps.ObjectType?.value) {
+            entityProps.push({ name: "Object Type", value: displayProps.ObjectType.value });
           }
           
           propertyGroups.push({
@@ -219,17 +271,84 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             properties: entityProps
           });
           
+          // Get property sets
+          try {
+            const psets = await ifcLoaderRef.current.ifcManager.getPropertySets(modelID, displayExpressID);
+            
+            if (psets && psets.length > 0) {
+              for (const pset of psets) {
+                if (!pset || !pset.HasProperties) continue;
+                
+                const properties: any[] = [];
+                
+                for (const propRef of pset.HasProperties) {
+                  try {
+                    const prop = await ifcLoaderRef.current.ifcManager.getItemProperties(modelID, propRef.value);
+                    
+                    if (prop) {
+                      const propName = prop.Name?.value || "Unknown";
+                      let propValue = "N/A";
+                      
+                      if (prop.NominalValue?.value !== undefined) {
+                        propValue = String(prop.NominalValue.value);
+                      } else if (prop.NominalValue?.label) {
+                        propValue = prop.NominalValue.label;
+                      }
+                      
+                      // Check for Tag property
+                      if (propName === "Tag" || propName === "TAG") {
+                        tagValue = propValue;
+                      }
+                      
+                      properties.push({
+                        name: propName,
+                        value: propValue
+                      });
+                    }
+                  } catch (propError) {
+                    console.warn("Error getting property:", propError);
+                  }
+                }
+                
+                if (properties.length > 0) {
+                  propertyGroups.push({
+                    title: pset.Name?.value || "Properties",
+                    properties
+                  });
+                }
+              }
+            }
+          } catch (psetError) {
+            console.warn("Error getting property sets:", psetError);
+          }
+          
+          setSelectedObject({
+            name: nameValue,
+            type: displayType,
+            tag: tagValue,
+            propertyGroups
+          });
+          
+          toast.success(`Selected: ${nameValue}`);
+        } catch (error) {
+          console.error("Error getting object properties:", error);
+          
+          // Fallback to basic properties
           setSelectedObject({
             name: object.name || `Object ${object.id}`,
             type: object.type || "3D Object",
             tag: "",
-            propertyGroups
+            propertyGroups: [{
+              title: "Entity Information",
+              properties: [
+                { name: "Object ID", value: object.id.toString() },
+                { name: "Type", value: object.type },
+                { name: "UUID", value: object.uuid }
+              ]
+            }]
           });
           
-          toast.success(`Selected: ${object.name || object.type}`);
-        } catch (error) {
-          console.error("Error getting object properties:", error);
-          toast.error("Failed to get element properties");
+          toast.error("Failed to get complete element properties");
         }
         return;
       }
