@@ -1246,8 +1246,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
     // keep local value in sync if the underlying value changes externally
     useEffect(() => {
+      console.log('🟣 Value sync effect', { field, id, oldLocal: localValue, newValue: value });
       setLocalValue(value || "");
-    }, [value, id]);
+    }, [value, id, field, localValue]);
 
     useEffect(() => {
       if (isEditing && localInputRef.current) {
@@ -1256,7 +1257,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       }
     }, [isEditing]);
 
-    const updateScopeField = async (newVal: string) => {
+    const updateScopeField = useCallback(async (newVal: string) => {
       try {
         // Check if this is an empty row that needs to be created
         if (id.startsWith('empty-')) {
@@ -1301,14 +1302,17 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       } catch (e) {
         console.error('❌ Failed to update field', field, 'for', id, e);
       }
-    };
+    }, [id, field, currentCompany, generateWBSId, createWBSItem, updateWBSItem]);
 
     const commitEdit = useCallback(async () => {
+      console.log('🔵 commitEdit called', { field, localValue, currentValue: value, id });
       if (localValue !== (value || "")) {
+        console.log('🔵 Saving changes...', { field, from: value, to: localValue });
         await updateScopeField(localValue);
+        console.log('🔵 Save completed');
       }
       setIsEditing(false);
-    }, [localValue, value]);
+    }, [localValue, value, updateScopeField, field, id]);
 
     const cancelLocalEdit = useCallback(() => {
       setLocalValue(value || "");
