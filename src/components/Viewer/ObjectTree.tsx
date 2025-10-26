@@ -20,7 +20,7 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
       return;
     }
 
-    const buildTree = () => {
+    const buildTree = async () => {
       console.log("Building tree from IFC model");
       
       try {
@@ -37,29 +37,59 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
         
         console.log(`Found ${totalMeshes} total meshes in model`);
         
+        if (totalMeshes === 0) {
+          console.warn("No meshes found in model");
+          setTreeData([]);
+          return;
+        }
+        
         // Group elements by IFC type
         const elementsByType = new Map<string, any[]>();
         
-        allMeshes.forEach((mesh, index) => {
-          // Try to extract IFC type from various properties
+        // Try to get model ID from the model
+        const modelID = (model as any).modelID ?? 0;
+        console.log("Model ID:", modelID);
+        
+        for (let i = 0; i < allMeshes.length; i++) {
+          const mesh = allMeshes[i];
           let ifcType = "IfcBuildingElement";
+          let elementName = `Element ${i + 1}`;
           
-          // Check expressID which is commonly used by web-ifc
-          if (mesh.userData?.expressID !== undefined) {
-            // Check for IFC type in userData
-            if (mesh.userData.ifcType) {
-              ifcType = mesh.userData.ifcType;
-            } else if (mesh.userData.type) {
-              ifcType = mesh.userData.type;
+          try {
+            // Check if mesh has expressID
+            const expressID = mesh.userData?.expressID;
+            
+            if (expressID !== undefined && ifcLoader) {
+              // Try to get IFC properties using the loader
+              try {
+                const props = await ifcLoader.ifcManager.getItemProperties(modelID, expressID);
+                
+                if (props && props.type !== undefined) {
+                  // Get the type name from the type number
+                  const typeName = await ifcLoader.ifcManager.getIfcType(modelID, expressID);
+                  if (typeName) {
+                    ifcType = typeName;
+                  }
+                }
+                
+                // Try to get name property
+                if (props && props.Name) {
+                  elementName = props.Name.value || elementName;
+                }
+              } catch (propError) {
+                console.warn(`Could not get properties for expressID ${expressID}:`, propError);
+              }
             }
-          }
-          
-          // Try to extract from mesh name
-          if (mesh.name && mesh.name.includes('Ifc')) {
-            const match = mesh.name.match(/(Ifc[A-Za-z]+)/);
-            if (match) {
-              ifcType = match[1];
+            
+            // Fallback: try to extract from mesh name
+            if (ifcType === "IfcBuildingElement" && mesh.name && mesh.name.includes('Ifc')) {
+              const match = mesh.name.match(/(Ifc[A-Za-z]+)/);
+              if (match) {
+                ifcType = match[1];
+              }
             }
+          } catch (error) {
+            console.warn(`Error processing mesh ${i}:`, error);
           }
           
           // Add to grouped elements
@@ -67,13 +97,17 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
             elementsByType.set(ifcType, []);
           }
           
-          elementsByType.get(ifcType)!.push({
+          const typeElements = elementsByType.get(ifcType)!;
+          elementName = mesh.name || `${ifcType} ${typeElements.length + 1}`;
+          
+          typeElements.push({
             id: mesh.uuid,
-            name: mesh.name || `${ifcType} ${elementsByType.get(ifcType)!.length + 1}`,
+            name: elementName,
             object: mesh,
+            expressID: mesh.userData?.expressID,
             level: 1
           });
-        });
+        }
         
         // Convert to tree structure with parent nodes
         const nodes: any[] = [];
