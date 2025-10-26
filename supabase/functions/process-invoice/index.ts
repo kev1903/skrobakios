@@ -157,10 +157,45 @@ serve(async (req) => {
     console.log('MIME type:', mimeType);
     console.log('Base64 length:', base64Data.length);
 
-    // Gemini can handle both PDFs and images via base64
-    let aiMessages;
+    // Build the content array - PDFs use inline_data, images use image_url
+    const contentArray: any[] = [
+      {
+        type: 'text',
+        text: `Analyze this ${fileType === 'pdf' ? 'PDF invoice/bill' : 'invoice/bill image'} and extract ALL data:
 
-    aiMessages = [
+Extract:
+- Full company name as supplier
+- Invoice/bill number
+- Invoice date and due date in YYYY-MM-DD format
+- ALL amounts visible (Subtotal, Tax/GST, Total, line item amounts, etc.)
+- ALL line items with descriptions, quantities, rates, and amounts
+- Reference numbers if present
+
+IMPORTANT: Look at EVERY number in the document. Don't assume amounts are zero - read them directly from the document.
+Be precise with ALL numbers and dates. Set high confidence (0.9+) if the document is clear and readable.`
+      }
+    ];
+
+    // For PDFs, use inline_data format; for images, use image_url format
+    if (fileType === 'pdf') {
+      contentArray.push({
+        type: 'inline_data',
+        inline_data: {
+          mime_type: mimeType,
+          data: base64Data
+        }
+      });
+    } else {
+      contentArray.push({
+        type: 'image_url',
+        image_url: {
+          url: `data:${mimeType};base64,${base64Data}`,
+          detail: 'high'
+        }
+      });
+    }
+
+    const aiMessages = [
       {
         role: 'system',
         content: `You are an expert at extracting invoice/receipt/bill data from documents. Analyze the document carefully and extract all visible information accurately.
@@ -182,30 +217,7 @@ Look carefully at ALL text in the document. Don't miss any numbers or amounts. R
       },
       {
         role: 'user',
-        content: [
-          {
-            type: 'text',
-            text: `Analyze this ${fileType === 'pdf' ? 'PDF invoice/bill' : 'invoice/bill image'} and extract ALL data:
-
-Extract:
-- Full company name as supplier
-- Invoice/bill number
-- Invoice date and due date in YYYY-MM-DD format
-- ALL amounts visible (Subtotal, Tax/GST, Total, line item amounts, etc.)
-- ALL line items with descriptions, quantities, rates, and amounts
-- Reference numbers if present
-
-IMPORTANT: Look at EVERY number in the document. Don't assume amounts are zero - read them directly from the document.
-Be precise with ALL numbers and dates. Set high confidence (0.9+) if the document is clear and readable.`
-          },
-          {
-            type: 'image_url',
-            image_url: {
-              url: `data:${mimeType};base64,${base64Data}`,
-              detail: 'high'
-            }
-          }
-        ]
+        content: contentArray
       }
     ];
 
