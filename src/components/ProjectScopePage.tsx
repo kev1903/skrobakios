@@ -1241,6 +1241,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
   }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [localValue, setLocalValue] = useState(value || "");
+    const [allowBlur, setAllowBlur] = useState(false);
     const localInputRef = useRef<HTMLInputElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -1254,6 +1255,10 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       if (isEditing && localInputRef.current) {
         localInputRef.current.focus();
         localInputRef.current.select();
+        // Delay allowing blur to prevent immediate close
+        setTimeout(() => setAllowBlur(true), 100);
+      } else {
+        setAllowBlur(false);
       }
     }, [isEditing]);
 
@@ -1321,7 +1326,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
 
     // Close on outside click while editing - must be AFTER commitEdit is defined
     useEffect(() => {
-      if (!isEditing) return;
+      if (!isEditing || !allowBlur) return;
       const onMouseDown = (e: MouseEvent) => {
         if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
           commitEdit();
@@ -1329,7 +1334,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       };
       document.addEventListener('mousedown', onMouseDown);
       return () => document.removeEventListener('mousedown', onMouseDown);
-    }, [isEditing, commitEdit]);
+    }, [isEditing, commitEdit, allowBlur]);
 
     const onKeyDown = async (e: React.KeyboardEvent) => {
       if (e.key === 'Enter' && e.shiftKey && (type === 'element' || type === 'task')) {
@@ -1378,8 +1383,9 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               value={localValue}
               onChange={(e) => setLocalValue(e.target.value)}
               onKeyDown={onKeyDown}
-              onBlur={commitEdit}
+              onBlur={() => allowBlur && commitEdit()}
               onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
               className={`border-none outline-none focus:outline-none focus:border-none ring-0 focus:ring-0 focus-visible:ring-0 ring-offset-0 focus:ring-offset-0 focus-visible:ring-offset-0 shadow-none bg-transparent p-0 m-0 rounded-none h-auto w-full ${className}`}
               placeholder={placeholder}
               autoFocus
