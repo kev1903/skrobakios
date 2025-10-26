@@ -524,7 +524,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-hidden z-[100]">
+      <DialogContent className="max-w-7xl max-h-[95vh] z-[100]">
         <DialogHeader>
           <DialogTitle>Upload Bill (Expense)</DialogTitle>
           <DialogDescription>
@@ -532,9 +532,9 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(90vh-8rem)] overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-h-[calc(95vh-12rem)] overflow-hidden">
           {/* Left Column - Form */}
-          <div className="space-y-6 overflow-y-auto pr-2">
+          <div className="space-y-6 overflow-y-auto pr-2 max-h-full">
           {/* File Upload Area */}
           {!uploadedFile && (
             <div className="space-y-4">
@@ -831,8 +831,8 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
           </div>
 
           {/* Right Column - Preview */}
-          <div className="hidden lg:block border-l pl-6 overflow-hidden">
-            <div className="h-full flex flex-col">
+          <div className="hidden lg:flex border-l pl-6 overflow-hidden">
+            <div className="flex-1 flex flex-col min-h-0">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold">Document Preview</h3>
                 {filePreviewUrl && uploadedFile && (
