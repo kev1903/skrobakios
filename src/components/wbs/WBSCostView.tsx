@@ -462,7 +462,7 @@ export const WBSCostView = ({
                     minWidth: '820px'
                   }}
                 >
-                  <div className="px-2 font-semibold text-center">BUDGET</div>
+                  <div className="px-2 font-semibold text-center">BASELINE</div>
                   <div className="px-2 font-semibold text-center">VARIATIONS</div>
                   <div className="px-2 font-semibold text-center">NEW BUDGET</div>
                   <div className="px-2 font-semibold text-center">COMMITTED</div>
