@@ -1,63 +1,56 @@
 import { useState, useEffect } from "react";
 import * as THREE from "three";
-import { IFCLoader } from "web-ifc-three/IFCLoader";
+import * as OBC from "@thatopen/components";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronRight, ChevronDown, Box } from "lucide-react";
 
 interface ObjectTreeProps {
   model: THREE.Object3D | null;
-  ifcLoader: IFCLoader | null;
+  components: OBC.Components | null;
 }
 
-export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
+export const ObjectTree = ({ model, components }: ObjectTreeProps) => {
   const [treeData, setTreeData] = useState<any[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!model || !ifcLoader) {
+    if (!model || !components) {
       setTreeData([]);
       return;
     }
 
-    const buildTree = async () => {
-      console.log("Building tree from IFC model");
+    const buildTree = () => {
+      console.log("Building tree from BIM model");
       const nodes: any[] = [];
       
       try {
-        const modelID = (model as any).modelID || 0;
+        const fragments = components.get(OBC.FragmentsManager);
         
-        // Get all spatial structure elements
-        const spatialStructure = await ifcLoader.ifcManager.getSpatialStructure(modelID);
+        console.log("Fragment groups:", fragments.groups.size);
         
-        console.log("Spatial structure:", spatialStructure);
-        
-        // Flatten structure for display
-        const flattenNode = (node: any, level: number = 0) => {
-          if (!node) return;
-          
-          nodes.push({
-            id: node.expressID?.toString() || Math.random().toString(),
-            name: node.Name?.value || node.type || `Element ${node.expressID}`,
-            type: node.type || "Unknown",
-            level,
-            children: node.children || []
-          });
-          
-          if (node.children && node.children.length > 0) {
-            node.children.forEach((child: any) => flattenNode(child, level + 1));
+        // Build tree from model hierarchy
+        let index = 0;
+        model.traverse((child) => {
+          if (child !== model && child.type === "Mesh") {
+            nodes.push({
+              id: child.uuid,
+              name: child.name || `Element ${index + 1}`,
+              type: child.type,
+              level: 0,
+              children: []
+            });
+            index++;
           }
-        };
-        
-        flattenNode(spatialStructure);
+        });
         
         console.log("Tree nodes created:", nodes.length);
         setTreeData(nodes);
       } catch (error) {
-        console.error("Error building IFC tree:", error);
+        console.error("Error building BIM tree:", error);
         // Fallback: show basic model info
         nodes.push({
           id: "model",
-          name: "IFC Model",
+          name: "BIM Model",
           type: "Model",
           level: 0,
           children: []
@@ -67,7 +60,7 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
     };
 
     buildTree();
-  }, [model, ifcLoader]);
+  }, [model, components]);
 
   const toggleNode = (nodeId: string) => {
     const newExpanded = new Set(expandedNodes);

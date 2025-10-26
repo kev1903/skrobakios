@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three-stdlib";
-import { IFCLoader } from "web-ifc-three/IFCLoader";
+import * as OBC from "@thatopen/components";
+import * as OBCF from "@thatopen/components-front";
 
 interface ThreeIFCViewerProps {
-  onViewerReady: (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer, loader: IFCLoader) => void;
+  onViewerReady: (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer, components: OBC.Components) => void;
 }
 
 export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
@@ -20,7 +21,7 @@ export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
 
     const initViewer = async () => {
       try {
-        console.log("=== Three.js IFC Viewer Initialization Started ===");
+        console.log("=== That Open Components BIM Viewer Initialization Started ===");
 
         const container = containerRef.current!;
         const width = container.clientWidth;
@@ -41,6 +42,9 @@ export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
+        // Create components instance
+        const components = new OBC.Components();
+
         // Add lights
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
@@ -58,9 +62,8 @@ export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
 
-        // Create IFC loader
-        const ifcLoader = new IFCLoader();
-        await ifcLoader.ifcManager.setWasmPath("/wasm/");
+        // Initialize components
+        await components.init();
 
         // Animation loop
         const animate = () => {
@@ -85,8 +88,8 @@ export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
         if (mounted) {
           setIsInitializing(false);
           setError(null);
-          console.log("=== Three.js IFC Viewer Initialization Complete ===");
-          onViewerReady(scene, camera, renderer, ifcLoader);
+          console.log("=== That Open Components BIM Viewer Initialization Complete ===");
+          onViewerReady(scene, camera, renderer, components);
         }
 
         // Cleanup
@@ -96,12 +99,13 @@ export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
           window.removeEventListener("resize", handleResize);
           renderer.dispose();
           controls.dispose();
+          components.dispose();
           if (container.contains(renderer.domElement)) {
             container.removeChild(renderer.domElement);
           }
         };
       } catch (err) {
-        console.error("=== Three.js IFC Viewer Initialization Failed ===");
+        console.error("=== BIM Viewer Initialization Failed ===");
         console.error(err);
         const errorMessage = err instanceof Error ? err.message : String(err);
         setError(errorMessage);

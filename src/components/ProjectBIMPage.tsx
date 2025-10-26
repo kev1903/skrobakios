@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import * as THREE from "three";
-import { IFCLoader } from "web-ifc-three/IFCLoader";
+import * as OBC from "@thatopen/components";
 import { ThreeIFCViewer } from "@/components/Viewer/ThreeIFCViewer";
 import { ViewerToolbar } from "@/components/Viewer/ViewerToolbar";
 import { ObjectTree } from "@/components/Viewer/ObjectTree";
@@ -16,7 +16,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [scene, setScene] = useState<THREE.Scene | null>(null);
   const [camera, setCamera] = useState<THREE.Camera | null>(null);
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
-  const [ifcLoader, setIfcLoader] = useState<IFCLoader | null>(null);
+  const [components, setComponents] = useState<OBC.Components | null>(null);
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan">("select");
   const [loadedModel, setLoadedModel] = useState<THREE.Object3D | null>(null);
   const [selectedObject, setSelectedObject] = useState<any>(null);
@@ -30,12 +30,12 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     sceneInstance: THREE.Scene,
     cameraInstance: THREE.Camera,
     rendererInstance: THREE.WebGLRenderer,
-    loaderInstance: IFCLoader
+    componentsInstance: OBC.Components
   ) => {
     setScene(sceneInstance);
     setCamera(cameraInstance);
     setRenderer(rendererInstance);
-    setIfcLoader(loaderInstance);
+    setComponents(componentsInstance);
   }, []);
 
   const handleZoomIn = () => {
@@ -93,8 +93,8 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       return;
     }
     
-    if (!scene || !ifcLoader || !camera) {
-      console.error("Viewer not initialized", { scene: !!scene, ifcLoader: !!ifcLoader, camera: !!camera });
+    if (!scene || !components || !camera) {
+      console.error("Viewer not initialized", { scene: !!scene, components: !!components, camera: !!camera });
       toast.error("Viewer not initialized. Please wait and try again.");
       return;
     }
@@ -112,19 +112,29 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     try {
       console.log("Loading IFC file:", file.name);
       
-      // Load IFC file using web-ifc-three
+      // Get the IFC fragments manager
+      const fragments = components.get(OBC.FragmentsManager);
+      const fragmentIfcLoader = components.get(OBC.IfcLoader);
+      
+      // Load IFC file using That Open Components
       const url = URL.createObjectURL(file);
-      const loadedIFCModel = await ifcLoader.loadAsync(url) as THREE.Object3D;
+      const data = await fetch(url);
+      const buffer = await data.arrayBuffer();
+      const uint8Array = new Uint8Array(buffer);
+      
+      const model = await fragmentIfcLoader.load(uint8Array);
       
       console.log("IFC model loaded successfully");
-      console.log("Model children count:", loadedIFCModel.children?.length || 0);
+      console.log("Model:", model);
       
-      // Add model to scene
-      scene.add(loadedIFCModel);
-      setLoadedModel(loadedIFCModel);
+      // Add model fragments to scene
+      const meshGroup = new THREE.Group();
+      fragments.meshes.forEach(mesh => meshGroup.add(mesh));
+      scene.add(meshGroup);
+      setLoadedModel(meshGroup);
       
       // Fit camera to model
-      const box = new THREE.Box3().setFromObject(loadedIFCModel);
+      const box = new THREE.Box3().setFromObject(meshGroup);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
       
@@ -173,7 +183,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   };
 
   useEffect(() => {
-    if (!scene || !camera || !renderer || !ifcLoader) return;
+    if (!scene || !camera || !renderer || !components) return;
 
     const handleCanvasClick = async (event: MouseEvent) => {
       if (!renderer.domElement) return;
@@ -193,80 +203,42 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         const object = intersect.object;
         
         try {
-          // Get IFC properties
-          const index = intersect.faceIndex;
-          if (index === undefined) return;
+          console.log("Selected object:", object);
           
-          const model = loadedModel as any;
-          const meshObject = object as THREE.Mesh;
-          if (!meshObject.geometry) {
-            console.log("No geometry found on object");
-            return;
-          }
-          
-          const expressID = ifcLoader.ifcManager.getExpressId(meshObject.geometry, index);
-          
-          if (expressID === undefined || expressID === null) {
-            console.log("No express ID found");
-            return;
-          }
-          
-          console.log("Selected IFC element with expressID:", expressID);
-          
-          // Get properties
-          const props = await ifcLoader.ifcManager.getItemProperties(model.modelID || 0, expressID);
-          const type = props.type ? ifcLoader.ifcManager.getIfcType(model.modelID || 0, expressID) : "Unknown";
-          
-          // Get property sets
-          const psets = await ifcLoader.ifcManager.getPropertySets(model.modelID || 0, expressID);
-          
+          // Get basic object properties
           const propertyGroups: any[] = [];
           
           // Entity information
           const entityProps: any[] = [
-            { name: "Express ID", value: expressID.toString() },
-            { name: "Type", value: type },
-            { name: "Global ID", value: props.GlobalId?.value || "N/A" }
+            { name: "Object ID", value: object.id.toString() },
+            { name: "Type", value: object.type },
+            { name: "UUID", value: object.uuid }
           ];
+          
+          if (object.userData && Object.keys(object.userData).length > 0) {
+            Object.entries(object.userData).forEach(([key, value]) => {
+              entityProps.push({
+                name: key,
+                value: String(value)
+              });
+            });
+          }
+          
           propertyGroups.push({
             title: "Entity Information",
             properties: entityProps
           });
           
-          // Add property sets
-          if (psets && psets.length > 0) {
-            for (const pset of psets) {
-              if (pset.HasProperties && pset.HasProperties.length > 0) {
-                const properties: any[] = [];
-                for (const propRef of pset.HasProperties) {
-                  const prop = await ifcLoader.ifcManager.getItemProperties(model.modelID || 0, propRef.value);
-                  if (prop && prop.Name) {
-                    properties.push({
-                      name: prop.Name.value || "Unknown",
-                      value: prop.NominalValue?.value?.toString() || "N/A"
-                    });
-                  }
-                }
-                if (properties.length > 0) {
-                  propertyGroups.push({
-                    title: pset.Name?.value || "Properties",
-                    properties
-                  });
-                }
-              }
-            }
-          }
-          
           setSelectedObject({
-            name: props.Name?.value || `Element ${expressID}`,
-            type: type,
-            tag: props.Tag?.value || "",
+            name: object.name || `Object ${object.id}`,
+            type: object.type || "3D Object",
+            tag: "",
             propertyGroups
           });
           
-          toast.success(`Selected: ${type} (${expressID})`);
+          toast.success(`Selected: ${object.name || object.type}`);
         } catch (error) {
-          console.error("Error getting IFC properties:", error);
+          console.error("Error getting object properties:", error);
           toast.error("Failed to get element properties");
         }
         return;
@@ -311,7 +283,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     return () => {
       canvas.removeEventListener('click', handleCanvasClick);
     };
-  }, [scene, camera, renderer, ifcLoader, loadedModel, activeMode]);
+  }, [scene, camera, renderer, components, loadedModel, activeMode]);
 
   useEffect(() => {
     if (activeMode !== "measure") {
@@ -355,7 +327,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         {/* Object Tree Sidebar */}
         <div className="w-80 flex-shrink-0 z-10">
           <div className="h-full bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
-            <ObjectTree model={loadedModel} ifcLoader={ifcLoader} />
+            <ObjectTree model={loadedModel} components={components} />
           </div>
         </div>
 
