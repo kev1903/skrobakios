@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
     viteStaticCopy({
       targets: [
         {
-          src: 'node_modules/web-ifc/*.wasm',
+          src: 'node_modules/web-ifc-three/node_modules/web-ifc/*.wasm',
           dest: 'wasm'
         }
       ]
