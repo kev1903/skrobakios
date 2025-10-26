@@ -89,7 +89,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   };
 
   const handleFitView = () => {
-    if (viewer) {
+    if (viewer && viewer.scene && viewer.scene.aabb) {
       viewer.cameraFlight.flyTo({
         aabb: viewer.scene.aabb,
         duration: 0.5,
