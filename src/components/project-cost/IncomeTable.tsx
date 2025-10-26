@@ -414,22 +414,6 @@ export const IncomeTable = ({
   return (
     <TooltipProvider>
       <div className="space-y-4">
-        {/* Totals Summary */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="border rounded-lg p-4 bg-card">
-            <div className="text-sm text-muted-foreground mb-1">Total Billed</div>
-            <div className="text-2xl font-bold text-foreground">{formatCurrency(totals.totalBilled)}</div>
-          </div>
-          <div className="border rounded-lg p-4 bg-card">
-            <div className="text-sm text-muted-foreground mb-1">Total Paid</div>
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(totals.totalPaid)}</div>
-          </div>
-          <div className="border rounded-lg p-4 bg-card">
-            <div className="text-sm text-muted-foreground mb-1">Outstanding</div>
-            <div className="text-2xl font-bold text-orange-600">{formatCurrency(totals.outstanding)}</div>
-          </div>
-        </div>
-
         <div className="border rounded-lg overflow-hidden bg-card">
           <Table>
             <TableHeader>
