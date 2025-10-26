@@ -26,7 +26,7 @@ export const ObjectTree = ({ model, components }: ObjectTreeProps) => {
       try {
         const fragments = components.get(OBC.FragmentsManager);
         
-        console.log("Fragment groups:", fragments.groups.size);
+        console.log("Fragment models:", fragments.list.size);
         
         // Build tree from model hierarchy
         let index = 0;

@@ -64,6 +64,17 @@ export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
 
         // Initialize components
         await components.init();
+        
+        // Initialize FragmentsManager with worker
+        const fragments = components.get(OBC.FragmentsManager);
+        const workerUrl = "https://thatopen.github.io/engine_fragment/resources/worker.mjs";
+        fragments.init(workerUrl);
+        
+        // Add loaded fragments to scene automatically
+        fragments.list.onItemSet.add(({ value: model }) => {
+          model.useCamera(camera);
+          scene.add(model.object);
+        });
 
         // Animation loop
         const animate = () => {

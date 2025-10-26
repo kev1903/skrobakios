@@ -117,28 +117,46 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       const fragmentIfcLoader = components.get(OBC.IfcLoader);
       
       // Setup WASM before loading (critical step!)
-      await fragmentIfcLoader.setup({ autoSetWasm: true });
+      await fragmentIfcLoader.setup({ 
+        autoSetWasm: true,
+        wasm: {
+          path: "https://unpkg.com/web-ifc@0.0.72/",
+          absolute: true
+        }
+      });
       console.log("WASM setup complete");
       
-      // Load IFC file using That Open Components
+      // Load IFC file using That Open Components v3 API
       const url = URL.createObjectURL(file);
       const data = await fetch(url);
       const buffer = await data.arrayBuffer();
       const uint8Array = new Uint8Array(buffer);
       
-      const model = await fragmentIfcLoader.load(uint8Array);
+      // V3 API: load() returns the model, and it's also added to fragments.list
+      await fragmentIfcLoader.load(uint8Array, false, file.name, {
+        processData: {
+          progressCallback: (progress) => console.log("IFC loading progress:", progress)
+        }
+      });
       
       console.log("IFC model loaded successfully");
-      console.log("Model:", model);
       
-      // Add model fragments to scene
-      const meshGroup = new THREE.Group();
-      fragments.meshes.forEach(mesh => meshGroup.add(mesh));
-      scene.add(meshGroup);
-      setLoadedModel(meshGroup);
+      // Get the loaded model from fragments.list
+      const models = Array.from(fragments.list.values());
+      const model = models[models.length - 1]; // Get the last loaded model
+      
+      if (!model) {
+        throw new Error("Failed to retrieve loaded model");
+      }
+      
+      console.log("Model retrieved:", model);
+      
+      // The model is already in the scene via fragments.list.onItemSet
+      // Just store reference and fit camera
+      setLoadedModel(model.object);
       
       // Fit camera to model
-      const box = new THREE.Box3().setFromObject(meshGroup);
+      const box = new THREE.Box3().setFromObject(model.object);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
       
