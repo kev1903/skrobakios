@@ -524,7 +524,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-7xl max-h-[95vh] z-[100]">
+      <DialogContent className="max-w-7xl max-h-[95vh]">
         <DialogHeader>
           <DialogTitle>Upload Bill (Expense)</DialogTitle>
           <DialogDescription>
