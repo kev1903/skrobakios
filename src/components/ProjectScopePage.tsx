@@ -1338,7 +1338,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
               fontSize: textFormatting?.fontSize ? `${textFormatting.fontSize}px` : undefined
             }}
           >
-            {value || 'Click to add Activity'}
+            {value || ''}
           </span>
         )}
       </div>

@@ -214,7 +214,7 @@ const WBSRow = memo(({
               type={item.level === 0 ? 'phase' : item.level === 1 ? 'component' : item.level === 2 ? 'element' : 'task'}
               field="assignedTo"
               value={item.assignedTo || ''}
-              placeholder="Assign to..."
+              placeholder=""
               className="text-xs text-muted-foreground flex-1"
             />
           )}
