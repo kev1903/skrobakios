@@ -1,33 +1,29 @@
 import { useState, useEffect } from "react";
 import * as THREE from "three";
-import * as OBC from "@thatopen/components";
+import { IFCLoader } from "web-ifc-three/IFCLoader";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronRight, ChevronDown, Box } from "lucide-react";
 
 interface ObjectTreeProps {
   model: THREE.Object3D | null;
-  components: OBC.Components | null;
+  ifcLoader: IFCLoader | null;
 }
 
-export const ObjectTree = ({ model, components }: ObjectTreeProps) => {
+export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
   const [treeData, setTreeData] = useState<any[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (!model || !components) {
+    if (!model || !ifcLoader) {
       setTreeData([]);
       return;
     }
 
     const buildTree = () => {
-      console.log("Building tree from BIM model");
+      console.log("Building tree from IFC model");
       const nodes: any[] = [];
       
       try {
-        const fragments = components.get(OBC.FragmentsManager);
-        
-        console.log("Fragment models:", fragments.list.size);
-        
         // Build tree from model hierarchy
         let index = 0;
         model.traverse((child) => {
@@ -46,11 +42,11 @@ export const ObjectTree = ({ model, components }: ObjectTreeProps) => {
         console.log("Tree nodes created:", nodes.length);
         setTreeData(nodes);
       } catch (error) {
-        console.error("Error building BIM tree:", error);
+        console.error("Error building IFC tree:", error);
         // Fallback: show basic model info
         nodes.push({
           id: "model",
-          name: "BIM Model",
+          name: "IFC Model",
           type: "Model",
           level: 0,
           children: []
@@ -60,7 +56,7 @@ export const ObjectTree = ({ model, components }: ObjectTreeProps) => {
     };
 
     buildTree();
-  }, [model, components]);
+  }, [model, ifcLoader]);
 
   const toggleNode = (nodeId: string) => {
     const newExpanded = new Set(expandedNodes);

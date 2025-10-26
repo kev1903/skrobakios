@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import * as THREE from "three";
-import * as OBC from "@thatopen/components";
+import { IFCLoader } from "web-ifc-three/IFCLoader";
 import { ThreeIFCViewer } from "@/components/Viewer/ThreeIFCViewer";
 import { ViewerToolbar } from "@/components/Viewer/ViewerToolbar";
 import { ObjectTree } from "@/components/Viewer/ObjectTree";
@@ -16,10 +16,10 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const [scene, setScene] = useState<THREE.Scene | null>(null);
   const [camera, setCamera] = useState<THREE.Camera | null>(null);
   const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
-  const [components, setComponents] = useState<OBC.Components | null>(null);
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan">("select");
   const [loadedModel, setLoadedModel] = useState<THREE.Object3D | null>(null);
   const [selectedObject, setSelectedObject] = useState<any>(null);
+  const ifcLoaderRef = useRef<IFCLoader | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const measurementClickCount = useRef<number>(0);
   const firstPoint = useRef<THREE.Vector3 | null>(null);
@@ -29,13 +29,16 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const handleViewerReady = useCallback((
     sceneInstance: THREE.Scene,
     cameraInstance: THREE.Camera,
-    rendererInstance: THREE.WebGLRenderer,
-    componentsInstance: OBC.Components
+    rendererInstance: THREE.WebGLRenderer
   ) => {
     setScene(sceneInstance);
     setCamera(cameraInstance);
     setRenderer(rendererInstance);
-    setComponents(componentsInstance);
+    
+    // Initialize IFC Loader
+    const loader = new IFCLoader();
+    loader.ifcManager.setWasmPath("/");
+    ifcLoaderRef.current = loader;
   }, []);
 
   const handleZoomIn = () => {
@@ -93,8 +96,8 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       return;
     }
     
-    if (!scene || !components || !camera) {
-      console.error("Viewer not initialized", { scene: !!scene, components: !!components, camera: !!camera });
+    if (!scene || !ifcLoaderRef.current || !camera) {
+      console.error("Viewer not initialized");
       toast.error("Viewer not initialized. Please wait and try again.");
       return;
     }
@@ -112,51 +115,16 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     try {
       console.log("Loading IFC file:", file.name);
       
-      // Get the IFC fragments manager and loader
-      const fragments = components.get(OBC.FragmentsManager);
-      const fragmentIfcLoader = components.get(OBC.IfcLoader);
-      
-      // Setup WASM before loading (critical step!)
-      await fragmentIfcLoader.setup({ 
-        autoSetWasm: true,
-        wasm: {
-          path: "https://unpkg.com/web-ifc@0.0.72/",
-          absolute: true
-        }
-      });
-      console.log("WASM setup complete");
-      
-      // Load IFC file using That Open Components v3 API
+      // Load IFC file using web-ifc-three
       const url = URL.createObjectURL(file);
-      const data = await fetch(url);
-      const buffer = await data.arrayBuffer();
-      const uint8Array = new Uint8Array(buffer);
-      
-      // V3 API: load() returns the model, and it's also added to fragments.list
-      await fragmentIfcLoader.load(uint8Array, false, file.name, {
-        processData: {
-          progressCallback: (progress) => console.log("IFC loading progress:", progress)
-        }
-      });
+      const model = await ifcLoaderRef.current.loadAsync(url) as THREE.Object3D;
       
       console.log("IFC model loaded successfully");
-      
-      // Get the loaded model from fragments.list
-      const models = Array.from(fragments.list.values());
-      const model = models[models.length - 1]; // Get the last loaded model
-      
-      if (!model) {
-        throw new Error("Failed to retrieve loaded model");
-      }
-      
-      console.log("Model retrieved:", model);
-      
-      // The model is already in the scene via fragments.list.onItemSet
-      // Just store reference and fit camera
-      setLoadedModel(model.object);
+      scene.add(model);
+      setLoadedModel(model);
       
       // Fit camera to model
-      const box = new THREE.Box3().setFromObject(model.object);
+      const box = new THREE.Box3().setFromObject(model);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
       
@@ -205,7 +173,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   };
 
   useEffect(() => {
-    if (!scene || !camera || !renderer || !components) return;
+    if (!scene || !camera || !renderer) return;
 
     const handleCanvasClick = async (event: MouseEvent) => {
       if (!renderer.domElement) return;
@@ -305,7 +273,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     return () => {
       canvas.removeEventListener('click', handleCanvasClick);
     };
-  }, [scene, camera, renderer, components, loadedModel, activeMode]);
+  }, [scene, camera, renderer, loadedModel, activeMode, ifcLoaderRef]);
 
   useEffect(() => {
     if (activeMode !== "measure") {
@@ -349,7 +317,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         {/* Object Tree Sidebar */}
         <div className="w-80 flex-shrink-0 z-10">
           <div className="h-full bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
-            <ObjectTree model={loadedModel} components={components} />
+            <ObjectTree model={loadedModel} ifcLoader={ifcLoaderRef.current} />
           </div>
         </div>
 

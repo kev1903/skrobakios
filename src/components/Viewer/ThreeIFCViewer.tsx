@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three-stdlib";
-import * as OBC from "@thatopen/components";
-import * as OBCF from "@thatopen/components-front";
 
 interface ThreeIFCViewerProps {
-  onViewerReady: (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer, components: OBC.Components) => void;
+  onViewerReady: (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer) => void;
 }
 
 export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
@@ -42,9 +40,6 @@ export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // Create components instance
-        const components = new OBC.Components();
-
         // Add lights
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
@@ -61,20 +56,6 @@ export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
-
-        // Initialize components
-        await components.init();
-        
-        // Initialize FragmentsManager with worker
-        const fragments = components.get(OBC.FragmentsManager);
-        const workerUrl = "https://thatopen.github.io/engine_fragment/resources/worker.mjs";
-        fragments.init(workerUrl);
-        
-        // Add loaded fragments to scene automatically
-        fragments.list.onItemSet.add(({ value: model }) => {
-          model.useCamera(camera);
-          scene.add(model.object);
-        });
 
         // Animation loop
         const animate = () => {
@@ -99,8 +80,8 @@ export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
         if (mounted) {
           setIsInitializing(false);
           setError(null);
-          console.log("=== That Open Components BIM Viewer Initialization Complete ===");
-          onViewerReady(scene, camera, renderer, components);
+          console.log("=== Three.js BIM Viewer Initialization Complete ===");
+          onViewerReady(scene, camera, renderer);
         }
 
         // Cleanup
@@ -110,7 +91,6 @@ export const ThreeIFCViewer = ({ onViewerReady }: ThreeIFCViewerProps) => {
           window.removeEventListener("resize", handleResize);
           renderer.dispose();
           controls.dispose();
-          components.dispose();
           if (container.contains(renderer.domElement)) {
             container.removeChild(renderer.domElement);
           }
