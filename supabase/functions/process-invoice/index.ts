@@ -161,18 +161,29 @@ serve(async (req) => {
     const contentArray: any[] = [
       {
         type: 'text',
-        text: `Analyze this ${fileType === 'pdf' ? 'PDF invoice/bill' : 'invoice/bill image'} and extract ALL data:
+        text: `YOU MUST ANALYZE THE ACTUAL DOCUMENT PROVIDED BELOW. DO NOT USE PRIOR KNOWLEDGE OR CACHED DATA.
 
-Extract:
-- Full company name as supplier
-- Invoice/bill number
-- Invoice date and due date in YYYY-MM-DD format
-- ALL amounts visible (Subtotal, Tax/GST, Total, line item amounts, etc.)
-- ALL line items with descriptions, quantities, rates, and amounts
-- Reference numbers if present
+Read THIS SPECIFIC ${fileType === 'pdf' ? 'PDF document' : 'image'} carefully and extract the EXACT data visible in it:
 
-IMPORTANT: Look at EVERY number in the document. Don't assume amounts are zero - read them directly from the document.
-Be precise with ALL numbers and dates. Set high confidence (0.9+) if the document is clear and readable.`
+REQUIRED FIELDS (extract exactly as shown):
+1. SUPPLIER: The exact company name issuing this invoice (look for "Pty Ltd", "LLC", "Inc", etc.)
+2. INVOICE NUMBER: The exact invoice/bill number printed on this document
+3. INVOICE DATE: The exact invoice date (convert to YYYY-MM-DD format)
+4. DUE DATE: The exact due date (convert to YYYY-MM-DD format)
+5. TOTAL: The exact total amount (numeric value only)
+6. SUBTOTAL: The exact subtotal before tax
+7. TAX/GST: The exact tax amount
+8. LINE ITEMS: Every line item with exact description, quantity, rate, and amount as printed
+
+CRITICAL INSTRUCTIONS:
+- Read ONLY from the document provided below
+- Extract EXACT values - do not estimate or use similar data
+- If a field is not visible, leave it empty - do not fabricate data
+- Verify all numbers match what's printed in the document
+- Set confidence to 0.95+ ONLY if all data is clearly visible and accurately extracted
+- If anything is unclear, set confidence lower and note it in ai_summary
+
+This is the actual document to analyze:`
       },
       {
         type: 'image_url',
@@ -186,22 +197,29 @@ Be precise with ALL numbers and dates. Set high confidence (0.9+) if the documen
     const aiMessages = [
       {
         role: 'system',
-        content: `You are an expert at extracting invoice/receipt/bill data from documents. Analyze the document carefully and extract all visible information accurately.
+        content: `You are a precise document data extraction system. Your ONLY job is to read the specific document provided and extract its exact data.
 
-EXTRACTION RULES:
-1. SUPPLIER: The company issuing the invoice (look for "Pty Ltd", "LLC", "Inc", full company name)
-2. INVOICE NUMBER: The reference code visible on the document
-3. DATES: Convert all dates to YYYY-MM-DD format (e.g., "10 Oct 2025" → "2025-10-10")
-4. AMOUNTS: Extract exact numeric values for Total, Subtotal, and Tax/GST
-5. LINE ITEMS: Each item with description, quantity (if shown), rate (if shown), and amount
+CRITICAL RULES:
+1. ONLY extract data from the document shown to you - DO NOT use cached or prior knowledge
+2. Extract EXACT values as they appear - no approximations or similar data from other documents
+3. If a field is not visible in THIS document, leave it empty
+4. Every number, date, and text must match what's printed in THIS specific document
+5. Double-check that all extracted data corresponds to the actual document content
 
-CONFIDENCE SCORING:
-- 0.95+: All fields clearly visible and extracted
-- 0.85-0.94: Most fields clear, some minor ambiguity
+EXTRACTION REQUIREMENTS:
+- SUPPLIER: Exact company name from this document (look for "Pty Ltd", "LLC", "Inc")
+- INVOICE NUMBER: Exact invoice/bill number printed on this document
+- DATES: Convert to YYYY-MM-DD format (e.g., "16 Sep 2025" → "2025-09-16")
+- AMOUNTS: Exact numeric values for Total, Subtotal, Tax/GST from this document
+- LINE ITEMS: Every line item with exact description, qty, rate, amount from this document
+
+CONFIDENCE SCORING (be honest):
+- 0.95+: All fields clearly visible and accurately extracted from THIS document
+- 0.85-0.94: Most fields clear with minor ambiguity
 - 0.70-0.84: Some fields unclear or partially visible
 - Below 0.70: Significant data missing or unclear
 
-Look carefully at ALL text in the document. Don't miss any numbers or amounts. Return structured JSON matching the schema.`
+Return structured JSON with data from THIS specific document only.`
       },
       {
         role: 'user',
@@ -218,13 +236,14 @@ Look carefully at ALL text in the document. Don't miss any numbers or amounts. R
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-2.5-pro', // Use pro model for better accuracy
         messages: aiMessages,
         tools: [{
           type: 'function',
           function: InvoiceSchema
         }],
-        tool_choice: { type: 'function', function: { name: 'extract_invoice_data' } }
+        tool_choice: { type: 'function', function: { name: 'extract_invoice_data' } },
+        temperature: 0 // Use temperature 0 for deterministic, accurate extraction
       })
     });
 
