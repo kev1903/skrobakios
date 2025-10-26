@@ -96,6 +96,7 @@
     "three-stdlib": "^2.36.0",
     "vaul": "^0.9.3",
     "vite-plugin-shim-react-pdf": "^1.0.7",
+    "vite-plugin-static-copy": "^1.0.6",
     "web-ifc": "^0.0.51",
     "web-ifc-three": "^0.0.126",
     "zod": "^3.23.8"
