@@ -112,9 +112,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     try {
       console.log("Loading IFC file:", file.name);
       
-      // Get the IFC fragments manager
+      // Get the IFC fragments manager and loader
       const fragments = components.get(OBC.FragmentsManager);
       const fragmentIfcLoader = components.get(OBC.IfcLoader);
+      
+      // Setup WASM before loading (critical step!)
+      await fragmentIfcLoader.setup({ autoSetWasm: true });
+      console.log("WASM setup complete");
       
       // Load IFC file using That Open Components
       const url = URL.createObjectURL(file);
