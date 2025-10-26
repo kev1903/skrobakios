@@ -18,30 +18,33 @@ export const ObjectTree = ({ model, viewer, nameProperty }: ObjectTreeProps) => 
       return;
     }
 
-    const metaModels = (viewer.metaScene as any).metaModels || {};
-    const metaModelIds = Object.keys(metaModels);
-    const metaModel = metaModelIds.length > 0 ? metaModels[metaModelIds[0]] : null;
+    console.log("Building object tree from model:", model.id);
 
-    if (!metaModel) {
+    // Get all entities from the model
+    const entities = model.entities;
+    if (!entities || Object.keys(entities).length === 0) {
+      console.log("No entities found in model");
       setTreeData([]);
       return;
     }
 
-    const metaObjects = (metaModel as any).metaObjects || {};
-    const rootNodes: any[] = [];
+    console.log("Found entities:", Object.keys(entities).length);
 
-    Object.values(metaObjects).forEach((obj: any) => {
-      if (!obj.parent) {
-        rootNodes.push({
-          id: obj.id,
-          name: obj.name || obj.id,
-          type: obj.type,
+    // Build a simple flat tree of all objects
+    const nodes: any[] = [];
+    Object.values(entities).forEach((entity: any) => {
+      if (entity && entity.id) {
+        nodes.push({
+          id: entity.id,
+          name: entity.id,
+          type: "Object",
           children: [],
         });
       }
     });
 
-    setTreeData(rootNodes);
+    console.log("Built tree with", nodes.length, "nodes");
+    setTreeData(nodes);
   }, [model, viewer, nameProperty]);
 
   const toggleNode = (nodeId: string) => {
