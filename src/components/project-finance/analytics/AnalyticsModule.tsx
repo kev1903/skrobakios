@@ -135,9 +135,9 @@ export const AnalyticsModule = ({ projectId, formatCurrency, formatDate }: Analy
         });
       }
 
-      // Generate stage variance data
+      // Generate milestone variance data
       const stageMap = activities.reduce((acc, act) => {
-        const stage = act.stage || 'No Stage';
+        const stage = act.stage || 'No Milestone';
         if (!acc[stage]) {
           acc[stage] = { budget: 0, actual: 0 };
         }
@@ -347,15 +347,15 @@ export const AnalyticsModule = ({ projectId, formatCurrency, formatDate }: Analy
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Stage Variance Table */}
+        {/* Milestone Variance Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Budget vs Actual by Stage</CardTitle>
+            <CardTitle>Budget vs Actual by Milestone</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {analyticsData.stageVariance.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No stage data available</p>
+                <p className="text-center text-muted-foreground py-8">No milestone data available</p>
               ) : (
                 analyticsData.stageVariance.map((stage, index) => (
                   <div key={index} className="border rounded-lg p-4">

@@ -192,13 +192,13 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
     if (stages.length === 0) {
       const contractAmount = parseContractAmount(contract.contract_data, contract.contract_amount);
       const defaults = [
-        { stage: 'Deposit', description: 'Contract Stage', percentage: 5 },
-        { stage: 'Stage 1', description: 'Start of Base Stage', percentage: 10 },
-        { stage: 'Stage 2', description: 'Start of Frame Stage', percentage: 20 },
-        { stage: 'Stage 3', description: 'Start of Lockup Stage', percentage: 20 },
-        { stage: 'Stage 4', description: 'Start of Fixing Stage', percentage: 25 },
-        { stage: 'Stage 5', description: 'Start of Final Stage', percentage: 10 },
-        { stage: 'Stage 6', description: 'Handover & Closeout', percentage: 10 },
+        { stage: 'Deposit', description: 'Contract Milestone', percentage: 5 },
+        { stage: 'Milestone 1', description: 'Start of Base Milestone', percentage: 10 },
+        { stage: 'Milestone 2', description: 'Start of Frame Milestone', percentage: 20 },
+        { stage: 'Milestone 3', description: 'Start of Lockup Milestone', percentage: 20 },
+        { stage: 'Milestone 4', description: 'Start of Fixing Milestone', percentage: 25 },
+        { stage: 'Milestone 5', description: 'Start of Final Milestone', percentage: 10 },
+        { stage: 'Milestone 6', description: 'Handover & Closeout', percentage: 10 },
       ];
       return defaults.map(d => ({ ...d, amount: Math.round((contractAmount * d.percentage) / 100) }));
     }
@@ -335,13 +335,13 @@ export const ContractsTable = ({ projectId, formatCurrency, formatDate }: Contra
       if (paymentStages.length === 0) {
         const contractAmount = parseContractAmount(contract.contract_data, contract.contract_amount);
         paymentStages = [
-          { stage: "Deposit", description: "Contract Stage", percentage: 5, amount: contractAmount * 0.05 },
-          { stage: "Stage 1", description: "Start of Base Stage", percentage: 10, amount: contractAmount * 0.10 },
-          { stage: "Stage 2", description: "Start of Frame Stage", percentage: 20, amount: contractAmount * 0.20 },
-          { stage: "Stage 3", description: "Start of Lockup Stage", percentage: 20, amount: contractAmount * 0.20 },
-          { stage: "Stage 4", description: "Start of Fixing Stage", percentage: 25, amount: contractAmount * 0.25 },
-          { stage: "Stage 5", description: "Start of Final Stage", percentage: 10, amount: contractAmount * 0.10 },
-          { stage: "Stage 6", description: "Handover & Closeout", percentage: 10, amount: contractAmount * 0.10 }
+          { stage: "Deposit", description: "Contract Milestone", percentage: 5, amount: contractAmount * 0.05 },
+          { stage: "Milestone 1", description: "Start of Base Milestone", percentage: 10, amount: contractAmount * 0.10 },
+          { stage: "Milestone 2", description: "Start of Frame Milestone", percentage: 20, amount: contractAmount * 0.20 },
+          { stage: "Milestone 3", description: "Start of Lockup Milestone", percentage: 20, amount: contractAmount * 0.20 },
+          { stage: "Milestone 4", description: "Start of Fixing Milestone", percentage: 25, amount: contractAmount * 0.25 },
+          { stage: "Milestone 5", description: "Start of Final Milestone", percentage: 10, amount: contractAmount * 0.10 },
+          { stage: "Milestone 6", description: "Handover & Closeout", percentage: 10, amount: contractAmount * 0.10 }
         ];
       }
 
