@@ -32,6 +32,9 @@ export default defineConfig(({ mode }) => ({
   },
   optimizeDeps: {
     exclude: ['web-ifc', 'web-ifc-three'],
+    esbuildOptions: {
+      target: 'esnext',
+    },
   },
   build: {
     target: 'esnext',
