@@ -48,11 +48,23 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
           return;
         }
 
-        // Create IFC loader - pass WebIFC module and let plugin initialize it
+        // Initialize web-ifc API properly
+        console.log("Initializing WebIFC IfcAPI...");
+        const ifcAPI = new WebIFC.IfcAPI();
+        ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
+        await ifcAPI.Init();
+        console.log("IfcAPI initialized successfully");
+
+        if (!mounted) {
+          console.log("Component unmounted, aborting");
+          return;
+        }
+
+        // Create IFC loader with initialized API
         console.log("Creating WebIFCLoaderPlugin...");
         const ifcLoader = new WebIFCLoaderPlugin(viewer, {
           WebIFC: WebIFC,
-          IfcAPI: new WebIFC.IfcAPI()
+          IfcAPI: ifcAPI
         });
         
         console.log("WebIFCLoaderPlugin created successfully");
