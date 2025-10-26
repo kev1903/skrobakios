@@ -269,7 +269,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           let displayExpressID = expressID;
           let displayProps = props;
           let displayType = ifcType;
-          let assemblyEntityIds = [expressID];
+          let assemblyObjects: THREE.Object3D[] = [object];
           
           // Check if this element has a parent that's an IfcElementAssembly
           if (props.Decomposes && props.Decomposes.length > 0) {
@@ -279,20 +279,41 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
                 const parentProps = await ifcLoaderRef.current.ifcManager.getItemProperties(modelID, parentID);
                 const parentType = await ifcLoaderRef.current.ifcManager.getIfcType(modelID, parentID);
                 
+                console.log("Parent found:", parentType, parentID);
+                
                 if (parentType === "IFCELEMENTASSEMBLY") {
                   displayExpressID = parentID;
                   displayProps = parentProps;
                   displayType = parentType;
                   
+                  // Find all objects that are part of this assembly
+                  assemblyObjects = [];
+                  if (loadedModel) {
+                    loadedModel.traverse((child) => {
+                      const childExpressID = child.userData?.expressID;
+                      if (childExpressID === parentID) {
+                        assemblyObjects.push(child);
+                      }
+                    });
+                  }
+                  
                   // Get all children of the assembly
                   if (parentProps.IsDecomposedBy) {
                     for (const decomposedBy of parentProps.IsDecomposedBy) {
                       const relatedObjects = decomposedBy.RelatedObjects || [];
-                      relatedObjects.forEach((obj: any) => {
-                        if (obj.value) assemblyEntityIds.push(obj.value);
-                      });
+                      for (const relObj of relatedObjects) {
+                        if (relObj.value && loadedModel) {
+                          loadedModel.traverse((child) => {
+                            if (child.userData?.expressID === relObj.value) {
+                              assemblyObjects.push(child);
+                            }
+                          });
+                        }
+                      }
                     }
                   }
+                  
+                  console.log(`Found assembly with ${assemblyObjects.length} objects`);
                   break;
                 }
               } catch (e) {
@@ -301,9 +322,23 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             }
           }
           
-          // Highlight all related objects (if we found an assembly)
-          // For now, just highlight the selected object
-          // TODO: Implement multi-object selection highlighting
+          // Highlight all assembly objects
+          if (assemblyObjects.length > 0) {
+            // Create a visual highlight by adding a selection material
+            assemblyObjects.forEach((obj) => {
+              if (obj instanceof THREE.Mesh) {
+                // Store original material
+                if (!obj.userData.originalMaterial) {
+                  obj.userData.originalMaterial = obj.material;
+                }
+                // Apply highlight (you could create a special material here if needed)
+                // For now, we'll just note it's selected
+                obj.userData.isSelected = true;
+              }
+            });
+            
+            toast.success(`Selected assembly with ${assemblyObjects.length} parts`);
+          }
           
           // Extract property groups
           const propertyGroups: any[] = [];

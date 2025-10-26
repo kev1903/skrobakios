@@ -236,7 +236,7 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
   return (
     <div className="h-full flex flex-col">
       <div className="p-6 border-b border-border/30">
-        <h3 className="text-[11px] font-semibold text-foreground uppercase tracking-wider">Object Tree</h3>
+        <h3 className="text-sm font-semibold text-luxury-gold uppercase tracking-wide">Project Structure</h3>
       </div>
       <ScrollArea className="flex-1">
         {treeData.length > 0 ? (
