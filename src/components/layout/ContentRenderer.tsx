@@ -84,6 +84,7 @@ import { ProjectProcurementPage } from "@/pages/ProjectProcurementPage";
 import { AiChatSidebar } from "@/components/AiChatSidebar";
 import { ProjectScopePage } from "@/components/ProjectScopePage";
 import { TaskEditPage } from "@/pages/TaskEditPage";
+import { ProjectBIMPage } from "@/components/ProjectBIMPage";
 
 
 interface ContentRendererProps {
@@ -182,6 +183,12 @@ export const ContentRenderer = ({
           <ProjectDetail projectId={selectedProject} onNavigate={onNavigate} />
         </SubscriptionProtectedRoute>
       );
+    case "project-bim":
+      return currentProject ? (
+        <SubscriptionProtectedRoute requiredFeature="projects" onNavigate={onNavigate}>
+          <ProjectBIMPage project={currentProject} onNavigate={onNavigate} />
+        </SubscriptionProtectedRoute>
+      ) : renderProjectNotFound();
     case "project-tasks":
       return currentProject ? (
         <SubscriptionProtectedRoute requiredFeature="basic_tasks" onNavigate={onNavigate}>
