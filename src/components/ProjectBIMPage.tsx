@@ -105,9 +105,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     
-    if (!file) return;
+    if (!file) {
+      console.log("No file selected");
+      return;
+    }
 
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    console.log("File selected:", file.name, "Extension:", fileExtension);
     
     if (fileExtension !== 'ifc') {
       toast.error("Please upload an IFC file");
@@ -115,12 +119,20 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     }
     
     if (!viewer || !ifcLoader) {
+      console.error("Viewer or loader not initialized", { viewer: !!viewer, ifcLoader: !!ifcLoader });
       toast.error("Viewer not initialized. Please wait and try again.");
       return;
     }
 
+    // Clear previous model
     if (loadedModel) {
-      loadedModel.destroy();
+      console.log("Clearing previous model");
+      try {
+        loadedModel.destroy();
+      } catch (e) {
+        console.warn("Error destroying previous model:", e);
+      }
+      setLoadedModel(null);
     }
 
     const loadingToast = toast.loading("Loading IFC model... This may take a moment");
@@ -128,53 +140,76 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     const reader = new FileReader();
     
     reader.onload = (e) => {
+      console.log("File read complete");
       const arrayBuffer = e.target?.result as ArrayBuffer;
       
       if (!arrayBuffer) {
+        console.error("No array buffer");
         toast.dismiss(loadingToast);
         toast.error("Failed to read file");
         return;
       }
 
+      console.log("ArrayBuffer size:", arrayBuffer.byteLength, "bytes");
+
       try {
-        const fileId = file.name;
+        // Use a simple model ID without special characters
+        const modelId = `model_${Date.now()}`;
+        console.log("Loading model with ID:", modelId);
         
         const model = ifcLoader.load({
-          id: fileId,
+          id: modelId,
           ifc: arrayBuffer,
           edges: true,
-          excludeTypes: ["IfcSpace"]
+          excludeTypes: ["IfcSpace"],
         });
 
+        console.log("Model load initiated");
+
         model.on("loaded", () => {
+          console.log("Model loaded successfully!");
           toast.dismiss(loadingToast);
           toast.success(`Model "${file.name}" loaded successfully`);
           
           setLoadedModel(model);
           
+          // Fit view after a short delay to ensure model is fully rendered
           setTimeout(() => {
-            viewer.cameraFlight.flyTo({
-              aabb: viewer.scene.aabb,
-              duration: 1,
-            });
-          }, 200);
+            try {
+              if (viewer && viewer.scene && viewer.scene.aabb) {
+                viewer.cameraFlight.flyTo({
+                  aabb: viewer.scene.aabb,
+                  duration: 1,
+                });
+                console.log("Camera fitted to model");
+              }
+            } catch (e) {
+              console.warn("Error fitting view:", e);
+            }
+          }, 500);
         });
 
         model.on("error", (error: any) => {
+          console.error("Model loading error:", error);
           toast.dismiss(loadingToast);
-          toast.error("Failed to load model: " + (error?.message || "Unknown error"));
+          const errorMsg = error?.message || error?.toString() || "Unknown error";
+          toast.error("Failed to load model: " + errorMsg);
         });
       } catch (error) {
+        console.error("Load exception:", error);
         toast.dismiss(loadingToast);
-        toast.error("Failed to load model: " + (error instanceof Error ? error.message : "Unknown error"));
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        toast.error("Failed to load model: " + errorMsg);
       }
     };
     
-    reader.onerror = () => {
+    reader.onerror = (error) => {
+      console.error("File reader error:", error);
       toast.dismiss(loadingToast);
       toast.error("Failed to read file");
     };
     
+    console.log("Starting to read file as ArrayBuffer");
     reader.readAsArrayBuffer(file);
   };
 
