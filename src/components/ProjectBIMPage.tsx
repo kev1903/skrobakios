@@ -167,30 +167,50 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
 
         model.on("loaded", () => {
           console.log("Model loaded successfully!");
+          console.log("Model details:", {
+            id: model.id,
+            aabb: model.aabb,
+            visible: model.visible
+          });
+          
           toast.dismiss(loadingToast);
           toast.success(`Model "${file.name}" loaded successfully`);
           
           setLoadedModel(model);
           
-          // Add null check before accessing model properties
-          if (!model || !model.id) {
-            console.error("Model failed to load properly");
-            toast.error("Failed to load model properly");
-            return;
-          }
+          // Ensure model is visible
+          model.visible = true;
+          
+          // Log scene info
+          console.log("Scene info:", {
+            numObjects: Object.keys(viewer.scene.objects).length,
+            sceneAABB: viewer.scene.aabb,
+            cameraPosition: viewer.scene.camera.eye,
+            cameraLook: viewer.scene.camera.look
+          });
           
           // Fit view after a short delay to ensure model is fully rendered
           setTimeout(() => {
             try {
-              if (viewer && viewer.scene && viewer.scene.aabb) {
+              const modelAABB = model.aabb;
+              console.log("Fitting camera to model AABB:", modelAABB);
+              
+              if (viewer && modelAABB) {
                 viewer.cameraFlight.flyTo({
-                  aabb: viewer.scene.aabb,
-                  duration: 1,
+                  aabb: modelAABB,
+                  duration: 0.5,
                 });
-                console.log("Camera fitted to model");
+                console.log("Camera fitted to model successfully");
+              } else {
+                console.warn("Cannot fit view - no AABB available");
+                // Set default camera position
+                viewer.scene.camera.eye = [0, 0, 10];
+                viewer.scene.camera.look = [0, 0, 0];
+                viewer.scene.camera.up = [0, 1, 0];
+                console.log("Set default camera position");
               }
             } catch (e) {
-              console.warn("Error fitting view:", e);
+              console.error("Error fitting view:", e);
             }
           }, 500);
         });
