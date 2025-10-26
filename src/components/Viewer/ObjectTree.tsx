@@ -21,25 +21,41 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
     }
 
     const buildTree = async () => {
-      console.log("Building tree from IFC model");
+      console.log("Building tree from IFC model", model);
       
       try {
-        // Count all mesh children first
-        let totalMeshes = 0;
-        const allMeshes: THREE.Mesh[] = [];
+        // Log model structure for debugging
+        console.log("Model type:", model.type);
+        console.log("Model children count:", model.children?.length);
+        console.log("Model constructor:", model.constructor.name);
+        
+        // Count all objects (not just Mesh type)
+        let totalObjects = 0;
+        const allObjects: THREE.Object3D[] = [];
         
         model.traverse((child) => {
-          if (child !== model && child instanceof THREE.Mesh) {
-            totalMeshes++;
-            allMeshes.push(child);
+          if (child !== model) {
+            totalObjects++;
+            console.log(`Child ${totalObjects}: type=${child.type}, name=${child.name}, constructor=${child.constructor.name}`);
+            // Accept any Object3D that's not the root model
+            allObjects.push(child);
           }
         });
         
-        console.log(`Found ${totalMeshes} total meshes in model`);
+        console.log(`Found ${totalObjects} total objects in model`);
         
-        if (totalMeshes === 0) {
-          console.warn("No meshes found in model");
-          setTreeData([]);
+        if (totalObjects === 0) {
+          console.warn("No objects found in model - showing model itself");
+          // Show the model itself as a single entry
+          setTreeData([{
+            id: model.uuid,
+            name: model.name || "IFC Model",
+            count: 1,
+            type: "IFCModel",
+            level: 0,
+            children: []
+          }]);
+          setVisibleNodes(new Set([model.uuid]));
           return;
         }
         
@@ -50,14 +66,14 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
         const modelID = (model as any).modelID ?? 0;
         console.log("Model ID:", modelID);
         
-        for (let i = 0; i < allMeshes.length; i++) {
-          const mesh = allMeshes[i];
+        for (let i = 0; i < allObjects.length; i++) {
+          const obj = allObjects[i];
           let ifcType = "IfcBuildingElement";
           let elementName = `Element ${i + 1}`;
           
           try {
-            // Check if mesh has expressID
-            const expressID = mesh.userData?.expressID;
+            // Check if object has expressID
+            const expressID = obj.userData?.expressID;
             
             if (expressID !== undefined && ifcLoader) {
               // Try to get IFC properties using the loader
@@ -81,15 +97,20 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
               }
             }
             
-            // Fallback: try to extract from mesh name
-            if (ifcType === "IfcBuildingElement" && mesh.name && mesh.name.includes('Ifc')) {
-              const match = mesh.name.match(/(Ifc[A-Za-z]+)/);
-              if (match) {
-                ifcType = match[1];
+            // Fallback: try to extract from object name or type
+            if (ifcType === "IfcBuildingElement") {
+              if (obj.name && obj.name.includes('Ifc')) {
+                const match = obj.name.match(/(Ifc[A-Za-z]+)/);
+                if (match) {
+                  ifcType = match[1];
+                }
+              } else if (obj.type) {
+                // Use the Three.js type as a fallback
+                ifcType = obj.type;
               }
             }
           } catch (error) {
-            console.warn(`Error processing mesh ${i}:`, error);
+            console.warn(`Error processing object ${i}:`, error);
           }
           
           // Add to grouped elements
@@ -98,13 +119,13 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
           }
           
           const typeElements = elementsByType.get(ifcType)!;
-          elementName = mesh.name || `${ifcType} ${typeElements.length + 1}`;
+          elementName = obj.name || `${ifcType} ${typeElements.length + 1}`;
           
           typeElements.push({
-            id: mesh.uuid,
+            id: obj.uuid,
             name: elementName,
-            object: mesh,
-            expressID: mesh.userData?.expressID,
+            object: obj,
+            expressID: obj.userData?.expressID,
             level: 1
           });
         }
@@ -135,7 +156,7 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
         
         console.log("Tree structure:", {
           types: nodes.length,
-          totalElements: totalMeshes,
+          totalElements: totalObjects,
           typeNames: Array.from(elementsByType.keys())
         });
         
