@@ -702,38 +702,66 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
         });
         break;
       case 'insert-below':
-        // Insert a new row directly below the selected row at root level (level 0)
-        const rootItems = flatWBSItems.filter(i => i.level === 0);
-        const selectedRootWbsNum = parseInt(item.wbs_id.split('.')[0]);
-        const newWbsId = (selectedRootWbsNum + 1).toString();
-        
-        // Find all root items that come after the selected item and shift them first
-        const itemsToShift = rootItems.filter(i => {
-          const itemWbsNum = parseInt(i.wbs_id.split('.')[0]);
-          return itemWbsNum > selectedRootWbsNum;
-        });
-        
-        // Shift all subsequent items by incrementing their WBS IDs (do this BEFORE creating the new item)
-        for (const itemToShift of itemsToShift) {
-          const currentNum = parseInt(itemToShift.wbs_id.split('.')[0]);
-          const shiftedWbsId = (currentNum + 1).toString();
-          await updateWBSItem(itemToShift.id, { wbs_id: shiftedWbsId }, { skipAutoSchedule: true });
+        // Insert a new row as a sibling below the selected item at the same level
+        try {
+          // Get siblings (items with same parent and level)
+          const siblings = flatWBSItems.filter(i => 
+            i.parent_id === item.parent_id && i.level === item.level
+          );
+          
+          // Find the index of current item among siblings
+          const currentSiblingIndex = siblings.findIndex(s => s.id === itemId);
+          
+          // Generate new WBS ID as sibling
+          let newWbsId: string;
+          if (item.level === 0) {
+            // Root level: use simple numeric ID
+            const currentNum = parseInt(item.wbs_id.split('.')[0]);
+            newWbsId = `${currentNum + 1}`;
+          } else {
+            // Child level: increment the last number in the WBS ID
+            const wbsParts = item.wbs_id.split('.');
+            const lastPart = parseInt(wbsParts[wbsParts.length - 1]);
+            wbsParts[wbsParts.length - 1] = `${lastPart + 1}`;
+            newWbsId = wbsParts.join('.');
+          }
+          
+          // Find all siblings that come after the selected item and shift them
+          const itemsToShift = siblings.slice(currentSiblingIndex + 1);
+          
+          // Shift all subsequent siblings by incrementing their WBS IDs
+          for (const itemToShift of itemsToShift) {
+            const wbsParts = itemToShift.wbs_id.split('.');
+            const lastPart = parseInt(wbsParts[wbsParts.length - 1]);
+            wbsParts[wbsParts.length - 1] = `${lastPart + 1}`;
+            const shiftedWbsId = wbsParts.join('.');
+            await updateWBSItem(itemToShift.id, { wbs_id: shiftedWbsId }, { skipAutoSchedule: true });
+          }
+          
+          // Create the new sibling item
+          await createWBSItem({
+            company_id: currentCompany.id,
+            project_id: project.id,
+            parent_id: item.parent_id,
+            title: '',
+            level: item.level,
+            wbs_id: newWbsId,
+            is_expanded: true,
+            linked_tasks: [],
+          });
+          
+          toast({
+            title: "Row Inserted",
+            description: "New row added below selected item",
+          });
+        } catch (error) {
+          console.error('Error inserting row below:', error);
+          toast({
+            title: "Error",
+            description: "Failed to insert row. Please try again.",
+            variant: "destructive",
+          });
         }
-        
-        // Create the new item directly without optimistic updates to avoid visual jumps
-        await WBSService.createWBSItem({
-          company_id: currentCompany.id,
-          project_id: project.id,
-          parent_id: null,
-          title: '',
-          level: 0,
-          wbs_id: newWbsId,
-          is_expanded: true,
-          linked_tasks: [],
-        });
-        
-        // Single reload at the end to show everything in the correct order
-        await loadWBSItems();
         break;
       case 'insert-child':
         await addChildItem(itemId);
