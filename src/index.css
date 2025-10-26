@@ -153,6 +153,9 @@ div[data-rbd-drag-handle-draggable-id] {
     /* Header height used for fixed menu spacing */
     --header-height: 73px;
 
+    /* Viewer background */
+    --viewer-bg: 220 30% 96%;
+
     /* SkrobakiOS Luxury Blue Accent */
     --luxury-gold: 217 91% 60%;
     --luxury-gold-light: 217 91% 75%;
@@ -833,11 +836,56 @@ body.react-beautiful-dnd-dragging [data-rbd-draggable-context-id] {
   background-clip: text;
 }
 
+/* Enhanced Glass Panel Utilities for BIM Viewer */
 .glass-panel {
-  backdrop-filter: blur(12px);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  background: linear-gradient(135deg, 
+    hsl(var(--glass-bg) / 0.9) 0%,
+    hsl(var(--glass-bg) / 0.8) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid hsl(var(--glass-border) / 0.3);
+  box-shadow: 
+    0 8px 32px 0 rgba(31, 38, 135, 0.15),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+  position: relative;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0) 100%);
+  opacity: 0.3;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.glass-button {
+  background: linear-gradient(135deg, 
+    hsl(var(--glass-bg) / 0.6) 0%,
+    hsl(var(--glass-bg) / 0.4) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid hsl(var(--glass-border) / 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-button:hover {
+  background: linear-gradient(135deg, 
+    hsl(var(--primary) / 0.15) 0%,
+    hsl(var(--accent) / 0.1) 100%);
+  border-color: hsl(var(--primary) / 0.3);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    0 0 20px hsl(var(--primary) / 0.3);
+  transform: translateY(-1px);
+}
+
+.glass-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Dark mode glass panel */

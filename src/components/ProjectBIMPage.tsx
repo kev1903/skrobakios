@@ -50,9 +50,9 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-background">
+    <div className="w-full h-full flex flex-col" style={{ backgroundColor: 'hsl(var(--viewer-bg))' }}>
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-xl border-b border-border/30 px-6 py-4">
+      <div className="glass-panel px-6 py-4 shadow-lg">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-foreground font-display">
@@ -68,7 +68,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
               variant="ghost"
               size="sm"
               onClick={() => setShowGrid(!showGrid)}
-              className="gap-2"
+              className="glass-button gap-2"
             >
               <Box className="w-4 h-4" />
               {showGrid ? 'Hide Grid' : 'Show Grid'}
@@ -78,7 +78,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
               variant="ghost"
               size="sm"
               onClick={() => setShowModel(!showModel)}
-              className="gap-2"
+              className="glass-button gap-2"
             >
               {showModel ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               {showModel ? 'Hide Model' : 'Show Model'}
@@ -90,7 +90,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       {/* Main Content */}
       <div className="flex-1 flex gap-4 p-6 overflow-hidden">
         {/* Left Sidebar - Controls */}
-        <Card className="w-80 p-4 bg-white/80 backdrop-blur-xl border-border/30 overflow-y-auto">
+        <Card className="w-80 p-4 glass-panel overflow-y-auto">
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold text-lg mb-3">3D Models</h3>
@@ -152,7 +152,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         </Card>
 
         {/* Main 3D Viewer */}
-        <div className="flex-1 bg-white/80 backdrop-blur-xl rounded-2xl border border-border/30 overflow-hidden relative">
+        <div className="flex-1 glass-panel rounded-2xl overflow-hidden relative">
           {!currentModel ? (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
