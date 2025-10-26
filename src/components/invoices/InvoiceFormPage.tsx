@@ -36,6 +36,7 @@ export const InvoiceFormPage = () => {
     reference: '',
     clientName: '',
     clientAddress: '',
+    clientEmail: '',
     contractId: ''
   });
 
@@ -90,6 +91,7 @@ export const InvoiceFormPage = () => {
             reference: invoice.notes || '', // Map notes to reference for now
             clientName: invoice.client_name || '',
             clientAddress: '', // Add client_address field to invoices table if needed
+            clientEmail: invoice.client_email || '',
             contractId: invoice.contract_id || ''
           });
 
@@ -123,6 +125,51 @@ export const InvoiceFormPage = () => {
 
     fetchInvoiceData();
   }, [invoiceId, toast]);
+
+  // Fetch project owner/client details
+  useEffect(() => {
+    const fetchProjectOwner = async () => {
+      if (!projectId || isEditMode) return; // Only auto-populate for new invoices
+      
+      try {
+        const { data: owner, error } = await supabase
+          .from('project_owners')
+          .select('*')
+          .eq('project_id', projectId)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error fetching project owner:', error);
+          return;
+        }
+
+        if (owner) {
+          // Format the address
+          const addressParts = [
+            owner.address,
+            owner.suburb,
+            owner.state,
+            owner.postcode
+          ].filter(Boolean);
+          
+          const fullAddress = addressParts.join(', ');
+
+          setInvoiceData((prev) => ({
+            ...prev,
+            clientName: owner.name || '',
+            clientAddress: fullAddress || '',
+            clientEmail: owner.email || ''
+          }));
+
+          console.log('Client details auto-populated:', owner.name);
+        }
+      } catch (error) {
+        console.error('Error fetching project owner:', error);
+      }
+    };
+
+    fetchProjectOwner();
+  }, [projectId, isEditMode]);
 
   // Fetch contracts for the project
   useEffect(() => {
@@ -299,6 +346,7 @@ export const InvoiceFormPage = () => {
             issue_date: invoiceData.invoiceDate,
             due_date: invoiceData.dueDate,
             client_name: invoiceData.clientName,
+            client_email: invoiceData.clientEmail,
             notes: invoiceData.reference,
             contract_id: invoiceData.contractId || null,
             subtotal: subtotal,
@@ -358,6 +406,7 @@ export const InvoiceFormPage = () => {
             due_date: invoiceData.dueDate,
             status: 'draft',
             client_name: invoiceData.clientName,
+            client_email: invoiceData.clientEmail,
             notes: invoiceData.reference,
             contract_id: invoiceData.contractId || null,
             subtotal: subtotal,
