@@ -10,82 +10,123 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
   const viewerRef = useRef<Viewer | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const initAttempted = useRef(false);
 
   useEffect(() => {
+    if (initAttempted.current) return;
+    initAttempted.current = true;
+
     let mounted = true;
     
     const initViewer = async () => {
+      console.log("=== Viewer Initialization Started ===");
+      
       if (!canvasRef.current) {
-        console.error("Canvas ref not available");
+        const err = "Canvas element not found";
+        console.error(err);
+        setError(err);
+        setIsInitializing(false);
         return;
       }
 
-      try {
-        console.log("Starting viewer initialization...");
-        setIsInitializing(true);
+      console.log("Canvas element found:", canvasRef.current);
 
-        // Create viewer
-        console.log("Creating xeokit viewer...");
+      try {
+        // Create viewer first
+        console.log("Creating Viewer instance...");
         const viewer = new Viewer({
           canvasId: "xeokit-canvas",
-          transparent: true,
-          logarithmicDepthBufferEnabled: true,
+          transparent: false,
+          backgroundColor: [0.95, 0.95, 0.98]
         });
-
-        console.log("Viewer created, initializing IFC loader...");
         
-        // Create IFC loader plugin with wasmPath
-        const ifcLoader = new WebIFCLoaderPlugin(viewer, {
-          wasmPath: "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/"
-        } as any);
+        console.log("Viewer created successfully:", viewer);
 
-        console.log("IFC loader initialized successfully");
+        if (!mounted) {
+          console.log("Component unmounted, aborting");
+          return;
+        }
 
-        if (!mounted) return;
+        // Create IFC loader - let xeokit handle web-ifc internally
+        console.log("Creating WebIFCLoaderPlugin...");
+        const ifcLoader = new WebIFCLoaderPlugin(viewer);
+        
+        console.log("WebIFCLoaderPlugin created successfully");
 
         viewerRef.current = viewer;
         setIsInitializing(false);
+        setError(null);
+        
+        console.log("Calling onViewerReady callback...");
         onViewerReady(viewer, ifcLoader);
-        console.log("Viewer ready callback executed");
+        console.log("=== Viewer Initialization Complete ===");
+        
       } catch (err) {
-        console.error("Viewer initialization error:", err);
-        setError(err instanceof Error ? err.message : "Failed to initialize viewer");
+        console.error("=== Viewer Initialization Failed ===");
+        console.error("Error type:", err?.constructor?.name);
+        console.error("Error message:", err instanceof Error ? err.message : String(err));
+        console.error("Error stack:", err instanceof Error ? err.stack : "No stack trace");
+        console.error("Full error object:", err);
+        
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        setError(errorMessage);
         setIsInitializing(false);
       }
     };
 
-    initViewer();
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      initViewer();
+    }, 100);
 
     return () => {
       mounted = false;
+      clearTimeout(timer);
       if (viewerRef.current) {
-        console.log("Destroying viewer...");
-        viewerRef.current.destroy();
+        console.log("Cleaning up viewer...");
+        try {
+          viewerRef.current.destroy();
+        } catch (e) {
+          console.error("Error destroying viewer:", e);
+        }
       }
     };
   }, [onViewerReady]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full bg-background">
       <canvas
         id="xeokit-canvas"
         ref={canvasRef}
         className="w-full h-full"
-        style={{ position: "absolute", top: 0, left: 0 }}
       />
       {isInitializing && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
-          <div className="text-center space-y-2">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-luxury-gold mx-auto" />
-            <p className="text-sm text-muted-foreground">Initializing viewer...</p>
+        <div className="absolute inset-0 flex items-center justify-center bg-background/90 backdrop-blur-sm z-50">
+          <div className="text-center space-y-3 p-6">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-luxury-gold mx-auto" />
+            <div>
+              <p className="text-sm font-medium text-foreground">Initializing BIM Viewer...</p>
+              <p className="text-xs text-muted-foreground mt-1">Please wait</p>
+            </div>
           </div>
         </div>
       )}
       {error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50">
-          <div className="text-center space-y-2 p-6">
-            <p className="text-sm text-destructive">Failed to initialize viewer</p>
-            <p className="text-xs text-muted-foreground">{error}</p>
+        <div className="absolute inset-0 flex items-center justify-center bg-background/90 backdrop-blur-sm z-50">
+          <div className="text-center space-y-3 p-6 max-w-md">
+            <div className="text-destructive text-4xl">⚠️</div>
+            <div>
+              <p className="text-sm font-medium text-destructive mb-2">Failed to initialize viewer</p>
+              <p className="text-xs text-muted-foreground bg-muted/50 p-3 rounded font-mono text-left overflow-auto max-h-32">
+                {error}
+              </p>
+            </div>
+            <button 
+              onClick={() => window.location.reload()}
+              className="text-xs text-luxury-gold hover:underline"
+            >
+              Reload page to retry
+            </button>
           </div>
         </div>
       )}
