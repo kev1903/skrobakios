@@ -418,16 +418,16 @@ export const IncomeTable = ({
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50">
-                <TableHead className="w-12"></TableHead>
-                <TableHead className="text-foreground font-medium">Invoice #</TableHead>
-                <TableHead className="text-foreground font-medium">Issue Date</TableHead>
-                <TableHead className="text-foreground font-medium">Due Date</TableHead>
-                <TableHead className="text-foreground font-medium text-right">Amount Billed</TableHead>
-                <TableHead className="text-foreground font-medium text-right">Amount Paid</TableHead>
-                <TableHead className="text-foreground font-medium">Payment Status</TableHead>
-                <TableHead className="text-foreground font-medium">Progress</TableHead>
-                <TableHead className="text-foreground font-medium">Contract</TableHead>
-                <TableHead className="text-foreground font-medium text-center">Actions</TableHead>
+                <TableHead className="w-12 h-8 py-2 px-3"></TableHead>
+                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Invoice #</TableHead>
+                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Issue Date</TableHead>
+                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Due Date</TableHead>
+                <TableHead className="text-foreground font-medium text-right h-8 py-2 px-3">Amount Billed</TableHead>
+                <TableHead className="text-foreground font-medium text-right h-8 py-2 px-3">Amount Paid</TableHead>
+                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Payment Status</TableHead>
+                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Progress</TableHead>
+                <TableHead className="text-foreground font-medium h-8 py-2 px-3">Contract</TableHead>
+                <TableHead className="text-foreground font-medium text-center h-8 py-2 px-3">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -435,8 +435,8 @@ export const IncomeTable = ({
                 <React.Fragment key={group.key}>
                   {/* Milestone Group Header */}
                   <TableRow className="bg-muted/70 hover:bg-muted/80 cursor-pointer">
-                    <TableCell colSpan={10}>
-                      <div className="flex items-center justify-between py-1">
+                    <TableCell colSpan={10} className="py-2 px-3">
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div onClick={() => toggleMilestone(group.key)}>
                             {expandedMilestones.has(group.key) ? (
@@ -503,14 +503,14 @@ export const IncomeTable = ({
                     
                     return (
                       <TableRow key={invoice.id} className="hover:bg-muted/30 group">
-                        <TableCell></TableCell>
-                        <TableCell className="font-medium text-foreground">
+                        <TableCell className="py-2 px-3"></TableCell>
+                        <TableCell className="font-medium text-foreground py-2 px-3">
                           {invoice.number}
                         </TableCell>
-                        <TableCell className="text-muted-foreground">
+                        <TableCell className="text-muted-foreground py-2 px-3">
                           {formatDate(invoice.issue_date)}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-2 px-3">
                           <div className="flex items-center gap-2">
                             {overdue && (
                               <Tooltip>
@@ -527,15 +527,15 @@ export const IncomeTable = ({
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right font-medium text-foreground">
+                        <TableCell className="text-right font-medium text-foreground py-2 px-3">
                           {formatCurrency(invoice.total)}
                         </TableCell>
-                        <TableCell className="text-right font-medium">
+                        <TableCell className="text-right font-medium py-2 px-3">
                           <span className={invoice.paid_to_date > 0 ? 'text-green-600' : 'text-muted-foreground'}>
                             {formatCurrency(invoice.paid_to_date)}
                           </span>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-2 px-3">
                           <Badge 
                             variant={paymentStatus.variant}
                             className={`text-xs font-medium ${paymentStatus.className}`}
@@ -543,7 +543,7 @@ export const IncomeTable = ({
                             {paymentStatus.label}
                           </Badge>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-2 px-3">
                           <div className="flex items-center gap-2">
                             <Progress 
                               value={(invoice.paid_to_date / invoice.total) * 100} 
@@ -554,7 +554,7 @@ export const IncomeTable = ({
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-2 px-3">
                           {invoice.contract_name ? (
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -571,7 +571,7 @@ export const IncomeTable = ({
                             <span className="text-muted-foreground">-</span>
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="py-2 px-3">
                           <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Tooltip>
                               <TooltipTrigger asChild>
