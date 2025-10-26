@@ -1447,7 +1447,18 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
     
     console.log('📋 Items after reorder:', reorderedVisibleItems.map(i => ({ name: i.name || i.title, level: i.level, parent: i.parent_id })));
     
-    // Persist to database - update order using created_at timestamps
+    // Optimistically update local state immediately with reordered items
+    // Update created_at to reflect new order
+    const optimisticItems = reorderedVisibleItems.map((item, i) => ({
+      ...item,
+      created_at: new Date(Date.now() + i * 1000).toISOString()
+    }));
+    
+    // Rebuild hierarchy from flat list and update local state immediately
+    const optimisticHierarchy = buildHierarchy(optimisticItems);
+    setWBSItems(optimisticHierarchy);
+    
+    // Persist to database in the background
     try {
       console.log('🔄 Starting drag reorder with', reorderedVisibleItems.length, 'items');
       
@@ -1461,7 +1472,7 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       );
       
       console.log('✅ Drag reorder completed, reloading items');
-      // Reload items to reflect new order
+      // Reload items to reflect new order from database
       await loadWBSItems();
       
       // Renumber WBS IDs after reorder to reflect new hierarchy
@@ -1471,6 +1482,11 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       console.error('❌ Error reordering items:', error);
       // Revert on error
       await loadWBSItems();
+      toast({
+        title: "Error",
+        description: "Failed to reorder items. Changes reverted.",
+        variant: "destructive"
+      });
     }
   };
 
