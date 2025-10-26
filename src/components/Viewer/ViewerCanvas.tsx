@@ -1,6 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Viewer, WebIFCLoaderPlugin } from "@xeokit/xeokit-sdk";
-import * as WebIFC from "web-ifc";
+import { IfcAPI } from "web-ifc";
 
 interface ViewerCanvasProps {
   onViewerReady: (viewer: Viewer, loader: WebIFCLoaderPlugin) => void;
@@ -9,9 +9,20 @@ interface ViewerCanvasProps {
 export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const viewerRef = useRef<Viewer | null>(null);
+  const [ifcAPI, setIfcAPI] = useState<IfcAPI | null>(null);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    const initIfcAPI = async () => {
+      const api = new IfcAPI();
+      await api.Init();
+      setIfcAPI(api);
+    };
+    
+    initIfcAPI();
+  }, []);
+
+  useEffect(() => {
+    if (!canvasRef.current || !ifcAPI) return;
 
     const viewer = new Viewer({
       canvasId: "xeokit-canvas",
@@ -20,8 +31,8 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
     });
 
     const ifcLoader = new WebIFCLoaderPlugin(viewer, {
-      WebIFC: WebIFC as any,
-      IfcAPI: WebIFC.IfcAPI as any
+      WebIFC: { IfcAPI },
+      IfcAPI: ifcAPI
     });
 
     viewerRef.current = viewer;
@@ -30,7 +41,7 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
     return () => {
       viewer.destroy();
     };
-  }, [onViewerReady]);
+  }, [onViewerReady, ifcAPI]);
 
   return (
     <canvas
