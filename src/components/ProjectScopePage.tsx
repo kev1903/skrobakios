@@ -704,41 +704,45 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
       case 'insert-below':
         // Insert a new row as a sibling below the selected item at the same level
         try {
-          // Get siblings (items with same parent and level)
-          const siblings = flatWBSItems.filter(i => 
-            i.parent_id === item.parent_id && i.level === item.level
-          );
+          // Get all items in flat structure to find correct position
+          const allFlatItems = flatWBSItems;
+          const currentItemIndex = allFlatItems.findIndex(i => i.id === itemId);
           
-          // Find the index of current item among siblings
-          const currentSiblingIndex = siblings.findIndex(s => s.id === itemId);
+          if (currentItemIndex === -1) {
+            throw new Error('Item not found');
+          }
+          
+          // Get the selected item's sort_order or created_at
+          const currentSortOrder = (item as any).sort_order || currentItemIndex;
+          
+          // Find the next item (any item that comes after this one in the flat list)
+          const nextItem = allFlatItems[currentItemIndex + 1];
+          const nextSortOrder = nextItem ? ((nextItem as any).sort_order || currentItemIndex + 1) : currentSortOrder + 1;
+          
+          // Calculate sort_order to be between current and next
+          const newSortOrder = (currentSortOrder + nextSortOrder) / 2;
           
           // Generate new WBS ID as sibling
           let newWbsId: string;
           if (item.level === 0) {
-            // Root level: use simple numeric ID
-            const currentNum = parseInt(item.wbs_id.split('.')[0]);
-            newWbsId = `${currentNum + 1}`;
+            // Root level: find max root WBS ID and add 1
+            const rootItems = flatWBSItems.filter(i => i.level === 0);
+            const maxRootNum = Math.max(...rootItems.map(i => parseInt(i.wbs_id?.split('.')[0] || '0')), 0);
+            newWbsId = `${maxRootNum + 1}`;
           } else {
-            // Child level: increment the last number in the WBS ID
-            const wbsParts = item.wbs_id.split('.');
-            const lastPart = parseInt(wbsParts[wbsParts.length - 1]);
-            wbsParts[wbsParts.length - 1] = `${lastPart + 1}`;
-            newWbsId = wbsParts.join('.');
+            // Child level: find max sibling WBS ID and add 1
+            const siblings = flatWBSItems.filter(i => 
+              i.parent_id === item.parent_id && i.level === item.level
+            );
+            const wbsPrefix = item.wbs_id.split('.').slice(0, -1).join('.');
+            const maxSiblingNum = Math.max(...siblings.map(i => {
+              const lastPart = i.wbs_id?.split('.').pop();
+              return parseInt(lastPart || '0');
+            }), 0);
+            newWbsId = `${wbsPrefix}.${maxSiblingNum + 1}`;
           }
           
-          // Find all siblings that come after the selected item and shift them
-          const itemsToShift = siblings.slice(currentSiblingIndex + 1);
-          
-          // Shift all subsequent siblings by incrementing their WBS IDs
-          for (const itemToShift of itemsToShift) {
-            const wbsParts = itemToShift.wbs_id.split('.');
-            const lastPart = parseInt(wbsParts[wbsParts.length - 1]);
-            wbsParts[wbsParts.length - 1] = `${lastPart + 1}`;
-            const shiftedWbsId = wbsParts.join('.');
-            await updateWBSItem(itemToShift.id, { wbs_id: shiftedWbsId }, { skipAutoSchedule: true });
-          }
-          
-          // Create the new sibling item
+          // Create the new sibling item with proper sort_order
           await createWBSItem({
             company_id: currentCompany.id,
             project_id: project.id,
@@ -748,7 +752,8 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
             wbs_id: newWbsId,
             is_expanded: true,
             linked_tasks: [],
-          });
+            sort_order: newSortOrder,
+          } as any);
           
           toast({
             title: "Row Inserted",
