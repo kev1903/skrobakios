@@ -218,7 +218,15 @@ export const ProjectScopePage = ({ project, onNavigate }: ProjectScopePageProps)
           predecessors: Array.isArray(item.predecessors) ? item.predecessors : [],
           is_task_enabled: item.is_task_enabled || false,
           linked_task_id: item.linked_task_id,
-          rfq_required: item.rfq_required || false
+          rfq_required: item.rfq_required || false,
+          // Cost fields
+          budgeted_cost: item.budgeted_cost,
+          variations: item.variations,
+          revised_budget: item.revised_budget,
+          committed_cost: item.committed_cost,
+          paid_cost: item.paid_cost,
+          forecast_cost: item.forecast_cost,
+          cost_notes: item.cost_notes
         });
         
         // If item has children, recursively flatten them at next depth level
