@@ -435,6 +435,24 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
       // Get storage path from extractedData if available
       const storagePath = extractedData?.storage_path || null;
 
+      // Generate public URL for the attachment
+      let fileAttachments = null;
+      if (storagePath) {
+        const { data: urlData } = await supabase.storage
+          .from('bill-documents')
+          .getPublicUrl(storagePath);
+        
+        if (urlData?.publicUrl) {
+          fileAttachments = [{
+            name: uploadedFile.name,
+            url: urlData.publicUrl,
+            size: uploadedFile.size,
+            type: uploadedFile.type,
+            uploaded_at: new Date().toISOString()
+          }];
+        }
+      }
+
       // Create bill record
       const { data: created, error: createErr } = await supabase
         .from('bills')
@@ -455,6 +473,7 @@ export const BillPDFUploader = ({ isOpen, onClose, projectId, onSaved }: BillPDF
           payment_status: 'unpaid',
           notes: editableData.notes || null,
           storage_path: storagePath,
+          file_attachments: fileAttachments,
           ai_confidence: extractedData?.ai_confidence || null,
           ai_summary: extractedData?.ai_summary || null
         })

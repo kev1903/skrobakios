@@ -664,16 +664,30 @@ export const ExpensesModule = ({ projectId, statusFilter = 'inbox', formatCurren
 
       {/* PDF Preview Dialog */}
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-4xl h-[80vh] p-0">
-          <DialogHeader className="p-4">
-            <DialogTitle>Document Preview</DialogTitle>
+        <DialogContent className="max-w-6xl h-[90vh] p-0 flex flex-col">
+          <DialogHeader className="p-4 border-b">
+            <DialogTitle className="flex items-center justify-between">
+              <span>Bill Attachment Preview</span>
+              {previewFile && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(previewFile, '_blank')}
+                  className="ml-4"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Open in New Tab
+                </Button>
+              )}
+            </DialogTitle>
           </DialogHeader>
-          <div className="flex-1 overflow-hidden p-4">
+          <div className="flex-1 overflow-hidden p-0">
             {previewFile && (
-              <iframe
+              <embed
                 src={previewFile}
-                className="w-full h-full border-0 rounded"
-                title="Document Preview"
+                type="application/pdf"
+                className="w-full h-full"
+                title="Bill Attachment Preview"
               />
             )}
           </div>
