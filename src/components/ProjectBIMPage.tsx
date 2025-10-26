@@ -173,6 +173,13 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           
           setLoadedModel(model);
           
+          // Add null check before accessing model properties
+          if (!model || !model.id) {
+            console.error("Model failed to load properly");
+            toast.error("Failed to load model properly");
+            return;
+          }
+          
           // Fit view after a short delay to ensure model is fully rendered
           setTimeout(() => {
             try {
