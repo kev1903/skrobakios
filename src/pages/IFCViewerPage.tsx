@@ -63,38 +63,57 @@ const IFCViewerPage = () => {
         const entity = hit.entity as any;
         const metaObject = viewerInstance.metaScene.metaObjects[entity.id] as any;
         
-        // Find assembly parent and all related objects
-        let assemblyParent = metaObject;
-        const assemblyTypes = ['IfcElementAssembly', 'IfcBuildingStorey', 'IfcBuilding', 'IfcSite', 'IfcSpace'];
+        if (!metaObject) {
+          console.log("No metadata found for entity:", entity.id);
+          return;
+        }
+
+        console.log("Clicked metaObject:", metaObject);
+        console.log("All metaObjects:", viewerInstance.metaScene.metaObjects);
         
-        // Walk up the hierarchy to find an assembly parent
-        let currentMeta = metaObject;
-        while (currentMeta && currentMeta.parent) {
-          const parentMeta = viewerInstance.metaScene.metaObjects[currentMeta.parent] as any;
-          if (parentMeta && assemblyTypes.includes(parentMeta.type)) {
+        // Find the spatial container or assembly parent
+        let assemblyParent = metaObject;
+        const assemblyObjectIds: string[] = [];
+        
+        // Try to find parent by checking the metaObject's parent property
+        if (metaObject.parent) {
+          const parentId = metaObject.parent;
+          const parentMeta = viewerInstance.metaScene.metaObjects[parentId] as any;
+          
+          console.log("Parent meta:", parentMeta);
+          
+          if (parentMeta) {
             assemblyParent = parentMeta;
-            break;
+            
+            // Recursively collect all children of the parent
+            const collectChildren = (metaObj: any) => {
+              if (metaObj.id && viewerInstance.scene.objects[metaObj.id]) {
+                assemblyObjectIds.push(metaObj.id);
+              }
+              
+              // Check for children array
+              if (metaObj.children && Array.isArray(metaObj.children)) {
+                metaObj.children.forEach((childId: string) => {
+                  const childMeta = viewerInstance.metaScene.metaObjects[childId];
+                  if (childMeta) {
+                    collectChildren(childMeta);
+                  }
+                });
+              }
+            };
+            
+            collectChildren(assemblyParent);
           }
-          currentMeta = parentMeta;
         }
         
-        // Collect all children of the assembly
-        const assemblyObjectIds: string[] = [];
-        const collectChildren = (metaObj: any) => {
-          if (metaObj.id && viewerInstance.scene.objects[metaObj.id]) {
-            assemblyObjectIds.push(metaObj.id);
-          }
-          if (metaObj.children) {
-            metaObj.children.forEach((childId: string) => {
-              const childMeta = viewerInstance.metaScene.metaObjects[childId];
-              if (childMeta) {
-                collectChildren(childMeta);
-              }
-            });
-          }
-        };
+        // If no parent found or no children, just select the clicked object
+        if (assemblyObjectIds.length === 0) {
+          assemblyObjectIds.push(entity.id);
+          assemblyParent = metaObject;
+        }
         
-        collectChildren(assemblyParent);
+        console.log("Assembly parent:", assemblyParent);
+        console.log("Assembly object IDs to select:", assemblyObjectIds);
         
         // Highlight all objects in the assembly
         viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
