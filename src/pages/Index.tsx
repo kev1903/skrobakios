@@ -122,10 +122,10 @@ const IFCViewerPage = () => {
   };
 
   return (
-    <div className="fixed inset-0 top-[var(--header-height)] w-full flex flex-col overflow-hidden bg-background p-4 gap-4">
+    <div className="fixed inset-0 top-[var(--header-height)] w-full flex flex-col overflow-hidden bg-background">
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       
-      <div className="z-10 flex-shrink-0">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex-shrink-0">
         <ViewerToolbar
           onZoomIn={() => {}}
           onZoomOut={() => {}}
@@ -137,10 +137,10 @@ const IFCViewerPage = () => {
         />
       </div>
 
-      <div className="flex-1 flex overflow-hidden relative gap-4 min-h-0">
+      <div className="flex-1 flex overflow-hidden relative min-h-0">
         {/* Project Structure Panel - Collapsible */}
         <div 
-          className={`glass-panel flex-shrink-0 z-10 rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 ${
+          className={`absolute left-0 top-0 bottom-0 glass-panel flex-shrink-0 z-10 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 ${
             isStructureCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
           }`}
         >
@@ -164,13 +164,13 @@ const IFCViewerPage = () => {
           )}
         </button>
         
-        <div className="flex-1 relative overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden">
           <ViewerCanvas onViewerReady={handleViewerReady} />
         </div>
         
         {/* Properties Panel - Collapsible */}
         <div 
-          className={`glass-panel flex-shrink-0 z-10 rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 ${
+          className={`absolute right-0 top-0 bottom-0 glass-panel flex-shrink-0 z-10 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 ${
             isPropertiesCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
           }`}
         >
