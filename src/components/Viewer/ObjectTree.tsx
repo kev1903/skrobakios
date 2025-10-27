@@ -34,7 +34,7 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
         
         // Count all objects and get their IFC types
         let totalObjects = 0;
-        const allObjects: Array<{ object: THREE.Object3D; expressID: number }> = [];
+        const allObjects: Array<{ object: any; expressID: number }> = [];
         
         model.traverse((child) => {
           if (child !== model && child.userData?.expressID !== undefined) {
