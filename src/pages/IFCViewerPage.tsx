@@ -14,11 +14,33 @@ const IFCViewerPage = () => {
   const [measurePlugin, setMeasurePlugin] = useState<DistanceMeasurementsPlugin | null>(null);
   const [selectedObject, setSelectedObject] = useState<any>(null);
   const [nameProperty] = useState<string>("id");
-  const [isStructureCollapsed, setIsStructureCollapsed] = useState(false);
-  const [isPropertiesCollapsed, setIsPropertiesCollapsed] = useState(false);
+  const [isStructureCollapsed, setIsStructureCollapsed] = useState(true);
+  const [isPropertiesCollapsed, setIsPropertiesCollapsed] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const measurementClickCount = useRef<number>(0);
   const firstPoint = useRef<{ entity: any; worldPos: number[] } | null>(null);
+
+  // Auto-collapse Project Structure after 5 seconds
+  useEffect(() => {
+    if (!isStructureCollapsed) {
+      const timer = setTimeout(() => {
+        setIsStructureCollapsed(true);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isStructureCollapsed]);
+
+  // Auto-collapse Properties after 5 seconds
+  useEffect(() => {
+    if (!isPropertiesCollapsed) {
+      const timer = setTimeout(() => {
+        setIsPropertiesCollapsed(true);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isPropertiesCollapsed]);
 
   const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
