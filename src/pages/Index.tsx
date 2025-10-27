@@ -204,7 +204,6 @@ const IFCViewerPage = () => {
         console.log('🔍 metaObject.name:', metaObject.name);
         console.log('🔍 metaObject.predefinedType:', metaObject.predefinedType);
         console.log('🔍 metaObject.objectType:', metaObject.objectType);
-        console.log('🔍 Full metaObject:', JSON.stringify(metaObject, null, 2));
         
         // Extract assembly mark with detailed logging
         const assemblyMark = extractAssemblyMark(metaObject);

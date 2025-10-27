@@ -186,7 +186,6 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         console.log('🔍 metaObject.name:', metaObject.name);
         console.log('🔍 metaObject.predefinedType:', metaObject.predefinedType);
         console.log('🔍 metaObject.objectType:', metaObject.objectType);
-        console.log('🔍 Full metaObject:', JSON.stringify(metaObject, null, 2));
         
         const assemblyObjectIds = collectAssemblyEntities(metaObject, viewerInstance);
         
