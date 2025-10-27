@@ -85,14 +85,14 @@ const IFCViewerPage = () => {
         />
       </div>
 
-      <div className="flex-1 flex overflow-hidden relative px-4">
-        <div className="w-80 glass-panel flex-shrink-0 z-10 mr-2 rounded-2xl overflow-auto">
+      <div className="flex-1 flex overflow-hidden relative gap-2 px-4">
+        <div className="w-80 glass-panel flex-shrink-0 z-10 rounded-2xl overflow-auto">
           <ObjectTree model={loadedModel} ifcLoader={ifcLoader} />
         </div>
         <div className="flex-1 relative overflow-hidden">
           <ViewerCanvas onViewerReady={handleViewerReady} />
         </div>
-        <div className="w-80 glass-panel flex-shrink-0 z-10 ml-2 rounded-2xl overflow-auto">
+        <div className="w-80 glass-panel flex-shrink-0 z-10 rounded-2xl overflow-auto">
           <PropertiesPanel selectedObject={selectedObject} />
         </div>
       </div>
