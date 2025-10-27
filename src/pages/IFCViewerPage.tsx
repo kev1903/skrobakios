@@ -45,30 +45,66 @@ const IFCViewerPage = () => {
     }
   }, [isPropertiesCollapsed, isPropertiesPinned]);
 
-  // Helper: Extract assembly identifier from IFC metadata (Tekla assembly mark like "1B1.1")
-  const extractAssemblyMark = useCallback((meta: any): string | null => {
-    if (!meta || !meta.propertySets) return null;
+  // Helper: Extract assembly identifier from IFC metadata (Tekla assembly mark like "1B3.1")
+  // Searches the object and its parents for assembly properties
+  const extractAssemblyMark = useCallback((meta: any, viewerInstance: Viewer): string | null => {
+    if (!meta) return null;
     
-    if (Array.isArray(meta.propertySets)) {
-      for (const ps of meta.propertySets) {
-        if (ps.properties && Array.isArray(ps.properties)) {
-          // Look for Tekla assembly properties
-          const assemblyProps = [
-            "ASSEMBLY_POS",           // Tekla assembly mark
-            "Assembly mark",
-            "ASSEMBLY_POSITION_CODE",
-            "Assembly/Cast unit Mark"
-          ];
-          
-          for (const propName of assemblyProps) {
-            const prop = ps.properties.find((p: any) => p.name === propName);
-            if (prop && prop.value && String(prop.value).trim()) {
-              return String(prop.value);
+    const searchProperties = (metaObject: any): string | null => {
+      if (!metaObject || !metaObject.propertySets) return null;
+      
+      if (Array.isArray(metaObject.propertySets)) {
+        for (const ps of metaObject.propertySets) {
+          if (ps.properties && Array.isArray(ps.properties)) {
+            // Look for Tekla assembly properties
+            const assemblyProps = [
+              "ASSEMBLY_POS",           // Tekla assembly mark
+              "Assembly mark",
+              "ASSEMBLY_POSITION_CODE",
+              "Assembly/Cast unit Mark",
+              "Pos"                      // Alternative position mark
+            ];
+            
+            for (const propName of assemblyProps) {
+              const prop = ps.properties.find((p: any) => p.name === propName);
+              if (prop && prop.value && String(prop.value).trim()) {
+                const value = String(prop.value).trim();
+                // Assembly marks typically follow pattern like "1B1.1", "1B3.1" (not "1p.20")
+                if (value.match(/^\d+[A-Z]\d+\.\d+$/i) || value.match(/^\d+[A-Z]\d+$/i)) {
+                  return value;
+                }
+              }
             }
           }
         }
       }
+      return null;
+    };
+    
+    // First check the object itself
+    let assemblyMark = searchProperties(meta);
+    if (assemblyMark) return assemblyMark;
+    
+    // Then traverse up the parent hierarchy to find assembly mark
+    let current = meta;
+    let depth = 0;
+    while (current && current.parent && depth < 10) {
+      const parentId = typeof current.parent === 'string' ? current.parent : current.parent.id;
+      const parentMeta = viewerInstance.metaScene.metaObjects[parentId];
+      
+      if (parentMeta) {
+        assemblyMark = searchProperties(parentMeta);
+        if (assemblyMark) {
+          console.log(`Found assembly mark "${assemblyMark}" in parent at depth ${depth + 1}`);
+          return assemblyMark;
+        }
+        current = parentMeta;
+      } else {
+        break;
+      }
+      depth++;
     }
+    
     return null;
   }, []);
 
@@ -97,10 +133,10 @@ const IFCViewerPage = () => {
     
     const allMetaObjects = viewerInstance.metaScene.metaObjects;
     
-    // Build Assembly Mark cache (PRIORITY for Tekla - groups like "1B1.1")
+    // Build Assembly Mark cache (PRIORITY for Tekla - groups like "1B3.1")
     Object.keys(allMetaObjects).forEach((id) => {
       const metaObject = allMetaObjects[id] as any;
-      const assemblyMark = extractAssemblyMark(metaObject);
+      const assemblyMark = extractAssemblyMark(metaObject, viewerInstance);
       
       if (assemblyMark && viewerInstance.scene.objects[id]) {
         if (!assemblyMarkCache[assemblyMark]) {
@@ -112,7 +148,7 @@ const IFCViewerPage = () => {
     
     console.log(`Built Assembly Mark cache with ${Object.keys(assemblyMarkCache).length} unique assemblies`);
     if (Object.keys(assemblyMarkCache).length > 0) {
-      console.log('Sample assembly marks:', Object.keys(assemblyMarkCache).slice(0, 5));
+      console.log('Sample assembly marks:', Object.keys(assemblyMarkCache).slice(0, 10));
     }
     
     // Build Reference cache (fallback for parts like "1p.20")
@@ -186,8 +222,8 @@ const IFCViewerPage = () => {
   const collectAssemblyEntities = useCallback((metaObject: any, viewerInstance: Viewer): string[] => {
     const entityIds: string[] = [];
     
-    // PRIORITY 1: Try Assembly Mark-based selection (for Tekla assemblies like "1B1.1")
-    const assemblyMark = extractAssemblyMark(metaObject);
+    // PRIORITY 1: Try Assembly Mark-based selection (for Tekla assemblies like "1B3.1")
+    const assemblyMark = extractAssemblyMark(metaObject, viewerInstance);
     if (assemblyMark) {
       const assemblyMarkCache = (assemblyCache.current as any).assemblyMarkCache;
       if (assemblyMarkCache && assemblyMarkCache[assemblyMark]) {
