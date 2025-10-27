@@ -46,20 +46,31 @@ const IFCViewerPage = () => {
     }
   }, [isPropertiesCollapsed, isPropertiesPinned]);
 
-  // Helper: Extract ANY property that looks like an assembly mark (e.g., "1B3.1")
+  // Helper: Extract assembly mark from properties
   const extractAssemblyMark = useCallback((meta: any): string | null => {
     if (!meta || !meta.propertySets) return null;
     
     if (Array.isArray(meta.propertySets)) {
       for (const ps of meta.propertySets) {
         if (ps.properties && Array.isArray(ps.properties)) {
-          // Search ALL properties for assembly mark patterns
+          // FIRST: Look for properties specifically named "ASSEMBLY_POS" or "Assembly mark"
+          for (const prop of ps.properties) {
+            if ((prop.name === 'ASSEMBLY_POS' || prop.name === 'Assembly mark') && prop.value) {
+              const value = String(prop.value).trim();
+              if (value) {
+                console.log(`Found assembly mark "${value}" in property "${prop.name}"`);
+                return value;
+              }
+            }
+          }
+          
+          // SECOND: Search ALL properties for assembly mark patterns like "1B3.1"
           for (const prop of ps.properties) {
             if (prop.value && typeof prop.value === 'string') {
               const value = String(prop.value).trim();
               // Match assembly patterns like "1B3.1", "1B1.1", "2C5.2" etc.
               if (value.match(/^\d+[A-Z]+\d+(\.\d+)?$/i)) {
-                console.log(`Found assembly mark "${value}" in property "${prop.name}"`);
+                console.log(`Found assembly mark pattern "${value}" in property "${prop.name}"`);
                 return value;
               }
             }
@@ -67,6 +78,8 @@ const IFCViewerPage = () => {
         }
       }
     }
+    
+    console.log('❌ No assembly mark found in properties');
     return null;
   }, []);
 
