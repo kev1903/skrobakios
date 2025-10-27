@@ -42,45 +42,140 @@ export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle 
           <div className="p-6 space-y-6">
             {/* Object Header */}
             <div className="space-y-3 pb-4 border-b border-border/30">
-              <h4 className="text-base font-semibold text-foreground">
+              <h4 className="text-base font-semibold text-foreground break-all">
                 {selectedObject.name}
               </h4>
               <div className="flex items-center gap-2 flex-wrap">
-                {selectedObject.id && (
-                  <span className="text-xs px-2.5 py-1 bg-muted/30 rounded-full font-mono text-muted-foreground border border-border/30">
-                    {selectedObject.id}
-                  </span>
-                )}
-                <span className="text-xs px-2.5 py-1 bg-luxury-gold/10 text-luxury-gold rounded-full font-medium border border-luxury-gold/20">
+                <span className="text-xs px-2.5 py-1 bg-muted/30 rounded-md font-mono text-muted-foreground border border-border/30">
+                  {selectedObject.id}
+                </span>
+                <span className="text-xs px-2.5 py-1 bg-luxury-gold/10 text-luxury-gold rounded-md font-medium border border-luxury-gold/20">
                   {selectedObject.type}
                 </span>
               </div>
             </div>
 
-            {/* Properties */}
+            {/* Object Properties */}
             <div className="space-y-3">
               <h5 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Object Properties
               </h5>
-              <div className="space-y-2">
-                {Object.entries(selectedObject).map(([key, value]: [string, any]) => {
-                  if (key === 'id' || key === 'name' || key === 'type') return null;
-                  
-                  const displayValue = typeof value === 'object' && value !== null
-                    ? JSON.stringify(value, null, 2)
-                    : String(value);
-                    
-                  return (
-                    <div key={key} className="flex justify-between items-start py-2.5 border-b border-border/10 last:border-0">
-                      <span className="text-xs text-muted-foreground font-medium capitalize">
-                        {key.replace(/([A-Z])/g, ' $1').trim()}
-                      </span>
-                      <span className="text-xs text-foreground font-mono text-right ml-2 max-w-[60%] break-words">
-                        {displayValue}
-                      </span>
+              <div className="space-y-0 bg-muted/5 rounded-lg border border-border/20">
+                {/* Is Object */}
+                {selectedObject.isObject !== undefined && (
+                  <div className="flex justify-between items-center px-4 py-3 border-b border-border/10">
+                    <span className="text-xs text-muted-foreground font-medium">Is Object</span>
+                    <span className="text-xs text-foreground font-mono">{String(selectedObject.isObject)}</span>
+                  </div>
+                )}
+                
+                {/* Is Entity */}
+                {selectedObject.isEntity !== undefined && (
+                  <div className="flex justify-between items-center px-4 py-3 border-b border-border/10">
+                    <span className="text-xs text-muted-foreground font-medium">Is Entity</span>
+                    <span className="text-xs text-foreground font-mono">{String(selectedObject.isEntity)}</span>
+                  </div>
+                )}
+                
+                {/* Visible */}
+                {selectedObject.visible !== undefined && (
+                  <div className="flex justify-between items-center px-4 py-3 border-b border-border/10">
+                    <span className="text-xs text-muted-foreground font-medium">Visible</span>
+                    <span className="text-xs text-foreground font-mono">{String(selectedObject.visible)}</span>
+                  </div>
+                )}
+                
+                {/* Xrayed */}
+                {selectedObject.xrayed !== undefined && (
+                  <div className="flex justify-between items-center px-4 py-3 border-b border-border/10">
+                    <span className="text-xs text-muted-foreground font-medium">Xrayed</span>
+                    <span className="text-xs text-foreground font-mono">{String(selectedObject.xrayed)}</span>
+                  </div>
+                )}
+                
+                {/* Highlighted */}
+                {selectedObject.highlighted !== undefined && (
+                  <div className="flex justify-between items-center px-4 py-3 border-b border-border/10">
+                    <span className="text-xs text-muted-foreground font-medium">Highlighted</span>
+                    <span className="text-xs text-foreground font-mono">{String(selectedObject.highlighted)}</span>
+                  </div>
+                )}
+                
+                {/* Selected */}
+                {selectedObject.selected !== undefined && (
+                  <div className="flex justify-between items-center px-4 py-3 border-b border-border/10">
+                    <span className="text-xs text-muted-foreground font-medium">Selected</span>
+                    <span className="text-xs text-foreground font-mono">{String(selectedObject.selected)}</span>
+                  </div>
+                )}
+                
+                {/* Colorize */}
+                {selectedObject.colorize && (
+                  <div className="flex justify-between items-start px-4 py-3 border-b border-border/10">
+                    <span className="text-xs text-muted-foreground font-medium">Colorize</span>
+                    <div className="text-xs text-foreground font-mono text-right max-w-[60%] break-all">
+                      {Array.isArray(selectedObject.colorize) ? (
+                        <div className="space-y-0.5">
+                          <div>"r": {selectedObject.colorize[0]?.toFixed(15)},</div>
+                          <div>"g": {selectedObject.colorize[1]?.toFixed(15)},</div>
+                          <div>"b": {selectedObject.colorize[2]?.toFixed(15)}</div>
+                        </div>
+                      ) : (
+                        JSON.stringify(selectedObject.colorize)
+                      )}
                     </div>
-                  );
-                })}
+                  </div>
+                )}
+                
+                {/* Opacity */}
+                {selectedObject.opacity !== undefined && (
+                  <div className="flex justify-between items-center px-4 py-3 border-b border-border/10">
+                    <span className="text-xs text-muted-foreground font-medium">Opacity</span>
+                    <span className="text-xs text-foreground font-mono">{selectedObject.opacity}</span>
+                  </div>
+                )}
+                
+                {/* Bounding Box */}
+                {selectedObject.boundingBox && (
+                  <div className="flex justify-between items-start px-4 py-3">
+                    <span className="text-xs text-muted-foreground font-medium">Bounding Box</span>
+                    <div className="text-xs text-foreground font-mono text-right max-w-[60%] break-all">
+                      <div className="space-y-0.5">
+                        <div>"min": &#123;</div>
+                        <div className="pl-2">"x": {selectedObject.boundingBox.min[0]?.toFixed(14)},</div>
+                        <div className="pl-2">"y": {selectedObject.boundingBox.min[1]?.toFixed(14)},</div>
+                        <div className="pl-2">"z": {selectedObject.boundingBox.min[2]?.toFixed(14)}</div>
+                        <div>&#125;,</div>
+                        <div>"max": &#123;</div>
+                        <div className="pl-2">"x": {selectedObject.boundingBox.max[0]?.toFixed(14)},</div>
+                        <div className="pl-2">"y": {selectedObject.boundingBox.max[1]?.toFixed(14)},</div>
+                        <div className="pl-2">"z": {selectedObject.boundingBox.max[2]?.toFixed(14)}</div>
+                        <div>&#125;</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Position (if available) */}
+                {selectedObject.position && (
+                  <div className="flex justify-between items-start px-4 py-3 border-b border-border/10">
+                    <span className="text-xs text-muted-foreground font-medium">Position</span>
+                    <div className="text-xs text-foreground font-mono text-right">
+                      [{selectedObject.position.map((v: number) => v.toFixed(6)).join(', ')}]
+                    </div>
+                  </div>
+                )}
+                
+                {/* Mesh (if available) */}
+                {selectedObject.mesh && (
+                  <div className="flex justify-between items-start px-4 py-3">
+                    <span className="text-xs text-muted-foreground font-medium">Mesh</span>
+                    <div className="text-xs text-foreground font-mono text-right">
+                      <div>ID: {selectedObject.mesh.id}</div>
+                      {selectedObject.mesh.primitive && <div>Primitive: {selectedObject.mesh.primitive}</div>}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
