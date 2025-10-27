@@ -70,10 +70,10 @@ const IFCViewerPage = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-var(--header-height))] mt-[var(--header-height)] w-full flex flex-col overflow-hidden relative bg-background">
+    <div className="h-[calc(100vh-var(--header-height))] mt-[var(--header-height)] w-full flex flex-col overflow-hidden relative bg-background p-4 gap-4">
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       
-      <div className="glass-panel mt-4 mx-4 rounded-2xl p-3 z-10 flex-shrink-0">
+      <div className="glass-panel rounded-2xl p-3 z-10 flex-shrink-0">
         <ViewerToolbar
           onZoomIn={() => {}}
           onZoomOut={() => {}}
@@ -85,7 +85,7 @@ const IFCViewerPage = () => {
         />
       </div>
 
-      <div className="flex-1 flex overflow-hidden relative gap-2 px-4">
+      <div className="flex-1 flex overflow-hidden relative gap-2 min-h-0">
         <div className="w-80 glass-panel flex-shrink-0 z-10 rounded-2xl overflow-auto">
           <ObjectTree model={loadedModel} ifcLoader={ifcLoader} />
         </div>
