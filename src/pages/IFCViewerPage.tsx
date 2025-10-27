@@ -45,9 +45,47 @@ const IFCViewerPage = () => {
     }
   }, [isPropertiesCollapsed, isPropertiesPinned]);
 
-  // Helper: Build assembly cache for performance
+  // Helper: Extract Reference property from IFC metadata (used in Tekla models)
+  const extractReference = useCallback((meta: any): string | null => {
+    if (!meta || !meta.propertySets) return null;
+    
+    if (Array.isArray(meta.propertySets)) {
+      for (const ps of meta.propertySets) {
+        if (ps.properties && Array.isArray(ps.properties)) {
+          const refProp = ps.properties.find((p: any) => p.name === "Reference");
+          if (refProp && refProp.value) {
+            return String(refProp.value);
+          }
+        }
+      }
+    }
+    return null;
+  }, []);
+
+  // Helper: Build assembly cache for performance (Reference-based AND hierarchy-based)
   const buildAssemblyCache = useCallback((viewerInstance: Viewer) => {
     const cache: Record<string, string[]> = {};
+    const referenceCache: Record<string, string[]> = {};
+    
+    const allMetaObjects = viewerInstance.metaScene.metaObjects;
+    
+    // Build Reference-based cache (for Tekla models)
+    Object.keys(allMetaObjects).forEach((id) => {
+      const metaObject = allMetaObjects[id] as any;
+      const reference = extractReference(metaObject);
+      
+      if (reference && viewerInstance.scene.objects[id]) {
+        if (!referenceCache[reference]) {
+          referenceCache[reference] = [];
+        }
+        referenceCache[reference].push(id);
+      }
+    });
+    
+    console.log(`Built Reference cache with ${Object.keys(referenceCache).length} unique references`);
+    
+    // Store reference cache
+    (assemblyCache.current as any).referenceCache = referenceCache;
     
     const collectDescendants = (metaObject: any, result: string[]) => {
       if (metaObject.children && Array.isArray(metaObject.children)) {
@@ -63,7 +101,6 @@ const IFCViewerPage = () => {
     };
     
     // Find all IfcElementAssembly objects and cache their descendants
-    const allMetaObjects = viewerInstance.metaScene.metaObjects;
     Object.keys(allMetaObjects).forEach((id) => {
       const metaObject = allMetaObjects[id] as any;
       if (metaObject.type === "IfcElementAssembly") {
@@ -75,8 +112,8 @@ const IFCViewerPage = () => {
     });
     
     assemblyCache.current = cache;
-    console.log(`Built assembly cache with ${Object.keys(cache).length} assemblies`);
-  }, []);
+    console.log(`Built IfcElementAssembly cache with ${Object.keys(cache).length} assemblies`);
+  }, [extractReference]);
 
   // Helper: Find the selectable root (assembly or parent)
   const getSelectableRoot = useCallback((metaObject: any, viewerInstance: Viewer): any => {
@@ -98,11 +135,21 @@ const IFCViewerPage = () => {
     return metaObject;
   }, []);
 
-  // Helper: Collect all entity IDs for a meta object and its descendants
+  // Helper: Collect all entity IDs for a meta object using Reference or hierarchy
   const collectAssemblyEntities = useCallback((metaObject: any, viewerInstance: Viewer): string[] => {
     const entityIds: string[] = [];
     
-    // Check if we have cached descendants for this assembly
+    // PRIORITY 1: Try Reference-based selection (for Tekla models)
+    const reference = extractReference(metaObject);
+    if (reference) {
+      const referenceCache = (assemblyCache.current as any).referenceCache;
+      if (referenceCache && referenceCache[reference]) {
+        console.log(`Using Reference cache for "${reference}": ${referenceCache[reference].length} objects`);
+        return referenceCache[reference];
+      }
+    }
+    
+    // PRIORITY 2: Check if we have cached descendants for IfcElementAssembly
     if (assemblyCache.current[metaObject.id]) {
       assemblyCache.current[metaObject.id].forEach((descendantId) => {
         if (viewerInstance.scene.objects[descendantId]) {
@@ -116,7 +163,7 @@ const IFCViewerPage = () => {
       entityIds.push(metaObject.id);
     }
     
-    // If no cached data, traverse recursively
+    // PRIORITY 3: If no cached data, traverse recursively
     if (entityIds.length <= 1 && metaObject.children && Array.isArray(metaObject.children)) {
       const collectRecursive = (obj: any) => {
         if (viewerInstance.scene.objects[obj.id]) {
@@ -138,7 +185,7 @@ const IFCViewerPage = () => {
     }
     
     return entityIds;
-  }, []);
+  }, [extractReference]);
 
   const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
@@ -300,7 +347,7 @@ const IFCViewerPage = () => {
     setMeasurePlugin(distanceMeasurements);
     setViewer(viewerInstance);
     setIfcLoader(loaderInstance);
-  }, [getSelectableRoot, collectAssemblyEntities]);
+  }, [getSelectableRoot, collectAssemblyEntities, extractReference]);
 
   const handleUpload = () => fileInputRef.current?.click();
 
