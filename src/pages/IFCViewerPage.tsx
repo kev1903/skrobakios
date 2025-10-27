@@ -67,83 +67,60 @@ const IFCViewerPage = () => {
           return;
         }
         
-        // Helper function to extract Reference property from any object
-        const extractReference = (obj: any): string | null => {
-          if (!obj.propertySets || !Array.isArray(obj.propertySets)) {
-            console.log('No propertySets for', obj.id);
-            return null;
-          }
+        // Function to get all related objects in the assembly
+        const getAssemblyObjects = (rootMeta: any): string[] => {
+          const objectIds: string[] = [];
+          const visited = new Set<string>();
           
-          for (const propSet of obj.propertySets) {
-            if (propSet.properties && Array.isArray(propSet.properties)) {
-              for (const prop of propSet.properties) {
-                if (prop.name === 'Reference' && prop.value) {
-                  const ref = String(prop.value).trim();
-                  console.log('Found Reference:', ref, 'in object:', obj.id);
-                  return ref;
+          // Helper to recursively collect all children
+          const collectChildren = (meta: any) => {
+            if (!meta || visited.has(meta.id)) return;
+            visited.add(meta.id);
+            
+            // Add this object if it's renderable
+            if (viewerInstance.scene.objects[meta.id]) {
+              objectIds.push(meta.id);
+            }
+            
+            // Recursively collect children
+            if (meta.children && Array.isArray(meta.children)) {
+              meta.children.forEach((child: any) => {
+                const childMeta = typeof child === 'string' 
+                  ? viewerInstance.metaScene.metaObjects[child]
+                  : child;
+                if (childMeta) {
+                  collectChildren(childMeta);
                 }
-              }
+              });
+            }
+          };
+          
+          // Start from the parent if it exists, otherwise from current object
+          let startMeta = rootMeta;
+          if (rootMeta.parent) {
+            const parentMeta = typeof rootMeta.parent === 'string'
+              ? viewerInstance.metaScene.metaObjects[rootMeta.parent]
+              : rootMeta.parent;
+            if (parentMeta) {
+              startMeta = parentMeta;
             }
           }
-          return null;
+          
+          collectChildren(startMeta);
+          
+          return objectIds;
         };
         
-        // Get the Reference value from clicked object
-        const assemblyReference = extractReference(metaObject);
-        console.log('📌 Assembly Reference extracted:', assemblyReference);
-        alert(`Clicked object Reference: ${assemblyReference || 'NONE'}`);
+        // Get all objects in the assembly
+        const assemblyObjectIds = getAssemblyObjects(metaObject);
         
-        if (!assemblyReference) {
-          console.warn('No Reference found, selecting single object');
-          // Select just this one object
-          viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
-          viewerInstance.scene.setObjectsSelected([entity.id], true);
-          
-          // Show basic properties
-          const properties: any = {
-            id: String(metaObject.id),
-            type: metaObject.type || "Unknown",
-            name: metaObject.name || String(metaObject.id),
-          };
-          setSelectedObject(properties);
-          setIsPropertiesCollapsed(false);
-          return;
-        }
-        
-        // Found a Reference - now find ALL objects with the same Reference
-        console.log('🔍 Searching for all objects with Reference:', assemblyReference);
-        
-        const assemblyObjectIds: string[] = [];
-        const allMetaObjects = viewerInstance.metaScene.metaObjects;
-        console.log('Total objects in scene:', Object.keys(allMetaObjects).length);
-        
-        // Search through ALL objects in the model
-        let matchCount = 0;
-        Object.keys(allMetaObjects).forEach((objId: string) => {
-          const obj = allMetaObjects[objId] as any;
-          const objReference = extractReference(obj);
-          
-          // If this object has the same Reference value
-          if (objReference === assemblyReference) {
-            matchCount++;
-            // Check if it's a renderable object in the scene
-            const sceneObj = viewerInstance.scene.objects[objId];
-            if (sceneObj) {
-              assemblyObjectIds.push(objId);
-              console.log('✅ Match found:', objId, obj.type);
-            } else {
-              console.log('⚠️ Match but not renderable:', objId, obj.type);
-            }
-          }
+        console.log('Assembly selection:', {
+          clicked: entity.id,
+          clickedType: metaObject.type,
+          parent: metaObject.parent,
+          assemblyCount: assemblyObjectIds.length,
+          objectIds: assemblyObjectIds
         });
-        
-        console.log('📦 Total matches:', matchCount, 'Renderable:', assemblyObjectIds.length);
-        alert(`Found ${assemblyObjectIds.length} objects with Reference "${assemblyReference}"`);
-        
-        if (assemblyObjectIds.length === 0) {
-          console.error('No renderable objects found!');
-          assemblyObjectIds.push(entity.id);
-        }
         
         const assemblyParent = metaObject;
         
