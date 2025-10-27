@@ -71,36 +71,52 @@ const IFCViewerPage = () => {
         const extractReference = (meta: any): string | null => {
           if (!meta) return null;
           
+          console.log('Extracting reference from:', meta.id, {
+            hasPropertySets: !!meta.propertySets,
+            propertySetCount: meta.propertySets?.length,
+            propertySets: meta.propertySets
+          });
+          
           // Check property sets for Reference
           if (meta.propertySets && Array.isArray(meta.propertySets)) {
             for (const ps of meta.propertySets) {
+              console.log('Checking property set:', ps.name, {
+                hasProperties: !!ps.properties,
+                propertyCount: ps.properties?.length
+              });
+              
               if (ps.properties && Array.isArray(ps.properties)) {
                 const refProp = ps.properties.find((p: any) => p.name === "Reference");
+                console.log('Found Reference property?', !!refProp, refProp);
                 if (refProp && refProp.value) {
+                  console.log('Returning Reference value:', refProp.value);
                   return String(refProp.value);
                 }
               }
             }
           }
           
+          console.log('No Reference found for:', meta.id);
           return null;
         };
         
         // Get Reference value from clicked object
         const clickedReference = extractReference(metaObject);
         
-        console.log('Clicked object:', {
-          id: entity.id,
-          type: metaObject.type,
-          reference: clickedReference
-        });
+        console.log('===== CLICKED OBJECT =====');
+        console.log('ID:', entity.id);
+        console.log('Type:', metaObject.type);
+        console.log('Reference:', clickedReference);
+        console.log('Full metadata:', metaObject);
         
         let assemblyObjectIds: string[] = [entity.id];
         
         // If we found a Reference value, find all objects with the same Reference
         if (clickedReference) {
+          console.log('Searching for objects with Reference:', clickedReference);
           assemblyObjectIds = [];
           const allMetaObjects = viewerInstance.metaScene.metaObjects;
+          let matchCount = 0;
           
           // Search through all objects for matching Reference
           Object.keys(allMetaObjects).forEach((objId: string) => {
@@ -110,14 +126,17 @@ const IFCViewerPage = () => {
             // If this object has the same Reference value and is renderable
             if (objReference === clickedReference && viewerInstance.scene.objects[objId]) {
               assemblyObjectIds.push(objId);
+              matchCount++;
+              console.log(`Match ${matchCount}: ${objId} (${meta.type})`);
             }
           });
           
-          console.log('Assembly selection by Reference:', {
-            reference: clickedReference,
-            foundObjects: assemblyObjectIds.length,
-            objectIds: assemblyObjectIds
-          });
+          console.log('===== ASSEMBLY SELECTION COMPLETE =====');
+          console.log('Reference:', clickedReference);
+          console.log('Total objects found:', assemblyObjectIds.length);
+          console.log('Object IDs:', assemblyObjectIds);
+        } else {
+          console.log('No Reference found - selecting single object only');
         }
         
         const assemblyParent = metaObject;
