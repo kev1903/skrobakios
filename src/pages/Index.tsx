@@ -173,15 +173,22 @@ const IFCViewerPage = () => {
           return;
         }
         
-        console.log('===== CLICKED OBJECT =====');
+        console.log('===== CLICKED OBJECT - FULL DEBUG =====');
         console.log('ID:', entity.id);
         console.log('Type:', metaObject.type);
+        
+        // Log ALL top-level fields on metaObject
+        console.log('MetaObject Keys:', Object.keys(metaObject));
+        console.log('predefinedType:', metaObject.predefinedType);
+        console.log('objectType:', metaObject.objectType);
+        console.log('name:', metaObject.name);
         console.log('Full metadata:', metaObject);
         
         // Extract ALL properties to find assembly identifiers
         const allProperties: Record<string, any> = {};
         if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
           metaObject.propertySets.forEach((ps: any) => {
+            console.log(`PropertySet: ${ps.name || ps.type}`, ps);
             if (ps.properties && Array.isArray(ps.properties)) {
               ps.properties.forEach((p: any) => {
                 allProperties[p.name] = p.value;
@@ -190,8 +197,15 @@ const IFCViewerPage = () => {
           });
         }
         
-        console.log('ALL PROPERTIES:', allProperties);
-        console.log('Assembly Mark:', extractAssemblyMark(metaObject));
+        console.log('ALL PROPERTIES FLATTENED:', allProperties);
+        
+        // Try to extract assembly mark
+        const assemblyMark = extractAssemblyMark(metaObject);
+        console.log('EXTRACTED ASSEMBLY MARK:', assemblyMark);
+        
+        // Check assembly cache
+        const cacheKeys = Object.keys((assemblyCache.current as any).assemblyMarkCache || {});
+        console.log('Assembly cache has', cacheKeys.length, 'marks:', cacheKeys.slice(0, 20));
         
         // Collect all entity IDs for this assembly
         const assemblyObjectIds = collectAssemblyEntities(metaObject, viewerInstance);
