@@ -79,37 +79,29 @@ const IFCViewerPage = () => {
     return null;
   }, []);
 
-  // Helper: Extract assembly mark from IfcElementAssembly metadata
+  // Helper: Extract ANY property that looks like an assembly mark (e.g., "1B3.1")
   const extractAssemblyMark = useCallback((meta: any): string | null => {
     if (!meta || !meta.propertySets) return null;
     
-    // For IfcElementAssembly, look for assembly properties
     if (Array.isArray(meta.propertySets)) {
       for (const ps of meta.propertySets) {
         if (ps.properties && Array.isArray(ps.properties)) {
-          // Look for any property that might contain the assembly mark
-          const assemblyProps = [
-            "ASSEMBLY_POS",
-            "Assembly mark", 
-            "ASSEMBLY_POSITION_CODE",
-            "Assembly/Cast unit Mark",
-            "Pos",
-            "Position",
-            "Mark"
-          ];
-          
-          for (const propName of assemblyProps) {
-            const prop = ps.properties.find((p: any) => p.name === propName);
-            if (prop && prop.value && String(prop.value).trim()) {
-              return String(prop.value).trim();
+          // Search ALL properties for assembly mark patterns
+          for (const prop of ps.properties) {
+            if (prop.value && typeof prop.value === 'string') {
+              const value = String(prop.value).trim();
+              // Match assembly patterns like "1B3.1", "1B1.1", "2C5.2" etc.
+              // Pattern: digit(s) + letter(s) + digit(s) + optional (.digit(s))
+              if (value.match(/^\d+[A-Z]+\d+(\.\d+)?$/i)) {
+                console.log(`Found assembly mark "${value}" in property "${prop.name}"`);
+                return value;
+              }
             }
           }
         }
       }
     }
-    
-    // Fallback: use the assembly name or id
-    return meta.name || meta.id;
+    return null;
   }, []);
 
   // Helper: Extract Reference property (part number like "1p.20")
@@ -129,115 +121,69 @@ const IFCViewerPage = () => {
     return null;
   }, []);
 
-  // Helper: Collect all children of an IfcElementAssembly
-  const collectAssemblyChildren = useCallback((assemblyMeta: any, viewerInstance: Viewer): string[] => {
-    const entityIds: string[] = [];
-    
-    const collectRecursive = (obj: any) => {
-      // Add this object if it's renderable
-      if (viewerInstance.scene.objects[obj.id]) {
-        entityIds.push(obj.id);
-      }
-      
-      // Recursively collect children
-      if (obj.children && Array.isArray(obj.children)) {
-        obj.children.forEach((childId: any) => {
-          const childIdStr = typeof childId === 'string' ? childId : childId.id;
-          const childMeta = viewerInstance.metaScene.metaObjects[childIdStr];
-          if (childMeta) {
-            collectRecursive(childMeta);
-          }
-        });
-      }
-    };
-    
-    collectRecursive(assemblyMeta);
-    
-    console.log(`Collected ${entityIds.length} entities from assembly ${assemblyMeta.id}`);
-    return entityIds;
-  }, []);
-
-  // Helper: Build assembly cache - map each part to its parent assembly
+  // Helper: Build assembly cache based on assembly mark properties
   const buildAssemblyCache = useCallback((viewerInstance: Viewer) => {
-    const cache: Record<string, string[]> = {};
-    const partToAssemblyMap: Record<string, string> = {};
-    
+    const assemblyMarkCache: Record<string, string[]> = {};
     const allMetaObjects = viewerInstance.metaScene.metaObjects;
     
-    // Find all IfcElementAssembly objects
-    const assemblies: any[] = [];
+    console.log('Building assembly cache by scanning all objects for assembly marks...');
+    
+    // Scan all objects and group by assembly mark
     Object.keys(allMetaObjects).forEach((id) => {
       const metaObject = allMetaObjects[id] as any;
-      if (metaObject.type === "IfcElementAssembly") {
-        assemblies.push(metaObject);
-        console.log(`Found IfcElementAssembly: ${id}, name: ${metaObject.name}`);
-        
-        // Extract assembly mark
-        const assemblyMark = extractAssemblyMark(metaObject);
-        console.log(`Assembly mark: ${assemblyMark}`);
-        
-        // Collect all children
-        const children = collectAssemblyChildren(metaObject, viewerInstance);
-        cache[id] = children;
-        
-        // Map each child to this assembly
-        children.forEach((childId) => {
-          partToAssemblyMap[childId] = id;
-        });
-        
-        console.log(`Assembly ${id} has ${children.length} children`);
+      
+      // Only process renderable objects
+      if (!viewerInstance.scene.objects[id]) return;
+      
+      const assemblyMark = extractAssemblyMark(metaObject);
+      
+      if (assemblyMark) {
+        if (!assemblyMarkCache[assemblyMark]) {
+          assemblyMarkCache[assemblyMark] = [];
+        }
+        assemblyMarkCache[assemblyMark].push(id);
       }
     });
     
-    console.log(`Found ${assemblies.length} IfcElementAssembly objects`);
+    console.log(`✅ Built assembly cache with ${Object.keys(assemblyMarkCache).length} unique assembly marks`);
+    console.log('Sample assembly marks:', Object.keys(assemblyMarkCache).slice(0, 10));
     
-    assemblyCache.current = cache;
-    (assemblyCache.current as any).partToAssemblyMap = partToAssemblyMap;
+    // Show assembly sizes
+    Object.keys(assemblyMarkCache).slice(0, 5).forEach(mark => {
+      console.log(`  Assembly "${mark}": ${assemblyMarkCache[mark].length} parts`);
+    });
     
-  }, [extractAssemblyMark, collectAssemblyChildren]);
+    (assemblyCache.current as any).assemblyMarkCache = assemblyMarkCache;
+  }, [extractAssemblyMark]);
 
-  // Helper: Get selectable root - now returns the IfcElementAssembly parent
+  // Helper: Get selectable root - returns the clicked object with assembly mark extraction
   const getSelectableRoot = useCallback((metaObject: any, viewerInstance: Viewer): any => {
-    // Try to find IfcElementAssembly parent
-    const assemblyParent = findAssemblyParent(metaObject, viewerInstance);
-    
-    if (assemblyParent) {
-      return assemblyParent;
-    }
-    
-    // Fallback: return the original object
+    // For property-based assembly grouping, just return the object itself
+    // The assembly grouping happens in collectAssemblyEntities
     return metaObject;
-  }, [findAssemblyParent]);
+  }, []);
 
-  // Helper: Collect all entity IDs for selection
+  // Helper: Collect all entity IDs that share the same assembly mark
   const collectAssemblyEntities = useCallback((metaObject: any, viewerInstance: Viewer): string[] => {
-    // If this is an IfcElementAssembly, get all its children from cache
-    if (metaObject.type === "IfcElementAssembly") {
-      const cached = assemblyCache.current[metaObject.id];
-      if (cached && cached.length > 0) {
-        console.log(`Using cached children for IfcElementAssembly: ${cached.length} objects`);
-        return cached;
-      }
-      
-      // If not cached, collect children directly
-      return collectAssemblyChildren(metaObject, viewerInstance);
+    // Get the assembly mark from the clicked object
+    const assemblyMark = extractAssemblyMark(metaObject);
+    
+    if (!assemblyMark) {
+      console.log('❌ No assembly mark found, selecting single object');
+      return viewerInstance.scene.objects[metaObject.id] ? [metaObject.id] : [];
     }
     
-    // If this is a part, find its parent assembly and select all siblings
-    const partToAssemblyMap = (assemblyCache.current as any).partToAssemblyMap;
-    if (partToAssemblyMap && partToAssemblyMap[metaObject.id]) {
-      const assemblyId = partToAssemblyMap[metaObject.id];
-      const cached = assemblyCache.current[assemblyId];
-      if (cached && cached.length > 0) {
-        console.log(`Part belongs to assembly ${assemblyId}: selecting ${cached.length} objects`);
-        return cached;
-      }
+    // Get all objects with the same assembly mark from cache
+    const assemblyMarkCache = (assemblyCache.current as any).assemblyMarkCache;
+    
+    if (assemblyMarkCache && assemblyMarkCache[assemblyMark]) {
+      console.log(`✅ Found assembly "${assemblyMark}" with ${assemblyMarkCache[assemblyMark].length} parts`);
+      return assemblyMarkCache[assemblyMark];
     }
     
-    // Fallback: return just this object
-    console.log('No assembly found, selecting single object');
+    console.log(`⚠️ Assembly mark "${assemblyMark}" not in cache, selecting single object`);
     return viewerInstance.scene.objects[metaObject.id] ? [metaObject.id] : [];
-  }, [collectAssemblyChildren]);
+  }, [extractAssemblyMark]);
 
   const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
@@ -418,7 +364,7 @@ const IFCViewerPage = () => {
     setMeasurePlugin(distanceMeasurements);
     setViewer(viewerInstance);
     setIfcLoader(loaderInstance);
-  }, [getSelectableRoot, collectAssemblyEntities, extractReference, extractAssemblyMark, findAssemblyParent, collectAssemblyChildren]);
+  }, [getSelectableRoot, collectAssemblyEntities, extractAssemblyMark]);
 
   const handleUpload = () => fileInputRef.current?.click();
 
