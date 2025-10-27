@@ -16,31 +16,33 @@ const IFCViewerPage = () => {
   const [nameProperty] = useState<string>("id");
   const [isStructureCollapsed, setIsStructureCollapsed] = useState(true);
   const [isPropertiesCollapsed, setIsPropertiesCollapsed] = useState(true);
+  const [isStructurePinned, setIsStructurePinned] = useState(false);
+  const [isPropertiesPinned, setIsPropertiesPinned] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const measurementClickCount = useRef<number>(0);
   const firstPoint = useRef<{ entity: any; worldPos: number[] } | null>(null);
 
-  // Auto-collapse Project Structure after 5 seconds
+  // Auto-collapse Project Structure after 5 seconds (unless pinned)
   useEffect(() => {
-    if (!isStructureCollapsed) {
+    if (!isStructureCollapsed && !isStructurePinned) {
       const timer = setTimeout(() => {
         setIsStructureCollapsed(true);
       }, 5000);
 
       return () => clearTimeout(timer);
     }
-  }, [isStructureCollapsed]);
+  }, [isStructureCollapsed, isStructurePinned]);
 
-  // Auto-collapse Properties after 5 seconds
+  // Auto-collapse Properties after 5 seconds (unless pinned)
   useEffect(() => {
-    if (!isPropertiesCollapsed) {
+    if (!isPropertiesCollapsed && !isPropertiesPinned) {
       const timer = setTimeout(() => {
         setIsPropertiesCollapsed(true);
       }, 5000);
 
       return () => clearTimeout(timer);
     }
-  }, [isPropertiesCollapsed]);
+  }, [isPropertiesCollapsed, isPropertiesPinned]);
 
   const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
@@ -204,7 +206,12 @@ const IFCViewerPage = () => {
             isStructureCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
           }`}
         >
-          <ObjectTree model={loadedModel} ifcLoader={ifcLoader} />
+          <ObjectTree 
+            model={loadedModel} 
+            ifcLoader={ifcLoader}
+            isPinned={isStructurePinned}
+            onPinToggle={() => setIsStructurePinned(!isStructurePinned)}
+          />
         </div>
         
         {/* Toggle Button for Project Structure */}
@@ -234,7 +241,11 @@ const IFCViewerPage = () => {
             isPropertiesCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
           }`}
         >
-          <PropertiesPanel selectedObject={selectedObject} />
+          <PropertiesPanel 
+            selectedObject={selectedObject}
+            isPinned={isPropertiesPinned}
+            onPinToggle={() => setIsPropertiesPinned(!isPropertiesPinned)}
+          />
         </div>
         
         {/* Toggle Button for Properties */}

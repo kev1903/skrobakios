@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronRight, ChevronDown, Box, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ChevronRight, ChevronDown, Box, Eye, EyeOff, Loader2, Pin } from "lucide-react";
 import { toast } from "sonner";
 
 interface ObjectTreeProps {
   model: any;
   ifcLoader: any;
+  isPinned?: boolean;
+  onPinToggle?: () => void;
 }
 
-export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
+export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle }: ObjectTreeProps) => {
   const [treeData, setTreeData] = useState<any[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [visibleNodes, setVisibleNodes] = useState<Set<string>>(new Set());
@@ -219,8 +221,19 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
 
   return (
     <div className="h-full flex flex-col bg-white/80 backdrop-blur-xl">
-      <div className="px-6 py-4 border-b border-border/30">
+      <div className="px-6 py-4 border-b border-border/30 flex items-center justify-between">
         <h3 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">Project Structure</h3>
+        {onPinToggle && (
+          <button
+            onClick={onPinToggle}
+            className={`p-1.5 rounded-full transition-all duration-200 hover:bg-accent/50 ${
+              isPinned ? 'text-luxury-gold bg-luxury-gold/10' : 'text-muted-foreground hover:text-luxury-gold'
+            }`}
+            title={isPinned ? "Unpin panel" : "Pin panel open"}
+          >
+            <Pin className={`h-3.5 w-3.5 transition-transform duration-200 ${isPinned ? 'rotate-45' : ''}`} />
+          </button>
+        )}
       </div>
       <ScrollArea className="flex-1">
         {isLoading ? (
