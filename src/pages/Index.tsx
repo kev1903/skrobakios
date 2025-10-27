@@ -85,7 +85,7 @@ const IFCViewerPage = () => {
         />
       </div>
 
-      <div className="flex-1 flex overflow-hidden relative px-4 pb-4">
+      <div className="flex-1 flex overflow-hidden relative px-4">
         <div className="w-80 glass-panel flex-shrink-0 z-10 mr-2 rounded-2xl overflow-auto">
           <ObjectTree model={loadedModel} ifcLoader={ifcLoader} />
         </div>
