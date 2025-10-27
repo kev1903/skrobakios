@@ -66,45 +66,106 @@ const IFCViewerPage = () => {
         viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
         viewerInstance.scene.setObjectsSelected([entity.id], true);
         
-        // Collect entity properties
-        const properties: any = {
-          id: String(entity.id),
-          type: entity.type || "Unknown",
-          name: entity.name || String(entity.id),
-          isObject: entity.isObject,
-          isEntity: entity.isEntity,
-          visible: entity.visible,
-          xrayed: entity.xrayed,
-          highlighted: entity.highlighted,
-          selected: entity.selected,
-          colorize: entity.colorize,
-          opacity: entity.opacity,
-        };
-
-        // Add mesh properties if available
-        if (entity.mesh) {
-          properties.mesh = {
-            id: entity.mesh.id,
-            primitive: entity.mesh.primitive
+        // Get IFC properties from the metadata
+        const metaObject = viewerInstance.metaScene.metaObjects[entity.id] as any;
+        
+        if (metaObject) {
+          // Collect IFC properties
+          const properties: any = {
+            id: String(entity.id),
+            type: metaObject.type || entity.type || "Unknown",
+            name: metaObject.name || entity.name || String(entity.id),
+            
+            // Viewer state properties
+            isObject: entity.isObject,
+            isEntity: entity.isEntity,
+            visible: entity.visible,
+            xrayed: entity.xrayed,
+            highlighted: entity.highlighted,
+            selected: entity.selected,
+            colorize: entity.colorize,
+            opacity: entity.opacity,
           };
-        }
 
-        // Add transform properties if available
-        if (entity.matrix) {
-          properties.position = entity.matrix.slice(12, 15);
-        }
+          // Add IFC property sets from metadata
+          if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
+            properties.propertySets = metaObject.propertySets.map((ps: any) => ({
+              name: ps.name || ps.type || 'Property Set',
+              type: ps.type,
+              properties: ps.properties || {}
+            }));
+          }
 
-        // Add AABB (bounding box) if available
-        if (entity.aabb) {
-          properties.boundingBox = {
-            min: entity.aabb.slice(0, 3),
-            max: entity.aabb.slice(3, 6)
+          // Try to get properties from children metadata
+          if (!properties.propertySets || properties.propertySets.length === 0) {
+            const allMeta = viewerInstance.metaScene.metaObjects;
+            const relatedProps: any[] = [];
+            
+            Object.keys(allMeta).forEach((key: string) => {
+              const meta = allMeta[key] as any;
+              if (meta.type === 'IfcPropertySet' || meta.type === 'IfcElementQuantity') {
+                // Check if this property set is related to our object
+                if (meta.properties) {
+                  relatedProps.push({
+                    name: meta.name || meta.type,
+                    type: meta.type,
+                    properties: meta.properties
+                  });
+                }
+              }
+            });
+            
+            if (relatedProps.length > 0) {
+              properties.propertySets = relatedProps;
+            }
+          }
+
+          // Add transform properties if available
+          if (entity.matrix) {
+            properties.position = entity.matrix.slice(12, 15);
+          }
+
+          // Add AABB (bounding box) if available
+          if (entity.aabb) {
+            properties.boundingBox = {
+              min: entity.aabb.slice(0, 3),
+              max: entity.aabb.slice(3, 6)
+            };
+          }
+
+          console.log('Selected object metadata:', metaObject);
+          console.log('Extracted properties:', properties);
+
+          setSelectedObject(properties);
+          setIsPropertiesCollapsed(false);
+          toast.success(`Selected: ${properties.name}`);
+        } else {
+          // Fallback to basic entity properties if no metadata
+          const properties: any = {
+            id: String(entity.id),
+            type: entity.type || "Unknown",
+            name: entity.name || String(entity.id),
+            isObject: entity.isObject,
+            isEntity: entity.isEntity,
+            visible: entity.visible,
+            xrayed: entity.xrayed,
+            highlighted: entity.highlighted,
+            selected: entity.selected,
+            colorize: entity.colorize,
+            opacity: entity.opacity,
           };
-        }
 
-        setSelectedObject(properties);
-        setIsPropertiesCollapsed(false); // Auto-expand properties panel
-        toast.success(`Selected: ${properties.name}`);
+          if (entity.aabb) {
+            properties.boundingBox = {
+              min: entity.aabb.slice(0, 3),
+              max: entity.aabb.slice(3, 6)
+            };
+          }
+
+          setSelectedObject(properties);
+          setIsPropertiesCollapsed(false);
+          toast.success(`Selected: ${properties.name}`);
+        }
       } else {
         // Deselect all if clicking on empty space
         viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);

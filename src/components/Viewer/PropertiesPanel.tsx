@@ -55,6 +55,48 @@ export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle 
               </div>
             </div>
 
+            {/* IFC Property Sets */}
+            {selectedObject.propertySets && selectedObject.propertySets.length > 0 && (
+              <div className="space-y-4">
+                {selectedObject.propertySets.map((propSet: any, idx: number) => (
+                  <div key={idx} className="space-y-3">
+                    <h5 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">
+                      {propSet.name}
+                    </h5>
+                    <div className="space-y-0 bg-muted/5 rounded-lg border border-border/20">
+                      {Object.entries(propSet.properties).map(([key, value]: [string, any], propIdx: number) => (
+                        <div key={propIdx} className={`flex justify-between items-start px-4 py-3 ${propIdx < Object.keys(propSet.properties).length - 1 ? 'border-b border-border/10' : ''}`}>
+                          <span className="text-xs text-muted-foreground font-medium">{key}</span>
+                          <span className="text-xs text-foreground font-mono text-right ml-2 max-w-[60%] break-all">
+                            {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* IFC Attributes */}
+            {selectedObject.attributes && Object.keys(selectedObject.attributes).length > 0 && (
+              <div className="space-y-3">
+                <h5 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">
+                  IFC Attributes
+                </h5>
+                <div className="space-y-0 bg-muted/5 rounded-lg border border-border/20">
+                  {Object.entries(selectedObject.attributes).map(([key, value]: [string, any], idx: number, arr: any[]) => (
+                    <div key={idx} className={`flex justify-between items-start px-4 py-3 ${idx < arr.length - 1 ? 'border-b border-border/10' : ''}`}>
+                      <span className="text-xs text-muted-foreground font-medium">{key}</span>
+                      <span className="text-xs text-foreground font-mono text-right ml-2 max-w-[60%] break-all">
+                        {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Object Properties */}
             <div className="space-y-3">
               <h5 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
@@ -152,27 +194,6 @@ export const PropertiesPanel = ({ selectedObject, isPinned = false, onPinToggle 
                         <div className="pl-2">"z": {selectedObject.boundingBox.max[2]?.toFixed(14)}</div>
                         <div>&#125;</div>
                       </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Position (if available) */}
-                {selectedObject.position && (
-                  <div className="flex justify-between items-start px-4 py-3 border-b border-border/10">
-                    <span className="text-xs text-muted-foreground font-medium">Position</span>
-                    <div className="text-xs text-foreground font-mono text-right">
-                      [{selectedObject.position.map((v: number) => v.toFixed(6)).join(', ')}]
-                    </div>
-                  </div>
-                )}
-                
-                {/* Mesh (if available) */}
-                {selectedObject.mesh && (
-                  <div className="flex justify-between items-start px-4 py-3">
-                    <span className="text-xs text-muted-foreground font-medium">Mesh</span>
-                    <div className="text-xs text-foreground font-mono text-right">
-                      <div>ID: {selectedObject.mesh.id}</div>
-                      {selectedObject.mesh.primitive && <div>Primitive: {selectedObject.mesh.primitive}</div>}
                     </div>
                   </div>
                 )}
