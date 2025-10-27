@@ -45,7 +45,34 @@ const IFCViewerPage = () => {
     }
   }, [isPropertiesCollapsed, isPropertiesPinned]);
 
-  // Helper: Extract Reference property from IFC metadata (used in Tekla models)
+  // Helper: Extract assembly identifier from IFC metadata (Tekla assembly mark like "1B1.1")
+  const extractAssemblyMark = useCallback((meta: any): string | null => {
+    if (!meta || !meta.propertySets) return null;
+    
+    if (Array.isArray(meta.propertySets)) {
+      for (const ps of meta.propertySets) {
+        if (ps.properties && Array.isArray(ps.properties)) {
+          // Look for Tekla assembly properties
+          const assemblyProps = [
+            "ASSEMBLY_POS",           // Tekla assembly mark
+            "Assembly mark",
+            "ASSEMBLY_POSITION_CODE",
+            "Assembly/Cast unit Mark"
+          ];
+          
+          for (const propName of assemblyProps) {
+            const prop = ps.properties.find((p: any) => p.name === propName);
+            if (prop && prop.value && String(prop.value).trim()) {
+              return String(prop.value);
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }, []);
+
+  // Helper: Extract Reference property (part number like "1p.20")
   const extractReference = useCallback((meta: any): string | null => {
     if (!meta || !meta.propertySets) return null;
     
@@ -62,14 +89,33 @@ const IFCViewerPage = () => {
     return null;
   }, []);
 
-  // Helper: Build assembly cache for performance (Reference-based AND hierarchy-based)
+  // Helper: Build assembly cache for performance (Assembly mark-based AND Reference-based)
   const buildAssemblyCache = useCallback((viewerInstance: Viewer) => {
     const cache: Record<string, string[]> = {};
+    const assemblyMarkCache: Record<string, string[]> = {};
     const referenceCache: Record<string, string[]> = {};
     
     const allMetaObjects = viewerInstance.metaScene.metaObjects;
     
-    // Build Reference-based cache (for Tekla models)
+    // Build Assembly Mark cache (PRIORITY for Tekla - groups like "1B1.1")
+    Object.keys(allMetaObjects).forEach((id) => {
+      const metaObject = allMetaObjects[id] as any;
+      const assemblyMark = extractAssemblyMark(metaObject);
+      
+      if (assemblyMark && viewerInstance.scene.objects[id]) {
+        if (!assemblyMarkCache[assemblyMark]) {
+          assemblyMarkCache[assemblyMark] = [];
+        }
+        assemblyMarkCache[assemblyMark].push(id);
+      }
+    });
+    
+    console.log(`Built Assembly Mark cache with ${Object.keys(assemblyMarkCache).length} unique assemblies`);
+    if (Object.keys(assemblyMarkCache).length > 0) {
+      console.log('Sample assembly marks:', Object.keys(assemblyMarkCache).slice(0, 5));
+    }
+    
+    // Build Reference cache (fallback for parts like "1p.20")
     Object.keys(allMetaObjects).forEach((id) => {
       const metaObject = allMetaObjects[id] as any;
       const reference = extractReference(metaObject);
@@ -84,7 +130,8 @@ const IFCViewerPage = () => {
     
     console.log(`Built Reference cache with ${Object.keys(referenceCache).length} unique references`);
     
-    // Store reference cache
+    // Store both caches
+    (assemblyCache.current as any).assemblyMarkCache = assemblyMarkCache;
     (assemblyCache.current as any).referenceCache = referenceCache;
     
     const collectDescendants = (metaObject: any, result: string[]) => {
@@ -107,13 +154,13 @@ const IFCViewerPage = () => {
         const descendants: string[] = [];
         collectDescendants(metaObject, descendants);
         cache[id] = descendants;
-        console.log(`Cached assembly ${id} with ${descendants.length} descendants`);
+        console.log(`Cached IfcElementAssembly ${id} with ${descendants.length} descendants`);
       }
     });
     
     assemblyCache.current = cache;
     console.log(`Built IfcElementAssembly cache with ${Object.keys(cache).length} assemblies`);
-  }, [extractReference]);
+  }, [extractAssemblyMark, extractReference]);
 
   // Helper: Find the selectable root (assembly or parent)
   const getSelectableRoot = useCallback((metaObject: any, viewerInstance: Viewer): any => {
@@ -135,11 +182,21 @@ const IFCViewerPage = () => {
     return metaObject;
   }, []);
 
-  // Helper: Collect all entity IDs for a meta object using Reference or hierarchy
+  // Helper: Collect all entity IDs for a meta object using Assembly Mark, Reference or hierarchy
   const collectAssemblyEntities = useCallback((metaObject: any, viewerInstance: Viewer): string[] => {
     const entityIds: string[] = [];
     
-    // PRIORITY 1: Try Reference-based selection (for Tekla models)
+    // PRIORITY 1: Try Assembly Mark-based selection (for Tekla assemblies like "1B1.1")
+    const assemblyMark = extractAssemblyMark(metaObject);
+    if (assemblyMark) {
+      const assemblyMarkCache = (assemblyCache.current as any).assemblyMarkCache;
+      if (assemblyMarkCache && assemblyMarkCache[assemblyMark]) {
+        console.log(`✅ Using Assembly Mark cache for "${assemblyMark}": ${assemblyMarkCache[assemblyMark].length} objects`);
+        return assemblyMarkCache[assemblyMark];
+      }
+    }
+    
+    // PRIORITY 2: Try Reference-based selection (for Tekla parts like "1p.20")
     const reference = extractReference(metaObject);
     if (reference) {
       const referenceCache = (assemblyCache.current as any).referenceCache;
@@ -149,7 +206,7 @@ const IFCViewerPage = () => {
       }
     }
     
-    // PRIORITY 2: Check if we have cached descendants for IfcElementAssembly
+    // PRIORITY 3: Check if we have cached descendants for IfcElementAssembly
     if (assemblyCache.current[metaObject.id]) {
       assemblyCache.current[metaObject.id].forEach((descendantId) => {
         if (viewerInstance.scene.objects[descendantId]) {
@@ -163,7 +220,7 @@ const IFCViewerPage = () => {
       entityIds.push(metaObject.id);
     }
     
-    // PRIORITY 3: If no cached data, traverse recursively
+    // PRIORITY 4: If no cached data, traverse recursively
     if (entityIds.length <= 1 && metaObject.children && Array.isArray(metaObject.children)) {
       const collectRecursive = (obj: any) => {
         if (viewerInstance.scene.objects[obj.id]) {
@@ -185,7 +242,7 @@ const IFCViewerPage = () => {
     }
     
     return entityIds;
-  }, [extractReference]);
+  }, [extractAssemblyMark, extractReference]);
 
   const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
@@ -229,10 +286,10 @@ const IFCViewerPage = () => {
         }
         
         console.log('ALL PROPERTIES:', allProperties);
-        console.log('Reference:', allProperties['Reference']);
-        console.log('Assembly mark:', allProperties['Assembly mark']);
-        console.log('Position:', allProperties['Position']);
+        console.log('Assembly Mark (ASSEMBLY_POS):', allProperties['ASSEMBLY_POS'] || allProperties['Assembly mark']);
+        console.log('Reference (Part):', allProperties['Reference']);
         console.log('Preliminary mark:', allProperties['Preliminary mark']);
+        console.log('Position:', allProperties['Position']);
         
         // Find the selectable root (assembly or parent)
         const rootMeta = getSelectableRoot(metaObject, viewerInstance);
@@ -366,7 +423,7 @@ const IFCViewerPage = () => {
     setMeasurePlugin(distanceMeasurements);
     setViewer(viewerInstance);
     setIfcLoader(loaderInstance);
-  }, [getSelectableRoot, collectAssemblyEntities, extractReference]);
+  }, [getSelectableRoot, collectAssemblyEntities, extractReference, extractAssemblyMark]);
 
   const handleUpload = () => fileInputRef.current?.click();
 
