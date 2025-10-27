@@ -70,12 +70,24 @@ const IFCViewerPage = () => {
         // Extract assembly reference from IFC property sets
         let assemblyReference: string | null = null;
         
+        console.log('🔎 metaObject:', metaObject);
+        console.log('🔎 metaObject.propertySets:', metaObject?.propertySets);
+        
         if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
+          console.log('🔎 Number of property sets:', metaObject.propertySets.length);
+          
           for (const propSet of metaObject.propertySets) {
+            console.log('🔎 Property set:', propSet.name || propSet.type, propSet);
+            
             if (propSet.properties && Array.isArray(propSet.properties)) {
+              console.log('🔎 Number of properties:', propSet.properties.length);
+              
               for (const prop of propSet.properties) {
+                console.log('🔎 Property:', prop.name, '=', prop.value);
+                
                 if (prop.name === 'Reference' && prop.value) {
                   assemblyReference = String(prop.value);
+                  console.log('✅ FOUND Reference:', assemblyReference);
                   break;
                 }
               }
@@ -83,6 +95,8 @@ const IFCViewerPage = () => {
             }
           }
         }
+        
+        console.log('🔎 Final assemblyReference:', assemblyReference);
         
         const assemblyObjectIds: string[] = [];
         let assemblyParent = metaObject;
