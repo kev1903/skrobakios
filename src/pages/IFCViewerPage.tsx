@@ -101,7 +101,7 @@ const IFCViewerPage = () => {
     <div className="fixed inset-0 top-[var(--header-height)] w-full flex flex-col overflow-hidden bg-background p-4 gap-4">
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       
-      <div className="glass-panel rounded-2xl px-6 py-3 z-10 flex-shrink-0 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
+      <div className="z-10 flex-shrink-0">
         <ViewerToolbar
           onZoomIn={() => {}}
           onZoomOut={() => {}}

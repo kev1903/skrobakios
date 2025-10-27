@@ -23,9 +23,9 @@ export const ViewerToolbar = ({
 }: ViewerToolbarProps) => {
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-2 flex-wrap">
-        {/* Mode Selection */}
-        <div className="flex items-center gap-1 p-1 bg-white/80 backdrop-blur-md border border-border/30 rounded-xl">
+      <div className="flex items-center gap-3 flex-wrap">
+        {/* Mode Selection - Floating */}
+        <div className="flex items-center gap-1 p-1 bg-white/80 backdrop-blur-xl border border-border/30 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -87,8 +87,8 @@ export const ViewerToolbar = ({
           </Tooltip>
         </div>
 
-        {/* Zoom Controls */}
-        <div className="flex items-center gap-1 p-1 bg-white/80 backdrop-blur-md border border-border/30 rounded-xl">
+        {/* Zoom Controls - Floating */}
+        <div className="flex items-center gap-1 p-1 bg-white/80 backdrop-blur-xl border border-border/30 rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button 
@@ -132,14 +132,14 @@ export const ViewerToolbar = ({
           </Tooltip>
         </div>
 
-        {/* Upload Button */}
+        {/* Upload Button - Floating */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="sm"
               onClick={onUpload}
-              className="ml-auto bg-white/60 backdrop-blur-md border border-border/30 hover:bg-white/80 hover:scale-[1.02] transition-all duration-200 font-medium"
+              className="ml-auto bg-white/80 backdrop-blur-xl border border-border/30 hover:bg-white/90 hover:scale-[1.02] shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] transition-all duration-300 font-medium"
             >
               <Upload className="h-4 w-4 mr-2" />
               Upload IFC
