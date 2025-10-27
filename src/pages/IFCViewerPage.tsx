@@ -15,6 +15,7 @@ const IFCViewerPage = () => {
   const [selectedObject, setSelectedObject] = useState<any>(null);
   const [nameProperty] = useState<string>("id");
   const [isStructureCollapsed, setIsStructureCollapsed] = useState(false);
+  const [isPropertiesCollapsed, setIsPropertiesCollapsed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const measurementClickCount = useRef<number>(0);
   const firstPoint = useRef<{ entity: any; worldPos: number[] } | null>(null);
@@ -144,9 +145,32 @@ const IFCViewerPage = () => {
         <div className="flex-1 relative overflow-hidden">
           <ViewerCanvas onViewerReady={handleViewerReady} />
         </div>
-        <div className="w-80 glass-panel flex-shrink-0 z-10 rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300">
+        
+        {/* Properties Panel - Collapsible */}
+        <div 
+          className={`glass-panel flex-shrink-0 z-10 rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 ${
+            isPropertiesCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
+          }`}
+        >
           <PropertiesPanel selectedObject={selectedObject} />
         </div>
+        
+        {/* Toggle Button for Properties */}
+        <button
+          onClick={() => setIsPropertiesCollapsed(!isPropertiesCollapsed)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full p-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300"
+          title={isPropertiesCollapsed ? "Show Properties" : "Hide Properties"}
+        >
+          {isPropertiesCollapsed ? (
+            <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          ) : (
+            <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          )}
+        </button>
       </div>
     </div>
   );
