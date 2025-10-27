@@ -50,6 +50,66 @@ const IFCViewerPage = () => {
       defaultLabelsOnWires: true
     });
 
+    // Set up click event for object selection
+    viewerInstance.scene.input.on("mouseclicked", (coords: number[]) => {
+      const hit = viewerInstance.scene.pick({
+        canvasPos: coords,
+        pickSurface: true
+      });
+
+      if (hit && hit.entity) {
+        const entity = hit.entity as any;
+        
+        // Highlight the selected entity
+        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
+        viewerInstance.scene.setObjectsSelected([entity.id], true);
+        
+        // Collect entity properties
+        const properties: any = {
+          id: String(entity.id),
+          type: entity.type || "Unknown",
+          name: entity.name || String(entity.id),
+          isObject: entity.isObject,
+          isEntity: entity.isEntity,
+          visible: entity.visible,
+          xrayed: entity.xrayed,
+          highlighted: entity.highlighted,
+          selected: entity.selected,
+          colorize: entity.colorize,
+          opacity: entity.opacity,
+        };
+
+        // Add mesh properties if available
+        if (entity.mesh) {
+          properties.mesh = {
+            id: entity.mesh.id,
+            primitive: entity.mesh.primitive
+          };
+        }
+
+        // Add transform properties if available
+        if (entity.matrix) {
+          properties.position = entity.matrix.slice(12, 15);
+        }
+
+        // Add AABB (bounding box) if available
+        if (entity.aabb) {
+          properties.boundingBox = {
+            min: entity.aabb.slice(0, 3),
+            max: entity.aabb.slice(3, 6)
+          };
+        }
+
+        setSelectedObject(properties);
+        setIsPropertiesCollapsed(false); // Auto-expand properties panel
+        toast.success(`Selected: ${properties.name}`);
+      } else {
+        // Deselect all if clicking on empty space
+        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
+        setSelectedObject(null);
+      }
+    });
+
     setMeasurePlugin(distanceMeasurements);
     setViewer(viewerInstance);
     setIfcLoader(loaderInstance);
