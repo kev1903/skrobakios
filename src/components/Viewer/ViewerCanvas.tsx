@@ -109,10 +109,12 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
   }, [onViewerReady]);
 
   return (
-    <canvas
-      id="xeokit-canvas"
-      ref={canvasRef}
-      className="w-full h-full bg-[hsl(var(--viewer-bg))]"
-    />
+    <div className="w-full h-full rounded-2xl overflow-hidden bg-gradient-to-br from-muted/20 to-muted/5">
+      <canvas
+        id="xeokit-canvas"
+        ref={canvasRef}
+        className="w-full h-full"
+      />
+    </div>
   );
 };

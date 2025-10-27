@@ -1,9 +1,6 @@
-import { ZoomIn, ZoomOut, Maximize2, Upload, Ruler, Hand, MousePointer } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Upload, MousePointer, Hand, Ruler, ZoomIn, ZoomOut, Maximize } from "lucide-react";
 
 interface ViewerToolbarProps {
   onZoomIn: () => void;
@@ -25,113 +22,132 @@ export const ViewerToolbar = ({
   onModeChange,
 }: ViewerToolbarProps) => {
   return (
-    <div className="flex items-center gap-3 w-full">
-      <div className="flex gap-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className={`glass-button px-4 py-2 rounded-xl flex items-center gap-2 ${
-                activeMode === "select" ? "bg-primary/20 border-primary/40" : ""
-              }`}
-              onClick={() => onModeChange("select")}
-            >
-              <MousePointer className="h-4 w-4" />
-              <span className="text-sm font-medium">Select</span>
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Select Mode</p>
-          </TooltipContent>
-        </Tooltip>
+    <TooltipProvider>
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* Mode Selection */}
+        <div className="flex items-center gap-1 p-1 bg-white/80 backdrop-blur-md border border-border/30 rounded-xl">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onModeChange("select")}
+                className={
+                  activeMode === "select"
+                    ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
+                    : "hover:bg-accent/30 text-muted-foreground"
+                }
+              >
+                <MousePointer className="h-4 w-4 mr-2" />
+                <span className="text-sm font-medium">Select</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Select objects</TooltipContent>
+          </Tooltip>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className={`glass-button px-4 py-2 rounded-xl flex items-center gap-2 ${
-                activeMode === "pan" ? "bg-primary/20 border-primary/40" : ""
-              }`}
-              onClick={() => onModeChange("pan")}
-            >
-              <Hand className="h-4 w-4" />
-              <span className="text-sm font-medium">Pan</span>
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Pan Mode</p>
-          </TooltipContent>
-        </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onModeChange("pan")}
+                className={
+                  activeMode === "pan"
+                    ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
+                    : "hover:bg-accent/30 text-muted-foreground"
+                }
+              >
+                <Hand className="h-4 w-4 mr-2" />
+                <span className="text-sm font-medium">Pan</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Pan view</TooltipContent>
+          </Tooltip>
 
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  onModeChange("measure");
+                  onMeasure();
+                }}
+                className={
+                  activeMode === "measure"
+                    ? "bg-luxury-gold text-white hover:bg-luxury-gold/90 shadow-md"
+                    : "hover:bg-accent/30 text-muted-foreground"
+                }
+              >
+                <Ruler className="h-4 w-4 mr-2" />
+                <span className="text-sm font-medium">Measure</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Measure distance</TooltipContent>
+          </Tooltip>
+        </div>
+
+        {/* Zoom Controls */}
+        <div className="flex items-center gap-1 p-1 bg-white/80 backdrop-blur-md border border-border/30 rounded-xl">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={onZoomIn} 
+                className="hover:bg-accent/30 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
+              >
+                <ZoomIn className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Zoom In</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={onZoomOut} 
+                className="hover:bg-accent/30 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
+              >
+                <ZoomOut className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Zoom Out</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={onFitView} 
+                className="hover:bg-accent/30 h-8 w-8 rounded-full text-muted-foreground hover:text-foreground transition-all duration-200"
+              >
+                <Maximize className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Fit View</TooltipContent>
+          </Tooltip>
+        </div>
+
+        {/* Upload Button */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <button
-              className={`glass-button px-4 py-2 rounded-xl flex items-center gap-2 ${
-                activeMode === "measure" ? "bg-primary/20 border-primary/40" : ""
-              }`}
-              onClick={onMeasure}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onUpload}
+              className="ml-auto bg-white/60 backdrop-blur-md border border-border/30 hover:bg-white/80 hover:scale-[1.02] transition-all duration-200 font-medium"
             >
-              <Ruler className="h-4 w-4" />
-              <span className="text-sm font-medium">Measure</span>
-            </button>
+              <Upload className="h-4 w-4 mr-2" />
+              Upload IFC
+            </Button>
           </TooltipTrigger>
-          <TooltipContent>
-            <p>Measure Distance</p>
-          </TooltipContent>
+          <TooltipContent>Upload IFC File</TooltipContent>
         </Tooltip>
       </div>
-
-      <div className="h-8 w-px bg-gradient-to-b from-transparent via-border to-transparent" />
-
-      <div className="flex gap-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button className="glass-button p-2 rounded-xl hover:scale-110 transition-transform" onClick={onZoomIn}>
-              <ZoomIn className="h-4 w-4" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Zoom In</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button className="glass-button p-2 rounded-xl hover:scale-110 transition-transform" onClick={onZoomOut}>
-              <ZoomOut className="h-4 w-4" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Zoom Out</p>
-          </TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button className="glass-button p-2 rounded-xl hover:scale-110 transition-transform" onClick={onFitView}>
-              <Maximize2 className="h-4 w-4" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Fit View</p>
-          </TooltipContent>
-        </Tooltip>
-      </div>
-
-      <div className="flex-1" />
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            className="glass-button px-6 py-2 rounded-xl flex items-center gap-2 bg-primary/10 hover:bg-primary/20 border-primary/30 shadow-glass-glow animate-float"
-            onClick={onUpload}
-          >
-            <Upload className="h-4 w-4" />
-            <span className="text-sm font-medium">Upload IFC</span>
-          </button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Upload IFC File</p>
-        </TooltipContent>
-      </Tooltip>
-    </div>
+    </TooltipProvider>
   );
 };

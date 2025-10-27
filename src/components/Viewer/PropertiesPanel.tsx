@@ -7,7 +7,7 @@ interface Property {
 }
 
 interface PropertyGroup {
-  title: string;
+  groupName: string;
   properties: Property[];
 }
 
@@ -23,49 +23,45 @@ interface PropertiesPanelProps {
 export const PropertiesPanel = ({ selectedObject }: PropertiesPanelProps) => {
   return (
     <div className="h-full flex flex-col">
-      <div className="px-6 py-4 border-b border-border/50 bg-gradient-to-b from-primary/5 to-transparent">
-        <h3 className="text-base font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+      <div className="px-6 py-4 border-b border-border/30">
+        <h3 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">
           Properties
         </h3>
       </div>
+
       <ScrollArea className="flex-1">
         {selectedObject ? (
-          <div className="p-6 space-y-4">
-            <div className="glass-button p-4 rounded-xl space-y-3">
-              <div>
-                <div className="text-xs text-muted-foreground mb-1.5 uppercase tracking-wider">Name</div>
-                <div className="text-sm font-medium">{selectedObject.name}</div>
-              </div>
-
-              {selectedObject.tag && (
-                <div>
-                  <div className="text-xs text-muted-foreground mb-1.5 uppercase tracking-wider">Tag</div>
-                  <div className="px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-sm font-medium inline-block">
+          <div className="p-6 space-y-6">
+            {/* Object Header */}
+            <div className="space-y-3 pb-4 border-b border-border/30">
+              <h4 className="text-base font-semibold text-foreground">
+                {selectedObject.name}
+              </h4>
+              <div className="flex items-center gap-2 flex-wrap">
+                {selectedObject.tag && (
+                  <span className="text-xs px-2.5 py-1 bg-muted/30 rounded-full font-mono text-muted-foreground border border-border/30">
                     {selectedObject.tag}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <div className="text-xs text-muted-foreground mb-1.5 uppercase tracking-wider">Type</div>
-                <div className="text-sm font-mono bg-muted/50 px-2 py-1 rounded">{selectedObject.type}</div>
+                  </span>
+                )}
+                <span className="text-xs px-2.5 py-1 bg-luxury-gold/10 text-luxury-gold rounded-full font-medium border border-luxury-gold/20">
+                  {selectedObject.type}
+                </span>
               </div>
             </div>
 
+            {/* Property Groups */}
             {selectedObject.propertyGroups?.map((group, idx) => (
-              <div key={idx} className="glass-button p-4 rounded-xl space-y-3">
-                <div className="text-xs font-semibold text-primary uppercase tracking-wider flex items-center gap-2">
-                  <div className="h-px flex-1 bg-gradient-to-r from-primary/50 to-transparent" />
-                  {group.title}
-                  <div className="h-px flex-1 bg-gradient-to-l from-primary/50 to-transparent" />
-                </div>
+              <div key={idx} className="space-y-3">
+                <h5 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  {group.groupName}
+                </h5>
                 <div className="space-y-2">
                   {group.properties.map((prop, propIdx) => (
-                    <div key={propIdx} className="flex justify-between items-start gap-3 text-xs py-1.5 border-b border-border/30 last:border-0">
-                      <span className="text-muted-foreground flex-1 font-medium">
+                    <div key={propIdx} className="flex justify-between items-start py-2.5 border-b border-border/10 last:border-0">
+                      <span className="text-xs text-muted-foreground font-medium">
                         {prop.name}
                       </span>
-                      <span className="font-mono text-right text-foreground">
+                      <span className="text-xs text-foreground font-mono text-right ml-2">
                         {prop.value}
                       </span>
                     </div>
@@ -75,15 +71,13 @@ export const PropertiesPanel = ({ selectedObject }: PropertiesPanelProps) => {
             ))}
           </div>
         ) : (
-          <div className="px-6 py-16 text-center">
-            <div className="glass-button p-8 rounded-xl">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                <MousePointer className="h-8 w-8 text-primary" />
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Select an object to view its properties
-              </p>
+          <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+            <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center mb-4">
+              <MousePointer className="h-8 w-8 text-muted-foreground/40" />
             </div>
+            <p className="text-sm font-medium text-muted-foreground mb-1">
+              Select an object to view its properties
+            </p>
           </div>
         )}
       </ScrollArea>

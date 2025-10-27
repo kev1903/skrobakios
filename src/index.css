@@ -159,6 +159,9 @@ div[data-rbd-drag-handle-draggable-id] {
     --luxury-gold-dark: 217 91% 45%;
     --luxury-champagne: 217 70% 90%;
     
+    /* Viewer background */
+    --viewer-bg: 40 10% 96%;
+    
     /* Glass Morphism */
     --glass-bg: 0 0% 100% / 0.7;
     --glass-bg-light: 0 0% 100% / 0.5;
@@ -331,6 +334,24 @@ div[data-rbd-drag-handle-draggable-id] {
     border-right: 1px solid var(--sidebar-border);
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
     transition: all 0.3s ease;
+  }
+  
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(220, 220, 220, 0.3);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+  }
+  
+  .glass-panel:hover {
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  }
+  
+  .dark .glass-panel {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 }
 

@@ -73,7 +73,7 @@ const IFCViewerPage = () => {
     <div className="fixed inset-0 top-[var(--header-height)] w-full flex flex-col overflow-hidden bg-background p-4 gap-4">
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       
-      <div className="glass-panel rounded-2xl p-3 z-10 flex-shrink-0">
+      <div className="glass-panel rounded-2xl px-6 py-3 z-10 flex-shrink-0 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
         <ViewerToolbar
           onZoomIn={() => {}}
           onZoomOut={() => {}}
@@ -85,14 +85,14 @@ const IFCViewerPage = () => {
         />
       </div>
 
-      <div className="flex-1 flex overflow-hidden relative gap-2 min-h-0">
-        <div className="w-80 glass-panel flex-shrink-0 z-10 rounded-2xl overflow-auto">
+      <div className="flex-1 flex overflow-hidden relative gap-4 min-h-0">
+        <div className="w-80 glass-panel flex-shrink-0 z-10 rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300">
           <ObjectTree model={loadedModel} ifcLoader={ifcLoader} />
         </div>
         <div className="flex-1 relative overflow-hidden">
           <ViewerCanvas onViewerReady={handleViewerReady} />
         </div>
-        <div className="w-80 glass-panel flex-shrink-0 z-10 rounded-2xl overflow-auto">
+        <div className="w-80 glass-panel flex-shrink-0 z-10 rounded-2xl overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300">
           <PropertiesPanel selectedObject={selectedObject} />
         </div>
       </div>

@@ -19,15 +19,11 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
     }
 
     const buildTree = async () => {
-      console.log("Building tree from IFC model", model);
-      
       try {
         // Get model ID
         const modelID = (model as any).modelID ?? 0;
-        console.log("Model ID:", modelID);
         
         if (!ifcLoader) {
-          console.warn("IFCLoader not available");
           setTreeData([]);
           return;
         }
@@ -46,10 +42,7 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
           }
         });
         
-        console.log(`Found ${totalObjects} objects with expressID in model`);
-        
         if (totalObjects === 0) {
-          console.warn("No IFC objects found in model");
           setTreeData([]);
           return;
         }
@@ -107,12 +100,6 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
         
         // Sort parent nodes alphabetically
         nodes.sort((a, b) => a.type.localeCompare(b.type));
-        
-        console.log("Tree structure:", {
-          types: nodes.length,
-          totalElements: totalObjects,
-          typeNames: Array.from(elementsByType.keys())
-        });
         
         setTreeData(nodes);
         setVisibleNodes(visibleSet);
@@ -183,8 +170,8 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
     return (
       <div key={node.id}>
         <div
-          className="flex items-center gap-2 px-3 py-2 hover:bg-accent/50 cursor-pointer transition-colors group"
-          style={{ paddingLeft: `${level * 16 + 12}px` }}
+          className="flex items-center gap-2 px-6 py-3 hover:bg-accent/30 cursor-pointer transition-all duration-200 group"
+          style={{ paddingLeft: `${level * 16 + 24}px` }}
         >
           <div 
             className="flex items-center gap-2 flex-1 min-w-0"
@@ -192,19 +179,19 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
           >
             {hasChildren ? (
               isExpanded ? (
-                <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 transition-transform duration-200" />
               ) : (
-                <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 transition-transform duration-200" />
               )
             ) : (
-              <Box className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <Box className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
             )}
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <span className="text-sm font-medium text-foreground truncate">
                 {node.name}
               </span>
               {node.count !== undefined && (
-                <span className="text-xs text-muted-foreground flex-shrink-0">
+                <span className="text-xs text-muted-foreground/70 flex-shrink-0 font-mono">
                   ({node.count})
                 </span>
               )}
@@ -212,13 +199,13 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
           </div>
           <button
             onClick={(e) => toggleVisibility(node, e)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-accent rounded flex-shrink-0"
+            className="opacity-0 group-hover:opacity-100 transition-all duration-200 p-1.5 hover:bg-accent/50 rounded-full flex-shrink-0"
             title={isVisible ? "Hide" : "Show"}
           >
             {isVisible ? (
-              <Eye className="h-4 w-4 text-luxury-gold" />
+              <Eye className="h-3.5 w-3.5 text-luxury-gold" />
             ) : (
-              <EyeOff className="h-4 w-4 text-muted-foreground" />
+              <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
             )}
           </button>
         </div>
@@ -233,8 +220,8 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-6 border-b border-border/30">
-        <h3 className="text-sm font-semibold text-luxury-gold uppercase tracking-wide">Project Structure</h3>
+      <div className="px-6 py-4 border-b border-border/30">
+        <h3 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">Project Structure</h3>
       </div>
       <ScrollArea className="flex-1">
         {treeData.length > 0 ? (
@@ -242,9 +229,12 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
             {treeData.map((node) => renderNode(node))}
           </div>
         ) : (
-          <div className="p-6 text-center">
-            <p className="text-sm text-muted-foreground">No model loaded</p>
-            <p className="text-xs text-muted-foreground/60 mt-1">Upload an IFC file to view the structure</p>
+          <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+            <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center mb-4">
+              <Box className="h-8 w-8 text-muted-foreground/40" />
+            </div>
+            <p className="text-sm font-medium text-muted-foreground mb-1">No model loaded</p>
+            <p className="text-xs text-muted-foreground/60">Upload an IFC file to view the structure</p>
           </div>
         )}
       </ScrollArea>
