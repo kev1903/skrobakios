@@ -50,32 +50,58 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
 
   // Helper: Extract assembly mark from Tag property or other fields
   const extractAssemblyMark = useCallback((meta: any): string | null => {
-    if (!meta) return null;
+    console.log('🔍 ==== EXTRACT ASSEMBLY MARK ====');
+    console.log('🔍 meta object keys:', meta ? Object.keys(meta) : 'NULL');
+    
+    if (!meta) {
+      console.log('❌ meta is null/undefined');
+      return null;
+    }
+    
+    // Log all available fields
+    console.log('🔍 meta.id:', meta.id);
+    console.log('🔍 meta.type:', meta.type);
+    console.log('🔍 meta.name:', meta.name);
+    console.log('🔍 meta.attributes:', meta.attributes);
+    console.log('🔍 meta.tag:', meta.tag);
     
     // FIRST: Check attributes.Tag (this is where xeokit stores IFC attributes)
-    if (meta.attributes && meta.attributes.Tag) {
-      const value = String(meta.attributes.Tag).trim();
-      if (value) {
-        return value;
+    if (meta.attributes) {
+      console.log('✅ attributes object exists, keys:', Object.keys(meta.attributes));
+      if (meta.attributes.Tag) {
+        const value = String(meta.attributes.Tag).trim();
+        console.log(`✅ Found Tag in attributes: "${value}"`);
+        if (value) {
+          return value;
+        }
+      } else {
+        console.log('❌ No Tag field in attributes');
       }
+    } else {
+      console.log('❌ No attributes object on metaObject');
     }
     
     // SECOND: Check the tag field directly
     if (meta.tag && typeof meta.tag === 'string') {
       const value = String(meta.tag).trim();
+      console.log(`✅ Found tag field: "${value}"`);
       if (value) {
         return value;
       }
     }
     
-    // THIRD: Check propertySets
+    // THIRD: Check propertySets for Tag, ASSEMBLY_POS, or Assembly mark properties
     if (meta.propertySets && Array.isArray(meta.propertySets)) {
+      console.log(`🔍 Checking ${meta.propertySets.length} property sets`);
       for (const ps of meta.propertySets) {
         if (ps.properties && Array.isArray(ps.properties)) {
           for (const prop of ps.properties) {
             if ((prop.name === 'Tag' || prop.name === 'ASSEMBLY_POS' || prop.name === 'Assembly mark') && prop.value) {
               const value = String(prop.value).trim();
-              if (value) return value;
+              console.log(`✅ Found "${prop.name}" in property set: "${value}"`);
+              if (value) {
+                return value;
+              }
             }
           }
           
@@ -83,6 +109,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             if (prop.value && typeof prop.value === 'string') {
               const value = String(prop.value).trim();
               if (value.match(/^\d*[A-Z]+\d+(\.\d+)?$/i)) {
+                console.log(`✅ Found assembly pattern "${value}" in property "${prop.name}"`);
                 return value;
               }
             }
@@ -91,6 +118,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       }
     }
     
+    console.log('❌ No assembly mark found anywhere');
     return null;
   }, []);
 
