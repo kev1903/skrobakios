@@ -62,57 +62,19 @@ const IFCViewerPage = () => {
       if (hit && hit.entity) {
         const entity = hit.entity as any;
         
+        // Highlight the selected entity
+        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
+        viewerInstance.scene.setObjectsSelected([entity.id], true);
+        
         // Get IFC properties from the metadata
         const metaObject = viewerInstance.metaScene.metaObjects[entity.id] as any;
         
-        // Find parent assembly if exists
-        let assemblyObject = metaObject;
-        let assemblyIds = [entity.id];
-        
-        if (metaObject && metaObject.parent) {
-          // Walk up to find the assembly or significant parent
-          let currentMeta = metaObject;
-          while (currentMeta.parent) {
-            const parentMeta = viewerInstance.metaScene.metaObjects[currentMeta.parent] as any;
-            if (!parentMeta) break;
-            
-            // Check if parent is an assembly or spatial structure element
-            if (parentMeta.type && (
-              parentMeta.type.includes('Assembly') ||
-              parentMeta.type === 'IfcBuildingStorey' ||
-              parentMeta.type === 'IfcBuilding' ||
-              parentMeta.type === 'IfcSite' ||
-              parentMeta.type === 'IfcSpace'
-            )) {
-              assemblyObject = parentMeta;
-              
-              // Get all children of this assembly
-              const children = Object.keys(viewerInstance.metaScene.metaObjects)
-                .filter(id => {
-                  const meta = viewerInstance.metaScene.metaObjects[id] as any;
-                  return meta && meta.parent === parentMeta.id;
-                });
-              
-              assemblyIds = [parentMeta.id, ...children];
-              break;
-            }
-            
-            currentMeta = parentMeta;
-          }
-        }
-        
-        // Highlight the selected entity/assembly
-        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
-        viewerInstance.scene.setObjectsSelected(assemblyIds, true);
-        
-        if (assemblyObject) {
-          // Collect IFC properties for the assembly
+        if (metaObject) {
+          // Collect IFC properties
           const properties: any = {
-            id: String(assemblyObject.id || entity.id),
-            type: assemblyObject.type || entity.type || "Unknown",
-            name: assemblyObject.name || entity.name || String(entity.id),
-            isAssembly: assemblyIds.length > 1,
-            memberCount: assemblyIds.length,
+            id: String(entity.id),
+            type: metaObject.type || entity.type || "Unknown",
+            name: metaObject.name || entity.name || String(entity.id),
             
             // Viewer state properties
             isObject: entity.isObject,
@@ -126,17 +88,12 @@ const IFCViewerPage = () => {
           };
 
           // Add IFC property sets from metadata
-          if (assemblyObject.propertySets && Array.isArray(assemblyObject.propertySets)) {
-            properties.propertySets = assemblyObject.propertySets.map((ps: any) => ({
+          if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
+            properties.propertySets = metaObject.propertySets.map((ps: any) => ({
               name: ps.name || ps.type || 'Property Set',
               type: ps.type,
               properties: ps.properties || {}
             }));
-          }
-          
-          // Add IFC attributes from assembly
-          if (assemblyObject.attributes) {
-            properties.attributes = assemblyObject.attributes;
           }
 
           // Try to get properties from children metadata
@@ -176,8 +133,7 @@ const IFCViewerPage = () => {
             };
           }
 
-          console.log('Selected object metadata:', assemblyObject);
-          console.log('Assembly IDs:', assemblyIds);
+          console.log('Selected object metadata:', metaObject);
           console.log('Extracted properties:', properties);
 
           setSelectedObject(properties);
