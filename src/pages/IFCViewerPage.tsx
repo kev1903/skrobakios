@@ -64,54 +64,47 @@ const IFCViewerPage = () => {
         const metaObject = viewerInstance.metaScene.metaObjects[entity.id] as any;
         
         if (!metaObject) {
-          console.log("No metadata found for entity:", entity.id);
           return;
         }
-
-        console.log("Clicked metaObject:", metaObject);
         
-        // Get assembly reference from property sets to find related parts
-        let assemblyReference = null;
-        let assemblyMark = null;
+        // Extract assembly reference from IFC property sets
+        let assemblyReference: string | null = null;
         
-        // Try to find assembly reference from property sets
         if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
-          for (const ps of metaObject.propertySets) {
-            if (ps.properties) {
-              // Check for Tekla reference or assembly mark
-              for (const prop of ps.properties) {
+          for (const propSet of metaObject.propertySets) {
+            if (propSet.properties && Array.isArray(propSet.properties)) {
+              for (const prop of propSet.properties) {
                 if (prop.name === 'Reference' && prop.value) {
                   assemblyReference = String(prop.value);
-                }
-                if (prop.name === 'ASSEMBLY_MARK' && prop.value) {
-                  assemblyMark = String(prop.value);
+                  break;
                 }
               }
+              if (assemblyReference) break;
             }
           }
         }
         
-        console.log("Assembly reference:", assemblyReference);
-        console.log("Assembly mark:", assemblyMark);
-        
-        // Collect all objects with the same assembly reference or parent
         const assemblyObjectIds: string[] = [];
         let assemblyParent = metaObject;
         
-        // Method 1: Find by assembly reference/mark
-        if (assemblyReference || assemblyMark) {
+        // If we found an assembly reference, select all objects with same reference
+        if (assemblyReference) {
           const allMetaObjects = viewerInstance.metaScene.metaObjects;
+          
           Object.keys(allMetaObjects).forEach((objId: string) => {
             const obj = allMetaObjects[objId] as any;
+            
+            // Check if this object has the same assembly reference
             if (obj.propertySets && Array.isArray(obj.propertySets)) {
-              for (const ps of obj.propertySets) {
-                if (ps.properties) {
-                  for (const prop of ps.properties) {
-                    if ((prop.name === 'Reference' && prop.value === assemblyReference) ||
-                        (prop.name === 'ASSEMBLY_MARK' && prop.value === assemblyMark)) {
+              for (const propSet of obj.propertySets) {
+                if (propSet.properties && Array.isArray(propSet.properties)) {
+                  for (const prop of propSet.properties) {
+                    if (prop.name === 'Reference' && String(prop.value) === assemblyReference) {
+                      // Only add if it's a renderable scene object
                       if (viewerInstance.scene.objects[objId]) {
                         assemblyObjectIds.push(objId);
                       }
+                      return; // Found match, move to next object
                     }
                   }
                 }
@@ -120,47 +113,12 @@ const IFCViewerPage = () => {
           });
         }
         
-        // Method 2: If no assembly reference found, try parent-child hierarchy
-        if (assemblyObjectIds.length === 0) {
-          // Find parent assembly
-          if (metaObject.parent) {
-            const parentMeta = viewerInstance.metaScene.metaObjects[metaObject.parent] as any;
-            if (parentMeta) {
-              assemblyParent = parentMeta;
-            }
-          }
-          
-          // Recursively collect all children
-          const collectChildren = (metaObj: any) => {
-            if (metaObj.id && viewerInstance.scene.objects[metaObj.id]) {
-              assemblyObjectIds.push(metaObj.id);
-            }
-            
-            if (metaObj.children && Array.isArray(metaObj.children)) {
-              metaObj.children.forEach((child: any) => {
-                const childMeta = typeof child === 'string' 
-                  ? viewerInstance.metaScene.metaObjects[child]
-                  : child;
-                  
-                if (childMeta) {
-                  collectChildren(childMeta);
-                }
-              });
-            }
-          };
-          
-          collectChildren(assemblyParent);
-        }
-        
-        // If still no objects found, just select the clicked object
+        // Fallback: if no assembly reference or no matches, select just this object
         if (assemblyObjectIds.length === 0) {
           assemblyObjectIds.push(entity.id);
         }
         
-        console.log("Assembly parent:", assemblyParent);
-        console.log("Assembly object IDs to select:", assemblyObjectIds);
-        
-        // Highlight all objects in the assembly
+        // Deselect all and select assembly objects
         viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
         viewerInstance.scene.setObjectsSelected(assemblyObjectIds, true);
         
