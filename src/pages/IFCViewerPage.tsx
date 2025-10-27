@@ -69,13 +69,18 @@ const IFCViewerPage = () => {
         
         // Helper function to extract Reference property from any object
         const extractReference = (obj: any): string | null => {
-          if (!obj.propertySets || !Array.isArray(obj.propertySets)) return null;
+          if (!obj.propertySets || !Array.isArray(obj.propertySets)) {
+            console.log('No propertySets for', obj.id);
+            return null;
+          }
           
           for (const propSet of obj.propertySets) {
             if (propSet.properties && Array.isArray(propSet.properties)) {
               for (const prop of propSet.properties) {
                 if (prop.name === 'Reference' && prop.value) {
-                  return String(prop.value).trim();
+                  const ref = String(prop.value).trim();
+                  console.log('Found Reference:', ref, 'in object:', obj.id);
+                  return ref;
                 }
               }
             }
@@ -85,9 +90,11 @@ const IFCViewerPage = () => {
         
         // Get the Reference value from clicked object
         const assemblyReference = extractReference(metaObject);
+        console.log('📌 Assembly Reference extracted:', assemblyReference);
+        alert(`Clicked object Reference: ${assemblyReference || 'NONE'}`);
         
         if (!assemblyReference) {
-          toast.warning(`No Reference found - selecting single ${metaObject.type || 'object'}`);
+          console.warn('No Reference found, selecting single object');
           // Select just this one object
           viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
           viewerInstance.scene.setObjectsSelected([entity.id], true);
@@ -104,31 +111,38 @@ const IFCViewerPage = () => {
         }
         
         // Found a Reference - now find ALL objects with the same Reference
-        toast.info(`Finding all parts with Reference: "${assemblyReference}"...`);
+        console.log('🔍 Searching for all objects with Reference:', assemblyReference);
         
         const assemblyObjectIds: string[] = [];
         const allMetaObjects = viewerInstance.metaScene.metaObjects;
+        console.log('Total objects in scene:', Object.keys(allMetaObjects).length);
         
         // Search through ALL objects in the model
+        let matchCount = 0;
         Object.keys(allMetaObjects).forEach((objId: string) => {
           const obj = allMetaObjects[objId] as any;
           const objReference = extractReference(obj);
           
           // If this object has the same Reference value
           if (objReference === assemblyReference) {
+            matchCount++;
             // Check if it's a renderable object in the scene
             const sceneObj = viewerInstance.scene.objects[objId];
             if (sceneObj) {
               assemblyObjectIds.push(objId);
+              console.log('✅ Match found:', objId, obj.type);
+            } else {
+              console.log('⚠️ Match but not renderable:', objId, obj.type);
             }
           }
         });
         
+        console.log('📦 Total matches:', matchCount, 'Renderable:', assemblyObjectIds.length);
+        alert(`Found ${assemblyObjectIds.length} objects with Reference "${assemblyReference}"`);
+        
         if (assemblyObjectIds.length === 0) {
-          toast.error(`No objects found with Reference "${assemblyReference}"`);
+          console.error('No renderable objects found!');
           assemblyObjectIds.push(entity.id);
-        } else {
-          toast.success(`Selected ${assemblyObjectIds.length} parts with Reference "${assemblyReference}"`);
         }
         
         const assemblyParent = metaObject;
