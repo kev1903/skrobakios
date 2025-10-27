@@ -52,7 +52,15 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
   const extractAssemblyMark = useCallback((meta: any): string | null => {
     if (!meta) return null;
     
-    // FIRST: Check the Tag field
+    // FIRST: Check attributes.Tag (this is where xeokit stores IFC attributes)
+    if (meta.attributes && meta.attributes.Tag) {
+      const value = String(meta.attributes.Tag).trim();
+      if (value) {
+        return value;
+      }
+    }
+    
+    // SECOND: Check the tag field directly
     if (meta.tag && typeof meta.tag === 'string') {
       const value = String(meta.tag).trim();
       if (value) {
@@ -60,7 +68,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       }
     }
     
-    // SECOND: Check propertySets
+    // THIRD: Check propertySets
     if (meta.propertySets && Array.isArray(meta.propertySets)) {
       for (const ps of meta.propertySets) {
         if (ps.properties && Array.isArray(ps.properties)) {
@@ -181,11 +189,10 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         console.log('===== CLICKED OBJECT =====');
         console.log('Entity ID:', entity.id);
         console.log('Type:', metaObject.type);
-        console.log('🔍 ALL metaObject keys:', Object.keys(metaObject));
+        console.log('🔍 metaObject.attributes:', metaObject.attributes);
+        console.log('🔍 metaObject.attributes.Tag:', metaObject.attributes?.Tag);
         console.log('🔍 metaObject.tag:', metaObject.tag);
         console.log('🔍 metaObject.name:', metaObject.name);
-        console.log('🔍 metaObject.predefinedType:', metaObject.predefinedType);
-        console.log('🔍 metaObject.objectType:', metaObject.objectType);
         
         const assemblyObjectIds = collectAssemblyEntities(metaObject, viewerInstance);
         

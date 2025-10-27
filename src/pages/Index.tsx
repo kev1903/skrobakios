@@ -50,16 +50,25 @@ const IFCViewerPage = () => {
   const extractAssemblyMark = useCallback((meta: any): string | null => {
     if (!meta) return null;
     
-    // FIRST: Check the Tag field (this is where BIM Collab shows "TB3.1")
-    if (meta.tag && typeof meta.tag === 'string') {
-      const value = String(meta.tag).trim();
+    // FIRST: Check attributes.Tag (this is where xeokit stores IFC attributes)
+    if (meta.attributes && meta.attributes.Tag) {
+      const value = String(meta.attributes.Tag).trim();
       if (value) {
-        console.log(`Found assembly mark "${value}" in tag field`);
+        console.log(`✅ Found assembly mark "${value}" in attributes.Tag`);
         return value;
       }
     }
     
-    // SECOND: Check propertySets for Tag, ASSEMBLY_POS, or Assembly mark properties
+    // SECOND: Check the tag field directly
+    if (meta.tag && typeof meta.tag === 'string') {
+      const value = String(meta.tag).trim();
+      if (value) {
+        console.log(`✅ Found assembly mark "${value}" in meta.tag field`);
+        return value;
+      }
+    }
+    
+    // THIRD: Check propertySets for Tag, ASSEMBLY_POS, or Assembly mark properties
     if (meta.propertySets && Array.isArray(meta.propertySets)) {
       for (const ps of meta.propertySets) {
         if (ps.properties && Array.isArray(ps.properties)) {
@@ -68,7 +77,7 @@ const IFCViewerPage = () => {
             if ((prop.name === 'Tag' || prop.name === 'ASSEMBLY_POS' || prop.name === 'Assembly mark') && prop.value) {
               const value = String(prop.value).trim();
               if (value) {
-                console.log(`Found assembly mark "${value}" in property "${prop.name}"`);
+                console.log(`✅ Found assembly mark "${value}" in property "${prop.name}"`);
                 return value;
               }
             }
@@ -79,7 +88,7 @@ const IFCViewerPage = () => {
             if (prop.value && typeof prop.value === 'string') {
               const value = String(prop.value).trim();
               if (value.match(/^\d*[A-Z]+\d+(\.\d+)?$/i)) {
-                console.log(`Found assembly mark pattern "${value}" in property "${prop.name}"`);
+                console.log(`✅ Found assembly mark pattern "${value}" in property "${prop.name}"`);
                 return value;
               }
             }
@@ -199,11 +208,10 @@ const IFCViewerPage = () => {
         console.log('===== CLICKED OBJECT =====');
         console.log('Entity ID:', entity.id);
         console.log('Type:', metaObject.type);
-        console.log('🔍 ALL metaObject keys:', Object.keys(metaObject));
+        console.log('🔍 metaObject.attributes:', metaObject.attributes);
+        console.log('🔍 metaObject.attributes.Tag:', metaObject.attributes?.Tag);
         console.log('🔍 metaObject.tag:', metaObject.tag);
         console.log('🔍 metaObject.name:', metaObject.name);
-        console.log('🔍 metaObject.predefinedType:', metaObject.predefinedType);
-        console.log('🔍 metaObject.objectType:', metaObject.objectType);
         
         // Extract assembly mark with detailed logging
         const assemblyMark = extractAssemblyMark(metaObject);
