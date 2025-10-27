@@ -91,17 +91,50 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     const assemblyMarkCache: Record<string, string[]> = {};
     const allMetaObjects = viewerInstance.metaScene.metaObjects;
     
+    console.log('🔨 === BUILDING ASSEMBLY CACHE ===');
+    console.log('🔨 Total meta objects:', Object.keys(allMetaObjects).length);
+    
+    let processedCount = 0;
+    let withTagCount = 0;
+    
     Object.keys(allMetaObjects).forEach((id) => {
       const metaObject = allMetaObjects[id] as any;
       if (!viewerInstance.scene.objects[id]) return;
       
+      processedCount++;
       const assemblyMark = extractAssemblyMark(metaObject);
+      
+      if (processedCount <= 5) {
+        console.log(`🔍 Object ${processedCount}:`, {
+          id,
+          type: metaObject.type,
+          tag: metaObject.tag,
+          name: metaObject.name,
+          extractedMark: assemblyMark
+        });
+      }
+      
       if (assemblyMark) {
+        withTagCount++;
         if (!assemblyMarkCache[assemblyMark]) {
           assemblyMarkCache[assemblyMark] = [];
         }
         assemblyMarkCache[assemblyMark].push(id);
       }
+    });
+    
+    console.log(`✅ Built assembly cache:`);
+    console.log(`   - Processed: ${processedCount} renderable objects`);
+    console.log(`   - With tags: ${withTagCount} objects`);
+    console.log(`   - Unique assembly marks: ${Object.keys(assemblyMarkCache).length}`);
+    
+    const sortedMarks = Object.entries(assemblyMarkCache)
+      .sort((a, b) => b[1].length - a[1].length)
+      .slice(0, 5);
+    
+    console.log('🏆 Largest assemblies:');
+    sortedMarks.forEach(([mark, ids]) => {
+      console.log(`   "${mark}": ${ids.length} parts`);
     });
     
     (assemblyCache.current as any).assemblyMarkCache = assemblyMarkCache;

@@ -96,7 +96,11 @@ const IFCViewerPage = () => {
     const assemblyMarkCache: Record<string, string[]> = {};
     const allMetaObjects = viewerInstance.metaScene.metaObjects;
     
-    console.log('Building assembly cache by scanning all objects for assembly marks...');
+    console.log('🔨 === BUILDING ASSEMBLY CACHE ===');
+    console.log('🔨 Total meta objects:', Object.keys(allMetaObjects).length);
+    
+    let processedCount = 0;
+    let withTagCount = 0;
     
     // Scan all objects and group by assembly mark
     Object.keys(allMetaObjects).forEach((id) => {
@@ -105,9 +109,22 @@ const IFCViewerPage = () => {
       // Only process renderable objects
       if (!viewerInstance.scene.objects[id]) return;
       
+      processedCount++;
       const assemblyMark = extractAssemblyMark(metaObject);
       
+      // Debug first few objects
+      if (processedCount <= 5) {
+        console.log(`🔍 Object ${processedCount}:`, {
+          id,
+          type: metaObject.type,
+          tag: metaObject.tag,
+          name: metaObject.name,
+          extractedMark: assemblyMark
+        });
+      }
+      
       if (assemblyMark) {
+        withTagCount++;
         if (!assemblyMarkCache[assemblyMark]) {
           assemblyMarkCache[assemblyMark] = [];
         }
@@ -115,12 +132,20 @@ const IFCViewerPage = () => {
       }
     });
     
-    console.log(`✅ Built assembly cache with ${Object.keys(assemblyMarkCache).length} unique assembly marks`);
-    console.log('Sample assembly marks:', Object.keys(assemblyMarkCache).slice(0, 10));
+    console.log(`✅ Built assembly cache:`);
+    console.log(`   - Processed: ${processedCount} renderable objects`);
+    console.log(`   - With tags: ${withTagCount} objects`);
+    console.log(`   - Unique assembly marks: ${Object.keys(assemblyMarkCache).length}`);
+    console.log(`   - Sample marks:`, Object.keys(assemblyMarkCache).slice(0, 10));
     
-    // Show assembly sizes
-    Object.keys(assemblyMarkCache).slice(0, 5).forEach(mark => {
-      console.log(`  Assembly "${mark}": ${assemblyMarkCache[mark].length} parts`);
+    // Show top 5 assemblies by size
+    const sortedMarks = Object.entries(assemblyMarkCache)
+      .sort((a, b) => b[1].length - a[1].length)
+      .slice(0, 5);
+    
+    console.log('🏆 Largest assemblies:');
+    sortedMarks.forEach(([mark, ids]) => {
+      console.log(`   "${mark}": ${ids.length} parts`);
     });
     
     (assemblyCache.current as any).assemblyMarkCache = assemblyMarkCache;
@@ -175,17 +200,38 @@ const IFCViewerPage = () => {
         console.log('Entity ID:', entity.id);
         console.log('Type:', metaObject.type);
         console.log('Tag:', metaObject.tag);
+        console.log('Name:', metaObject.name);
         
-        // Try to extract assembly mark
+        // Extract assembly mark with detailed logging
         const assemblyMark = extractAssemblyMark(metaObject);
-        console.log('Assembly Mark:', assemblyMark);
+        console.log('✅ Extracted Assembly Mark:', assemblyMark);
+        
+        // Check what's in the cache
+        const cacheContents = (assemblyCache.current as any).assemblyMarkCache;
+        if (cacheContents) {
+          const cacheKeys = Object.keys(cacheContents);
+          console.log('📦 Assembly cache has', cacheKeys.length, 'unique marks');
+          console.log('📦 Cache keys:', cacheKeys.slice(0, 20));
+          
+          if (assemblyMark && cacheContents[assemblyMark]) {
+            console.log(`📦 Cache entry for "${assemblyMark}":`, cacheContents[assemblyMark].length, 'objects');
+          } else {
+            console.log(`⚠️ Assembly mark "${assemblyMark}" NOT FOUND in cache`);
+          }
+        } else {
+          console.log('❌ Assembly cache is empty!');
+        }
         
         // Collect all entity IDs for this assembly
         const assemblyObjectIds = collectAssemblyEntities(metaObject, viewerInstance);
         
         console.log('===== ASSEMBLY SELECTION =====');
-        console.log('Total objects:', assemblyObjectIds.length);
-        console.log('Object IDs:', assemblyObjectIds);
+        console.log('🎯 Total objects to select:', assemblyObjectIds.length);
+        console.log('🎯 Object IDs:', assemblyObjectIds.slice(0, 10));
+        
+        if (assemblyObjectIds.length === 1) {
+          console.warn('⚠️ WARNING: Only selecting 1 object! Should be selecting more.');
+        }
         
         // Deselect all and select assembly objects
         viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
