@@ -212,12 +212,15 @@ const IFCViewerPage = () => {
       defaultLabelsOnWires: true
     });
 
-    // Set up click event for assembly-based object selection
+    // Set up click event for multi-select and assembly-based object selection
     viewerInstance.scene.input.on("mouseclicked", (coords: number[]) => {
       const hit = viewerInstance.scene.pick({
         canvasPos: coords,
         pickSurface: true
       });
+
+      // Check if Ctrl/Cmd key is pressed for multi-select
+      const isMultiSelect = viewerInstance.scene.input.keyDown[17] || viewerInstance.scene.input.keyDown[91] || viewerInstance.scene.input.keyDown[93]; // Ctrl or Cmd
 
       if (hit && hit.entity) {
         const entity = hit.entity as any;
@@ -226,56 +229,65 @@ const IFCViewerPage = () => {
         if (!metaObject) {
           return;
         }
+
+        let objectsToSelect: string[] = [];
         
-        console.log('===== CLICKED OBJECT =====');
-        console.log('Entity ID:', entity.id);
-        console.log('Type:', metaObject.type);
-        console.log('🔍 metaObject.attributes:', metaObject.attributes);
-        console.log('🔍 metaObject.attributes.Tag:', metaObject.attributes?.Tag);
-        console.log('🔍 metaObject.tag:', metaObject.tag);
-        console.log('🔍 metaObject.name:', metaObject.name);
+        // Try to find assembly by name pattern (e.g., objects with same base name)
+        const baseName = metaObject.name?.replace(/\s*\d+$/, ''); // Remove trailing numbers
         
-        // Extract assembly mark with detailed logging
-        const assemblyMark = extractAssemblyMark(metaObject);
-        console.log('✅ Extracted Assembly Mark:', assemblyMark);
-        
-        // Check what's in the cache
-        const cacheContents = (assemblyCache.current as any).assemblyMarkCache;
-        if (cacheContents) {
-          const cacheKeys = Object.keys(cacheContents);
-          console.log('📦 Assembly cache has', cacheKeys.length, 'unique marks');
-          console.log('📦 Cache keys:', cacheKeys.slice(0, 20));
+        if (baseName && baseName.length > 2) {
+          // Find all objects with similar names
+          const allMetaObjects = viewerInstance.metaScene.metaObjects;
+          const similarObjects: string[] = [];
           
-          if (assemblyMark && cacheContents[assemblyMark]) {
-            console.log(`📦 Cache entry for "${assemblyMark}":`, cacheContents[assemblyMark].length, 'objects');
+          Object.keys(allMetaObjects).forEach((id) => {
+            const meta = allMetaObjects[id] as any;
+            if (meta.name && meta.name.includes(baseName) && viewerInstance.scene.objects[id]) {
+              similarObjects.push(id);
+            }
+          });
+          
+          // If we found multiple similar objects, use them
+          if (similarObjects.length > 1) {
+            objectsToSelect = similarObjects;
+            console.log(`✅ Found ${similarObjects.length} objects with similar name pattern "${baseName}"`);
           } else {
-            console.log(`⚠️ Assembly mark "${assemblyMark}" NOT FOUND in cache`);
+            objectsToSelect = [entity.id];
           }
         } else {
-          console.log('❌ Assembly cache is empty!');
+          objectsToSelect = [entity.id];
         }
         
-        // Collect all entity IDs for this assembly
-        const assemblyObjectIds = collectAssemblyEntities(metaObject, viewerInstance);
-        
-        console.log('===== ASSEMBLY SELECTION =====');
-        console.log('🎯 Total objects to select:', assemblyObjectIds.length);
-        console.log('🎯 Object IDs:', assemblyObjectIds.slice(0, 10));
-        
-        if (assemblyObjectIds.length === 1) {
-          console.warn('⚠️ WARNING: Only selecting 1 object! Should be selecting more.');
+        // Handle multi-select mode
+        if (isMultiSelect) {
+          // Add to existing selection
+          const currentSelection = viewerInstance.scene.selectedObjectIds;
+          const newSelection = [...new Set([...currentSelection, ...objectsToSelect])];
+          viewerInstance.scene.setObjectsSelected(newSelection, true);
+          console.log(`✅ Multi-select: Added ${objectsToSelect.length} objects. Total: ${newSelection.length}`);
+          
+          // Update properties panel with multi-selection info
+          setSelectedObject({
+            id: 'multiple',
+            type: 'Multiple Selection',
+            name: `${newSelection.length} objects selected`,
+            assemblyObjectCount: newSelection.length
+          });
+          setIsPropertiesCollapsed(false);
+          toast.success(`Multi-select: ${newSelection.length} objects selected`);
+          return;
+        } else {
+          // Replace selection
+          viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
+          viewerInstance.scene.setObjectsSelected(objectsToSelect, true);
         }
-        
-        // Deselect all and select assembly objects
-        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
-        viewerInstance.scene.setObjectsSelected(assemblyObjectIds, true);
         
         // Collect IFC properties from assembly
         const properties: any = {
           id: String(metaObject.id),
           type: metaObject.type || "Unknown",
           name: metaObject.name || String(metaObject.id),
-          assemblyObjectCount: assemblyObjectIds.length,
+          assemblyObjectCount: objectsToSelect.length,
           
           // Viewer state properties
           isObject: entity.isObject,
@@ -337,7 +349,7 @@ const IFCViewerPage = () => {
 
         setSelectedObject(properties);
         setIsPropertiesCollapsed(false);
-        toast.success(`Selected assembly: ${properties.name} (${assemblyObjectIds.length} objects)`);
+        toast.success(`Selected: ${properties.name} (${objectsToSelect.length} objects)`);
       } else {
         // Deselect all if clicking on empty space
         viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
