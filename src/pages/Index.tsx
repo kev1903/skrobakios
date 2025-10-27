@@ -46,26 +46,26 @@ const IFCViewerPage = () => {
     }
   }, [isPropertiesCollapsed, isPropertiesPinned]);
 
-  // Helper: Extract assembly mark from properties
+  // Helper: Extract assembly mark from Tag property or other fields
   const extractAssemblyMark = useCallback((meta: any): string | null => {
     if (!meta) return null;
     
-    // FIRST: Check the predefinedType field (base IFC property)
-    if (meta.predefinedType && typeof meta.predefinedType === 'string') {
-      const value = String(meta.predefinedType).trim();
-      if (value && value !== 'NOTDEFINED' && value !== 'USERDEFINED') {
-        console.log(`Found assembly mark "${value}" in predefinedType`);
+    // FIRST: Check the Tag field (this is where BIM Collab shows "TB3.1")
+    if (meta.tag && typeof meta.tag === 'string') {
+      const value = String(meta.tag).trim();
+      if (value) {
+        console.log(`Found assembly mark "${value}" in tag field`);
         return value;
       }
     }
     
-    // SECOND: Check propertySets for specific assembly properties
+    // SECOND: Check propertySets for Tag, ASSEMBLY_POS, or Assembly mark properties
     if (meta.propertySets && Array.isArray(meta.propertySets)) {
       for (const ps of meta.propertySets) {
         if (ps.properties && Array.isArray(ps.properties)) {
-          // Look for properties specifically named "ASSEMBLY_POS" or "Assembly mark"
+          // Look for Tag, ASSEMBLY_POS, or Assembly mark properties
           for (const prop of ps.properties) {
-            if ((prop.name === 'ASSEMBLY_POS' || prop.name === 'Assembly mark') && prop.value) {
+            if ((prop.name === 'Tag' || prop.name === 'ASSEMBLY_POS' || prop.name === 'Assembly mark') && prop.value) {
               const value = String(prop.value).trim();
               if (value) {
                 console.log(`Found assembly mark "${value}" in property "${prop.name}"`);
@@ -74,11 +74,10 @@ const IFCViewerPage = () => {
             }
           }
           
-          // Search ALL properties for assembly mark patterns like "1B3.1"
+          // Search for assembly mark patterns like "TB3.1", "1B3.1"
           for (const prop of ps.properties) {
             if (prop.value && typeof prop.value === 'string') {
               const value = String(prop.value).trim();
-              // Match assembly patterns like "1B3.1", "TB3.1", "2C5.2" etc.
               if (value.match(/^\d*[A-Z]+\d+(\.\d+)?$/i)) {
                 console.log(`Found assembly mark pattern "${value}" in property "${prop.name}"`);
                 return value;
@@ -89,7 +88,6 @@ const IFCViewerPage = () => {
       }
     }
     
-    console.log('❌ No assembly mark found in properties');
     return null;
   }, []);
 
@@ -173,39 +171,14 @@ const IFCViewerPage = () => {
           return;
         }
         
-        console.log('===== CLICKED OBJECT - FULL DEBUG =====');
-        console.log('ID:', entity.id);
+        console.log('===== CLICKED OBJECT =====');
+        console.log('Entity ID:', entity.id);
         console.log('Type:', metaObject.type);
-        
-        // Log ALL top-level fields on metaObject
-        console.log('MetaObject Keys:', Object.keys(metaObject));
-        console.log('predefinedType:', metaObject.predefinedType);
-        console.log('objectType:', metaObject.objectType);
-        console.log('name:', metaObject.name);
-        console.log('Full metadata:', metaObject);
-        
-        // Extract ALL properties to find assembly identifiers
-        const allProperties: Record<string, any> = {};
-        if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
-          metaObject.propertySets.forEach((ps: any) => {
-            console.log(`PropertySet: ${ps.name || ps.type}`, ps);
-            if (ps.properties && Array.isArray(ps.properties)) {
-              ps.properties.forEach((p: any) => {
-                allProperties[p.name] = p.value;
-              });
-            }
-          });
-        }
-        
-        console.log('ALL PROPERTIES FLATTENED:', allProperties);
+        console.log('Tag:', metaObject.tag);
         
         // Try to extract assembly mark
         const assemblyMark = extractAssemblyMark(metaObject);
-        console.log('EXTRACTED ASSEMBLY MARK:', assemblyMark);
-        
-        // Check assembly cache
-        const cacheKeys = Object.keys((assemblyCache.current as any).assemblyMarkCache || {});
-        console.log('Assembly cache has', cacheKeys.length, 'marks:', cacheKeys.slice(0, 20));
+        console.log('Assembly Mark:', assemblyMark);
         
         // Collect all entity IDs for this assembly
         const assemblyObjectIds = collectAssemblyEntities(metaObject, viewerInstance);
