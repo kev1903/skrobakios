@@ -61,20 +61,54 @@ const IFCViewerPage = () => {
 
       if (hit && hit.entity) {
         const entity = hit.entity as any;
-        
-        // Highlight the selected entity
-        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
-        viewerInstance.scene.setObjectsSelected([entity.id], true);
-        
-        // Get IFC properties from the metadata
         const metaObject = viewerInstance.metaScene.metaObjects[entity.id] as any;
         
-        if (metaObject) {
-          // Collect IFC properties
+        // Find assembly parent and all related objects
+        let assemblyParent = metaObject;
+        const assemblyTypes = ['IfcElementAssembly', 'IfcBuildingStorey', 'IfcBuilding', 'IfcSite', 'IfcSpace'];
+        
+        // Walk up the hierarchy to find an assembly parent
+        let currentMeta = metaObject;
+        while (currentMeta && currentMeta.parent) {
+          const parentMeta = viewerInstance.metaScene.metaObjects[currentMeta.parent] as any;
+          if (parentMeta && assemblyTypes.includes(parentMeta.type)) {
+            assemblyParent = parentMeta;
+            break;
+          }
+          currentMeta = parentMeta;
+        }
+        
+        // Collect all children of the assembly
+        const assemblyObjectIds: string[] = [];
+        const collectChildren = (metaObj: any) => {
+          if (metaObj.id && viewerInstance.scene.objects[metaObj.id]) {
+            assemblyObjectIds.push(metaObj.id);
+          }
+          if (metaObj.children) {
+            metaObj.children.forEach((childId: string) => {
+              const childMeta = viewerInstance.metaScene.metaObjects[childId];
+              if (childMeta) {
+                collectChildren(childMeta);
+              }
+            });
+          }
+        };
+        
+        collectChildren(assemblyParent);
+        
+        // Highlight all objects in the assembly
+        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
+        viewerInstance.scene.setObjectsSelected(assemblyObjectIds, true);
+        
+        // Get IFC properties from the assembly parent metadata
+        
+        if (assemblyParent) {
+          // Collect IFC properties from assembly
           const properties: any = {
-            id: String(entity.id),
-            type: metaObject.type || entity.type || "Unknown",
-            name: metaObject.name || entity.name || String(entity.id),
+            id: String(assemblyParent.id),
+            type: assemblyParent.type || "Unknown",
+            name: assemblyParent.name || String(assemblyParent.id),
+            assemblyObjectCount: assemblyObjectIds.length,
             
             // Viewer state properties
             isObject: entity.isObject,
@@ -88,8 +122,8 @@ const IFCViewerPage = () => {
           };
 
           // Add IFC property sets from metadata
-          if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
-            properties.propertySets = metaObject.propertySets.map((ps: any) => ({
+          if (assemblyParent.propertySets && Array.isArray(assemblyParent.propertySets)) {
+            properties.propertySets = assemblyParent.propertySets.map((ps: any) => ({
               name: ps.name || ps.type || 'Property Set',
               type: ps.type,
               properties: ps.properties || {}
@@ -133,12 +167,13 @@ const IFCViewerPage = () => {
             };
           }
 
-          console.log('Selected object metadata:', metaObject);
+          console.log('Selected assembly metadata:', assemblyParent);
+          console.log('Assembly object IDs:', assemblyObjectIds);
           console.log('Extracted properties:', properties);
 
           setSelectedObject(properties);
           setIsPropertiesCollapsed(false);
-          toast.success(`Selected: ${properties.name}`);
+          toast.success(`Selected assembly: ${properties.name} (${assemblyObjectIds.length} objects)`);
         } else {
           // Fallback to basic entity properties if no metadata
           const properties: any = {
