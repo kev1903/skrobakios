@@ -48,12 +48,22 @@ const IFCViewerPage = () => {
 
   // Helper: Extract assembly mark from properties
   const extractAssemblyMark = useCallback((meta: any): string | null => {
-    if (!meta || !meta.propertySets) return null;
+    if (!meta) return null;
     
-    if (Array.isArray(meta.propertySets)) {
+    // FIRST: Check the predefinedType field (base IFC property)
+    if (meta.predefinedType && typeof meta.predefinedType === 'string') {
+      const value = String(meta.predefinedType).trim();
+      if (value && value !== 'NOTDEFINED' && value !== 'USERDEFINED') {
+        console.log(`Found assembly mark "${value}" in predefinedType`);
+        return value;
+      }
+    }
+    
+    // SECOND: Check propertySets for specific assembly properties
+    if (meta.propertySets && Array.isArray(meta.propertySets)) {
       for (const ps of meta.propertySets) {
         if (ps.properties && Array.isArray(ps.properties)) {
-          // FIRST: Look for properties specifically named "ASSEMBLY_POS" or "Assembly mark"
+          // Look for properties specifically named "ASSEMBLY_POS" or "Assembly mark"
           for (const prop of ps.properties) {
             if ((prop.name === 'ASSEMBLY_POS' || prop.name === 'Assembly mark') && prop.value) {
               const value = String(prop.value).trim();
@@ -64,12 +74,12 @@ const IFCViewerPage = () => {
             }
           }
           
-          // SECOND: Search ALL properties for assembly mark patterns like "1B3.1"
+          // Search ALL properties for assembly mark patterns like "1B3.1"
           for (const prop of ps.properties) {
             if (prop.value && typeof prop.value === 'string') {
               const value = String(prop.value).trim();
-              // Match assembly patterns like "1B3.1", "1B1.1", "2C5.2" etc.
-              if (value.match(/^\d+[A-Z]+\d+(\.\d+)?$/i)) {
+              // Match assembly patterns like "1B3.1", "TB3.1", "2C5.2" etc.
+              if (value.match(/^\d*[A-Z]+\d+(\.\d+)?$/i)) {
                 console.log(`Found assembly mark pattern "${value}" in property "${prop.name}"`);
                 return value;
               }
