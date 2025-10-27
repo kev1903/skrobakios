@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
-import * as THREE from "three";
-import { IFCLoader } from "web-ifc-three/IFCLoader";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronRight, ChevronDown, Box, Eye, EyeOff } from "lucide-react";
 
 interface ObjectTreeProps {
-  model: THREE.Object3D | null;
-  ifcLoader: IFCLoader | null;
+  model: any;
+  ifcLoader: any;
 }
 
 export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
