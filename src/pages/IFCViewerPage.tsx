@@ -21,6 +21,7 @@ const IFCViewerPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const measurementClickCount = useRef<number>(0);
   const firstPoint = useRef<{ entity: any; worldPos: number[] } | null>(null);
+  const assemblyCache = useRef<Record<string, string[]>>({});
 
   // Auto-collapse Project Structure after 5 seconds (unless pinned)
   useEffect(() => {
@@ -44,6 +45,101 @@ const IFCViewerPage = () => {
     }
   }, [isPropertiesCollapsed, isPropertiesPinned]);
 
+  // Helper: Build assembly cache for performance
+  const buildAssemblyCache = useCallback((viewerInstance: Viewer) => {
+    const cache: Record<string, string[]> = {};
+    
+    const collectDescendants = (metaObject: any, result: string[]) => {
+      if (metaObject.children && Array.isArray(metaObject.children)) {
+        for (const childId of metaObject.children) {
+          const childIdStr = typeof childId === 'string' ? childId : childId.id;
+          result.push(childIdStr);
+          const childMeta = viewerInstance.metaScene.metaObjects[childIdStr];
+          if (childMeta) {
+            collectDescendants(childMeta, result);
+          }
+        }
+      }
+    };
+    
+    // Find all IfcElementAssembly objects and cache their descendants
+    const allMetaObjects = viewerInstance.metaScene.metaObjects;
+    Object.keys(allMetaObjects).forEach((id) => {
+      const metaObject = allMetaObjects[id] as any;
+      if (metaObject.type === "IfcElementAssembly") {
+        const descendants: string[] = [];
+        collectDescendants(metaObject, descendants);
+        cache[id] = descendants;
+        console.log(`Cached assembly ${id} with ${descendants.length} descendants`);
+      }
+    });
+    
+    assemblyCache.current = cache;
+    console.log(`Built assembly cache with ${Object.keys(cache).length} assemblies`);
+  }, []);
+
+  // Helper: Find the selectable root (assembly or parent)
+  const getSelectableRoot = useCallback((metaObject: any, viewerInstance: Viewer): any => {
+    let current = metaObject;
+    
+    // Traverse up to find IfcElementAssembly parent
+    while (current && current.parent) {
+      const parentId = typeof current.parent === 'string' ? current.parent : current.parent.id;
+      const parentMeta = viewerInstance.metaScene.metaObjects[parentId];
+      
+      if (parentMeta && parentMeta.type === "IfcElementAssembly") {
+        return parentMeta;
+      }
+      
+      current = parentMeta;
+    }
+    
+    // If no assembly found, return the original object
+    return metaObject;
+  }, []);
+
+  // Helper: Collect all entity IDs for a meta object and its descendants
+  const collectAssemblyEntities = useCallback((metaObject: any, viewerInstance: Viewer): string[] => {
+    const entityIds: string[] = [];
+    
+    // Check if we have cached descendants for this assembly
+    if (assemblyCache.current[metaObject.id]) {
+      assemblyCache.current[metaObject.id].forEach((descendantId) => {
+        if (viewerInstance.scene.objects[descendantId]) {
+          entityIds.push(descendantId);
+        }
+      });
+    }
+    
+    // Always add the root entity if it exists
+    if (viewerInstance.scene.objects[metaObject.id]) {
+      entityIds.push(metaObject.id);
+    }
+    
+    // If no cached data, traverse recursively
+    if (entityIds.length <= 1 && metaObject.children && Array.isArray(metaObject.children)) {
+      const collectRecursive = (obj: any) => {
+        if (viewerInstance.scene.objects[obj.id]) {
+          entityIds.push(obj.id);
+        }
+        
+        if (obj.children && Array.isArray(obj.children)) {
+          obj.children.forEach((childId: any) => {
+            const childIdStr = typeof childId === 'string' ? childId : childId.id;
+            const childMeta = viewerInstance.metaScene.metaObjects[childIdStr];
+            if (childMeta) {
+              collectRecursive(childMeta);
+            }
+          });
+        }
+      };
+      
+      collectRecursive(metaObject);
+    }
+    
+    return entityIds;
+  }, []);
+
   const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
       defaultVisible: true,
@@ -52,7 +148,7 @@ const IFCViewerPage = () => {
       defaultLabelsOnWires: true
     });
 
-    // Set up click event for object selection
+    // Set up click event for assembly-based object selection
     viewerInstance.scene.input.on("mouseclicked", (coords: number[]) => {
       const hit = viewerInstance.scene.pick({
         canvasPos: coords,
@@ -67,79 +163,27 @@ const IFCViewerPage = () => {
           return;
         }
         
-        // Helper function to extract Reference property from metadata
-        const extractReference = (meta: any): string | null => {
-          if (!meta) return null;
-          
-          console.log('Extracting reference from:', meta.id, {
-            hasPropertySets: !!meta.propertySets,
-            propertySetCount: meta.propertySets?.length,
-            propertySets: meta.propertySets
-          });
-          
-          // Check property sets for Reference
-          if (meta.propertySets && Array.isArray(meta.propertySets)) {
-            for (const ps of meta.propertySets) {
-              console.log('Checking property set:', ps.name, {
-                hasProperties: !!ps.properties,
-                propertyCount: ps.properties?.length
-              });
-              
-              if (ps.properties && Array.isArray(ps.properties)) {
-                const refProp = ps.properties.find((p: any) => p.name === "Reference");
-                console.log('Found Reference property?', !!refProp, refProp);
-                if (refProp && refProp.value) {
-                  console.log('Returning Reference value:', refProp.value);
-                  return String(refProp.value);
-                }
-              }
-            }
-          }
-          
-          console.log('No Reference found for:', meta.id);
-          return null;
-        };
-        
-        // Get Reference value from clicked object
-        const clickedReference = extractReference(metaObject);
-        
         console.log('===== CLICKED OBJECT =====');
         console.log('ID:', entity.id);
         console.log('Type:', metaObject.type);
-        console.log('Reference:', clickedReference);
-        console.log('Full metadata:', metaObject);
+        console.log('Parent:', metaObject.parent);
         
-        let assemblyObjectIds: string[] = [entity.id];
+        // Find the selectable root (assembly or parent)
+        const rootMeta = getSelectableRoot(metaObject, viewerInstance);
         
-        // If we found a Reference value, find all objects with the same Reference
-        if (clickedReference) {
-          console.log('Searching for objects with Reference:', clickedReference);
-          assemblyObjectIds = [];
-          const allMetaObjects = viewerInstance.metaScene.metaObjects;
-          let matchCount = 0;
-          
-          // Search through all objects for matching Reference
-          Object.keys(allMetaObjects).forEach((objId: string) => {
-            const meta = allMetaObjects[objId] as any;
-            const objReference = extractReference(meta);
-            
-            // If this object has the same Reference value and is renderable
-            if (objReference === clickedReference && viewerInstance.scene.objects[objId]) {
-              assemblyObjectIds.push(objId);
-              matchCount++;
-              console.log(`Match ${matchCount}: ${objId} (${meta.type})`);
-            }
-          });
-          
-          console.log('===== ASSEMBLY SELECTION COMPLETE =====');
-          console.log('Reference:', clickedReference);
-          console.log('Total objects found:', assemblyObjectIds.length);
-          console.log('Object IDs:', assemblyObjectIds);
-        } else {
-          console.log('No Reference found - selecting single object only');
-        }
+        console.log('===== SELECTABLE ROOT =====');
+        console.log('Root ID:', rootMeta.id);
+        console.log('Root Type:', rootMeta.type);
+        console.log('Root Name:', rootMeta.name);
         
-        const assemblyParent = metaObject;
+        // Collect all entity IDs for this assembly
+        const assemblyObjectIds = collectAssemblyEntities(rootMeta, viewerInstance);
+        
+        console.log('===== ASSEMBLY SELECTION =====');
+        console.log('Total objects:', assemblyObjectIds.length);
+        console.log('Object IDs:', assemblyObjectIds);
+        
+        const assemblyParent = rootMeta;
         
         // Deselect all and select assembly objects
         viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
@@ -256,7 +300,7 @@ const IFCViewerPage = () => {
     setMeasurePlugin(distanceMeasurements);
     setViewer(viewerInstance);
     setIfcLoader(loaderInstance);
-  }, []);
+  }, [getSelectableRoot, collectAssemblyEntities]);
 
   const handleUpload = () => fileInputRef.current?.click();
 
@@ -292,6 +336,13 @@ const IFCViewerPage = () => {
           toast.dismiss(loadingToast);
           toast.success(`Model loaded: ${file.name}`);
           setLoadedModel(model);
+          
+          // Build assembly cache for performance
+          if (viewer) {
+            setTimeout(() => {
+              buildAssemblyCache(viewer);
+            }, 500);
+          }
           
           // Fit view to model with slight delay
           setTimeout(() => {
