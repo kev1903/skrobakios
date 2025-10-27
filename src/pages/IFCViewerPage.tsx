@@ -214,6 +214,25 @@ const IFCViewerPage = () => {
         console.log('ID:', entity.id);
         console.log('Type:', metaObject.type);
         console.log('Parent:', metaObject.parent);
+        console.log('Full metadata:', metaObject);
+        
+        // Extract ALL properties to find assembly identifiers
+        const allProperties: Record<string, any> = {};
+        if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
+          metaObject.propertySets.forEach((ps: any) => {
+            if (ps.properties && Array.isArray(ps.properties)) {
+              ps.properties.forEach((p: any) => {
+                allProperties[p.name] = p.value;
+              });
+            }
+          });
+        }
+        
+        console.log('ALL PROPERTIES:', allProperties);
+        console.log('Reference:', allProperties['Reference']);
+        console.log('Assembly mark:', allProperties['Assembly mark']);
+        console.log('Position:', allProperties['Position']);
+        console.log('Preliminary mark:', allProperties['Preliminary mark']);
         
         // Find the selectable root (assembly or parent)
         const rootMeta = getSelectableRoot(metaObject, viewerInstance);
