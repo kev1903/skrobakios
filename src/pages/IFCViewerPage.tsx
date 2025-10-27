@@ -69,44 +69,47 @@ const IFCViewerPage = () => {
         }
 
         console.log("Clicked metaObject:", metaObject);
-        console.log("All metaObjects:", viewerInstance.metaScene.metaObjects);
         
-        // Find the spatial container or assembly parent
+        // Find assembly by looking at parent hierarchy
         let assemblyParent = metaObject;
         const assemblyObjectIds: string[] = [];
         
-        // Try to find parent by checking the metaObject's parent property
+        // If this object has a parent, use the parent as the assembly root
         if (metaObject.parent) {
-          const parentId = metaObject.parent;
-          const parentMeta = viewerInstance.metaScene.metaObjects[parentId] as any;
-          
+          const parentMeta = viewerInstance.metaScene.metaObjects[metaObject.parent] as any;
           console.log("Parent meta:", parentMeta);
           
           if (parentMeta) {
+            // Use the parent as assembly root to select all siblings
             assemblyParent = parentMeta;
-            
-            // Recursively collect all children of the parent
-            const collectChildren = (metaObj: any) => {
-              if (metaObj.id && viewerInstance.scene.objects[metaObj.id]) {
-                assemblyObjectIds.push(metaObj.id);
-              }
-              
-              // Check for children array
-              if (metaObj.children && Array.isArray(metaObj.children)) {
-                metaObj.children.forEach((childId: string) => {
-                  const childMeta = viewerInstance.metaScene.metaObjects[childId];
-                  if (childMeta) {
-                    collectChildren(childMeta);
-                  }
-                });
-              }
-            };
-            
-            collectChildren(assemblyParent);
           }
         }
         
-        // If no parent found or no children, just select the clicked object
+        // Recursively collect all visible children in the assembly
+        const collectChildren = (metaObj: any) => {
+          // Add the object itself if it's renderable
+          if (metaObj.id && viewerInstance.scene.objects[metaObj.id]) {
+            assemblyObjectIds.push(metaObj.id);
+          }
+          
+          // Recursively add all children
+          if (metaObj.children && Array.isArray(metaObj.children)) {
+            metaObj.children.forEach((child: any) => {
+              // Check if child is MetaObject or just an ID
+              const childMeta = typeof child === 'string' 
+                ? viewerInstance.metaScene.metaObjects[child]
+                : child;
+                
+              if (childMeta) {
+                collectChildren(childMeta);
+              }
+            });
+          }
+        };
+        
+        collectChildren(assemblyParent);
+        
+        // If no children found, just select the clicked object
         if (assemblyObjectIds.length === 0) {
           assemblyObjectIds.push(entity.id);
           assemblyParent = metaObject;
