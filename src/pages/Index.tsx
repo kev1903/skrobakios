@@ -199,8 +199,12 @@ const IFCViewerPage = () => {
         console.log('===== CLICKED OBJECT =====');
         console.log('Entity ID:', entity.id);
         console.log('Type:', metaObject.type);
-        console.log('Tag:', metaObject.tag);
-        console.log('Name:', metaObject.name);
+        console.log('🔍 ALL metaObject keys:', Object.keys(metaObject));
+        console.log('🔍 metaObject.tag:', metaObject.tag);
+        console.log('🔍 metaObject.name:', metaObject.name);
+        console.log('🔍 metaObject.predefinedType:', metaObject.predefinedType);
+        console.log('🔍 metaObject.objectType:', metaObject.objectType);
+        console.log('🔍 Full metaObject:', JSON.stringify(metaObject, null, 2));
         
         // Extract assembly mark with detailed logging
         const assemblyMark = extractAssemblyMark(metaObject);

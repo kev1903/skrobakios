@@ -178,6 +178,16 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
         
         if (!metaObject) return;
         
+        console.log('===== CLICKED OBJECT =====');
+        console.log('Entity ID:', entity.id);
+        console.log('Type:', metaObject.type);
+        console.log('🔍 ALL metaObject keys:', Object.keys(metaObject));
+        console.log('🔍 metaObject.tag:', metaObject.tag);
+        console.log('🔍 metaObject.name:', metaObject.name);
+        console.log('🔍 metaObject.predefinedType:', metaObject.predefinedType);
+        console.log('🔍 metaObject.objectType:', metaObject.objectType);
+        console.log('🔍 Full metaObject:', JSON.stringify(metaObject, null, 2));
+        
         const assemblyObjectIds = collectAssemblyEntities(metaObject, viewerInstance);
         
         viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
