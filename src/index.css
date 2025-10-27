@@ -337,21 +337,21 @@ div[data-rbd-drag-handle-draggable-id] {
   }
   
   .glass-panel {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(220, 220, 220, 0.3);
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(220, 220, 220, 0.3) !important;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04) !important;
+    transition: all 0.3s ease !important;
   }
   
   .glass-panel:hover {
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08) !important;
   }
   
   .dark .glass-panel {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
   }
 }
 

@@ -24,84 +24,67 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
       setIsLoading(true);
       
       try {
-        // Get model ID
-        const modelID = (model as any).modelID ?? 0;
+        const modelID = model.id;
         
-        if (!ifcLoader) {
-          setTreeData([]);
-          setIsLoading(false);
-          return;
-        }
+        console.log("Building tree for model:", modelID);
+        console.log("Model structure:", model);
         
-        // Collect all objects with expressID
-        const allObjects: Array<{ object: any; expressID: number }> = [];
+        // Get all entities from the xeokit model
+        const entities = model.scene ? model.scene.models[modelID]?.objects : {};
         
-        model.traverse((child) => {
-          if (child !== model && child.userData?.expressID !== undefined) {
-            allObjects.push({
-              object: child,
-              expressID: child.userData.expressID
-            });
-          }
-        });
-        
-        if (allObjects.length === 0) {
+        if (!entities || Object.keys(entities).length === 0) {
+          console.log("No entities found in model");
           setTreeData([]);
           setIsLoading(false);
           return;
         }
 
-        console.log(`Processing ${allObjects.length} objects...`);
+        console.log(`Found ${Object.keys(entities).length} entities`);
         
-        // Group elements by IFC type - process in batches to avoid hanging
+        // Group entities by type
         const elementsByType = new Map<string, any[]>();
-        const BATCH_SIZE = 100;
-        const MAX_OBJECTS = 1000; // Limit initial processing
+        const visibleSet = new Set<string>();
+        let processedCount = 0;
+        const MAX_OBJECTS = 500; // Limit for performance
         
-        const objectsToProcess = allObjects.slice(0, MAX_OBJECTS);
-        
-        for (let i = 0; i < objectsToProcess.length; i += BATCH_SIZE) {
-          const batch = objectsToProcess.slice(i, i + BATCH_SIZE);
+        for (const [entityId, entity] of Object.entries(entities)) {
+          if (processedCount >= MAX_OBJECTS) break;
           
-          // Process batch
-          await Promise.all(
-            batch.map(async ({ object: obj, expressID }, idx) => {
-              try {
-                const ifcType = await ifcLoader.ifcManager.getIfcType(modelID, expressID);
-                const props = await ifcLoader.ifcManager.getItemProperties(modelID, expressID);
-                
-                const elementName = props?.Name?.value || `${ifcType} ${i + idx + 1}`;
-                
-                if (!elementsByType.has(ifcType)) {
-                  elementsByType.set(ifcType, []);
-                }
-                
-                elementsByType.get(ifcType)!.push({
-                  id: obj.uuid,
-                  name: elementName,
-                  object: obj,
-                  expressID: expressID,
-                  level: 1
-                });
-              } catch (error) {
-                console.warn(`Error processing object ${i + idx}:`, error);
-              }
-            })
-          );
-          
-          // Allow UI to remain responsive
-          await new Promise(resolve => setTimeout(resolve, 0));
+          try {
+            const ifcType = (entity as any).type || "Unknown";
+            const entityName = (entity as any).name || `${ifcType} ${processedCount + 1}`;
+            
+            if (!elementsByType.has(ifcType)) {
+              elementsByType.set(ifcType, []);
+            }
+            
+            const nodeId = `entity-${entityId}`;
+            elementsByType.get(ifcType)!.push({
+              id: nodeId,
+              name: entityName,
+              entity: entity,
+              entityId: entityId,
+              level: 1
+            });
+            
+            visibleSet.add(nodeId);
+            processedCount++;
+            
+            // Allow UI to breathe every 50 items
+            if (processedCount % 50 === 0) {
+              await new Promise(resolve => setTimeout(resolve, 0));
+            }
+          } catch (error) {
+            console.warn(`Error processing entity ${entityId}:`, error);
+          }
         }
         
         // Convert to tree structure
         const nodes: any[] = [];
-        const visibleSet = new Set<string>();
         
         for (const [typeName, elements] of elementsByType.entries()) {
           const typeId = `type-${typeName}`;
-          
           visibleSet.add(typeId);
-          elements.forEach(el => visibleSet.add(el.id));
           
           nodes.push({
             id: typeId,
@@ -113,20 +96,20 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
           });
         }
         
-        // Sort parent nodes alphabetically
+        // Sort alphabetically
         nodes.sort((a, b) => a.type.localeCompare(b.type));
         
-        console.log(`Tree built with ${nodes.length} types`);
+        console.log(`Tree built with ${nodes.length} types, ${processedCount} total objects`);
         
         setTreeData(nodes);
         setVisibleNodes(visibleSet);
         setIsLoading(false);
         
-        if (allObjects.length > MAX_OBJECTS) {
-          toast.info(`Showing first ${MAX_OBJECTS} of ${allObjects.length} objects for performance`);
+        if (Object.keys(entities).length > MAX_OBJECTS) {
+          toast.info(`Showing first ${MAX_OBJECTS} of ${Object.keys(entities).length} objects`);
         }
       } catch (error) {
-        console.error("Error building IFC tree:", error);
+        console.error("Error building tree:", error);
         toast.error("Failed to build object tree");
         setTreeData([]);
         setIsLoading(false);
@@ -152,14 +135,13 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
     const newVisible = new Set(visibleNodes);
     const isVisible = visibleNodes.has(node.id);
     
-    // Toggle visibility for this node and all its children
     if (isVisible) {
       newVisible.delete(node.id);
       if (node.children) {
         node.children.forEach((child: any) => {
           newVisible.delete(child.id);
-          if (child.object) {
-            child.object.visible = false;
+          if (child.entity) {
+            child.entity.visible = false;
           }
         });
       }
@@ -168,8 +150,8 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
       if (node.children) {
         node.children.forEach((child: any) => {
           newVisible.add(child.id);
-          if (child.object) {
-            child.object.visible = true;
+          if (child.entity) {
+            child.entity.visible = true;
           }
         });
       }
@@ -236,7 +218,7 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-white/80 backdrop-blur-xl">
       <div className="px-6 py-4 border-b border-border/30">
         <h3 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">Project Structure</h3>
       </div>
