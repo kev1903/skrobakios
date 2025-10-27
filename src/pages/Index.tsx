@@ -73,7 +73,7 @@ const IFCViewerPage = () => {
     <div className="h-[calc(100vh-var(--header-height))] mt-[var(--header-height)] w-full flex flex-col overflow-hidden relative bg-background">
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       
-      <div className="glass-panel m-4 rounded-2xl p-3 z-10 flex-shrink-0">
+      <div className="glass-panel mt-4 mx-4 rounded-2xl p-3 z-10 flex-shrink-0">
         <ViewerToolbar
           onZoomIn={() => {}}
           onZoomOut={() => {}}
