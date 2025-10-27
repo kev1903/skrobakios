@@ -201,74 +201,37 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       defaultLabelsOnWires: true
     });
 
-    // Set up click event for multi-select and assembly-based object selection
+    // Set up click event for assembly-based object selection
     viewerInstance.scene.input.on("mouseclicked", (coords: number[]) => {
       const hit = viewerInstance.scene.pick({
         canvasPos: coords,
         pickSurface: true
       });
 
-      // Check if Ctrl/Cmd key is pressed for multi-select
-      const isMultiSelect = viewerInstance.scene.input.keyDown[17] || viewerInstance.scene.input.keyDown[91] || viewerInstance.scene.input.keyDown[93];
-
       if (hit && hit.entity) {
         const entity = hit.entity as any;
         const metaObject = viewerInstance.metaScene.metaObjects[entity.id] as any;
         
         if (!metaObject) return;
-
-        let objectsToSelect: string[] = [];
         
-        // Try to find assembly by name pattern
-        const baseName = metaObject.name?.replace(/\s*\d+$/, '');
+        console.log('===== CLICKED OBJECT =====');
+        console.log('Entity ID:', entity.id);
+        console.log('Type:', metaObject.type);
+        console.log('🔍 metaObject.attributes:', metaObject.attributes);
+        console.log('🔍 metaObject.attributes.Tag:', metaObject.attributes?.Tag);
+        console.log('🔍 metaObject.tag:', metaObject.tag);
+        console.log('🔍 metaObject.name:', metaObject.name);
         
-        if (baseName && baseName.length > 2) {
-          const allMetaObjects = viewerInstance.metaScene.metaObjects;
-          const similarObjects: string[] = [];
-          
-          Object.keys(allMetaObjects).forEach((id) => {
-            const meta = allMetaObjects[id] as any;
-            if (meta.name && meta.name.includes(baseName) && viewerInstance.scene.objects[id]) {
-              similarObjects.push(id);
-            }
-          });
-          
-          if (similarObjects.length > 1) {
-            objectsToSelect = similarObjects;
-            console.log(`✅ Found ${similarObjects.length} objects with similar name pattern "${baseName}"`);
-          } else {
-            objectsToSelect = [entity.id];
-          }
-        } else {
-          objectsToSelect = [entity.id];
-        }
+        const assemblyObjectIds = collectAssemblyEntities(metaObject, viewerInstance);
         
-        // Handle multi-select mode
-        if (isMultiSelect) {
-          const currentSelection = viewerInstance.scene.selectedObjectIds;
-          const newSelection = [...new Set([...currentSelection, ...objectsToSelect])];
-          viewerInstance.scene.setObjectsSelected(newSelection, true);
-          console.log(`✅ Multi-select: Added ${objectsToSelect.length} objects. Total: ${newSelection.length}`);
-          
-          setSelectedObject({
-            id: 'multiple',
-            type: 'Multiple Selection',
-            name: `${newSelection.length} objects selected`,
-            assemblyObjectCount: newSelection.length
-          });
-          setIsPropertiesCollapsed(false);
-          toast.success(`Multi-select: ${newSelection.length} objects selected`);
-          return;
-        } else {
-          viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
-          viewerInstance.scene.setObjectsSelected(objectsToSelect, true);
-        }
+        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
+        viewerInstance.scene.setObjectsSelected(assemblyObjectIds, true);
         
         const properties: any = {
           id: String(metaObject.id),
           type: metaObject.type || "Unknown",
           name: metaObject.name || String(metaObject.id),
-          assemblyObjectCount: objectsToSelect.length,
+          assemblyObjectCount: assemblyObjectIds.length,
           isObject: entity.isObject,
           isEntity: entity.isEntity,
           visible: entity.visible,
@@ -300,7 +263,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
 
         setSelectedObject(properties);
         setIsPropertiesCollapsed(false);
-        toast.success(`Selected: ${properties.name} (${objectsToSelect.length} objects)`);
+        toast.success(`Selected assembly: ${properties.name} (${assemblyObjectIds.length} objects)`);
       } else {
         viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
         setSelectedObject(null);
