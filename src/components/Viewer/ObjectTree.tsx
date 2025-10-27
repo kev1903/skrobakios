@@ -29,10 +29,23 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle }: 
         const modelID = model.id;
         
         console.log("Building tree for model:", modelID);
-        console.log("Model structure:", model);
+        console.log("Model object:", model);
         
-        // Get all entities from the xeokit model
-        const entities = model.scene ? model.scene.models[modelID]?.objects : {};
+        // For xeokit models, get entities from the viewer's metaScene
+        // The model object from xeokit doesn't have scene.models - it's loaded differently
+        let entities: any = {};
+        
+        // Try to get entities from the model's scene
+        if (model.scene && model.scene.objects) {
+          entities = model.scene.objects;
+        } else if (model.objects) {
+          entities = model.objects;
+        } else {
+          console.warn("Could not find entities in model structure");
+          setTreeData([]);
+          setIsLoading(false);
+          return;
+        }
         
         if (!entities || Object.keys(entities).length === 0) {
           console.log("No entities found in model");
