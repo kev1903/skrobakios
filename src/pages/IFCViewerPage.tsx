@@ -90,6 +90,8 @@ const IFCViewerPage = () => {
         // If we found an assembly reference, select all objects with same reference
         if (assemblyReference) {
           const allMetaObjects = viewerInstance.metaScene.metaObjects;
+          console.log('🔍 Searching for objects with Reference:', assemblyReference);
+          console.log('Total metaObjects:', Object.keys(allMetaObjects).length);
           
           Object.keys(allMetaObjects).forEach((objId: string) => {
             const obj = allMetaObjects[objId] as any;
@@ -101,8 +103,12 @@ const IFCViewerPage = () => {
                   for (const prop of propSet.properties) {
                     if (prop.name === 'Reference' && String(prop.value) === assemblyReference) {
                       // Only add if it's a renderable scene object
-                      if (viewerInstance.scene.objects[objId]) {
+                      const sceneObj = viewerInstance.scene.objects[objId];
+                      if (sceneObj) {
+                        console.log('✅ Found matching object:', objId, obj.type, obj.name);
                         assemblyObjectIds.push(objId);
+                      } else {
+                        console.log('⚠️ Matching metaObject but not in scene:', objId, obj.type);
                       }
                       return; // Found match, move to next object
                     }
@@ -111,6 +117,8 @@ const IFCViewerPage = () => {
               }
             }
           });
+          
+          console.log('📦 Total assembly objects found:', assemblyObjectIds.length);
         }
         
         // Fallback: if no assembly reference or no matches, select just this object
