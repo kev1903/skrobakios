@@ -370,6 +370,7 @@ const IFCViewerPage = () => {
           <ObjectTree 
             model={loadedModel} 
             ifcLoader={ifcLoader}
+            viewer={viewer}
             isPinned={isStructurePinned}
             onPinToggle={() => setIsStructurePinned(!isStructurePinned)}
           />

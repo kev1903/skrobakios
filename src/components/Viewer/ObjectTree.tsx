@@ -8,16 +8,17 @@ interface ObjectTreeProps {
   ifcLoader: any;
   isPinned?: boolean;
   onPinToggle?: () => void;
+  viewer?: any; // Add viewer to access metaScene
 }
 
-export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle }: ObjectTreeProps) => {
+export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle, viewer }: ObjectTreeProps) => {
   const [treeData, setTreeData] = useState<any[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [visibleNodes, setVisibleNodes] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!model || !ifcLoader) {
+    if (!model || !viewer) {
       setTreeData([]);
       return;
     }
@@ -29,45 +30,36 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle }: 
         const modelID = model.id;
         
         console.log("Building tree for model:", modelID);
-        console.log("Model object:", model);
         
-        // For xeokit models, get entities from the viewer's metaScene
-        // The model object from xeokit doesn't have scene.models - it's loaded differently
-        let entities: any = {};
+        // Get entities from viewer's scene
+        const sceneObjects = viewer.scene.objects;
         
-        // Try to get entities from the model's scene
-        if (model.scene && model.scene.objects) {
-          entities = model.scene.objects;
-        } else if (model.objects) {
-          entities = model.objects;
-        } else {
-          console.warn("Could not find entities in model structure");
-          setTreeData([]);
-          setIsLoading(false);
-          return;
-        }
-        
-        if (!entities || Object.keys(entities).length === 0) {
-          console.log("No entities found in model");
+        if (!sceneObjects || Object.keys(sceneObjects).length === 0) {
+          console.log("No objects found in viewer scene");
           setTreeData([]);
           setIsLoading(false);
           return;
         }
 
-        console.log(`Found ${Object.keys(entities).length} entities`);
+        console.log(`Found ${Object.keys(sceneObjects).length} objects in scene`);
         
-        // Group entities by type
+        // Get metadata from viewer's metaScene
+        const metaObjects = viewer.metaScene?.metaObjects || {};
+        
+        // Group entities by IFC type from metadata
         const elementsByType = new Map<string, any[]>();
         const visibleSet = new Set<string>();
         let processedCount = 0;
-        const MAX_OBJECTS = 500; // Limit for performance
+        const MAX_OBJECTS = 500;
         
-        for (const [entityId, entity] of Object.entries(entities)) {
+        for (const [entityId, sceneObject] of Object.entries(sceneObjects)) {
           if (processedCount >= MAX_OBJECTS) break;
           
           try {
-            const ifcType = (entity as any).type || "Unknown";
-            const entityName = (entity as any).name || `${ifcType} ${processedCount + 1}`;
+            // Get metadata for this entity
+            const metaObject = metaObjects[entityId];
+            const ifcType = metaObject?.type || (sceneObject as any).type || "Unknown";
+            const entityName = metaObject?.name || (sceneObject as any).name || `${ifcType} ${processedCount + 1}`;
             
             if (!elementsByType.has(ifcType)) {
               elementsByType.set(ifcType, []);
@@ -77,7 +69,7 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle }: 
             elementsByType.get(ifcType)!.push({
               id: nodeId,
               name: entityName,
-              entity: entity,
+              entity: sceneObject,
               entityId: entityId,
               level: 1
             });
@@ -85,7 +77,6 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle }: 
             visibleSet.add(nodeId);
             processedCount++;
             
-            // Allow UI to breathe every 50 items
             if (processedCount % 50 === 0) {
               await new Promise(resolve => setTimeout(resolve, 0));
             }
@@ -93,7 +84,6 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle }: 
             console.warn(`Error processing entity ${entityId}:`, error);
           }
         }
-        
         // Convert to tree structure
         const nodes: any[] = [];
         
@@ -120,8 +110,8 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle }: 
         setVisibleNodes(visibleSet);
         setIsLoading(false);
         
-        if (Object.keys(entities).length > MAX_OBJECTS) {
-          toast.info(`Showing first ${MAX_OBJECTS} of ${Object.keys(entities).length} objects`);
+        if (Object.keys(sceneObjects).length > MAX_OBJECTS) {
+          toast.info(`Showing first ${MAX_OBJECTS} of ${Object.keys(sceneObjects).length} objects`);
         }
       } catch (error) {
         console.error("Error building tree:", error);
@@ -132,7 +122,7 @@ export const ObjectTree = ({ model, ifcLoader, isPinned = false, onPinToggle }: 
     };
 
     buildTree();
-  }, [model, ifcLoader]);
+  }, [model, viewer]);
 
   const toggleNode = (nodeId: string) => {
     const newExpanded = new Set(expandedNodes);
