@@ -1,11 +1,11 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import * as THREE from "three";
-import { IFCLoader } from "web-ifc-three/IFCLoader";
-import { ThreeIFCViewer } from "@/components/Viewer/ThreeIFCViewer";
+import { Viewer, WebIFCLoaderPlugin, DistanceMeasurementsPlugin } from "@xeokit/xeokit-sdk";
+import { ViewerCanvas } from "@/components/Viewer/ViewerCanvas";
 import { ViewerToolbar } from "@/components/Viewer/ViewerToolbar";
 import { ObjectTree } from "@/components/Viewer/ObjectTree";
 import { PropertiesPanel } from "@/components/Viewer/PropertiesPanel";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 
 interface ProjectBIMPageProps {
   project: any;
@@ -13,540 +13,361 @@ interface ProjectBIMPageProps {
 }
 
 export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => {
-  const [scene, setScene] = useState<THREE.Scene | null>(null);
-  const [camera, setCamera] = useState<THREE.Camera | null>(null);
-  const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
+  const [viewer, setViewer] = useState<Viewer | null>(null);
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan">("select");
-  const [loadedModel, setLoadedModel] = useState<THREE.Object3D | null>(null);
+  const [loadedModel, setLoadedModel] = useState<any>(null);
+  const [ifcLoader, setIfcLoader] = useState<WebIFCLoaderPlugin | null>(null);
+  const [measurePlugin, setMeasurePlugin] = useState<DistanceMeasurementsPlugin | null>(null);
   const [selectedObject, setSelectedObject] = useState<any>(null);
-  const ifcLoaderRef = useRef<IFCLoader | null>(null);
+  const [isStructureCollapsed, setIsStructureCollapsed] = useState(true);
+  const [isPropertiesCollapsed, setIsPropertiesCollapsed] = useState(true);
+  const [isStructurePinned, setIsStructurePinned] = useState(false);
+  const [isPropertiesPinned, setIsPropertiesPinned] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const measurementClickCount = useRef<number>(0);
-  const firstPoint = useRef<THREE.Vector3 | null>(null);
-  const raycaster = useRef<THREE.Raycaster>(new THREE.Raycaster());
-  const mouse = useRef<THREE.Vector2>(new THREE.Vector2());
+  const assemblyCache = useRef<Record<string, any>>({});
 
-  const handleViewerReady = useCallback((
-    sceneInstance: THREE.Scene,
-    cameraInstance: THREE.Camera,
-    rendererInstance: THREE.WebGLRenderer
-  ) => {
-    setScene(sceneInstance);
-    setCamera(cameraInstance);
-    setRenderer(rendererInstance);
+  // Auto-collapse Project Structure after 5 seconds (unless pinned)
+  useEffect(() => {
+    if (!isStructureCollapsed && !isStructurePinned) {
+      const timer = setTimeout(() => {
+        setIsStructureCollapsed(true);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isStructureCollapsed, isStructurePinned]);
+
+  // Auto-collapse Properties after 5 seconds (unless pinned)
+  useEffect(() => {
+    if (!isPropertiesCollapsed && !isPropertiesPinned) {
+      const timer = setTimeout(() => {
+        setIsPropertiesCollapsed(true);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isPropertiesCollapsed, isPropertiesPinned]);
+
+  // Helper: Extract assembly mark from Tag property or other fields
+  const extractAssemblyMark = useCallback((meta: any): string | null => {
+    if (!meta) return null;
     
-    // Initialize IFC Loader
-    const loader = new IFCLoader();
-    loader.ifcManager.setWasmPath("/wasm/");
-    ifcLoaderRef.current = loader;
+    // FIRST: Check the Tag field
+    if (meta.tag && typeof meta.tag === 'string') {
+      const value = String(meta.tag).trim();
+      if (value) {
+        return value;
+      }
+    }
+    
+    // SECOND: Check propertySets
+    if (meta.propertySets && Array.isArray(meta.propertySets)) {
+      for (const ps of meta.propertySets) {
+        if (ps.properties && Array.isArray(ps.properties)) {
+          for (const prop of ps.properties) {
+            if ((prop.name === 'Tag' || prop.name === 'ASSEMBLY_POS' || prop.name === 'Assembly mark') && prop.value) {
+              const value = String(prop.value).trim();
+              if (value) return value;
+            }
+          }
+          
+          for (const prop of ps.properties) {
+            if (prop.value && typeof prop.value === 'string') {
+              const value = String(prop.value).trim();
+              if (value.match(/^\d*[A-Z]+\d+(\.\d+)?$/i)) {
+                return value;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    return null;
   }, []);
 
-  const handleZoomIn = () => {
-    if (camera && camera instanceof THREE.PerspectiveCamera) {
-      const direction = new THREE.Vector3();
-      camera.getWorldDirection(direction);
-      camera.position.add(direction.multiplyScalar(2));
-    }
-  };
-
-  const handleZoomOut = () => {
-    if (camera && camera instanceof THREE.PerspectiveCamera) {
-      const direction = new THREE.Vector3();
-      camera.getWorldDirection(direction);
-      camera.position.add(direction.multiplyScalar(-2));
-    }
-  };
-
-  const handleFitView = () => {
-    if (loadedModel && camera && camera instanceof THREE.PerspectiveCamera) {
-      const box = new THREE.Box3().setFromObject(loadedModel);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-      
-      const maxDim = Math.max(size.x, size.y, size.z);
-      const fov = camera.fov * (Math.PI / 180);
-      let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-      cameraZ *= 1.5; // Add some padding
-      
-      camera.position.set(center.x + cameraZ, center.y + cameraZ, center.z + cameraZ);
-      camera.lookAt(center);
-      camera.updateProjectionMatrix();
-      
-      toast.success("View fitted to model");
-    }
-  };
-
-  const handleUpload = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  // Helper: Build assembly cache
+  const buildAssemblyCache = useCallback((viewerInstance: Viewer) => {
+    const assemblyMarkCache: Record<string, string[]> = {};
+    const allMetaObjects = viewerInstance.metaScene.metaObjects;
     
-    if (!file) {
-      console.log("No file selected");
-      return;
-    }
-
-    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-    console.log("File selected:", file.name, "Extension:", fileExtension);
-    
-    if (fileExtension !== 'ifc') {
-      toast.error("Please upload an IFC file");
-      return;
-    }
-    
-    if (!scene || !ifcLoaderRef.current || !camera) {
-      console.error("Viewer not initialized");
-      toast.error("Viewer not initialized. Please wait and try again.");
-      return;
-    }
-
-    // Clear previous model
-    if (loadedModel) {
-      console.log("Clearing previous model");
-      scene.remove(loadedModel);
-      setLoadedModel(null);
-      setSelectedObject(null);
-    }
-
-    const loadingToast = toast.loading("Loading IFC model... This may take a moment");
-    
-    try {
-      console.log("Loading IFC file:", file.name);
+    Object.keys(allMetaObjects).forEach((id) => {
+      const metaObject = allMetaObjects[id] as any;
+      if (!viewerInstance.scene.objects[id]) return;
       
-      // Load IFC file using web-ifc-three
-      const url = URL.createObjectURL(file);
-      const model = await ifcLoaderRef.current.loadAsync(url) as THREE.Object3D;
-      
-      console.log("IFC model loaded successfully");
-      scene.add(model);
-      setLoadedModel(model);
-      
-      // Fit camera to model
-      const box = new THREE.Box3().setFromObject(model);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-      
-      const maxDim = Math.max(size.x, size.y, size.z);
-      const fov = (camera as THREE.PerspectiveCamera).fov * (Math.PI / 180);
-      let cameraZ = Math.abs(maxDim / 2 / Math.tan(fov / 2));
-      cameraZ *= 1.5;
-      
-      (camera as THREE.PerspectiveCamera).position.set(
-        center.x + cameraZ,
-        center.y + cameraZ,
-        center.z + cameraZ
-      );
-      camera.lookAt(center);
-      (camera as THREE.PerspectiveCamera).updateProjectionMatrix();
-      
-      URL.revokeObjectURL(url);
-      
-      toast.dismiss(loadingToast);
-      toast.success(`Model "${file.name}" loaded successfully`);
-      
-      console.log("Model bounding box:", { center, size });
-    } catch (error) {
-      console.error("IFC loading error:", error);
-      toast.dismiss(loadingToast);
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      toast.error("Failed to load IFC model: " + errorMsg);
-    }
-  };
-
-  const handleMeasure = () => {
-    if (activeMode === "measure") {
-      // Clear measurements - remove all measurement lines from scene
-      if (scene) {
-        const measurementObjects = scene.children.filter(child => child.name.startsWith('measurement-'));
-        measurementObjects.forEach(obj => scene.remove(obj));
-      }
-      measurementClickCount.current = 0;
-      firstPoint.current = null;
-      setActiveMode("select");
-      toast.info("Measurement mode disabled");
-    } else {
-      setActiveMode("measure");
-      toast.info("Click two points to measure distance");
-    }
-  };
-
-  useEffect(() => {
-    if (!scene || !camera || !renderer) return;
-
-    let pointerDownPos = { x: 0, y: 0 };
-    let pointerDownTime = 0;
-
-    const handlePointerDown = (event: PointerEvent) => {
-      pointerDownPos.x = event.clientX;
-      pointerDownPos.y = event.clientY;
-      pointerDownTime = Date.now();
-    };
-
-    const handlePointerUp = async (event: PointerEvent) => {
-      // Check if this was a click (not a drag)
-      const deltaX = Math.abs(event.clientX - pointerDownPos.x);
-      const deltaY = Math.abs(event.clientY - pointerDownPos.y);
-      const deltaTime = Date.now() - pointerDownTime;
-      
-      // If moved more than 5 pixels or took more than 300ms, treat as drag
-      if (deltaX > 5 || deltaY > 5 || deltaTime > 300) {
-        console.log("Drag detected, ignoring");
-        return;
-      }
-
-      console.log("Click detected, activeMode:", activeMode);
-      
-      if (!renderer.domElement) {
-        console.warn("No renderer domElement");
-        return;
-      }
-      
-      const rect = renderer.domElement.getBoundingClientRect();
-      mouse.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-      
-      console.log("Mouse position:", mouse.current);
-      
-      raycaster.current.setFromCamera(mouse.current, camera);
-      
-      if (!loadedModel) {
-        console.warn("No model loaded");
-        return;
-      }
-      
-      const intersects = raycaster.current.intersectObject(loadedModel, true);
-      console.log("Intersects found:", intersects.length);
-
-      if (activeMode === "select" && intersects.length > 0) {
-        const intersect = intersects[0];
-        const object = intersect.object;
-        
-        console.log("Selected object:", {
-          id: object.id,
-          name: object.name,
-          type: object.type,
-          uuid: object.uuid,
-          userData: object.userData
-        });
-        
-        try {
-          // Get the model ID
-          const modelID = (loadedModel as any).modelID ?? 0;
-          const expressID = object.userData?.expressID;
-          
-          console.log("ModelID:", modelID, "ExpressID:", expressID);
-          
-          if (expressID === undefined || !ifcLoaderRef.current) {
-            console.warn("No expressID found or IFCLoader not available");
-            // Fallback to basic properties
-            setSelectedObject({
-              name: object.name || `Object ${object.id}`,
-              type: object.type || "3D Object",
-              tag: "",
-              propertyGroups: [{
-                title: "Entity Information",
-                properties: [
-                  { name: "Object ID", value: object.id.toString() },
-                  { name: "Type", value: object.type },
-                  { name: "UUID", value: object.uuid }
-                ]
-              }]
-            });
-            toast.success(`Selected: ${object.name || object.type}`);
-            return;
-          }
-          
-          // Get properties from IFC
-          const props = await ifcLoaderRef.current.ifcManager.getItemProperties(modelID, expressID);
-          const ifcType = await ifcLoaderRef.current.ifcManager.getIfcType(modelID, expressID);
-          
-          console.log("IFC Properties:", props);
-          console.log("IFC Type:", ifcType);
-          
-          // Try to find parent assembly
-          let displayExpressID = expressID;
-          let displayProps = props;
-          let displayType = ifcType;
-          let assemblyObjects: THREE.Object3D[] = [object];
-          
-          // Check if this element has a parent that's an IfcElementAssembly
-          if (props.Decomposes && props.Decomposes.length > 0) {
-            for (const decompose of props.Decomposes) {
-              const parentID = decompose.value;
-              try {
-                const parentProps = await ifcLoaderRef.current.ifcManager.getItemProperties(modelID, parentID);
-                const parentType = await ifcLoaderRef.current.ifcManager.getIfcType(modelID, parentID);
-                
-                console.log("Parent found:", parentType, parentID);
-                
-                if (parentType === "IFCELEMENTASSEMBLY") {
-                  displayExpressID = parentID;
-                  displayProps = parentProps;
-                  displayType = parentType;
-                  
-                  // Find all objects that are part of this assembly
-                  assemblyObjects = [];
-                  if (loadedModel) {
-                    loadedModel.traverse((child) => {
-                      const childExpressID = child.userData?.expressID;
-                      if (childExpressID === parentID) {
-                        assemblyObjects.push(child);
-                      }
-                    });
-                  }
-                  
-                  // Get all children of the assembly
-                  if (parentProps.IsDecomposedBy) {
-                    for (const decomposedBy of parentProps.IsDecomposedBy) {
-                      const relatedObjects = decomposedBy.RelatedObjects || [];
-                      for (const relObj of relatedObjects) {
-                        if (relObj.value && loadedModel) {
-                          loadedModel.traverse((child) => {
-                            if (child.userData?.expressID === relObj.value) {
-                              assemblyObjects.push(child);
-                            }
-                          });
-                        }
-                      }
-                    }
-                  }
-                  
-                  console.log(`Found assembly with ${assemblyObjects.length} objects`);
-                  break;
-                }
-              } catch (e) {
-                console.warn("Error getting parent properties:", e);
-              }
-            }
-          }
-          
-          // Highlight all assembly objects
-          if (assemblyObjects.length > 0) {
-            // Create a visual highlight by adding a selection material
-            assemblyObjects.forEach((obj) => {
-              if (obj instanceof THREE.Mesh) {
-                // Store original material
-                if (!obj.userData.originalMaterial) {
-                  obj.userData.originalMaterial = obj.material;
-                }
-                // Apply highlight (you could create a special material here if needed)
-                // For now, we'll just note it's selected
-                obj.userData.isSelected = true;
-              }
-            });
-            
-            toast.success(`Selected assembly with ${assemblyObjects.length} parts`);
-          }
-          
-          // Extract property groups
-          const propertyGroups: any[] = [];
-          let nameValue = displayProps.Name?.value || `Element ${displayExpressID}`;
-          let tagValue = displayProps.Tag?.value || "";
-          
-          // Entity Information
-          const entityProps: any[] = [
-            { name: "GUID", value: displayProps.GlobalId?.value || displayExpressID },
-            { name: "IFC Element", value: displayType }
-          ];
-          
-          if (displayProps.ObjectType?.value) {
-            entityProps.push({ name: "Object Type", value: displayProps.ObjectType.value });
-          }
-          
-          propertyGroups.push({
-            title: "Entity Information",
-            properties: entityProps
-          });
-          
-          // Get property sets
-          try {
-            const psets = await ifcLoaderRef.current.ifcManager.getPropertySets(modelID, displayExpressID);
-            
-            if (psets && psets.length > 0) {
-              for (const pset of psets) {
-                if (!pset || !pset.HasProperties) continue;
-                
-                const properties: any[] = [];
-                
-                for (const propRef of pset.HasProperties) {
-                  try {
-                    const prop = await ifcLoaderRef.current.ifcManager.getItemProperties(modelID, propRef.value);
-                    
-                    if (prop) {
-                      const propName = prop.Name?.value || "Unknown";
-                      let propValue = "N/A";
-                      
-                      if (prop.NominalValue?.value !== undefined) {
-                        propValue = String(prop.NominalValue.value);
-                      } else if (prop.NominalValue?.label) {
-                        propValue = prop.NominalValue.label;
-                      }
-                      
-                      // Check for Tag property
-                      if (propName === "Tag" || propName === "TAG") {
-                        tagValue = propValue;
-                      }
-                      
-                      properties.push({
-                        name: propName,
-                        value: propValue
-                      });
-                    }
-                  } catch (propError) {
-                    console.warn("Error getting property:", propError);
-                  }
-                }
-                
-                if (properties.length > 0) {
-                  propertyGroups.push({
-                    title: pset.Name?.value || "Properties",
-                    properties
-                  });
-                }
-              }
-            }
-          } catch (psetError) {
-            console.warn("Error getting property sets:", psetError);
-          }
-          
-          setSelectedObject({
-            name: nameValue,
-            type: displayType,
-            tag: tagValue,
-            propertyGroups
-          });
-          
-          toast.success(`Selected: ${nameValue}`);
-        } catch (error) {
-          console.error("Error getting object properties:", error);
-          
-          // Fallback to basic properties
-          setSelectedObject({
-            name: object.name || `Object ${object.id}`,
-            type: object.type || "3D Object",
-            tag: "",
-            propertyGroups: [{
-              title: "Entity Information",
-              properties: [
-                { name: "Object ID", value: object.id.toString() },
-                { name: "Type", value: object.type },
-                { name: "UUID", value: object.uuid }
-              ]
-            }]
-          });
-          
-          toast.error("Failed to get complete element properties");
+      const assemblyMark = extractAssemblyMark(metaObject);
+      if (assemblyMark) {
+        if (!assemblyMarkCache[assemblyMark]) {
+          assemblyMarkCache[assemblyMark] = [];
         }
-        return;
+        assemblyMarkCache[assemblyMark].push(id);
       }
+    });
+    
+    (assemblyCache.current as any).assemblyMarkCache = assemblyMarkCache;
+  }, [extractAssemblyMark]);
 
-      if (activeMode !== "measure") return;
+  // Helper: Collect assembly entities
+  const collectAssemblyEntities = useCallback((metaObject: any, viewerInstance: Viewer): string[] => {
+    const assemblyMark = extractAssemblyMark(metaObject);
+    
+    if (!assemblyMark) {
+      return viewerInstance.scene.objects[metaObject.id] ? [metaObject.id] : [];
+    }
+    
+    const assemblyMarkCache = (assemblyCache.current as any).assemblyMarkCache;
+    
+    if (assemblyMarkCache && assemblyMarkCache[assemblyMark]) {
+      return assemblyMarkCache[assemblyMark];
+    }
+    
+    return viewerInstance.scene.objects[metaObject.id] ? [metaObject.id] : [];
+  }, [extractAssemblyMark]);
 
-      if (intersects.length > 0) {
-        const point = intersects[0].point;
-        measurementClickCount.current++;
+  const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
+    const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
+      defaultVisible: true,
+      defaultColor: "#2D3748",
+      zIndex: 10000,
+      defaultLabelsOnWires: true
+    });
+
+    // Set up click event for assembly-based object selection
+    viewerInstance.scene.input.on("mouseclicked", (coords: number[]) => {
+      const hit = viewerInstance.scene.pick({
+        canvasPos: coords,
+        pickSurface: true
+      });
+
+      if (hit && hit.entity) {
+        const entity = hit.entity as any;
+        const metaObject = viewerInstance.metaScene.metaObjects[entity.id] as any;
         
-        if (measurementClickCount.current === 1) {
-          firstPoint.current = point.clone();
-          toast.info("Click second point to complete measurement");
-        } else if (measurementClickCount.current === 2) {
-          if (firstPoint.current) {
-            const distance = firstPoint.current.distanceTo(point);
-            const distanceInMM = distance * 1000;
-            
-            // Create measurement line
-            const geometry = new THREE.BufferGeometry().setFromPoints([firstPoint.current, point]);
-            const material = new THREE.LineBasicMaterial({ color: 0x2D3748 });
-            const line = new THREE.Line(geometry, material);
-            line.name = `measurement-${Date.now()}`;
-            scene.add(line);
-            
-            toast.success(`Distance: ${distanceInMM.toFixed(4)} mm`);
-          }
-          measurementClickCount.current = 0;
-          firstPoint.current = null;
+        if (!metaObject) return;
+        
+        const assemblyObjectIds = collectAssemblyEntities(metaObject, viewerInstance);
+        
+        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
+        viewerInstance.scene.setObjectsSelected(assemblyObjectIds, true);
+        
+        const properties: any = {
+          id: String(metaObject.id),
+          type: metaObject.type || "Unknown",
+          name: metaObject.name || String(metaObject.id),
+          assemblyObjectCount: assemblyObjectIds.length,
+          isObject: entity.isObject,
+          isEntity: entity.isEntity,
+          visible: entity.visible,
+          xrayed: entity.xrayed,
+          highlighted: entity.highlighted,
+          selected: entity.selected,
+          colorize: entity.colorize,
+          opacity: entity.opacity,
+        };
+
+        if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
+          properties.propertySets = metaObject.propertySets.map((ps: any) => ({
+            name: ps.name || ps.type || 'Property Set',
+            type: ps.type,
+            properties: ps.properties || {}
+          }));
         }
+
+        if (entity.matrix) {
+          properties.position = entity.matrix.slice(12, 15);
+        }
+
+        if (entity.aabb) {
+          properties.boundingBox = {
+            min: entity.aabb.slice(0, 3),
+            max: entity.aabb.slice(3, 6)
+          };
+        }
+
+        setSelectedObject(properties);
+        setIsPropertiesCollapsed(false);
+        toast.success(`Selected assembly: ${properties.name} (${assemblyObjectIds.length} objects)`);
       } else {
-        toast.error("Please click on the model surface");
+        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
+        setSelectedObject(null);
+      }
+    });
+
+    setMeasurePlugin(distanceMeasurements);
+    setViewer(viewerInstance);
+    setIfcLoader(loaderInstance);
+  }, [collectAssemblyEntities]);
+
+  const handleUpload = () => fileInputRef.current?.click();
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !viewer || !ifcLoader) return;
+
+    if (loadedModel) {
+      loadedModel.destroy();
+      setLoadedModel(null);
+    }
+
+    const loadingToast = toast.loading("Loading IFC model...");
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const arrayBuffer = e.target?.result as ArrayBuffer;
+      if (!arrayBuffer) {
+        toast.dismiss(loadingToast);
+        toast.error("Failed to read file");
+        return;
+      }
+
+      try {
+        const model = ifcLoader.load({
+          id: file.name,
+          ifc: arrayBuffer,
+          edges: true,
+          excludeTypes: ["IfcSpace"]
+        });
+
+        model.on("loaded", () => {
+          toast.dismiss(loadingToast);
+          toast.success(`Model loaded: ${file.name}`);
+          setLoadedModel(model);
+          
+          if (viewer) {
+            setTimeout(() => {
+              buildAssemblyCache(viewer);
+            }, 500);
+          }
+          
+          setTimeout(() => {
+            if (viewer?.scene?.aabb) {
+              viewer.cameraFlight.flyTo({ 
+                aabb: viewer.scene.aabb, 
+                duration: 1 
+              });
+            }
+          }, 300);
+        });
+
+        model.on("error", (error: any) => {
+          toast.dismiss(loadingToast);
+          toast.error(`Failed to load model: ${error.message || "Unknown error"}`);
+          console.error("Model loading error:", error);
+        });
+      } catch (error: any) {
+        toast.dismiss(loadingToast);
+        toast.error(`Failed to load model: ${error.message || "Unknown error"}`);
+        console.error("Model loading error:", error);
       }
     };
 
-    const canvas = renderer.domElement;
-    if (!canvas) {
-      console.warn("No canvas element found");
-      return;
-    }
-
-    console.log("Attaching pointer event listeners to canvas");
-    canvas.addEventListener('pointerdown', handlePointerDown);
-    canvas.addEventListener('pointerup', handlePointerUp);
-
-    return () => {
-      console.log("Removing pointer event listeners");
-      canvas.removeEventListener('pointerdown', handlePointerDown);
-      canvas.removeEventListener('pointerup', handlePointerUp);
+    reader.onerror = () => {
+      toast.dismiss(loadingToast);
+      toast.error("Failed to read file");
     };
-  }, [scene, camera, renderer, loadedModel, activeMode]);
 
-  useEffect(() => {
-    if (activeMode !== "measure") {
-      measurementClickCount.current = 0;
-      firstPoint.current = null;
-    }
-  }, [activeMode]);
+    reader.readAsArrayBuffer(file);
+  };
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden relative bg-background">
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".ifc"
-        onChange={handleFileChange}
-        className="hidden"
-      />
+    <div className="fixed inset-0 top-[var(--header-height)] w-full flex flex-col overflow-hidden bg-background">
+      <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       
-      {/* Background Gradients */}
-      <div className="absolute inset-0 bg-gradient-to-br from-luxury-gold/5 via-background to-accent/5" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--luxury-gold)/0.08),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--accent)/0.06),transparent_50%)]" />
-
-      {/* Toolbar */}
-      <div className="relative z-10 m-4 mb-2">
-        <div className="bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl p-3 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-          <ViewerToolbar
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            onFitView={handleFitView}
-            onUpload={handleUpload}
-            onMeasure={handleMeasure}
-            activeMode={activeMode}
-            onModeChange={setActiveMode}
-          />
+      {/* Header with Back Button */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-border/30 bg-white/80 backdrop-blur-xl">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => onNavigate("projects")}
+            className="p-2 hover:bg-accent/50 rounded-full transition-all duration-200"
+            title="Back to Projects"
+          >
+            <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+          </button>
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">{project?.name || "Project"}</h2>
+            <p className="text-xs text-muted-foreground">BIM Viewer</p>
+          </div>
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden relative gap-2 px-4 pb-4">
-        {/* Object Tree Sidebar */}
-        <div className="w-80 flex-shrink-0 z-10">
-          <div className="h-full bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
-            <ObjectTree model={loadedModel} ifcLoader={ifcLoaderRef.current} />
-          </div>
-        </div>
+      <div className="absolute top-[73px] left-1/2 -translate-x-1/2 z-10 flex-shrink-0">
+        <ViewerToolbar
+          onZoomIn={() => {}}
+          onZoomOut={() => {}}
+          onFitView={() => {}}
+          onUpload={handleUpload}
+          onMeasure={() => {}}
+          activeMode={activeMode}
+          onModeChange={setActiveMode}
+        />
+      </div>
 
-        {/* Viewer Canvas */}
-        <div className="flex-1 relative rounded-2xl overflow-hidden border border-border/30 shadow-[0_2px_16px_rgba(0,0,0,0.04)]">
-          <ThreeIFCViewer onViewerReady={handleViewerReady} />
+      <div className="flex-1 flex overflow-hidden relative min-h-0">
+        {/* Project Structure Panel */}
+        <div 
+          className={`absolute left-0 top-0 bottom-0 glass-panel flex-shrink-0 z-10 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 ${
+            isStructureCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
+          }`}
+        >
+          <ObjectTree 
+            model={loadedModel} 
+            ifcLoader={ifcLoader}
+            viewer={viewer}
+            isPinned={isStructurePinned}
+            onPinToggle={() => setIsStructurePinned(!isStructurePinned)}
+          />
         </div>
-
+        
+        {/* Toggle Button for Project Structure */}
+        <button
+          onClick={() => setIsStructureCollapsed(!isStructureCollapsed)}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full p-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300"
+          title={isStructureCollapsed ? "Show Project Structure" : "Hide Project Structure"}
+        >
+          {isStructureCollapsed ? (
+            <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          ) : (
+            <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          )}
+        </button>
+        
+        <div className="absolute inset-0 overflow-hidden">
+          <ViewerCanvas onViewerReady={handleViewerReady} />
+        </div>
+        
         {/* Properties Panel */}
-        <div className="w-80 flex-shrink-0 z-10">
-          <div className="h-full bg-white/80 backdrop-blur-xl border border-border/30 rounded-2xl shadow-[0_2px_16px_rgba(0,0,0,0.04)] overflow-hidden">
-            <PropertiesPanel selectedObject={selectedObject} />
-          </div>
+        <div 
+          className={`absolute right-0 top-0 bottom-0 glass-panel flex-shrink-0 z-10 overflow-hidden shadow-[0_2px_16px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_24px_rgba(0,0,0,0.08)] transition-all duration-300 ${
+            isPropertiesCollapsed ? 'w-0 opacity-0' : 'w-80 opacity-100'
+          }`}
+        >
+          <PropertiesPanel 
+            selectedObject={selectedObject}
+            isPinned={isPropertiesPinned}
+            onPinToggle={() => setIsPropertiesPinned(!isPropertiesPinned)}
+          />
         </div>
+        
+        {/* Toggle Button for Properties */}
+        <button
+          onClick={() => setIsPropertiesCollapsed(!isPropertiesCollapsed)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full p-2 shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300"
+          title={isPropertiesCollapsed ? "Show Properties" : "Hide Properties"}
+        >
+          {isPropertiesCollapsed ? (
+            <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          ) : (
+            <svg className="h-5 w-5 text-luxury-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          )}
+        </button>
       </div>
     </div>
   );
