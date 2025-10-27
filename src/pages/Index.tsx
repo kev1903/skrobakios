@@ -22,6 +22,8 @@ const IFCViewerPage = () => {
   const measurementClickCount = useRef<number>(0);
   const firstPoint = useRef<{ entity: any; worldPos: number[] } | null>(null);
 
+  const assemblyCache = useRef<Record<string, any>>({});
+
   // Auto-collapse Project Structure after 5 seconds (unless pinned)
   useEffect(() => {
     if (!isStructureCollapsed && !isStructurePinned) {
@@ -44,6 +46,87 @@ const IFCViewerPage = () => {
     }
   }, [isPropertiesCollapsed, isPropertiesPinned]);
 
+  // Helper: Extract ANY property that looks like an assembly mark (e.g., "1B3.1")
+  const extractAssemblyMark = useCallback((meta: any): string | null => {
+    if (!meta || !meta.propertySets) return null;
+    
+    if (Array.isArray(meta.propertySets)) {
+      for (const ps of meta.propertySets) {
+        if (ps.properties && Array.isArray(ps.properties)) {
+          // Search ALL properties for assembly mark patterns
+          for (const prop of ps.properties) {
+            if (prop.value && typeof prop.value === 'string') {
+              const value = String(prop.value).trim();
+              // Match assembly patterns like "1B3.1", "1B1.1", "2C5.2" etc.
+              if (value.match(/^\d+[A-Z]+\d+(\.\d+)?$/i)) {
+                console.log(`Found assembly mark "${value}" in property "${prop.name}"`);
+                return value;
+              }
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }, []);
+
+  // Helper: Build assembly cache based on assembly mark properties
+  const buildAssemblyCache = useCallback((viewerInstance: Viewer) => {
+    const assemblyMarkCache: Record<string, string[]> = {};
+    const allMetaObjects = viewerInstance.metaScene.metaObjects;
+    
+    console.log('Building assembly cache by scanning all objects for assembly marks...');
+    
+    // Scan all objects and group by assembly mark
+    Object.keys(allMetaObjects).forEach((id) => {
+      const metaObject = allMetaObjects[id] as any;
+      
+      // Only process renderable objects
+      if (!viewerInstance.scene.objects[id]) return;
+      
+      const assemblyMark = extractAssemblyMark(metaObject);
+      
+      if (assemblyMark) {
+        if (!assemblyMarkCache[assemblyMark]) {
+          assemblyMarkCache[assemblyMark] = [];
+        }
+        assemblyMarkCache[assemblyMark].push(id);
+      }
+    });
+    
+    console.log(`✅ Built assembly cache with ${Object.keys(assemblyMarkCache).length} unique assembly marks`);
+    console.log('Sample assembly marks:', Object.keys(assemblyMarkCache).slice(0, 10));
+    
+    // Show assembly sizes
+    Object.keys(assemblyMarkCache).slice(0, 5).forEach(mark => {
+      console.log(`  Assembly "${mark}": ${assemblyMarkCache[mark].length} parts`);
+    });
+    
+    (assemblyCache.current as any).assemblyMarkCache = assemblyMarkCache;
+  }, [extractAssemblyMark]);
+
+  // Helper: Collect all entity IDs that share the same assembly mark
+  const collectAssemblyEntities = useCallback((metaObject: any, viewerInstance: Viewer): string[] => {
+    // Get the assembly mark from the clicked object
+    const assemblyMark = extractAssemblyMark(metaObject);
+    
+    if (!assemblyMark) {
+      console.log('❌ No assembly mark found, selecting single object');
+      return viewerInstance.scene.objects[metaObject.id] ? [metaObject.id] : [];
+    }
+    
+    // Get all objects with the same assembly mark from cache
+    const assemblyMarkCache = (assemblyCache.current as any).assemblyMarkCache;
+    
+    if (assemblyMarkCache && assemblyMarkCache[assemblyMark]) {
+      console.log(`✅ Found assembly "${assemblyMark}" with ${assemblyMarkCache[assemblyMark].length} parts`);
+      return assemblyMarkCache[assemblyMark];
+    }
+    
+    console.log(`⚠️ Assembly mark "${assemblyMark}" not in cache, selecting single object`);
+    return viewerInstance.scene.objects[metaObject.id] ? [metaObject.id] : [];
+  }, [extractAssemblyMark]);
+
   const handleViewerReady = useCallback((viewerInstance: Viewer, loaderInstance: WebIFCLoaderPlugin) => {
     const distanceMeasurements = new DistanceMeasurementsPlugin(viewerInstance, {
       defaultVisible: true,
@@ -52,7 +135,7 @@ const IFCViewerPage = () => {
       defaultLabelsOnWires: true
     });
 
-    // Set up click event for object selection
+    // Set up click event for assembly-based object selection
     viewerInstance.scene.input.on("mouseclicked", (coords: number[]) => {
       const hit = viewerInstance.scene.pick({
         canvasPos: coords,
@@ -61,111 +144,111 @@ const IFCViewerPage = () => {
 
       if (hit && hit.entity) {
         const entity = hit.entity as any;
-        
-        // Highlight the selected entity
-        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
-        viewerInstance.scene.setObjectsSelected([entity.id], true);
-        
-        // Get IFC properties from the metadata
         const metaObject = viewerInstance.metaScene.metaObjects[entity.id] as any;
         
-        if (metaObject) {
-          // Collect IFC properties
-          const properties: any = {
-            id: String(entity.id),
-            type: metaObject.type || entity.type || "Unknown",
-            name: metaObject.name || entity.name || String(entity.id),
-            
-            // Viewer state properties
-            isObject: entity.isObject,
-            isEntity: entity.isEntity,
-            visible: entity.visible,
-            xrayed: entity.xrayed,
-            highlighted: entity.highlighted,
-            selected: entity.selected,
-            colorize: entity.colorize,
-            opacity: entity.opacity,
-          };
-
-          // Add IFC property sets from metadata
-          if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
-            properties.propertySets = metaObject.propertySets.map((ps: any) => ({
-              name: ps.name || ps.type || 'Property Set',
-              type: ps.type,
-              properties: ps.properties || {}
-            }));
-          }
-
-          // Try to get properties from children metadata
-          if (!properties.propertySets || properties.propertySets.length === 0) {
-            const allMeta = viewerInstance.metaScene.metaObjects;
-            const relatedProps: any[] = [];
-            
-            Object.keys(allMeta).forEach((key: string) => {
-              const meta = allMeta[key] as any;
-              if (meta.type === 'IfcPropertySet' || meta.type === 'IfcElementQuantity') {
-                // Check if this property set is related to our object
-                if (meta.properties) {
-                  relatedProps.push({
-                    name: meta.name || meta.type,
-                    type: meta.type,
-                    properties: meta.properties
-                  });
-                }
-              }
-            });
-            
-            if (relatedProps.length > 0) {
-              properties.propertySets = relatedProps;
-            }
-          }
-
-          // Add transform properties if available
-          if (entity.matrix) {
-            properties.position = entity.matrix.slice(12, 15);
-          }
-
-          // Add AABB (bounding box) if available
-          if (entity.aabb) {
-            properties.boundingBox = {
-              min: entity.aabb.slice(0, 3),
-              max: entity.aabb.slice(3, 6)
-            };
-          }
-
-          console.log('Selected object metadata:', metaObject);
-          console.log('Extracted properties:', properties);
-
-          setSelectedObject(properties);
-          setIsPropertiesCollapsed(false);
-          toast.success(`Selected: ${properties.name}`);
-        } else {
-          // Fallback to basic entity properties if no metadata
-          const properties: any = {
-            id: String(entity.id),
-            type: entity.type || "Unknown",
-            name: entity.name || String(entity.id),
-            isObject: entity.isObject,
-            isEntity: entity.isEntity,
-            visible: entity.visible,
-            xrayed: entity.xrayed,
-            highlighted: entity.highlighted,
-            selected: entity.selected,
-            colorize: entity.colorize,
-            opacity: entity.opacity,
-          };
-
-          if (entity.aabb) {
-            properties.boundingBox = {
-              min: entity.aabb.slice(0, 3),
-              max: entity.aabb.slice(3, 6)
-            };
-          }
-
-          setSelectedObject(properties);
-          setIsPropertiesCollapsed(false);
-          toast.success(`Selected: ${properties.name}`);
+        if (!metaObject) {
+          return;
         }
+        
+        console.log('===== CLICKED OBJECT =====');
+        console.log('ID:', entity.id);
+        console.log('Type:', metaObject.type);
+        console.log('Full metadata:', metaObject);
+        
+        // Extract ALL properties to find assembly identifiers
+        const allProperties: Record<string, any> = {};
+        if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
+          metaObject.propertySets.forEach((ps: any) => {
+            if (ps.properties && Array.isArray(ps.properties)) {
+              ps.properties.forEach((p: any) => {
+                allProperties[p.name] = p.value;
+              });
+            }
+          });
+        }
+        
+        console.log('ALL PROPERTIES:', allProperties);
+        console.log('Assembly Mark:', extractAssemblyMark(metaObject));
+        
+        // Collect all entity IDs for this assembly
+        const assemblyObjectIds = collectAssemblyEntities(metaObject, viewerInstance);
+        
+        console.log('===== ASSEMBLY SELECTION =====');
+        console.log('Total objects:', assemblyObjectIds.length);
+        console.log('Object IDs:', assemblyObjectIds);
+        
+        // Deselect all and select assembly objects
+        viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
+        viewerInstance.scene.setObjectsSelected(assemblyObjectIds, true);
+        
+        // Collect IFC properties from assembly
+        const properties: any = {
+          id: String(metaObject.id),
+          type: metaObject.type || "Unknown",
+          name: metaObject.name || String(metaObject.id),
+          assemblyObjectCount: assemblyObjectIds.length,
+          
+          // Viewer state properties
+          isObject: entity.isObject,
+          isEntity: entity.isEntity,
+          visible: entity.visible,
+          xrayed: entity.xrayed,
+          highlighted: entity.highlighted,
+          selected: entity.selected,
+          colorize: entity.colorize,
+          opacity: entity.opacity,
+        };
+
+        // Add IFC property sets from metadata
+        if (metaObject.propertySets && Array.isArray(metaObject.propertySets)) {
+          properties.propertySets = metaObject.propertySets.map((ps: any) => ({
+            name: ps.name || ps.type || 'Property Set',
+            type: ps.type,
+            properties: ps.properties || {}
+          }));
+        }
+
+        // Try to get properties from children metadata
+        if (!properties.propertySets || properties.propertySets.length === 0) {
+          const allMeta = viewerInstance.metaScene.metaObjects;
+          const relatedProps: any[] = [];
+          
+          Object.keys(allMeta).forEach((key: string) => {
+            const meta = allMeta[key] as any;
+            if (meta.type === 'IfcPropertySet' || meta.type === 'IfcElementQuantity') {
+              if (meta.properties) {
+                relatedProps.push({
+                  name: meta.name || meta.type,
+                  type: meta.type,
+                  properties: meta.properties
+                });
+              }
+            }
+          });
+          
+          if (relatedProps.length > 0) {
+            properties.propertySets = relatedProps;
+          }
+        }
+
+        // Add transform properties if available
+        if (entity.matrix) {
+          properties.position = entity.matrix.slice(12, 15);
+        }
+
+        // Add AABB (bounding box) if available
+        if (entity.aabb) {
+          properties.boundingBox = {
+            min: entity.aabb.slice(0, 3),
+            max: entity.aabb.slice(3, 6)
+          };
+        }
+
+        console.log('Extracted properties:', properties);
+
+        setSelectedObject(properties);
+        setIsPropertiesCollapsed(false);
+        toast.success(`Selected assembly: ${properties.name} (${assemblyObjectIds.length} objects)`);
       } else {
         // Deselect all if clicking on empty space
         viewerInstance.scene.setObjectsSelected(viewerInstance.scene.selectedObjectIds, false);
@@ -176,7 +259,7 @@ const IFCViewerPage = () => {
     setMeasurePlugin(distanceMeasurements);
     setViewer(viewerInstance);
     setIfcLoader(loaderInstance);
-  }, []);
+  }, [extractAssemblyMark, collectAssemblyEntities]);
 
   const handleUpload = () => fileInputRef.current?.click();
 
@@ -212,6 +295,13 @@ const IFCViewerPage = () => {
           toast.dismiss(loadingToast);
           toast.success(`Model loaded: ${file.name}`);
           setLoadedModel(model);
+          
+          // Build assembly cache for performance
+          if (viewer) {
+            setTimeout(() => {
+              buildAssemblyCache(viewer);
+            }, 500);
+          }
           
           // Fit view to model with slight delay
           setTimeout(() => {
