@@ -67,60 +67,58 @@ const IFCViewerPage = () => {
           return;
         }
         
-        // Function to get all related objects in the assembly
-        const getAssemblyObjects = (rootMeta: any): string[] => {
-          const objectIds: string[] = [];
-          const visited = new Set<string>();
+        // Helper function to extract Reference property from metadata
+        const extractReference = (meta: any): string | null => {
+          if (!meta) return null;
           
-          // Helper to recursively collect all children
-          const collectChildren = (meta: any) => {
-            if (!meta || visited.has(meta.id)) return;
-            visited.add(meta.id);
-            
-            // Add this object if it's renderable
-            if (viewerInstance.scene.objects[meta.id]) {
-              objectIds.push(meta.id);
-            }
-            
-            // Recursively collect children
-            if (meta.children && Array.isArray(meta.children)) {
-              meta.children.forEach((child: any) => {
-                const childMeta = typeof child === 'string' 
-                  ? viewerInstance.metaScene.metaObjects[child]
-                  : child;
-                if (childMeta) {
-                  collectChildren(childMeta);
+          // Check property sets for Reference
+          if (meta.propertySets && Array.isArray(meta.propertySets)) {
+            for (const ps of meta.propertySets) {
+              if (ps.properties && Array.isArray(ps.properties)) {
+                const refProp = ps.properties.find((p: any) => p.name === "Reference");
+                if (refProp && refProp.value) {
+                  return String(refProp.value);
                 }
-              });
-            }
-          };
-          
-          // Start from the parent if it exists, otherwise from current object
-          let startMeta = rootMeta;
-          if (rootMeta.parent) {
-            const parentMeta = typeof rootMeta.parent === 'string'
-              ? viewerInstance.metaScene.metaObjects[rootMeta.parent]
-              : rootMeta.parent;
-            if (parentMeta) {
-              startMeta = parentMeta;
+              }
             }
           }
           
-          collectChildren(startMeta);
-          
-          return objectIds;
+          return null;
         };
         
-        // Get all objects in the assembly
-        const assemblyObjectIds = getAssemblyObjects(metaObject);
+        // Get Reference value from clicked object
+        const clickedReference = extractReference(metaObject);
         
-        console.log('Assembly selection:', {
-          clicked: entity.id,
-          clickedType: metaObject.type,
-          parent: metaObject.parent,
-          assemblyCount: assemblyObjectIds.length,
-          objectIds: assemblyObjectIds
+        console.log('Clicked object:', {
+          id: entity.id,
+          type: metaObject.type,
+          reference: clickedReference
         });
+        
+        let assemblyObjectIds: string[] = [entity.id];
+        
+        // If we found a Reference value, find all objects with the same Reference
+        if (clickedReference) {
+          assemblyObjectIds = [];
+          const allMetaObjects = viewerInstance.metaScene.metaObjects;
+          
+          // Search through all objects for matching Reference
+          Object.keys(allMetaObjects).forEach((objId: string) => {
+            const meta = allMetaObjects[objId] as any;
+            const objReference = extractReference(meta);
+            
+            // If this object has the same Reference value and is renderable
+            if (objReference === clickedReference && viewerInstance.scene.objects[objId]) {
+              assemblyObjectIds.push(objId);
+            }
+          });
+          
+          console.log('Assembly selection by Reference:', {
+            reference: clickedReference,
+            foundObjects: assemblyObjectIds.length,
+            objectIds: assemblyObjectIds
+          });
+        }
         
         const assemblyParent = metaObject;
         
