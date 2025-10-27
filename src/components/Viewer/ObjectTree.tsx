@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronRight, ChevronDown, Box, Eye, EyeOff } from "lucide-react";
+import { ChevronRight, ChevronDown, Box, Eye, EyeOff, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ObjectTreeProps {
   model: any;
@@ -11,6 +12,7 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
   const [treeData, setTreeData] = useState<any[]>([]);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [visibleNodes, setVisibleNodes] = useState<Set<string>>(new Set());
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!model || !ifcLoader) {
@@ -19,22 +21,23 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
     }
 
     const buildTree = async () => {
+      setIsLoading(true);
+      
       try {
         // Get model ID
         const modelID = (model as any).modelID ?? 0;
         
         if (!ifcLoader) {
           setTreeData([]);
+          setIsLoading(false);
           return;
         }
         
-        // Count all objects and get their IFC types
-        let totalObjects = 0;
+        // Collect all objects with expressID
         const allObjects: Array<{ object: any; expressID: number }> = [];
         
         model.traverse((child) => {
           if (child !== model && child.userData?.expressID !== undefined) {
-            totalObjects++;
             allObjects.push({
               object: child,
               expressID: child.userData.expressID
@@ -42,49 +45,61 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
           }
         });
         
-        if (totalObjects === 0) {
+        if (allObjects.length === 0) {
           setTreeData([]);
+          setIsLoading(false);
           return;
         }
+
+        console.log(`Processing ${allObjects.length} objects...`);
         
-        // Group elements by IFC type
+        // Group elements by IFC type - process in batches to avoid hanging
         const elementsByType = new Map<string, any[]>();
+        const BATCH_SIZE = 100;
+        const MAX_OBJECTS = 1000; // Limit initial processing
         
-        for (let i = 0; i < allObjects.length; i++) {
-          const { object: obj, expressID } = allObjects[i];
+        const objectsToProcess = allObjects.slice(0, MAX_OBJECTS);
+        
+        for (let i = 0; i < objectsToProcess.length; i += BATCH_SIZE) {
+          const batch = objectsToProcess.slice(i, i + BATCH_SIZE);
           
-          try {
-            // Get IFC type from the loader
-            const ifcType = await ifcLoader.ifcManager.getIfcType(modelID, expressID);
-            const props = await ifcLoader.ifcManager.getItemProperties(modelID, expressID);
-            
-            const elementName = props?.Name?.value || `${ifcType} ${i + 1}`;
-            
-            // Add to grouped elements
-            if (!elementsByType.has(ifcType)) {
-              elementsByType.set(ifcType, []);
-            }
-            
-            elementsByType.get(ifcType)!.push({
-              id: obj.uuid,
-              name: elementName,
-              object: obj,
-              expressID: expressID,
-              level: 1
-            });
-          } catch (error) {
-            console.warn(`Error processing object ${i} (expressID: ${expressID}):`, error);
-          }
+          // Process batch
+          await Promise.all(
+            batch.map(async ({ object: obj, expressID }, idx) => {
+              try {
+                const ifcType = await ifcLoader.ifcManager.getIfcType(modelID, expressID);
+                const props = await ifcLoader.ifcManager.getItemProperties(modelID, expressID);
+                
+                const elementName = props?.Name?.value || `${ifcType} ${i + idx + 1}`;
+                
+                if (!elementsByType.has(ifcType)) {
+                  elementsByType.set(ifcType, []);
+                }
+                
+                elementsByType.get(ifcType)!.push({
+                  id: obj.uuid,
+                  name: elementName,
+                  object: obj,
+                  expressID: expressID,
+                  level: 1
+                });
+              } catch (error) {
+                console.warn(`Error processing object ${i + idx}:`, error);
+              }
+            })
+          );
+          
+          // Allow UI to remain responsive
+          await new Promise(resolve => setTimeout(resolve, 0));
         }
         
-        // Convert to tree structure with parent nodes
+        // Convert to tree structure
         const nodes: any[] = [];
         const visibleSet = new Set<string>();
         
         for (const [typeName, elements] of elementsByType.entries()) {
           const typeId = `type-${typeName}`;
           
-          // Mark all nodes as visible initially
           visibleSet.add(typeId);
           elements.forEach(el => visibleSet.add(el.id));
           
@@ -101,18 +116,20 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
         // Sort parent nodes alphabetically
         nodes.sort((a, b) => a.type.localeCompare(b.type));
         
+        console.log(`Tree built with ${nodes.length} types`);
+        
         setTreeData(nodes);
         setVisibleNodes(visibleSet);
+        setIsLoading(false);
+        
+        if (allObjects.length > MAX_OBJECTS) {
+          toast.info(`Showing first ${MAX_OBJECTS} of ${allObjects.length} objects for performance`);
+        }
       } catch (error) {
         console.error("Error building IFC tree:", error);
-        setTreeData([{
-          id: "error-node",
-          name: "Error loading model structure",
-          count: 0,
-          type: "Error",
-          level: 0,
-          children: []
-        }]);
+        toast.error("Failed to build object tree");
+        setTreeData([]);
+        setIsLoading(false);
       }
     };
 
@@ -224,7 +241,13 @@ export const ObjectTree = ({ model, ifcLoader }: ObjectTreeProps) => {
         <h3 className="text-[11px] font-semibold text-luxury-gold uppercase tracking-wider">Project Structure</h3>
       </div>
       <ScrollArea className="flex-1">
-        {treeData.length > 0 ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+            <Loader2 className="h-8 w-8 text-luxury-gold animate-spin mb-4" />
+            <p className="text-sm font-medium text-muted-foreground mb-1">Processing model...</p>
+            <p className="text-xs text-muted-foreground/60">This may take a moment</p>
+          </div>
+        ) : treeData.length > 0 ? (
           <div className="py-2">
             {treeData.map((node) => renderNode(node))}
           </div>

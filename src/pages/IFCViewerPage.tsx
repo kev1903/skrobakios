@@ -37,14 +37,21 @@ const IFCViewerPage = () => {
     const file = event.target.files?.[0];
     if (!file || !viewer || !ifcLoader) return;
 
-    if (loadedModel) loadedModel.destroy();
+    if (loadedModel) {
+      loadedModel.destroy();
+      setLoadedModel(null);
+    }
 
     const loadingToast = toast.loading("Loading IFC model...");
     const reader = new FileReader();
 
     reader.onload = (e) => {
       const arrayBuffer = e.target?.result as ArrayBuffer;
-      if (!arrayBuffer) return;
+      if (!arrayBuffer) {
+        toast.dismiss(loadingToast);
+        toast.error("Failed to read file");
+        return;
+      }
 
       try {
         const model = ifcLoader.load({
@@ -56,14 +63,35 @@ const IFCViewerPage = () => {
 
         model.on("loaded", () => {
           toast.dismiss(loadingToast);
-          toast.success(`Model loaded successfully`);
+          toast.success(`Model loaded: ${file.name}`);
           setLoadedModel(model);
-          setTimeout(() => viewer.cameraFlight.flyTo({ aabb: viewer.scene.aabb, duration: 1 }), 200);
+          
+          // Fit view to model with slight delay
+          setTimeout(() => {
+            if (viewer?.scene?.aabb) {
+              viewer.cameraFlight.flyTo({ 
+                aabb: viewer.scene.aabb, 
+                duration: 1 
+              });
+            }
+          }, 300);
         });
-      } catch (error) {
+
+        model.on("error", (error: any) => {
+          toast.dismiss(loadingToast);
+          toast.error(`Failed to load model: ${error.message || "Unknown error"}`);
+          console.error("Model loading error:", error);
+        });
+      } catch (error: any) {
         toast.dismiss(loadingToast);
-        toast.error("Failed to load model");
+        toast.error(`Failed to load model: ${error.message || "Unknown error"}`);
+        console.error("Model loading error:", error);
       }
+    };
+
+    reader.onerror = () => {
+      toast.dismiss(loadingToast);
+      toast.error("Failed to read file");
     };
 
     reader.readAsArrayBuffer(file);
