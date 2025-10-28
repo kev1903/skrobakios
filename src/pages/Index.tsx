@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Viewer, WebIFCLoaderPlugin, DistanceMeasurementsPlugin } from "@xeokit/xeokit-sdk";
 import { ViewerCanvas } from "@/components/Viewer/ViewerCanvas";
 import { ViewerToolbar } from "@/components/Viewer/ViewerToolbar";
@@ -7,6 +8,7 @@ import { PropertiesPanel } from "@/components/Viewer/PropertiesPanel";
 import { toast } from "sonner";
 
 const IFCViewerPage = () => {
+  const navigate = useNavigate();
   const [viewer, setViewer] = useState<Viewer | null>(null);
   const [activeMode, setActiveMode] = useState<"select" | "measure" | "pan">("select");
   const [loadedModel, setLoadedModel] = useState<any>(null);
@@ -429,7 +431,7 @@ const IFCViewerPage = () => {
       
       {/* Close Button */}
       <button
-        onClick={() => window.location.href = '/'}
+        onClick={() => navigate('/?page=projects')}
         className="absolute top-4 right-4 z-20 p-2 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300"
         title="Close BIM Viewer"
       >
