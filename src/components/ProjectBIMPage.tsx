@@ -365,6 +365,15 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
             <p className="text-xs text-muted-foreground">BIM Viewer</p>
           </div>
         </div>
+        <button
+          onClick={() => onNavigate("projects")}
+          className="p-2 hover:bg-accent/50 rounded-full transition-all duration-200"
+          title="Close BIM Viewer"
+        >
+          <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       <div className="absolute top-[73px] left-1/2 -translate-x-1/2 z-10 flex-shrink-0">
