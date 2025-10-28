@@ -86,6 +86,7 @@ import { AiChatSidebar } from "@/components/AiChatSidebar";
 import { ProjectScopePage } from "@/components/ProjectScopePage";
 import { TaskEditPage } from "@/pages/TaskEditPage";
 import { ProjectBIMPage } from "@/components/ProjectBIMPage";
+import { PublicReviewSubmissionPage } from "@/pages/PublicReviewSubmissionPage";
 
 
 interface ContentRendererProps {
@@ -114,8 +115,9 @@ export const ContentRenderer = ({
   };
     
   // CRITICAL: Prevent authenticated users from accessing public pages
-  const publicPages = ['auth', 'platform-signup'];
-  if (isAuthenticated && publicPages.includes(currentPage)) {
+  // Public pages that don't require authentication
+  const publicPages = ['auth', 'platform-signup', 'review-submission'];
+  if (isAuthenticated && publicPages.includes(currentPage) && currentPage !== 'review-submission') {
     console.log(`🚨 SECURITY: Authenticated user blocked from accessing public page: ${currentPage}`);
     onNavigate('profile');
     return <div className="flex items-center justify-center h-full">
@@ -124,6 +126,8 @@ export const ContentRenderer = ({
   }
     
   switch (currentPage) {
+    case "review-submission":
+      return <PublicReviewSubmissionPage />;
     case "auth":
       return <AuthPage onNavigate={onNavigate} />;
     case "platform-signup":
