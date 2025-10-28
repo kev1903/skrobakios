@@ -19,7 +19,7 @@ export interface Task {
   projectName?: string;
   taskName: string;
   task_number?: string;
-  taskType: 'Task' | 'Bug' | 'Feature' | 'Issue';
+  taskType: 'Task' | 'Bug' | 'Feature' | 'Issue' | 'Review';
   priority: 'High' | 'Medium' | 'Low';
   assignedTo: { name: string; avatar: string; userId?: string };
   startDate?: string; // Task start date

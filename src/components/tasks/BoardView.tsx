@@ -110,6 +110,8 @@ export function BoardView({ tasks, onTaskUpdate, onTaskClick }: BoardViewProps) 
         return 'bg-purple-100 text-purple-700 border-purple-200';
       case 'Issue':
         return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'Review':
+        return 'bg-blue-100 text-blue-700 border-blue-200';
       default:
         return 'bg-muted text-muted-foreground border-border';
     }

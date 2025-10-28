@@ -117,6 +117,9 @@ export const TaskEditForm = ({
             <SelectContent className="z-50 bg-white border border-gray-200 shadow-lg">
               <SelectItem value="Task">Task</SelectItem>
               <SelectItem value="Issue">Issue</SelectItem>
+              <SelectItem value="Bug">Bug</SelectItem>
+              <SelectItem value="Feature">Feature</SelectItem>
+              <SelectItem value="Review">Review</SelectItem>
             </SelectContent>
           </Select>
         </div>

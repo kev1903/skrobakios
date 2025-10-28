@@ -33,7 +33,7 @@ interface TaskListViewProps {
   onTaskSelectionChange?: (selectedIds: string[]) => void;
   isAddTaskDialogOpen?: boolean;
   onCloseAddTaskDialog?: () => void;
-  taskTypeFilter?: 'All' | 'Task' | 'Bug' | 'Feature';
+  taskTypeFilter?: 'All' | 'Task' | 'Bug' | 'Feature' | 'Review';
 }
 
 export const TaskListView = ({ 
@@ -134,6 +134,8 @@ export const TaskListView = ({
         return "bg-violet-50/80 text-violet-700 border border-violet-200/50 backdrop-blur-sm";
       case "task":
         return "bg-luxury-champagne/60 text-luxury-gold-dark border border-luxury-gold/30 backdrop-blur-sm";
+      case "review":
+        return "bg-blue-50/80 text-blue-700 border border-blue-200/50 backdrop-blur-sm";
       default:
         return "bg-slate-50/80 text-slate-700 border border-slate-200/50 backdrop-blur-sm";
     }

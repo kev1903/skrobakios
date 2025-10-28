@@ -116,6 +116,7 @@ export function EnhancedTaskEditForm({
                 <SelectItem value="Issue">Issue</SelectItem>
                 <SelectItem value="Bug">Bug</SelectItem>
                 <SelectItem value="Feature">Feature</SelectItem>
+                <SelectItem value="Review">Review</SelectItem>
               </SelectContent>
             </Select>
           </div>

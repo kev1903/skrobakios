@@ -33,7 +33,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
   const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
   const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false);
   const [fullCompanyData, setFullCompanyData] = useState<Company | null>(null);
-  const [taskTypeFilter, setTaskTypeFilter] = useState<'All' | 'Task' | 'Bug' | 'Feature'>('All');
+  const [taskTypeFilter, setTaskTypeFilter] = useState<'All' | 'Task' | 'Bug' | 'Feature' | 'Review'>('All');
   const { loadTasksForProject, tasks, deleteTask } = useTaskContext();
   const { currentCompany } = useCompany();
   const { getCompany } = useCompanies();
@@ -742,7 +742,7 @@ const ProjectTasksContent = ({ project, onNavigate }: ProjectTasksPageProps) => 
                 <div className="flex items-center gap-3 px-2">
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Filter by Type</span>
                   <div className="flex gap-2">
-                    {(['All', 'Task', 'Bug', 'Feature'] as const).map((type) => {
+                    {(['All', 'Task', 'Bug', 'Feature', 'Review'] as const).map((type) => {
                       const taskCount = type === 'All' 
                         ? tasks.filter(t => t.project_id === project.id).length
                         : tasks.filter(t => t.project_id === project.id && t.taskType === type).length;

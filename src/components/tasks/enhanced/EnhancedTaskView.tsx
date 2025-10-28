@@ -13,7 +13,7 @@ interface EnhancedTaskViewProps {
   onTaskSelectionChange?: (selectedIds: string[]) => void;
   isAddTaskDialogOpen?: boolean;
   onCloseAddTaskDialog?: () => void;
-  taskTypeFilter?: 'All' | 'Task' | 'Bug' | 'Feature';
+  taskTypeFilter?: 'All' | 'Task' | 'Bug' | 'Feature' | 'Review';
 }
 
 export function EnhancedTaskView({ 
