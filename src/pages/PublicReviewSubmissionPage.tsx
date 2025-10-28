@@ -40,10 +40,12 @@ export const PublicReviewSubmissionPage = () => {
           .from('projects')
           .select('name')
           .eq('id', projectId)
-          .single();
+          .maybeSingle();
         
         if (data && !error) {
           setProjectName(data.name);
+        } else if (error) {
+          console.error('Error loading project:', error);
         }
       }
     };
@@ -167,6 +169,7 @@ export const PublicReviewSubmissionPage = () => {
         description: "Your document review request has been submitted successfully."
       });
     } catch (error) {
+      console.error('Submission error:', error);
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
         error.errors.forEach(err => {
@@ -176,9 +179,10 @@ export const PublicReviewSubmissionPage = () => {
         });
         setErrors(fieldErrors);
       } else {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         toast({
           title: "Error",
-          description: "Failed to submit review request. Please try again.",
+          description: `Failed to submit review request: ${errorMessage}`,
           variant: "destructive"
         });
       }

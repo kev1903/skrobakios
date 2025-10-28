@@ -47,10 +47,12 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
           .from('projects')
           .select('name')
           .eq('id', projectId)
-          .single();
+          .maybeSingle();
         
         if (data && !error) {
           setProjectName(data.name);
+        } else if (error) {
+          console.error('Error loading project:', error);
         }
       }
     };
@@ -188,6 +190,7 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
       setAttachments([]);
       onClose();
     } catch (error) {
+      console.error('Submission error:', error);
       if (error instanceof z.ZodError) {
         const fieldErrors: Record<string, string> = {};
         error.errors.forEach(err => {
@@ -197,9 +200,10 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
         });
         setErrors(fieldErrors);
       } else {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         toast({
           title: "Error",
-          description: "Failed to submit review request. Please try again.",
+          description: `Failed to submit review request: ${errorMessage}`,
           variant: "destructive"
         });
       }
