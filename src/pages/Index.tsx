@@ -425,13 +425,27 @@ const IFCViewerPage = () => {
     reader.readAsArrayBuffer(file);
   };
 
+  const handleClose = () => {
+    // Check if we have a projectId in URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get('projectId');
+    
+    if (projectId) {
+      // Navigate back to the project dashboard for this specific project
+      window.location.href = `/?page=project-detail&projectId=${projectId}`;
+    } else {
+      // No project context, go back to projects list
+      window.location.href = '/?page=projects';
+    }
+  };
+
   return (
     <div className="fixed inset-0 top-[var(--header-height)] w-full flex flex-col overflow-hidden bg-background">
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       
       {/* Close Button */}
       <button
-        onClick={() => window.location.href = '/?page=projects'}
+        onClick={handleClose}
         className="absolute top-4 right-4 z-20 p-2 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300"
         title="Close BIM Viewer"
       >
