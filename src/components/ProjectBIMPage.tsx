@@ -350,33 +350,18 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
     <div className="fixed inset-0 top-[var(--header-height)] w-full flex flex-col overflow-hidden bg-background">
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       
-      {/* Header with Back Button */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border/30 bg-white/80 backdrop-blur-xl">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => onNavigate(`project-detail?projectId=${project?.id}`)}
-            className="p-2 hover:bg-accent/50 rounded-full transition-all duration-200"
-            title="Back to Projects"
-          >
-            <ArrowLeft className="h-5 w-5 text-muted-foreground" />
-          </button>
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">{project?.name || "Project"}</h2>
-            <p className="text-xs text-muted-foreground">BIM Viewer</p>
-          </div>
-        </div>
-        <button
-          onClick={() => onNavigate(`project-detail?projectId=${project?.id}`)}
-          className="p-2 hover:bg-accent/50 rounded-full transition-all duration-200"
-          title="Close BIM Viewer"
-        >
-          <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
+      {/* Close Button - Floating */}
+      <button
+        onClick={() => onNavigate(`project-detail?projectId=${project?.id}`)}
+        className="absolute top-4 right-4 z-20 p-2 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300"
+        title="Close BIM Viewer"
+      >
+        <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
 
-      <div className="absolute top-[73px] left-1/2 -translate-x-1/2 z-10 flex-shrink-0">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex-shrink-0">
         <ViewerToolbar
           onZoomIn={() => {}}
           onZoomOut={() => {}}
