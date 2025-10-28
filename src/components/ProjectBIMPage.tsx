@@ -354,7 +354,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
       <div className="flex items-center justify-between px-6 py-4 border-b border-border/30 bg-white/80 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => onNavigate("projects")}
+            onClick={() => onNavigate(`project-detail?projectId=${project?.id}`)}
             className="p-2 hover:bg-accent/50 rounded-full transition-all duration-200"
             title="Back to Projects"
           >
@@ -366,7 +366,7 @@ export const ProjectBIMPage = ({ project, onNavigate }: ProjectBIMPageProps) => 
           </div>
         </div>
         <button
-          onClick={() => onNavigate("projects")}
+          onClick={() => onNavigate(`project-detail?projectId=${project?.id}`)}
           className="p-2 hover:bg-accent/50 rounded-full transition-all duration-200"
           title="Close BIM Viewer"
         >
