@@ -427,6 +427,17 @@ const IFCViewerPage = () => {
     <div className="fixed inset-0 top-[var(--header-height)] w-full flex flex-col overflow-hidden bg-background">
       <input ref={fileInputRef} type="file" accept=".ifc" onChange={handleFileChange} className="hidden" />
       
+      {/* Close Button */}
+      <button
+        onClick={() => window.location.href = '/'}
+        className="absolute top-4 right-4 z-20 p-2 bg-white/80 backdrop-blur-xl border border-border/30 rounded-full shadow-[0_4px_16px_rgba(0,0,0,0.08)] hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:scale-110 transition-all duration-300"
+        title="Close BIM Viewer"
+      >
+        <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex-shrink-0">
         <ViewerToolbar
           onZoomIn={() => {}}
