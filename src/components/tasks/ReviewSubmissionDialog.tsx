@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Upload } from 'lucide-react';
@@ -18,23 +17,42 @@ interface ReviewSubmissionDialogProps {
 
 // Validation schema
 const submissionSchema = z.object({
-  title: z.string().trim().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
-  description: z.string().trim().min(1, "Description is required").max(2000, "Description must be less than 2000 characters"),
-  submitterName: z.string().trim().min(1, "Submitter name is required").max(100, "Name must be less than 100 characters"),
-  submitterEmail: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
-  priority: z.enum(['Low', 'Medium', 'High'])
+  projectName: z.string().trim().min(1, "Project name is required").max(200, "Project name must be less than 200 characters"),
+  documentTitle: z.string().trim().min(1, "Document title is required").max(200, "Document title must be less than 200 characters"),
+  author: z.string().trim().min(1, "Author name is required").max(100, "Author name must be less than 100 characters"),
+  reviewer: z.string().trim().max(100, "Reviewer name must be less than 100 characters").optional(),
+  description: z.string().trim().min(1, "Description is required").max(2000, "Description must be less than 2000 characters")
 });
 
 export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSubmissionDialogProps) => {
-  const [title, setTitle] = useState('');
+  const [projectName, setProjectName] = useState('');
+  const [documentTitle, setDocumentTitle] = useState('');
+  const [author, setAuthor] = useState('');
+  const [reviewer, setReviewer] = useState('');
   const [description, setDescription] = useState('');
-  const [submitterName, setSubmitterName] = useState('');
-  const [submitterEmail, setSubmitterEmail] = useState('');
-  const [priority, setPriority] = useState<'Low' | 'Medium' | 'High'>('Medium');
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+
+  // Load project name when dialog opens
+  useEffect(() => {
+    const loadProjectName = async () => {
+      if (isOpen && projectId) {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('name')
+          .eq('id', projectId)
+          .single();
+        
+        if (data && !error) {
+          setProjectName(data.name);
+        }
+      }
+    };
+    
+    loadProjectName();
+  }, [isOpen, projectId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -67,24 +85,32 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
       
       // Validate form data
       const validatedData = submissionSchema.parse({
-        title,
-        description,
-        submitterName,
-        submitterEmail,
-        priority
+        projectName,
+        documentTitle,
+        author,
+        reviewer: reviewer || undefined,
+        description
       });
 
       setIsSubmitting(true);
+
+      // Build detailed description with metadata
+      const detailedDescription = `${validatedData.description}
+
+**Document Details:**
+- Project: ${validatedData.projectName}
+- Document Title: ${validatedData.documentTitle}
+- Author: ${validatedData.author}${validatedData.reviewer ? `\n- Requested Reviewer: ${validatedData.reviewer}` : ''}`;
 
       // Create a review task
       const { data: taskData, error: taskError } = await supabase
         .from('tasks')
         .insert({
           project_id: projectId,
-          task_name: validatedData.title,
-          description: `${validatedData.description}\n\nSubmitted by: ${validatedData.submitterName} (${validatedData.submitterEmail})`,
+          task_name: `Review: ${validatedData.documentTitle}`,
+          description: detailedDescription,
           task_type: 'Review',
-          priority: validatedData.priority,
+          priority: 'Medium',
           status: 'Pending',
           progress: 0,
           assigned_to: null, // Will be assigned by project manager
@@ -122,22 +148,21 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
             file_size: file.size,
             file_type: file.type,
             file_url: publicUrl,
-            uploaded_by_name: validatedData.submitterName
+            uploaded_by_name: validatedData.author
           });
         }
       }
 
       toast({
         title: "Submission successful",
-        description: "Your review submission has been created and assigned for review."
+        description: "Your document review request has been submitted successfully."
       });
 
       // Reset form
-      setTitle('');
+      setDocumentTitle('');
+      setAuthor('');
+      setReviewer('');
       setDescription('');
-      setSubmitterName('');
-      setSubmitterEmail('');
-      setPriority('Medium');
       setAttachments([]);
       onClose();
     } catch (error) {
@@ -152,7 +177,7 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
       } else {
         toast({
           title: "Error",
-          description: "Failed to submit review. Please try again.",
+          description: "Failed to submit review request. Please try again.",
           variant: "destructive"
         });
       }
@@ -167,27 +192,81 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
         <DialogHeader>
           <DialogTitle>Submit Review Request</DialogTitle>
           <DialogDescription>
-            Submit a new item for review. All submissions will be assigned to the project team.
+            Submit a document for review. All submissions will be assigned to the project team.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Title */}
+          {/* Project Name - Auto-populated */}
           <div className="space-y-2">
-            <Label htmlFor="title">
-              Title <span className="text-destructive">*</span>
+            <Label htmlFor="projectName">
+              Project Name <span className="text-destructive">*</span>
             </Label>
             <Input
-              id="title"
-              placeholder="Brief title of what needs to be reviewed"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              id="projectName"
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
               maxLength={200}
-              className={errors.title ? 'border-destructive' : ''}
+              className={errors.projectName ? 'border-destructive' : ''}
             />
-            {errors.title && (
-              <p className="text-xs text-destructive">{errors.title}</p>
+            {errors.projectName && (
+              <p className="text-xs text-destructive">{errors.projectName}</p>
             )}
+          </div>
+
+          {/* Document Title */}
+          <div className="space-y-2">
+            <Label htmlFor="documentTitle">
+              Document Title <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="documentTitle"
+              placeholder="Enter the document title"
+              value={documentTitle}
+              onChange={(e) => setDocumentTitle(e.target.value)}
+              maxLength={200}
+              className={errors.documentTitle ? 'border-destructive' : ''}
+            />
+            {errors.documentTitle && (
+              <p className="text-xs text-destructive">{errors.documentTitle}</p>
+            )}
+          </div>
+
+          {/* Author and Reviewer */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="author">
+                Author <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="author"
+                placeholder="Document author name"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                maxLength={100}
+                className={errors.author ? 'border-destructive' : ''}
+              />
+              {errors.author && (
+                <p className="text-xs text-destructive">{errors.author}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="reviewer">
+                Requested Reviewer <span className="text-muted-foreground">(Optional)</span>
+              </Label>
+              <Input
+                id="reviewer"
+                placeholder="Preferred reviewer name"
+                value={reviewer}
+                onChange={(e) => setReviewer(e.target.value)}
+                maxLength={100}
+                className={errors.reviewer ? 'border-destructive' : ''}
+              />
+              {errors.reviewer && (
+                <p className="text-xs text-destructive">{errors.reviewer}</p>
+              )}
+            </div>
           </div>
 
           {/* Description */}
@@ -197,7 +276,7 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
             </Label>
             <Textarea
               id="description"
-              placeholder="Detailed description of what needs to be reviewed and any specific requirements"
+              placeholder="Provide details about what needs to be reviewed and any specific requirements"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
@@ -212,62 +291,12 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
             </p>
           </div>
 
-          {/* Submitter Information */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="submitterName">
-                Your Name <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="submitterName"
-                placeholder="John Doe"
-                value={submitterName}
-                onChange={(e) => setSubmitterName(e.target.value)}
-                maxLength={100}
-                className={errors.submitterName ? 'border-destructive' : ''}
-              />
-              {errors.submitterName && (
-                <p className="text-xs text-destructive">{errors.submitterName}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="submitterEmail">
-                Your Email <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="submitterEmail"
-                type="email"
-                placeholder="john@example.com"
-                value={submitterEmail}
-                onChange={(e) => setSubmitterEmail(e.target.value)}
-                maxLength={255}
-                className={errors.submitterEmail ? 'border-destructive' : ''}
-              />
-              {errors.submitterEmail && (
-                <p className="text-xs text-destructive">{errors.submitterEmail}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Priority */}
-          <div className="space-y-2">
-            <Label htmlFor="priority">Priority</Label>
-            <Select value={priority} onValueChange={(value: any) => setPriority(value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Low">Low</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="High">High</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* File Attachments */}
           <div className="space-y-2">
-            <Label htmlFor="attachments">Attachments (Optional)</Label>
+            <Label htmlFor="attachments">Attachments <span className="text-destructive">*</span></Label>
+            <p className="text-xs text-muted-foreground mb-2">
+              Upload documents that need to be reviewed
+            </p>
             <div className="flex items-center gap-2">
               <Input
                 id="attachments"
