@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { MyTasksPage } from "@/components/MyTasksPage";
 import { Mapbox3DEnvironment } from "@/components/Mapbox3DEnvironment";
+import { TaskProvider } from "@/components/tasks/TaskContext";
 
 import { BusinessMapPage } from "@/components/BusinessMapPage";
 import { ProjectDetail } from "@/components/ProjectDetail";
@@ -141,7 +142,11 @@ export const ContentRenderer = ({
     case "task-create":
       return <NewTaskPage />;
     case "task-edit":
-      return <TaskEditPage onNavigate={onNavigate} />;
+      return (
+        <TaskProvider>
+          <TaskEditPage onNavigate={onNavigate} />
+        </TaskProvider>
+      );
     case "milestones":
       return <MilestonePage onNavigate={onNavigate} />;
     case "time-management":
