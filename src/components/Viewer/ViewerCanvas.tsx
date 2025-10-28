@@ -94,7 +94,6 @@ export const ViewerCanvas = ({ onViewerReady }: ViewerCanvasProps) => {
       }
 
       setIsLoading(false);
-      toast.success("IFC Viewer Ready - Upload an IFC file to begin");
       console.log("Viewer initialization complete!");
     }).catch((error) => {
       console.error("Failed to initialize WebIFC:", error);
