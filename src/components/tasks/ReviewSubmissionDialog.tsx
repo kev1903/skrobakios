@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Upload } from 'lucide-react';
+import { Loader2, Upload, Copy, Check } from 'lucide-react';
 import { z } from 'zod';
 
 interface ReviewSubmissionDialogProps {
@@ -33,7 +33,11 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+
+  // Generate shareable link
+  const shareableLink = `${window.location.origin}/?page=review-submission&projectId=${projectId}`;
 
   // Load project name when dialog opens
   useEffect(() => {
@@ -53,6 +57,24 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
     
     loadProjectName();
   }, [isOpen, projectId]);
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(shareableLink);
+      setCopied(true);
+      toast({
+        title: "Link copied",
+        description: "Shareable link copied to clipboard"
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to copy link",
+        variant: "destructive"
+      });
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -195,6 +217,35 @@ export const ReviewSubmissionDialog = ({ isOpen, onClose, projectId }: ReviewSub
             Submit a document for review. All submissions will be assigned to the project team.
           </DialogDescription>
         </DialogHeader>
+
+        {/* Public Shareable Link Section */}
+        <div className="space-y-2 pt-4 pb-2 border-b border-border/30">
+          <Label htmlFor="shareableLink">Public Shareable Link</Label>
+          <p className="text-xs text-muted-foreground">
+            Share this link with external parties to submit documents for review
+          </p>
+          <div className="flex gap-2">
+            <Input
+              id="shareableLink"
+              value={shareableLink}
+              readOnly
+              className="font-mono text-xs bg-muted/30"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={copyToClipboard}
+              className="shrink-0"
+            >
+              {copied ? (
+                <Check className="h-4 w-4 text-emerald-500" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        </div>
 
         <div className="space-y-4 py-4">
           {/* Project Name - Auto-populated */}
