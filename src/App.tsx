@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // Import error handlers to filter deprecated errors globally
 import "@/utils/errorHandler";
 import "@/utils/toastFilters";
+import { UpdateNotification } from "@/components/UpdateNotification";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation, useSearchParams } from "react-router-dom";
 import Index from "./pages/Index";
@@ -387,6 +388,7 @@ const AppContent = () => {
     <AppContextProvider>
       <UserPermissionsProviderWrapper>
         <>
+          <UpdateNotification />
           {impersonationMode.isImpersonating && impersonationMode.targetUserInfo && (
             <ImpersonationBanner impersonatedUser={impersonationMode.targetUserInfo} />
           )}

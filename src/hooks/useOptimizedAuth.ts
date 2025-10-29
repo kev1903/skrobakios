@@ -1,10 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { APP_VERSION } from '@/utils/cacheManager';
 
 // Cache for user data to prevent redundant API calls
 const userDataCache = new Map();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Clear cache when app version changes
+const lastVersion = localStorage.getItem('auth_cache_version');
+if (lastVersion !== APP_VERSION) {
+  userDataCache.clear();
+  localStorage.setItem('auth_cache_version', APP_VERSION);
+  console.log('🔄 Cleared auth cache due to version change');
+}
 
 export const useOptimizedAuth = () => {
   const { user, loading: authLoading } = useAuth();
